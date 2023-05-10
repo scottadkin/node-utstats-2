@@ -684,7 +684,7 @@ class Players{
 
     async getNameIdPairs(){
 
-        const query = "SELECT id,name FROM nstats_player_totals WHERE gametype=0 ORDER BY name ASC";
+        const query = "SELECT id,name FROM nstats_player_totals WHERE gametype=0 AND map=0 ORDER BY name ASC";
 
         return await mysql.simpleQuery(query);
     }
@@ -2398,14 +2398,14 @@ class Players{
 
     async adminGetPlayersWithHWIDS(){
 
-        const query = `SELECT id,name,country,hwid,matches,last FROM nstats_player_totals WHERE gametype=0 AND hwid!="" ORDER BY name ASC`;
+        const query = `SELECT id,name,country,hwid,matches,last FROM nstats_player_totals WHERE gametype=0 AND map=0 AND hwid!="" ORDER BY name ASC`;
 
         return await mysql.simpleQuery(query);
     }
 
     async adminGetPlayersBasic(){
 
-        const query = `SELECT id,name,country,hwid,matches,last FROM nstats_player_totals WHERE gametype=0 ORDER BY name ASC`;
+        const query = `SELECT id,name,country,hwid,matches,last FROM nstats_player_totals WHERE gametype=0 AND map=0 ORDER BY name ASC`;
 
         return await mysql.simpleQuery(query);
     }
