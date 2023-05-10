@@ -262,7 +262,9 @@ class MatchManager{
             
 
             if(this.domManager !== undefined){
+
                 this.domManager.setLifeCaps(this.killManager);
+
                 await this.domManager.updatePlayersMatchStats();
                 await this.domManager.insertMatchPlayerScores(this.matchId);
                 await this.domManager.updatePlayerLifeCaps(this.matchId);
@@ -283,7 +285,6 @@ class MatchManager{
                 await this.monsterHuntManager.insertKills(this.matchId);
                 await this.monsterHuntManager.setMatchMonsterKills(this.matchId);
             }
-
 
             if(this.weaponsManager !== undefined){
 

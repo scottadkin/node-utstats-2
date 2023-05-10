@@ -340,7 +340,7 @@ class Maps{
 
                 if(similarImage !== null){
                     console.log(`Found similar image ${similarImage}`);
-                    exists[currentName] = similarImage
+                    exists[currentName] = similarImage;
                 }
 
             }
