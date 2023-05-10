@@ -1083,7 +1083,6 @@ class Players{
 
         WHERE ${(gametypeId === 0 && mapId === 0) ? "id" : "player_id" }=? AND gametype=? AND map=?`;
 
-
         const vars = [
             data.first,
             data.last,
@@ -1152,6 +1151,12 @@ class Players{
     async recalculatePlayerTotalsAfterMerge(playerId, playerName){
 
         const mapsData = await this.getGametypeTotals(playerId, false);
+
+        const allTotals = await this.getGametypeTotals(playerId, true);
+        allTotals[0].gametype = 0;
+        allTotals[0].map_id = 0;
+
+        mapsData.unshift(allTotals[0]);
 
         for(let i = 0; i < mapsData.length; i++){
 
