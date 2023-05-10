@@ -1,6 +1,7 @@
 const mysql = require('./api/database');
 const Message = require('./api/message');
 const config = require('./config.json');
+const Players = require("./api/players");
 
 
 async function columnExists(table, column){
@@ -239,6 +240,8 @@ async function updateSiteSettings(){
     }
 }
 
+
+
 (async () =>{
 
     try{
@@ -256,6 +259,9 @@ async function updateSiteSettings(){
         await createTeleFragTables();
         await updateSiteSettings();
         
+        const p = new Players();
+        new Message(`Recalculating player total records, this may take a while.`,"note");
+        await p.recalculateAllPlayerMapGametypeRecords();
 
         process.exit(0);
 
