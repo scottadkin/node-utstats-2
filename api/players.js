@@ -1080,8 +1080,8 @@ class Players{
         mh_kills_best=?,
         mh_deaths=?,
         mh_deaths_worst=?
-
         WHERE ${(gametypeId === 0 && mapId === 0) ? "id" : "player_id" }=? AND gametype=? AND map=?`;
+
 
         const vars = [
             data.first,
@@ -1145,14 +1145,16 @@ class Players{
             playerId, gametypeId, mapId
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        const result = await mysql.simpleQuery(query, vars);
+
+        return result;
     }
 
     async recalculatePlayerTotalsAfterMerge(playerId, playerName){
 
         const mapsData = await this.getGametypeTotals(playerId, false);
-
         const allTotals = await this.getGametypeTotals(playerId, true);
+
         allTotals[0].gametype = 0;
         allTotals[0].map_id = 0;
 
@@ -1185,15 +1187,35 @@ class Players{
 
             m.name = playerName.name;
 
+            //map gametype totals
             const updateResult = await this.updatePlayerTotal(playerId, m.gametype, m.map_id, m);
 
             if(updateResult.affectedRows === 0){
                 await this.createTotalsFromMerge(playerId, m.gametype, m.map_id, m);
             }
+
+            //skip duplicate update?
+            if(m.gametype === 0 && m.map_id === 0) continue;
+
+            //gametype totals
+            const updateGametypeResult = await this.updatePlayerTotal(playerId, m.gametype, 0, m);
+
+            if(updateGametypeResult.affectedRows === 0){
+                await this.createTotalsFromMerge(playerId, m.gametype, 0, m);
+            }
+
+            //map totals
+            const updateMapResult = await this.updatePlayerTotal(playerId, 0, m.map_id, m);
+
+            if(updateMapResult.affectedRows === 0){
+                await this.createTotalsFromMerge(playerId, 0, m.map_id, m);
+            }
         }
     }
 
     async createTotalsFromMerge(playerId, gametypeId, mapId, data){
+
+        console.log(`createTotalsFromMerge(${playerId}, ${gametypeId}, ${mapId})`);
 
         const query = `INSERT INTO nstats_player_totals VALUES(NULL,
         ?,?,?,?,?,

@@ -842,6 +842,8 @@ class Maps{
         try{
 
             const playtimeData = await this.getAllPlayerMatchesPlaytime(playerId);
+
+            console.log(playtimeData);
             
             const totals = {};
 

@@ -431,23 +431,15 @@ class Player{
     }
 
 
-    getPlayerGametypeWinStats(name){
+    async getPlayerGametypeWinStats(name){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT gametype,map,matches,wins,losses,draws,playtime,accuracy,last FROM nstats_player_totals WHERE gametype!=0 AND name=?";
 
-            const query = "SELECT gametype,matches,wins,losses,draws,playtime,accuracy,last FROM nstats_player_totals WHERE gametype!=0 AND name=?";
+        const result = await mysql.simpleQuery(query, [name]);
 
-            mysql.query(query, [name], (err, result) =>{
+        console.table(result);
 
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve(null);
-            });
-        });
+        return result;
     }
 
 
