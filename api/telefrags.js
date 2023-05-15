@@ -87,7 +87,7 @@ class Telefrags{
 
 
         if(!await this.bPlayerTotalExist(playerId, mapId, gametypeId)){
-            console.log(`CREATE NEW player total custom ${playerId}, ${mapId}, ${gametypeId}`);
+            //console.log(`CREATE NEW player total custom ${playerId}, ${mapId}, ${gametypeId}`);
             await this.createPlayerTotal(playerId, mapId, gametypeId);
         }
 
