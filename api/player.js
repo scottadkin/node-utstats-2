@@ -433,7 +433,7 @@ class Player{
 
     async getPlayerGametypeWinStats(name){
 
-        const query = "SELECT gametype,map,matches,wins,losses,draws,playtime,accuracy,last FROM nstats_player_totals WHERE gametype!=0 AND name=?";
+        const query = "SELECT gametype,map,matches,wins,losses,draws,playtime,accuracy,last FROM nstats_player_totals WHERE gametype!=0 AND map=0 AND name=?";
 
         const result = await mysql.simpleQuery(query, [name]);
 

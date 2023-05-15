@@ -1001,6 +1001,7 @@ class Players{
         SUM(dom_caps) as dom_caps,
         MAX(dom_caps) as dom_caps_best,
         MAX(dom_caps_best_life) as dom_caps_best_life,
+        AVG(accuracy) as accuracy,
         MIN(ping_min) as ping_min,
         AVG(ping_average) as ping_average,
         MAX(ping_max) as ping_max,
@@ -1025,7 +1026,6 @@ class Players{
         MAX(mh_kills_best_life) as mh_kills_best_life,
         SUM(mh_deaths) as mh_deaths,
         MAX(mh_deaths) as mh_deaths_worst,
-        SUM(accuracy) as accuracy,
         SUM(telefrag_kills) as telefrag_kills,
         SUM(telefrag_deaths) as telefrag_deaths,
         MAX(telefrag_best_spree) as telefrag_best_spree,
@@ -1317,7 +1317,7 @@ class Players{
             }
         }
         
-        for(const [gametypeId, gametypeData] of Object.entries(mapTotals)){
+        for(const [gametypeId, gametypeData] of Object.entries(gametypeTotals)){
 
             gametypeData.name = playerName.name;
 
