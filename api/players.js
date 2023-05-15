@@ -959,6 +959,7 @@ class Players{
             part2 = " GROUP BY gametype,map_id";
         }
 
+
         let query = `SELECT ${part1}
         COUNT(*) as total_matches,
         SUM(winner) as wins,
@@ -1066,7 +1067,7 @@ class Players{
 
             if(r.total_matches > 0 && r.wins > 0){          
 
-                winRate = (r.total_matches / r.wins) * 100;        
+                winRate = (r.wins / r.total_matches) * 100;        
             }
 
             r.winRate = winRate;
@@ -1271,6 +1272,7 @@ class Players{
         //const allTotals = await this.getGametypeTotals(playerId, true);
 
         const data = await this.getPlayerTotalsFromMatchData(playerId, "all");
+        const combinedData = await this.getPlayerTotalsFromMatchData(playerId, "combined");
 
 
         const mapTotals = {};
@@ -1287,7 +1289,6 @@ class Players{
 
         }
         
-
         //first do all the map + gametype totals
 
         for(let i = 0; i < data.length; i++){
@@ -1326,6 +1327,10 @@ class Players{
                 await this.createTotalsFromMerge(playerId, gametypeId, 0, gametypeData);
             }
         }
+
+        //update combined totals
+
+        await this.updatePlayerTotal(playerId, 0, 0, combinedData[0]);
 
     }
 
