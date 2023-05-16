@@ -71,7 +71,7 @@ export default async function handler(req, res){
             const matchManager = new Matches();
             const playerManager = new Players();
 
-            const data = await ctfManager.getAllMapRecords();
+            const data = await ctfManager.getAllMapRecords(gametype);
             const matchDates =  await matchManager.getDates(data.matchIds) ?? {};
 
             const grabCapPlayers = await ctfManager.getGrabAndCapPlayers(data.capIds);
@@ -83,6 +83,16 @@ export default async function handler(req, res){
                 uniquePlayers.add(info.grab);
                 uniquePlayers.add(info.cap);
             }
+
+            const assistPlayers = await ctfManager.getAssistedPlayers(data.capIds);
+
+            for(let i = 0; i < assistPlayers.uniquePlayers.length; i++){
+
+                const player = assistPlayers.uniquePlayers[i];
+                uniquePlayers.add(player);
+            }
+
+            console.log(assistPlayers);
 
             const names = await playerManager.getBasicInfo([...uniquePlayers]);
 
@@ -97,6 +107,16 @@ export default async function handler(req, res){
 
                     d.grabPlayer = getPlayer(names,grabCapPlayers[d.cap_id].grab, true); 
                     d.capPlayer = getPlayer(names,grabCapPlayers[d.cap_id].cap, true); 
+
+                    if(types[t] === "assistCaps"){
+
+                        const currentAssists = assistPlayers.assists[d.cap_id] ?? [];
+
+                        d.assistPlayers = currentAssists.map((assist) =>{
+                            return getPlayer(names, assist, true)
+                        });
+
+                    }
                 }
             }
             

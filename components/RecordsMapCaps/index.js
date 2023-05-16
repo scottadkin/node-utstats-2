@@ -81,8 +81,7 @@ const RecordsMapCaps = ({gametypeList, mapList, data}) =>{
 
 
 
-    return <div>
-        <div className="default-header">Map Cap Records</div>
+    return <>
         <Tabs options={[
                 {"value": 0, "name": "Solo Caps"},
                 {"value": 1, "name": "Assisted Caps"},
@@ -91,7 +90,7 @@ const RecordsMapCaps = ({gametypeList, mapList, data}) =>{
             selectedValue={currentTab}
         />
         <InteractiveTable width={1} headers={headers} data={tableData}/>
-    </div>
+    </>
 }
 
 

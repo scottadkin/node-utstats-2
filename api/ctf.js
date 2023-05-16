@@ -2087,11 +2087,14 @@ class CTF{
     }
 
 
-    async getAllMapRecords(){
+    //if gametypeId is undefined or 0 just get all time best time
+    async getAllMapRecords(gametypeId){
 
-        const query = `SELECT * FROM nstats_ctf_cap_records WHERE gametype_id=0`;
+        if(gametypeId === undefined) gametypeId = 0;
 
-        const result = await mysql.simpleQuery(query);
+        const query = `SELECT * FROM nstats_ctf_cap_records WHERE gametype_id=?`;
+
+        const result = await mysql.simpleQuery(query, [gametypeId]);
 
         const soloCaps = [];
         const assistCaps = [];
