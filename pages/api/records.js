@@ -3,6 +3,10 @@ import Functions from "../../api/functions";
 import Maps from "../../api/maps";
 import Records from "../../api/records";
 import Gametypes from "../../api/gametypes";
+import CTF from "../../api/ctf";
+import Matches from "../../api/matches";
+import {getPlayer} from "../../api/generic.mjs";
+
 
 export default async function handler(req, res){
 
@@ -52,8 +56,6 @@ export default async function handler(req, res){
             const gametypesManager = new Gametypes();
             const gametypeNames = await gametypesManager.getNames(data.gametypeIds);
 
-        
-
             data.data.map((d) =>{
                 d.mapName = (mapNames[d.map_id] !== undefined) ? mapNames[d.map_id] : "Not Found";
                 d.gametypeName = (gametypeNames[d.gametype] !== undefined) ? gametypeNames[d.gametype] : "Not Found";
@@ -62,6 +64,47 @@ export default async function handler(req, res){
             res.status(200).json({"data": data.data, "totalResults": totalResults});
             return;
         }
+
+        if(mode === "2"){
+
+            const ctfManager = new CTF();
+            const matchManager = new Matches();
+            const playerManager = new Players();
+
+            const data = await ctfManager.getAllMapRecords();
+            const matchDates =  await matchManager.getDates(data.matchIds) ?? {};
+
+            const grabCapPlayers = await ctfManager.getGrabAndCapPlayers(data.capIds);
+
+            const uniquePlayers = new Set();
+
+            for(const info of Object.values(grabCapPlayers)){
+
+                uniquePlayers.add(info.grab);
+                uniquePlayers.add(info.cap);
+            }
+
+            const names = await playerManager.getBasicInfo([...uniquePlayers]);
+
+            const types = ["soloCaps", "assistCaps"];
+
+            for(let t = 0; t < types.length; t++){
+
+                for(let i = 0; i < data[types[t]].length; i++){
+
+                    const d = data[types[t]][i];
+                    d.date = matchDates[d.match_id] ?? 0;
+
+                    d.grabPlayer = getPlayer(names,grabCapPlayers[d.cap_id].grab, true); 
+                    d.capPlayer = getPlayer(names,grabCapPlayers[d.cap_id].cap, true); 
+                }
+            }
+            
+            res.status(200).json({"data": data, "totalResults": 1});
+
+            return;
+        }
+
 
         /*if(req.body.mode === undefined){
 

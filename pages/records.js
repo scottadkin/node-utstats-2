@@ -23,10 +23,12 @@ import Records from "../api/records";
 import InteractiveTable from "../components/InteractiveTable";
 import Maps from "../api/maps";
 import { useRouter } from "next/router";
+import RecordsMapCaps from "../components/RecordsMapCaps";
 
 const mainTitles = {
     "0": "Player Total Records",
-    "1": "Player Match Records"
+    "1": "Player Match Records",
+    "2": "CTF Cap Records"
 }
 
 const playtimeTypes = ["playtime", "team_0_playtime", "team_1_playtime", "team_2_playtime", "team_3_playtime", "spec_playtime"];
@@ -170,23 +172,32 @@ const loadData = async (mainTab, selectedGametype, selectedMap, playerTotalTab, 
         let url = `/api/records/?mode=${mainTab}&gametype=${selectedGametype}&map=${selectedMap}`;
         url = `${url}&cat=${playerTotalTab}&page=${page}&perPage=${perPage}`;
 
-        //console.log(url);
+        try{
+
+            const req = await fetch(url, {
+                "signal": controller.signal,
+                "headers": {"Content-type": "application/json"},
+                "method": "GET"
+            });
 
 
-        const req = await fetch(url, {
-            "signal": controller.signal,
-            "headers": {"Content-type": "application/json"},
-            "method": "GET"
-        });
+            const res = await req.json();
 
-        const res = await req.json();
+            if(res.error !== undefined){
+                dispatch({"type": "error", "errorMessage": res.error});
+                return;
+            }
 
-        if(res.error !== undefined){
-            dispatch({"type": "error", "errorMessage": res.error});
-            return;
+            dispatch({"type": "loaded", "data": res.data, "totalResults": res.totalResults});
+
+        }catch(err){
+
+            if(err.name !== "AbortError"){
+                dispatch({"type": "error", "errorMessage": err.toString()});
+            }        
         }
 
-        dispatch({"type": "loaded", "data": res.data, "totalResults": res.totalResults});
+        
 
     }catch(err){
 
@@ -315,6 +326,7 @@ const renderPlayerData = (state, validTypes, gametypeList, mapList) =>{
 
     let i = 0;
 
+
     const data = state.data.map((d) =>{
 
         const place = ((state.page - 1) * state.perPage) + i + 1;
@@ -366,35 +378,77 @@ const renderPlayerData = (state, validTypes, gametypeList, mapList) =>{
     return <InteractiveTable width={1} headers={headers} data={data} perPage={100} bDisableSorting={true}/>;
 }
 
-const renderForm = (state, dispatch, validTypes, gametypesList, mapList, perPageOptions) =>{
+const renderGeneralRecordForm = (state, dispatch, validTypes, gametypesList, mapList, perPageOptions) =>{
 
+    //if(state.mainTab > 1) return null;
 
     let validOptions = [];
 
     if(state.mainTab === 0) validOptions = validTypes.playerTotals;
     if(state.mainTab === 1) validOptions = validTypes.playerMatches;
 
+    let firstElem = null;
+
+    if(state.mainTab < 2){
+
+        firstElem = <DropDown dName="Record Type" originalValue={state.playerTotalTab} data={validOptions}
+            changeSelected={(name, value) => { dispatch({"type": "changePlayerTotalTab", "tab": value})}}
+        />
+    }
+
+
+    let lastElem = null;
+
+    if(state.mainTab < 2){
+
+        lastElem = <DropDown dName="Results Per Page" originalValue={state.perPage} data={perPageOptions}
+            changeSelected={(name, value) => { dispatch({"type": "changePerPage", "perPage": value})}}
+        />
+    }
+
+    return <>
+        {firstElem}
+
+        <DropDown dName="Gametype" originalValue={state.selectedGametype} data={gametypesList}
+            changeSelected={(name, value) => { dispatch({"type": "changeGametype", "gametype": value})}}
+        />
+
+        <DropDown dName="Map" originalValue={state.selectedMap} data={mapList}
+            changeSelected={(name, value) => { dispatch({"type": "changeMap", "map": value})}}
+        />
+
+        {lastElem}
+    </>
+}
+
+
+const renderForm = (state, dispatch, validTypes, gametypesList, mapList, perPageOptions) =>{
+
+    
+
+    
+
     return <>
         <div className="default-sub-header">{mainTitles[state.mainTab]}</div>
         <div className="form m-bottom-25">
 
-            <DropDown dName="Record Type" originalValue={state.playerTotalTab} data={validOptions}
-                changeSelected={(name, value) => { dispatch({"type": "changePlayerTotalTab", "tab": value})}}
-            />
-
-            <DropDown dName="Gametype" originalValue={state.selectedGametype} data={gametypesList}
-                changeSelected={(name, value) => { dispatch({"type": "changeGametype", "gametype": value})}}
-            />
-
-            <DropDown dName="Map" originalValue={state.selectedMap} data={mapList}
-                changeSelected={(name, value) => { dispatch({"type": "changeMap", "map": value})}}
-            />
-
-            <DropDown dName="Results Per Page" originalValue={state.perPage} data={perPageOptions}
-                changeSelected={(name, value) => { dispatch({"type": "changePerPage", "perPage": value})}}
-            />
+            {renderGeneralRecordForm(state, dispatch, validTypes, gametypesList, mapList, perPageOptions)}
         </div>
      </>
+}
+
+const renderData = (state, validTypes, gametypesList, mapList) =>{
+
+    if(state.mainTab === 2){
+        return <RecordsMapCaps gametypeList={gametypesList} mapList={mapList} data={state.data}/>;
+    }
+
+    if(state.data == undefined || !Array.isArray(state.data)) return null;
+
+    return <>
+        {renderTotalData(state, validTypes)}
+        {renderPlayerData(state, validTypes, gametypesList, mapList)}
+    </>;
 }
 
 const RecordsPage = ({
@@ -422,15 +476,23 @@ const RecordsPage = ({
 
     useEffect(() =>{
 
+        
         const controller = new AbortController();
 
         loadData(state.mainTab, state.selectedGametype, state.selectedMap, state.playerTotalTab, state.page, state.perPage, dispatch, controller);
 
-        router.push(`/records/?mode=${state.mainTab}&gametype=${state.selectedGametype}&map=${state.selectedMap}&type=${state.playerTotalTab}&page=${state.page}`, undefined, { shallow: true })
+        router.push(
+            `/records/?mode=${state.mainTab}&gametype=${state.selectedGametype}&map=${state.selectedMap}&type=${state.playerTotalTab}&page=${state.page}`, 
+            undefined, 
+            { shallow: true }
+        );
 
         return () =>{
             controller.abort();
         }
+
+        
+
     }, [
         state.mainTab, 
         state.playerTotalTab, 
@@ -482,8 +544,7 @@ const RecordsPage = ({
                     {renderForm(state, dispatch, validTypes, gametypesList, mapList, perPageOptions)}
                     {renderError(state)}
                     {renderPagination(state, dispatch)}
-                    {renderTotalData(state, validTypes)}
-                    {renderPlayerData(state, validTypes, gametypesList, mapList)}
+                    {renderData(state, validTypes, gametypesList, mapList)}
                     {renderPagination(state, dispatch)}
                 </div>
             </div>
@@ -522,17 +583,10 @@ export async function getServerSideProps({req, query}){
     if(perPage !== perPage) perPage = 25;
     if(perPage <= 0 || perPage > 100) perPage = defaultPerPage;
 
-
     await Analytics.insertHit(session.userIp, req.headers.host, req.headers["user-agent"]);
-
-    
+ 
     const r = new Records();
-
-    //bValidTotalType
-    //bValidPlayerType
-
     const defaultType = "frags";
-
 
     if(mode === 0){
 
@@ -554,9 +608,6 @@ export async function getServerSideProps({req, query}){
     const mapManager = new Maps();
 
     const mapList = await mapManager.getAllDropDownOptions();
-
-   
-
 
     const metaTags = {
         "title": (mainTitles[mode] !== undefined) ? mainTitles[mode] : `Records`

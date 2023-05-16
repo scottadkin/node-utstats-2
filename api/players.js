@@ -431,33 +431,24 @@ class Players{
 
 
 
-    getJustNamesByIds(ids){
+    async getJustNamesByIds(ids){
 
-        return new Promise((resolve, reject) =>{
+        if(ids === undefined) resolve({});
+        if(ids.length === 0) resolve({});
 
-            if(ids === undefined) resolve({});
-            if(ids.length === 0) resolve({});
+        const query = "SELECT id,name FROM nstats_player_totals WHERE gametype=0 AND id IN(?)";
 
-            const query = "SELECT id,name FROM nstats_player_totals WHERE gametype=0 AND id IN(?)";
+        const result = await mysql.simpleQuery(query, [ids]);
 
-            mysql.query(query, [ids], (err, result) =>{
+        const data = {};
 
-                if(err) reject(err);
+        for(let i = 0; i < result.length; i++){
 
-                if(result !== undefined){
+            const r = result[i];
+            data[r.id] = r.name;
+        }
 
-                    const data = {};
-
-                    for(let i = 0; i < result.length; i++){
-                        data[result[i].id] = result[i].name;
-                    }
-
-                    resolve(data);
-                }
-
-                resolve({});
-            });
-        });
+        return data;
     }
 
     async deleteMatchData(id){

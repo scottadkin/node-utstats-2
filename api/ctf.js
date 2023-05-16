@@ -2089,7 +2089,7 @@ class CTF{
 
     async getAllMapRecords(){
 
-        const query = `SELECT * FROM nstats_ctf_cap_records`;
+        const query = `SELECT * FROM nstats_ctf_cap_records WHERE gametype_id=0`;
 
         const result = await mysql.simpleQuery(query);
 
@@ -2929,6 +2929,30 @@ class CTF{
 
         const query = `INSERT INTO nstats_ctf_self_covers (match_id, match_date, map_id, cap_id, timestamp, killer_id, killer_team, victim_id) VALUES ?`;
         return await mysql.bulkInsert(query, vars);
+    }
+
+
+    async getGrabAndCapPlayers(capIds){
+
+        if(capIds.length === 0) return {};
+
+        const query = `SELECT id,grab_player,cap_player FROM nstats_ctf_caps WHERE id IN(?)`;
+
+        const result = await mysql.simpleQuery(query, [capIds]);
+
+        const data = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            data[r.id] = {
+                "grab": r.grab_player,
+                "cap": r.cap_player
+            }
+        }
+
+        return data;
     }
 }
 
