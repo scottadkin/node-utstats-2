@@ -67,27 +67,36 @@ const loadData = async (data, dispatch, signal, start, end, yearIndex, monthInde
 
     dispatch({"type": "loadData"});
 
-    const req = await fetch("/api/home", {
-        "signal": signal,
-        "headers": {"Content-type": "application/json"},
-        "method": "POST",
-        "body": JSON.stringify({"mode": "match-player-count", "start": start, "end": end})
-    });
+    try{
 
-    const res = await req.json();
+        const req = await fetch("/api/home", {
+            "signal": signal,
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "match-player-count", "start": start, "end": end})
+        });
 
-    if(res.error !== undefined){
+        const res = await req.json();
 
-        return;
+        if(res.error !== undefined) return;
+        
+
+        dispatch({
+            "type": "set-data", 
+            "yearIndex": yearIndex, 
+            "monthIndex": monthIndex, 
+            "data": res.data,
+            "playerData": res.playerData
+        });
+
+    }catch(err){
+
+        if(err.name !== "AbortError"){
+            console.trace(err);
+        }
     }
 
-    dispatch({
-        "type": "set-data", 
-        "yearIndex": yearIndex, 
-        "monthIndex": monthIndex, 
-        "data": res.data,
-        "playerData": res.playerData
-    });
+
 }
 
 const getData = (state, type) =>{
