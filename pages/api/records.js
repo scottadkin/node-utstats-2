@@ -108,6 +108,8 @@ export default async function handler(req, res){
                     d.grabPlayer = getPlayer(names,grabCapPlayers[d.cap_id].grab, true); 
                     d.capPlayer = getPlayer(names,grabCapPlayers[d.cap_id].cap, true); 
 
+                    d.totalAssists = 0;
+
                     if(types[t] === "assistCaps"){
 
                         const currentAssists = assistPlayers.assists[d.cap_id] ?? [];
@@ -116,6 +118,7 @@ export default async function handler(req, res){
                             return getPlayer(names, assist, true)
                         });
 
+                        d.totalAssists = d.assistPlayers.length;
                     }
                 }
             }

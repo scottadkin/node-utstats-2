@@ -19,6 +19,7 @@ const RecordsMapCaps = ({gametypeList, mapList, data}) =>{
 
     if(currentTab === 1) headers.grab = "Grabbed By";
     if(currentTab === 1) headers.drop = "Time Dropped";
+    if(currentTab === 1) headers.assist = "Assisted By";
     
     headers.cap = "Capped By";
     headers.capTime = "Travel Time";
@@ -73,6 +74,23 @@ const RecordsMapCaps = ({gametypeList, mapList, data}) =>{
                 "className": "playtime"
             };
 
+            let assistElems = [];
+            //first player is always the grab player, don't display it to save space
+            for(let i = 1; i < cap.assistPlayers.length; i++){
+
+                const a = cap.assistPlayers[i];
+                assistElems.push(<Link key={`${cap.id}-${i}`} href={`/pmatch/${cap.match_id}/?player=${a.id}`}>
+                    <CountryFlag country={a.country}/>
+                    {a.name}{(cap.assistPlayers.length > 1 && i < cap.assistPlayers.length - 1) ? ", " : ""}
+                </Link>);
+
+            }
+
+            current.assist = {
+                "value": cap.assistPlayers.length,
+                "displayValue": assistElems,
+                "className": "small-font grey"
+            };
         }
 
         return current;
