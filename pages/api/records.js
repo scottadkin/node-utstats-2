@@ -70,16 +70,7 @@ export default async function handler(req, res){
             const matchManager = new Matches();
             const playerManager = new Players();
 
-            
-            let data = {};
-
-            if(map === 0){
-                data = await ctfManager.getAllMapRecords(gametype);
-            }else{
-                data = await ctfManager.getSingleMapCapRecords(gametype, map, page, perPage);
-            }
-
-            
+            const data = await ctfManager.getAllMapRecords(gametype);
             const matchDates =  await matchManager.getDates(data.matchIds) ?? {};
 
             const grabCapPlayers = await ctfManager.getGrabAndCapPlayers(data.capIds);
@@ -99,6 +90,7 @@ export default async function handler(req, res){
                 const player = assistPlayers.uniquePlayers[i];
                 uniquePlayers.add(player);
             }
+
 
             const names = await playerManager.getBasicInfo([...uniquePlayers]);
 

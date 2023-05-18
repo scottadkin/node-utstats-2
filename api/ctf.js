@@ -2131,14 +2131,37 @@ class CTF{
 
     async getSingleMapCapRecords(gametypeId, mapId, type, page, perPage){
 
-        const query = `SELECT * FROM nstats_ctf_caps WHERE gametype_id=? AND map_id=? ORDER BY travel_time ASC LIMIT ?, ?`;
+        const query = `SELECT * FROM nstats_ctf_caps 
+        WHERE ${(gametypeId === 0) ? "" : "gametype_id=? AND"} map_id=? 
+        AND total_assists${(type === 0) ? " = 0" : " > 0"}
+        ORDER BY travel_time ASC LIMIT ?, ?`;
+
+        page--;
+        if(page < 0) page = 0;     
 
         let start = perPage * page;
-
         if(start < 0) start = 0;
 
-        console.log("meow");
+        const vars = [mapId, start, perPage];
+        if(gametypeId !== 0) vars.unshift(gametypeId);
 
+        const result = await mysql.simpleQuery(query, vars);
+
+        const capIds = new Set();
+        const uniquePlayers = new Set();
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            capIds.add(r.id);
+
+            uniquePlayers.add(r.grab_player);
+            uniquePlayers.add(r.cap_player);
+        }
+
+        console.log(capIds);
+        console.log(uniquePlayers);
     }
 
     async getCaps(capIds){
