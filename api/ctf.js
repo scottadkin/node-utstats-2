@@ -2147,8 +2147,11 @@ class CTF{
 
         const result = await mysql.simpleQuery(query, vars);
 
+        console.log(result);
+
         const capIds = new Set();
         const uniquePlayers = new Set();
+        const matchIds = new Set();
 
         for(let i = 0; i < result.length; i++){
 
@@ -2158,10 +2161,38 @@ class CTF{
 
             uniquePlayers.add(r.grab_player);
             uniquePlayers.add(r.cap_player);
+            matchIds.add(r.match_id);
         }
 
-        console.log(capIds);
-        console.log(uniquePlayers);
+
+        const assistedPlayers = await this.getAssistedPlayers([...capIds]);
+
+        for(let i = 0; i < assistedPlayers.uniquePlayers.length; i++){
+
+            const p = assistedPlayers[i];
+            uniquePlayers.add(p);
+        }
+
+        if(type === 1){
+
+            for(let i = 0; i < result.length; i++){
+
+                const r = result[i];
+
+                r.assistPlayers = assistedPlayers.assists[r.id] ?? [];       
+            }
+        }
+        console.log(assistedPlayers.assists);
+        //getAssistedPlayers
+
+        //add assisted players to
+
+        return {
+            "caps": result, 
+            "uniquePlayers": [...uniquePlayers], 
+            "capIds": [...capIds], 
+            "matchIds": [...matchIds]
+        };
     }
 
     async getCaps(capIds){

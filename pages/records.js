@@ -169,6 +169,11 @@ const loadData = async (mainTab, selectedGametype, selectedMap, playerTotalTab, 
 
         dispatch({"type": "loadData"});
 
+        //lazy way to get map records
+        if(mainTab === 2 && selectedMap > 0){
+            mainTab = 3;
+        }
+
         let url = `/api/records/?mode=${mainTab}&gametype=${selectedGametype}&map=${selectedMap}`;
         url = `${url}&cat=${playerTotalTab}&page=${page}&perPage=${perPage}`;
 
