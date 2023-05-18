@@ -405,6 +405,7 @@ class MatchManager{
                 this.CTFManager.killManager = this.killManager;
                 this.CTFManager.matchDate = this.serverInfo.date;
                 this.CTFManager.mapId = this.mapInfo.mapId;
+                this.CTFManager.gametypeId = this.gametype.currentMatchGametype;
                 this.CTFManager.createFlags();
 
                 await this.CTFManager.parseData(matchTimings.start, matchTimings.end);

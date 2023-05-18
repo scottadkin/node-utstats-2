@@ -43,6 +43,7 @@ class CTFManager{
                 this.ctf, 
                 this.playerManager, 
                 this.killManager, 
+                this.gametypeId,
                 this.matchId, 
                 this.matchDate, 
                 this.mapId, 

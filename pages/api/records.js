@@ -1,5 +1,4 @@
 import Players from "../../api/players";
-import Functions from "../../api/functions";
 import Maps from "../../api/maps";
 import Records from "../../api/records";
 import Gametypes from "../../api/gametypes";
@@ -71,7 +70,16 @@ export default async function handler(req, res){
             const matchManager = new Matches();
             const playerManager = new Players();
 
-            const data = await ctfManager.getAllMapRecords(gametype);
+            
+            let data = {};
+
+            if(map === 0){
+                data = await ctfManager.getAllMapRecords(gametype);
+            }else{
+                data = await ctfManager.getSingleMapCapRecords(gametype, map, page, perPage);
+            }
+
+            
             const matchDates =  await matchManager.getDates(data.matchIds) ?? {};
 
             const grabCapPlayers = await ctfManager.getGrabAndCapPlayers(data.capIds);
@@ -91,8 +99,6 @@ export default async function handler(req, res){
                 const player = assistPlayers.uniquePlayers[i];
                 uniquePlayers.add(player);
             }
-
-            console.log(assistPlayers);
 
             const names = await playerManager.getBasicInfo([...uniquePlayers]);
 

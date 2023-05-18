@@ -191,7 +191,7 @@ class CTF{
         return timeDropped;
     }
 
-    async insertCap(matchId, matchDate, mapId, capTeam, flagTeam, grabTime, grabPlayer, capTime, 
+    async insertCap(matchId, matchDate, gametypeId, mapId, capTeam, flagTeam, grabTime, grabPlayer, capTime, 
         capPlayer, travelTime, carryTime, dropTime, totalDrops, totalPickups, totalCovers, totalSeals, 
         totalAssists, totalSelfCovers, totalDeaths, totalSuicides, redTeamKills, blueTeamKills, greenTeamKills,
         yellowTeamKills, redSuicides, blueSuicides, greenSuicides, yellowSuicides){
@@ -212,12 +212,13 @@ class CTF{
         }
 
 
-        const query = `INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,
+        const query = `INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,
             ?,?,?,?,?,?,?,?,?,?,?,
             ?,?,?,?,?,?,?,?)`;
 
         const vars = [
             matchId,
+            gametypeId,
             matchDate, 
             mapId,
             capTeam, 
@@ -2127,6 +2128,18 @@ class CTF{
         }
     }
 
+
+    async getSingleMapCapRecords(gametypeId, mapId, type, page, perPage){
+
+        const query = `SELECT * FROM nstats_ctf_caps WHERE gametype_id=? AND map_id=? ORDER BY travel_time ASC LIMIT ?, ?`;
+
+        let start = perPage * page;
+
+        if(start < 0) start = 0;
+
+        console.log("meow");
+
+    }
 
     async getCaps(capIds){
 

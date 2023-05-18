@@ -258,6 +258,10 @@ async function updateSiteSettings(){
         await addTeleFrags();
         await createTeleFragTables();
         await updateSiteSettings();
+
+        if(!await columnExists("nstats_ctf_caps", "gametype_id")){
+            await alterTable("nstats_ctf_caps", "gametype_id", "INT NOT NULL", "AFTER match_id");
+        }
         
         const p = new Players();
         new Message(`Recalculating player total records, this may take a while.`,"note");

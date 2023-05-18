@@ -2,7 +2,7 @@ const Message =  require("../message");
 
 class CTFFlag{
 
-    constructor(ctfManager, playerManager, killManager, matchId, matchDate, mapId, team, totalTeams){
+    constructor(ctfManager, playerManager, killManager, gametypeId, matchId, matchDate, mapId, team, totalTeams){
 
         this.ctfManager = ctfManager;
         this.playerManager = playerManager;
@@ -10,6 +10,7 @@ class CTFFlag{
         this.matchId = matchId;
         this.matchDate = matchDate;
         this.mapId = mapId;
+        this.gametypeId = gametypeId;
 
         this.flagStand = null;
         
@@ -500,6 +501,7 @@ class CTFFlag{
             capId = await this.ctfManager.insertCap(
                 this.matchId, 
                 this.matchDate, 
+                this.gametypeId,
                 this.mapId,
                 capTeam, 
                 this.team, 
