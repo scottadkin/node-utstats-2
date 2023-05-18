@@ -1,115 +1,49 @@
-import {useState, useEffect} from "react";
-import InteractiveTable from "../InteractiveTable";
-import Tabs from "../Tabs";
-import {getNameFromDropDownList, toPlaytime, convertTimestamp} from "../../api/generic.mjs";
-import Link from "next/link";
-import CountryFlag from "../CountryFlag";
+import { getPlayer, getOrdinal} from "../../api/generic.mjs";
+import { useState } from "react";
+import Tabs from "../Tabs/";
+import InteractiveTable from "../InteractiveTable/index.js";
 
-const RecordsMapCaps = ({gametypeList, mapList, data}) =>{
 
-    const [currentTab, setCurrentTab] = useState(0);
+const RecordsMapCaps = ({data, page, perPage, selectedTab, changeTab}) =>{
 
-    if(data == undefined) return null;
-    if(data.soloCaps === undefined) return null;
+    if(data === null) return null;
+    if(data.caps === undefined) return null;
+
+    console.log(data);
 
     const headers = {
-        "map": "Map",
-        "date": "Date",
+        "place": "Place"
     };
 
-    if(currentTab === 1) headers.grab = "Grabbed By";
-    if(currentTab === 1) headers.drop = "Time Dropped";
-    if(currentTab === 1) headers.assist = "Assisted By";
-    
-    headers.cap = "Capped By";
-    headers.capTime = "Travel Time";
+    let place = 0;
 
-    const targetData = (currentTab === 0) ? data.soloCaps : data.assistCaps;
+    const tableData = data.caps.map((cap) =>{
 
-    const tableData = targetData.map((cap) =>{
+        place++;
+        console.log(cap);
 
-        const mapName =  getNameFromDropDownList(mapList, cap.map_id);
-
-        const current = {
-            "map": {
-                "value": mapName.toLowerCase(), 
-                "displayValue": mapName,
-                "className": "text-left"
-            },
-            "date": {
-                "value": cap.date,
-                "displayValue": convertTimestamp(cap.date, true),
-                "className": "playtime"
-            },
-            "capTime": {
-                "value": cap.travel_time, 
-                "displayValue": toPlaytime(cap.travel_time, true),
-                "className": "playtime"
+        return {
+            "place": {
+                "value": place,
+                "displayValue": `${place}${getOrdinal(place)}`
             }
         };
-
-
-        
-        current.cap = {
-            "value": cap.capPlayer.name.toLowerCase(),
-            "displayValue": <Link href={`/pmatch/${cap.match_id}/?player=${cap.capPlayer.id}`}>
-                <CountryFlag country={cap.capPlayer.country}/>{cap.capPlayer.name}
-            </Link>
-        };
-        
-
-        if(currentTab === 1){
-
-
-            current.grab = {
-                "value": cap.grabPlayer.name.toLowerCase(),
-                "displayValue": <Link href={`/pmatch/${cap.match_id}/?player=${cap.grabPlayer.id}`}>
-                    <CountryFlag country={cap.grabPlayer.country}/>{cap.grabPlayer.name}
-                </Link>
-            };
-
-            current.drop = {
-                "value": cap.drop_time,
-                "displayValue": toPlaytime(cap.drop_time, true),
-                "className": "playtime"
-            };
-
-            let assistElems = [];
-            //first player is always the grab player, don't display it to save space
-            for(let i = 1; i < cap.assistPlayers.length; i++){
-
-                const a = cap.assistPlayers[i];
-                assistElems.push(<Link key={`${cap.id}-${i}`} href={`/pmatch/${cap.match_id}/?player=${a.id}`}>
-                    <CountryFlag country={a.country}/>
-                    {a.name}{(cap.assistPlayers.length > 1 && i < cap.assistPlayers.length - 1) ? ", " : ""}
-                </Link>);
-
-            }
-
-            current.assist = {
-                "value": cap.assistPlayers.length,
-                "displayValue": assistElems,
-                "className": "small-font grey"
-            };
-        }
-
-        return current;
     });
 
 
 
+ 
 
     return <>
         <Tabs options={[
                 {"value": 0, "name": "Solo Caps"},
                 {"value": 1, "name": "Assisted Caps"},
             ]}
-            changeSelected={setCurrentTab}
-            selectedValue={currentTab}
+            changeSelected={changeTab}
+            selectedValue={selectedTab}
         />
-        <InteractiveTable width={1} headers={headers} data={tableData}/>
+        <InteractiveTable bDisableSorting={true} width={1} headers={headers} data={tableData}/>
     </>
 }
 
-
-export default RecordsMapCaps;
+export default RecordsMapCaps

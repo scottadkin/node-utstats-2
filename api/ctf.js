@@ -2136,6 +2136,10 @@ class CTF{
         AND total_assists${(type === 0) ? " = 0" : " > 0"}
         ORDER BY travel_time ASC LIMIT ?, ?`;
 
+        const totalsQuery = `SELECT COUNT(*) as unique_caps FROM nstats_ctf_caps 
+        WHERE ${(gametypeId === 0) ? "" : "gametype_id=? AND"} map_id=? 
+        AND total_assists${(type === 0) ? " = 0" : " > 0"}`;
+
         page--;
         if(page < 0) page = 0;     
 
@@ -2169,7 +2173,7 @@ class CTF{
 
         for(let i = 0; i < assistedPlayers.uniquePlayers.length; i++){
 
-            const p = assistedPlayers[i];
+            const p = assistedPlayers.uniquePlayers[i];
             uniquePlayers.add(p);
         }
 
@@ -2178,20 +2182,19 @@ class CTF{
             for(let i = 0; i < result.length; i++){
 
                 const r = result[i];
-
                 r.assistPlayers = assistedPlayers.assists[r.id] ?? [];       
             }
         }
-        console.log(assistedPlayers.assists);
-        //getAssistedPlayers
 
-        //add assisted players to
+        const totalResults = await mysql.simpleQuery(totalsQuery, vars);
 
+   
         return {
             "caps": result, 
             "uniquePlayers": [...uniquePlayers], 
             "capIds": [...capIds], 
-            "matchIds": [...matchIds]
+            "matchIds": [...matchIds],
+            "totalResults": totalResults[0].unique_caps
         };
     }
 

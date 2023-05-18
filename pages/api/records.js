@@ -126,17 +126,16 @@ export default async function handler(req, res){
             return;
         }
 
-        console.log(mode);
-
         if(mode === "3"){
 
             const ctfManager = new CTF();
             //0 solo caps 1 assist players
             const data = await ctfManager.getSingleMapCapRecords(gametype, map, 1, page, perPage);
 
-            console.log(data);
+            const playerManager = new Players();
+            data.playerNames = await playerManager.getBasicInfo(data.uniquePlayers);
 
-            res.status(200).json({"data": data, "totalResults": 99999});
+            res.status(200).json({"data": data, "totalResults": data.totalResults});
             return;
         }
 

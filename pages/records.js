@@ -23,6 +23,7 @@ import Records from "../api/records";
 import InteractiveTable from "../components/InteractiveTable";
 import Maps from "../api/maps";
 import { useRouter } from "next/router";
+import RecordsMapsCaps from "../components/RecordsMapsCaps";
 import RecordsMapCaps from "../components/RecordsMapCaps";
 
 const mainTitles = {
@@ -116,6 +117,13 @@ const reducer = (state, action) =>{
                 "page": 1
             }
         }
+        case "changeCapTab": {
+
+            return {
+                ...state,
+                "ctfCapTab": action.tab
+            }
+        }
         case "changePlayerTotalTab": {
 
             return {
@@ -188,8 +196,16 @@ const loadData = async (mainTab, selectedGametype, selectedMap, playerTotalTab, 
 
             const res = await req.json();
 
+            console.log(res);
+
             if(res.error !== undefined){
                 dispatch({"type": "error", "errorMessage": res.error});
+                return;
+            }
+
+
+            if(mainTab === 2 && selectedMap > 0){
+                dispatch({"type": "loaded", "data": res, "totalResults": res.totalResults});
                 return;
             }
 
@@ -442,10 +458,27 @@ const renderForm = (state, dispatch, validTypes, gametypesList, mapList, perPage
      </>
 }
 
-const renderData = (state, validTypes, gametypesList, mapList) =>{
+const renderData = (state, dispatch, validTypes, gametypesList, mapList) =>{
 
-    if(state.mainTab === 2){
-        return <RecordsMapCaps gametypeList={gametypesList} mapList={mapList} data={state.data}/>;
+    if(state.mainTab === 2 && state.selectedMap === 0){
+
+        return <RecordsMapsCaps 
+            selectedTab={state.ctfCapTab} 
+            changeTab={(newTab) => { dispatch({"type": "changeCapTab", "tab": newTab})}}
+            gametypeList={gametypesList} 
+            mapList={mapList} 
+            data={state.data}
+        />;
+    
+    }else if(state.mainTab === 2 && state.selectedMap !== 0){
+
+        return <RecordsMapCaps 
+            changeTab={(newTab) => { dispatch({"type": "changeCapTab", "tab": newTab})}}
+            selectedTab={state.ctfCapTab} 
+            data={state.data} 
+            page={state.page}
+            perPage={state.perPage}
+        />;
     }
 
     if(state.data == undefined || !Array.isArray(state.data)) return null;
@@ -467,6 +500,7 @@ const RecordsPage = ({
         "bLoading": true,
         "mainTab": mode,
         "playerTotalTab": type,
+        "ctfCapTab": 0,
         "perPage": perPage,
         "page": page,
         "error": null,
@@ -549,7 +583,7 @@ const RecordsPage = ({
                     {renderForm(state, dispatch, validTypes, gametypesList, mapList, perPageOptions)}
                     {renderError(state)}
                     {renderPagination(state, dispatch)}
-                    {renderData(state, validTypes, gametypesList, mapList)}
+                    {renderData(state, dispatch, validTypes, gametypesList, mapList)}
                     {renderPagination(state, dispatch)}
                 </div>
             </div>
