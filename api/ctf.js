@@ -2129,16 +2129,27 @@ class CTF{
     }
 
 
+    async getMapFastestCapTime(gametypeId, mapId, type){
+
+        const query = `SELECT travel_time FROM nstats_ctf_cap_records WHERE gametype_id=? AND map_id=? AND cap_type=?`;
+
+        const result = await mysql.simpleQuery(query, [gametypeId, mapId, type]);
+
+        if(result.length === 0) return 0;
+
+        return result[0].travel_time;
+    }
+
     async getSingleMapCapRecords(gametypeId, mapId, type, page, perPage){
 
         const query = `SELECT * FROM nstats_ctf_caps 
         WHERE ${(gametypeId === 0) ? "" : "gametype_id=? AND"} map_id=? 
-        AND total_assists${(type === 0) ? " = 0" : " > 0"}
+        AND total_assists${(type === "solo") ? " = 0" : " > 0"}
         ORDER BY travel_time ASC LIMIT ?, ?`;
 
         const totalsQuery = `SELECT COUNT(*) as unique_caps FROM nstats_ctf_caps 
         WHERE ${(gametypeId === 0) ? "" : "gametype_id=? AND"} map_id=? 
-        AND total_assists${(type === 0) ? " = 0" : " > 0"}`;
+        AND total_assists${(type === "solo") ? " = 0" : " > 0"}`;
 
         page--;
         if(page < 0) page = 0;     
@@ -2150,8 +2161,6 @@ class CTF{
         if(gametypeId !== 0) vars.unshift(gametypeId);
 
         const result = await mysql.simpleQuery(query, vars);
-
-        console.log(result);
 
         const capIds = new Set();
         const uniquePlayers = new Set();
@@ -2168,7 +2177,6 @@ class CTF{
             matchIds.add(r.match_id);
         }
 
-
         const assistedPlayers = await this.getAssistedPlayers([...capIds]);
 
         for(let i = 0; i < assistedPlayers.uniquePlayers.length; i++){
@@ -2177,24 +2185,25 @@ class CTF{
             uniquePlayers.add(p);
         }
 
-        if(type === 1){
+        if(type === "assist"){
 
             for(let i = 0; i < result.length; i++){
 
                 const r = result[i];
-                r.assistPlayers = assistedPlayers.assists[r.id] ?? [];       
+                r.assistPlayers = [...new Set(assistedPlayers.assists[r.id])] ?? [];       
             }
         }
 
         const totalResults = await mysql.simpleQuery(totalsQuery, vars);
+        const overalMapRecord = await this.getMapFastestCapTime(gametypeId, mapId, (type === "solo") ? 0 : 1);
 
-   
         return {
             "caps": result, 
             "uniquePlayers": [...uniquePlayers], 
             "capIds": [...capIds], 
             "matchIds": [...matchIds],
-            "totalResults": totalResults[0].unique_caps
+            "totalResults": totalResults[0].unique_caps,
+            "mapRecordTime": overalMapRecord
         };
     }
 

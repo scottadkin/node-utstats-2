@@ -36,6 +36,8 @@ export default async function handler(req, res){
 
         let playerId = (query.playerId !== undefined) ? parseInt(query.playerId) : 0;
         if(playerId !== playerId) playerId = 0;
+
+        console.log(cat, gametype, map, page, perPage);
         
 
         if(mode === "0"){
@@ -127,10 +129,10 @@ export default async function handler(req, res){
         }
 
         if(mode === "3"){
-
+            
             const ctfManager = new CTF();
             //0 solo caps 1 assist players
-            const data = await ctfManager.getSingleMapCapRecords(gametype, map, 1, page, perPage);
+            const data = await ctfManager.getSingleMapCapRecords(gametype, map, cat, page, perPage);
 
             const playerManager = new Players();
             data.playerNames = await playerManager.getBasicInfo(data.uniquePlayers);

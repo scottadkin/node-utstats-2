@@ -195,10 +195,10 @@ class Records{
 
         perPage = parseInt(perPage);
 
-        if(perPage !== perPage) return this.totalPerPageOptions[3];
+        if(perPage !== perPage) return this.totalPerPageOptions[3].value;
 
-        if(perPage < 5) return this.totalPerPageOptions[0];
-        if(perPage > 100) return this.totalPerPageOptions[5];
+        if(perPage < 5) return this.totalPerPageOptions[0].value;
+        if(perPage > 100) return this.totalPerPageOptions[5].value;
 
         return perPage;
     }
@@ -213,6 +213,7 @@ class Records{
     }
 
     async getPlayerTotalAllGametypes(map, type, start, perPage){
+
 
         const idBit = (map === 0) ? "id as player_id,country" : "player_id";
 
@@ -303,12 +304,13 @@ class Records{
         let result = [];
 
         //need to get total maps played for gametmemgmemgemge
+
         
         if(gametype === 0){
             result = await this.getPlayerTotalAllGametypes(map, type, start, perPage);
             
         }else{
-           result =  await this.getPlayerTotalSingleGametypes(gametype, map, type, start, perPage);
+           result = await this.getPlayerTotalSingleGametypes(gametype, map, type, start, perPage);
         }
 
         return {

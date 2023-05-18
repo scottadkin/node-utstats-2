@@ -14,14 +14,14 @@ const RecordsMapsCaps = ({gametypeList, mapList, data, selectedTab, changeTab}) 
         "date": "Date",
     };
 
-    if(selectedTab === 1) headers.grab = "Grabbed By";
-    if(selectedTab === 1) headers.drop = "Time Dropped";
-    if(selectedTab === 1) headers.assist = "Assisted By";
+    if(selectedTab === "assist") headers.grab = "Grabbed By";
+    if(selectedTab === "assist") headers.drop = "Time Dropped";
+    if(selectedTab === "assist") headers.assist = "Assisted By";
     
     headers.cap = "Capped By";
     headers.capTime = "Travel Time";
 
-    const targetData = (selectedTab === 0) ? data.soloCaps : data.assistCaps;
+    const targetData = (selectedTab === "solo") ? data.soloCaps : data.assistCaps;
 
     const tableData = targetData.map((cap) =>{
 
@@ -42,7 +42,7 @@ const RecordsMapsCaps = ({gametypeList, mapList, data, selectedTab, changeTab}) 
                 "value": cap.travel_time, 
                 "displayValue": toPlaytime(cap.travel_time, true),
                 "className": "playtime"
-            }
+            },
         };
 
 
@@ -55,7 +55,7 @@ const RecordsMapsCaps = ({gametypeList, mapList, data, selectedTab, changeTab}) 
         };
         
 
-        if(selectedTab === 1){
+        if(selectedTab === "assist"){
 
 
             current.grab = {
@@ -98,8 +98,8 @@ const RecordsMapsCaps = ({gametypeList, mapList, data, selectedTab, changeTab}) 
 
     return <>
         <Tabs options={[
-                {"value": 0, "name": "Solo Caps"},
-                {"value": 1, "name": "Assisted Caps"},
+                {"value": "solo", "name": "Solo Caps"},
+                {"value": "assist", "name": "Assisted Caps"},
             ]}
             changeSelected={changeTab}
             selectedValue={selectedTab}

@@ -105,8 +105,14 @@ const reducer = (state, action) =>{
                 validTypes = action.validTypes.playerMatches;
             }
 
-            if(!bValidType(currentType, validTypes)){
+            if(!bValidType(currentType, validTypes) && action.tab !== 2){
                 currentType = "frags";
+            }
+
+            if(action.tab === 2){
+                if(currentType !== "solo" && currentType !== "assist"){
+                    currentType = "solo";
+                }
             }
             
             
@@ -179,7 +185,13 @@ const loadData = async (mainTab, selectedGametype, selectedMap, playerTotalTab, 
 
         //lazy way to get map records
         if(mainTab === 2 && selectedMap > 0){
+
             mainTab = 3;
+    
+            if(playerTotalTab !== "solo" && playerTotalTab !== "assist"){
+                //console.log("Confused horse noise");
+                playerTotalTab = "solo";
+            }
         }
 
         let url = `/api/records/?mode=${mainTab}&gametype=${selectedGametype}&map=${selectedMap}`;
@@ -196,7 +208,6 @@ const loadData = async (mainTab, selectedGametype, selectedMap, playerTotalTab, 
 
             const res = await req.json();
 
-            console.log(res);
 
             if(res.error !== undefined){
                 dispatch({"type": "error", "errorMessage": res.error});
@@ -420,7 +431,7 @@ const renderGeneralRecordForm = (state, dispatch, validTypes, gametypesList, map
 
     let lastElem = null;
 
-    if(state.mainTab < 2){
+    if(state.mainTab < 2 || state.selectedMap !== 0){
 
         lastElem = <DropDown dName="Results Per Page" originalValue={state.perPage} data={perPageOptions}
             changeSelected={(name, value) => { dispatch({"type": "changePerPage", "perPage": value})}}
@@ -443,11 +454,7 @@ const renderGeneralRecordForm = (state, dispatch, validTypes, gametypesList, map
 }
 
 
-const renderForm = (state, dispatch, validTypes, gametypesList, mapList, perPageOptions) =>{
-
-    
-
-    
+const renderForm = (state, dispatch, validTypes, gametypesList, mapList, perPageOptions) =>{ 
 
     return <>
         <div className="default-sub-header">{mainTitles[state.mainTab]}</div>
@@ -460,11 +467,12 @@ const renderForm = (state, dispatch, validTypes, gametypesList, mapList, perPage
 
 const renderData = (state, dispatch, validTypes, gametypesList, mapList) =>{
 
+
     if(state.mainTab === 2 && state.selectedMap === 0){
 
         return <RecordsMapsCaps 
-            selectedTab={state.ctfCapTab} 
-            changeTab={(newTab) => { dispatch({"type": "changeCapTab", "tab": newTab})}}
+            selectedTab={state.playerTotalTab} 
+            changeTab={(newTab) => { dispatch({"type": "changePlayerTotalTab", "tab": newTab})}}
             gametypeList={gametypesList} 
             mapList={mapList} 
             data={state.data}
@@ -473,8 +481,8 @@ const renderData = (state, dispatch, validTypes, gametypesList, mapList) =>{
     }else if(state.mainTab === 2 && state.selectedMap !== 0){
 
         return <RecordsMapCaps 
-            changeTab={(newTab) => { dispatch({"type": "changeCapTab", "tab": newTab})}}
-            selectedTab={state.ctfCapTab} 
+            changeTab={(newTab) => { dispatch({"type": "changePlayerTotalTab", "tab": newTab})}}
+            selectedTab={state.playerTotalTab} 
             data={state.data} 
             page={state.page}
             perPage={state.perPage}
@@ -518,7 +526,17 @@ const RecordsPage = ({
         
         const controller = new AbortController();
 
-        loadData(state.mainTab, state.selectedGametype, state.selectedMap, state.playerTotalTab, state.page, state.perPage, dispatch, controller);
+
+        loadData(
+            state.mainTab, 
+            state.selectedGametype, 
+            state.selectedMap, 
+            state.playerTotalTab, 
+            state.page, 
+            state.perPage, 
+            dispatch, 
+            controller
+        );
 
         router.push(
             `/records/?mode=${state.mainTab}&gametype=${state.selectedGametype}&map=${state.selectedMap}&type=${state.playerTotalTab}&page=${state.page}`, 
@@ -538,7 +556,8 @@ const RecordsPage = ({
         state.page, 
         state.perPage, 
         state.selectedGametype,
-        state.selectedMap
+        state.selectedMap,
+        state.ctfCapTab
     ])
 
     let validTypeList = [];
