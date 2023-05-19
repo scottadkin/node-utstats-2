@@ -22,7 +22,7 @@ import Gametypes from "../api/gametypes";
 import Records from "../api/records";
 import InteractiveTable from "../components/InteractiveTable";
 import Maps from "../api/maps";
-import { useRouter } from "next/router";
+import Router from "next/router";
 import RecordsMapsCaps from "../components/RecordsMapsCaps";
 import RecordsMapCaps from "../components/RecordsMapCaps";
 
@@ -519,7 +519,7 @@ const RecordsPage = ({
         
     });
 
-    const router = useRouter();
+    //const router = useRouter();
 
     useEffect(() =>{
 
@@ -538,7 +538,7 @@ const RecordsPage = ({
             controller
         );
 
-        router.push(
+        Router.push(
             `/records/?mode=${state.mainTab}&gametype=${state.selectedGametype}&map=${state.selectedMap}&type=${state.playerTotalTab}&page=${state.page}`, 
             undefined, 
             { shallow: true }
