@@ -45,30 +45,40 @@ const MatchRankingChanges = ({matchId, players, gametype}) =>{
 
         const loadData = async () =>{
 
-            const req = await fetch("/api/match",{
-                "signal": controller.signal,
-                "headers": {
-                    "Content-type": "application/json"
-                },
-                "method": "POST",
-                "body": JSON.stringify({
-                    "mode": "ranking", 
-                    "matchId": matchId,
-                    "gametypeId": gametype,
-                    "playerIds": Object.keys(players)
-                })
-            });
+            try{
 
-            const res = await req.json();
-            if(res.error !== undefined){
-                dispatch({"type": "loadError", "errorMessage": res.error.toString()});
-            }else{
-                dispatch({
-                    "type": "loaded", 
-                    "matchChanges": res.matchChanges, 
-                    "currentPositions": res.currentPositions,
-                    "currentRankings": res.currentRankings
+                const req = await fetch("/api/match",{
+                    "signal": controller.signal,
+                    "headers": {
+                        "Content-type": "application/json"
+                    },
+                    "method": "POST",
+                    "body": JSON.stringify({
+                        "mode": "ranking", 
+                        "matchId": matchId,
+                        "gametypeId": gametype,
+                        "playerIds": Object.keys(players)
+                    })
                 });
+
+                const res = await req.json();
+
+                if(res.error !== undefined){
+                    dispatch({"type": "loadError", "errorMessage": res.error.toString()});
+                }else{
+                    dispatch({
+                        "type": "loaded", 
+                        "matchChanges": res.matchChanges, 
+                        "currentPositions": res.currentPositions,
+                        "currentRankings": res.currentRankings
+                    });
+                }
+
+            }catch(err){
+
+                if(err.name !== "AbortError"){
+                    console.trace(err);
+                }
             }
         }
 

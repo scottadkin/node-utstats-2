@@ -19,27 +19,36 @@ const MatchSprees = ({matchId, players, matchStart}) =>{
 
         const loadData = async () =>{
 
-            const req = await fetch("/api/match",{
-                "signal": controller.signal,
-                "headers": {
-                    "Content-type": "application/json",
-                },
-                "method": "post",
-                "body": JSON.stringify({
-                    "mode": "sprees",
-                    "matchId": matchId
-                })
-            });
+            try{
 
-            const res = await req.json();
+                const req = await fetch("/api/match",{
+                    "signal": controller.signal,
+                    "headers": {
+                        "Content-type": "application/json",
+                    },
+                    "method": "post",
+                    "body": JSON.stringify({
+                        "mode": "sprees",
+                        "matchId": matchId
+                    })
+                });
 
-            if(res.error !== undefined){
-                setError(res.error);
-            }else{
-                setSprees(res.data);
+                const res = await req.json();
+
+                if(res.error !== undefined){
+                    setError(res.error);
+                }else{
+                    setSprees(res.data);
+                }
+
+                setbLoading(false);
+
+            }catch(err){
+                
+                if(err.name !== "AbortError"){
+                    setError(err.toString());
+                }
             }
-
-            setbLoading(false);
         }
 
         loadData();

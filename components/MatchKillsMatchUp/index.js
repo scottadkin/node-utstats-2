@@ -20,25 +20,33 @@ const MatchKillsMatchUp = ({matchId, players}) =>{
 
         const loadData = async () =>{
 
-            const req = await fetch("/api/match",{
-                "signal": controller.signal,
-                "headers": {
-                    "Content-type": "application/json"
-                },
-                "method": "POST",
-                "body": JSON.stringify({"mode": "kmu", "matchId": matchId})
-            });
+            try{
 
-            const res = await req.json();
+                const req = await fetch("/api/match",{
+                    "signal": controller.signal,
+                    "headers": {
+                        "Content-type": "application/json"
+                    },
+                    "method": "POST",
+                    "body": JSON.stringify({"mode": "kmu", "matchId": matchId})
+                });
 
-            if(res.error !== undefined){
-                setError(res.error);
-            }else{
-                setKillData(res.data);
+                const res = await req.json();
+
+                if(res.error !== undefined){
+                    setError(res.error);
+                }else{
+                    setKillData(res.data);
+                }
+
+                setbLoading(false);
+
+            }catch(err){
+                
+                if(err.name !== "AbortError"){
+                    console.trace(err);
+                }
             }
-
-            setbLoading(false);
-
 
         }
 

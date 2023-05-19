@@ -39,22 +39,31 @@ const reducer = (state, action) =>{
 
 const loadData = async (dispatch, matchId, signal) =>{
 
-    const req = await fetch("/api/match", {
-        "signal": signal,
-        "headers": {"Content-type": "application/json"},
-        "method": "POST",
-        "body": JSON.stringify({"mode": "telefrags", "matchId": matchId})
-    });
+    try{
 
-    const res = await req.json();
+        const req = await fetch("/api/match", {
+            "signal": signal,
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "telefrags", "matchId": matchId})
+        });
 
-    if(res.error !== undefined){
+        const res = await req.json();
 
-        dispatch({"type": "error", "errorMessage": res.error});
-        return;
+        if(res.error !== undefined){
+
+            dispatch({"type": "error", "errorMessage": res.error});
+            return;
+        }
+
+        dispatch({"type": "loaded", "data": res.data});
+
+    }catch(err){
+        
+        if(err.name !== "AbortError"){
+            console.trace(err);
+        }
     }
-
-    dispatch({"type": "loaded", "data": res.data});
 }
 
 const renderKills = (state, matchId, matchStart, players) =>{
