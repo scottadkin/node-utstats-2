@@ -71,19 +71,28 @@ const PlayerMatchPickups = ({playerId, matchId}) =>{
 
         const loadData = async () =>{
 
-            const req = await fetch("/api/match",{
-                "signal": cotnroller.signal,
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({"mode": "player-items", "playerId": playerId, "matchId": matchId})
-            });
+            try{
 
-            const res = await req.json();
+                const req = await fetch("/api/match",{
+                    "signal": cotnroller.signal,
+                    "headers": {"Content-type": "application/json"},
+                    "method": "POST",
+                    "body": JSON.stringify({"mode": "player-items", "playerId": playerId, "matchId": matchId})
+                });
 
-            if(res.error !== undefined){
-                dispatch({"type": "error", "errorMessage": res.error})
-            }else{
-                dispatch({"type": "loaded", "itemNames": res.itemNames, "itemUses": res.uses});
+                const res = await req.json();
+
+                if(res.error !== undefined){
+                    dispatch({"type": "error", "errorMessage": res.error})
+                }else{
+                    dispatch({"type": "loaded", "itemNames": res.itemNames, "itemUses": res.uses});
+                }
+
+            }catch(err){
+
+                if(err.name !== "AbortError"){
+                    console.trace(err);
+                }
             }
         }
 

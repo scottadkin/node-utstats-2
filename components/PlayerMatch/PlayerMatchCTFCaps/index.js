@@ -73,20 +73,29 @@ const PlayerMatchCTFCaps = ({matchId, playerId, playerData, matchStart}) =>{
 
         const loadData = async () =>{
 
-            const req = await fetch("/api/ctf",{
-                "signal": controller.signal,
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({"mode": "player-match-caps", "playerId": playerId, "matchId": matchId})
-            });
+            try{
 
-            const res = await req.json();
+                const req = await fetch("/api/ctf",{
+                    "signal": controller.signal,
+                    "headers": {"Content-type": "application/json"},
+                    "method": "POST",
+                    "body": JSON.stringify({"mode": "player-match-caps", "playerId": playerId, "matchId": matchId})
+                });
 
-            if(res.error !== undefined){
-                dispatch({"type": "error", "errorMessage": res.error});
-            }else{
+                const res = await req.json();
 
-                dispatch({"type": "loaded", "capData": res.data});
+                if(res.error !== undefined){
+                    dispatch({"type": "error", "errorMessage": res.error});
+                }else{
+
+                    dispatch({"type": "loaded", "capData": res.data});
+                }
+
+            }catch(err){
+
+                if(err.name !== "AbortError"){
+                    console.trace(err);
+                }
             }
         }
 

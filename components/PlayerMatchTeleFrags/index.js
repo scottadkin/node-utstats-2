@@ -139,25 +139,34 @@ const renderKills = (state, matchId, matchStart, players) =>{
 
 const loadData = async (matchId, playerId, dispatch, signal) =>{
 
-    const req = await fetch("/api/match", {
-        "signal": signal,
-        "headers": {"Content-type": "application/json"},
-        "method": "POST",
-        "body": JSON.stringify({
-            "mode": "player-match-telefrags", 
-            "playerId": playerId, 
-            "matchId": matchId
-        })
-    });
+    try{
 
-    const res = await req.json();
+        const req = await fetch("/api/match", {
+            "signal": signal,
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({
+                "mode": "player-match-telefrags", 
+                "playerId": playerId, 
+                "matchId": matchId
+            })
+        });
 
-    if(res.error !== undefined){
-        dispatch({"type": "error", "errorMessage": res.error});
-        return;
+        const res = await req.json();
+
+        if(res.error !== undefined){
+            dispatch({"type": "error", "errorMessage": res.error});
+            return;
+        }
+
+        dispatch({"type": "loaded", "kills": res.kills});
+
+    }catch(err){
+
+        if(err.name !== "AbortError"){
+            console.trace(err);
+        }
     }
-
-    dispatch({"type": "loaded", "kills": res.kills});
 }
 
 const PlayerMatchTeleFrags = ({data, matchId, playerId, matchStart, players}) =>{
