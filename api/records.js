@@ -356,20 +356,20 @@ class Records{
 
         if(gametypeId !== 0){
             
-            whereString = " AND gametype=?";
+            whereString += " AND gametype=?";
             vars.push(gametypeId);
         }
 
         if(mapId !== 0){
 
-            whereString = " AND map_id=?";
+            whereString += " AND map_id=?";
             vars.push(mapId);
         }
 
         if(cat !== "spec_playtime"){
 
             if(whereString === ""){
-                whereString = " AND playtime>0";
+                whereString += " AND playtime>0";
             }else{
                 whereString = `${whereString} AND playtime>0`;
             }

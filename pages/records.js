@@ -519,13 +519,9 @@ const RecordsPage = ({
         
     });
 
-    //const router = useRouter();
-
     useEffect(() =>{
-
-        
+      
         const controller = new AbortController();
-
 
         loadData(
             state.mainTab, 

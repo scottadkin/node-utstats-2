@@ -37,7 +37,6 @@ export default async function handler(req, res){
         let playerId = (query.playerId !== undefined) ? parseInt(query.playerId) : 0;
         if(playerId !== playerId) playerId = 0;
 
-        console.log(cat, gametype, map, page, perPage);
         
 
         if(mode === "0"){
@@ -68,6 +67,7 @@ export default async function handler(req, res){
 
         if(mode === "2"){
 
+            
             const ctfManager = new CTF();
             const matchManager = new Matches();
             const playerManager = new Players();
