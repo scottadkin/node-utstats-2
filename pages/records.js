@@ -563,7 +563,15 @@ const RecordsPage = ({
         validTypeList = validTypes.playerTotals;
 
     }else if(state.mainTab === 1){
+
         validTypeList = validTypes.playerMatches;
+
+    }else if(state.mainTab === 2){
+
+        validTypeList = [
+            {"value": "solo", "displayValue": "Solo Caps"},
+            {"value": "assist", "displayValue": "Assist Caps"}
+        ];
     }
 
     const metaTypeName = getName(validTypeList, state.playerTotalTab);
@@ -571,14 +579,13 @@ const RecordsPage = ({
     let metaGametypeName = ", with any gametype";
 
     if(state.selectedGametype !== 0){
-        metaGametypeName = `, with the gametype ${getName(gametypesList, state.selectedGametype)}`;
+        metaGametypeName = `, with the selected gametype of ${getName(gametypesList, state.selectedGametype)}`;
     }
 
-    
     let metaMapName = ", on any map";
 
     if(state.selectedMap !== 0){
-        metaMapName = `, on the map ${getName(mapList, state.selectedMap)}`;
+        metaMapName = `, on the selected map of ${getName(mapList, state.selectedMap)}`;
     }
 
     const title = (state.mainTab !== mode) ? mainTitles[state.mainTab] : metaTags.title;
