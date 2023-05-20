@@ -433,8 +433,7 @@ class Players{
 
     async getJustNamesByIds(ids){
 
-        if(ids === undefined) resolve({});
-        if(ids.length === 0) resolve({});
+        if(ids === undefined || ids.length === 0) return {}
 
         const query = "SELECT id,name FROM nstats_player_totals WHERE gametype=0 AND id IN(?)";
 
@@ -460,14 +459,14 @@ class Players{
 
 
 
-    async getPlayerTotalsFromMatchesTable(playerId, gametypeId){
+    async getPlayerTotalsFromMatchesTable(playerId, gametypeId, mapId){
 
-        console.log(`getPlayerTotalsFromMatchesTable(${playerId},${gametypeId})`);
-
-        const query = `SELECT
+        let query = `SELECT
         COUNT(*) as total_matches,
-        MIN(match_date) as first,
-        MAX(match_date) as last,
+        player_id,
+        COUNT(*) as total_matches,
+        MIN(match_date) as first_match,
+        MAX(match_date) as last_match,
         SUM(winner) as wins,
         SUM(draw) as draws,
         SUM(playtime) as playtime,
@@ -484,7 +483,6 @@ class Players{
         SUM(suicides) as suicides,
         SUM(team_kills) as team_kills,
         SUM(spawn_kills) as spawn_kills,
-        efficiency = IF(kills > 0, IF(deaths > 0, (kills / (deaths + kills)) * 100, 100),0) as efficiency,
         SUM(multi_1) as multi_1,
         SUM(multi_2) as multi_2,
         SUM(multi_3) as multi_3,
@@ -504,14 +502,9 @@ class Players{
         MAX(best_spawn_kill_spree) as best_spawn_kill_spree,
         SUM(assault_objectives) as assault_objectives,
         SUM(dom_caps) as dom_caps,
+        MAX(dom_caps) as dom_caps_best,
         MAX(dom_caps_best_life) as dom_caps_best_life,
-        MIN(ping_min) as ping_min,
-        AVG(ping_average) as ping_average,
-        MAX(ping_max) as ping_max,
         AVG(accuracy) as accuracy,
-        MIN(shortest_kill_distance) as shortest_kill_distance,
-        AVG(average_kill_distance) as average_kill_distance,
-        MAX(longest_kill_distance) as longest_kill_distance,
         SUM(k_distance_normal) as k_distance_normal,
         SUM(k_distance_long) as k_distance_long,
         SUM(k_distance_uber) as k_distance_uber,
@@ -520,25 +513,53 @@ class Players{
         SUM(amp) as amp,
         SUM(amp_time) as amp_time,
         SUM(invisibility) as invisibility,
+        SUM(invisibility_time) as invisibility_time,
         SUM(pads) as pads,
         SUM(armor) as armor,
         SUM(boots) as boots,
         SUM(super_health) as super_health,
         SUM(mh_kills) as mh_kills,
-        MAX(mh_kills) as mh_kills_best,
         MAX(mh_kills_best_life) as mh_kills_best_life,
+        MAX(mh_kills) as mh_kills_best,
         SUM(mh_deaths) as mh_deaths,
-        MAX(mh_deaths) as mh_deaths_worst
+        MAX(mh_deaths) as mh_deaths_worst,
+        SUM(telefrag_kills) as telefrag_kills,
+        MAX(telefrag_kills) as telefrag_kills_best,
+        SUM(telefrag_deaths) as telefrag_deaths,
+        MAX(telefrag_deaths) as telefrag_deaths_worst,
+        MAX(telefrag_best_spree) as telefrag_best_spree,
+        MAX(telefrag_best_multi) as telefrag_best_multi,
+        SUM(tele_disc_kills) as tele_disc_kills,
+        MAX(tele_disc_kills) as tele_disc_kills_best,
+        SUM(tele_disc_deaths) as tele_disc_deaths,
+        MAX(tele_disc_deaths) as tele_disc_deaths_worst,
+        MAX(tele_disc_best_spree) as tele_disc_best_spree,
+        MAX(tele_disc_best_multi) as tele_disc_best_multi
         FROM nstats_player_matches
-        WHERE playtime>0 AND player_id=? ${(gametypeId !== 0) ? "AND gametype=?" : ""}`;
+        WHERE playtime>0 AND player_id=?`;
 
         const vars = [playerId];
 
-        if(gametypeId !== 0) vars.push(gametypeId);
+        if(gametypeId !== 0){
+
+            query += " AND gametype=?";
+
+            vars.push(gametypeId);
+        }
+
+        if(mapId !== 0){
+
+            query += " AND map_id=?";
+            vars.push(mapId);
+        }
+
+        
 
         const result = await mysql.simpleQuery(query, vars);
 
         if(result.length > 0){
+
+            result[0].efficiency = 0;
 
             if(result[0].total_matches === 0) return null;
 
@@ -551,6 +572,17 @@ class Players{
 
             result[0].losses = result[0].total_matches - result[0].draws - result[0].wins;
 
+            if(result[0].kills > 0){
+
+                if(result[0].deaths > 0){
+
+                    result[0].efficiency = (result[0].kills / (result[0].kills + result[0].deaths)) * 100;
+
+                }else{
+                    result[0].efficiency = 100;
+                }
+            }
+
             return result[0];
         }
 
@@ -558,7 +590,7 @@ class Players{
 
     }
 
-    async resetPlayerTotals(playerId, gametypeId){
+    async resetPlayerTotals(playerId, gametypeId, mapId){
 
         const query = `UPDATE nstats_player_totals SET
         first=0,
@@ -569,6 +601,11 @@ class Players{
         draws=0,
         winrate=0,
         playtime=0,
+        team_0_playtime=0,
+        team_1_playtime=0,
+        team_2_playtime=0,
+        team_3_playtime=0,
+        spec_playtime=0,
         first_bloods=0,
         frags=0,
         score=0,
@@ -620,37 +657,46 @@ class Players{
         mh_kills_best=0,
         mh_deaths=0,
         mh_deaths_worst=0
-        WHERE ${(gametypeId !== 0) ? "player_id" : "id"}=? AND gametype=?`;
+        WHERE ${(gametypeId !== 0 && mapId !== 0) ? "player_id" : "id"}=? AND gametype=? AND map=?`;
 
-        console.log(`Reset player totals for playerId=${playerId} for gametype = ${gametypeId}`);
-        return await mysql.simpleQuery(query, [playerId, gametypeId]);
+        return await mysql.simpleQuery(query, [playerId, gametypeId, mapId]);
     }
 
     
-    async reduceTotals(playerIds, gametypeId){
+    async reduceTotals(playerIds, gametypeId, mapId){
 
         for(let i = 0; i < playerIds.length; i++){
 
             const playerId = playerIds[i];
 
-            const playerGametypeTotals = await this.getPlayerTotalsFromMatchesTable(playerId, gametypeId);
-            const playerTotals = await this.getPlayerTotalsFromMatchesTable(playerId, 0);
+            const playerGametypeMapTotals = await this.getPlayerTotalsFromMatchesTable(playerId, gametypeId, mapId);
+            const playerGametypeTotals = await this.getPlayerTotalsFromMatchesTable(playerId, gametypeId, 0);
+            const playerMapTotals = await this.getPlayerTotalsFromMatchesTable(playerId, 0, mapId);
+            const playerTotals = await this.getPlayerTotalsFromMatchesTable(playerId, 0, 0);
             
-
-
             if(playerTotals === null){
-                await this.resetPlayerTotals(playerId, 0);
-                //need to set player totals to 0
+                await this.resetPlayerTotals(playerId, 0, 0);
             }else{
-                await this.updatePlayerTotal(playerId, 0, playerTotals);
+                await this.updatePlayerTotal(playerId, 0, 0, playerTotals);
+            }
+
+            if(playerMapTotals === null){
+                await this.resetPlayerTotals(playerId, 0, mapId);
+            }else{
+                await this.updatePlayerTotal(playerId, 0, mapId, playerMapTotals);
             }
 
             if(playerGametypeTotals === null){
-                await this.resetPlayerTotals(playerId, gametypeId);
+                await this.resetPlayerTotals(playerId, gametypeId, 0);
             }else{
-                await this.updatePlayerTotal(playerId, gametypeId, playerTotals);
+                await this.updatePlayerTotal(playerId, gametypeId, 0, playerGametypeTotals);
             }
-            
+
+            if(playerGametypeMapTotals === null){
+                await this.resetPlayerTotals(playerId, gametypeId, mapId);
+            }else{
+                await this.updatePlayerTotal(playerId, gametypeId, mapId, playerGametypeMapTotals);
+            }
         }
     }
 
@@ -1070,6 +1116,12 @@ class Players{
 
     async updatePlayerTotal(playerId, gametypeId, mapId, data){
 
+        if(data === undefined){
+       
+            console.log(`-----------playerID--${playerId}- gametypeId---${gametypeId}--mapId-${mapId}---------------------------------`);
+            return;
+        }
+
         const query = `UPDATE nstats_player_totals SET 
         first=?,
         last=?,
@@ -1079,6 +1131,11 @@ class Players{
         draws=?,
         winrate=?,
         playtime=?,
+        team_0_playtime=?,
+        team_1_playtime=?,
+        team_2_playtime=?,
+        team_3_playtime=?,
+        spec_playtime=?,
         first_bloods=?,
         frags=?,
         score=?,
@@ -1130,7 +1187,6 @@ class Players{
         mh_deaths_worst=?
         WHERE ${(gametypeId === 0 && mapId === 0) ? "id" : "player_id" }=? AND gametype=? AND map=?`;
 
-
         const vars = [
             data.first,
             data.last,
@@ -1140,6 +1196,11 @@ class Players{
             data.draws,
             data.winRate,
             data.playtime,
+            data.team_0_playtime,
+            data.team_1_playtime,
+            data.team_2_playtime,
+            data.team_3_playtime,
+            data.spec_playtime,
             data.first_bloods,
             data.frags,
             data.score,
@@ -2681,6 +2742,7 @@ class Players{
 
         return obj;
     }
+    
 
     async getPlayerMapGametypeRecords(){
 
