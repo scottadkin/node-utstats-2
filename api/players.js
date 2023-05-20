@@ -1188,8 +1188,8 @@ class Players{
         WHERE ${(gametypeId === 0 && mapId === 0) ? "id" : "player_id" }=? AND gametype=? AND map=?`;
 
         const vars = [
-            data.first,
-            data.last,
+            data.first_match,
+            data.last_match,
             data.total_matches,
             data.wins,
             data.losses,
