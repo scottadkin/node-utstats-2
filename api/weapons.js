@@ -1264,7 +1264,7 @@ class Weapons{
             stats.teamKills, stats.teamKills,
             stats.bestTeamKills, stats.bestTeamKills,
             stats.deaths, stats.deaths,
-            stats.suicides, stats.suicide,
+            stats.suicides, stats.suicides,
             stats.efficiency, stats.efficiency,
             stats.accuracy, stats.accuracy,
             stats.shots, stats.shots,

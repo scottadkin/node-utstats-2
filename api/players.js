@@ -2864,11 +2864,18 @@ class Players{
 
         //dont update all time totals
         if(gametypeId === 0 && mapId === 0) return;
-        
+     
 
-        const query = `INSERT INTO nstats_player_totals (name, player_id, gametype, map) VALUES (?,?,?,?)`;
+        const query = `INSERT INTO nstats_player_totals VALUES(
+            NULL,?,?,?,0,0,0,"",0,0,?,?,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0)`;
 
-        return await mysql.simpleQuery(query, [playerName, playerId, gametypeId, mapId]);
+        return await mysql.simpleQuery(query, ["", playerName, playerId, gametypeId, mapId]);
     }
 
     async updateNewGametypeMapStats(playerId, gametypeId, mapId, data){

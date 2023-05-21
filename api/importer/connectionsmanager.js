@@ -116,7 +116,7 @@ class ConnectionsManager{
                 const d = this.data[i];
 
                 if(d.type < 2){
-                    insertVars.push([matchId, d.timestamp, d.type, d.player]);
+                    insertVars.push([matchId, d.timestamp, d.player, d.type]);
                 }
             }
 
