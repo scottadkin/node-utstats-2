@@ -235,24 +235,6 @@ class MatchManager{
 
             //this.playerManager.mergeDuplicates(bLMS);
 
-            if(bLMS){
-                
-                this.LMSManager = new LMSManager(this.playerManager, this.killManager, this.gameInfo.getMatchLength(), this.gameInfo.fraglimit);
-                const LMSWinner = this.LMSManager.getWinner();
-                const winner = this.playerManager.getPlayerById(LMSWinner.id);
-      
-                if(winner !== null){
-
-                    winner.bWinner = true;
-                    await this.match.setDMWinner(this.matchId, LMSWinner.masterId, LMSWinner.score);
-
-                    new Message(`Last man standing stats update complete.`,'pass');
-
-                }else{
-                    new Message(`Winner for LMS is null`, 'warning');
-                }
-            }
-
             
             await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype, this.mapInfo.mapId, this.serverInfo.date);
 
@@ -443,6 +425,25 @@ class MatchManager{
                     new Message(`Capture The Flag stats update complete.`,'pass');
                 }*/
             }       
+
+            if(bLMS){
+                
+                this.LMSManager = new LMSManager(this.playerManager, this.killManager, this.gameInfo.getMatchLength(), this.gameInfo.fraglimit);
+                const LMSWinner = this.LMSManager.getWinner();
+                const winner = this.playerManager.getPlayerById(LMSWinner.id);
+      
+                if(winner !== null){
+
+                    winner.bWinner = true;
+
+                    await this.match.setDMWinner(this.matchId, winner.masterId, LMSWinner.score);
+
+                    new Message(`Last man standing stats update complete.`,'pass');
+
+                }else{
+                    new Message(`Winner for LMS is null`, 'warning');
+                }
+            }
 
             
 
