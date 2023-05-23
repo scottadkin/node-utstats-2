@@ -10,7 +10,7 @@ class Kill{
         this.victimWeapon = victimWeapon;
         this.deathType = deathType;
 
-        this.killDistance = null;
+        this.killDistance = -1;
         this.killerLocation = null;
         this.victimLocation = null;
 

@@ -176,6 +176,7 @@ class KillManager{
             if(k.timestamp > timestamp) return null;
 
             if(k.timestamp === timestamp && k.killerId === killer && k.victimId === victim){
+
                 return k;
             }
         }
@@ -312,8 +313,6 @@ class KillManager{
                     currentVictim = {"masterId": 0};
                 }
 
-         
-
                 vars.push(
                     [
                         matchId, 
@@ -324,7 +323,7 @@ class KillManager{
                         currentVictimTeam, 
                         currentKillerWeapon, 
                         currentVictimWeapon, 
-                        (k.killDistance != null) ? k.killDistance : 0
+                        (k.killDistance !== null) ? k.killDistance : 0
                     ]
                 );
             }
@@ -394,12 +393,15 @@ class KillManager{
                         matchId, h.timestamp, currentKiller.masterId, currentVictim.masterId, 
                         currentKillInformation.killDistance, killerTeam, victimTeam
                     );*/
+
                     headshotInsertVars.push([
                         matchId, h.timestamp, currentKiller.masterId, currentVictim.masterId, 
                         currentKillInformation.killDistance, killerTeam, victimTeam
                     ]);
                 }
+
                 await this.headshotsManager.insertAllHeadshots(headshotInsertVars);
+
                 new Message(`Imported ${this.headshots.length} headshot data.`, 'pass');
 
             }else{
