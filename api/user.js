@@ -302,7 +302,7 @@ class User{
 
     async updateLastActive(user, ip){
 
-        console.log(`ip = ${ip}`);
+        //console.log(`ip = ${ip}`);
 
         const query = "UPDATE nstats_users SET last_active=?,last_ip=? WHERE id=?";
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import styles from './MouseHoverBox.module.css';
-import Functions from '../../api/functions';
 
 
 class MouseHoverBox extends React.Component{
@@ -13,7 +12,6 @@ class MouseHoverBox extends React.Component{
 
         if(Array.isArray(this.props.content)) bTable = true;
         
-
         this.state = {"bDisplay": 0, "mouse": {"x": 0, "y": 0}, "bTable": bTable};
         this.showHover = this.showHover.bind(this);
         this.hideHover = this.hideHover.bind(this);
@@ -35,12 +33,11 @@ class MouseHoverBox extends React.Component{
         if(this.state.bTable){
 
             let currentColumns = [];
-            let p = 0;
             let bMultiRows = false;
 
             for(let i = 0; i < this.props.content.length; i++){
 
-                p = this.props.content[i].content;
+                const p = this.props.content[i].content;
    
                 for(let x = 0; x < p.length; x++){
 
@@ -72,11 +69,10 @@ class MouseHoverBox extends React.Component{
         if(elems.length > 0){
 
             const headers = [];
-            let p = 0;
 
             for(let i = 0; i < this.props.content[0].headers.length; i++){
 
-                p = this.props.content[0].headers[i];
+                const p = this.props.content[0].headers[i];
 
                 headers.push(<th>
                     {p}

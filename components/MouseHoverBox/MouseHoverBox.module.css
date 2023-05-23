@@ -4,7 +4,7 @@
 
 .box{
     background-color:var(--color-1);
-    border:1px solid var(--border-color-1);
+    border:1px solid var(--border-color-3);
     position:absolute;
     padding:10px;
     font-size:14px;
@@ -14,7 +14,7 @@
 .title{
     color:yellow;
     text-align:center;
-    font-size:16px;
+    font-size:14px;
     padding-bottom:5px;
 }
 
@@ -25,5 +25,5 @@
 .box td{
     text-align:center;
     font-size:12px;
-    padding:3px;
+    padding:5px;
 }
