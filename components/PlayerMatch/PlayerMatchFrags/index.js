@@ -17,9 +17,7 @@ const PlayerMatchFrags = ({playerId, playersData}) =>{
 
     const targetData = getTargetPlayerData(playerId, playersData);
 
-
     if(targetData === null) return <ErrorMessage title="Frags Performance" text="targetData is null"/>
-
 
     return <div>
         <div className="default-header">Frags Performance</div>
