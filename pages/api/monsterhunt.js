@@ -37,9 +37,6 @@ export default async function handler(req, res){
         const matchId = parseInt(req.body.matchId) ?? null;
         const playerId = parseInt(req.body.playerId) ?? null;
 
-        console.log(req.body);
-
-
         if(mode === "fullmatch"){
 
             const matchMonsterTotals = await mhManager.getMatchMonsterTotals(matchId);

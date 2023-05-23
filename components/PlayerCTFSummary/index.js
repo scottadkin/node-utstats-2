@@ -105,25 +105,33 @@ const PlayerCTFSummary = ({playerId}) =>{
 
         const loadData = async () =>{
 
-            const req = await fetch("/api/player", {
-                "signal": controller.signal,
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({"mode": "ctf", "playerId": playerId})
-            });
+            try{
 
-            const res = await req.json();
-
-            if(res.error !== undefined){
-                dispatch({"type": "error", "errorMessage": res.error});
-            }else{
-                dispatch({
-                    "type": "loaded", 
-                    "totals": res.totals, 
-                    "best": res.best, 
-                    "bestLife": res.bestLife,
-                    "gametypeNames": res.gametypeNames
+                const req = await fetch("/api/player", {
+                    "signal": controller.signal,
+                    "headers": {"Content-type": "application/json"},
+                    "method": "POST",
+                    "body": JSON.stringify({"mode": "ctf", "playerId": playerId})
                 });
+
+                const res = await req.json();
+
+                if(res.error !== undefined){
+                    dispatch({"type": "error", "errorMessage": res.error});
+                }else{
+                    dispatch({
+                        "type": "loaded", 
+                        "totals": res.totals, 
+                        "best": res.best, 
+                        "bestLife": res.bestLife,
+                        "gametypeNames": res.gametypeNames
+                    });
+                }
+
+            }catch(err){
+
+                if(err.name === "AbortError") return;
+                console.trace(err);
             }
 
         }

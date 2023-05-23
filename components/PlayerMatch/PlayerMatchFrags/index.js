@@ -15,8 +15,6 @@ const getTargetPlayerData = (playerId, playersData) =>{
 
 const PlayerMatchFrags = ({playerId, playersData}) =>{
 
-    console.log(playersData);
-
     const targetData = getTargetPlayerData(playerId, playersData);
 
 

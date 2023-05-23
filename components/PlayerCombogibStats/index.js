@@ -82,8 +82,6 @@ class PlayerCombogibStats extends React.Component{
 
         if(this.state.tab !== 3) return null;
 
-        console.log(d);
-
         return <Table2 width={1} header="Kills Per Minute">
             <tr>
                 <th>Combo Kills</th>

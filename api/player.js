@@ -437,8 +437,6 @@ class Player{
 
         const result = await mysql.simpleQuery(query, [name]);
 
-        console.table(result);
-
         return result;
     }
 

@@ -86,8 +86,6 @@ class Telefrags{
 
 
 
-
-
         if(!await this.bPlayerTotalExist(playerId, mapId, gametypeId)){
             //console.log(`CREATE NEW player total custom ${playerId}, ${mapId}, ${gametypeId}`);
             await this.createPlayerTotal(playerId, mapId, gametypeId);
@@ -95,6 +93,9 @@ class Telefrags{
 
         //possible fix for merging players with no playtime?
         if(data.deaths === undefined){
+
+            //console.log(`TEST-ERROR: data.deaths is undefined`);
+            //console.log(data);
             return;
         }
 

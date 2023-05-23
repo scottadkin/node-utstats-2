@@ -8,21 +8,29 @@ import ErrorMessage from "../ErrorMessage";
 
 const loadData = async (dispatch, playerId, signal) =>{
 
-    const req = await fetch("/api/player", {
-        "signal": signal,
-        "headers": {"Content-type": "application/json"},
-        "method": "POST",
-        "body": JSON.stringify({"mode": "telefrags", "playerId": playerId})
-    });
+    try{
 
-    const res = await req.json();
+        const req = await fetch("/api/player", {
+            "signal": signal,
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "telefrags", "playerId": playerId})
+        });
 
-    if(res.error !== undefined){
-        dispatch({"type": "error", "errorMessage": res.error});
-        return;
+        const res = await req.json();
+
+        if(res.error !== undefined){
+            dispatch({"type": "error", "errorMessage": res.error});
+            return;
+        }
+
+        dispatch({"type": "loaded", "data": res.data, "mapNames": res.mapNames, "gametypeNames": res.gametypeNames});
+
+    }catch(err){
+
+        if(err.name === "AbortError") return;
+        console.trace(err);
     }
-
-    dispatch({"type": "loaded", "data": res.data, "mapNames": res.mapNames, "gametypeNames": res.gametypeNames});
 }
 
 const reducer = (state, action) =>{

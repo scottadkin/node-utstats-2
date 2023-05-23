@@ -19,13 +19,9 @@ class PlayerMatchMonsters extends React.Component{
 
     getMonsterTotalDeaths(id){
 
-        let m = 0;
-
-        console.log(this.props.monsterTotals);
-
         for(let i = 0; i < this.props.monsterTotals.length; i++){
 
-            m = this.props.monsterTotals[i];
+            const m = this.props.monsterTotals[i];
 
             if(m.monster === id) return m.deaths;
         }

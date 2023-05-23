@@ -339,7 +339,7 @@ class Maps{
                 const similarImage = this.getSimilarImage(currentName, files);
 
                 if(similarImage !== null){
-                    console.log(`Found similar image ${similarImage}`);
+                    //console.log(`Found similar image ${similarImage}`);
                     exists[currentName] = similarImage;
                 }
 
