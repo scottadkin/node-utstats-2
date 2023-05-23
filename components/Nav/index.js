@@ -147,7 +147,7 @@ function Nav({session, settings}){
         }
 
 
-        elems.push(<Link key={i} href={links[i].url}><a><div className={`${styles.nl} ${(bCurrent) ? styles.selected : null}`}>{links[i].text}</div></a></Link>);
+        elems.push(<Link key={i} href={links[i].url}><div className={`${styles.nl} ${(bCurrent) ? styles.selected : null}`}>{links[i].text}</div></Link>);
     }
 
     return (

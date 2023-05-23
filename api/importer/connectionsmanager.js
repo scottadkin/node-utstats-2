@@ -108,14 +108,19 @@ class ConnectionsManager{
 
         try{
 
+            const insertVars = [];
+
+
             for(let i = 0; i < this.data.length; i++){
 
                 const d = this.data[i];
 
                 if(d.type < 2){
-                    await this.connections.insert(matchId, d.timestamp, d.type, d.player);
+                    insertVars.push([matchId, d.timestamp, d.player, d.type]);
                 }
             }
+
+            await this.connections.bulkInsert(insertVars);
 
         }catch(err){
             new Message(`ConnectionsManager.insertData ${err}`,'error');

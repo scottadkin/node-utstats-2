@@ -3,7 +3,7 @@ import Functions from "../../api/functions";
 
 const renderData = (gametypeNames, data, selectedTab) =>{
 
-    const headers = {   
+    let headers = {   
         "grabs": "Grab",
         "pickups": "Pickup",
         "drops": "Dropped",

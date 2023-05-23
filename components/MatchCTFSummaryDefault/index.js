@@ -102,10 +102,10 @@ class MatchCTFSummaryDefault extends React.Component{
             const ctf = p.ctfData;
 
             const playerElem = <Link href={`/pmatch/${this.props.matchId}?player=${p.player_id}`}>
-                <a>
+                
                     <CountryFlag country={p.country}/>
                     {p.name}
-                </a>
+                
             </Link>;
 
             totals["flag_taken"] += ctf.flag_taken;

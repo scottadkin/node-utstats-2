@@ -27,7 +27,7 @@ class MatchMonsterHuntFragSummary extends React.Component{
             rows.push(<tr key={i}>
                 {(this.props.single !== undefined) ? null : <td className="team-none text-left">
                     <Link href={`/pmatch/${this.props.matchId}/?player=${p.player_id}`}>
-                        <a><CountryFlag host={this.props.host} country={p.country}/>{p.name}</a>
+                        <CountryFlag host={this.props.host} country={p.country}/>{p.name}
                     </Link>
                 </td>}
                 <td>{Functions.MMSS(p.playtime - this.props.matchStart)}</td>

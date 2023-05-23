@@ -110,9 +110,9 @@ const TeamsSummary = ({matchId, matchStart, players, playerData, totalTeams}) =>
                 "player": {
                     "value": player.name.toLowerCase(),
                     "displayValue": <Link href={`/pmatch/${matchId}/?player=${player.id}`}>
-                        <a>
+                        
                             <CountryFlag country={player.country}/>{player.name}
-                        </a>
+                        
                     </Link>,
                     "className": `player ${teamColor}`
                 },
@@ -151,9 +151,9 @@ const TeamsSummary = ({matchId, matchStart, players, playerData, totalTeams}) =>
                 "player": {
                     "value": player.name.toLowerCase(), 
                     "displayValue": <Link href={`/pmatch/${matchId}/?player=${player.player_id}`}>
-                        <a>
+                        
                             <CountryFlag country={player.country}/>{player.name}
-                        </a>
+                        
                     </Link>,
                     "className": `player`
                 },

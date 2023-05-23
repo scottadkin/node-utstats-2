@@ -54,6 +54,8 @@ class MatchManager{
 
         try{
 
+            const start = performance.now() * 0.001;
+
             if(config.bIgnoreDuplicates){
 
                 if(await Logs.bExists(this.fileName)){
@@ -102,7 +104,10 @@ class MatchManager{
                 this.bUsePlayerACEHWID
             );
 
-            await this.playerManager.createPlayers(this.gametype.currentMatchGametype);
+            const matchTimings = this.gameInfo.getMatchLength();
+            await this.mapInfo.updateStats(this.serverInfo.date, matchTimings.length);
+
+            await this.playerManager.createPlayers(this.gametype.currentMatchGametype, this.mapInfo.mapId);
             this.playerManager.init();
 
 
@@ -126,11 +131,11 @@ class MatchManager{
             this.playerManager.totalTeams = this.gameInfo.totalTeams;
             
 
-            this.killManager = new KillManager(this.killLines, this.playerManager, this.bIgnoreBots, this.gameInfo.getMatchLength());
+            this.killManager = new KillManager(this.killLines, this.playerManager, this.bIgnoreBots, matchTimings);
 
             this.playerManager.killManager = this.killManager;
 
-            const matchTimings = this.gameInfo.getMatchLength();
+            
 
             this.playerManager.setKills(this.killManager.kills);
             this.playerManager.matchEnded(this.gameInfo.end);
@@ -144,7 +149,7 @@ class MatchManager{
             
 
             
-            await this.mapInfo.updateStats(this.serverInfo.date, matchTimings.length);
+            
 
 
             this.spawnManager.setMapId(this.mapInfo.mapId);
@@ -230,36 +235,18 @@ class MatchManager{
 
             //this.playerManager.mergeDuplicates(bLMS);
 
-            if(bLMS){
-                
-                this.LMSManager = new LMSManager(this.playerManager, this.killManager, this.gameInfo.getMatchLength(), this.gameInfo.fraglimit);
-                const LMSWinner = this.LMSManager.getWinner();
-                const winner = this.playerManager.getPlayerById(LMSWinner.id);
-      
-                if(winner !== null){
-
-                    winner.bWinner = true;
-                    await this.match.setDMWinner(this.matchId, LMSWinner.masterId, LMSWinner.score);
-
-                    new Message(`Last man standing stats update complete.`,'pass');
-
-                }else{
-                    new Message(`Winner for LMS is null`, 'warning');
-                }
-            }
-
             
-            
-
-            await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype, this.serverInfo.date);
+            await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype, this.mapInfo.mapId, this.serverInfo.date);
 
             new Message(`Updated player frag performance.`,'pass');
-            await this.playerManager.updateWinStats(this.gametype.currentMatchGametype);
+            await this.playerManager.updateWinStats(this.gametype.currentMatchGametype, this.mapInfo.mapId);
             new Message(`Updated player winstats performance.`,'pass');
             
 
             if(this.domManager !== undefined){
+
                 this.domManager.setLifeCaps(this.killManager);
+
                 await this.domManager.updatePlayersMatchStats();
                 await this.domManager.insertMatchPlayerScores(this.matchId);
                 await this.domManager.updatePlayerLifeCaps(this.matchId);
@@ -280,7 +267,6 @@ class MatchManager{
                 await this.monsterHuntManager.insertKills(this.matchId);
                 await this.monsterHuntManager.setMatchMonsterKills(this.matchId);
             }
-
 
             if(this.weaponsManager !== undefined){
 
@@ -373,8 +359,9 @@ class MatchManager{
                 this.combogibManager.createKillTypeData();
                 this.combogibManager.createPlayerEvents();
 
-                await this.combogibManager.insertPlayerMatchData();
-                await this.combogibManager.updateMapTotals();
+                await this.combogibManager.updateDatabase();
+
+                
                 
             //}
             
@@ -400,6 +387,7 @@ class MatchManager{
                 this.CTFManager.killManager = this.killManager;
                 this.CTFManager.matchDate = this.serverInfo.date;
                 this.CTFManager.mapId = this.mapInfo.mapId;
+                this.CTFManager.gametypeId = this.gametype.currentMatchGametype;
                 this.CTFManager.createFlags();
 
                 await this.CTFManager.parseData(matchTimings.start, matchTimings.end);
@@ -412,6 +400,13 @@ class MatchManager{
                 await this.CTFManager.updatePlayerBestValues(this.gametype.currentMatchGametype);
                 await this.CTFManager.updatePlayerBestValuesSingleLife(this.gametype.currentMatchGametype);
                 await this.CTFManager.updateMapCapRecord(this.mapInfo.mapId, this.gametype.currentMatchGametype);
+                await this.CTFManager.insertEvents();
+                await this.CTFManager.insertCarryTimes();
+                await this.CTFManager.insertFlagDrops();
+                await this.CTFManager.insertFlagDeaths();
+                await this.CTFManager.insertFlagCovers();
+                await this.CTFManager.bulkInsertFlagPickups();
+                await this.CTFManager.bulkInsertSelfCovers();
 
                 
                 /*if(this.CTFManager.bHasData()){
@@ -431,6 +426,25 @@ class MatchManager{
                 }*/
             }       
 
+            if(bLMS){
+                
+                this.LMSManager = new LMSManager(this.playerManager, this.killManager, this.gameInfo.getMatchLength(), this.gameInfo.fraglimit);
+                const LMSWinner = this.LMSManager.getWinner();
+                const winner = this.playerManager.getPlayerById(LMSWinner.id);
+      
+                if(winner !== null){
+
+                    winner.bWinner = true;
+
+                    await this.match.setDMWinner(this.matchId, winner.masterId, LMSWinner.score);
+
+                    new Message(`Last man standing stats update complete.`,'pass');
+
+                }else{
+                    new Message(`Winner for LMS is null`, 'warning');
+                }
+            }
+
             
 
             this.rankingsManager = new Rankings();
@@ -443,7 +457,11 @@ class MatchManager{
 
             await Logs.setMatchId(logId, this.matchId);
 
-            new Message(`Finished import of log file ${this.fileName}.`, 'note');
+            new Message(`Finished import of log file ${this.fileName}.`, 'Progress');
+
+            const end = performance.now() * 0.001;
+
+            new Message(`Log imported in ${end - start} seconds.`,"Progress");
 
             return {
                 "updatedPlayers": this.playerManager.players.length, 

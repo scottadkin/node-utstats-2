@@ -110,10 +110,10 @@ class MonsterHuntMonster extends React.Component{
             rows.push(<tr key={i}>
                 <td>
                     <Link href={url}>
-                        <a>
+                        
                             <CountryFlag country={d.country}/>
                             {d.playerName}
-                        </a>
+                        
                     </Link>
                 </td>
                 <td>{Functions.ignore0(d.kills)}</td>

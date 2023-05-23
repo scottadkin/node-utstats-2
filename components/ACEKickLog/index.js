@@ -121,7 +121,7 @@ class ACEKickLog extends React.Component{
                 </tr>
                 <tr>
                     <td>Name</td>
-                    <td><Link href={`/ace?mode=player&name=${d.name}`}><a><CountryFlag host={this.props.host} country={d.country}/>{d.name}</a></Link></td>
+                    <td><Link href={`/ace?mode=player&name=${d.name}`}><CountryFlag host={this.props.host} country={d.country}/>{d.name}</Link></td>
                 </tr>
                 <tr className="yellow">
                     <td>Kick Reason</td>
@@ -137,7 +137,7 @@ class ACEKickLog extends React.Component{
                 </tr>
                 <tr>
                     <td>IP</td>
-                    <td><Link href={`/ace?mode=players&ip=${d.ip}`}><a>{d.ip}</a></Link></td>
+                    <td><Link href={`/ace?mode=players&ip=${d.ip}`}>{d.ip}</Link></td>
                 </tr>
                 <tr>
                     <td>OS</td>
@@ -149,15 +149,15 @@ class ACEKickLog extends React.Component{
                 </tr>
                 <tr>
                     <td>MAC1</td>
-                    <td><Link href={`/ace?mode=players&mac1=${d.mac1}`}><a>{d.mac1}</a></Link></td>
+                    <td><Link href={`/ace?mode=players&mac1=${d.mac1}`}>{d.mac1}</Link></td>
                 </tr>
                 <tr>
                     <td>MAC2</td>
-                    <td><Link href={`/ace?mode=players&mac2=${d.mac2}`}><a>{d.mac2}</a></Link></td>
+                    <td><Link href={`/ace?mode=players&mac2=${d.mac2}`}>{d.mac2}</Link></td>
                 </tr>
                 <tr>
                     <td>HWID</td>
-                    <td><Link href={`/ace?mode=players&hwid=${d.hwid}`}><a>{d.hwid}</a></Link></td>
+                    <td><Link href={`/ace?mode=players&hwid=${d.hwid}`}>{d.hwid}</Link></td>
                 </tr>
                 <tr>
                     <td>Game Version</td>

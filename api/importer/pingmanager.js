@@ -106,14 +106,19 @@ class PingManager{
 
             new Message(`Starting to insert player ping data.`,'note');
 
+            const insertVars = [];
+
             for(let i = 0; i < this.data.length; i++){
 
                 const d = this.data[i];
 
                 if(d.player !== undefined){
-                    await this.pings.insert(matchId, d.timestamp, d.player, d.ping);
+                    //await this.pings.insert(matchId, d.timestamp, d.player, d.ping);
+                    insertVars.push([matchId, d.timestamp, d.player, d.ping]);
                 }
             }
+
+            await this.pings.bulkInsert(insertVars);
 
             new Message(`Inserted all player ping data.`,'pass');
 

@@ -85,17 +85,17 @@ function createEventRows(events, host, playerCovers, matchId){
         if(player.id === undefined){
 
             playerElem = <Link href={`/pmatch/${matchId}?player=${player.id}`}>
-                <a>
-                    <span className="deleted">Deleted Player</span>
-                </a>
+                
+                <span className="deleted">Deleted Player</span>
+                
             </Link>
 
         }else{
 
             playerElem = <Link href={`/pmatch/${matchId}?player=${player.id}`}>
-                <a>
-                    <CountryFlag country={player.country} host={host}/><b>{player.name}</b>
-                </a>
+                
+                <CountryFlag country={player.country} host={host}/><b>{player.name}</b>
+                
             </Link>;
         }
 
@@ -119,10 +119,10 @@ function renderPlayer(player, matchId, host){
     }
 
     return <Link href={`/pmatch/${matchId}?player=${player.id}`}>
-            <a>
+            
                 <CountryFlag country={player.country} host={host}/>
                 {player.name}
-            </a>
+            
         </Link>;
 
 }

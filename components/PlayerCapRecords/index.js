@@ -75,16 +75,16 @@ class PlayerCapRecords extends React.Component{
             rows.push(<tr key={i}>
                 <td className="text-left">
                     <Link href={`/map/${r.map_id}`}>
-                        <a>
+                        
                             {r.mapName}
-                        </a>
+                        
                     </Link>
                 </td>
                 <td>
                     <Link href={`/match/${r.match_id}`}>
-                        <a>
+                    
                             {Functions.convertTimestamp(r.match_date, true)}
-                        </a>
+                        
                     </Link>
                 </td>
                 <td className="purple">{r.travel_time.toFixed(2)} Seconds</td>

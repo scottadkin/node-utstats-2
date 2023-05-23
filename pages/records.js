@@ -4,7 +4,7 @@ import Footer from "../components/Footer/";
 import Players from "../api/players";
 import Functions from "../api/functions";
 import Pagination from "../components/Pagination/";
-import React from "react";
+import {useReducer, useEffect} from "react";
 import Link from "next/link";
 import Session from "../api/session";
 import SiteSettings from "../api/sitesettings";
@@ -16,463 +16,602 @@ import CountryFlag from "../components/CountryFlag";
 import CTFCapRecords from "../components/CTFCapRecords";
 import CombogibRecords from "../components/CombogibRecords";
 import Combogib from "../api/combogib";
-import Playtime from "../components/Playtime";
+import Tabs from "../components/Tabs";
+import DropDown from "../components/DropDown";
+import Gametypes from "../api/gametypes";
+import Records from "../api/records";
+import InteractiveTable from "../components/InteractiveTable";
+import Maps from "../api/maps";
+import Router from "next/router";
+import RecordsMapsCaps from "../components/RecordsMapsCaps";
+import RecordsMapCaps from "../components/RecordsMapCaps";
 
+const mainTitles = {
+    "0": "Player Total Records",
+    "1": "Player Match Records",
+    "2": "CTF Cap Records"
+}
 
-class Records extends React.Component{
+const playtimeTypes = ["playtime", "team_0_playtime", "team_1_playtime", "team_2_playtime", "team_3_playtime", "spec_playtime"];
 
-    constructor(props){
+const getName = (names, mapId) =>{
 
-        super(props);
+    for(let i = 0; i < names.length; i++){
 
-        this.state = {
-            "mode": 3, 
-            "loaded": false, 
-            "error": null, 
-            "type": this.props.type, 
-            "perPage": this.props.perPage,
-            "totalResults": 0,
-            "data": null,
-        };
-
-        this.changeType = this.changeType.bind(this);
-        this.changePerPage = this.changePerPage.bind(this);
+        const {value, displayValue} = names[i];
+        if(value === mapId) return displayValue;
     }
 
+    return "Not Found";
+}
 
-    changeType(e){
+const bValidType = (type, types) =>{
 
-        this.setState({"type": e.target.value});
+    for(let i = 0; i < types.length; i++){
+
+        const value = types[i].value;
+        if(value === type) return true;
     }
 
-    changePerPage(e){
+    return false;
+}
 
-        this.setState({"perPage": e.target.value});
+const renderTabs = (state, dispatch, validTypes) =>{
+
+    const options = [
+        {"value": 0, "name": mainTitles[0]},
+        {"value": 1, "name": mainTitles[1]},
+        {"value": 2, "name": mainTitles[2]},
+    ];
+
+    return <Tabs 
+        options={options} 
+        selectedValue={state.mainTab} 
+        changeSelected={(newTab) => dispatch({"type": "changeMainTab", "tab": newTab, "validTypes": validTypes})}
+    />
+}
+
+const reducer = (state, action) =>{
+
+    switch(action.type){
+
+        case "loaded": {
+
+            return {
+                ...state,
+                "bLoading": false,
+                "data": action.data,
+                "totalResults": action.totalResults,
+                "error": null
+            }
+        }
+        case "loadData": {
+            return {
+                ...state,
+                "bLoading": true,
+                "data": null,
+                "totalResults": 0
+            }
+        }
+        case "changeMainTab": {
+
+
+            let currentType = state.playerTotalTab;
+            let validTypes = [];
+
+            if(action.tab === 0){
+                validTypes = action.validTypes.playerTotals;
+            }else if(action.tab === 1){
+                validTypes = action.validTypes.playerMatches;
+            }
+
+            if(!bValidType(currentType, validTypes) && action.tab !== 2){
+                currentType = "frags";
+            }
+
+            if(action.tab === 2){
+                if(currentType !== "solo" && currentType !== "assist"){
+                    currentType = "solo";
+                }
+            }
+            
+            
+            return {
+                ...state,
+                "mainTab": action.tab,
+                "playerTotalTab": currentType,
+                "page": 1
+            }
+        }
+        case "changeCapTab": {
+
+            return {
+                ...state,
+                "ctfCapTab": action.tab
+            }
+        }
+        case "changePlayerTotalTab": {
+
+            return {
+                ...state,
+                "playerTotalTab": action.tab,
+                "page": 1
+            }
+        }
+        case "changePage": {
+            return {
+                ...state,
+                "page": action.page
+            }
+        }
+        case "changePerPage": {
+            return {
+                ...state,
+                "perPage": action.perPage,
+                "page": 1
+            }
+        }
+        case "changeGametype": {
+            return {
+                ...state,
+                "selectedGametype": action.gametype,
+                "page": 1
+            }
+        }
+        case "changeMap": {
+            return {
+                ...state,
+                "selectedMap": action.map,
+                "page": 1
+            }
+        }
+        case "error": {
+            return {
+                ...state,
+                "bLoading": false,
+                "error": action.errorMessage
+            }
+        }
     }
+
+    return state;
+}
+
+const loadData = async (mainTab, selectedGametype, selectedMap, playerTotalTab, page, perPage, dispatch, controller) =>{
+
+    try{
+
+        dispatch({"type": "loadData"});
+
+        //lazy way to get map records
+        if(mainTab === 2 && selectedMap > 0){
+
+            mainTab = 3;
     
-
-    bAllModesDisabled(){
-
-        const settings = this.props.pageSettings;
-
-        const options = ["Display Player Records","Display Match Records","Display CTF Cap Records","Display Combogib Records"];
-
-        for(let i = 0; i < options.length; i++){
-
-            if(settings[options[i]] === "true") return false;
+            if(playerTotalTab !== "solo" && playerTotalTab !== "assist"){
+                //console.log("Confused horse noise");
+                playerTotalTab = "solo";
+            }
         }
 
-        return true;
-    }
+        let url = `/api/records/?mode=${mainTab}&gametype=${selectedGametype}&map=${selectedMap}`;
+        url = `${url}&cat=${playerTotalTab}&page=${page}&perPage=${perPage}`;
 
-    async loadData(){
+        try{
+
+            const req = await fetch(url, {
+                "signal": controller.signal,
+                "headers": {"Content-type": "application/json"},
+                "method": "GET"
+            });
 
 
-        if(this.bAllModesDisabled()){
-            this.setState({"error": `Every mode has been disabled from the admin menu,
-            if you wanted to hide this area instead, disable it from the Navigation menu settings.`, "loaded": true});
-            return;
-        }
+            const res = await req.json();
 
-        let mode = this.props.mode;
-        let url = "/api/records";
 
-        if(mode === 0){
-            mode = "totals";
-        }else if(mode === 1){
-            mode = "match";
-        }else if(mode >= 2){
-            this.setState({"loaded": true, "totalResults": 0});
-            return;
-        }
-
-        const req = await fetch(url,{
-            "headers": {"Content-type": "application/json"},
-            "method": "POST",
-            "body": JSON.stringify({"mode": mode, "type": this.state.type, "page": this.props.page - 1, "perPage": this.state.perPage})
-        });
-
-        const res = await req.json();
-
-        if(res.error !== undefined){
-            this.setState({"error": res.error});
-        }else{
-            
-           
-            this.setState({
-                "data": res.data, 
-                "totalResults": res.totalResults, 
-                "players": null, 
-                "matchDates": null, 
-                "mapNames": null
-            });        
-        }
-        
-        
-        this.setState({"loaded": true});
-    }
-
-    async componentDidMount(){
-
-        await this.loadData();
-    }
-
-    async componentDidUpdate(prevProps){
-
-        if(prevProps.mode !== this.props.mode || 
-            prevProps.type !== this.props.type || 
-            prevProps.page !== this.props.page ||
-            prevProps.perPage !== this.props.perPage
-        ){
-
-            if(prevProps.mode !== this.props.mode){
-                this.setState({"data": null, "loaded": false, "error": null});
+            if(res.error !== undefined){
+                dispatch({"type": "error", "errorMessage": res.error});
+                return;
             }
 
-            await this.loadData();
+
+            if(mainTab === 2 && selectedMap > 0){
+                dispatch({"type": "loaded", "data": res, "totalResults": res.totalResults});
+                return;
+            }
+
+            dispatch({"type": "loaded", "data": res.data, "totalResults": res.totalResults});
+
+        }catch(err){
+
+            if(err.name !== "AbortError"){
+                dispatch({"type": "error", "errorMessage": err.toString()});
+            }        
         }
+
+        
+
+    }catch(err){
+
+        if(err.name.toLowerCase() !== "aborterror"){
+            console.trace(err);
+        }
+    }
+}
+
+const renderError = (state) =>{
+
+    if(state.error === null) return;
+
+    return <ErrorMessage title="Records Data" text={state.error}/>
+}
+
+const renderPagination = (state, dispatch) =>{
+
+    const url = `/records/?mode=${state.mainTab}&gametype=${state.selectedGametype}&map=${state.selectedMap}&type=${state.playerTotalTab}&page=`;
+
+    return <Pagination 
+        event={(page) => {
+            dispatch({"type": "changePage", "page": page})
+        }}
+        currentPage={state.page} 
+        results={state.totalResults} 
+        perPage={state.perPage} 
+        url={url}
+    />;
+}
+
+const getCategoryName = (value, options) =>{
+
+    for(let i = 0; i < options.length; i++){
+
+        const o = options[i];
+
+        if(o.value === value) return o.displayValue;
+    }
+
+    return "Not Found";
+}
+
+const renderTotalData = (state, validTypes) =>{
+
+    if(state.mainTab !== 0) return null;
+
+    if(state.bLoading) return <Loading />;
+    if(state.error !== null) return null;
+
+    const headers = {
+        "place": "Place",
+        "name": "Player",
+        "last": "Last",
+        "matches": "Matches",
+        "playtime": "Playtime",
+        "value": getCategoryName(state.playerTotalTab, validTypes.playerTotals)
+    };
+
+    let index = state.perPage * (state.page - 1);
+
+    const data = state.data.map((d) =>{
+
+        index++;
+
+        let value = d.tvalue;
+
+        if(playtimeTypes.indexOf(state.playerTotalTab) !== -1){
+            value = <span className="playtime">{Functions.toPlaytime(value)}</span>;
+        }
+
+        return {
+            "place": {
+                "value": index, 
+                "displayValue": `${index}${Functions.getOrdinal(index)}`, 
+                "className": "place"
+            },
+            "name": {
+                "value": d.name.toLowerCase(), 
+                "displayValue": <Link href={`/player/${d.player_id}`}><CountryFlag country={d.country}/>{d.name}</Link>,
+                "className": "text-left"
+            },
+            "last": {
+                "value": d.last,
+                "displayValue": Functions.convertTimestamp(d.last, true),
+                "className": "playtime"
+            },
+            "matches": {
+                "value": d.matches
+            },
+            "playtime": {
+                "value": d.playtime,
+                "displayValue": Functions.toPlaytime(d.playtime),
+                "className": "playtime"
+            },
+            "value": {
+                "value": d.tvalue,
+                "displayValue": value
+
+            }
+        }
+    });
+
+    return <InteractiveTable width={1} headers={headers} data={data} perPage={100} bDisableSorting={true}/>;
+}
+
+
+const renderPlayerData = (state, validTypes, gametypeList, mapList) =>{
+
+    if(state.mainTab !== 1) return null;
+
+    if(state.bLoading) return <Loading />;
+
+    if(state.error !== null) return null;
+
+
+    const headers = {
+        "place": "Place",
+        "name": "Player",
+        "date": "Date",
+        "map": "Map",
+        "gametype": "Gametype",
+        "playtime": "Playtime",
+        "value": getCategoryName(state.playerTotalTab, validTypes.playerMatches)
+    };
+
+    let i = 0;
+
+
+    const data = state.data.map((d) =>{
+
+        const place = ((state.page - 1) * state.perPage) + i + 1;
+
+        i++;
+
+        let value = d.tvalue;
+
+        if(playtimeTypes.indexOf(state.playerTotalTab) !== -1){
+            value = <span className="playtime">{Functions.toPlaytime(value)}</span>;
+        }
+
+        const currentMapName = d.mapName ?? "";
+        const currentGametypeName = d.gametypeName ?? "";
+
+        return {
+            "place": {
+                "value": place, 
+                "displayValue": <>{place}{Functions.getOrdinal(place)}</>,
+                "className": "place"
+            },
+            "name": {
+                "value": d.name.toLowerCase(), 
+                "displayValue": <Link href={`/pmatch/${d.match_id}/?player=${d.player_id}`}><CountryFlag country={d.country}/>{d.name}</Link>,
+                "className": "text-left"
+            },
+            "date": {
+                "value": d.match_date, 
+                "displayValue": Functions.convertTimestamp(d.match_date,true),
+                "className": "playtime"
+            },
+            "map": {
+                "value": currentMapName.toLowerCase(), 
+                "displayValue": <><Link href={`/map/${d.map_id}`}>{currentMapName}</Link></>
+            },
+            "gametype": {
+                "value": currentGametypeName.toLowerCase(), 
+                "displayValue": currentGametypeName
+            },
+            "playtime": {
+                "value": d.playtime, 
+                "displayValue": Functions.toPlaytime(d.playtime),
+                "className": "playtime"
+            },
+            "value": {"value": d.tvalue, "displayValue": value},
+        };
+    });
+
+    return <InteractiveTable width={1} headers={headers} data={data} perPage={100} bDisableSorting={true}/>;
+}
+
+const renderGeneralRecordForm = (state, dispatch, validTypes, gametypesList, mapList, perPageOptions) =>{
+
+    //if(state.mainTab > 1) return null;
+
+    let validOptions = [];
+
+    if(state.mainTab === 0) validOptions = validTypes.playerTotals;
+    if(state.mainTab === 1) validOptions = validTypes.playerMatches;
+
+    let firstElem = null;
+
+    if(state.mainTab < 2){
+
+        firstElem = <DropDown dName="Record Type" originalValue={state.playerTotalTab} data={validOptions}
+            changeSelected={(name, value) => { dispatch({"type": "changePlayerTotalTab", "tab": value})}}
+        />
     }
 
 
-    renderTotalOptions(){
+    let lastElem = null;
 
-        if(this.props.mode > 1) return null;
-        
-        const types = [];
+    if(state.mainTab < 2 || state.selectedMap !== 0){
 
-        if(this.props.mode === 0) types.push(...this.props.validTypes.totals);
-        if(this.props.mode === 1) types.push(...this.props.validTypes.matches);
-        
-        types.sort((a, b) =>{
+        lastElem = <DropDown dName="Results Per Page" originalValue={state.perPage} data={perPageOptions}
+            changeSelected={(name, value) => { dispatch({"type": "changePerPage", "perPage": value})}}
+        />
+    }
 
-            a = a.display.toLowerCase();
-            b = b.display.toLowerCase();
+    return <>
+        {firstElem}
 
-            if(a < b){
-                return -1;
-            }else if(a > b){
-                return 1;
-            }
+        <DropDown dName="Gametype" originalValue={state.selectedGametype} data={gametypesList}
+            changeSelected={(name, value) => { dispatch({"type": "changeGametype", "gametype": value})}}
+        />
 
-            return 0;
-        });
+        <DropDown dName="Map" originalValue={state.selectedMap} data={mapList}
+            changeSelected={(name, value) => { dispatch({"type": "changeMap", "map": value})}}
+        />
 
-        const options = [];
+        {lastElem}
+    </>
+}
 
-        for(let i = 0; i < types.length; i++){
 
-            const {type, display} = types[i];
+const renderForm = (state, dispatch, validTypes, gametypesList, mapList, perPageOptions) =>{ 
 
-            options.push(<option key={type} value={type}>{display}</option>);
-        }
+    return <>
+        <div className="default-sub-header">{mainTitles[state.mainTab]}</div>
+        <div className="form m-bottom-25">
 
-        return <div>
-            <div className="default-sub-header">Select Record Type</div>
-                <div className="form">     
-                <div className="select-row">
-                    <div className="select-label">Record Type</div>
-                    <select value={this.state.type} onChange={this.changeType}  className="default-select">
-                        {options}
-                    </select>
-                </div>
-                <div className="select-row">
-                    <div className="select-label">Results Per Page</div>
-                    <select value={this.props.perPage} onChange={this.changePerPage} className="default-select">
-                        <option value="5">5</option>
-                        <option value="10">10</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                        <option value="75">75</option>
-                        <option value="100">100</option>
-                    </select>
-                </div>
-                <Link href={`/records/?mode=${this.props.mode}&type=${this.state.type}&page=1&pp=${this.state.perPage}`}>
-                    <a>
-                        <div className="search-button">Search</div>
-                    </a>
-                </Link>
-            </div>
+            {renderGeneralRecordForm(state, dispatch, validTypes, gametypesList, mapList, perPageOptions)}
         </div>
-    }
+     </>
+}
 
-    getComboTitleString(){
-
-        const mode = parseInt(this.props.capMode);
-
-        const recordTypes = (mode === 0) ? "match" : "totals";
-
-        const type = (this.props.type === "kills") ? "combo_kills" : this.props.type;
-
-        const types = {};
-
-        this.props.validComboTypes[recordTypes].map((obj) =>{
-            types[obj.name] = obj.display;
-        });
-
-        return types[type] ?? "Not found";
-       
-    }
+const renderData = (state, dispatch, validTypes, gametypesList, mapList) =>{
 
 
-    getTypeTitle(){
+    if(state.mainTab === 2 && state.selectedMap === 0){
 
-        const capType = parseInt(this.props.capType);
+        return <RecordsMapsCaps 
+            selectedTab={state.playerTotalTab} 
+            changeTab={(newTab) => { dispatch({"type": "changePlayerTotalTab", "tab": newTab})}}
+            gametypeList={gametypesList} 
+            mapList={mapList} 
+            data={state.data}
+        />;
+    
+    }else if(state.mainTab === 2 && state.selectedMap !== 0){
 
-        let types = [];
-
-        if(this.props.mode === 0){
-
-            types = this.props.validTypes.totals;
-
-        }else if(this.props.mode === 1){
-
-            types = this.props.validTypes.matches;
-
-        }else if(this.props.mode === 2){
-
-            if(capType === 0){
-                return "Solo Cap Records";
-            }else if(capType === 1){
-                return "Assisted Cap Records";
-            }
-
-        }else if(this.props.mode === 3){
-
-            const modeString = (this.props.capMode === 0) ? "Match" : "Player";
-
-            return `${this.getComboTitleString()} - ${modeString} Combogib Records`;
-        }
-
-        for(let i = 0; i < types.length; i++){
-
-            const {type, display} = types[i];
-
-            if(type === this.props.type) return display;
-        }
-
-        return "Unknown type";
-
-    }
-
-
-    renderTable(){
-
-        if(this.props.mode >= 2 || !this.state.loaded || this.state.data === null) return null;
-
-        const type = this.getTypeTitle();
-        let title = type;
-
-        if(this.props.mode === 0){
-            title = `Player Total Records For ${title}`;
-        }else if(this.props.mode === 1){
-            title = `Player Match Records For ${title}`;
-        }
-
-        const hours = ["flag_carry_time", "playtime"];
-
-        const rows = [];
-
-        for(let i = 0; i < this.state.data.length; i++){
-
-            const d = this.state.data[i];
-
-            let playerURL = "";
-
-            
-            if(this.props.mode === 0){
-                playerURL = `/player/${d.player_id}`;
-            }else if(this.props.mode === 1){
-                playerURL = `/pmatch/${d.match_id}/?player=${d.player_id}`;
-            }
-
-
-            let place = 1 + i + ((this.props.page - 1) * this.state.perPage);
-            rows.push(<tr key={`${i}-${d.value}-${d.player_id}`}>
-                <td>
-                <span className="place">
-                        {place}{Functions.getOrdinal(place)}
-                    </span>&nbsp;
-                </td>
-                <td className="text-left">
-                    <Link href={playerURL}>
-                        <a>
-                            <CountryFlag country={d.country}/>
-                            {d.name}
-                        </a>
-                    </Link>
-                </td>
-                <td className="small-font grey">{Functions.convertTimestamp((this.props.mode === 0) ? d.last : d.match_date, true, false)}</td>
-                <td>{(this.props.mode === 0) ? d.matches : <Link href={`/map/${d.map_id}`}><a>{d.mapName}</a></Link>}</td>
-                <td className="playtime"><Playtime timestamp={d.playtime}/></td>
-                <td>{(hours.indexOf(this.props.type) === -1) ? d.value : `${Functions.toHours(d.value)} Hours`}</td>
-            </tr>);
-        }
-
-        return <div className="m-top-25">
-            <Table2 width={1} header={title}>
-                <tr>
-                    <th>Place</th>
-                    <th>Player</th>
-                    <th>{(this.props.mode === 0) ? "Last Seen" : "Date" }</th>
-                    <th>{(this.props.mode === 0) ? "Matches" : "Map" }</th>
-                    <th>Playtime</th>
-                    <th>{type}</th>
-                </tr>
-                {rows}
-            </Table2>
-        </div>
-    }
-
-    renderPagination(){
-
-        if(!this.state.loaded || this.props.mode >= 2) return null;
-
-        return <Pagination url={`/records/?mode=${this.props.mode}&pp=${this.state.perPage}&page=`} results={this.state.totalResults} 
-            currentPage={this.props.page} perPage={this.props.perPage}
-        />  
-    }
-
-
-    renderCTFCapRecords(){
-
-        if(this.props.mode !== 2) return null;
-
-        return <CTFCapRecords  selectedMode={this.props.capType}/>;
-    }
-
-    renderCombogibRecords(){
-
-        if(this.props.mode !== 3) return null;
-
-
-        return <CombogibRecords mode={this.props.capMode} page={this.props.page} perPage={this.props.perPage} 
-            type={(this.props.type === "kills") ? "combo_kills" : this.props.type}
-            validTypes={this.props.validComboTypes}
+        return <RecordsMapCaps 
+            changeTab={(newTab) => { dispatch({"type": "changePlayerTotalTab", "tab": newTab})}}
+            selectedTab={state.playerTotalTab} 
+            data={state.data} 
+            page={state.page}
+            perPage={state.perPage}
         />;
     }
 
-    renderTabs(){
+    if(state.data == undefined || !Array.isArray(state.data)) return null;
 
-        const tabs = [];
+    return <>
+        {renderTotalData(state, validTypes)}
+        {renderPlayerData(state, validTypes, gametypesList, mapList)}
+    </>;
+}
 
+const RecordsPage = ({
+        host, session, pageSettings, navSettings, metaTags, 
+        perPageOptions, page, perPage, validTypes, mode, type,
+        gametypesList, selectedGametype, mapList, selectedMap
+    }) =>{
+        
 
-        const settings = this.props.pageSettings;
+    const [state, dispatch] = useReducer(reducer, {
+        "bLoading": true,
+        "mainTab": mode,
+        "playerTotalTab": type,
+        "ctfCapTab": 0,
+        "perPage": perPage,
+        "page": page,
+        "error": null,
+        "selectedGametype": selectedGametype,
+        "selectedMap": selectedMap,
+        "totalResults": 0,
+        "data": null
+        
+    });
 
-        if(settings["Display Player Records"] === "true"){
+    useEffect(() =>{
+      
+        const controller = new AbortController();
 
-            tabs.push(
-                <Link key="players" href={`/records/?mode=0&page=1&pp=${this.state.perPage}`}>
-                    <a>
-                        <div className={`tab ${(this.props.mode === 0) ? "tab-selected" : ""}`}>Player Total Records</div>
-                    </a>
-                </Link>
-            );
+        loadData(
+            state.mainTab, 
+            state.selectedGametype, 
+            state.selectedMap, 
+            state.playerTotalTab, 
+            state.page, 
+            state.perPage, 
+            dispatch, 
+            controller
+        );
+
+        Router.push(
+            `/records/?mode=${state.mainTab}&gametype=${state.selectedGametype}&map=${state.selectedMap}&type=${state.playerTotalTab}&page=${state.page}`, 
+            undefined, 
+            { shallow: true }
+        );
+
+        return () =>{
+            controller.abort();
         }
 
-        if(settings["Display Match Records"] === "true"){
+        
 
-            tabs.push(
-                <Link key="matches" href={`/records/?mode=1&page=1&pp=${this.state.perPage}`}>
-                    <a>
-                        <div className={`tab ${(this.props.mode === 1) ? "tab-selected" : ""}`}>Player Match Records</div>
-                    </a>
-                </Link>
-            );
-        }
+    }, [
+        state.mainTab, 
+        state.playerTotalTab, 
+        state.page, 
+        state.perPage, 
+        state.selectedGametype,
+        state.selectedMap,
+        state.ctfCapTab
+    ])
 
-        if(settings["Display CTF Cap Records"] === "true"){
+    let validTypeList = [];
 
-            tabs.push(
-                <Link key="ctf" href={`/records/?mode=2&page=1&pp=${this.state.perPage}`}>
-                    <a>
-                        <div className={`tab ${(this.props.mode === 2) ? "tab-selected" : ""}`}>CTF Cap Records</div>
-                    </a>
-                </Link>   
-            );
-        }
+    if(state.mainTab === 0){
 
-        if(settings["Display Combogib Records"] === "true"){
+        validTypeList = validTypes.playerTotals;
 
-            tabs.push(
-                <Link key="combo" href={`/records/?mode=3&page=1&pp=${this.state.perPage}`}>
-                    <a>
-                        <div className={`tab ${(this.props.mode === 3) ? "tab-selected" : ""}`}>Combogib Records</div>
-                    </a>
-                </Link>
-            );
-        }
+    }else if(state.mainTab === 1){
 
-        if(tabs.length === 1) return null;
+        validTypeList = validTypes.playerMatches;
 
-        return <div className="tabs">
-            {tabs}
-        </div>;
+    }else if(state.mainTab === 2){
 
+        validTypeList = [
+            {"value": "solo", "displayValue": "Solo Caps"},
+            {"value": "assist", "displayValue": "Assist Caps"}
+        ];
     }
 
-    renderElems(){
+    const metaTypeName = getName(validTypeList, state.playerTotalTab);
 
-        if(this.state.error !== null) return <ErrorMessage title="Records" text={this.state.error}/>
+    let metaGametypeName = ", with any gametype";
 
-        return <div>
-            {this.renderTabs()}
-            {this.renderTotalOptions()}
-            {<Loading value={this.state.loaded}/> }
-            {this.renderPagination()}
-            {this.renderTable()}
-            {this.renderCTFCapRecords()}
-            {this.renderCombogibRecords()}
-            {this.renderPagination()}    
-        </div>
+    if(state.selectedGametype !== 0){
+        metaGametypeName = `, with the selected gametype of ${getName(gametypesList, state.selectedGametype)}`;
     }
 
-    getTitle(){
+    let metaMapName = ", on any map";
 
-        const m = this.props.mode;
-
-        if(m === 0) return `${this.getTypeTitle()} - Player Total Records`;
-        if(m === 1) return `${this.getTypeTitle()} - Player Match Records`;
-        if(m === 2) return `${this.getTypeTitle()} - CTF Cap Records`;
-        if(m === 3) return `${this.getTypeTitle()}`;
-
-        return "Unknown";
+    if(state.selectedMap !== 0){
+        metaMapName = `, on the selected map of ${getName(mapList, state.selectedMap)}`;
     }
 
-    getDescription(){
+    const title = (state.mainTab !== mode) ? mainTitles[state.mainTab] : metaTags.title;
+    //${metaGametypeName}${metaMapName} 
 
-        const m = this.props.mode;
+    let description = `View all player ${metaTypeName} records${metaGametypeName}${metaMapName}.`;
 
-        if(m === 0){
-            return `Look up player total stats in various leaderboards, this page is for the ${this.getTypeTitle()} leaderboard.`;
-        }else if(m === 1){
-            return `Look up player match stats in various leaderboards, this page is for the ${this.getTypeTitle()} leaderboard.`;
-        }else if(m === 2){
-            return `Look up map CTF Cap in both solo and assited leaderboards, this page is for the ${this.getTypeTitle()} leaderboard.`;
-        }else if(m === 3){
-            return `Look up various Combogib leaderboards, this page is for the ${this.getComboTitleString()} leaderboard.`;
-        }
-    }
 
-    render(){
-
-        return <div>
-            <DefaultHead 
-            title={this.getTitle()} 
-            description={this.getDescription()} 
-            host={this.props.host}
-            keywords={`${this.getTypeTitle().replaceAll(" ",",").toLowerCase()},player,record`}/>
-            <main>
-                <Nav settings={this.props.navSettings} session={this.props.session}/>
-                <div id="content">
-                    <div className="default">
-                        <div className="default-header">Records</div>
-                        {this.renderElems()}
-                    </div>
+    return <div>
+        <DefaultHead host={host} title={`${metaTypeName} - ${title}`} description={description} keywords="records,players,ctf,combogib"/>	
+        <main>
+            <Nav settings={navSettings} session={session}/>
+            <div id="content">
+                <div className="default">	
+                    <div className="default-header">Records</div>
+                    {renderTabs(state, dispatch, validTypes)}
+                    {renderForm(state, dispatch, validTypes, gametypesList, mapList, perPageOptions)}
+                    {renderError(state)}
+                    {renderPagination(state, dispatch)}
+                    {renderData(state, dispatch, validTypes, gametypesList, mapList)}
+                    {renderPagination(state, dispatch)}
                 </div>
-                <Footer session={this.props.session}/>
-            </main>
+            </div>
+            <Footer session={session}/>
+        </main>   
         </div>
-    }
 }
 
 export async function getServerSideProps({req, query}){
@@ -480,25 +619,24 @@ export async function getServerSideProps({req, query}){
     const session = new Session(req);
 	await session.load();
 
-    let mode = parseInt(query.mode) ?? 0;
+    let mode = (query.mode !== undefined) ? parseInt(query.mode) : 0;
     if(mode !== mode) mode = 0;
 
-    let page = parseInt(query.page) ?? 1;
+    let page = (query.page !== undefined) ? parseInt(query.page) : 1;
     if(page !== page) page = 1;
 
+    let type = (query.type !== undefined) ? query.type.toLowerCase() :  "frags";
 
-    const capType = (query.ct !== undefined) ? query.ct.toLowerCase() : 0;
+    let gametype = (query.gametype !== undefined) ? parseInt(query.gametype) : 0;
+    if(gametype !== gametype) gametype = 0;
 
-    let type = query.type ?? "kills";
+    let map = (query.map !== undefined) ? parseInt(query.map) : 0;
+    if(map !== map) map = 0;
 
-    //also used as combo mode
-    let capMode = parseInt(query.cm) ?? 0;
-    if(capMode !== capMode) capMode = 0;
 
     const settings = new SiteSettings();
     const navSettings = await settings.getCategorySettings("Navigation");
     const pageSettings = await settings.getCategorySettings("Records Page");
-
     const defaultPerPage = parseInt(pageSettings["Default Per Page"]);
 
     let perPage = query.pp ?? defaultPerPage ?? 25;
@@ -506,27 +644,37 @@ export async function getServerSideProps({req, query}){
     if(perPage !== perPage) perPage = 25;
     if(perPage <= 0 || perPage > 100) perPage = defaultPerPage;
 
-    const playerManager = new Players();
-    const validTypes = playerManager.getValidRecordTypes();
-
     await Analytics.insertHit(session.userIp, req.headers.host, req.headers["user-agent"]);
+ 
+    const r = new Records();
+    const defaultType = "frags";
 
-    const comboManager = new Combogib();
+    if(mode === 0){
 
-    const validComboTypes = comboManager.getValidRecordTypes();
+        if(!r.bValidTotalType(type)){
+            type = defaultType;
+        }
 
-    if(mode === 3){
-        
-        const dataKey = (capMode === 0) ? "match" : "totals";
+    }else if(mode === 1){
 
-        const found = validComboTypes[dataKey].find((entry) =>{ 
-            return entry.name === type;
-        });
-
-        if(found === undefined){
-            type = "combo_kills";
+        if(!r.bValidPlayerType(type)){
+            type = defaultType;
         }
     }
+
+
+    const gm = new Gametypes();
+    const gametypeList = await gm.getDropDownOptions();
+
+    const mapManager = new Maps();
+
+    const mapList = await mapManager.getAllDropDownOptions();
+
+    const metaTags = {
+        "title": (mainTitles[mode] !== undefined) ? mainTitles[mode] : `Records`
+    };
+
+    mapList.unshift({"value": 0, "displayValue": "All Maps"});
 
     return {
         "props": {
@@ -535,15 +683,21 @@ export async function getServerSideProps({req, query}){
             "page": page,
             "type": type.toLowerCase(),
             "perPage": perPage,
-            "capMode": capMode,
-            "validTypes": validTypes,
-            "validComboTypes": validComboTypes,
             "session": JSON.stringify(session.settings),
             "navSettings": JSON.stringify(navSettings),
             "pageSettings": pageSettings,
-            "capType": capType
+            "metaTags": metaTags,
+            "perPageOptions": r.totalPerPageOptions,
+            "validTypes": {
+                "playerTotals": r.validPlayerTotalTypes,
+                "playerMatches": r.validPlayerMatchOptions
+            },
+            "gametypesList": gametypeList,
+            "selectedGametype": gametype,
+            "mapList": mapList,
+            "selectedMap": map
         }
     }
 }
 
-export default Records;
+export default RecordsPage;

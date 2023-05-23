@@ -101,4 +101,39 @@ Database.simpleQuery = (query, vars) =>{
     });  
 }
 
+Database.bulkInsert = (query, vars, maxPerInsert) =>{
+
+    return new Promise(async (resolve, reject) =>{
+
+        if(vars.length === 0){
+            resolve();
+            return;
+        }
+
+        if(maxPerInsert === undefined) maxPerInsert = 100000;
+
+        let startIndex = 0;
+
+        if(vars.length < maxPerInsert){
+            await Database.simpleQuery(query, [vars]);
+            resolve();
+            return;
+        }
+
+        while(startIndex < vars.length){
+
+            const end = (startIndex + maxPerInsert > vars.length) ? vars.length : startIndex + maxPerInsert;
+            const currentVars = vars.slice(startIndex, end);
+            await Database.simpleQuery(query, [currentVars]);
+            startIndex += maxPerInsert;
+        }
+
+        resolve();
+
+    });
+    
+
+
+}
+
 module.exports = Database;

@@ -68,9 +68,9 @@ const createAssistedPlayers = (assists, players, ignorePlayers, matchId, capId) 
         const p = playerList[i];
 
         elems.push(<Link key={p.id} href={`/pmatch/${matchId}/?player=${p.id}`}>
-            <a className="small-font grey">
+            <span className="small-font grey">
                 <CountryFlag country={p.country}/>{p.name}{(i < playerList.length - 1) ? ", " : ""}
-            </a>
+            </span>
         </Link>);
     }
 
@@ -126,18 +126,18 @@ const renderCaps = (currentMode, caps, players, mapId, totalCaps, perPage, curre
             "date": {
                 "value": capData.match_date, 
                 "displayValue": <Link href={`/match/${capData.match_id}`}>
-                    <a>
-                        {Functions.convertTimestamp(capData.match_date, true)}
-                    </a>
+                   
+                    {Functions.convertTimestamp(capData.match_date, true)}
+                    
                 </Link>,
                 "className": "playtime"
             },
             "cap": {
                 "value": capPlayer.name.toLowerCase(),
                 "displayValue": <Link href={`/pmatch/${capData.match_id}/?player=${capData.cap_player}`}>
-                    <a>
-                        <CountryFlag country={capPlayer.country}/>{capPlayer.name}
-                    </a>
+                    
+                    <CountryFlag country={capPlayer.country}/>{capPlayer.name}
+                    
                 </Link>
             },
             "carry": {"value": capData.carry_time, "displayValue": Functions.toPlaytime(capData.carry_time, true), "className": "playtime"},
@@ -150,9 +150,9 @@ const renderCaps = (currentMode, caps, players, mapId, totalCaps, perPage, curre
             current.grab = {
                 "value": grabPlayer.name.toLowerCase(),
                 "displayValue": <Link href={`/pmatch/${capData.match_id}/?player=${capData.grab_player}`}>
-                    <a>
+                    
                         <CountryFlag country={grabPlayer.country}/>{grabPlayer.name}
-                    </a>
+                    
                 </Link>
             };
             current.assists = {

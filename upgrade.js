@@ -1,6 +1,7 @@
 const mysql = require('./api/database');
 const Message = require('./api/message');
 const config = require('./config.json');
+const Players = require("./api/players");
 
 
 async function columnExists(table, column){
@@ -60,6 +61,7 @@ async function updatePlayerTotals(){
 
     new Message(`Starting update of ${table}.`,"note");
 
+    await alterTable(table, "map", "INT(11) NOT NULL", "AFTER gametype");
     await alterTable(table, "team_0_playtime", "float NOT NULL", "AFTER playtime");
     await alterTable(table, "team_1_playtime", "float NOT NULL", "AFTER team_0_playtime");
     await alterTable(table, "team_2_playtime", "float NOT NULL", "AFTER team_1_playtime");
@@ -238,6 +240,8 @@ async function updateSiteSettings(){
     }
 }
 
+
+
 (async () =>{
 
     try{
@@ -254,7 +258,14 @@ async function updateSiteSettings(){
         await addTeleFrags();
         await createTeleFragTables();
         await updateSiteSettings();
+
+        if(!await columnExists("nstats_ctf_caps", "gametype_id")){
+            await alterTable("nstats_ctf_caps", "gametype_id", "INT NOT NULL", "AFTER match_id");
+        }
         
+        const p = new Players();
+        new Message(`Recalculating player total records, this may take a while.`,"note");
+        await p.recalculateAllPlayerMapGametypeRecords();
 
         process.exit(0);
 

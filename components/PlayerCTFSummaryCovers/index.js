@@ -3,7 +3,7 @@ import Functions from "../../api/functions";
 
 const renderData = (gametypeNames, data, selectedTab) =>{
 
-    const headers = {   
+    let headers = {   
         "cover": "Cover",
         "multi": {"title": "Multi Cover", "detailedTitle": "Flag Multi Cover", "content": "Player covered the flag carrier 3 times when the flag was taken."},
         "spree": {"title": "Cover Spree", "detailedTitle": "Flag Cover Spree", "content": "Player covered the flag carrier 4 or more times when the flag was taken."},

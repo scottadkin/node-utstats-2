@@ -812,9 +812,12 @@ class CombogibManager{
 
         try{
 
+
             if(this.detailedStats === undefined){
                 throw new Error("This.detailedStats is undefined");
             }
+
+            const matchInsertVars = [];
 
             //console.log(this.detailedStats);
 
@@ -826,10 +829,20 @@ class CombogibManager{
 
                 const {combos, insane, shockBalls, primary, playtime} = value;
 
-                await this.combogib.insertPlayerMatchData(key, this.gametypeId, this.matchId, this.mapId, playtime, combos, shockBalls, primary, insane);
+                matchInsertVars.push([
+                    key, this.gametypeId, this.matchId, this.mapId, playtime,
+                    primary.kills, primary.deaths, primary.efficiency, primary.kpm,
+                    shockBalls.kills, shockBalls.deaths, shockBalls.efficiency, shockBalls.kpm,
+                    combos.kills, combos.deaths, combos.efficiency, combos.kpm,
+                    insane.kills, insane.deaths, insane.efficiency, insane.kpm,
+                    combos.bestSingle, shockBalls.bestSingle, insane.bestSingle,
+                    primary.best, shockBalls.best, combos.best, insane.best
+                ]);
 
                 await this.combogib.updatePlayerTotals(key, this.gametypeId, this.mapId, this.matchId, playtime, combos, insane, shockBalls, primary);
-            }            
+            }       
+            
+            await this.combogib.bulkInsertPlayerMatchData(matchInsertVars);
 
         }catch(err){
             console.trace(err);
@@ -952,6 +965,31 @@ class CombogibManager{
 
         await this.combogib.updateMapTotals(this.mapId, this.gametypeId, this.matchId, this.matchLength, combos, shockBalls, primary, insane);
         
+    }
+
+    bAnyNonPrimaryKills(){
+
+        const types = ["combos", "insane", "shockBalls"];
+
+        for(const data of Object.values(this.detailedStats)){
+
+            for(let i = 0; i < types.length; i++){
+
+                const t = types[i];
+
+                if(data[t].kills > 0 || data[t].deaths > 0) return true;
+            }
+        }
+
+        return false;
+    }
+
+    async updateDatabase(){
+
+        if(!this.bAnyNonPrimaryKills()) return;
+
+        await this.insertPlayerMatchData();
+        await this.updateMapTotals();
     }
 
 }

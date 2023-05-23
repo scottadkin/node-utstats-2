@@ -13,7 +13,7 @@ class MapTableRow extends React.Component{
     render(){
 
         return (<tr>
-            <td><Link href={`/map/${this.props.data.id}`}><a>{Functions.removeUnr(this.props.data.name)}</a></Link></td>
+            <td><Link href={`/map/${this.props.data.id}`}>{Functions.removeUnr(this.props.data.name)}</Link></td>
             <td>{Functions.convertTimestamp(this.props.data.first, true)} </td>
             <td>{Functions.convertTimestamp(this.props.data.last, true)}</td>
             <td className="playtime"><Playtime timestamp={this.props.data.playtime}/></td>

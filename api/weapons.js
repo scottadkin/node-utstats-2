@@ -9,81 +9,47 @@ class Weapons{
         this.weaponNames = [];
     }
 
-    exists(name){
+    async exists(name){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT COUNT(*) as total_matches FRON nstats_weapons WHERE name=?";
 
-            const query = "SELECT COUNT(*) as total_matches FRON nstats_weapons WHERE name=?";
+        const result = await mysql.simpleQuery(query, [name]);
 
-            mysql.query(query, [name], (err, result) =>{
+        if(result[0].total_matches >= 1) return true;
 
-                if(err) reject(err);
-
-                if(result[0].total_matches >= 1){
-                    resolve(true);
-                }
-
-                resolve(false);
-
-            });
-        });
+        return false;
     }
 
 
-    create(name){
+    async create(name){
 
-        return new Promise((resolve, reject) =>{
+        const query = "INSERT INTO nstats_weapons VALUES(NULL,?,0,0,0,0,0,0,0)";
 
-            const query = "INSERT INTO nstats_weapons VALUES(NULL,?,0,0,0,0,0,0,0)";
+        const result = await mysql.simpleQuery(query, [name]);
 
-            mysql.query(query, [name], (err, result) =>{
+        return result.insertId;
 
-                if(err) reject(err);
-
-                resolve(result.insertId);
-
-            });
-        });
     }
 
-    update(weapon, kills, deaths, shots, hits, damage){
+    async update(weapon, kills, deaths, shots, hits, damage){
 
         damage = Math.abs(damage);
 
-        return new Promise((resolve, reject) =>{
-
-            const query = `UPDATE nstats_weapons SET matches=matches+1,kills=kills+?,deaths=deaths+?,shots=shots+?,hits=hits+?,damage=damage+?,
+        const query = `UPDATE nstats_weapons SET matches=matches+1,kills=kills+?,deaths=deaths+?,shots=shots+?,hits=hits+?,damage=damage+?,
             accuracy=IF(hits > 0 AND shots > 0, (hits/shots)*100, IF(hits > 0, 100,0))
             WHERE id=?`;
+        
+        return await mysql.simpleQuery(query, [kills, deaths, shots, hits, damage, weapon]);
 
-            mysql.query(query, [kills,deaths,shots,hits,damage, weapon], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
     }
 
+    async getIdsByNamesQuery(names){
 
-    getIdsByNamesQuery(ids){
+        const query = "SELECT * FROM nstats_weapons WHERE name IN (?)";
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "SELECT * FROM nstats_weapons WHERE name IN (?)";
-
-            mysql.query(query, [ids], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        }); 
+        return await mysql.simpleQuery(query, [names]);
     }
+
 
 
     async getIdsByName(names){
@@ -93,26 +59,25 @@ class Weapons{
             if(names.indexOf("None") === -1){
                 names.push('None');
             }
+
             const current = await this.getIdsByNamesQuery(names);
 
-            const currentNames = [];
+            const currentNames = current.map((weapon) =>{
+                return weapon.name;
+            });
 
-            for(let i = 0; i < current.length; i++){
-                currentNames.push(current[i].name);
-            }
+            for(let i = 0; i < names.length; i++){
 
-            if(current.length < names.length){
+                const name = names[i];
 
-                new Message(`Some weapons are not in the database.`,'note');
+                if(currentNames.indexOf(name) === -1){       
 
-                for(let i = 0; i < names.length; i++){
- 
-                    if(currentNames.indexOf(names[i]) === -1){       
+                    const currentId = await this.create(name); 
 
-                        current.push({"id": await this.create(names[i]), "name": names[i]});
-                        new Message(`Inserted new weapon ${names[i]} into database.`,'pass');
+                    current.push({"id": currentId, "name": name});
+             
+                    new Message(`Inserted new weapon ${name} into database.`,'pass');
 
-                    }
                 }
             }
 
@@ -131,6 +96,7 @@ class Weapons{
             new Message(`getSavedWeaponByName name is null`,'warning');
             return null;
         }
+
         name = name.toLowerCase();
 
         for(let i = 0; i < this.weaponNames.length; i++){
@@ -143,7 +109,7 @@ class Weapons{
         return null;
     }
 
-    async insertPlayerMatchStats(matchId, mapId, gametypeId, playerId, weaponId, stats){
+    /*async insertPlayerMatchStats(matchId, mapId, gametypeId, playerId, weaponId, stats){
 
         const query = "INSERT INTO nstats_player_weapon_match VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
@@ -155,6 +121,16 @@ class Weapons{
 
         return await mysql.simpleQuery(query, vars);
 
+    }*/
+
+    async bulkInsertPlayerMatchStats(data){
+
+        const query = `INSERT INTO nstats_player_weapon_match (
+            match_id,map_id,gametype_id,player_id,weapon_id,kills,best_kills,
+            deaths,suicides,team_kills,best_team_kills,accuracy,shots,hits,damage,efficiency
+        ) VALUES ?`;
+
+        return await mysql.bulkInsert(query, data);
     }
 
 
@@ -372,7 +348,7 @@ class Weapons{
         try{
 
             const playerData = await this.getMatchPlayerData(id);
-
+            
             const weaponIds = [];
 
             for(let i = 0; i < playerData.length; i++){
@@ -1288,7 +1264,7 @@ class Weapons{
             stats.teamKills, stats.teamKills,
             stats.bestTeamKills, stats.bestTeamKills,
             stats.deaths, stats.deaths,
-            stats.suicides, stats.suicide,
+            stats.suicides, stats.suicides,
             stats.efficiency, stats.efficiency,
             stats.accuracy, stats.accuracy,
             stats.shots, stats.shots,

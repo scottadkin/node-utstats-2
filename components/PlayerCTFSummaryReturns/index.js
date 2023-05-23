@@ -3,7 +3,7 @@ import Functions from "../../api/functions";
 
 const renderData = (gametypeNames, data, selectedTab) =>{
 
-    const headers = {   
+    let headers = {   
         "returns": "Returns",
         "returnBase": "Base Returns",
         "returnMid": "Mid Returns",

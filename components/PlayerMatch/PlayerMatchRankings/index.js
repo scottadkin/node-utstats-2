@@ -82,30 +82,40 @@ const PlayerMatchRanking = ({matchId, playerId, gametypeId}) =>{
         
         const loadData = async () =>{
 
-            const req = await fetch("/api/match",{
-                "signal": controller.signal,
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({
-                    "mode": "player-ranking", 
-                    "playerId": playerId, 
-                    "matchId": matchId, 
-                    "gametypeId": gametypeId
-                })
-            });
+            try{
 
-            const res = await req.json();
-
-            if(res.error !== undefined){
-                dispatch({"type": "error", "errorMessage": res.error});
-            }else{
-
-                dispatch({
-                    "type": "loaded", 
-                    "position": res.position, 
-                    "currentRanking": res.currentRanking, 
-                    "matchChange": res.matchChange
+                const req = await fetch("/api/match",{
+                    "signal": controller.signal,
+                    "headers": {"Content-type": "application/json"},
+                    "method": "POST",
+                    "body": JSON.stringify({
+                        "mode": "player-ranking", 
+                        "playerId": playerId, 
+                        "matchId": matchId, 
+                        "gametypeId": gametypeId
+                    })
                 });
+
+                const res = await req.json();
+
+                if(res.error !== undefined){
+                    dispatch({"type": "error", "errorMessage": res.error});
+                }else{
+
+                    dispatch({
+                        "type": "loaded", 
+                        "position": res.position, 
+                        "currentRanking": res.currentRanking, 
+                        "matchChange": res.matchChange
+                    });
+                }
+
+            }catch(err){
+
+                if(err.name !== "AbortError"){
+
+                    console.trace(err);
+                }
             }
         }
 

@@ -140,7 +140,7 @@ class Maps extends React.Component{
                             <input type="hidden" name="displayType" value={this.state.displayType} />
                         </div>
                         <Link href={`${url}1`}>
-                            <a className="search-button">Search</a>
+                            <span className="search-button">Search</span>
                         </Link>
                     </form>
                     {notFound}

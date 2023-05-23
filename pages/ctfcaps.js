@@ -101,7 +101,7 @@ class CTFCaps extends React.Component{
                         </select>
                     </div>
                 </div>
-                <Link href={`/ctfcaps?map=${this.state.newMapId}`}><a><div className="search-button">Load Data</div></a></Link>
+                <Link href={`/ctfcaps?map=${this.state.newMapId}`}><div className="search-button">Load Data</div></Link>
             </div>
         </div>
     }
@@ -230,24 +230,24 @@ class CTFCaps extends React.Component{
                     <div className="default">
                         <div className="default-header">Capture The Flag Cap Records</div>
                         <div className="big-tabs">
-                            <Link href={`/records`}><a><div className="big-tab">General Records</div></a></Link>
+                            <Link href={`/records`}><div className="big-tab">General Records</div></Link>
                             <div className="big-tab tab-selected">CTF Cap Records</div>
                         </div>
                         <div className="tabs">
                             <Link href={`/ctfcaps/?mode=0`}>
-                                <a>
-                                    <div className={`tab ${(this.props.mode === 0) ? "tab-selected" : ""}`} >Map Caps</div>
-                                </a>
+                                
+                                <div className={`tab ${(this.props.mode === 0) ? "tab-selected" : ""}`} >Map Caps</div>
+                                
                             </Link>
                             <Link href={`/ctfcaps/?mode=1`}>
-                                <a>
+                                
                                     <div className={`tab ${(this.props.mode === 1) ? "tab-selected" : ""}`}  >Map Records</div>
-                                </a>
+                                
                             </Link>
                             <Link href={`/ctfcaps/?mode=2`}>
-                                <a>
+                                
                                     <div className={`tab ${(this.props.mode === 2) ? "tab-selected" : ""}`}  >Player Records</div>
-                                </a>
+                                
                             </Link>
                         </div>
                         {this.renderMapCaps()}

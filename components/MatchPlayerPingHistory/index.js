@@ -43,20 +43,29 @@ const MatchPlayerPingHistory = ({matchId, players, playerIds, playerData}) =>{
 
         const loadData = async () =>{
 
-            const req = await fetch("/api/match", {
-                "signal": controller.signal,
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({"mode": "pings", "matchId": matchId, "players": playerIds})
-            });
+            try{
 
-            const res = await req.json();
+                const req = await fetch("/api/match", {
+                    "signal": controller.signal,
+                    "headers": {"Content-type": "application/json"},
+                    "method": "POST",
+                    "body": JSON.stringify({"mode": "pings", "matchId": matchId, "players": playerIds})
+                });
 
-            if(res.error === undefined){
+                const res = await req.json();
 
-                dispatch({"type": "loaded", "data": res.data});
-            }else{
-                dispatch({"type": "error", "errorMessage": res.error});
+                if(res.error === undefined){
+
+                    dispatch({"type": "loaded", "data": res.data});
+                }else{
+                    dispatch({"type": "error", "errorMessage": res.error});
+                }
+
+            }catch(err){
+
+                if(err.name !== "AbortError"){
+                    console.trace(err);
+                }
             }
         }
 
@@ -90,9 +99,9 @@ const MatchPlayerPingHistory = ({matchId, players, playerIds, playerData}) =>{
                 "player": {
                     "value": player.name.toLowerCase(), 
                     "displayValue": <Link href={`/pmatch/${matchId}/?player=${playerId}`}>
-                        <a>
-                            <CountryFlag country={player.country}/>{player.name}
-                        </a>
+                      
+                        <CountryFlag country={player.country}/>{player.name}
+                        
                     </Link>,
                     "className": `player ${Functions.getTeamColor(player.team)}`
                 },

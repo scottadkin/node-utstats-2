@@ -2,7 +2,7 @@ const Message =  require("../message");
 
 class CTFFlag{
 
-    constructor(ctfManager, playerManager, killManager, matchId, matchDate, mapId, team, totalTeams){
+    constructor(ctfManager, playerManager, killManager, gametypeId, matchId, matchDate, mapId, team, totalTeams){
 
         this.ctfManager = ctfManager;
         this.playerManager = playerManager;
@@ -10,6 +10,7 @@ class CTFFlag{
         this.matchId = matchId;
         this.matchDate = matchDate;
         this.mapId = mapId;
+        this.gametypeId = gametypeId;
 
         this.flagStand = null;
         
@@ -44,6 +45,10 @@ class CTFFlag{
 
         this.basicCapsInfo = [];
 
+        //bulk insert all at the end on the match
+        this.pickupInsertVars = [];
+        this.selfCoverInsertVars = [];
+
     }
 
 
@@ -57,8 +62,8 @@ class CTFFlag{
         if(capId === undefined) capId = -1;
         //this.debugSeals("RESET");
 
-        await this.insertDeaths(capId);
-        await this.insertCovers(capId);
+        this.insertDeaths(capId);
+        this.insertCovers(capId);
         await this.processSelfCovers(bFailed, capId);
         await this.insertSeals(capId);
         await this.insertCarryTimes(capId);
@@ -89,11 +94,9 @@ class CTFFlag{
 
         //this.debugSeals("RETURNED");
 
-        //await this.processSelfCovers(false, -1);
-
         this.lastReturnTimestamp = timestamp;
 
-        await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "returned", this.team);
+        this.ctfManager.addEvent(this.matchId, timestamp, playerId, "returned", this.team);
 
         await this.processReturn(timestamp, playerId, smartCTFLocation);
 
@@ -104,7 +107,7 @@ class CTFFlag{
 
         this.lastReturnTimestamp = timestamp;
 
-        await this.ctfManager.insertEvent(this.matchId, timestamp, -1, "returned_timeout", this.team);
+        this.ctfManager.addEvent(this.matchId, timestamp, -1, "returned_timeout", this.team);
 
         await this.processReturn(timestamp, -1, "timeout");
         
@@ -136,7 +139,7 @@ class CTFFlag{
         this.takenPlayer = playerId;
         this.covers = [];
 
-        await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "taken", this.team);
+        this.ctfManager.addEvent(this.matchId, timestamp, playerId, "taken", this.team);
     }
 
     async pickedUp(timestamp, playerId, playerTeam){
@@ -153,12 +156,12 @@ class CTFFlag{
      
         this.lastCarriedTimestamp = timestamp;
 
-        await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "pickedup", this.team);
+        this.ctfManager.addEvent(this.matchId, timestamp, playerId, "pickedup", this.team);
     }
 
     async dropped(timestamp, dropLocation, distanceToCap, playerTeam){
 
-        await this.ctfManager.insertEvent(this.matchId, timestamp, this.carriedBy, "dropped", this.team);
+        this.ctfManager.addEvent(this.matchId, timestamp, this.carriedBy, "dropped", this.team);
 
         await this.setCarryTime(timestamp);
 
@@ -188,7 +191,7 @@ class CTFFlag{
             "victimId": victimId,
         });
 
-        await this.ctfManager.insertEvent(this.matchId, timestamp, killerId, "cover", this.team);
+        this.ctfManager.addEvent(this.matchId, timestamp, killerId, "cover", this.team);
     }
 
     async killed(timestamp, killerId, killerTeam, victimId, victimTeam, killDistance, distanceToCap, distanceToEnemyBase){
@@ -217,7 +220,7 @@ class CTFFlag{
         //new Message(`SEAL by ${killerId} @ ${timestamp}`,"error");
 
         this.seals.push({"timestamp": timestamp, "playerId": killerId, "victimId": victimId});
-        await this.ctfManager.insertEvent(this.matchId, timestamp, killerId, "seal", this.team);
+        this.ctfManager.addEvent(this.matchId, timestamp, killerId, "seal", this.team);
     }
 
     async setCarryTime(timestamp){
@@ -241,7 +244,7 @@ class CTFFlag{
 
             for(let i = 0; i < killsWhileCarrying.length; i++){
                 const kill = killsWhileCarrying[i];
-                await this.ctfManager.insertEvent(this.matchId, kill.timestamp, this.carriedBy, "self_cover", this.team);
+                this.ctfManager.addEvent(this.matchId, kill.timestamp, this.carriedBy, "self_cover", this.team);
             }
 
             if(killsWhileCarrying.length > player.stats.ctfNew.bestSingleSelfCover){
@@ -298,15 +301,14 @@ class CTFFlag{
 
                 const kill = s.kills[x];
 
-                await this.ctfManager.insertSelfCover(
-                    this.matchId, 
-                    this.matchDate, 
-                    this.mapId, 
-                    capId, 
-                    kill.timestamp, 
-                    kill.killerId, 
-                    s.killerTeam,
-                    kill.victimId
+                this.selfCoverInsertVars.push(
+                    [
+                        capId, 
+                        kill.timestamp, 
+                        kill.killerId, 
+                        s.killerTeam,
+                        kill.victimId
+                    ]
                 );
             }
 
@@ -339,13 +341,13 @@ class CTFFlag{
     }
 
 
-    async insertCovers(capId){
+     insertCovers(capId){
 
         for(let i = 0; i < this.covers.length; i++){
 
             const c = this.covers[i];
 
-            await this.ctfManager.insertCover(
+            this.ctfManager.addCover(
                 this.matchId, 
                 this.matchDate, 
                 this.mapId, 
@@ -426,7 +428,7 @@ class CTFFlag{
 
     async captured(timestamp, playerId){
 
-        await this.ctfManager.insertEvent(this.matchId, timestamp, playerId, "captured", this.team);
+        await this.ctfManager.addEvent(this.matchId, timestamp, playerId, "captured", this.team);
 
         const travelTime = timestamp - this.takenTimestamp;
 
@@ -454,7 +456,7 @@ class CTFFlag{
             //don't want to count the capped player as an assist.
             if(this.carriedBy !== c.player){
 
-                await this.ctfManager.insertEvent(this.matchId, timestamp, c.player, "assist", this.team);
+                this.ctfManager.addEvent(this.matchId, timestamp, c.player, "assist", this.team);
                 assistIds.add(c.player);
 
                 assistVars.push(c);
@@ -499,6 +501,7 @@ class CTFFlag{
             capId = await this.ctfManager.insertCap(
                 this.matchId, 
                 this.matchDate, 
+                this.gametypeId,
                 this.mapId,
                 capTeam, 
                 this.team, 
@@ -583,7 +586,7 @@ class CTFFlag{
                 }
             }
 
-            await this.ctfManager.insertCarryTime(
+            this.ctfManager.addCarryTime(
                 this.matchId, 
                 this.matchDate, 
                 this.mapId, 
@@ -636,7 +639,7 @@ class CTFFlag{
 
             const playerTeam = this.playerManager.getPlayerTeamAt(playerId, end);
 
-            await this.ctfManager.insertCRKills(
+            this.ctfManager.addCRKill(
                 (bSuicides) ? 1 : 0,
                 this.matchId, 
                 this.matchDate, 
@@ -703,13 +706,13 @@ class CTFFlag{
         );
     }
 
-    async insertDeaths(capId){
+    insertDeaths(capId){
 
         for(let i = 0; i < this.deaths.length; i++){
 
             const d = this.deaths[i];
 
-            await this.ctfManager.insertFlagDeath(
+            this.ctfManager.addFlagDeath(
                 this.matchId, 
                 this.matchDate, 
                 this.mapId, 
@@ -721,7 +724,7 @@ class CTFFlag{
                 d.victimTeam, 
                 d.killDistance, 
                 d.distanceToCap, 
-                d.distanceToEnemyBase        
+                d.distanceToEnemyBase 
             );
         }
     }
@@ -753,8 +756,7 @@ class CTFFlag{
 
             const currentTimeDropped = this.getTimeDropped(d.timestamp);
 
-            await this.ctfManager.insertDrop(
-                this.matchId,
+            this.ctfManager.addDrop(this.matchId,
                 this.matchDate,
                 this.mapId,
                 d.timestamp,
@@ -766,17 +768,39 @@ class CTFFlag{
                 d.dropLocation,
                 currentTimeDropped
             );
+            /*await this.ctfManager.insertDrop(
+                this.matchId,
+                this.matchDate,
+                this.mapId,
+                d.timestamp,
+                capId,
+                this.team,
+                d.playerId,
+                d.playerTeam,
+                d.distanceToCap,
+                d.dropLocation,
+                currentTimeDropped
+            );*/
         }
     }
 
 
     async insertPickups(capId){
 
+
         for(let i = 0; i < this.pickups.length; i++){
 
             const p = this.pickups[i];
 
-            await this.ctfManager.insertPickup(
+            this.pickupInsertVars.push([
+                capId,
+                p.timestamp,
+                p.playerId,
+                p.playerTeam,
+                this.team
+            ]);
+
+            /*await this.ctfManager.insertPickup(
                 this.matchId, 
                 this.matchDate, 
                 this.mapId,
@@ -785,7 +809,7 @@ class CTFFlag{
                 p.playerId,
                 p.playerTeam,
                 this.team
-            );
+            );*/
         }
     }
 }

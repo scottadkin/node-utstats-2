@@ -130,7 +130,7 @@ class MatchItemPickups extends React.Component{
             }
 
             subElems.push(<td key={`player-${i}`} className={teamColor}><Link href={`/pmatch/${this.props.matchId}?player=${p.id}`}>
-                <a><CountryFlag host={this.props.host} country={p.country}/>{p.name}</a>
+                <CountryFlag host={this.props.host} country={p.country}/>{p.name}
                 </Link></td>);
 
             

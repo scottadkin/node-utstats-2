@@ -20,10 +20,11 @@ const DefaultHead = ({host, title, description, keywords, image, imageType}) =>{
     const imageHost = Functions.getImageHostAndPort(host);
 
     const ogImage = `${imageHost}/images/${image}.${imageType}`;
+    const titleString = `${title} - Node UTStats 2`;
 
     return (
         <Head>
-            <title>{title} - Node UTStats 2</title>
+            <title>{titleString}</title>
             <link rel="icon" href="/fav.png" />
             <meta name="description" content={`${description}`} />
             <meta name="keywords" content={`${keywords}ut,unreal,tournament,stats,node`} />

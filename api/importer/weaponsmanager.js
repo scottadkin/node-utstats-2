@@ -49,8 +49,10 @@ class WeaponsManager{
 
         try{
 
+            const playerMatchInsertVars = [];
+
             await this.weapons.getIdsByName(this.names);
-            
+
             for(let i = 0; i < playerManager.players.length; i++){
 
                 const p = playerManager.players[i];
@@ -63,8 +65,15 @@ class WeaponsManager{
                     
                     if(currentWeaponId !== null){      
 
-                        await this.weapons.insertPlayerMatchStats(this.matchId, this.mapId, this.gametypeId, p.masterId, currentWeaponId, value);
+                        playerMatchInsertVars.push([
+                            this.matchId, this.mapId, this.gametypeId, p.masterId, 
+                            currentWeaponId, value.kills, value.bestKills, value.deaths, value.suicides,
+                            value.teamKills, value.bestTeamKills,
+                            value.accuracy, value.shots, value.hits, Math.abs(value.damage), value.efficiency
+                        ]);
+
                         await this.weapons.updatePlayerTotalStats(this.mapId, this.gametypeId, p.masterId, playtime, currentWeaponId, value); 
+
                         await this.weapons.updatePlayerBest(p.masterId, this.mapId, this.gametypeId, currentWeaponId, value);
                      
 
@@ -92,6 +101,8 @@ class WeaponsManager{
                     }
                 }
             }
+
+            await this.weapons.bulkInsertPlayerMatchStats(playerMatchInsertVars);
             
             for(const [key, value] of this.currentWeapons){
 

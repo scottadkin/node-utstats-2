@@ -97,13 +97,13 @@ class MatchResultDisplay extends React.Component{
     render(){
 
         return <Link href={this.props.url}>
-            <a>
+            
                 <div className={styles.wrapper}>
                     {this.renderPlayerResult()}
                     {this.renderRecentResult()}
                     {this.props.children}
                 </div>
-            </a>
+            
         </Link>
     }
 }

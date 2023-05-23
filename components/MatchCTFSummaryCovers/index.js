@@ -90,10 +90,10 @@ class MatchCTFSummaryCovers extends React.Component{
             const ctf = p.ctfData;
 
             const playerElem = <Link href={`/pmatch/${this.props.matchId}?player=${p.player_id}`}>
-                <a>
-                    <CountryFlag country={p.country}/>
-                    {p.name}
-                </a>
+                
+                <CountryFlag country={p.country}/>
+                {p.name}
+                
             </Link>;
 
             for(let k = 0; k < totalKeys.length; k++){

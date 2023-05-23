@@ -926,7 +926,7 @@ class TeamMates extends React.Component{
             const effElem = (mode === 0) ? <td>{eff}%</td> : null;
 
             playerRows.push(<tr key={id}>
-                <td><Link href={`/player/${player.id}`}><a><CountryFlag host={this.props.host} country={player.country}/>{player.name}</a></Link></td>
+                <td><Link href={`/player/${player.id}`}><CountryFlag host={this.props.host} country={player.country}/>{player.name}</Link></td>
                 <td>{score}</td>
                 <td>{frags}</td>
                 <td>{kills}</td>
@@ -1088,9 +1088,9 @@ class TeamMates extends React.Component{
                 player = this.getPlayer(parseInt(value.key));
 
                 nameElem = <Link href={`/player/${player.id}`}>
-                    <a>
+                    
                         <CountryFlag country={player.country} host={this.props.host}/>{player.name}
-                    </a>
+                    
                 </Link>;
 
             }else if(ctfMode === 1){
@@ -1274,9 +1274,9 @@ class TeamMates extends React.Component{
                 const player = this.getPlayer(parseInt(value.key));
 
                 nameElem = <Link href={`/player/${player.id}`}>
-                    <a>
+                    
                         <CountryFlag country={player.country} host={this.props.host}/>{player.name}
-                    </a>
+                    
                 </Link>;
 
             }else if(ctfMode === 1){

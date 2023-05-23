@@ -113,9 +113,9 @@ const MatchCTFReturnDetailed = ({data, playerData, smartCTFString, matchId, matc
         <div className={`${styles.returned} ${Functions.getTeamColor(data.flag_team)}`}>
                 {Functions.getTeamName(data.flag_team, true)} Flag Returned By&nbsp; 
                 <Link href={`/pmatch/${matchId}/?player=${data.return_player}`}>
-                    <a>
-                        <CountryFlag country={returnPlayer.country}/>{returnPlayer.name}
-                    </a>
+                    
+                    <CountryFlag country={returnPlayer.country}/>{returnPlayer.name}
+                    
                 </Link>
         </div>
         <div className={styles.distance}>

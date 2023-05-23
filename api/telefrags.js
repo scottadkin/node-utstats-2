@@ -82,20 +82,19 @@ class Telefrags{
 
     async updatePlayerTotalCustom(playerId, mapId, gametypeId, data){
 
-        console.log(`updatePlayerTotalCustom(${playerId}, ${mapId}, ${gametypeId})`);
+       // console.log(`updatePlayerTotalCustom(${playerId}, ${mapId}, ${gametypeId})`);
+
+
 
 
 
         if(!await this.bPlayerTotalExist(playerId, mapId, gametypeId)){
-            console.log(`CREATE NEW player total custom ${playerId}, ${mapId}, ${gametypeId}`);
+            //console.log(`CREATE NEW player total custom ${playerId}, ${mapId}, ${gametypeId}`);
             await this.createPlayerTotal(playerId, mapId, gametypeId);
         }
 
         //possible fix for merging players with no playtime?
         if(data.deaths === undefined){
-
-            console.log(`TEST-ERROR: data.deaths is undefined`);
-            console.log(data);
             return;
         }
 
@@ -219,7 +218,7 @@ class Telefrags{
                 d.best_tele_disc_kills, d.worst_tele_disc_deaths, d.tele_disc_best_multi, d.tele_disc_best_spree
             ];
 
-            console.log(`insert new telefrag totals for playerId ${playerId}, ${d.map_id}, ${d.gametype}`);
+            //console.log(`insert new telefrag totals for playerId ${playerId}, ${d.map_id}, ${d.gametype}`);
 
             await mysql.simpleQuery(query, vars);
 

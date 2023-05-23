@@ -175,23 +175,23 @@ class CombogibRecords extends React.Component{
                 <td className="place">{place}{Functions.getOrdinal(place)}</td>
                 <td className="text-left">
                     <Link href={`/pmatch/${matchId}/?player=${player.id}`}>
-                        <a>
-                            <CountryFlag country={player.country}/>{player.name}
-                        </a>
+                        
+                        <CountryFlag country={player.country}/>{player.name}
+                        
                     </Link>
                 </td>
                 <td className="small-font grey">
                     <Link href={`/match/${matchId}/`}>
-                        <a>
-                            {Functions.convertTimestamp(date,true)}
-                        </a>
+                        
+                        {Functions.convertTimestamp(date,true)}
+                        
                     </Link>
                 </td>
                 <td>
                     <Link href={`/map/${mapId}/`}>
-                        <a>
-                            {map}
-                        </a>
+                        
+                        {map}
+                        
                     </Link>                
                 </td>
                 <td className="playtime"><Playtime timestamp={playtime} /></td>
@@ -310,9 +310,9 @@ class CombogibRecords extends React.Component{
                     </select>
                 </div>
                 <Link href={`/records/?mode=3&cm=${this.props.mode}&type=${this.state.recordType}&page=1&pp=${this.state.perPage}`}>
-                    <a>
+                    
                         <div className="search-button">Search</div>
-                    </a>
+                    
                 </Link>
             </div>
             <Loading value={this.state.loaded}/>

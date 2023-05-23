@@ -34,15 +34,15 @@ const ServerDefaultView = ({mapImages, mapNames, data}) =>{
 
     return <div className={styles.wrapper}>
             <Link href={`/server/${d.id}`}>
-                <a>
+                
                     <div className={`${styles.title} ellipsis`}>
                         <CountryFlag country={d.country}/>
                         {d.name}
                     </div>
-                </a>
+                
             </Link>
             <Link href={`/match/${d.last_match_id}`}>
-                <a>
+                
                     <div className={styles.last}>
                         <div className={styles.row}>
                             <div>Last Match</div>
@@ -52,7 +52,7 @@ const ServerDefaultView = ({mapImages, mapNames, data}) =>{
                             {Functions.convertTimestamp(d.last, true)}
                         </div>
                     </div>
-                </a>
+                
             </Link>
             <div className={styles.image}>
                 <img src={`/images/maps/thumbs/${mapImage}.jpg`} alt="image"/>
@@ -68,11 +68,11 @@ const ServerDefaultView = ({mapImages, mapNames, data}) =>{
                 </div>
             </div>
             <Link href={`/matches/?server=${d.id}`}>
-                <a>
+                
                     <div className={`${styles.recent} ellipsis`}>
                         View Recent Matches
                     </div>
-                </a>
+                
             </Link>
             <a href={`unreal://${d.ip}:${d.port}${password}`}>
                 <div className={`${styles.join} purple ellipsis`}>

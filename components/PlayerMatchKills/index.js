@@ -61,9 +61,9 @@ class PlayerMatchKills extends React.Component{
         });
 
         const playerElem = <Link href={`/player/${this.props.player.id}`}>
-                <a>
+                
                     <CountryFlag country={this.props.player.country}/>{this.props.player.name}
-                </a>
+                
             </Link>
         
 
@@ -89,9 +89,9 @@ class PlayerMatchKills extends React.Component{
                 <div>{Functions.ignore0(currentKills.kills)}</div>
                 <div>
                     <Link href={`/player/${p.id}`}>
-                        <a>
+                        
                             <CountryFlag country={p.country}/>{p.name}
-                        </a>
+                        
                     </Link>
                 </div>
             </div>);

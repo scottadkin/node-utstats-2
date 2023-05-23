@@ -17,6 +17,13 @@ class DropDown extends React.Component{
         this.hide = this.hide.bind(this);
     }
 
+    componentDidUpdate(prevProps){
+
+        if(prevProps.originalValue !== this.props.originalValue){
+            this.setState({"selectedValue": this.props.originalValue})
+        }
+    }
+
 
     setOrginalValue(){
 

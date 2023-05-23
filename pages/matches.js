@@ -115,29 +115,41 @@ const Matches = ({host, pageError, metaData, session, navSettings, pageSettings,
 
         const loadNames = async () =>{
 
-            const req = await fetch("/api/matchsearch", {
-                "signal": controller.signal,
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({"mode": "full-list"})
-            });
-    
-            const res = await req.json();
-    
-            if(res.error !== undefined){
-    
-                dispatch({"type": "error", "errorMessage": res.error});
-                //this.setState({"error": res.error});
-    
-            }else{
-    
+            try{
 
-                dispatch({
-                    "type": "namesLoaded", 
-                    "serverNames": res.serverNames, 
-                    "gametypeNames": res.gametypeNames, 
-                    "mapNames": res.mapNames
+
+                const req = await fetch("/api/matchsearch", {
+                    "signal": controller.signal,
+                    "headers": {"Content-type": "application/json"},
+                    "method": "POST",
+                    "body": JSON.stringify({"mode": "full-list"})
                 });
+        
+                const res = await req.json();
+        
+                if(res.error !== undefined){
+        
+                    dispatch({"type": "error", "errorMessage": res.error});
+                    //this.setState({"error": res.error});
+        
+                }else{
+        
+
+                    dispatch({
+                        "type": "namesLoaded", 
+                        "serverNames": res.serverNames, 
+                        "gametypeNames": res.gametypeNames, 
+                        "mapNames": res.mapNames
+                    });
+                }
+
+            }catch(err){
+
+                if(err.name !== "AbortError"){
+                    console.trace(err);
+                }
+
+           
             }
         }
 
@@ -157,41 +169,45 @@ const Matches = ({host, pageError, metaData, session, navSettings, pageSettings,
 
         const loadData = async () =>{
 
+            try{
 
-            //await this.loadTotalMatches();
-    
-    
-            const req = await fetch("/api/matchsearch", {
-                "signal": controller.signal,
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({
-                    "mode": "search",
-                    "serverId": state.selectedServer,
-                    "gametypeId": state.selectedGametype,
-                    "mapId": state.selectedMap,
-                    "perPage": state.perPage,
-                    "page": page
-    
-                })
-            });
-    
-            const res = await req.json();
-    
-            if(res.error !== undefined){
-      
-                dispatch({"type": "error", "errorMessage": res.error});
-                //this.setState({"error": res.error});
-            }else{
-    
-                dispatch({
-                    "type": "loaded", 
-                    "totalMatches": res.totalMatches, 
-                    "images": res.images,
-                    "data": res.data
+                const req = await fetch("/api/matchsearch", {
+                    "signal": controller.signal,
+                    "headers": {"Content-type": "application/json"},
+                    "method": "POST",
+                    "body": JSON.stringify({
+                        "mode": "search",
+                        "serverId": state.selectedServer,
+                        "gametypeId": state.selectedGametype,
+                        "mapId": state.selectedMap,
+                        "perPage": state.perPage,
+                        "page": page
+        
+                    })
                 });
-                
-               // this.setState({"matches": res.data, "images": JSON.stringify(res.images)});
+        
+                const res = await req.json();
+        
+                if(res.error !== undefined){
+        
+                    dispatch({"type": "error", "errorMessage": res.error});
+                    //this.setState({"error": res.error});
+                }else{
+        
+                    dispatch({
+                        "type": "loaded", 
+                        "totalMatches": res.totalMatches, 
+                        "images": res.images,
+                        "data": res.data
+                    });
+                    
+                // this.setState({"matches": res.data, "images": JSON.stringify(res.images)});
+                }
+            }catch(err){
+
+                if(err.name !== "AbortError"){
+                    console.trace(err);
+                }
             }
         }
 

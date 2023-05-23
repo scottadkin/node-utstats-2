@@ -64,21 +64,31 @@ const useMatchPlayersLoader = (matchId, optionalTargetPlayer) =>{
     useEffect(() =>{
 
         const controller = new AbortController();
+        
 
         const loadPlayerData = async () =>{
 
-            const req = await fetch("/api/match",{
-                "signal": controller.signal,
-                "headers": {
-                    "Content-type": "application/json"
-                },
-                "method": "POST",
-                "body": JSON.stringify({"mode": "players", "matchId": matchId})
-            });
+            try{
+            
+                const req = await fetch("/api/match",{
+                    "signal": controller.signal,
+                    "headers": {
+                        "Content-type": "application/json"
+                    },
+                    "method": "POST",
+                    "body": JSON.stringify({"mode": "players", "matchId": matchId})
+                });
 
-            const res = await req.json();
-        
-            setData(createPlayerObjects(res, optionalTargetPlayer));
+                const res = await req.json();
+            
+                setData(createPlayerObjects(res, optionalTargetPlayer));
+
+            }catch(err){
+
+                if(err.name !== "AbortError"){
+                    console.trace(err);
+                }
+            }
   
         }
 

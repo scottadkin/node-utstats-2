@@ -30,7 +30,7 @@ const HomeTopMaps = ({maps, images, classic, host}) =>{
         const id = (m.id !== undefined) ? m.id : Functions.removeUnr(m.name);
 
 
-        elems.push(<Link key={i} href={`${(classic) ? "/classic" : "" }/map/${id}`}><a>
+        elems.push(<Link key={i} href={`${(classic) ? "/classic" : "" }/map/${id}`}>
             <div className={styles.wrapper}>
                 <div className={styles.name}>{Functions.removeUnr(m.name)} </div> 
                 <img className="thumb-sshot" src={`${host}/images/maps/thumbs/${currentImage}.jpg`} alt="image" />
@@ -40,7 +40,7 @@ const HomeTopMaps = ({maps, images, classic, host}) =>{
                     Last Match {Functions.convertTimestamp(last, true)}<br/>
                 </div>
             </div>    
-        </a></Link>);
+        </Link>);
     }
 
     return <div className="m-bottom-10">

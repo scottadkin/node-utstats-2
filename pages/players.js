@@ -243,7 +243,7 @@ class Players extends React.Component{
                             <input type="hidden" name="displayType" value={this.state.displayType}/>
                         </div>
                     
-                        <Link href={`${url}${this.props.page}`}><a className="search-button">Search</a></Link>
+                        <Link href={`${url}${this.props.page}`}><span className="search-button">Search</span></Link>
                     </form>
                     
                     {paginationElem}

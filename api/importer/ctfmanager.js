@@ -43,6 +43,7 @@ class CTFManager{
                 this.ctf, 
                 this.playerManager, 
                 this.killManager, 
+                this.gametypeId,
                 this.matchId, 
                 this.matchDate, 
                 this.mapId, 
@@ -142,7 +143,7 @@ class CTFManager{
                 for(let i = 0; i < flagsInPossession.length; i++){
 
        
-                    await this.ctf.insertEvent(this.matchId, timestamp, killer.masterId, "suicide", killerTeam);
+                    this.ctf.addEvent(this.matchId, timestamp, killer.masterId, "suicide", killerTeam);
                     
 
                     await this.flags[flagsInPossession[i]].killed(
@@ -179,7 +180,7 @@ class CTFManager{
                 for(let i = 0; i < flagsInPossession.length; i++){
 
  
-                    await this.ctf.insertEvent(this.matchId, timestamp, killer.masterId, "kill", killerTeam);
+                    this.ctf.addEvent(this.matchId, timestamp, killer.masterId, "kill", killerTeam);
                     
 
                     await this.flags[flagsInPossession[i]].killed(
@@ -258,10 +259,8 @@ class CTFManager{
 
                     //await this.ctf.insertEvent(this.matchId, d.timestamp, killer.masterId, "kill", killerTeam);
 
-           
-                    await this.ctf.insertEvent(this.matchId, timestamp, killer.masterId, "kill",  d.flagTeam);
+                    this.ctf.addEvent(this.matchId, timestamp, killer.masterId, "kill",  d.flagTeam);
                     
-
                     await this.flags[d.flagTeam].killed(
                         timestamp, 
                         killer.masterId, 
@@ -1158,6 +1157,87 @@ class CTFManager{
         if(bestAssistCap !== null){
             await this.ctf.updateMapCapRecord(bestAssistCap.id, mapId, this.matchId, gametypeId, 1, bestAssistCap.travelTime, bestAssistCap.carryTime, bestAssistCap.dropTime);
         }
+    }
+
+
+    async insertEvents(){
+
+        await this.ctf.insertEventList();
+    }
+
+    async insertCarryTimes(){
+
+        await this.ctf.insertCarryTimes();
+    }
+
+    async insertCapReturnKills(){
+
+        await this.ctf.insertCRKills();
+    }
+
+    async insertFlagDrops(){
+
+        await this.ctf.bulkInsertFlagDrops();
+    }
+
+    async insertFlagDeaths(){
+
+        await this.ctf.bulkInsertFlagDeaths();
+    }
+
+    async insertFlagCovers(){
+
+        await this.ctf.bulkInsertFlagCovers();
+    }
+
+    async bulkInsertFlagPickups(){
+
+        const insertVars = [];
+
+        for(let i = 0; i < this.flags.length; i++){
+
+            const flag = this.flags[i];
+
+            for(let x = 0; x < flag.pickupInsertVars.length; x++){
+
+                const vars = flag.pickupInsertVars[x];
+                insertVars.push([
+                    this.matchId, 
+                    this.matchDate, 
+                    this.mapId,
+                    ...vars
+                ]);
+            }
+        }
+
+        return await this.ctf.bulkInsertFlagPickups(insertVars);
+        //console.log(insertVars);
+    }
+
+    async bulkInsertSelfCovers(){
+
+
+        const insertVars = [];
+
+        for(let i = 0; i < this.flags.length; i++){
+
+            const flag = this.flags[i];
+
+            for(let x = 0; x < flag.selfCoverInsertVars.length; x++){
+
+                const vars = flag.selfCoverInsertVars[x];
+
+                insertVars.push([
+                    this.matchId, 
+                    this.matchDate, 
+                    this.mapId,
+                    ...vars
+                ]);
+            }
+        }
+
+        return await this.ctf.bulkInsertSelfCovers(insertVars);
+
     }
 }
 

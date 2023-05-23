@@ -22,6 +22,18 @@ class Teams{
         });
     }
 
+    async bulkInsertTeamChanges(matchId, data){
+
+        const query = `INSERT INTO nstats_match_team_changes (match_id, timestamp, player, team) VALUES ?`;
+
+        const insertVars = data.map((d) =>{
+            return [matchId, d.timestamp, d.player, d.team];
+        });
+
+        return await mysql.bulkInsert(query, insertVars);
+
+    }
+
     getMatchData(matchId){
 
         return new Promise((resolve, reject) =>{

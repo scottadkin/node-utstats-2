@@ -78,9 +78,9 @@ const MatchFragTable = ({matchId, playerData, totalTeams, bSeparateByTeam, singl
                 "player": {
                     "value": p.name.toLowerCase(), 
                     "displayValue": <Link href={`/pmatch/${matchId}/?player=${p.player_id}`}>
-                        <a>
-                            <CountryFlag country={p.country}/>{p.name}
-                        </a>
+                        
+                        <CountryFlag country={p.country}/>{p.name}
+                        
                     </Link>,
                     "className": `${Functions.getTeamColor(p.team)} player`
                 },

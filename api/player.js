@@ -28,7 +28,7 @@ class Player{
         if(hwid === undefined) hwid = "";
 
         const query = `INSERT INTO nstats_player_totals VALUES(
-            NULL,?,?,0,0,0,0,"",0,0,0,0,0,0,
+            NULL,?,?,0,0,0,0,"",0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
@@ -45,7 +45,7 @@ class Player{
 
     async getMasterId(playerName){
 
-        const query = "SELECT id FROM nstats_player_totals WHERE name=? AND gametype=0";
+        const query = "SELECT id FROM nstats_player_totals WHERE name=? AND gametype=0 AND map=0";
 
         const result = await mysql.simpleQuery(query, [playerName]);
 
@@ -56,12 +56,12 @@ class Player{
         return result[0].id;
     }
 
-    async createGametypeId(playerName, playerMasterId, gametypeId, hwid){
+    async createGametypeId(playerName, playerMasterId, gametypeId, mapId, hwid){
 
         if(hwid === undefined) hwid = "";
 
         const query = `INSERT INTO nstats_player_totals VALUES(
-            NULL,?,?,?,0,0,0,"",0,0,?,
+            NULL,?,?,?,0,0,0,"",0,0,?,?,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
@@ -69,30 +69,53 @@ class Player{
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,0,0,0)`;
 
-        const result = await mysql.simpleQuery(query, [hwid, playerName, playerMasterId, gametypeId]);
+        const result = await mysql.simpleQuery(query, [hwid, playerName, playerMasterId, gametypeId, mapId]);
 
         return result.insertId;
     }
     
-    async getGametypeId(playerName, playerMasterId, gametypeId){
+    async getGametypeId(playerName, playerMasterId, gametypeId, mapId){
 
-        const query = "SELECT id FROM nstats_player_totals WHERE player_id=? AND gametype=?";
+        const query = "SELECT id FROM nstats_player_totals WHERE player_id=? AND gametype=? AND map=?";
 
-        const result = await mysql.simpleQuery(query, [playerMasterId, gametypeId]);
+        const result = await mysql.simpleQuery(query, [playerMasterId, gametypeId, mapId]);
 
         if(result.length === 0){
-            return await this.createGametypeId(playerName, playerMasterId, gametypeId);
+            return await this.createGametypeId(playerName, playerMasterId, gametypeId, mapId);
         }
 
         return result[0].id;
     }
 
-    async getMasterIds(playerName, gametypeId){
 
-        const masterId = await this.getMasterId(playerName, 0);
-        const gametypeMasterId = await this.getGametypeId(playerName, masterId, gametypeId);
+    async getMapId(playerName, playerMasterId, gametypeId, mapId){
 
-        return {"masterId": masterId, "gametypeId": gametypeMasterId};
+        const query = `SELECT id FROM nstats_player_totals WHERE player_id=? AND gametype=? AND map=?`;
+        const result = await mysql.simpleQuery(query, [playerMasterId, gametypeId, mapId]);
+
+        if(result.length === 0){
+            //create new map id
+            return await this.createGametypeId(playerName, playerMasterId, gametypeId, mapId);
+        }
+
+        return result[0].id;
+    }
+
+    async getMasterIds(playerName, gametypeId, mapId){
+
+        //all time totals id
+        const masterId = await this.getMasterId(playerName);
+
+        //all time gametype ids
+        const gametypeMasterId = await this.getGametypeId(playerName, masterId, gametypeId, 0);
+
+        //map totals id
+        const mapMasterId = await this.getMapId(playerName, masterId, 0, mapId);
+
+        //map + gametype totals id 
+        const mapGametypeMasterId = await this.getMapId(playerName, masterId, gametypeId, mapId);
+
+        return {"masterId": masterId, "gametypeId": gametypeMasterId, "mapId": mapMasterId, "mapGametypeId": mapGametypeMasterId};
     }
 
     async updatePlayerNameHWID(hwid, playerName){
@@ -115,61 +138,58 @@ class Player{
         return result[0].id;
     }
 
-    async getHWIDGametypeId(hwid, gametypeId){
+    async getHWIDGametypeId(hwid, gametypeId, mapId){
 
-        const query = `SELECT id FROM nstats_player_totals WHERE hwid=? AND gametype=?`;
+        const query = `SELECT id FROM nstats_player_totals WHERE hwid=? AND gametype=? AND map=?`;
 
-        const result = await mysql.simpleQuery(query, [hwid, gametypeId]);
+        const result = await mysql.simpleQuery(query, [hwid, gametypeId, mapId]);
 
         if(result.length === 0) return null;
 
         return result[0].id;
     }
 
-    async getMasterIdsByHWID(hwid, playerName, gametypeId){
+    async getMasterIdsByHWID(hwid, playerName, gametypeId, mapId){
 
         gametypeId = parseInt(gametypeId);
 
+        // all time totals
         let masterId = await this.getHWIDMasterId(hwid, playerName);
 
         if(masterId === null){
             masterId = await this.createMasterId(playerName, hwid);
         }
 
-        let gametypeMasterId = await this.getHWIDGametypeId(hwid, gametypeId);
+        // gametype all time totals
+        let gametypeMasterId = await this.getHWIDGametypeId(hwid, gametypeId, 0);
 
         if(gametypeMasterId === null){
-            gametypeMasterId = await this.createGametypeId(playerName, masterId, gametypeId, hwid);
+            gametypeMasterId = await this.createGametypeId(playerName, masterId, gametypeId, 0, hwid);
         }
 
 
-        return {"masterId": masterId, "gametypeId": gametypeMasterId};
-    }
- 
-  
+        //map all time totals
+        let mapMasterId = await this.getHWIDGametypeId(hwid, 0, mapId);
 
-    updateEfficiency(id){
+        if(mapMasterId === null){
+            mapMasterId = await this.createGametypeId(playerName, masterId, 0, mapId, hwid);
+        }
 
-        return new Promise((resolve, reject) =>{
-    
-            const query = `UPDATE nstats_player_totals SET 
-            efficiency = IF(kills > 0, IF(deaths > 0, (kills / (deaths + kills) * 100), 100), 0)
-            WHERE id=?`;
+        //map + gametype all time totals
 
-            mysql.query(query, [id], (err) =>{
+        let mapGametypeMasterId = await this.getHWIDGametypeId(hwid, gametypeId, mapId);
 
-                if(err) reject(err);
+        if(mapGametypeMasterId === null){
+            mapGametypeMasterId = await this.createGametypeId(playerName, masterId, gametypeId, mapId, hwid);
+        }
 
-                resolve();
-            });
-        });
+        return {"masterId": masterId, "gametypeId": gametypeMasterId, "mapId": mapMasterId, "mapGametypeId": mapGametypeMasterId};
     }
 
     async updateFrags(id, date, playtime, redPlaytime, bluePlaytime, greenPlaytime, yellowPlaytime, specPlaytime,
          frags, score, kills, deaths, suicides, teamKills, spawnKills,
         multis, bestMulti, sprees, bestSpree, fastestKill, slowestKill, bestSpawnKillSpree,
-        firstBlood, accuracy, normalRangeKills, longRangeKills, uberRangeKills, headshots, gametype){
-
+        firstBlood, accuracy, normalRangeKills, longRangeKills, uberRangeKills, headshots, gametype, map){
         
         const query = `UPDATE nstats_player_totals SET 
         first = IF(first = 0 OR first > ?, ?, first), 
@@ -193,8 +213,9 @@ class Player{
         best_spawn_kill_spree = IF(best_spawn_kill_spree < ?, ?, best_spawn_kill_spree),
         first_bloods=first_bloods+?,
         accuracy=?, k_distance_normal=k_distance_normal+?, k_distance_long=k_distance_long+?, k_distance_uber=k_distance_uber+?,
-        headshots=headshots+?
-        WHERE id=? AND gametype=?`;
+        headshots=headshots+?,
+        efficiency = IF(kills > 0, IF(deaths > 0, (kills / (deaths + kills) * 100), 100), 0)
+        WHERE id=? AND gametype=? AND map=?`;
 
         const vars = [
             date,
@@ -247,12 +268,13 @@ class Player{
             uberRangeKills,
             headshots,
             id,
-            gametype
+            gametype,
+            map
         ];
 
         await mysql.simpleQuery(query, vars);
 
-        await this.updateEfficiency(id);
+        //await this.updateEfficiency(id);
     }
 
     /**
@@ -267,23 +289,24 @@ class Player{
     }
 
 
-    async updateWinStats(id, win, drew, gametype){
+    async updateWinStats(id, win, drew, gametype, mapId){
 
         if(gametype === undefined) gametype = 0;
+        if(mapId === undefined) mapId = 0;
 
         const winRateString = `winrate = IF(wins > 0 && matches > 0, (wins/matches) * 100, 0)`;
 
-        let query = `UPDATE nstats_player_totals SET wins=wins+1, ${winRateString} WHERE id=? AND gametype=?`;
+        let query = `UPDATE nstats_player_totals SET wins=wins+1, ${winRateString} WHERE id=? AND gametype=? AND map=?`;
 
         if(!win){
             if(!drew){
-                query = `UPDATE nstats_player_totals SET losses=losses+1, ${winRateString} WHERE id=? AND gametype=?`;
+                query = `UPDATE nstats_player_totals SET losses=losses+1, ${winRateString} WHERE id=? AND gametype=? AND map=?`;
             }else{
-                query = `UPDATE nstats_player_totals SET draws=draws+1, ${winRateString} WHERE id=? AND gametype=?`;
+                query = `UPDATE nstats_player_totals SET draws=draws+1, ${winRateString} WHERE id=? AND gametype=? AND map=?`;
             }
         }
 
-        return await mysql.simpleQuery(query, [id, gametype]);
+        return await mysql.simpleQuery(query, [id, gametype, mapId]);
 
     }
 
@@ -408,23 +431,15 @@ class Player{
     }
 
 
-    getPlayerGametypeWinStats(name){
+    async getPlayerGametypeWinStats(name){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT gametype,map,matches,wins,losses,draws,playtime,accuracy,last FROM nstats_player_totals WHERE gametype!=0 AND map=0 AND name=?";
 
-            const query = "SELECT gametype,matches,wins,losses,draws,playtime,accuracy,last FROM nstats_player_totals WHERE gametype!=0 AND name=?";
+        const result = await mysql.simpleQuery(query, [name]);
 
-            mysql.query(query, [name], (err, result) =>{
+        console.table(result);
 
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve(null);
-            });
-        });
+        return result;
     }
 
 
@@ -598,6 +613,13 @@ class Player{
                 resolve();
             });
         });
+    }
+
+    async bulkInsertScoreHistory(vars){
+
+        const query = "INSERT INTO nstats_match_player_score (match_id,timestamp,player,score) VALUES ?";
+
+        return await mysql.bulkInsert(query, vars);
     }
 
     getMatchDatesAfter(timestamp, player){

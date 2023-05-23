@@ -20,7 +20,7 @@ function createAssistElem(assists, host, matchId){
             elems.push(<span key={i} className="deleted">Deleted Player{(i < assists.length - 1) ? ", " : ""}</span>);
         }else{
             elems.push(<span key={i}>
-                <Link href={`/pmatch/${matchId}?player=${a.id}`}><a><CountryFlag country={a.country} host={host}/>{a.name}{(i < assists.length - 1) ? ", " : ""}</a></Link>
+                <Link href={`/pmatch/${matchId}?player=${a.id}`}><CountryFlag country={a.country} host={host}/>{a.name}{(i < assists.length - 1) ? ", " : ""}</Link>
             </span>);
         }
     }
@@ -39,10 +39,10 @@ function renderPlayer(player, matchId, host){
     }
 
     return <Link href={`/pmatch/${matchId}?player=${player.id}`}>
-            <a>
-                <CountryFlag country={player.country} host={host}/>
-                {player.name}
-            </a>
+        
+            <CountryFlag country={player.country} host={host}/>
+            {player.name}
+        
         </Link>;
 
 }

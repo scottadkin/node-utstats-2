@@ -21,12 +21,12 @@ const SimplePaginationLinks = ({url, page, totalPages, totalResults, anchor}) =>
     }
 
     return <div className="simple-pagination">
-    <Link href={`${url}${previous}${anchor}`}><a><div>Previous</div></a></Link>
+    <Link href={`${url}${previous}${anchor}`}><div>Previous</div></Link>
     <div>
         <span className="yellow">Viewing Page {page} of {totalPages}</span><br/>
         Total Results {totalResults}
     </div>
-    <Link href={`${url}${next}${anchor}`}><a><div>Next</div></a></Link>
+    <Link href={`${url}${next}${anchor}`}><div>Next</div></Link>
 </div>
 }
 

@@ -737,7 +737,8 @@ class Matches{
 
             
             await playerManager.deleteMatchData(id);
-            await playerManager.reduceTotals(playerIds, matchData.gametype);
+
+            await playerManager.reduceTotals(playerIds, matchData.gametype, matchData.map);
 
             for(let i = 0; i < playerIds.length; i++){
                 //playerManager, playerId, gametypeId

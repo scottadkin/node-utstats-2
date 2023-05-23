@@ -27,7 +27,7 @@ class MapDefaultBox extends React.Component{
 
     render(){
 
-        return (<Link href={`/map/${this.props.data.id}`}><a><div className={styles.wrapper}>
+        return (<Link href={`/map/${this.props.data.id}`}><div className={styles.wrapper}>
             <div className={styles.title}>
                 {Functions.removeUnr(this.props.data.name)}
             </div>
@@ -39,7 +39,7 @@ class MapDefaultBox extends React.Component{
                 First {Functions.convertTimestamp(this.props.data.first, true)}<br/>
                 Last {Functions.convertTimestamp(this.props.data.last, true)}<br/>
             </div>
-        </div></a></Link>);
+        </div></Link>);
     }
 }
 

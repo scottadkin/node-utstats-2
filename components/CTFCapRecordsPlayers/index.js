@@ -74,10 +74,10 @@ class CTFCapRecordsPlayers extends React.Component{
                 <td className="place">{i + 1}{Functions.getOrdinal(i + 1)}</td>
                 <td>
                     <Link href={`/player/${d.player.id}`}>
-                        <a>
+                        
                             <CountryFlag country={d.player.country} host={this.props.host}/>
                             {d.player.name}
-                        </a>
+                        
                     </Link>
                 </td>
                 <td>{d.caps}</td>
@@ -110,14 +110,14 @@ class CTFCapRecordsPlayers extends React.Component{
             <div className="default-header">Player Cap Records</div>
             <div className="tabs">
                 <Link href={`/ctfcaps?mode=2&submode=0`}>
-                    <a>
+                    
                         <div className={`tab ${(this.props.mode === 0) ? "tab-selected" : ""}`}>Solo Caps</div>
-                    </a>
+                    
                 </Link>
                 <Link href={`/ctfcaps?mode=2&submode=1`}>
-                    <a>
+                    
                         <div className={`tab ${(this.props.mode === 1) ? "tab-selected" : ""}`}>Assisted Caps</div>
-                    </a>
+                    
                 </Link>
             </div>
             {this.renderRecords()}

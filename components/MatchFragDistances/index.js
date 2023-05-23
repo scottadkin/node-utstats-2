@@ -73,10 +73,10 @@ const MatchFragDistances = ({matchId, playerData, totalTeams, bSeparateByTeam, s
                 "player": {
                     "value": p.name.toLowerCase(),
                     "displayValue": <Link href={`/pmatch/${matchId}/?player=${p.player_id}`}>
-                        <a>
+                        
                             <CountryFlag country={p.country}/>
                             {p.name}
-                        </a>
+                        
                     </Link>,
                     "className": `${Functions.getTeamColor(p.team)} player`
                 },

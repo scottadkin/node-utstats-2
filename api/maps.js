@@ -340,7 +340,7 @@ class Maps{
 
                 if(similarImage !== null){
                     console.log(`Found similar image ${similarImage}`);
-                    exists[currentName] = similarImage
+                    exists[currentName] = similarImage;
                 }
 
             }
@@ -842,6 +842,8 @@ class Maps{
         try{
 
             const playtimeData = await this.getAllPlayerMatchesPlaytime(playerId);
+
+            console.log(playtimeData);
             
             const totals = {};
 
@@ -1047,6 +1049,30 @@ class Maps{
         }
 
         return data;
+    }
+
+    async getAllDropDownOptions(){
+
+        const data = await this.getAllNameAndIds();
+
+        const options = [];
+
+        for(const [mapId, mapName] of Object.entries(data)){
+
+            options.push({"value": parseInt(mapId), "displayValue": mapName});
+        }
+
+        options.sort((a, b) =>{
+
+            a = a.displayValue.toLowerCase();
+            b = b.displayValue.toLowerCase();
+
+            if(a < b) return -1;
+            if(a > b) return 1;
+            return 0;
+        });
+
+        return options;
     }
 
 }

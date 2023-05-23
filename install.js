@@ -44,6 +44,7 @@ const queries = [
       `CREATE TABLE IF NOT EXISTS nstats_ctf_caps (
         id int NOT NULL AUTO_INCREMENT,
         match_id int NOT NULL,
+        gametype_id int NOT NULL,
         match_date int NOT NULL,
         map_id int NOT NULL,
         cap_team int NOT NULL,
@@ -649,6 +650,7 @@ const queries = [
         face int(100) NOT NULL,
         voice int(11) NOT NULL,
         gametype int(11) NOT NULL,
+        map int(11) NOT NULL,
         matches int(11) NOT NULL,
         wins int(11) NOT NULL,
         losses int(11) NOT NULL,

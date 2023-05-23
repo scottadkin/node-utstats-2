@@ -296,7 +296,7 @@ class CombogibMatchStats extends React.Component{
             const currentElem = <tr key={i}>
                 <td className={teamColor}>
                     <CountryFlag country={currentPlayer.country}/>
-                    <Link href={`/pmatch/${this.props.matchId}?player=${d.player_id}`}><a>{currentPlayer.name}</a></Link>
+                    <Link href={`/pmatch/${this.props.matchId}?player=${d.player_id}`}>{currentPlayer.name}</Link>
                 </td>
                 <td>{Functions.ignore0(d.combo_kills)}</td>
                 <td>{Functions.ignore0(d.insane_kills)}</td>
@@ -464,9 +464,9 @@ class CombogibMatchStats extends React.Component{
 
         const playerElem = <td className={teamColor}>
             <Link href={`/pmatch/${this.props.matchId}?player=${data.player_id}`}>
-                <a>
-                    <CountryFlag country={player.country}/>{player.name}
-                </a>
+                
+                <CountryFlag country={player.country}/>{player.name}
+                
             </Link>
         </td>
 

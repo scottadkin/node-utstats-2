@@ -84,7 +84,7 @@ const renderTable = (state, matchId, totalTeams, players, targetPowerup) =>{
             "player": {
                 "value": player.name.toLowerCase(),
                 "displayValue": <Link href={`/pmatch/${matchId}/${player.id}`}>
-                    <a><CountryFlag country={player.country}/>{player.name}</a>
+                    <CountryFlag country={player.country}/>{player.name}
                 </Link>,
                 "className": `player ${teamColor}`
             },
@@ -174,26 +174,35 @@ const MatchPowerupSummary = ({matchId, players, totalTeams}) =>{
 
         const loadData = async () =>{
 
-            const req = await fetch("/api/match",{
-                "signal": controller.signal,
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({"mode": "powerups", "matchId": matchId})
-            });
+            try{
 
-            const res = await req.json();
+                const req = await fetch("/api/match",{
+                    "signal": controller.signal,
+                    "headers": {"Content-type": "application/json"},
+                    "method": "POST",
+                    "body": JSON.stringify({"mode": "powerups", "matchId": matchId})
+                });
 
-            if(res.error !== undefined){
-                dispatch({"type": "error", "errorMessage": res.error});
-            }else{
-            
-                const ids = Object.keys(res.names);
+                const res = await req.json();
 
-                if(ids.length > 0){
-                    setSelectedId(ids[0]);
+                if(res.error !== undefined){
+                    dispatch({"type": "error", "errorMessage": res.error});
+                }else{
+                
+                    const ids = Object.keys(res.names);
+
+                    if(ids.length > 0){
+                        setSelectedId(ids[0]);
+                    }
+
+                    dispatch({"type": "loaded", "powerupNames": res.names, "playerPowerupData": res.playerData});
                 }
 
-                dispatch({"type": "loaded", "powerupNames": res.names, "playerPowerupData": res.playerData});
+            }catch(err){
+
+                if(err.name !== "AbortError"){
+                    console.trace(err);
+                }
             }
 
         }

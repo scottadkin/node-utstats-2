@@ -111,23 +111,32 @@ const PlayerMatchCTFReturns = ({matchId, playerId, playerData, matchStart}) =>{
 
         const loadData = async () =>{
             
-            const req = await fetch("/api/ctf", {
-                "signal": controller.signal,
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({
-                    "mode": "match-returns-player",
-                    "matchId": matchId,
-                    "playerId": playerId
-                })
-            });
+            try{
 
-            const res = await req.json();
+                const req = await fetch("/api/ctf", {
+                    "signal": controller.signal,
+                    "headers": {"Content-type": "application/json"},
+                    "method": "POST",
+                    "body": JSON.stringify({
+                        "mode": "match-returns-player",
+                        "matchId": matchId,
+                        "playerId": playerId
+                    })
+                });
 
-            if(res.error !== undefined){
-                dispatch({"type": "error", "errorMessage": res.error});
-            }else{
-                dispatch({"type": "loaded", "data": res.data});
+                const res = await req.json();
+
+                if(res.error !== undefined){
+                    dispatch({"type": "error", "errorMessage": res.error});
+                }else{
+                    dispatch({"type": "loaded", "data": res.data});
+                }
+
+            }catch(err){
+
+                if(err.name !== "AbortError"){
+                    console.trace(err);
+                }
             }
         }
 

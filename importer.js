@@ -56,6 +56,7 @@ async function startNewImport(ftpServer){
         }
 
         const importer = new Importer(
+            f.id,
             f.host, 
             f.port, 
             f.user, 
@@ -81,6 +82,7 @@ async function startNewImport(ftpServer){
         const logsSettings = await getLogsFolderSettings();
 
         const importer = new Importer(
+            -1,
             null, 
             null, 
             null, 

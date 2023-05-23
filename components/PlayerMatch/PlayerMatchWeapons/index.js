@@ -79,22 +79,31 @@ const PlayerMatchWeapons = ({matchId, playerId}) =>{
 
         const loadData = async () =>{
 
-            const req = await fetch("/api/match",{
-                "signal": controller.signal,
-                "headers": {
-                    "Content-type": "application/json"
-                },
-                "method": "POST",
-                "body": JSON.stringify({"mode": "player-weapons", "matchId": matchId, "playerId": playerId})
-            });
+            try{
 
-            const res = await req.json();
+                const req = await fetch("/api/match",{
+                    "signal": controller.signal,
+                    "headers": {
+                        "Content-type": "application/json"
+                    },
+                    "method": "POST",
+                    "body": JSON.stringify({"mode": "player-weapons", "matchId": matchId, "playerId": playerId})
+                });
+
+                const res = await req.json();
 
 
-            if(res.error !== undefined){
-                dispatch({"type": "error", "errorMessage": res.error});
-            }else{
-                dispatch({"type": "loaded", "weaponData": res.data, "weaponNames": res.names});
+                if(res.error !== undefined){
+                    dispatch({"type": "error", "errorMessage": res.error});
+                }else{
+                    dispatch({"type": "loaded", "weaponData": res.data, "weaponNames": res.names});
+                }
+
+            }catch(err){
+
+                if(err.name !== "AbortError"){
+                    console.trace(err);
+                }
             }
         }
 

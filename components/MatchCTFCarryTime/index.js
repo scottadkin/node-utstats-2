@@ -19,22 +19,30 @@ const MatchCTFCarryTime = ({matchId, players}) =>{
 
         const loadData = async () =>{
 
-            const req = await fetch("/api/ctf", {
-                "signal": controller.signal,
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({"mode": "carrytime", "matchId": matchId})
-            });
-    
-            const res = await req.json();
+            try{
+                const req = await fetch("/api/ctf", {
+                    "signal": controller.signal,
+                    "headers": {"Content-type": "application/json"},
+                    "method": "POST",
+                    "body": JSON.stringify({"mode": "carrytime", "matchId": matchId})
+                });
+        
+                const res = await req.json();
 
-            if(res.error !== undefined){
-                setError(res.error);   
-            }else{
-                setData(res.data);
+                if(res.error !== undefined){
+                    setError(res.error);   
+                }else{
+                    setData(res.data);
+                    setError(null);
+                }
+
+                setbLoading(false);
+            }catch(err){
+
+                if(err.name !== "AbortError"){
+                    setError(err.toString()); 
+                }
             }
-
-            setbLoading(false);
         }
 
         loadData();
@@ -73,9 +81,9 @@ const MatchCTFCarryTime = ({matchId, players}) =>{
                 "player": {
                     "value": player.name.toLowerCase(), 
                     "displayValue": <Link href={`/pmatch/${matchId}/?player=${player.id}`}>
-                        <a>
-                            <CountryFlag country={player.country}/>{player.name}
-                        </a>
+                        
+                        <CountryFlag country={player.country}/>{player.name}
+                        
                     </Link>,
                     "className": `text-left ${Functions.getTeamColor(player.team)}`
                 },

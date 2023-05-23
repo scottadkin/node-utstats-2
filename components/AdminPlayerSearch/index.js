@@ -641,7 +641,7 @@ class AdminPlayerSearch extends React.Component{
             const m = this.state.ipHistory.matchData[i];
 
             rows.push(<tr key={i}>
-                <td><Link href={`/match/${m.match_id}`}><a>{m.match_id}</a></Link></td>
+                <td><Link href={`/match/${m.match_id}`}>{m.match_id}</Link></td>
                 <td>{Functions.convertTimestamp(m.match_date, true)}</td>
                 <td>{this.state.ipHistory.playerNames[m.player_id] ?? "Not Found"}</td>
             </tr>);
@@ -900,7 +900,7 @@ class AdminPlayerSearch extends React.Component{
                 const c = this.state.connectionHistory.data[i];
 
                 rows.push(<tr key={i}>
-                    <td><Link href={`/match/${c.match_id}`}><a>{c.match_id}</a></Link></td>
+                    <td><Link href={`/match/${c.match_id}`}>{c.match_id}</Link></td>
                     <td>{Functions.convertTimestamp(c.match_date, true)}</td>
                     <td className="pointer" onClick={(() =>{
                         this.changeIpSearch(c.ip)

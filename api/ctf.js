@@ -7,6 +7,14 @@ class CTF{
     constructor(data){
 
         this.data = data;
+
+        //events waiting to be isnerted
+        this.eventList = [];
+        this.carryTimes = [];
+        this.crKills = [];
+        this.flagDrops = [];
+        this.flagDeaths = [];
+        this.covers = [];
     }
 
     async bPlayerTotalsExist(playerId, gametypeId){
@@ -183,7 +191,7 @@ class CTF{
         return timeDropped;
     }
 
-    async insertCap(matchId, matchDate, mapId, capTeam, flagTeam, grabTime, grabPlayer, capTime, 
+    async insertCap(matchId, matchDate, gametypeId, mapId, capTeam, flagTeam, grabTime, grabPlayer, capTime, 
         capPlayer, travelTime, carryTime, dropTime, totalDrops, totalPickups, totalCovers, totalSeals, 
         totalAssists, totalSelfCovers, totalDeaths, totalSuicides, redTeamKills, blueTeamKills, greenTeamKills,
         yellowTeamKills, redSuicides, blueSuicides, greenSuicides, yellowSuicides){
@@ -204,12 +212,13 @@ class CTF{
         }
 
 
-        const query = `INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,
+        const query = `INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,
             ?,?,?,?,?,?,?,?,?,?,?,
             ?,?,?,?,?,?,?,?)`;
 
         const vars = [
             matchId,
+            gametypeId,
             matchDate, 
             mapId,
             capTeam, 
@@ -321,13 +330,25 @@ class CTF{
         return await mysql.simpleQuery(query, vars);
     }
 
-    async insertCover(matchId, matchDate, mapId, capId, timestamp, killerId, killerTeam, victimId){
+    /*async insertCover(matchId, matchDate, mapId, capId, timestamp, killerId, killerTeam, victimId){
 
         const query = "INSERT INTO nstats_ctf_covers VALUES(NULL,?,?,?,?,?,?,?,?)";
 
         const vars = [matchId, matchDate, mapId, capId, timestamp, killerId, killerTeam, victimId];
 
         return await mysql.simpleQuery(query, vars);
+    }*/
+
+    addCover(matchId, matchDate, mapId, capId, timestamp, killerId, killerTeam, victimId){
+
+        this.covers.push([matchId, matchDate, mapId, capId, timestamp, killerId, killerTeam, victimId]);
+    }
+
+    async bulkInsertFlagCovers(){
+
+        const query = `INSERT INTO nstats_ctf_covers (match_id, match_date, map_id, cap_id, timestamp, killer_id, killer_team, victim_id) VALUES ?`;
+
+        return await mysql.bulkInsert(query, this.covers);
     }
 
     async insertSelfCover(matchId, matchDate, mapId, capId, timestamp, killerId, killerTeam, victimId){
@@ -348,40 +369,66 @@ class CTF{
         return await mysql.simpleQuery(query, vars);
     }
 
-    async insertCarryTime(matchId, matchDate, mapId, capId, flagTeam, playerId, playerTeam, startTime, endTime, carryTime, carryPercent){
+    addCarryTime(matchId, matchDate, mapId, capId, flagTeam, playerId, playerTeam, startTime, endTime, carryTime, carryPercent){
 
-        const query = `INSERT INTO nstats_ctf_carry_times VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?)`;
-
-        const vars = [matchId, matchDate, mapId, capId, flagTeam, playerId, playerTeam, startTime, endTime, carryTime, carryPercent];
-
-        return await mysql.simpleQuery(query, vars);
+        this.carryTimes.push([matchId, matchDate, mapId, capId, flagTeam, playerId, playerTeam, startTime, endTime, carryTime, carryPercent]);
     }
 
+    async insertCarryTimes(){
 
-    async insertFlagDeath(matchId, matchDate, mapId, timestamp, capId, killerId, killerTeam, 
+        const query = "INSERT INTO nstats_ctf_carry_times (match_id,match_date,map_id,cap_id,flag_team,player_id,player_team,start_time,end_time,carry_time,carry_percent) VALUES ?";
+        await mysql.bulkInsert(query, this.carryTimes);
+    }
+
+    addFlagDeath(matchId, matchDate, mapId, timestamp, capId, killerId, killerTeam, 
         victimId, victimTeam, killDistance, distanceToCap, distanceToEnemyBase){
 
-        const query = `INSERT INTO nstats_ctf_flag_deaths VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?)`;
-
-        const vars = [
-            matchId, 
-            matchDate,
-            mapId, 
-            timestamp,
-            capId,
-            killerId, 
-            killerTeam, 
-            victimId, 
-            victimTeam, 
-            killDistance,
-            distanceToCap,
-            distanceToEnemyBase
-        ];
-
-        return await mysql.simpleQuery(query, vars);
+        this.flagDeaths.push([matchId, matchDate, mapId, timestamp, capId, killerId, killerTeam, 
+            victimId, victimTeam, killDistance, distanceToCap, distanceToEnemyBase]);
     }
 
-    async insertDrop(matchId, matchDate, mapId, timestamp, capId, flagTeam, playerId, playerTeam, distanceToCap, location,
+    async bulkInsertFlagDeaths(){
+
+        const query = `INSERT INTO nstats_ctf_flag_deaths (
+            match_id, match_date, map_id, timestamp, cap_id, killer_id, killer_team, victim_id, 
+            victim_team, kill_distance, distance_to_cap, distance_to_enemy_base
+            ) 
+        VALUES ?`;
+
+        await mysql.bulkInsert(query, this.flagDeaths);
+    }
+
+    addDrop(matchId, matchDate, mapId, timestamp, capId, flagTeam, playerId, playerTeam, distanceToCap, location,
+        timeDropped){
+
+            this.flagDrops.push([
+                matchId, 
+                matchDate, 
+                mapId, 
+                timestamp, 
+                capId, 
+                flagTeam, 
+                playerId, 
+                playerTeam, 
+                distanceToCap, 
+                location.x,
+                location.y,
+                location.z,
+                timeDropped
+            ]);
+    }
+
+    async bulkInsertFlagDrops(){
+
+        const query = `INSERT INTO nstats_ctf_flag_drops (
+            match_id,match_date,map_id,timestamp,cap_id,flag_team,player_id,
+            player_team,distance_to_cap,position_x,position_y,position_z,time_dropped) 
+        VALUES ?`;
+
+        return await mysql.bulkInsert(query, this.flagDrops);
+    }
+
+    /*async insertDrop(matchId, matchDate, mapId, timestamp, capId, flagTeam, playerId, playerTeam, distanceToCap, location,
         timeDropped){
 
         const query = `INSERT INTO nstats_ctf_flag_drops VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
@@ -403,7 +450,7 @@ class CTF{
         ];
 
         return await mysql.simpleQuery(query, vars);
-    }
+    }*/
 
     async insertPickup(matchId, matchDate, mapId, capId, timestamp, playerId, playerTeam, flagTeam){
   
@@ -764,13 +811,16 @@ class CTF{
         return caps;
     }
 
-    async insertEvent(match, timestamp, player, event, team){
+    addEvent(match, timestamp, player, event, team){
 
+        this.eventList.push([match, timestamp, player, event, team]);
+    }
 
-        const query = "INSERT INTO nstats_ctf_events VALUES(NULL,?,?,?,?,?)";
+    async insertEventList(){
 
-        return await mysql.simpleQuery(query, [match, timestamp, player, event, team]);
+        const query = "INSERT INTO nstats_ctf_events (match_id, timestamp, player, event, team) VALUES ?";
 
+        return await mysql.bulkInsert(query, this.eventList);
     }
 
     async getMatchEvents(id){
@@ -1691,15 +1741,28 @@ class CTF{
         }
     }
 
+    addCRKill(eventType, matchId, matchDate, mapId, capId, timestamp, playerId, playerTeam, kills){
 
-    async insertCRKills(eventType, matchId, matchDate, mapId, capId, timestamp, playerId, playerTeam, kills){
+        //insertCRKills
+
+        this.crKills.push([eventType, matchId, matchDate, mapId, capId, timestamp, playerId, playerTeam, kills]);
+    }
+
+    async insertCRKills(){
+
+        const query = "INSERT INTO nstats_ctf_cr_kills (match_id,match_date,map_id,cap_id,event_type,timestamp,player_id,player_team,total_events) VALUES ?";
+
+        await mysql.insertBulk(query, this.crKills);
+    }
+
+    /*async insertCRKills(eventType, matchId, matchDate, mapId, capId, timestamp, playerId, playerTeam, kills){
 
         const query = `INSERT INTO nstats_ctf_cr_kills VALUES(NULL,?,?,?,?,?,?,?,?,?)`;
 
         const vars = [matchId, matchDate, mapId, capId, eventType, timestamp, playerId, playerTeam, kills];
 
         return await mysql.simpleQuery(query, vars);
-    }
+    }*/
 
     async getCapFragEvents(matchId, option){
 
@@ -2025,11 +2088,14 @@ class CTF{
     }
 
 
-    async getAllMapRecords(){
+    //if gametypeId is undefined or 0 just get all time best time
+    async getAllMapRecords(gametypeId){
 
-        const query = `SELECT * FROM nstats_ctf_cap_records`;
+        if(gametypeId === undefined) gametypeId = 0;
 
-        const result = await mysql.simpleQuery(query);
+        const query = `SELECT * FROM nstats_ctf_cap_records WHERE gametype_id=?`;
+
+        const result = await mysql.simpleQuery(query, [gametypeId]);
 
         const soloCaps = [];
         const assistCaps = [];
@@ -2062,6 +2128,84 @@ class CTF{
         }
     }
 
+
+    async getMapFastestCapTime(gametypeId, mapId, type){
+
+        const query = `SELECT travel_time FROM nstats_ctf_cap_records WHERE gametype_id=? AND map_id=? AND cap_type=?`;
+
+        const result = await mysql.simpleQuery(query, [gametypeId, mapId, type]);
+
+        if(result.length === 0) return 0;
+
+        return result[0].travel_time;
+    }
+
+    async getSingleMapCapRecords(gametypeId, mapId, type, page, perPage){
+
+        const query = `SELECT * FROM nstats_ctf_caps 
+        WHERE ${(gametypeId === 0) ? "" : "gametype_id=? AND"} map_id=? 
+        AND total_assists${(type === "solo") ? " = 0" : " > 0"}
+        ORDER BY travel_time ASC LIMIT ?, ?`;
+
+        const totalsQuery = `SELECT COUNT(*) as unique_caps FROM nstats_ctf_caps 
+        WHERE ${(gametypeId === 0) ? "" : "gametype_id=? AND"} map_id=? 
+        AND total_assists${(type === "solo") ? " = 0" : " > 0"}`;
+
+        page--;
+        if(page < 0) page = 0;     
+
+        let start = perPage * page;
+        if(start < 0) start = 0;
+
+        const vars = [mapId, start, perPage];
+        if(gametypeId !== 0) vars.unshift(gametypeId);
+
+        const result = await mysql.simpleQuery(query, vars);
+
+        const capIds = new Set();
+        const uniquePlayers = new Set();
+        const matchIds = new Set();
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            capIds.add(r.id);
+
+            uniquePlayers.add(r.grab_player);
+            uniquePlayers.add(r.cap_player);
+            matchIds.add(r.match_id);
+        }
+
+        const assistedPlayers = await this.getAssistedPlayers([...capIds]);
+
+        for(let i = 0; i < assistedPlayers.uniquePlayers.length; i++){
+
+            const p = assistedPlayers.uniquePlayers[i];
+            uniquePlayers.add(p);
+        }
+
+        if(type === "assist"){
+
+            for(let i = 0; i < result.length; i++){
+
+                const r = result[i];
+                r.assistPlayers = [...new Set(assistedPlayers.assists[r.id])] ?? [];       
+            }
+        }
+
+        const totalResults = await mysql.simpleQuery(totalsQuery, vars);
+        const overalMapRecord = await this.getMapFastestCapTime(gametypeId, mapId, (type === "solo") ? 0 : 1);
+
+        return {
+            "caps": result, 
+            "uniquePlayers": [...uniquePlayers], 
+            "capIds": [...capIds], 
+            "matchIds": [...matchIds],
+            "totalResults": totalResults[0].unique_caps,
+            "mapRecordTime": overalMapRecord
+        };
+    }
 
     async getCaps(capIds){
 
@@ -2856,6 +3000,42 @@ class CTF{
         await this.recalculatePlayerTotals(oldId, newId);
     }
 
+    async bulkInsertFlagPickups(vars){
+
+        const query = `INSERT INTO nstats_ctf_flag_pickups (match_id, match_date, map_id, cap_id, timestamp, player_id, player_team, flag_team) VALUES ?`;
+
+        return await mysql.bulkInsert(query, vars);
+    }
+
+    async bulkInsertSelfCovers(vars){
+
+        const query = `INSERT INTO nstats_ctf_self_covers (match_id, match_date, map_id, cap_id, timestamp, killer_id, killer_team, victim_id) VALUES ?`;
+        return await mysql.bulkInsert(query, vars);
+    }
+
+
+    async getGrabAndCapPlayers(capIds){
+
+        if(capIds.length === 0) return {};
+
+        const query = `SELECT id,grab_player,cap_player FROM nstats_ctf_caps WHERE id IN(?)`;
+
+        const result = await mysql.simpleQuery(query, [capIds]);
+
+        const data = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            data[r.id] = {
+                "grab": r.grab_player,
+                "cap": r.cap_player
+            }
+        }
+
+        return data;
+    }
 }
 
 

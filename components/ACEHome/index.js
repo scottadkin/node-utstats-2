@@ -16,7 +16,7 @@ const KickTable = ({host, kicks}) =>{
 
         rows.push(<tr key={i}>
             <td>{Functions.convertTimestamp(k.timestamp, true)}</td>
-            <td><Link href={`/ace/?mode=player&name=${k.name}`}><a><CountryFlag host={host} country={k.country}/>{k.name}</a></Link></td>
+            <td><Link href={`/ace/?mode=player&name=${k.name}`}><CountryFlag host={host} country={k.country}/>{k.name}</Link></td>
             <td>{k.kick_reason}</td>
             <td>{k.package_name}</td>
             <td>{k.package_version}</td>
@@ -49,8 +49,8 @@ const PlayersTable = ({host, players}) =>{
         const p = players[i];
 
         rows.push(<tr key={i}>
-            <td><Link href={`/ace/?mode=player&name=${p.name}`}><a><CountryFlag host={host} country={p.country}/>{p.name}</a></Link></td>
-            <td><Link href={`/ace?mode=players&hwid=${p.hwid}`}><a>{p.hwid}</a></Link></td>
+            <td><Link href={`/ace/?mode=player&name=${p.name}`}><CountryFlag host={host} country={p.country}/>{p.name}</Link></td>
+            <td><Link href={`/ace?mode=players&hwid=${p.hwid}`}>{p.hwid}</Link></td>
             <td>{Functions.convertTimestamp(p.first, true)}</td>
             <td>{Functions.convertTimestamp(p.last, true)}</td>
             <td>{p.times_connected}</td>
@@ -82,11 +82,11 @@ const ScreenShotsTable = ({host, data}) =>{
 
         rows.push(<tr key={i}>
             <td>{Functions.convertTimestamp(d.timestamp, true)}</td>
-            <td><Link href={`/ace?mode=players&ip=${d.ip}`}><a><CountryFlag host={host} country={d.country}/>{d.ip}</a></Link></td>
+            <td><Link href={`/ace?mode=players&ip=${d.ip}`}><CountryFlag host={host} country={d.country}/>{d.ip}</Link></td>
             <td>
-                <Link href={`/ace?mode=players&hwid=${d.hwid}`}><a><span className="yellow">HWID: </span> {d.hwid}</a></Link><br/>
-                <Link href={`/ace?mode=players&mac1=${d.mac1}`}><a><span className="yellow">MAC1: </span> {d.mac1}</a></Link><br/>
-                <Link href={`/ace?mode=players&mac2=${d.mac2}`}><a><span className="yellow">MAC2: </span> {d.mac2}</a></Link>
+                <Link href={`/ace?mode=players&hwid=${d.hwid}`}><span className="yellow">HWID: </span> {d.hwid}</Link><br/>
+                <Link href={`/ace?mode=players&mac1=${d.mac1}`}><span className="yellow">MAC1: </span> {d.mac1}</Link><br/>
+                <Link href={`/ace?mode=players&mac2=${d.mac2}`}><span className="yellow">MAC2: </span> {d.mac2}</Link>
             </td>
             <td>{d.admin_name}</td>
             <td><a href={ACE.cleanImageURL(d.screenshot_file)} rel="noreferrer" target="_blank">View</a></td>

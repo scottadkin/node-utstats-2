@@ -176,6 +176,7 @@ class KillManager{
             if(k.timestamp > timestamp) return null;
 
             if(k.timestamp === timestamp && k.killerId === killer && k.victimId === victim){
+
                 return k;
             }
         }
@@ -263,6 +264,8 @@ class KillManager{
             let currentKillerWeapon = 0;
             let currentVictimWeapon = 0;
 
+            const vars = [];
+
             for(let i = 0; i < this.kills.length; i++){
 
                 const k = this.kills[i];
@@ -310,20 +313,23 @@ class KillManager{
                     currentVictim = {"masterId": 0};
                 }
 
-                //console.log(currentKiller);
-                await this.killsManager.insert(
-                    matchId, 
-                    k.timestamp, 
-                    currentKiller.masterId, 
-                    currentKillerTeam, 
-                    currentVictim.masterId, 
-                    currentVictimTeam, 
-                    currentKillerWeapon, 
-                    currentVictimWeapon, 
-                    (k.killDistance != null) ? k.killDistance : 0
+                vars.push(
+                    [
+                        matchId, 
+                        k.timestamp, 
+                        currentKiller.masterId, 
+                        currentKillerTeam, 
+                        currentVictim.masterId, 
+                        currentVictimTeam, 
+                        currentKillerWeapon, 
+                        currentVictimWeapon, 
+                        (k.killDistance !== null) ? k.killDistance : 0
+                    ]
                 );
-
             }
+
+            await this.killsManager.insertMultipleKills(vars);
+
 
         }catch(err){
             console.trace(err);
@@ -344,6 +350,7 @@ class KillManager{
                 let killerTeam = 0;
                 let victimTeam = 0;
 
+                const headshotInsertVars = [];
 
                 for(let i = 0; i < this.headshots.length; i++){
 
@@ -382,11 +389,18 @@ class KillManager{
                     killerTeam = this.playerManager.getPlayerTeamAt(h.killer, h.timestamp);
                     victimTeam = this.playerManager.getPlayerTeamAt(h.victim, h.timestamp);
 
-                    await this.headshotsManager.insert(
+                    /*await this.headshotsManager.insert(
                         matchId, h.timestamp, currentKiller.masterId, currentVictim.masterId, 
                         currentKillInformation.killDistance, killerTeam, victimTeam
-                    );
+                    );*/
+
+                    headshotInsertVars.push([
+                        matchId, h.timestamp, currentKiller.masterId, currentVictim.masterId, 
+                        currentKillInformation.killDistance, killerTeam, victimTeam
+                    ]);
                 }
+
+                await this.headshotsManager.insertAllHeadshots(headshotInsertVars);
 
                 new Message(`Imported ${this.headshots.length} headshot data.`, 'pass');
 
