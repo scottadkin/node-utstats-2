@@ -34,6 +34,8 @@ function uploadImage(currentLocation, currentName, targetName){
 
         const fileName = `${FULLSIZE_DIR}${targetName}`;
 
+        const quality = 85;
+
         const tempFile = `${currentLocation}${currentName}`;
 
         const fileReg = /^(.+)\..+$/i;
@@ -50,13 +52,13 @@ function uploadImage(currentLocation, currentName, targetName){
 
         await Jimp.read(tempFile).then((file) =>{
 
-            return file.write(`${FULLSIZE_DIR}${newName}.jpg`);
+            return file.quality(quality).write(`${FULLSIZE_DIR}${newName}.jpg`);
         });
 
         //thumbs
         await Jimp.read(tempFile).then((file) =>{
 
-            return file.resize(480, 270).write(`${THUMBS_DIR}${newName}.jpg`);
+            return file.resize(480, 270).quality(quality).write(`${THUMBS_DIR}${newName}.jpg`);
 
         }).catch((err) =>{
             console.trace(err);
