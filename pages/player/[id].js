@@ -36,6 +36,7 @@ import PlayerMonsterHuntStats from '../../components/PlayerMonsterHuntStats';
 import PlayerMonsters from '../../components/PlayerMonsters';
 import PlayerCombogibStats from '../../components/PlayerCombogibStats';
 import PlayerTeleFrags from '../../components/PlayerTeleFrags';
+import PlayerMapStats from '../../components/PlayerMapStats';
 
 
 
@@ -249,6 +250,11 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 	if(pageSettings["Display Telefrag Stats"] === "true"){
 
 		elems[pageOrder["Display Telefrag Stats"]] = <PlayerTeleFrags key="tf" playerId={playerId} />
+	}
+
+	if(pageSettings["Display Map Stats"] === "true"){
+
+		elems[pageOrder["Display Map Stats"]] = <PlayerMapStats playerId={playerId}/>;
 	}
 
 	return (

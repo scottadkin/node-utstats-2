@@ -220,3 +220,13 @@ export function getPlayer(players, id, bObject){
 
     return {"name": "not found", "country": "xx", "team": 0, "id": -1}
 }
+
+
+export function ignore0(input){
+
+    if(input != 0){
+        return input;
+    }
+
+    return "";
+}

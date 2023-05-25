@@ -9,10 +9,20 @@ export default async function handler(req, res){
 
     try{
 
+        let mode = "";
+        let playerId = -1;
 
-        const mode = (req.body.mode !== undefined) ? req.body.mode.toLowerCase() : "";
-        const playerId = (req.body.playerId !== undefined) ? parseInt(req.body.playerId) : -1;
+        if(req.body.mode !== undefined){
 
+            mode = (req.body.mode !== undefined) ? req.body.mode.toLowerCase() : "";
+            playerId = (req.body.playerId !== undefined) ? parseInt(req.body.playerId) : -1;
+        }
+
+        if(req.query.mode !== undefined){
+
+            mode = (req.query.mode !== undefined) ? req.query.mode.toLowerCase() : "";
+            playerId = (req.query.playerId !== undefined) ? parseInt(req.query.playerId) : -1;
+        }
 
         if(mode === "ctf"){
 
@@ -50,8 +60,6 @@ export default async function handler(req, res){
 
             const data = await teleFragManager.getPlayerTotals(playerId);
 
-            
-
             const gametypeIds = [...new Set(data.map((d) =>{
                 return d.gametype_id;
             }))];
@@ -69,6 +77,30 @@ export default async function handler(req, res){
             
             res.status(200).json({"data": data, "gametypeNames": gametypeNames, "mapNames": mapNames});
             return;
+        }
+
+        if(mode === "map-stats"){
+
+            const playerManager = new Players();
+            const mapManager = new Maps();
+
+            const data = await playerManager.getBasicMapStats(playerId);
+
+            const mapIds = [...new Set(data.map((d) =>{
+                return d.map;
+            }))];
+
+            const mapNames = await mapManager.getNamesByIds(mapIds, true);
+
+            for(let i = 0; i < data.length; i++){
+
+                const d = data[i];
+                d.mapName = mapNames[d.map] ?? "Not Found";
+            }
+
+            res.status(200).json({"data": data});
+            return;
+
         }
 
         res.status(200).json({"error": "Unknown Command"});

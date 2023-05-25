@@ -3115,6 +3115,14 @@ class Players{
             }
         }
     }
+
+
+    async getBasicMapStats(playerId){
+
+        const query = `SELECT first,last,map,matches,wins,draws,losses,winrate,playtime FROM nstats_player_totals WHERE map!=0 AND gametype=0 AND player_id=?`;
+
+        return await mysql.simpleQuery(query, [playerId]);
+    }
     
 }
 

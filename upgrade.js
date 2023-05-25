@@ -238,6 +238,12 @@ async function updateSiteSettings(){
     if(!await bSettingExist("Home", "Popular Countries Display Limit")){
         await mysql.simpleQuery(query4);
     }
+
+    const query5 = `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Map Stats","true",999999)`;
+
+    if(!await bSettingExist("Player Pages", "Display Map Stats")){
+        await mysql.simpleQuery(query5);
+    }
 }
 
 
