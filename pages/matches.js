@@ -12,11 +12,11 @@ import DropDown from "../components/DropDown";
 import MatchesTableView from "../components/MatchesTableView";
 import MatchesDefaultView from "../components/MatchesDefaultView";
 import Pagination from "../components/Pagination";
-import SearchTerms from "../components/SearchTerms";
 import Functions from "../api/functions";
 import Servers from "../api/servers"
 import Gametypes from "../api/gametypes";
 import Maps from "../api/maps";
+import Router from "next/router";
 
 const reducer = (state, action) =>{
 
@@ -111,7 +111,7 @@ const Matches = ({host, pageError, metaData, session, navSettings, pageSettings,
     useEffect(() =>{
 
         const controller = new AbortController();
-        
+
         const loadNames = async () =>{
 
             try{
@@ -202,6 +202,7 @@ const Matches = ({host, pageError, metaData, session, navSettings, pageSettings,
                     
                 // this.setState({"matches": res.data, "images": JSON.stringify(res.images)});
                 }
+
             }catch(err){
 
                 if(err.name !== "AbortError"){
@@ -212,17 +213,45 @@ const Matches = ({host, pageError, metaData, session, navSettings, pageSettings,
 
         loadData();
 
+        Router.push(
+            `/matches/?server=${state.selectedServer}&gametype=${state.selectedGametype}&map=${state.selectedMap}&page=${page}&pp=${state.perPage}`, 
+            undefined, 
+            { shallow: true }
+        );
+
         return () =>{
             controller.abort();
         }
 
     }, [state.selectedServer, state.selectedGametype, state.selectedMap, page, state.perPage]);
 
+    const getName = (type, id) =>{
+
+        id = parseInt(id);
+
+        let names = [];
+
+        if(type === "server") names = state.serverNames;
+        if(type === "gametype") names = state.gametypeNames;
+        if(type === "map") names = state.mapNames;
+
+
+        for(let i = 0; i < names.length; i++){
+
+            const n = names[i];
+
+            if(parseInt(n.id) === id) return n.name;
+        }
+
+        return "Not Found";
+    }
+
+
     const getMetaData = () =>{
 
-        const serverString = metaData.serverName;
-        const gametypeString = metaData.gametypeName;
-        const mapString = metaData.mapName;
+        const serverString = (state.serverNames.length === 0) ? metaData.serverName : getName("server", state.selectedServer);
+        const gametypeString = (state.gametypeNames.length === 0) ? metaData.gametypeName : getName("gametype", state.selectedGametype);
+        const mapString = (state.serverNames.length === 0) ? metaData.mapName : getName("map", state.selectedMap);
 
         const keywords = [];
 
@@ -254,9 +283,7 @@ const Matches = ({host, pageError, metaData, session, navSettings, pageSettings,
             }else{
 
                 description = `Search results for matches played using the ${gametypeString} gametype`
-            } 
-
-            
+            }       
         }
 
 
@@ -290,8 +317,7 @@ const Matches = ({host, pageError, metaData, session, navSettings, pageSettings,
             keywords.push("recent");
         }
 
-
-        return {"keywords": keywords, "title": title, "description": description}
+        return {"keywords": keywords, "title": title, "description": description};
     }
 
     const renderMatches = () =>{
@@ -305,10 +331,13 @@ const Matches = ({host, pageError, metaData, session, navSettings, pageSettings,
         let matches = null;
 
         if(parseInt(state.displayMode) === 0){
+            
             matches = <div className="center" style={{"width": "var(--width-1)"}}>
                 <MatchesDefaultView data={state.data} images={state.images} host={imageHost}/>
             </div>;
+
         }else{
+
             matches = <MatchesTableView data={state.data}/>;
         }
 
@@ -316,56 +345,6 @@ const Matches = ({host, pageError, metaData, session, navSettings, pageSettings,
             {matches}
         </div>
     }
-
-    const getName = (type, id) =>{
-
-        id = parseInt(id);
-
-        let names = [];
-
-        if(type === "server") names = state.serverNames;
-        if(type === "gametype") names = state.gametypeNames;
-        if(type === "map") names = state.mapNames;
-
-
-        for(let i = 0; i < names.length; i++){
-
-            const n = names[i];
-
-            if(parseInt(n.id) === id) return n.name;
-        }
-
-        return "Not Found";
-    }
-
-    const renderSearchTitle = () =>{
-
-
-        if(state.selectedServer === 0 && state.selectedGametype === 0 && 
-            state.selectedMap === 0){
-            return null;
-        }
-        
-        const terms = {};
-
-        if(state.selectedServer !== 0){
-            terms["Server"] = getName("server", state.selectedServer);
-        }
-
-        if(state.selectedGametype !== 0){
-            terms["Gametype"] = getName("gametype", state.selectedGametype);
-        }
-
-        if(state.selectedMap !== 0){
-            terms["Map"] = getName("map", state.selectedMap);
-        }
-    
-        return <div key="search-title">
-            <div className="default-header">Search Results</div>
-            <SearchTerms data={terms}/>
-        </div>
-    }
-
 
     const changeSelected = (name, value) =>{
 
@@ -391,7 +370,6 @@ const Matches = ({host, pageError, metaData, session, navSettings, pageSettings,
         if(name === "perpage"){
             dispatch({"type": "perPageChanged", "perPage": parseInt(value)});
         }
-        //dispatch({});
     }
 
     const getPerPageData = () =>{
@@ -442,8 +420,6 @@ const Matches = ({host, pageError, metaData, session, navSettings, pageSettings,
         const m = state.selectedMap;
         const d = state.displayMode;
 
-        const url = `/matches?server=${s}&gametype=${g}&map=${m}&display=${d}&page=1&pp=${state.perPage}`;
-
         return <div key="s-f" className="form m-bottom-25">
             <DropDown 
                 dName="Server" 
@@ -480,8 +456,7 @@ const Matches = ({host, pageError, metaData, session, navSettings, pageSettings,
                 data={getDisplayModeData()} 
                 changeSelected={changeSelected}
             />
-  
-        </div>
+        </div>;
     }
 
     const renderElems = () =>{
@@ -492,7 +467,6 @@ const Matches = ({host, pageError, metaData, session, navSettings, pageSettings,
         if(state.error !== null) return <ErrorMessage title="Match Search" text={state.error}/>
 
         elems.push(renderSearchForm());
-        elems.push(renderSearchTitle());
         elems.push(renderPagination(0));
         elems.push(renderMatches());
         elems.push(renderPagination(1));
