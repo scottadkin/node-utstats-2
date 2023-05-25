@@ -111,8 +111,7 @@ const Matches = ({host, pageError, metaData, session, navSettings, pageSettings,
     useEffect(() =>{
 
         const controller = new AbortController();
-
-
+        
         const loadNames = async () =>{
 
             try{

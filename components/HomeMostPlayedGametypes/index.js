@@ -1,6 +1,6 @@
 import styles from './HomeMostPlayedGametypes.module.css';
-import Functions from '../../api/functions';
-import Playtime from '../Playtime';
+import { toPlaytime, convertTimestamp } from '../../api/generic.mjs';
+import Link from 'next/link';
 
 const HomeMostPlayedGametypes = ({data, images, host}) =>{
     
@@ -21,8 +21,6 @@ const HomeMostPlayedGametypes = ({data, images, host}) =>{
         currentName = currentName.replace(/ /ig, '');
         currentName = currentName.replace(/tournament/ig, '');
       
-
-
         if(images[currentName] !== undefined){
             currentImage = images[currentName];
         }else{
@@ -39,16 +37,18 @@ const HomeMostPlayedGametypes = ({data, images, host}) =>{
             d.name += "...";
         }
 
-        elems.push(<div className={styles.box} key={i}>
-            <div className={styles.name}>{d.name}</div>
-            <div className={styles.image}><img src={`${host}/images/gametypes/${currentImage}`} alt="image" className="thumb-sshot"/></div>
-            <div className={styles.info}>
-                Playtime <Playtime timestamp={d.playtime}/><br/>
-                {d.matches} Matches<br/> 
-                First Match {Functions.convertTimestamp(d.first, true)}<br/>
-                Last Match {Functions.convertTimestamp(d.last, true)}<br/>
+        elems.push(<Link href={`/matches?gametype=${d.id}`} key={i}>
+            <div className={styles.box}>
+                <div className={styles.name}>{d.name}</div>
+                <div className={styles.image}><img src={`${host}/images/gametypes/${currentImage}`} alt="image" className="thumb-sshot"/></div>
+                <div className={styles.info}>
+                    Playtime <span className="playtime">{toPlaytime(d.playtime)}</span><br/>
+                    {d.matches} Matches<br/> 
+                    First Match {convertTimestamp(d.first, true)}<br/>
+                    Last Match {convertTimestamp(d.last, true)}<br/>
+                </div>
             </div>
-        </div>);
+        </Link>);
     }
 
 
