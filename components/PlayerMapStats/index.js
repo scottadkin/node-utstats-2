@@ -39,7 +39,8 @@ const renderData = (data) =>{
         "matches": "Matches",
         "wins": "Wins",
         "winRate": "Win Rate",
-        "playtime": "Playtime"
+        "playtime": "Playtime",
+        "spec": "Spectime"
     };
 
     const tableData = data.map((d) =>{
@@ -71,6 +72,11 @@ const renderData = (data) =>{
             "playtime": {
                 "value": d.playtime,
                 "displayValue": toPlaytime(d.playtime),
+                "className": "playtime"
+            },
+            "spec": {
+                "value": d.spec_playtime,
+                "displayValue": toPlaytime(d.spec_playtime),
                 "className": "playtime"
             }
         }

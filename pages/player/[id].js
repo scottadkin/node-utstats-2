@@ -254,7 +254,7 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 
 	if(pageSettings["Display Map Stats"] === "true"){
 
-		elems[pageOrder["Display Map Stats"]] = <PlayerMapStats playerId={playerId}/>;
+		elems[pageOrder["Display Map Stats"]] = <PlayerMapStats key="m-stats" playerId={playerId}/>;
 	}
 
 	return (
