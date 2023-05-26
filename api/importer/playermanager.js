@@ -1507,133 +1507,112 @@ class PlayerManager{
         }
     }
 
+    updatePlayerWinRate(playerData, playerId, currentResult){
 
-    updateCurrentWinRates(data, matchResult){
+        const playerMatchResult = currentResult[playerId] ?? -1;
 
-        let d = 0;
-
-        let current = 0;
-
-        for(let i = 0; i < data.length; i++){
-
-            d = data[i];
-
-            current = matchResult[`${d.player}`];
-
-            if(current !== undefined){
-
-                d.matches++;
-
-                d.match_result = current;
-                
-                if(current === 1){
-
-                    d.wins++;   
-                    d.current_win_streak++;
-                    d.current_draw_streak = 0;
-                    d.current_lose_streak = 0;
-
-                    if(d.current_win_streak > d.max_win_streak){
-                        d.max_win_streak = d.current_win_streak;
-                    }
-
-                }else if(current === 0){
-
-                    d.current_win_streak = 0;
-                    d.current_draw_streak = 0;
-                    d.current_lose_streak++;
-                    d.losses++;
-
-                    if(d.current_lose_streak > d.max_lose_streak){
-                        d.max_lose_streak = d.current_lose_streak;
-                    }
-
-                }else if(current === 2){
-                    
-                    d.current_win_streak = 0;
-                    d.current_lose_streak = 0;
-                    d.current_draw_streak++;
-                    d.draws++;
-
-                    if(d.current_draw_streak > d.max_draw_streak){
-                        d.max_draw_streak = d.current_draw_streak;
-                    }
-                };
-
-                if(d.wins > 0){
-
-                    if(d.wins === 0){
-                        d.winrate = 1;
-                    }else{
-                        d.winrate = d.wins / d.matches;
-                    }
-
-                    d.winrate *= 100;
-
-                }else{
-                    d.winrate = 0;
-                }
-
-                
-
-            }else{
-                console.log(`NOT FOUND`);
-            }
+        if(playerMatchResult === -1){
+            new Message(`playerManager.updatePlayerWinRate() playerMatchResult is -1`, "error");
+            return;
         }
+
+
+        playerData.matches++;
+
+        //0 loss,1 win, 2 draw
+        if(playerMatchResult === 0){
+
+            playerData.losses++;
+
+            playerData.current_win_streak = 0;
+            playerData.current_lose_streak++;
+            playerData.current_draw_streak = 0;
+        
+        }else if(playerMatchResult === 1){
+
+            playerData.wins++;
+            playerData.current_win_streak++;
+            playerData.current_lose_streak = 0;
+            playerData.current_draw_streak = 0;
+
+        }else{
+
+            playerData.draws++;
+            playerData.current_win_streak = 0;
+            playerData.current_lose_streak = 0;
+            playerData.current_draw_streak++;
+        }
+
+
+        if(playerData.current_win_streak > playerData.max_win_streak){
+            playerData.max_win_streak = playerData.current_win_streak;
+        }
+
+        if(playerData.current_lose_streak > playerData.max_lose_streak){
+            playerData.max_lose_streak = playerData.current_lose_streak;
+        }
+
+        if(playerData.current_draw_streak > playerData.max_draw_streak){
+            playerData.max_draw_streak = playerData.current_draw_streak;
+        }
+
+        let winrate = 0;
+
+        if(playerData.wins > 0){
+            winrate = (playerData.wins / playerData.matches) * 100;    
+        }
+
+        playerData.winrate = winrate;
+
+       // console.log(playerData);
+        return playerData;
     }
 
-    async setCurrentWinRates(gametypeId){
+
+    async updateCurrentWinRates(gametypeId, mapId, matchDate, matchId){
 
         try{
-
-            const playerIds = [];
 
             for(let i = 0; i < this.players.length; i++){
 
                 const p = this.players[i];
 
                 if(this.bIgnoreBots && p.bBot) continue;
-                
                 const playtime = p.getTotalPlaytime(this.totalTeams);
 
-                if(playtime > 0){
-                    playerIds.push(p.masterId);
-                }
-            }
-
-
-            const data = await this.winRateManager.getCurrentPlayersData(playerIds, [0, gametypeId]);
-
-            const currentResult = {};
-
-            for(let i = 0; i < this.players.length; i++){
-
-                const p = this.players[i];
+                if(playtime === 0) continue;
+          
+                let currentResult = 0;
 
                 if(p.bWinner){
-                    currentResult[p.masterId] = 1;
-                }else if(!p.bWinner && !p.bDrew){
-                    currentResult[p.masterId] = 0;
+                    currentResult = 1;
                 }else if(p.bDrew){
-                    currentResult[p.masterId] = 2;
+                    currentResult = 2;
                 }         
+
+                //map + gametype win rates
+                await this.winRateManager.updatePlayerLatest(p.masterId, gametypeId, mapId, currentResult, matchDate, matchId);
+                //gametype win rates
+                await this.winRateManager.updatePlayerLatest(p.masterId, gametypeId, 0, currentResult, matchDate, matchId);
+                //map win rates
+                await this.winRateManager.updatePlayerLatest(p.masterId, 0, mapId, currentResult, matchDate, matchId);
             }
 
-            this.updateCurrentWinRates(data, currentResult);
-
-            return data;
-
-
         }catch(err){
-            new Message(`PlayerManager.setCurrentWinRates() ${err}`,'error');
+            new Message(`PlayerManager.updateCurrentWinRates() ${err}`,'error');
+            console.trace(err);
         }
     }
 
-    async updateWinRates(matchId, date, gametypeId){
+    async updateWinRates(matchId, date, gametypeId, mapId){
 
         try{
 
-            const data = await this.setCurrentWinRates(gametypeId);
+            console.log(`update win rates ${matchId}, ${date}, ${gametypeId}, ${mapId}`);
+
+            await this.updateCurrentWinRates(gametypeId, mapId, date, matchId);
+
+            /*const data = await this.setCurrentWinRates(gametypeId, mapId);
 
             for(let i = 0; i < data.length; i++){
 
@@ -1641,7 +1620,7 @@ class PlayerManager{
 
                 await this.winRateManager.updateLatest(matchId, date, data[i]);
 
-            }
+            }*/
 
         }catch(err){
             new Message(`PlayerManager.updateWinRates() ${err}`,'error');

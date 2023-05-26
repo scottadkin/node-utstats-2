@@ -3,11 +3,80 @@ const mysql = require("./database");
 
 class WinRate{
 
-    constructor(){
+    constructor(){}
 
+    async createPlayerLatest(playerId, gametypeId, mapId, matchResult, matchDate, matchId){
+
+        const query = `INSERT INTO nstats_winrates_latest VALUES(
+            NULL,?,?,?,?,?,
+            1,?,?,?,?,
+            ?,?,?,
+            ?,?,?
+        )`;
+
+        const wins = (matchResult === 1) ? 1 : 0;
+        const draws = (matchResult === 2) ? 1 : 0;
+        const losses = (matchResult === 0) ? 1 : 0;
+
+        const winrate = (matchResult === 1) ? 100 : 0;
+
+        const vars = [
+            matchDate, matchId, playerId, gametypeId, mapId,
+            wins, draws, losses, winrate,
+            wins, draws, losses,
+            wins, draws, losses
+        ];
+
+        return await mysql.simpleQuery(query, vars);
     }
 
-    async getCurrentPlayersData(players, gametypes){
+    async updatePlayerLatest(playerId, gametypeId, mapId, matchResult, matchDate, matchId){
+
+        const query = `UPDATE nstats_winrates_latest SET
+        date=?, match_id=?,
+        matches=matches+1,
+        wins = IF(? = 1, wins + 1, wins),
+        draws = IF(? = 2, draws + 1, draws),
+        losses = IF(? = 0, losses + 1, losses),
+        winrate = IF(wins > 0, (wins / matches) * 100, 0),
+        current_win_streak = IF(? = 1, current_win_streak + 1, 0),
+        current_draw_streak = IF(? = 2, current_draw_streak + 1, 0),
+        current_lose_streak = IF(? = 0, current_lose_streak + 1, 0),
+        max_win_streak = IF(current_win_streak > max_win_streak, current_win_streak, max_win_streak),
+        max_draw_streak = IF(current_draw_streak > max_draw_streak, current_draw_streak, max_draw_streak),
+        max_lose_streak = IF(current_lose_streak > max_lose_streak, current_lose_streak, max_lose_streak)
+
+        WHERE player=? AND gametype=? AND map=?`;
+
+        const vars = [
+            matchDate, matchId,
+            matchResult,
+            matchResult,
+            matchResult,
+            matchResult,
+            matchResult,
+            matchResult,
+            playerId, gametypeId, mapId];
+
+        const result = await mysql.simpleQuery(query, vars);
+
+        if(result.affectedRows === 0){
+            await this.createPlayerLatest(playerId, gametypeId, mapId, matchResult, matchDate, matchId);
+        }
+    }
+    /*async getPlayersCurrentData(players, gametypes, maps){
+
+        const query = `SELECT * FROM nstats_winrates_latest WHERE player IN(?) AND gametype IN(?) AND map IN(?)`;
+
+        const result = await mysql.simpleQuery(query, [players, gametypes, maps]);
+
+        console.log(result);
+
+        return this.createCurrentData(result, players, gametypes, maps);
+
+    }*/
+
+    /*async getCurrentPlayersData(players, gametypes){
 
         if(players.length === 0){
             new Message(`WinRate.getCUrrentPlayersData() players.length is 0 skipping.`,"warning");
@@ -68,7 +137,6 @@ class WinRate{
 
 
     async insertLatest(matchId, date, data){
-
 
         const query = "INSERT INTO nstats_winrates_latest VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
@@ -674,7 +742,6 @@ class WinRate{
 
             const players = {}
 
-
             const updateGametype = async (gametype, data) =>{
 
                // console.log(`update gametype id ${gametype}`);
@@ -744,14 +811,10 @@ class WinRate{
                 }
             }
 
-            let d = 0;
-
             for(let i = 0; i < data.length; i++){
 
-                d = data[i];
-
+                const d = data[i];
                 await updateGametype(id, d);
-
             }
 
             if(id !== 0){
@@ -789,7 +852,7 @@ class WinRate{
         }catch(err){
             console.trace(err);
         }
-    }
+    }*/
 }
 
 module.exports = WinRate;
