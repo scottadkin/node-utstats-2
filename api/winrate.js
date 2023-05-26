@@ -1,6 +1,5 @@
-const mysql = require('./database');
-const Message = require('./message');
-const Promise = require('promise');
+const Message = require("./message");
+const mysql = require("./database");
 
 class WinRate{
 
@@ -8,38 +7,27 @@ class WinRate{
 
     }
 
-    getCurrentPlayersData(players, gametypes){
+    async getCurrentPlayersData(players, gametypes){
 
-        return new Promise((resolve, reject) =>{
+        if(players.length === 0){
+            new Message(`WinRate.getCUrrentPlayersData() players.length is 0 skipping.`,"warning");
+            return [];
+        }
 
-            if(players.length === 0){
-                new Message(`WinRate.getCUrrentPlayersData() players.length is 0 skipping.`,'warning');
-                resolve([]);
-            }
+        const query = "SELECT * FROM nstats_winrates_latest WHERE player IN(?) AND gametype IN(?) ORDER BY id DESC";
 
-            const query = "SELECT * FROM nstats_winrates_latest WHERE player IN(?) AND gametype IN(?) ORDER BY id DESC";
+        const result = await mysql.simpleQuery(query, [players, gametypes]);
 
-            mysql.query(query, [players, gametypes], (err, result) =>{
+        return this.createMissingData(players, result, gametypes);
 
-                if(err) reject(err);
-
-                if(result !== undefined){
-
-                    resolve(this.createMissingData(players, result, gametypes));
-                }
-
-                resolve([]);
-            });
-        });
     }
 
     bDataExist(data, player, gametype){
 
-        let d = 0;
 
         for(let i = 0; i < data.length; i++){
 
-            d = data[i];
+            const d = data[i];
             if(d.player === player && d.gametype === gametype) return true;
         }
 
@@ -75,167 +63,124 @@ class WinRate{
             }
         }
 
-       //console.log(result);
         return result;
     }
 
-    insertHistory(matchId, date, data, bLatest){
 
-        return new Promise((resolve, reject) =>{
+    async insertLatest(matchId, date, data){
 
 
-            //console.log(`insert ${matchId}, ${data.gametype}`);
+        const query = "INSERT INTO nstats_winrates_latest VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-            let vars = [];
+        const vars = [
+            date, 
+            matchId, 
+            data.player, 
+            data.gametype, 
+            data.matches,
+            data.wins, 
+            data.draws, 
+            data.losses,
+            data.winrate,
+            data.current_win_streak,
+            data.current_draw_streak,
+            data.current_lose_streak,
+            data.max_win_streak,
+            data.max_draw_streak,
+            data.max_lose_streak
+        ];
 
-            let query = "INSERT INTO nstats_winrates VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        return await mysql.simpleQuery(query, vars);
+    }
 
-            if(bLatest !== undefined){
+    async insertHistory(matchId, date, data, bLatest){
 
-                query = "INSERT INTO nstats_winrates_latest VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-                vars = [
-                    date, 
-                    matchId, 
-                    data.player, 
-                    data.gametype, 
-                    data.matches,
-                    data.wins, 
-                    data.draws, 
-                    data.losses,
-                    data.winrate,
-                    data.current_win_streak,
-                    data.current_draw_streak,
-                    data.current_lose_streak,
-                    data.max_win_streak,
-                    data.max_draw_streak,
-                    data.max_lose_streak
+        if(bLatest !== undefined){
+            return this.insertHistory(matchId, date, data);
+        }
+        
+        const query = "INSERT INTO nstats_winrates VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+        const vars = [
+            date, 
+            matchId, 
+            data.player, 
+            data.gametype, 
+            data.match_result,
+            data.matches,
+            data.wins, 
+            data.draws, 
+            data.losses,
+            data.winrate,
+            data.current_win_streak,
+            data.current_draw_streak,
+            data.current_lose_streak,
+            data.max_win_streak,
+            data.max_draw_streak,
+            data.max_lose_streak
+        ];
+        
     
-                ];
-
-            }else{
-
-                vars = [
-                    date, 
-                    matchId, 
-                    data.player, 
-                    data.gametype, 
-                    data.match_result,
-                    data.matches,
-                    data.wins, 
-                    data.draws, 
-                    data.losses,
-                    data.winrate,
-                    data.current_win_streak,
-                    data.current_draw_streak,
-                    data.current_lose_streak,
-                    data.max_win_streak,
-                    data.max_draw_streak,
-                    data.max_lose_streak
-    
-                ];
-            }
-
-            
-
-            mysql.query(query, vars, (err) =>{
-
-                if(err) reject(err);
-                
-                
-                resolve();
-            });
-        });
+        return await mysql.simpleQuery(query, vars);
+        
     }
 
-    updateLatest(matchId, date, data){
+    async updateLatest(matchId, date, data){
 
-        return new Promise((resolve, reject) =>{
+        const query = `UPDATE nstats_winrates_latest SET 
+        date=?,
+        match_id=?,
+        matches=?,
+        wins=?,
+        draws=?,
+        losses=?,
+        winrate=?,
+        current_win_streak=?,
+        current_draw_streak=?,
+        current_lose_streak=?,
+        max_win_streak=?,
+        max_draw_streak=?,
+        max_lose_streak=?
+        WHERE player=? AND gametype=?`;
 
-            const query = `UPDATE nstats_winrates_latest SET 
-            date=?,
-            match_id=?,
-            matches=?,
-            wins=?,
-            draws=?,
-            losses=?,
-            winrate=?,
-            current_win_streak=?,
-            current_draw_streak=?,
-            current_lose_streak=?,
-            max_win_streak=?,
-            max_draw_streak=?,
-            max_lose_streak=?
-            WHERE player=? AND gametype=?`;
+        const vars = [
+            date, 
+            matchId, 
+            data.matches,
+            data.wins, 
+            data.draws, 
+            data.losses,
+            data.winrate,
+            data.current_win_streak,
+            data.current_draw_streak,
+            data.current_lose_streak,
+            data.max_win_streak,
+            data.max_draw_streak,
+            data.max_lose_streak,
+            data.player,
+            data.gametype
+        ];
 
-            const vars = [
-                date, 
-                matchId, 
-                data.matches,
-                data.wins, 
-                data.draws, 
-                data.losses,
-                data.winrate,
-                data.current_win_streak,
-                data.current_draw_streak,
-                data.current_lose_streak,
-                data.max_win_streak,
-                data.max_draw_streak,
-                data.max_lose_streak,
-                data.player,
-                data.gametype
-            ];
+        const result = await mysql.simpleQuery(query, vars);
 
-            mysql.query(query, vars, async (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result.affectedRows === 0){
-                    await this.insertHistory(matchId, date, data, true);
-                }
-                
-                resolve();
-            });
-
-        });
+        if(result.affectedRows === 0){
+            await this.insertHistory(matchId, date, data, true);
+        }
     }
 
 
-    getPlayerLatest(player){
+    async getPlayerLatest(player){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "SELECT * FROM nstats_winrates_latest WHERE player=?";
-
-            mysql.query(query, [player], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
+        const query = "SELECT * FROM nstats_winrates_latest WHERE player=?";
+        return await mysql.simpleQuery(query, [player]);
     }
 
-    getPlayerGametypeHistory(player, gametype, limit){
+    async getPlayerGametypeHistory(player, gametype, limit){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "SELECT * FROM nstats_winrates WHERE player=? AND gametype=? ORDER BY match_id DESC LIMIT ?";
-
-            mysql.query(query, [player, gametype, limit], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-                resolve([]);
-            });
-        });
+        const query = "SELECT * FROM nstats_winrates WHERE player=? AND gametype=? ORDER BY match_id DESC LIMIT ?";
+        return await mysql.simpleQuery(query, [player, gametype, limit]);
+     
     }
     
 
@@ -260,91 +205,57 @@ class WinRate{
     }
 
 
-    getPreviousMatchByDate(date, gametype, player){
+    async getPreviousMatchByDate(date, gametype, player){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT * FROM nstats_winrates WHERE date <= ? AND gametype = ? AND player = ? ORDER BY date DESC, id DESC LIMIT 1";
 
-            const query = "SELECT * FROM nstats_winrates WHERE date <= ? AND gametype = ? AND player = ? ORDER BY date DESC, id DESC LIMIT 1";
+        return await mysql.simpleQuery(query, [date, gametype, player]);
 
-            mysql.query(query, [date, gametype, player], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve();
-                }
-                resolve([]);
-            });
-        });
     }
 
 
-    getAllPlayerGametypeHistory(player, gametype){
+    async getAllPlayerGametypeHistory(player, gametype){
 
-        return new Promise((resolve, reject) =>{
+        const query = `SELECT id,date,match_result
+            FROM nstats_winrates WHERE gametype=? AND player=? ORDER BY date ASC`;
 
-            const query = `SELECT 
-            id,date,match_result
-
-            FROM nstats_winrates WHERE gametype=? AND player=? ORDER BY date ASC
-            `;
-
-            mysql.query(query, [gametype, player], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
+        return await mysql.simpleQuery(query, [gametype, player]);
     }
 
-    updateHistoryEntry(data){
+    async updateHistoryEntry(data){
 
-        return new Promise((resolve, reject) =>{
+        const query = `UPDATE nstats_winrates SET 
+        matches=?,
+        wins=?,
+        draws=?,
+        losses=?,
+        winrate=?,
+        current_win_streak=?,
+        current_draw_streak=?,
+        current_lose_streak=?,
+        max_win_streak=?,
+        max_draw_streak=?,
+        max_lose_streak=?
+        WHERE id=?`;
 
-            const query = `UPDATE nstats_winrates SET 
-            matches=?,
-            wins=?,
-            draws=?,
-            losses=?,
-            winrate=?,
-            current_win_streak=?,
-            current_draw_streak=?,
-            current_lose_streak=?,
-            max_win_streak=?,
-            max_draw_streak=?,
-            max_lose_streak=?
-            WHERE id=?
-            `;
+        const vars = [
 
-            const vars = [
+            data.matches,
+            data.wins,
+            data.draws,
+            data.losses,
+            data.winrate,
+            data.current_win_streak,
+            data.current_draw_streak,
+            data.current_lose_streak,
+            data.max_win_streak,
+            data.max_draw_streak,
+            data.max_lose_streak,
+            data.id
 
-                data.matches,
-                data.wins,
-                data.draws,
-                data.losses,
-                data.winrate,
-                data.current_win_streak,
-                data.current_draw_streak,
-                data.current_lose_streak,
-                data.max_win_streak,
-                data.max_draw_streak,
-                data.max_lose_streak,
-                data.id
+        ];
 
-            ];
-
-            mysql.query(query, vars, (err) =>{
-
-                if(err) reject(err);
-   
-                resolve();
-            });
-        });
+        return await mysql.simpleQuery(query, vars);
     }
 
     //call when a match date is lower then the latest one
@@ -353,8 +264,6 @@ class WinRate{
         try{
 
             const history = await this.getAllPlayerGametypeHistory(player, gametype);
-
-           // console.log(`player ${player} has ${history.length} data to calculate`);
 
             let currentWinStreak = 0;
             let currentDrawStreak = 0;
@@ -368,15 +277,9 @@ class WinRate{
             let currentDraws = 0;
             let currentLosses = 0;
 
-            let wins = 0;
-            let draws = 0;
-            let losses = 0;
-
-            let h = 0;
-
             for(let i = 0; i < history.length; i++){
 
-                h = history[i];
+                const h = history[i];
 
                 if(h.match_result === 0){
 
@@ -408,7 +311,7 @@ class WinRate{
                     currentDrawStreak++;
                     currentLoseStreak = 0;
 
-                    if(currentDrawSteak > maxDrawStreak){
+                    if(currentDrawStreak > maxDrawStreak){
                         maxDrawStreak = currentDrawStreak;
                     }
 
@@ -484,11 +387,9 @@ class WinRate{
             let matchId = 0;
             let matchDate = 0;
 
-            let d = 0;
-
             for(let i = 0; i < data.length; i++){
 
-                d = data[i];
+                const d = data[i];
 
                 matches++;
 
