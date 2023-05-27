@@ -1610,6 +1610,31 @@ class PlayerManager{
 
             console.log(`update win rates ${matchId}, ${date}, ${gametypeId}, ${mapId}`);
 
+            
+            
+
+            date = -1;
+
+            if(await this.winRateManager.bNeedToRecalulate(date)){
+
+                console.log(`need to recalculate winrates`);
+
+                const playerIds = [];
+
+                for(let i = 0; i < this.players.length; i++){
+
+                    const p = this.players[i];
+
+                    if(this.bIgnoreBots && p.bBot) continue;
+
+                    playerIds.push(p.masterId);
+                }
+
+               // console.log(playerIds);
+            }
+
+            //process.exit();
+
             await this.updateCurrentWinRates(gametypeId, mapId, date, matchId);
 
             /*const data = await this.setCurrentWinRates(gametypeId, mapId);

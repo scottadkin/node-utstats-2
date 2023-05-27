@@ -45,7 +45,6 @@ class WinRate{
         max_win_streak = IF(current_win_streak > max_win_streak, current_win_streak, max_win_streak),
         max_draw_streak = IF(current_draw_streak > max_draw_streak, current_draw_streak, max_draw_streak),
         max_lose_streak = IF(current_lose_streak > max_lose_streak, current_lose_streak, max_lose_streak)
-
         WHERE player=? AND gametype=? AND map=?`;
 
         const vars = [
@@ -63,6 +62,62 @@ class WinRate{
         if(result.affectedRows === 0){
             await this.createPlayerLatest(playerId, gametypeId, mapId, matchResult, matchDate, matchId);
         }
+
+        await this.insertHistory(playerId, gametypeId, mapId, matchResult, matchDate, matchId);
+
+    }
+
+
+    async getPlayerLatest(playerId, gametypeId, mapId){
+
+        const query = `SELECT matches,wins,draws,losses,winrate,current_win_streak,
+        current_draw_streak,current_lose_streak,max_win_streak,max_draw_streak,max_lose_streak
+        FROM nstats_winrates_latest WHERE player=? AND gametype=? AND map=?`;
+
+        const result = await mysql.simpleQuery(query, [playerId, gametypeId, mapId]);
+
+        if(result.length > 0) return result[0];
+
+        return null;
+    }
+
+
+    async insertHistory(playerId, gametypeId, mapId, matchResult, matchDate, matchId){
+
+        const latestData = await this.getPlayerLatest(playerId, gametypeId, mapId);
+
+        if(latestData === null){
+
+            new Message(`winrate.insertHistory() latest is null`, "error");
+            return;
+        }
+
+        const query = `INSERT INTO nstats_winrates VALUES(NULL,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,
+            ?,?,?    
+        )`;
+
+        const vars = [
+            matchDate, matchId, playerId, gametypeId, mapId,
+            matchResult, latestData.matches, latestData.wins, latestData.draws, latestData.losses,
+            latestData.winrate, latestData.current_win_streak, latestData.current_draw_streak, latestData.current_lose_streak,
+            latestData.max_win_streak, latestData.max_draw_streak, latestData.max_lose_streak
+        ];
+
+        await mysql.simpleQuery(query, vars);
+    }
+
+    async bNeedToRecalulate(date){
+
+        const query = `SELECT date FROM nstats_winrates_latest ORDER BY date DESC LIMIT 1`;
+
+        const result = await mysql.simpleQuery(query);
+
+        if(result.length === 0) return false;
+
+        return result[0].date > date;
     }
     /*async getPlayersCurrentData(players, gametypes, maps){
 

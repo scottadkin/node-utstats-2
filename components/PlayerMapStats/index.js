@@ -3,6 +3,7 @@ import Loading from "../Loading";
 import ErrorMessage from "../ErrorMessage";
 import InteractiveTable from "../InteractiveTable";
 import { toPlaytime, convertTimestamp, ignore0 } from "../../api/generic.mjs";
+import Tabs from "../Tabs";
 
 const reducer = (state, action) =>{
 
@@ -23,14 +24,20 @@ const reducer = (state, action) =>{
                 "data": action.data
             }
         }
+        case "changeTab": {
+
+            return {
+                ...state,
+                "selectedTab": action.newTab
+            }
+        }
     }
 
     return state;
 }
 
-const renderData = (data) =>{
 
-    if(data === null) return null;
+const createGeneralData = (state) =>{
 
     const headers = {
         "name": "Map",
@@ -38,13 +45,13 @@ const renderData = (data) =>{
         "last": "Last",
         "matches": "Matches",
         "wins": "Wins",
-        "winRate": "Win Rate",
-        "playtime": "Playtime",
-        "spec": "Spectime"
+        //"winRate": "Win Rate",
+        "spec": "Spectime",
+        "playtime": "Playtime"
+        
     };
 
-    const tableData = data.map((d) =>{
-
+    const data = state.data.map((d) =>{
         return {
             "name": {
                 "value": d.mapName.toLowerCase(), 
@@ -53,22 +60,24 @@ const renderData = (data) =>{
             },
             "first": {
                 "value": d.first,
-                "displayValue": convertTimestamp(d.first, true, true)
+                "displayValue": convertTimestamp(d.first, true, true),
+                "className": "playtime"
             },
             "last": {
                 "value": d.last,
-                "displayValue": convertTimestamp(d.last, true, true)
+                "displayValue": convertTimestamp(d.last, true, true),
+                "className": "playtime"
             },
             "matches": {
                 "value": d.matches,
             },
             "wins": {
                 "value": ignore0(d.wins)
-            },
+            },/*
             "winRate": {
                 "value": d.winrate,
                 "displayValue": `${d.winrate.toFixed(2)}%`
-            },
+            },*/
             "playtime": {
                 "value": d.playtime,
                 "displayValue": toPlaytime(d.playtime),
@@ -82,7 +91,35 @@ const renderData = (data) =>{
         }
     });
 
-    return <InteractiveTable width={1} headers={headers} data={tableData} defaultOrder={"name"}/>
+    return {"tableData": data, "headers": headers};
+}
+
+const renderData = (state, dispatch) =>{
+
+    if(state.data === null) return null;
+
+    
+
+    let tableData = [];
+    let headers = {};
+
+    if(state.selectedTab === 0){
+        ({tableData, headers} = createGeneralData(state));
+    }
+
+    return <>
+        <Tabs options={
+                [
+                    {"value": 0, "name": "General"},
+                    {"value": 1, "name": "Win Rates"}
+                ]
+            }
+            selectedValue={state.selectedTab}
+            changeSelected={(value) => { dispatch({"type": "changeTab", "newTab": value})}}
+        
+        />
+        <InteractiveTable width={1} headers={headers} data={tableData} defaultOrder={"name"}/>
+    </>;
 }
 
 const PlayerMapStats = ({playerId}) =>{
@@ -90,7 +127,8 @@ const PlayerMapStats = ({playerId}) =>{
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
         "error": null,
-        "data": null
+        "data": null,
+        "selectedTab": 0
     });
 
     useEffect(() =>{
@@ -140,7 +178,7 @@ const PlayerMapStats = ({playerId}) =>{
     return <div>
         <div className="default-header">Map Stats</div>
         <Loading value={!state.bLoading}/>
-        {renderData(state.data)}
+        {renderData(state, dispatch)}
     </div>
 }
 
