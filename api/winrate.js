@@ -346,8 +346,16 @@ class WinRate{
             await this.createPlayerLatestFromRecalculation(playerId, gametype, map, h.data);
 
         }
+    }
 
-        //console.log(allTime);
+
+    async getAllPlayerCurrent(playerId){
+
+        const query = `SELECT date,match_id,gametype,map,matches,wins,draws,losses,winrate,current_win_streak,
+        current_draw_streak,current_lose_streak,max_win_streak,max_draw_streak,max_lose_streak 
+        FROM nstats_winrates_latest WHERE player=?`;
+
+        return await mysql.simpleQuery(query, [playerId]);
     }
     /*async getPlayersCurrentData(players, gametypes, maps){
 

@@ -8,12 +8,10 @@ import Gametypes from '../../api/gametypes';
 import Maps from '../../api/maps';
 import PlayerRecentMatches from '../../components/PlayerRecentMatches/';
 import Matches from '../../api/matches';
-import Weapons from '../../api/weapons';
 import PlayerWeapons from '../../components/PlayerWeapons/';
 import Functions from '../../api/functions';
 import Servers from '../../api/servers';
 import Faces from '../../api/faces';
-import WinRate from '../../api/winrate';
 import Pings from '../../api/pings';
 import Graph from '../../components/Graph/';
 import PlayerAliases from '../../components/PlayerAliases/';
@@ -37,14 +35,16 @@ import PlayerMonsters from '../../components/PlayerMonsters';
 import PlayerCombogibStats from '../../components/PlayerCombogibStats';
 import PlayerTeleFrags from '../../components/PlayerTeleFrags';
 import PlayerMapStats from '../../components/PlayerMapStats';
-
+import PlayerWinRates from '../../components/PlayerWinRates';
 
 
 function Home({navSettings, pageSettings, pageOrder, session, host, playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
-	matchPages, matchPage, matchesPerPage, weaponStats, weaponImages, mapImages, serverNames, 
+	matchPages, matchPage, matchesPerPage, mapImages, serverNames, 
 	latestWinRate, winRateHistory, matchDates, pingGraphData, aliases, faces, itemData, itemNames, ogImage, 
 	rankingsData, rankingPositions, capRecordsMode}) {
 
+
+	
 
 	const imageHost = Functions.getImageHostAndPort(host);
 
@@ -269,7 +269,7 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 					<div id="content">
 						<div className="default">
 
-							
+							<PlayerWinRates playerId={playerId}/>
 						
 							<div className="default-header">
 								{titleName} Career Profile
@@ -497,15 +497,15 @@ export async function getServerSideProps({req, query}) {
 
 	const faceManager = new Faces();
 
-	const winRateManager = new WinRate();
-	let latestWinRate = await winRateManager.getPlayerLatest(playerId);
-	Functions.setIdNames(latestWinRate, gametypeNames, 'gametype', 'gametypeName');
+	//const winRateManager = new WinRate();
+	//let latestWinRate = await winRateManager.getPlayerLatest(playerId);
+	//Functions.setIdNames(latestWinRate, gametypeNames, 'gametype', 'gametypeName');
 
 	gametypeIds.unshift(0);
-	let winRateHistory = await winRateManager.getPlayerWinrateHistory(playerId, gametypeIds, 50);
+	//let winRateHistory = await winRateManager.getPlayerWinrateHistory(playerId, gametypeIds, 50);
 
 	
-	winRateHistory = createWinRateData(winRateHistory, gametypeNames);
+	//winRateHistory = createWinRateData(winRateHistory, gametypeNames);
 
 	let now = new Date();
 	now = Math.floor(now * 0.001);
@@ -601,8 +601,8 @@ export async function getServerSideProps({req, query}) {
 			"matchesPerPage": matchesPerPage,
 			"mapImages": JSON.stringify(mapImages),
 			"serverNames": JSON.stringify(serverNames),
-			"latestWinRate": JSON.stringify(latestWinRate),
-			"winRateHistory": JSON.stringify(winRateHistory),
+			//"latestWinRate": JSON.stringify(latestWinRate),
+			//"winRateHistory": JSON.stringify(winRateHistory),
 			"matchDates": JSON.stringify(matchDates),
 			"pingGraphData": JSON.stringify(pingGraphData),
 			"aliases": JSON.stringify(aliases),

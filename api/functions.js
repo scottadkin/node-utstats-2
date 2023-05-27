@@ -161,14 +161,11 @@ class Functions{
      * @param {*} newKey What key to create with the matching id's name e.g a[newKey]=value
      */
     static setIdNames(data, names, key, newKey){
-
-        let d = 0;
-        let currentId = 0;
     
         for(let i = 0; i < data.length; i++){
     
-            d = data[i];
-            currentId = d[key];
+            const d = data[i];
+            const currentId = d[key];
     
             if(names[currentId] !== undefined){
                 d[newKey] = names[currentId];
