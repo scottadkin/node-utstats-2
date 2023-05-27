@@ -1507,68 +1507,6 @@ class PlayerManager{
         }
     }
 
-    updatePlayerWinRate(playerData, playerId, currentResult){
-
-        const playerMatchResult = currentResult[playerId] ?? -1;
-
-        if(playerMatchResult === -1){
-            new Message(`playerManager.updatePlayerWinRate() playerMatchResult is -1`, "error");
-            return;
-        }
-
-
-        playerData.matches++;
-
-        //0 loss,1 win, 2 draw
-        if(playerMatchResult === 0){
-
-            playerData.losses++;
-
-            playerData.current_win_streak = 0;
-            playerData.current_lose_streak++;
-            playerData.current_draw_streak = 0;
-        
-        }else if(playerMatchResult === 1){
-
-            playerData.wins++;
-            playerData.current_win_streak++;
-            playerData.current_lose_streak = 0;
-            playerData.current_draw_streak = 0;
-
-        }else{
-
-            playerData.draws++;
-            playerData.current_win_streak = 0;
-            playerData.current_lose_streak = 0;
-            playerData.current_draw_streak++;
-        }
-
-
-        if(playerData.current_win_streak > playerData.max_win_streak){
-            playerData.max_win_streak = playerData.current_win_streak;
-        }
-
-        if(playerData.current_lose_streak > playerData.max_lose_streak){
-            playerData.max_lose_streak = playerData.current_lose_streak;
-        }
-
-        if(playerData.current_draw_streak > playerData.max_draw_streak){
-            playerData.max_draw_streak = playerData.current_draw_streak;
-        }
-
-        let winrate = 0;
-
-        if(playerData.wins > 0){
-            winrate = (playerData.wins / playerData.matches) * 100;    
-        }
-
-        playerData.winrate = winrate;
-
-       // console.log(playerData);
-        return playerData;
-    }
-
-
     async updateCurrentWinRates(gametypeId, mapId, matchDate, matchId, bNeedToRecalulate){
 
         try{
@@ -1600,7 +1538,7 @@ class PlayerManager{
                 await this.winRateManager.updatePlayerLatest(p.masterId, 0, 0, currentResult, matchDate, matchId);
 
                 if(bNeedToRecalulate){
-                    console.log("REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
+                    //console.log("REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
                     await this.winRateManager.recaluatePlayerHistory(p.masterId, [0, gametypeId], [0, mapId]);
                 }
             }
@@ -1614,41 +1552,12 @@ class PlayerManager{
     async updateWinRates(matchId, date, gametypeId, mapId){
 
         try{
-
-            console.log(`update win rates ${matchId}, ${date}, ${gametypeId}, ${mapId}`);
-
-            
-            date = -1;
+    
+            //date = -1//Math.floor(Math.random() * 10000000);
             
             const bNeedToRecalulate = await this.winRateManager.bNeedToRecalulate(date);
-             
-             
-
-            //process.exit();
-
+        
             await this.updateCurrentWinRates(gametypeId, mapId, date, matchId, bNeedToRecalulate);
-
-            /*if(bNeedToRecalulate){
-                console.log(`need to recalculate winrates`);
-
-                for(let i = 0; i < this.players.length; i++){
-
-                    const p = this.players[i];
-
-                    recaluatePlayerHistory(playerId, gametypeId, mapId)
-                }
-                
-            }*/
-
-            /*const data = await this.setCurrentWinRates(gametypeId, mapId);
-
-            for(let i = 0; i < data.length; i++){
-
-                await this.winRateManager.insertHistory(matchId, date, data[i]);
-
-                await this.winRateManager.updateLatest(matchId, date, data[i]);
-
-            }*/
 
         }catch(err){
             new Message(`PlayerManager.updateWinRates() ${err}`,'error');

@@ -30,6 +30,47 @@ class WinRate{
         return await mysql.simpleQuery(query, vars);
     }
 
+    async deletePlayerLatest(playerId, gametypeId, mapId){
+
+        const query = `DELETE FROM nstats_winrates_latest WHERE player=? AND gametype=? AND map=?`;
+
+        return await mysql.simpleQuery(query, [playerId, gametypeId, mapId]);
+    }
+
+    async createPlayerLatestFromRecalculation(playerId, gametype, map, data){
+
+        //lazy way to prevent duplicate data
+        await this.deletePlayerLatest(playerId, gametype, map);
+
+        const query = `INSERT INTO nstats_winrates_latest VALUES(
+            NULL,?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,
+            ?,?,?
+        )`;
+
+        const vars = [
+            data.date,
+            data.match_id,
+            playerId,
+            gametype,
+            map,
+            data.matches,
+            data.wins,
+            data.draws,
+            data.losses,
+            data.winrate,
+            data.current_win_streak,
+            data.current_draw_streak,
+            data.current_lose_streak,
+            data.max_win_streak,
+            data.max_draw_streak,
+            data.max_lose_streak
+        ];
+
+        return await mysql.simpleQuery(query, vars);
+    }
+
     async updatePlayerLatest(playerId, gametypeId, mapId, matchResult, matchDate, matchId){
 
         const query = `UPDATE nstats_winrates_latest SET
@@ -291,6 +332,20 @@ class WinRate{
         }
         
         await this.bulkInsertPlayerHistory(history, playerId, gametypeIds[1], mapIds[1]);
+
+
+        //update player latest table
+
+        for(let i = 0; i < history.length; i++){
+
+            const h = history[i];
+
+            const gametype = h.gametype;
+            const map = h.map;
+
+            await this.createPlayerLatestFromRecalculation(playerId, gametype, map, h.data);
+
+        }
 
         //console.log(allTime);
     }
