@@ -1569,7 +1569,7 @@ class PlayerManager{
     }
 
 
-    async updateCurrentWinRates(gametypeId, mapId, matchDate, matchId){
+    async updateCurrentWinRates(gametypeId, mapId, matchDate, matchId, bNeedToRecalulate){
 
         try{
 
@@ -1596,6 +1596,13 @@ class PlayerManager{
                 await this.winRateManager.updatePlayerLatest(p.masterId, gametypeId, 0, currentResult, matchDate, matchId);
                 //map win rates
                 await this.winRateManager.updatePlayerLatest(p.masterId, 0, mapId, currentResult, matchDate, matchId);
+                //all time win rate
+                await this.winRateManager.updatePlayerLatest(p.masterId, 0, 0, currentResult, matchDate, matchId);
+
+                if(bNeedToRecalulate){
+                    console.log("REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
+                    await this.winRateManager.recaluatePlayerHistory(p.masterId, [0, gametypeId], [0, mapId]);
+                }
             }
 
         }catch(err){
@@ -1611,31 +1618,27 @@ class PlayerManager{
             console.log(`update win rates ${matchId}, ${date}, ${gametypeId}, ${mapId}`);
 
             
-            
-
             date = -1;
+            
+            const bNeedToRecalulate = await this.winRateManager.bNeedToRecalulate(date);
+             
+             
 
-            if(await this.winRateManager.bNeedToRecalulate(date)){
+            //process.exit();
 
+            await this.updateCurrentWinRates(gametypeId, mapId, date, matchId, bNeedToRecalulate);
+
+            /*if(bNeedToRecalulate){
                 console.log(`need to recalculate winrates`);
-
-                const playerIds = [];
 
                 for(let i = 0; i < this.players.length; i++){
 
                     const p = this.players[i];
 
-                    if(this.bIgnoreBots && p.bBot) continue;
-
-                    playerIds.push(p.masterId);
+                    recaluatePlayerHistory(playerId, gametypeId, mapId)
                 }
-
-               // console.log(playerIds);
-            }
-
-            //process.exit();
-
-            await this.updateCurrentWinRates(gametypeId, mapId, date, matchId);
+                
+            }*/
 
             /*const data = await this.setCurrentWinRates(gametypeId, mapId);
 

@@ -119,6 +119,181 @@ class WinRate{
 
         return result[0].date > date;
     }
+
+    createBlankHistoryObject(){
+
+        return {
+            "matches": 0,
+            "wins": 0,
+            "draws": 0,
+            "losses": 0,
+            "winrate": 0,
+            "current_win_streak": 0,
+            "current_draw_streak": 0,
+            "current_lose_streak": 0,
+            "max_win_streak": 0,
+            "max_draw_streak": 0,
+            "max_lose_streak": 0,
+            "date": 0,
+            "match_result": 0,
+            "match_id": 0
+        };
+    }
+
+
+    updateHistoryObject(data, gametype, map, matchId, matchDate, matchResult){
+
+        let currentIndex = -1;
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            if(d.gametype === gametype && d.map === map){
+                currentIndex = i;
+                break;
+            }   
+        }
+
+        if(currentIndex === -1){
+
+            data.push({
+                "gametype": gametype, 
+                "map": map, 
+                "data": this.createBlankHistoryObject(),
+                "history": []
+            });
+            currentIndex = data.length - 1;
+        }
+
+        const current = data[currentIndex].data;
+
+        current.match_result = matchResult;
+        current.match_id = matchId;
+        current.date = matchDate;
+
+        current.matches++;
+
+        if(matchResult === 0){
+
+            current.current_win_streak = 0;
+            current.current_draw_streak = 0;
+            current.current_lose_streak++;
+            current.losses++;
+
+        }else if(matchResult === 1){
+
+            current.current_win_streak++;
+            current.current_draw_streak = 0;
+            current.current_lose_streak = 0;
+            current.wins++;
+
+        }else if(matchResult === 2){
+
+            current.current_win_streak = 0;
+            current.current_draw_streak++;
+            current.current_lose_streak = 0;
+            current.draws++;
+        }
+
+        if(current.current_win_streak > current.max_win_streak) current.max_win_streak = current.current_win_streak;
+        if(current.current_draw_streak > current.max_draw_streak) current.max_draw_streak = current.current_draw_streak;
+        if(current.current_lose_streak > current.max_lose_streak) current.max_lose_streak = current.current_lose_streak;
+
+        let winrate = 0;
+
+        if(current.wins > 0){
+
+            winrate = (current.wins / current.matches) * 100;
+        }
+
+        current.winrate = winrate;
+
+        data[currentIndex].history.push(Object.assign({}, current));
+    }
+
+    async deletePlayerHistory(playerId, gametypeId, mapId){
+
+        const query = "DELETE FROM nstats_winrates WHERE player=? AND gametype=? AND map=?";
+        return await mysql.simpleQuery(query, [playerId, gametypeId, mapId]);
+    }
+
+    async bulkInsertPlayerHistory(data, playerId, gametypeId, mapId){
+
+
+        const query = `INSERT INTO nstats_winrates (
+        date, match_id, player, gametype, map, 
+        match_result, matches, wins, draws, losses, 
+        winrate, current_win_streak, current_draw_streak, current_lose_streak, max_win_streak, 
+        max_draw_streak, max_lose_streak) VALUES ?`;
+
+
+        const historyInsertVars = [];
+        
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+            const gametype = d.gametype;
+            const map = d.map;
+
+            for(let x = 0; x < d.history.length; x++){
+
+                const match = d.history[x];
+
+                historyInsertVars.push([
+                    match.date,
+                    match.match_id,
+                    playerId,
+                    gametype,
+                    map,
+                    match.match_result,
+                    match.matches,
+                    match.wins,
+                    match.draws,
+                    match.losses,
+                    match.winrate,
+                    match.current_win_streak,
+                    match.current_draw_streak,
+                    match.current_lose_streak,
+                    match.max_win_streak,
+                    match.max_draw_streak,
+                    match.max_lose_streak
+                ]);
+            }  
+        }
+
+        //all time
+        await this.deletePlayerHistory(playerId, 0, 0);
+        //gametype total
+        await this.deletePlayerHistory(playerId, gametypeId, 0);
+        //map total
+        await this.deletePlayerHistory(playerId, 0, mapId);
+        //map + gametype
+        await this.deletePlayerHistory(playerId, gametypeId, mapId);
+
+        await mysql.bulkInsert(query, historyInsertVars);
+    }
+
+    async recaluatePlayerHistory(playerId, gametypeIds, mapIds){
+
+        const query = `SELECT date,match_id,match_result,gametype,map FROM nstats_winrates WHERE player=? AND gametype IN (?) AND map IN (?) ORDER BY date ASC`;
+
+        const result = await mysql.simpleQuery(query, [playerId, gametypeIds, mapIds]);
+
+        const history = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            this.updateHistoryObject(history, r.gametype, r.map, r.match_id, r.date, r.match_result);
+
+        }
+        
+        await this.bulkInsertPlayerHistory(history, playerId, gametypeIds[1], mapIds[1]);
+
+        //console.log(allTime);
+    }
     /*async getPlayersCurrentData(players, gametypes, maps){
 
         const query = `SELECT * FROM nstats_winrates_latest WHERE player IN(?) AND gametype IN(?) AND map IN(?)`;
