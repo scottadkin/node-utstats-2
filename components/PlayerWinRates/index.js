@@ -78,7 +78,10 @@ const getCurrentStreakString = (data) =>{
     return `${value} ${stringName}`;
 }
 
-const renderGametypes = (data) =>{
+
+const renderData = (state) =>{
+
+    if(state.bLoading) return null;
 
     const headers = {
         "name": "Name",
@@ -95,16 +98,21 @@ const renderGametypes = (data) =>{
 
     const tableData = [];
 
-    for(let i = 0; i < data.length; i++){
+    for(let i = 0; i < state.data.length; i++){
 
-        const d = data[i];
+        const d = state.data[i];
 
-        if(d.map !== 0) continue;
+        if(state.selectedTab === 0 && d.map !== 0) continue;
+        if(state.selectedTab === 1 && d.gametype !== 0) continue;
+
+        if(d.gametype === 0 && d.map === 0) continue;
+
+        let name = (state.selectedTab === 0) ? d.gametypeName : d.mapName;
 
         tableData.push({
             "name": {
-                "value": d.gametypeName.toLowerCase(),
-                "displayValue": d.gametypeName,
+                "value": name.toLowerCase(),
+                "displayValue": name,
                 "className": "text-left"
             },
             "last": {
@@ -128,21 +136,6 @@ const renderGametypes = (data) =>{
 
     return <>
         <InteractiveTable headers={headers} data={tableData} width={1} defaultOrder={"matches"} bAsc={false}/>
-    </>
-}
-
-
-const renderData = (state) =>{
-
-    if(state.bLoading) return null;
-
-    if(state.selectedTab === 0){
-
-        console.log(state);
-
-        return renderGametypes(state.data);
-    }
-    return <>
     </>
 }
 
