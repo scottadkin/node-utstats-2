@@ -4,6 +4,7 @@ import InteractiveTable from "../InteractiveTable";
 import ErrorMessage from "../ErrorMessage";
 import Tabs from "../Tabs";
 import { ignore0, convertTimestamp } from "../../api/generic.mjs";
+import Dropdown from "../DropDown";
 
 const reducer = (state, action) =>{
 
@@ -28,6 +29,18 @@ const reducer = (state, action) =>{
             return {
                 ...state,
                 "selectedTab": action.tab
+            }
+        }
+        case "changeSelectedGametype": {
+            return {
+                ...state,
+                "selectedGametype": action.option
+            }
+        }
+        case "changeSelectedMap": {
+            return {
+                ...state,
+                "selectedMap": action.option
             }
         }
 	}
@@ -78,10 +91,129 @@ const getCurrentStreakString = (data) =>{
     return `${value} ${stringName}`;
 }
 
+const sortByName = (a, b) =>{
 
-const renderData = (state) =>{
+    a = a.displayValue.toLowerCase();
+    b = b.displayValue.toLowerCase();
+
+    if(a < b) return -1;
+    if(a > b) return 1;
+    return 0;
+}
+
+const createDropDownList = (state) =>{
+
+    const uniqueGametypes = new Set();
+    const uniqueMaps = new Set();
+    uniqueMaps.add(0)
+
+    const gametypeOptions = [
+        {"value": -1, "displayValue": "Any"}
+    ];
+
+    const mapOptions = [
+        {"value": -1, "displayValue": "Any"},
+        {"value": 0, "displayValue": "Combined"}
+    ];
+
+    for(let i = 0; i < state.data.length; i++){
+
+        const {gametype, gametypeName, map, mapName} = state.data[i];
+
+        if(!uniqueGametypes.has(gametype)){
+
+            uniqueGametypes.add(gametype);
+            gametypeOptions.push({"value": gametype, "displayValue": gametypeName});
+        }
+
+        if(!uniqueMaps.has(map)){
+            
+            uniqueMaps.add(map);
+            mapOptions.push({"value": map, "displayValue": mapName});
+        }
+    }
+
+    gametypeOptions.sort(sortByName);
+    mapOptions.sort(sortByName);
+
+    return {"gametypes": gametypeOptions, "maps": mapOptions};
+}
+
+const renderCustom = (state, dispatch) =>{
+
+    const dropdownOptions = createDropDownList(state);
+
+    const headers = {
+        "gametype": "Gametype",
+        "map": "Map",
+        "last": "Last",
+        "matches": "Matches Played",
+        "lose": "Losses",
+        "draws": "Draws",
+        "wins": "Wins",
+        "winRate": "Win Rate",
+        "lossStreak": "Worst Loss Streak",
+        "winStreak": "Best Win Streak",
+        "currentStreak": "Current Streak"      
+    };
+
+    const tableData = [];
+
+    for(let i = 0; i < state.data.length; i++){
+
+        const d = state.data[i];
+
+        if(d.gametype !== state.selectedGametype && state.selectedGametype !== -1) continue;
+        if(d.map !== state.selectedMap && state.selectedMap !== -1) continue;
+
+
+        tableData.push({
+            "gametype": {"value": d.gametypeName.toLowerCase(), "displayValue" : d.gametypeName},
+            "map":  {"value": d.mapName.toLowerCase(), "displayValue" : d.mapName},
+            "last":  {"value": d.date, "displayValue" : convertTimestamp(d.date, true)},
+            "matches":  {"value": d.matches},
+            "lose":  {"value": d.losses, "displayValue": ignore0(d.losses)},
+            "draws":  {"value": d.draws, "displayValue": ignore0(d.draws)},
+            "wins":  {"value": d.wins, "displayValue": ignore0(d.wins)},
+            "winRate":  {"value": d.winrate, "displayValue" : `${d.winrate.toFixed(2)}%`},
+            "lossStreak":  {"value": ignore0(d.max_lose_streak)},
+            "winStreak":  {"value": ignore0(d.max_win_streak)},
+            "currentStreak":  {"value": "", "displayValue" : getCurrentStreakString(d)},     
+        });
+    }
+  
+    return <>
+        <div className="form m-bottom-10">
+            <div className="default-sub-header">Filter Win Rates</div>
+            <Dropdown 
+                dName={"Gametype"} 
+                fName={"gametype"} 
+                data={dropdownOptions.gametypes} 
+                originalValue={state.selectedGametype}
+                changeSelected={(name, value) => { 
+                    dispatch({"type": "changeSelectedGametype", "option": value})
+                }}
+            />
+            <Dropdown 
+                dName={"Map"} 
+                fName={"map"} 
+                data={dropdownOptions.maps}
+                originalValue={state.selectedMap}
+                changeSelected={(name, value) => { 
+                    dispatch({"type": "changeSelectedMap", "option": value})
+                }}
+            />
+        </div>
+        <InteractiveTable width={1} headers={headers} data={tableData} defaultOrder={"matches"} bAsc={false}/>
+    </>
+}
+
+
+const renderData = (state, dispatch) =>{
 
     if(state.bLoading) return null;
+
+    if(state.selectedTab === 2) return renderCustom(state, dispatch);
 
     const headers = {
         "name": "Name",
@@ -91,9 +223,9 @@ const renderData = (state) =>{
         "draws": "Draws",
         "wins": "Wins",
         "winRate": "Win Rate",
+        "lossStreak": "Worst Loss Streak",
         "winStreak": "Best Win Streak",
-        "currentStreak": "Current Streak"
-         
+        "currentStreak": "Current Streak"      
     };
 
     const tableData = [];
@@ -132,6 +264,7 @@ const renderData = (state) =>{
             "lose": {"value": ignore0(d.losses)},
             "winRate": {"value": d.winrate, "displayValue": `${d.winrate.toFixed(2)}%`},
             "winStreak": {"value": ignore0(d.max_win_streak)},
+            "lossStreak": {"value": ignore0(d.max_lose_streak)},
             "currentStreak": {
                 "value": 0,
                 "displayValue": getCurrentStreakString(d)
@@ -151,7 +284,9 @@ const PlayerWinRates = ({playerId}) =>{
 		"bLoading": true,
 		"data": null,
 		"error": null,
-        "selectedTab": -1
+        "selectedTab": 2,
+        "selectedGametype": -1,
+        "selectedMap": -1               
 	});
 
 	useEffect(() =>{
@@ -177,8 +312,6 @@ const PlayerWinRates = ({playerId}) =>{
 
 				dispatch({"type": "loaded", "data": res.data});
 
-				console.log(res);
-
 			}catch(err){
 
 				if(err.name === "AbortError") return;
@@ -200,22 +333,23 @@ const PlayerWinRates = ({playerId}) =>{
 
     if(state.error !== null){
 
-        return <ErrorMessage title="Win Rates" text="fart"/>;
+        return <ErrorMessage title="Win Rates" text={state.error.toString()}/>;
     }
 
 
     return <>
         <div className="default-header">Win Rates</div>    
         <Tabs options={[
-                {"value": -1, "name": "All Time"},
+                {"value": -1, "name": "All"},
                 {"value": 0, "name": "Gametypes"},
                 {"value": 1, "name": "Maps"},
+                {"value": 2, "name": "Custom"},
             ]}
             selectedValue={state.selectedTab}
             changeSelected={(value) =>{ dispatch({"type": "changeTab", "tab": value})}}
         />
         <Loading value={!state.bLoading}/>
-        {renderData(state)}
+        {renderData(state, dispatch)}
     </>
 }
 
