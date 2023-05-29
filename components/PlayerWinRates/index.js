@@ -105,9 +105,14 @@ const renderData = (state) =>{
         if(state.selectedTab === 0 && d.map !== 0) continue;
         if(state.selectedTab === 1 && d.gametype !== 0) continue;
 
-        if(d.gametype === 0 && d.map === 0) continue;
+        if(state.selectedTab !== -1 && d.gametype === 0 && d.map === 0) continue;
 
-        let name = (state.selectedTab === 0) ? d.gametypeName : d.mapName;
+        if(state.selectedTab === -1 && (d.gametype !== 0 || d.map !== 0)) continue;
+
+        let name = "All";
+
+        if(state.selectedTab === 0) name = d.gametypeName;
+        if(state.selectedTab === 1) name = d.mapName;
 
         tableData.push({
             "name": {
@@ -146,7 +151,7 @@ const PlayerWinRates = ({playerId}) =>{
 		"bLoading": true,
 		"data": null,
 		"error": null,
-        "selectedTab": 0
+        "selectedTab": -1
 	});
 
 	useEffect(() =>{
@@ -202,6 +207,7 @@ const PlayerWinRates = ({playerId}) =>{
     return <>
         <div className="default-header">Win Rates</div>    
         <Tabs options={[
+                {"value": -1, "name": "All Time"},
                 {"value": 0, "name": "Gametypes"},
                 {"value": 1, "name": "Maps"},
             ]}
