@@ -284,7 +284,7 @@ const PlayerWinRates = ({playerId}) =>{
 		"bLoading": true,
 		"data": null,
 		"error": null,
-        "selectedTab": 2,
+        "selectedTab": 0,
         "selectedGametype": -1,
         "selectedMap": -1               
 	});

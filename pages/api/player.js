@@ -1,4 +1,5 @@
 const Players = require("../../api/players");
+const Player = require("../../api/player");
 const CTF = require("../../api/ctf");
 const Gametypes = require("../../api/gametypes");
 const Telefrags = require("../../api/telefrags");
@@ -138,6 +139,34 @@ export default async function handler(req, res){
 
             res.status(200).json({"data": data});
             return;
+        }
+
+
+        if(mode === "gametype-stats"){
+
+            const gametypeManager = new Gametypes();
+            const playerManager = new Player();
+
+            const data = await playerManager.getProfileGametypeStats(playerId);
+
+            const uniqueGametypes = new Set();
+
+            for(let i = 0; i < data.length; i++){
+
+                uniqueGametypes.add(data[i].gametype);
+            }
+
+            const gametypeNames = await gametypeManager.getNames([...uniqueGametypes], true);
+
+            for(let i = 0; i < data.length; i++){
+
+                const d = data[i];
+                d.gametypeName = gametypeNames[d.gametype] ?? "Not Found";
+            }
+
+            res.status(200).json({"data": data});
+            return;
+
         }
 
         res.status(200).json({"error": "Unknown Command"});

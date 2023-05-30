@@ -1005,6 +1005,15 @@ class Player{
 
         return null;
     }
+
+    async getProfileGametypeStats(playerId){
+
+        const query = `SELECT gametype,last,matches,wins,playtime,spec_playtime,score,
+        kills,deaths,suicides,team_kills,spawn_kills,efficiency,accuracy
+        FROM nstats_player_totals WHERE gametype!=0 AND map=0 AND player_id=?`;
+
+        return await mysql.simpleQuery(query, [playerId]);
+    }
 }
 
 module.exports = Player;

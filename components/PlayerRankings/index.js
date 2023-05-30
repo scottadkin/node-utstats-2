@@ -6,7 +6,6 @@ import { toPlaytime, getOrdinal } from '../../api/generic.mjs';
 const PlayerRankings = ({data, gametypeNames, positions}) =>{
 
     data = JSON.parse(data);
-    gametypeNames = JSON.parse(gametypeNames);
     positions = JSON.parse(positions);
 
     const rows = [];
