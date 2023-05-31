@@ -108,8 +108,13 @@ const InteractiveTable = (props) =>{
         const rows = [];
 
         const data = [...props.data];
-
-        if(data.length === 0) return <div className="small-font grey">No data found...</div>
+        //return <Table2 width={width} headers={{"o": "&nbsp;"}} data={[{"o": "No Data Found"}]}/>
+        if(data.length === 0) return <Table2 width={width} noBottomMargin={false}>   
+            {renderHeaders()}
+            <tr>
+                <td colSpan={Object.keys(props.headers).length} className="small-font grey">No Data Found</td>
+            </tr>
+        </Table2>  
 
         if(orderBy !== null){
 

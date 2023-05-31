@@ -141,6 +141,8 @@ const createDropDownList = (state) =>{
 
 const renderCustom = (state, dispatch) =>{
 
+    
+
     const dropdownOptions = createDropDownList(state);
 
     const headers = {
@@ -204,7 +206,10 @@ const renderCustom = (state, dispatch) =>{
                 }}
             />
         </div>
-        <InteractiveTable width={1} headers={headers} data={tableData} defaultOrder={"matches"} bAsc={false}/>
+        {(state.selectedGametype === null || state.selectedMap === null) ? null : 
+            <InteractiveTable width={1} headers={headers} data={tableData} defaultOrder={"matches"} bAsc={false}/>
+        }
+        
     </>
 }
 
@@ -285,8 +290,8 @@ const PlayerWinRates = ({playerId}) =>{
 		"data": null,
 		"error": null,
         "selectedTab": 0,
-        "selectedGametype": -1,
-        "selectedMap": -1               
+        "selectedGametype": null,
+        "selectedMap": null               
 	});
 
 	useEffect(() =>{

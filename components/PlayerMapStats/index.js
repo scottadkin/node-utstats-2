@@ -108,16 +108,6 @@ const renderData = (state, dispatch) =>{
     }
 
     return <>
-        <Tabs options={
-                [
-                    {"value": 0, "name": "General"},
-                    {"value": 1, "name": "Win Rates"}
-                ]
-            }
-            selectedValue={state.selectedTab}
-            changeSelected={(value) => { dispatch({"type": "changeTab", "newTab": value})}}
-        
-        />
         <InteractiveTable width={1} headers={headers} data={tableData} defaultOrder={"name"}/>
     </>;
 }
