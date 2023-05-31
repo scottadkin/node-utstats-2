@@ -9,10 +9,18 @@ class Match{
 
     async exists(matchId){
 
-        const query = "SELECT COUNT(*) as total_rows FROM nstats_matches WHERE id=?";
+        let query = "";
+
+        if(matchId.length === 32){
+            query = "SELECT COUNT(*) as total_rows FROM nstats_matches WHERE match_hash=?";
+            
+        }else{
+            query = "SELECT COUNT(*) as total_rows FROM nstats_matches WHERE id=?";
+        }
 
         const result = await mysql.simpleQuery(query, [matchId]);
         return result[0].total_rows > 0;
+        
     }
 
     async setDMMatchWinnerQuery(matchId, winner, winnerScore){
@@ -39,6 +47,19 @@ class Match{
         }catch(err){
             new Message(`There was a problem setting match winner.`,"error");
         }
+    }
+
+    async getMatchIdFromHash(hash){
+
+        const query = `SELECT id FROM nstats_matches WHERE match_hash=?`;
+
+        const result = await mysql.simpleQuery(query, [hash]);
+
+        if(result.length > 0){
+            return result[0].id;
+        }
+
+        return -1;
     }
 
     async get(id){

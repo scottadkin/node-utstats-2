@@ -489,7 +489,21 @@ export async function getServerSideProps({req, query}){
 
     try{
 
-        let matchId = (query.id !== undefined) ? parseInt(query.id) : parseInt(null);
+        let matchId = -1;
+
+        const m = new MatchManager();
+
+        if(query.id !== undefined){
+
+            const mString = query.id.toString();
+
+            if(mString.length === 32){
+                matchId = await m.getMatchIdFromHash(mString);
+            }else{
+                matchId = parseInt(query.id.replace(/\D/ig,""));
+            }
+        }
+
 
         const session = new Session(req);
         await session.load();
@@ -499,7 +513,7 @@ export async function getServerSideProps({req, query}){
         const pageOrder = await settings.getCategoryOrder("Match Pages");
         const navSettings = await settings.getCategorySettings("Navigation");
 
-        const m = new MatchManager();
+        
 
         if(matchId !== matchId){
 
