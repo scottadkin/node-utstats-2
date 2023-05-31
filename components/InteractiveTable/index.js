@@ -108,7 +108,7 @@ const InteractiveTable = (props) =>{
         const rows = [];
 
         const data = [...props.data];
-        //return <Table2 width={width} headers={{"o": "&nbsp;"}} data={[{"o": "No Data Found"}]}/>
+        
         if(data.length === 0) return <Table2 width={width} noBottomMargin={false}>   
             {renderHeaders()}
             <tr>
