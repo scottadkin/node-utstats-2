@@ -25,11 +25,9 @@ class Matches{
 
     constructor(){}
 
-    insertMatch(date, server, gametype, map, version, minVersion, admin, email, region, motd, mutators, playtime, endType, start, end, insta,
+    async insertMatch(date, server, matchString, gametype, map, version, minVersion, admin, email, region, motd, mutators, playtime, endType, start, end, insta,
         teamGame, gameSpeed, hardcore, tournament, airControl, useTranslocator, friendlyFireScale, netMode, maxSpectators, 
         maxPlayers, totalTeams, totalPlayers, timeLimit, targetScore, dmWinner, dmScore, redScore, blueScore, greenScore, yellowScore, bMonsterHunt){
-
-        
 
         mutators = mutators.toString();
 
@@ -42,62 +40,55 @@ class Matches{
         if(timeLimit === undefined) timeLimit = 0;
         if(targetScore === undefined) targetScore = 0;
 
-        return new Promise((resolve, reject) =>{
 
-            const query = "INSERT INTO nstats_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,0,0,0,?,0,0,0,0,0,0,0,0,0)";
+        const query = "INSERT INTO nstats_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,0,0,0,?,0,0,0,0,0,0,0,0,0)";
 
-            const vars = [
-                date, 
-                server, 
-                gametype,
-                map, 
-                version, 
-                minVersion, 
-                admin, 
-                email, 
-                region, 
-                motd, 
-                mutators,
-                playtime, 
-                endType, 
-                start, 
-                end, 
-                insta || 0, 
-                teamGame, 
-                gameSpeed, 
-                hardcore, 
-                tournament,
-                airControl, 
-                useTranslocator, 
-                friendlyFireScale, 
-                netMode,
-                maxSpectators,
-                maxPlayers,
-                totalTeams,
-                totalPlayers,
-                timeLimit,
-                targetScore,
-                dmWinner, 
-                dmScore, 
-                redScore,
-                blueScore, 
-                greenScore, 
-                yellowScore,
-                bMonsterHunt
+        const vars = [
+            matchString,
+            date, 
+            server, 
+            gametype,
+            map, 
+            version, 
+            minVersion, 
+            admin, 
+            email, 
+            region, 
+            motd, 
+            mutators,
+            playtime, 
+            endType, 
+            start, 
+            end, 
+            insta || 0, 
+            teamGame, 
+            gameSpeed, 
+            hardcore, 
+            tournament,
+            airControl, 
+            useTranslocator, 
+            friendlyFireScale, 
+            netMode,
+            maxSpectators,
+            maxPlayers,
+            totalTeams,
+            totalPlayers,
+            timeLimit,
+            targetScore,
+            dmWinner, 
+            dmScore, 
+            redScore,
+            blueScore, 
+            greenScore, 
+            yellowScore,
+            bMonsterHunt
 
-            ];
+        ];
 
-            mysql.query(query, vars, (err, result) =>{
+        const result = await mysql.simpleQuery(query, vars);
 
-                if(err){
-                    reject(err);
-                    return;
-                }
-                
-                
-                resolve(result.insertId);
-            });
-        });
+        return result.insertId;
+
     }
 
     getWinners(matchIds){

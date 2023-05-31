@@ -75,12 +75,19 @@ class MatchManager{
             this.mapInfo = new MapInfo(this.mapLines);
             this.gameInfo = new GameInfo(this.gameLines);
 
+            
+
             if(this.gameInfo.matchLength < this.minPlaytime){
                 new Message(`Match length is less then the minimum specified, skipping.`, "note");
                 return null;
             }
 
+           
+
             this.serverInfo = new ServerInfo(this.serverLines, this.gameInfo.getMatchLength());
+
+            
+
             await this.serverInfo.updateServer(geoip);
             new Message(`Inserted server info into database.`, 'pass');
 
@@ -479,9 +486,12 @@ class MatchManager{
     
         const motd = this.serverInfo.getMotd();
 
+        const matchString = `${this.serverInfo.date}_${this.serverInfo.server_servername}_${this.serverInfo.server_port}`
+
         this.matchId = await this.matches.insertMatch(
             this.serverInfo.date, 
             this.serverId, 
+            matchString,
             this.gametype.currentMatchGametype,
             this.mapInfo.mapId,
             this.gameInfo.gameversion, 

@@ -279,6 +279,9 @@ async function updateSiteSettings(){
         new Message(`Recalculating player total records, this may take a while.`,"note");
         await p.recalculateAllPlayerMapGametypeRecords();
 
+
+        await alterTable("nstats_matches", "match_string", "varchar(500) NOT NULL", "AFTER id");
+
         process.exit(0);
 
     }catch(err){
