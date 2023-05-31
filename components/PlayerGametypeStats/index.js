@@ -1,254 +1,151 @@
+import { useEffect, useReducer } from "react";
+import Loading from "../Loading";
+import ErrorMessage from "../ErrorMessage";
+import InteractiveTable from "../InteractiveTable";
+import { convertTimestamp, toPlaytime, ignore0 } from "../../api/generic.mjs";
 
-import React from 'react';
-import Functions from '../../api/functions';
-import Graph from '../Graph/';
-import Table2 from '../Table2';
-import Playtime from '../Playtime';
+const reducer = (state, action) =>{
 
+    switch(action.type){
 
-class PlayerGametypeStats extends React.Component{
-
-    constructor(props){
-
-        super(props);
-
-        this.state = {"mode": 0};
-
-        this.changeMode = this.changeMode.bind(this);
-    }
-
-    componentDidMount(){
-
-        const settings = this.props.session;
-
-        if(settings["playerPageGametypeMode"] !== undefined){
-            this.setState({"mode": JSON.parse(settings["playerPageGametypeMode"])});
+        case "error": {
+            return {
+                ...state,
+                "bLoading": false,
+                "error": action.errorMessage
+            }
+        }
+        case "loaded": {
+            return {
+                ...state,
+                "bLoading": false,
+                "error": null,
+                "data": action.data
+            }
         }
     }
 
-    changeMode(id){
-        this.setState({"mode": id});
-        Functions.setCookie("playerPageGametypeMode",id);
-    }
+    return state;
+}
 
-    renderGeneral(){
+const renderData = (state) =>{
 
-        if(this.state.mode !== 0) return null;
+    if(state.data === null) return null;
 
-        const data = JSON.parse(this.props.data);
-        const names = JSON.parse(this.props.names);
+    const headers = {
+        "name": "Name",
+        "last": "Last Played",
+        "matches": "Matches",
+        "wins": "Wins",
+        "playtime": "Playtime",
+        "spec": "Spectime",
+        "acc": "Last Accuracy",
+        "kills": "Kills",
+        "deaths": "Deaths",
+        "eff": "Efficiency"
+    };
 
-        data.sort((a, b) =>{
-
-            a = a.playtime;
-            b = b.playtime;
-
-            if(a < b){
-                return 1;
-            }else if(a > b){
-                return -1;
+    const tableData = state.data.map((d) =>{
+        return {
+            "name": {
+                "value": d.gametypeName.toLowerCase(), 
+                "displayValue": d.gametypeName,
+                "className": "text-left"
+            },
+            "last": {
+                "value": d.last,
+                "displayValue": convertTimestamp(d.last, true)
+            },
+            "matches": {
+                "value": d.matches
+            },
+            "wins": {
+                "value": d.wins,
+                "displayValue": ignore0(d.wins),
+            },
+            "playtime": {
+                "value": d.playtime,
+                "displayValue": toPlaytime(d.playtime),
+                "className": "playtime"
+            },
+            "spec": {
+                "value": d.spec_playtime,
+                "displayValue": toPlaytime(d.spec_playtime),
+                "className": "playtime"
+            },
+            "acc": {
+                "value": d.accuracy,
+                "displayValue": `${d.accuracy.toFixed(2)}%`
+            },
+            "kills": {
+                "value": d.kills
+            },
+            "deaths": {
+                "value": d.deaths
+            },
+            "eff": {
+                "value": d.efficiency,
+                "displayValue": `${d.efficiency.toFixed(2)}%`
             }
+        }
+    });
 
-            return 0;
-        });
 
-        const elems = [];
+    return <InteractiveTable headers={headers} data={tableData} width={1} defaultOrder={"name"}/>
+}
 
-        let d = 0;
+const PlayerGametypeStats = ({playerId}) =>{
 
-        let winrate = 0;
+    const [state, dispatch] = useReducer(reducer, {
+        "bLoading": true,
+        "error": null,
+        "data": null
+    });
 
-        let totalWins = 0;
-        let totalLosses = 0;
-        let totalDraws = 0;
-        let totalMatches = 0;
-        let totalPlaytime = 0;
-        let totalWinrate = 0;
-        let totalGametypes = 0;
-        let totalAccuracy = 0;
-        let lastMatch = 0;
+    useEffect(() =>{
 
-        for(let i = 0; i < data.length; i++){
+        const controller = new AbortController();
 
-            d = data[i];
+        const loadData = async () =>{
 
-            totalGametypes++;
+            try{
 
-            winrate = 0;
+                const req = await fetch(`/api/player/?mode=gametype-stats&playerId=${playerId}`, {
+                    "signal": controller.signal
+                });
 
-            if(d.matches > 0){
+                const res = await req.json();
 
-                if(d.wins > 0){
-
-                    if(d.losses + d.draws === 0){
-                        winrate = 100;
-                    }else{
-
-                        winrate = ((d.wins / d.matches) * 100).toFixed(2);
-                    }
+                if(res.error !== undefined){
+                    dispatch({"type": "error", "errorMessage": res.error.toString()})
+                    return;
                 }
-            }
 
-            if(d.last > lastMatch){
-                lastMatch = d.last;
-            }
+                dispatch({"type": "loaded", "data": res.data})
+                console.log(res);
 
-            totalWins += d.wins;
-            totalLosses += d.losses;
-            totalDraws += d.draws;
-            totalMatches += d.matches;
-            totalPlaytime += d.playtime;
-            totalAccuracy += d.accuracy;
+            }catch(err){
 
-
-            elems.push(<tr key={i}>
-                <td>{(names[d.gametype] !== undefined) ? names[d.gametype] : "Not Found"}</td>
-                <td>{d.accuracy.toFixed(2)}%</td>
-                <td>{d.wins}</td>
-                <td>{winrate}%</td>
-                <td>{d.matches}</td>
-                <td className="playtime"><Playtime timestamp={d.playtime}/></td>
-                <td>{Functions.convertTimestamp(d.last)}</td>
-            </tr>);
-        }
-
-        if(totalWins > 0){
-
-            if(totalLosses + totalDraws === 0){
-                totalWinrate = 1;
-            }else{
-                totalWinrate = ((totalWins / totalMatches) * 100).toFixed(2);
+                if(err.name === "AbortError") return;
+                console.trace(err);
             }
         }
 
+        loadData();
 
-        elems.push(<tr key={"total"} className="black">
-            <td>Totals</td>
-            <td>{(totalAccuracy / totalGametypes).toFixed(2)}%</td>
-            <td>{totalWins}</td>
-            <td>{totalWinrate}%</td>
-            <td>{totalMatches}</td>
-            <td className="playtime"><Playtime timestamp={totalPlaytime}/></td>
-            <td>{Functions.convertTimestamp(lastMatch)}</td>
+        return () =>{
 
-        </tr>);
-
-        return <Table2 width={1}>
-            <tr>
-                <th>Gametype</th>
-                <th>Last Accuracy</th>
-                <th>Wins</th>
-                <th>Win Rate</th>
-                <th>Matches</th>
-                <th>Playtime</th>
-                <th>Last</th>
-            </tr>
-            {elems}
-        </Table2>
-       
-    }
-
-
-    renderWinRates(){
-
-        if(this.state.mode !== 1) return null;
-
-        const elems = [];
-
-        const winRateData = JSON.parse(this.props.latestWinRate);
-
-        if(winRateData.length === 0) return <div className="not-found">No Data</div>
-
-        let last = null;
-
-        let currentStreak = 0;
-
-        for(let i = 0; i < winRateData.length; i++){
-
-            const w = winRateData[i];
-
-            if(w.current_win_streak > 0){
-                currentStreak = `${w.current_win_streak} win${(w.current_win_streak !== 1) ? 's' : "" }`;
-            }else if(w.current_draw_streak > 0){
-                currentStreak = `${w.current_draw_streak} draws${(w.current_draw_streak !== 1) ? 's' : "" }`;
-            }else if(w.current_lose_streak > 0){
-                currentStreak = `${w.current_lose_streak} Loss${(w.current_lose_streak !== 1) ? 'es' : "" }`;
-            }
-
-            //dont display all until last
-            if(w.gametype === 0){
-
-               last = <tr key={i} className="black">
-                    <td>{w.gametypeName}</td>
-                    <td>{w.matches}</td>
-                    <td>{w.wins}</td>
-                    <td>{w.draws}</td>
-                    <td>{w.losses}</td>
-                    <td>{w.winrate.toFixed(2)}%</td>
-                    <td>{w.max_win_streak}</td>
-                    <td>{w.max_draw_streak}</td>
-                    <td>{w.max_lose_streak}</td>
-                    <td>{currentStreak}</td>
-                </tr>;
-                continue;
-            }
-
-            elems.push(<tr key={i}>
-                <td>{w.gametypeName}</td>
-                <td>{w.matches}</td>
-                <td>{Functions.ignore0(w.wins)}</td>
-                <td>{Functions.ignore0(w.draws)}</td>
-                <td>{Functions.ignore0(w.losses)}</td>
-                <td>{w.winrate.toFixed(2)}%</td>
-                <td>{Functions.ignore0(w.max_win_streak)}</td>
-                <td>{Functions.ignore0(w.max_draw_streak)}</td>
-                <td>{Functions.ignore0(w.max_lose_streak)}</td>
-                <td>{currentStreak}</td>
-            </tr>);
+            controller.abort();
         }
 
-        const winRateHistory = JSON.parse(this.props.winRateHistory);
+    }, [playerId]);
 
-        
-        return <div>
-            <Table2 width={1}>
-                <tr>
-                    <th>Gametype</th>
-                    <th>Matches</th>
-                    <th>Wins</th>
-                    <th>Draws</th>
-                    <th>Losses</th>
-                    <th>Win Rate</th>
-                    <th>Longest Win Streak</th>
-                    <th>Longest Draw Streak</th>
-                    <th>Longest Losing Streak</th>
-                    <th>Current Streak</th>
-                </tr>
-                {elems}
-                {last}
-            </Table2>
-            <div className="default-header">Winrate History</div>
-            <Graph data={JSON.stringify(winRateHistory.data)} text={JSON.stringify(winRateHistory.text)} title={winRateHistory.titles} maxValue={100} minValue={0}/>
-        </div>
-    }
-
-
-    render(){
-
-        return <div className="special-table">
-                <div className="default-header">Gametype Stats</div>
-                <div className="tabs">
-                    <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : "" }`} onClick={(() =>{
-                        this.changeMode(0);
-                    })}>General</div>
-                    <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : "" }`} onClick={(() =>{
-                        this.changeMode(1);
-                    })}>Win Rate Summary</div>
-                </div>
-                {this.renderGeneral()}
-                {this.renderWinRates()}
-        </div>
-    }
+    return <>
+        <div className="default-header">Gametypes Summary</div>
+        <ErrorMessage title="Gametypes Summary" text={state.error}/>
+        <Loading value={!state.bLoading} />
+        {renderData(state)}
+    </>
 }
 
 

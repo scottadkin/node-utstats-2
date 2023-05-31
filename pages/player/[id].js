@@ -8,12 +8,10 @@ import Gametypes from '../../api/gametypes';
 import Maps from '../../api/maps';
 import PlayerRecentMatches from '../../components/PlayerRecentMatches/';
 import Matches from '../../api/matches';
-import Weapons from '../../api/weapons';
 import PlayerWeapons from '../../components/PlayerWeapons/';
 import Functions from '../../api/functions';
 import Servers from '../../api/servers';
 import Faces from '../../api/faces';
-import WinRate from '../../api/winrate';
 import Pings from '../../api/pings';
 import Graph from '../../components/Graph/';
 import PlayerAliases from '../../components/PlayerAliases/';
@@ -37,14 +35,16 @@ import PlayerMonsters from '../../components/PlayerMonsters';
 import PlayerCombogibStats from '../../components/PlayerCombogibStats';
 import PlayerTeleFrags from '../../components/PlayerTeleFrags';
 import PlayerMapStats from '../../components/PlayerMapStats';
+import PlayerWinRates from '../../components/PlayerWinRates';
 
 
-
-function Home({navSettings, pageSettings, pageOrder, session, host, playerId, summary, gametypeStats, gametypeNames, recentMatches, matchScores, totalMatches, 
-	matchPages, matchPage, matchesPerPage, weaponStats, weaponImages, mapImages, serverNames, 
-	latestWinRate, winRateHistory, matchDates, pingGraphData, aliases, faces, itemData, itemNames, ogImage, 
+function Home({navSettings, pageSettings, pageOrder, session, host, playerId, summary, gametypeNames, recentMatches, matchScores, totalMatches, 
+	matchPages, matchPage, matchesPerPage, mapImages, serverNames, matchDates, pingGraphData, aliases, faces, itemData, itemNames, ogImage, 
 	rankingsData, rankingPositions, capRecordsMode}) {
 
+
+
+	gametypeNames = JSON.parse(gametypeNames);
 
 	const imageHost = Functions.getImageHostAndPort(host);
 
@@ -126,13 +126,9 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 	if(pageSettings["Display Gametype Stats"] === "true"){
 
 		elems[pageOrder["Display Gametype Stats"]] = <PlayerGametypeStats 
-			key={2} 
-			session={session} 
-			data={gametypeStats} 
-			names={gametypeNames} 
-			latestWinRate={latestWinRate} 
-			winRateHistory={winRateHistory}
-		/>;
+			playerId={playerId}
+			key={2} 		
+		/>
     }
 
 	if(pageSettings["Display Capture The Flag Summary"] === "true"){
@@ -257,6 +253,11 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 		elems[pageOrder["Display Map Stats"]] = <PlayerMapStats key="m-stats" playerId={playerId}/>;
 	}
 
+	if(pageSettings["Display Win Rates"] === "true"){
+
+		elems[pageOrder["Display Win Rates"]] = <PlayerWinRates key="p-wrs" playerId={playerId}/>;
+	}
+
 	return (
 			<div>
 				<DefaultHead host={host} title={`${titleName} Career Profile`} 
@@ -267,9 +268,7 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 				<main>
 					<Nav settings={navSettings} session={session}/>
 					<div id="content">
-						<div className="default">
-
-							
+						<div className="default">			
 						
 							<div className="default-header">
 								{titleName} Career Profile
@@ -285,80 +284,6 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 	)
 }
 
-
-function createWinRateData(results, gametypeNames){
-
-	const data = [];
-	const titles = [];
-	const text = [];
-
-	let r = 0;
-	let currentTitle = "";
-
-
-
-
-	for(let i = 0; i < results.length; i++){
-
-		r = results[i];
-
-		if(r.length === 0) continue;
-
-		//if(r.gametypeName === "Not Found") continue;
-
-		currentTitle = (gametypeNames[r[0].gametype] !== undefined) ? gametypeNames[r[0].gametype] : "Not Found";
-
-		titles.push(currentTitle);
-
-		data.push({
-			"name": currentTitle,
-			"data": []
-		});
-
-		text.push([]);
-
-		r.sort((a, b) =>{
-
-			a = a.matches;
-			b = b.matches;
-
-			if(a < b){
-				return -1;
-			}else if(a > b){
-				return 1;
-			}
-
-			return 0;
-		});
-
-		for(let x = 0; x < r.length; x++){
-
-			data[data.length - 1].data.push(parseFloat(r[x].winrate.toFixed(2)));
-			text[text.length - 1].push(`Wins ${r[x].wins} Draws ${r[x].draws} Losses ${r[x].losses} `);
-		}
-		
-	}
-
-	const fixedData = [];
-
-	for(let i = 0; i < data.length; i++){
-
-		fixedData.push([data[i]]);
-	}
-
-	if(fixedData.length === 0){
-		fixedData.push({
-			"name": "all",
-			"data": []
-		});
-	}
-
-
-	return {"data": fixedData, "titles": titles, "text": text};
-
-
-}
-
 function createPingGraphData(history){
 
 	const data = [
@@ -367,14 +292,11 @@ function createPingGraphData(history){
 		{"name": "Max", "data": [0]}
 	];
 
-
 	const text = [];
-
-	let h = 0;
 
 	for(let i = 0; i < history.length; i++){
 
-		h = history[i];
+		const h = history[i];
 
 		data[0].data.push(h.min);
 		data[1].data.push(h.average);
@@ -414,6 +336,7 @@ export async function getServerSideProps({req, query}) {
 		
 	const playerManager = new Player();
 	const gametypes = new Gametypes();
+	const gametypeNames = await gametypes.getAllNames();
 	const maps = new Maps();
 	const matchManager = new Matches();
 	const serverManager = new Servers();
@@ -438,10 +361,7 @@ export async function getServerSideProps({req, query}) {
 		};
 	}
 
-	let gametypeStats = await playerManager.getPlayerGametypeWinStats(summary.name);
 	const totalMatches = await playerManager.getTotalMatches(playerId, matchManager);
-	const gametypeIds = Functions.getUniqueValues(gametypeStats, 'gametype');
-	let gametypeNames = await gametypes.getNames(gametypeIds);
 	const matchPage = (query.matchpage !== undefined) ? (parseInt(query.matchpage) === parseInt(query.matchpage) ? query.matchpage : 1) : 1;
 
 	let recentMatches = [];
@@ -475,6 +395,7 @@ export async function getServerSideProps({req, query}) {
 	let matchScores = await matchManager.getWinners(matchIds);
 	let matchPlayerCount = await matchManager.getPlayerCount(matchIds);
 
+	
 
 
 	const justMapNames = [];
@@ -496,16 +417,6 @@ export async function getServerSideProps({req, query}) {
 
 
 	const faceManager = new Faces();
-
-	const winRateManager = new WinRate();
-	let latestWinRate = await winRateManager.getPlayerLatest(playerId);
-	Functions.setIdNames(latestWinRate, gametypeNames, 'gametype', 'gametypeName');
-
-	gametypeIds.unshift(0);
-	let winRateHistory = await winRateManager.getPlayerWinrateHistory(playerId, gametypeIds, 50);
-
-	
-	winRateHistory = createWinRateData(winRateHistory, gametypeNames);
 
 	let now = new Date();
 	now = Math.floor(now * 0.001);
@@ -591,8 +502,6 @@ export async function getServerSideProps({req, query}) {
 			"host": req.headers.host,
 			"playerId": playerId,
 			"summary": JSON.stringify(summary),
-			"gametypeStats": JSON.stringify(gametypeStats),
-			"gametypeNames": JSON.stringify(gametypeNames),
 			"recentMatches": JSON.stringify(recentMatches),
 			"matchScores": JSON.stringify(matchScores),
 			"totalMatches": totalMatches,
@@ -601,8 +510,9 @@ export async function getServerSideProps({req, query}) {
 			"matchesPerPage": matchesPerPage,
 			"mapImages": JSON.stringify(mapImages),
 			"serverNames": JSON.stringify(serverNames),
-			"latestWinRate": JSON.stringify(latestWinRate),
-			"winRateHistory": JSON.stringify(winRateHistory),
+			"gametypeNames": JSON.stringify(gametypeNames),
+			//"latestWinRate": JSON.stringify(latestWinRate),
+			//"winRateHistory": JSON.stringify(winRateHistory),
 			"matchDates": JSON.stringify(matchDates),
 			"pingGraphData": JSON.stringify(pingGraphData),
 			"aliases": JSON.stringify(aliases),

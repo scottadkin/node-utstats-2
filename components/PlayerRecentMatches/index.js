@@ -83,7 +83,7 @@ class PlayerRecentMatches extends React.Component{
         const matches = JSON.parse(this.props.matches);
         const scores = JSON.parse(this.props.scores);
 
-        const gametypes = JSON.parse(this.props.gametypes);
+        const gametypes = this.props.gametypes;
         const mapImages = JSON.parse(this.props.mapImages);
 
         const serverNames = JSON.parse(this.props.serverNames);

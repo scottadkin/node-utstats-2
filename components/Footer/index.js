@@ -10,7 +10,7 @@ function Footer({session}){
         <div>
             <CookieBanner session={session}/>
             <footer>
-                <span className="red">Node UTStats 2.10.0</span> &copy; 2021-2023 <a className="yellow" href="https://github.com/scottadkin">Scott Adkin</a><br/>
+                <span className="red">Node UTStats 2.10.1</span> &copy; 2021-2023 <a className="yellow" href="https://github.com/scottadkin">Scott Adkin</a><br/>
                 <span className="yellow">Original UTStats &copy; 2005 azazel, )°DoE°(-AnthraX and toa</span><br/>
                 <b><a style={{"color": "rgb(0,126,255)"}} href={"https://github.com/OldUnreal/UnrealTournamentPatches"}>Update UT to the Latest Unreal Tournament Patch by OldUnreal</a></b><br/>
                 Thanks to <span className="yellow">Krull0r</span> for the Monster Icons.<br/>

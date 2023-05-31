@@ -330,7 +330,7 @@ class MatchManager{
             new Message(`Inserted player score history`,'pass');
 
             new Message(`Updating player winrates.`,'note');
-            await this.playerManager.updateWinRates(this.matchId, this.serverInfo.date, this.gametype.currentMatchGametype);
+            await this.playerManager.updateWinRates(this.matchId, this.serverInfo.date, this.gametype.currentMatchGametype, this.mapInfo.mapId);
 
     
             new Message(`Update player spree history`,'note');

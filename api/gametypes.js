@@ -174,7 +174,7 @@ class Gametypes{
 
         const result = await mysql.simpleQuery(query, [ids]);
 
-        const data = {"0": "All"};
+        const data = {"0": "Combined"};
 
         for(let i = 0; i < result.length; i++){
 

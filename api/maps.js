@@ -264,6 +264,13 @@ class Maps{
             }
         }
 
+        if(!bSimpleObject){
+            data.push({"id": 0, "name": "Combined"});
+        }else{
+
+            data[0] = "Combined";
+        }
+
         return data;
 
     }
