@@ -22,6 +22,7 @@ const Rankings = require('../rankings');
 const MonsterHuntManager = require('./monsterhuntmanager');
 const CombogibManager = require('./combogibmanager');
 const geoip = require('geoip-lite');
+const md5 = require("md5");
 
 class MatchManager{
 
@@ -491,7 +492,7 @@ class MatchManager{
         this.matchId = await this.matches.insertMatch(
             this.serverInfo.date, 
             this.serverId, 
-            matchString,
+            md5(matchString),
             this.gametype.currentMatchGametype,
             this.mapInfo.mapId,
             this.gameInfo.gameversion, 

@@ -280,7 +280,7 @@ async function updateSiteSettings(){
         await p.recalculateAllPlayerMapGametypeRecords();
 
 
-        await alterTable("nstats_matches", "match_string", "varchar(500) NOT NULL", "AFTER id");
+        await alterTable("nstats_matches", "match_hash", "varchar(32) NOT NULL", "AFTER id");
 
         process.exit(0);
 

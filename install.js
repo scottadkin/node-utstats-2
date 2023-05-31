@@ -411,7 +411,7 @@ const queries = [
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_matches (
         id int(11) NOT NULL AUTO_INCREMENT,
-        match_string varchar(500) NOT NULL,
+        match_hash varchar(32) NOT NULL,
         date int(11) NOT NULL,
         server int(11) NOT NULL,
         gametype int(11) NOT NULL,
