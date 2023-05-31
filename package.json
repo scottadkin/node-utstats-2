@@ -11,7 +11,7 @@
     "archiver": "^5.3.1",
     "cookie": "^0.4.1",
     "express": "^4.17.2",
-    "formidable": "^2.0.1",
+    "formidable": "^2.1.1",
     "ftp": "^0.3.10",
     "geoip-country": "^4.1.57",
     "geoip-lite": "^1.4.7",
