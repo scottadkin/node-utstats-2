@@ -357,6 +357,16 @@ class WinRate{
 
         return await mysql.simpleQuery(query, [playerId]);
     }
+
+
+    async deleteMatchData(id){
+
+
+        await mysql.simpleDelete("DELETE FROM nstats_winrates WHERE match_id=?", [id]);
+        await mysql.simpleDelete("DELETE FROM nstats_winrates_latest WHERE match_id=?", [id]);
+     
+    }
+    
     /*async getPlayersCurrentData(players, gametypes, maps){
 
         const query = `SELECT * FROM nstats_winrates_latest WHERE player IN(?) AND gametype IN(?) AND map IN(?)`;
@@ -709,13 +719,7 @@ class WinRate{
     }
 
 
-    async deleteMatchData(id){
-
-
-        await mysql.simpleDelete("DELETE FROM nstats_winrates WHERE match_id=?", [id]);
-        await mysql.simpleDelete("DELETE FROM nstats_winrates_latest WHERE match_id=?", [id]);
-     
-    }
+    
 
     async getPlayerGamtypeHistoryDetailed(playerId, gametypeId){
 
