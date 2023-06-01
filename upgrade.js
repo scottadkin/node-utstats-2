@@ -253,6 +253,15 @@ async function updateSiteSettings(){
 }
 
 
+async function updateWinrateTables(){
+
+    const table1 = "nstats_winrates";
+    const table2 = "nstats_winrates_latest";
+
+    await alterTable(table1, "map", "INT NOT NULL", "AFTER gametype");
+    await alterTable(table2, "map", "INT NOT NULL", "AFTER gametype");
+}
+
 
 (async () =>{
 
@@ -274,6 +283,8 @@ async function updateSiteSettings(){
         if(!await columnExists("nstats_ctf_caps", "gametype_id")){
             await alterTable("nstats_ctf_caps", "gametype_id", "INT NOT NULL", "AFTER match_id");
         }
+
+        await updateWinrateTables();
         
         const p = new Players();
         new Message(`Recalculating player total records, this may take a while.`,"note");
