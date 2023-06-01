@@ -487,7 +487,7 @@ class MatchManager{
     
         const motd = this.serverInfo.getMotd();
 
-        const matchString = `${this.serverInfo.date}_${this.serverInfo.server_servername}_${this.serverInfo.server_port}`
+        const matchString = `${this.serverInfo.absolute_time}_${this.serverInfo.server_servername}_${this.serverInfo.server_port}`;
 
         this.matchId = await this.matches.insertMatch(
             this.serverInfo.date, 
