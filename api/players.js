@@ -567,7 +567,7 @@ class Players{
             result[0].losses = 0;
 
             if(result[0].total_matches > 0 && result[0].wins > 0){        
-                result[0].winRate = result[0].wins / result[0].total_matches * 100;
+                result[0].winRate = (result[0].wins / result[0].total_matches) * 100;
             }
 
             result[0].losses = result[0].total_matches - result[0].draws - result[0].wins;
@@ -2894,7 +2894,7 @@ class Players{
         wins = wins + ?,
         losses = losses + ?,
         draws = draws + ?,
-        winrate = IF(wins > 0 && losses > 0, (wins / losses) * 100 , IF(losses = 0 && draws = 0, 100, 0)),
+        winrate = IF(wins > 0 && losses > 0, (wins / matches) * 100 , IF(losses = 0 && draws = 0, 100, 0)),
         playtime = playtime + ?,
         team_0_playtime = team_0_playtime + ?,
         team_1_playtime = team_1_playtime + ?,
