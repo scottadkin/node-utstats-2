@@ -126,6 +126,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                 info={info} 
                 server={server} 
                 gametype={gametype} 
+                host={host}
                 map={map} 
                 image={image} 
                 bMonsterHunt={bMonsterHunt} 
@@ -539,7 +540,7 @@ export async function getServerSideProps({req, query}){
             };
         }
 
-        let matchInfo = await m.get(matchId);
+        const matchInfo = await m.get(matchId);
 
         const s = new Servers();
         const serverName = await s.getName(matchInfo.server);

@@ -1,10 +1,10 @@
 import styles from './MatchSummary.module.css';
-import Playtime from '../Playtime/';
 import MatchResult from '../MatchResult/';
-import Functions from '../../api/functions';
+import { convertTimestamp, toPlaytime } from '../../api/generic.mjs';
+import MatchPermLink from '../MatchPermLink';
 
 
-const MatchSummary = ({info, server, gametype, map, bMonsterHunt, settings}) =>{
+const MatchSummary = ({info, server, gametype, map, bMonsterHunt, settings, host}) =>{
 
     if(info === undefined){
 
@@ -49,16 +49,18 @@ const MatchSummary = ({info, server, gametype, map, bMonsterHunt, settings}) =>{
                 <span className="white">{gametype}</span> {(info.insta) ? '(Instagib)' : ''} on <span className="white">{map}</span><br/>
                 <span className={styles.small}>{server}</span><br/>
             
-                <span className={styles.small}>{Functions.convertTimestamp(info.date, false)}</span><br/>
+                <span className={styles.small}>{convertTimestamp(info.date, false)}</span><br/>
                 {targetScoreElem}
                 {timeLimitElem}
 
-                <span className="white">Match Length</span> <Playtime timestamp={info.playtime} /><br/>
+                <span className="white">Match Length</span> {toPlaytime(info.playtime)}<br/>
                 <span className="white">Players</span> {info.players}<br/>
 
                 {mutatorsElem}
 
             </div>
+            {/* /<div className={styles["perm-link"]}>{host}/match/{info.match_hash}</div> */}
+            <MatchPermLink url={`${host}/match/${info.match_hash}`}/>
         </div>
     );
 }
