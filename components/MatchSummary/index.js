@@ -59,8 +59,7 @@ const MatchSummary = ({info, server, gametype, map, bMonsterHunt, settings, host
                 {mutatorsElem}
 
             </div>
-            {/* /<div className={styles["perm-link"]}>{host}/match/{info.match_hash}</div> */}
-            <MatchPermLink url={`${host}/match/${info.match_hash}`}/>
+            <MatchPermLink hash={info.match_hash} url={`${host}/match/`}/>
         </div>
     );
 }

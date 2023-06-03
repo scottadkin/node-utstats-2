@@ -9,9 +9,11 @@ const copyToClipboard = async ( url) =>{
     }
 }
 
-const MatchPermLink = ({url}) =>{
+const MatchPermLink = ({url, hash}) =>{
 
-    return <div className={styles.wrapper} onClick={() => copyToClipboard( url)}>
+    if(hash === "") return null;
+
+    return <div className={styles.wrapper} onClick={() => copyToClipboard(`${url}${hash}`)}>
         <div className={`${styles.button} team-red`}>Copy Match Permalink To Clipboard</div>
         
     </div>
