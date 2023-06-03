@@ -222,6 +222,7 @@ class MatchScreenshot{
 
         this.canvas.addEventListener("click", () =>{
 
+
             this.canvas.requestFullscreen().catch((err) =>{
                 console.trace(err);
             });
@@ -1376,10 +1377,12 @@ const Screenshot = ({host, map, totalTeams, players, image, matchData, serverNam
 
     bHome = (bHome !== undefined) ? bHome : false;
 
-    const controller = new AbortController();
+    
 
     useEffect(() =>{
         
+        const controller = new AbortController();
+
         new MatchScreenshot(
             sshot.current,
             image, 
@@ -1397,12 +1400,10 @@ const Screenshot = ({host, map, totalTeams, players, image, matchData, serverNam
             controller
         );
 
-
-
         return () =>{
             controller.abort();
         }
-    });
+    },[host, map, totalTeams, players, image, matchData, serverName, gametype, faces, highlight, bHome, bClassic]);
     
 
 
