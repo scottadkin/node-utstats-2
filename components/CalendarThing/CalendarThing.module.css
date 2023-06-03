@@ -26,8 +26,8 @@
 
 .date{
     font-size:18px;
-    font-weight:500;
-    padding:10px;
+    font-weight:400;
+    padding-bottom:10px;
 }
 
 .days{
@@ -45,6 +45,6 @@
 }
 
 .title{
-    font-weight:500;
-    padding:10px;
+    font-weight:400;
+    padding:15px;
 }
