@@ -293,9 +293,7 @@ class GraphCanvas{
     hoverKeys(){
 
 
-        let k = 0;
         let heightOffset = 0;
-
 
         let y = 0;
 
@@ -308,7 +306,7 @@ class GraphCanvas{
 
         for(let i = 0; i < this.keyCoordinates.length; i++){
 
-            k = this.keyCoordinates[i];
+            const k = this.keyCoordinates[i];
 
             
             if(this.mouse.x >= k.x && this.mouse.x < k.x + k.width){
