@@ -87,7 +87,7 @@ class MatchCTFGraphs extends React.Component{
         ];
 
         //dont sort teams by score you moron it messes up the colors
-        for(let i = 0; i < 9; i++){
+        for(let i = 0; i < 10; i++){
 
             data[i].sort((a, b) =>{
                 a = a.name;
