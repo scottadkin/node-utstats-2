@@ -8,7 +8,8 @@ const mysql = require('../database');
 const SFTPImporter = require("./sftpimporter");
 const Logs = require("../logs");
 const ACE = require("../ace");
-
+const Encoding = require('encoding-japanese');
+//const jschardet = require("jschardet")
 
 class Importer{
 
@@ -302,11 +303,18 @@ class Importer{
 
         try{
 
-            if(bAceLog === undefined) bAceLog = false;
+            let data = fs.readFileSync(file, /*"utf16le"/*, encoding*/);
 
-            const encoding = (bAceLog) ? "utf8" : "utf16le";
+            const currentFileEncoding = Encoding.detect(data);
 
-            let data = fs.readFileSync(file, encoding);
+            
+            if(currentFileEncoding !== "UTF16"){
+
+                data = Encoding.codeToString(Encoding.convert(data, {
+                    "to": "UTF16",
+                    "from": currentFileEncoding
+                }));
+            }
 
             data = data.toString().replace(/\u0000/ig, '');
             
