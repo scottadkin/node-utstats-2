@@ -735,23 +735,12 @@ class Maps{
     }
 
 
-    getSpawns(mapId){
+    async getSpawns(mapId){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT name,x,y,z,spawns,team FROM nstats_map_spawns WHERE map=?";
 
-            const query = "SELECT name,x,y,z,spawns,team FROM nstats_map_spawns WHERE map=?";
+        return await mysql.simpleQuery(query, [mapId]);
 
-            mysql.query(query, [mapId], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
     }
 
     getMostPlayed(limit){
