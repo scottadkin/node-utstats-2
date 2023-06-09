@@ -20,9 +20,11 @@ const copyToClipboard = async (url, setError) =>{
 
 const MatchPermLink = ({url, hash}) =>{
 
+    const [error, setError] = useState(null);
+
     if(hash === "") return null;
 
-    const [error, setError] = useState(null);
+    
 
     if(error !== null){
 

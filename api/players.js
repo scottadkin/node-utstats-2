@@ -907,7 +907,7 @@ class Players{
             //const playerGametypeTotals = await this.getPlayerTotalsPerGametypeByMatches(second);
             //const playerTotals = await this.getPlayerTotalsByMatches(second);
             
-            const updatedPlayerMatches = await matchManager.getAllPlayerMatches(second);
+            //const updatedPlayerMatches = await matchManager.getAllPlayerMatches(second);
             await this.recalculatePlayerTotalsAfterMerge(second, names[0]);
 
             const weaponsManager = new Weapons();
@@ -918,7 +918,7 @@ class Players{
 
             await winrateManager.deletePlayer(first);
             await winrateManager.deletePlayer(second);
-            await winrateManager.recalculatePlayerHistoryAfterMerge(second, updatedPlayerMatches);
+            await winrateManager.recalculatePlayerHistoryAfterMerge(second);
 
 
             const spreeManager = new Sprees();
@@ -946,7 +946,7 @@ class Players{
 
             return true;
         }catch(err){
-            console.trace(err.toString());
+            console.trace(err);
             return false;
         }
 

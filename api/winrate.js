@@ -317,9 +317,17 @@ class WinRate{
 
     async recaluatePlayerHistory(playerId, gametypeIds, mapIds){
 
-        const query = `SELECT date,match_id,match_result,gametype,map FROM nstats_winrates WHERE player=? AND gametype IN (?) AND map IN (?) ORDER BY date ASC`;
 
-        const result = await mysql.simpleQuery(query, [playerId, gametypeIds, mapIds]);
+        let query = `SELECT date,match_id,match_result,gametype,map FROM nstats_winrates WHERE player=? AND gametype IN (?) AND map IN (?) ORDER BY date ASC`;
+
+        let vars = [playerId, gametypeIds, mapIds]
+
+        if(gametypeIds === undefined && mapIds === undefined){
+            query = `SELECT date,match_id,match_result,gametype,map FROM nstats_winrates WHERE player=? ORDER BY date ASC`;
+            vars = [playerId];
+        }
+
+        const result = await mysql.simpleQuery(query, vars);
 
         const history = [];
 
@@ -331,7 +339,10 @@ class WinRate{
 
         }
         
-        await this.bulkInsertPlayerHistory(history, playerId, gametypeIds[1], mapIds[1]);
+        //skip this step when recalculating all player gametypes/maps gametypeIds/mapIds[0] is always gametype 0
+        if(gametypeIds !== undefined && mapIds !== undefined){
+            await this.bulkInsertPlayerHistory(history, playerId, gametypeIds[1], mapIds[1]);
+        }
 
 
         //update player latest table
@@ -366,7 +377,16 @@ class WinRate{
         await mysql.simpleDelete("DELETE FROM nstats_winrates_latest WHERE match_id=?", [id]);
      
     }
+
+    async deletePlayer(playerId){
+        await mysql.simpleQuery("DELETE FROM nstats_winrates WHERE player=?", [playerId]);
+        await mysql.simpleQuery("DELETE FROM nstats_winrates_latest WHERE player=?", [playerId]);
+    }
     
+    async recalculatePlayerHistoryAfterMerge(playerId){
+
+        await this.recaluatePlayerHistory(playerId);
+    }
     /*async getPlayersCurrentData(players, gametypes, maps){
 
         const query = `SELECT * FROM nstats_winrates_latest WHERE player IN(?) AND gametype IN(?) AND map IN(?)`;
