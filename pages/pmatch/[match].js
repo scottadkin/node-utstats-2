@@ -116,6 +116,7 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
             image={mapImage} 
             bMonsterHunt={info.mh} 
             settings={pageSettings}
+            bPlayerPage={true}
         />
     }
 

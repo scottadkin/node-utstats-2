@@ -4,7 +4,9 @@ import { convertTimestamp, toPlaytime } from '../../api/generic.mjs';
 import MatchPermLink from '../MatchPermLink';
 
 
-const MatchSummary = ({info, server, gametype, map, bMonsterHunt, settings, host}) =>{
+const MatchSummary = ({info, server, gametype, map, bMonsterHunt, settings, host, bPlayerPage}) =>{
+
+    if(bPlayerPage === undefined) bPlayerPage = false;
 
     if(info === undefined){
 
@@ -59,7 +61,7 @@ const MatchSummary = ({info, server, gametype, map, bMonsterHunt, settings, host
                 {mutatorsElem}
 
             </div>
-            <MatchPermLink hash={info.match_hash} url={`${host}/match/`}/>
+            {(!bPlayerPage) ? <MatchPermLink hash={info.match_hash} url={`${host}/match/`}/> : null}
         </div>
     );
 }
