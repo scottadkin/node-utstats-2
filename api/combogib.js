@@ -1096,6 +1096,30 @@ class Combogib{
 
     }
 
+    //temporary used for merge players, need to change to bulk insert at some point
+    async insertPlayerMatchData(playerId, gametypeId, matchId, mapId, playtime, combos, shockBalls, primary, insane){
+
+        const query = `INSERT INTO nstats_match_combogib VALUES(
+            NULL,?,?,?,?,?,
+            ?,?,?,?,
+            ?,?,?,?,
+            ?,?,?,?,
+            ?,?,?,?,
+            ?,?,?,
+            ?,?,?,?)`;
+
+        const vars = [playerId, gametypeId, matchId, mapId, playtime,
+            primary.kills, primary.deaths, primary.efficiency, primary.kpm,
+            shockBalls.kills, shockBalls.deaths, shockBalls.efficiency, shockBalls.kpm,
+            combos.kills, combos.deaths, combos.efficiency, combos.kpm,
+            insane.kills, insane.deaths, insane.efficiency, insane.kpm,
+            combos.bestSingle, shockBalls.bestSingle, insane.bestSingle,
+            primary.best, shockBalls.best, combos.best, insane.best
+        ];
+
+        await mysql.simpleQuery(query, vars);
+    }
+
     //replace all data that has the id of playerOne with playerTwo
     async mergePlayersData(playerOne, playerTwo){
 
