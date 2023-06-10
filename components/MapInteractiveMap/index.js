@@ -32,11 +32,21 @@ class InteractiveMap{
 
     constructor(canvasRef){
 
+        this.zoom = 1;
+
         console.log(`new Interactive Map`);
         this.canvasRef = canvasRef;
         this.min = {"x": null, "y": null, "z": null};
         this.max = {"x": null, "y": null, "z": null};
+        this.bit = {"x": null, "y": null, "z": null};
         this.range = {"x": 0, "y": 0, "z": 0};
+
+
+        this.playerStartImage = new Image();
+        this.playerStartImage.src = "/images/playerstart.png";
+
+        console.log(this.playerStartImage.width);
+        console.log(this.playerStartImage.height);
         
         this.main();
     }
@@ -71,22 +81,66 @@ class InteractiveMap{
             if(z > this.max.z) this.max.z = z;
         }
 
-        console.log(this.min, this.max);
+        //console.log(this.min, this.max);
 
         this.range.x = Math.abs(this.max.x - this.min.x);
         this.range.y = Math.abs(this.max.y - this.min.y);
         this.range.z = Math.abs(this.max.z - this.min.z);
 
-        console.log(this.range);
+        this.bit.x = (this.range.x !== 0) ? 100 / this.range.x : 0;
+        this.bit.y = (this.range.y !== 0) ? 100 / this.range.y : 0;
+        this.bit.z = (this.range.z !== 0) ? 100 / this.range.z : 0;
+
+        //console.log(this.bit);
     }
 
-    setData(data){
+
+    createDisplayData(){
+
+
+        for(let i = 0; i < this.data.length; i++){
+
+            const d = this.data[i];
+
+            const current = {
+                "x": this.pixelsToPercent(this.removeOffset(d.x, "x"), "x"),
+                "y": this.pixelsToPercent(this.removeOffset(d.y, "y"), "y"),
+                //"z": this.removeOffset(d.y),
+            };
+
+
+
+            this.displayData.push(current);
+        }
+    }
+
+    async loadImage(url){
+
+        return new Promise((resolve, reject) =>{
+
+            const image = new Image();
+            image.src = url;
+
+            image.onload = () =>{
+                console.log(`loaded ${url}`);
+                resolve();
+            }
+        });
+    }
+
+    async setData(data){
 
 
         this.data = data;
 
+        this.displayData = [];
+
         this.setMinMax();
 
+        this.createDisplayData();
+
+        await this.loadImage("/images/playerstart.png");
+ 
         this.render();
         
     }
@@ -96,9 +150,67 @@ class InteractiveMap{
 
         console.log(`main()`);
 
-        this.loop = setInterval(() =>{
+        /*this.loop = setInterval(() =>{
             this.render();
-        }, 1000 / 60);
+        }, 1000 / 3);*/
+    }
+
+    removeOffset(value, type){
+
+        type = type.toLowerCase();
+
+        const valid = ["x","y","z"];
+
+        if(valid.indexOf(type) === -1){
+
+            throw new Error("Unknown type");
+        }
+
+        const offset = 0 - this.min[type];
+        return value + offset;
+    }
+
+    pixelsToPercent(value, type){
+
+        type = type.toLowerCase();
+
+        if(type !== "x" && type !== "y") return -999;
+
+        return value * this.bit[type];
+    }
+
+    percentToPixels(value, type){
+
+        type = type.toLowerCase();
+
+        if(type !== "x" && type !== "y") return -1;
+ 
+        const size = (type === "x") ? this.canvasRef.current.width : this.canvasRef.current.height;
+
+        if(size === 0) return 0;
+
+        const bit = size / (100 * this.zoom);
+
+        return bit * value;
+    }
+
+    renderSpawns(c){
+
+        c.fillStyle = "orange";
+
+        console.log(this.range.x, this.range.y, this.range.z);
+
+        const imageWidth = this.playerStartImage.width;
+        const imageHeight = this.playerStartImage.height;
+
+        for(let i = 0; i < this.displayData.length; i++){
+
+            const d = this.displayData[i];
+
+            c.drawImage(this.playerStartImage, this.percentToPixels(d.x, "x") - (imageWidth * 0.5), this.percentToPixels(d.y, "y") - (imageHeight * 0.5));
+            c.fillRect(this.percentToPixels(d.x, "x"), this.percentToPixels(d.y, "y"), 5, 5);
+
+        }
     }
 
     render(){
@@ -110,11 +222,13 @@ class InteractiveMap{
         
 
         const c = this.canvasRef.current.getContext("2d");
-        console.log(performance.now());
+        //console.log(performance.now());
 
-        c.fillStyle = "white";
+       // c.fillStyle = "white";
 
-        c.fillRect(Math.random() * 100, Math.random() * 100, 5, 5);
+       // c.fillRect(Math.random() * 100, Math.random() * 100, 5, 5);
+
+        this.renderSpawns(c);
     }
 }
 
@@ -172,7 +286,21 @@ const MapInteractiveMap = ({id}) =>{
         if(state.data !== null){
 
             const testMap = new InteractiveMap(canvasRef);
+
+            const fart = () =>{
+                console.log("horse noise");
+                testMap.render();
+            }
+
             testMap.setData(state.data);
+            canvasRef.current.addEventListener("click", fart);
+            
+            const canvasElem = canvasRef.current;
+
+            return () =>{
+                canvasElem.removeEventListener("click", fart);
+            }
+            
         }
 
     }, [state.data]);
