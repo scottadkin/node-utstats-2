@@ -33,6 +33,7 @@ class InteractiveMap{
     constructor(canvasRef){
 
         this.zoom = 100;
+        this.offset = {"x": 0, "y": 0, "z": 0};
 
         console.log(`new Interactive Map`);
         this.canvasRef = canvasRef;
@@ -41,7 +42,7 @@ class InteractiveMap{
         this.bit = {"x": null, "y": null, "z": null};
         this.range = {"x": 0, "y": 0, "z": 0};
 
-        this.mouse = {"x": -999, "y": -999};
+        this.mouse = {"x": -999, "y": -999, "bMouseDown": false};
         //includes scaling with zoom
         this.click = {"x": null, "y": null};
 
@@ -210,7 +211,7 @@ class InteractiveMap{
 
             const d = this.displayData[i];
 
-            c.drawImage(this.playerStartImage, this.percentToPixels(d.x, "x") - (imageWidth * 0.5), this.percentToPixels(d.y, "y") - (imageHeight * 0.5));
+            c.drawImage(this.playerStartImage, this.percentToPixels(d.x + this.offset.x, "x") - (imageWidth * 0.5), this.percentToPixels(d.y + this.offset.y, "y") - (imageHeight * 0.5));
             c.fillRect(this.percentToPixels(d.x, "x"), this.percentToPixels(d.y, "y"), 5, 5);
 
             c.fillText(`${d.x.toFixed(1)},${d.y.toFixed(1)}`,this.percentToPixels(d.x, "x"), this.percentToPixels(d.y, "y"));
@@ -231,17 +232,28 @@ class InteractiveMap{
         c.fillText(`${this.zoom}%`, 20, 20);
     }
 
-    updateMouseLocation(mouseX, mouseY){
+    updateMouseLocation(mouseX, mouseY, movementX, movementY){
 
         const bitX = 100 / this.canvasRef.current.width;
         const bitY = 100 / this.canvasRef.current.height;
 
         this.mouse.x = mouseX * bitX;
         this.mouse.y = mouseY * bitY;
+
+        if(this.mouse.bMouseDown){
+
+            const mX = this.pixelsToPercent(movementX, "x") * 2;
+            const mY = this.pixelsToPercent(movementY, "y") * 2;
+
+            this.offset.x += mX;
+            this.offset.y += mY;
+        }
     }
 
     userClicked(){
-        
+
+        console.log(`click`);
+    
 
         const x = this.mouse.x;
         const y = this.mouse.y;
@@ -254,6 +266,8 @@ class InteractiveMap{
             if(this.zoom <= 0) this.zoom = 5;
 
             console.log(this.mouse);
+            //there are no drag events for UI
+            this.mouse.bMouseDown = false;
 
         }else{
 
@@ -261,14 +275,20 @@ class InteractiveMap{
             const fixedY = y * (this.zoom / 100);
 
             this.click = {"x": fixedX, "y": fixedY};
-
-            console.log(this.click);
+            this.mouse.bMouseDown = true;
         }
 
 
-
+        
         this.render();
 
+    }
+
+    mouseRelease(){
+
+        console.log(`ll`);
+
+        this.mouse.bMouseDown = false;
     }
 
     render(){
@@ -284,6 +304,7 @@ class InteractiveMap{
        // c.fillStyle = "white";
 
        // c.fillRect(Math.random() * 100, Math.random() * 100, 5, 5);
+
 
         c.clearRect(0,0, this.percentToPixels(100, "x", true), this.percentToPixels(100, "y", true));
 
@@ -351,25 +372,35 @@ const MapInteractiveMap = ({id}) =>{
             const fart = (e) =>{
                 //console.log(e.clientX, e.clientY);
 
+
                 const bounds = canvasRef.current.getBoundingClientRect();
-                testMap.updateMouseLocation(e.clientX - bounds.x, e.clientY - bounds.y);
+                testMap.updateMouseLocation(e.clientX - bounds.x, e.clientY - bounds.y, e.movementX, e.movementY);
                 testMap.render();
             }
 
-            const userClicked = () =>{
+            const userClicked = (e) =>{
 
                 testMap.userClicked();
             }
 
+            const mouseRelease = () =>{
+                testMap.mouseRelease();
+            }
+
             testMap.setData(state.data);
             canvasRef.current.addEventListener("mousemove", fart);
-            canvasRef.current.addEventListener("click", userClicked);
+            canvasRef.current.addEventListener("mousedown", userClicked);
+
+            canvasRef.current.addEventListener("mouseup", mouseRelease);
+            canvasRef.current.addEventListener("mouseleave", mouseRelease);
             
             const canvasElem = canvasRef.current;
 
             return () =>{
-                canvasElem.removeEventListener("mousemove", fart);
+                canvasElem.removeEventListener("mousedown", fart);
                 canvasElem.removeEventListener("click", userClicked);
+                canvasElem.removeEventListener("mouseup", mouseRelease);
+                canvasElem.removeEventListener("mouseLeave", mouseRelease);
             }
             
         }
@@ -386,7 +417,7 @@ const MapInteractiveMap = ({id}) =>{
     }
     return <div className={styles.wrapper}>
         <div className="default-header">Interactive Map</div>
-        <canvas ref={canvasRef} width={500} height={500}></canvas>
+        <canvas ref={canvasRef} width={960} height={540}></canvas>
     </div>
 }
 
