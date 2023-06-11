@@ -32,7 +32,7 @@ class InteractiveMap{
 
     constructor(canvasRef){
 
-        this.zoom = 1;
+        this.zoom = 100;
 
         console.log(`new Interactive Map`);
         this.canvasRef = canvasRef;
@@ -41,12 +41,10 @@ class InteractiveMap{
         this.bit = {"x": null, "y": null, "z": null};
         this.range = {"x": 0, "y": 0, "z": 0};
 
+        this.mouse = {"x": -999, "y": -999};
 
         this.playerStartImage = new Image();
         this.playerStartImage.src = "/images/playerstart.png";
-
-        console.log(this.playerStartImage.width);
-        console.log(this.playerStartImage.height);
         
         this.main();
     }
@@ -189,7 +187,7 @@ class InteractiveMap{
 
         if(size === 0) return 0;
 
-        const bit = size / (100 * this.zoom);
+        const bit = size / this.zoom;
 
         return bit * value;
     }
@@ -198,7 +196,6 @@ class InteractiveMap{
 
         c.fillStyle = "orange";
 
-        console.log(this.range.x, this.range.y, this.range.z);
 
         const imageWidth = this.playerStartImage.width;
         const imageHeight = this.playerStartImage.height;
@@ -213,10 +210,27 @@ class InteractiveMap{
         }
     }
 
+    renderInterface(c){
+
+        c.fillStyle = "rgba(255,0,0,0.8)";
+
+        c.fillRect(0,0, this.percentToPixels(100, "x"), this.percentToPixels(10, "y"));
+    }
+
+    updateMouseLocation(mouseX, mouseY){
+
+        const bitX = 100 / this.canvasRef.current.width;
+        const bitY = 100 / this.canvasRef.current.height;
+
+        this.mouse.x = mouseX * bitX;
+        this.mouse.y = mouseY * bitY;
+
+        console.log(this.mouse);
+    }
+
     render(){
-        
-        //console.log(this.canvasRef);
-        //console.log(this.context);
+
+
 
         if(this.canvasRef.current === null) return;
         
@@ -229,6 +243,8 @@ class InteractiveMap{
        // c.fillRect(Math.random() * 100, Math.random() * 100, 5, 5);
 
         this.renderSpawns(c);
+
+        this.renderInterface(c);
     }
 }
 
@@ -287,18 +303,21 @@ const MapInteractiveMap = ({id}) =>{
 
             const testMap = new InteractiveMap(canvasRef);
 
-            const fart = () =>{
-                console.log("horse noise");
+            const fart = (e) =>{
+                //console.log(e.clientX, e.clientY);
+
+                const bounds = canvasRef.current.getBoundingClientRect();
+                testMap.updateMouseLocation(e.clientX - bounds.x, e.clientY - bounds.y);
                 testMap.render();
             }
 
             testMap.setData(state.data);
-            canvasRef.current.addEventListener("click", fart);
+            canvasRef.current.addEventListener("mousemove", fart);
             
             const canvasElem = canvasRef.current;
 
             return () =>{
-                canvasElem.removeEventListener("click", fart);
+                canvasElem.removeEventListener("mousemove", fart);
             }
             
         }
