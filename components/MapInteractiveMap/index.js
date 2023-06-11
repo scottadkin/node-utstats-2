@@ -42,6 +42,8 @@ class InteractiveMap{
         this.range = {"x": 0, "y": 0, "z": 0};
 
         this.mouse = {"x": -999, "y": -999};
+        //includes scaling with zoom
+        this.click = {"x": null, "y": null};
 
         this.playerStartImage = new Image();
         this.playerStartImage.src = "/images/playerstart.png";
@@ -177,7 +179,9 @@ class InteractiveMap{
         return value * this.bit[type];
     }
 
-    percentToPixels(value, type){
+    percentToPixels(value, type, bIgnoreZoom){
+
+        if(bIgnoreZoom === undefined) bIgnoreZoom = false;
 
         type = type.toLowerCase();
 
@@ -187,7 +191,7 @@ class InteractiveMap{
 
         if(size === 0) return 0;
 
-        const bit = size / this.zoom;
+        const bit = size / ((bIgnoreZoom) ? 100 : this.zoom);
 
         return bit * value;
     }
@@ -200,12 +204,16 @@ class InteractiveMap{
         const imageWidth = this.playerStartImage.width;
         const imageHeight = this.playerStartImage.height;
 
+        c.font = "12px Arial";
+
         for(let i = 0; i < this.displayData.length; i++){
 
             const d = this.displayData[i];
 
             c.drawImage(this.playerStartImage, this.percentToPixels(d.x, "x") - (imageWidth * 0.5), this.percentToPixels(d.y, "y") - (imageHeight * 0.5));
             c.fillRect(this.percentToPixels(d.x, "x"), this.percentToPixels(d.y, "y"), 5, 5);
+
+            c.fillText(`${d.x.toFixed(1)},${d.y.toFixed(1)}`,this.percentToPixels(d.x, "x"), this.percentToPixels(d.y, "y"));
 
         }
     }
@@ -214,7 +222,13 @@ class InteractiveMap{
 
         c.fillStyle = "rgba(255,0,0,0.8)";
 
-        c.fillRect(0,0, this.percentToPixels(100, "x"), this.percentToPixels(10, "y"));
+        c.fillRect(0,0, this.percentToPixels(100, "x", true), this.percentToPixels(10, "y", true));
+
+        c.fillStyle = "white";
+
+        c.font = "20px Arial";
+
+        c.fillText(`${this.zoom}%`, 20, 20);
     }
 
     updateMouseLocation(mouseX, mouseY){
@@ -224,8 +238,37 @@ class InteractiveMap{
 
         this.mouse.x = mouseX * bitX;
         this.mouse.y = mouseY * bitY;
+    }
 
-        console.log(this.mouse);
+    userClicked(){
+        
+
+        const x = this.mouse.x;
+        const y = this.mouse.y;
+
+        //clicked interface
+        if(y <= 10){
+
+            if(x < 50) this.zoom+=5;
+            if(x >= 50) this.zoom-=5;
+            if(this.zoom <= 0) this.zoom = 5;
+
+            console.log(this.mouse);
+
+        }else{
+
+            const fixedX = x * (this.zoom / 100);
+            const fixedY = y * (this.zoom / 100);
+
+            this.click = {"x": fixedX, "y": fixedY};
+
+            console.log(this.click);
+        }
+
+
+
+        this.render();
+
     }
 
     render(){
@@ -241,6 +284,8 @@ class InteractiveMap{
        // c.fillStyle = "white";
 
        // c.fillRect(Math.random() * 100, Math.random() * 100, 5, 5);
+
+        c.clearRect(0,0, this.percentToPixels(100, "x", true), this.percentToPixels(100, "y", true));
 
         this.renderSpawns(c);
 
@@ -311,13 +356,20 @@ const MapInteractiveMap = ({id}) =>{
                 testMap.render();
             }
 
+            const userClicked = () =>{
+
+                testMap.userClicked();
+            }
+
             testMap.setData(state.data);
             canvasRef.current.addEventListener("mousemove", fart);
+            canvasRef.current.addEventListener("click", userClicked);
             
             const canvasElem = canvasRef.current;
 
             return () =>{
                 canvasElem.removeEventListener("mousemove", fart);
+                canvasElem.removeEventListener("click", userClicked);
             }
             
         }
