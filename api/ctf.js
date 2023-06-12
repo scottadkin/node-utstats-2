@@ -1041,42 +1041,20 @@ class CTF{
         };
     }
 
-    bFlagLocationExists(map, team){
+    async bFlagLocationExists(map, team){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT COUNT(*) as total_flags FROM nstats_maps_flags WHERE map=? AND team=?";
 
-            const query = "SELECT COUNT(*) as total_flags FROM nstats_maps_flags WHERE map=? AND team=?";
+        const result = await mysql.simpleQuery(query, [map, team]);
 
-            mysql.query(query, [map, team], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-
-                    if(result[0].total_flags > 0){
-                        resolve(true);
-                    }
-                }
-
-                resolve(false);
-            });
-        });
+        if(result[0].total_flags > 0) return true;
+        return false;
     }
 
-    insertFlagLocationQuery(map, team, position){
+    async insertFlagLocationQuery(map, team, position){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "INSERT INTO nstats_maps_flags VALUES(NULL,?,?,?,?,?)";
-
-            mysql.query(query, [map, team, position.x, position.y, position.z], (err) =>{
-
-                if(err) reject(err);
-
-
-                resolve();
-            });
-        });
+        const query = "INSERT INTO nstats_maps_flags VALUES(NULL,?,?,?,?,?)";
+        return await mysql.simpleQuery(query, [map, team, position.x, position.y, position.z]);
     }
 
     async insertFlagLocation(map, team, position){
