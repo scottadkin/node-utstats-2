@@ -1071,6 +1071,14 @@ class Maps{
         return options;
     }
 
+
+    async getFlags(mapId){
+
+        const query = `SELECT team,x,y,z FROM nstats_maps_flags WHERE map=?`;
+
+        return await mysql.simpleQuery(query, [mapId]);
+    }
+
 }
 
 

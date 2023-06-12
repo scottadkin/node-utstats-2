@@ -1,7 +1,3 @@
 .wrapper{
-    background-color:pink;
-}
-
-.wrapper canvas{
-    background-color:black;
+    user-select: none;
 }

@@ -16,9 +16,28 @@ export default async function handler(req, res){
 
     const mapManager = new Maps();
 
-    if(mode === "spawns"){
+    if(mode === "interactive-data"){
 
-        const data = await mapManager.getSpawns(id);
+        const spawns = await mapManager.getSpawns(id);
+
+        const data = spawns.map((s) =>{
+
+            s.type = "spawn";
+            return s;
+        });
+
+        const flags = await mapManager.getFlags(id);
+
+        for(let i = 0; i < flags.length; i++){
+
+            const f = flags[i];
+            f.type = "flag";
+            data.push(f);
+        }
+
+        
+
+        console.log(data);
         res.status(200).json({"data": data});
         return;
     }

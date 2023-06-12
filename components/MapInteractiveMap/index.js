@@ -47,7 +47,10 @@ class InteractiveMap{
         this.click = {"x": null, "y": null};
 
         this.playerStartImage = new Image();
-        this.playerStartImage.src = "/images/playerstart.png";
+        this.redFlag = new Image();
+        this.blueFlag = new Image();
+        this.greenFlag = new Image();
+        this.yellowFlag = new Image();
         
         this.main();
     }
@@ -106,8 +109,11 @@ class InteractiveMap{
             const current = {
                 "x": this.pixelsToPercent(this.removeOffset(d.x, "x"), "x"),
                 "y": this.pixelsToPercent(this.removeOffset(d.y, "y"), "y"),
+                "type": d.type
                 //"z": this.removeOffset(d.y),
             };
+
+            if(d.type === "flag" || d.type === "spawn") current.team = d.team;
 
 
 
@@ -115,11 +121,11 @@ class InteractiveMap{
         }
     }
 
-    async loadImage(url){
+    async loadImage(url, image){
 
         return new Promise((resolve, reject) =>{
 
-            const image = new Image();
+            //const image = new Image();
             image.src = url;
 
             image.onload = () =>{
@@ -127,6 +133,16 @@ class InteractiveMap{
                 resolve();
             }
         });
+    }
+
+    async loadImages(){
+
+        await this.loadImage("/images/playerstart.png", this.playerStartImage);
+        await this.loadImage("/images/redflag.png", this.redFlag);
+        await this.loadImage("/images/blueflag.png", this.blueFlag);
+        await this.loadImage("/images/greenflag.png", this.greenFlag);
+        await this.loadImage("/images/yellowflag.png", this.yellowFlag);
+
     }
 
     async setData(data){
@@ -140,7 +156,7 @@ class InteractiveMap{
 
         this.createDisplayData();
 
-        await this.loadImage("/images/playerstart.png");
+        await this.loadImages();
  
         this.render();
         
@@ -197,26 +213,45 @@ class InteractiveMap{
         return bit * value;
     }
 
-    renderSpawns(c){
+    renderSpawn(c, data){
 
         c.fillStyle = "orange";
-
 
         const imageWidth = this.playerStartImage.width;
         const imageHeight = this.playerStartImage.height;
 
         c.font = "12px Arial";
 
-        for(let i = 0; i < this.displayData.length; i++){
+        const d = data;
 
-            const d = this.displayData[i];
+        const x = this.percentToPixels(d.x + this.offset.x, "x") - (imageWidth * 0.5);
+        const y = this.percentToPixels(d.y + this.offset.y, "y") - (imageHeight * 0.5);
 
-            c.drawImage(this.playerStartImage, this.percentToPixels(d.x + this.offset.x, "x") - (imageWidth * 0.5), this.percentToPixels(d.y + this.offset.y, "y") - (imageHeight * 0.5));
-            c.fillRect(this.percentToPixels(d.x, "x"), this.percentToPixels(d.y, "y"), 5, 5);
+        c.drawImage(this.playerStartImage, x, y);
+        c.fillRect(x, y, 5, 5);
+        c.fillText(`${d.x.toFixed(1)},${d.y.toFixed(1)}`,x, y);
+ 
+    }
 
-            c.fillText(`${d.x.toFixed(1)},${d.y.toFixed(1)}`,this.percentToPixels(d.x, "x"), this.percentToPixels(d.y, "y"));
+    renderFlag(c, data){
 
-        }
+
+        let image = this.redFlag;
+
+
+        const imageWidth = this.redFlag.width * 2;
+        const imageHeight = this.redFlag.height * 2;
+
+        const d = data;
+
+        if(d.team === 1) image = this.blueFlag;
+        if(d.team === 2) image = this.greenFlag;
+        if(d.team === 3) image = this.yellowFlag;
+
+        const x = this.percentToPixels(d.x + this.offset.x, "x") - (imageWidth * 0.5);
+        const y = this.percentToPixels(d.y + this.offset.y, "y") - (imageHeight * 0.5);
+
+        c.drawImage(image, x, y, imageWidth, imageHeight);
     }
 
     renderInterface(c){
@@ -242,8 +277,8 @@ class InteractiveMap{
 
         if(this.mouse.bMouseDown){
 
-            const mX = this.pixelsToPercent(movementX, "x") * 2;
-            const mY = this.pixelsToPercent(movementY, "y") * 2;
+            const mX = this.pixelsToPercent(movementX * 2, "x");
+            const mY = this.pixelsToPercent(movementY * 4, "y");
 
             this.offset.x += mX;
             this.offset.y += mY;
@@ -291,6 +326,18 @@ class InteractiveMap{
         this.mouse.bMouseDown = false;
     }
 
+    renderData(c){
+
+        for(let i = 0; i < this.displayData.length; i++){
+
+            const d = this.displayData[i];
+
+            if(d.type === "spawn") this.renderSpawn(c, d);
+            if(d.type === "flag") this.renderFlag(c, d);
+        }
+
+    }
+
     render(){
 
 
@@ -305,10 +352,10 @@ class InteractiveMap{
 
        // c.fillRect(Math.random() * 100, Math.random() * 100, 5, 5);
 
+        c.fillStyle = "rgb(12,12,12)";
+        c.fillRect(0,0, this.percentToPixels(100, "x", true), this.percentToPixels(100, "y", true));
 
-        c.clearRect(0,0, this.percentToPixels(100, "x", true), this.percentToPixels(100, "y", true));
-
-        this.renderSpawns(c);
+        this.renderData(c);
 
         this.renderInterface(c);
     }
@@ -318,7 +365,7 @@ const loadData = async (controller, id, dispatch) =>{
 
     try{
 
-        const req = await fetch(`/api/map/?mode=spawns&id=${id}`);
+        const req = await fetch(`/api/map/?mode=interactive-data&id=${id}`);
 
         const res = await req.json();
 
