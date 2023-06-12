@@ -401,7 +401,7 @@ class MatchManager{
                 await this.CTFManager.parseData(matchTimings.start, matchTimings.end);
                 //await this.CTFManager.updatePlayerMatchStats();
                 
-                
+                await this.CTFManager.insertFlagLocations();
 
                 await this.CTFManager.insertPlayerMatchData(this.serverId, this.mapInfo.mapId, this.gametype.currentMatchGametype);
                 await this.CTFManager.updatePlayerTotals(this.serverId, this.mapInfo.mapId, this.gametype.currentMatchGametype);
@@ -415,6 +415,8 @@ class MatchManager{
                 await this.CTFManager.insertFlagCovers();
                 await this.CTFManager.bulkInsertFlagPickups();
                 await this.CTFManager.bulkInsertSelfCovers();
+
+
 
                 
                 /*if(this.CTFManager.bHasData()){

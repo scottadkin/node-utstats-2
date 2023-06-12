@@ -1237,7 +1237,15 @@ class CTFManager{
         }
 
         return await this.ctf.bulkInsertSelfCovers(insertVars);
+    }
 
+    async insertFlagLocations(){
+
+        for(let i = 0; i < this.flags.length; i++){
+
+            const f = this.flags[i];
+            await this.ctf.insertFlagLocation(f.mapId, f.team, f.flagStand)
+        }
     }
 }
 
