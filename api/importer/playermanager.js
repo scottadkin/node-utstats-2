@@ -65,7 +65,7 @@ class PlayerManager{
     parseHWIDS(){
 
 
-        if(!this.bUsePlayerACEHWID) return;
+        //if(!this.bUsePlayerACEHWID) return;
 
         const reg = /^\d+?\.\d+?\tnstats\thwid\t(.+?)\t(.+)$/i;
 
@@ -305,7 +305,7 @@ class PlayerManager{
 
             let masterIds = null;
 
-            if(!this.bUsePlayerACEHWID || p.hwid === ""){
+            /*if(!this.bUsePlayerACEHWID || p.hwid === ""){
 
                 new Message(`Player.getMasterIds(${p.name}, ${gametypeId}, ${mapId})`,"note");
                 masterIds = await Player.getMasterIds(p.name, gametypeId, mapId);
@@ -315,7 +315,10 @@ class PlayerManager{
                 new Message(`Player.getMasterIdsByHWID(${p.hwid}, ${p.name}, ${gametypeId}, ${mapId})`,"note");
                 masterIds = await Player.getMasterIdsByHWID(p.hwid, p.name, gametypeId, mapId);
                 //player.setHWID(p.hwid);
-            }
+            }*/
+
+            new Message(`Player.getMasterIds(${p.name}, ${gametypeId}, ${mapId})`,"note");
+            masterIds = await Player.getMasterIds(p.name, gametypeId, mapId);
 
             this.masterIdsToNames[masterIds.masterId] = p.name.toLowerCase();
 

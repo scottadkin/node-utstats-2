@@ -72,7 +72,7 @@ async function startNewImport(ftpServer){
             f.import_ace,
             f.delete_ace_logs,
             f.delete_ace_screenshots,
-            f.use_ace_player_hwid
+            false//f.use_ace_player_hwid
         );
 
         return await importer.import();
@@ -98,7 +98,7 @@ async function startNewImport(ftpServer){
             false, 
             false, 
             false, 
-            logsSettings.use_ace_player_hwid,
+            false,//logsSettings.use_ace_player_hwid,
             true
         );
 
