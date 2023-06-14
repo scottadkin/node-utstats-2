@@ -42,6 +42,8 @@ class InteractiveMap{
         this.bit = {"x": null, "y": null, "z": null};
         this.range = {"x": 0, "y": 0, "z": 0};
 
+        this.interfaceHeight = 10;
+
         this.mouse = {"x": -999, "y": -999, "bMouseDown": false};
         //includes scaling with zoom
         this.click = {"x": null, "y": null};
@@ -51,6 +53,8 @@ class InteractiveMap{
         this.blueFlag = new Image();
         this.greenFlag = new Image();
         this.yellowFlag = new Image();
+
+        this.zoomButtonSize = {"width":10, "height": this.interfaceHeight * 0.5};
         
         this.main();
     }
@@ -256,15 +260,36 @@ class InteractiveMap{
 
     renderInterface(c){
 
+        c.textBasline = "top";
+        c.textAlign = "center";
+
         c.fillStyle = "rgba(255,0,0,0.8)";
 
-        c.fillRect(0,0, this.percentToPixels(100, "x", true), this.percentToPixels(10, "y", true));
+        c.fillRect(0,0, this.percentToPixels(100, "x", true), this.percentToPixels(this.interfaceHeight, "y", true));
 
         c.fillStyle = "white";
 
-        c.font = "20px Arial";
+        c.font = `${this.percentToPixels(3.3, "y", true)}px Arial`;
 
         c.fillText(`${this.zoom}%`, 20, 20);
+
+        c.fillStyle = "pink";
+
+        const zoomButton = this.zoomButtonSize;
+
+        const zoomWidth = this.percentToPixels(zoomButton.width, "x", true);
+        const zoomStartX = this.percentToPixels(zoomButton.width * 0.5, "x", true);
+
+        c.fillRect(0,0,  zoomWidth,  this.percentToPixels(zoomButton.height, "y", true));
+        c.fillStyle = "white";
+        c.fillText("Zoom Out", zoomStartX, this.percentToPixels(3, "y", true));
+        c.fillStyle = "pink";
+        c.fillRect(0,this.percentToPixels(zoomButton.height, "y", true),  zoomWidth,  this.percentToPixels(zoomButton.height, "y", true));
+        
+        c.fillStyle = "white";
+        c.fillText("Zoom In", zoomStartX, this.percentToPixels(3, "y", true) * 2.75);
+
+        c.textAlign = "left";
     }
 
     updateMouseLocation(mouseX, mouseY, movementX, movementY){
@@ -294,10 +319,12 @@ class InteractiveMap{
         const y = this.mouse.y;
 
         //clicked interface
-        if(y <= 10){
+        if(y <= this.interfaceHeight){
 
-            if(x < 50) this.zoom+=5;
-            if(x >= 50) this.zoom-=5;
+            const zoomScale = 15;
+
+            if(x <= this.zoomButtonSize.width && y < this.zoomButtonSize.height) this.zoom += zoomScale;
+            if(x <= this.zoomButtonSize.width && y >= this.zoomButtonSize.height) this.zoom -= zoomScale;
             if(this.zoom <= 0) this.zoom = 5;
 
             console.log(this.mouse);
