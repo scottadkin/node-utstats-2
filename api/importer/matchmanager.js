@@ -294,6 +294,7 @@ class MatchManager{
             this.itemsManager = new ItemsManager(this.itemLines, this.playerManager, this.killManager, this.gameInfo.totalTeams);
           
             await this.itemsManager.updateTotals(this.serverInfo.date);
+            await this.itemsManager.updateMapItems(this.mapInfo.mapId, this.matchId);
 
             this.itemsManager.setPlayerPickupTimes(this.gameInfo.end);
             this.itemsManager.setPlayerPickups();
@@ -548,29 +549,50 @@ class MatchManager{
             "ftor" //flag timeout return location
         ];
 
+        const locationTypeReg = /^(weapon|ammo|pickup)_location$/i;
+
+        //"weapon_location", "ammo_location", "pickup_location",
+
         const typeResult = nstatsReg.exec(line);
 
         if(typeResult !== null){
+
+            const bLocationReg = locationTypeReg.exec(typeResult[1]);
+            //if(a !== null) console.log(a);
+            //console.log(typeResult);
+
+            if(bLocationReg){
+
+                this.itemLines.push(line);
+                return;
+            }
 
             const subType = typeResult[1].toLowerCase();
 
             if(playerTypes.indexOf(subType) !== -1){
 
                 this.playerLines.push(line);
+                return;
 
-            }else if(subType === 'kill_distance' || subType == 'kill_location'){
+            }
+            
+            if(subType === 'kill_distance' || subType == 'kill_location'){
 
                 this.killLines.push(line);
-
-            }else if(subType === 'dom_point'){
+                return;
+            }
+            
+            if(subType === 'dom_point'){
 
                 if(this.domManager === undefined){
                     this.domManager = new DOMManager();
                 }
 
                 this.domManager.data.push(line);
-
-            }else if(ctfTypes.indexOf(subType) !== -1){
+                return;
+            }
+            
+            if(ctfTypes.indexOf(subType) !== -1){
 
                 if(this.CTFManager === undefined){
 
@@ -580,22 +602,18 @@ class MatchManager{
                 this.CTFManager.bHaveNStatsData = true;
 
                 this.CTFManager.lines.push(line);
-
-            }else{
-
-                if(monsterReg.test(line) || monsterKilledPlayerReg.test(line)){
-
-                    if(this.monsterHuntManager === undefined){
-
-                        this.monsterHuntManager = new MonsterHuntManager();
-
-                    }
-
-                    this.monsterHuntManager.lines.push(line);
-                }      
+                return;
             }
-        }
-                 
+
+            if(monsterReg.test(line) || monsterKilledPlayerReg.test(line)){
+
+                if(this.monsterHuntManager === undefined){
+                    this.monsterHuntManager = new MonsterHuntManager();
+                }
+
+                this.monsterHuntManager.lines.push(line);
+            }         
+        }            
     }
 
     convertFileToLines(){
@@ -660,6 +678,12 @@ class MatchManager{
             "dom_playerscore_update",
             "dom_score_update",
             "controlpoint_capture"
+        ];
+
+
+        const itemTypes = [
+            "item_get", "item_activate", "item_deactivate"
+
         ];
 
         
@@ -732,7 +756,7 @@ class MatchManager{
                 this.domManager.data.push(line);
             }
             
-            if(currentType === 'item_get' || currentType === "item_activate" || currentType === "item_deactivate"){
+            if(itemTypes.indexOf(currentType) !== -1){
 
                 this.itemLines.push(line);
             }

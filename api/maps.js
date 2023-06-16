@@ -931,11 +931,9 @@ class Maps{
 
             const stats = {};
 
-            let p = 0;
-
             for(let i = 0; i < playerData.length; i++){
 
-                p = playerData[i];
+                const p = playerData[i];
 
                 if(stats[p.player_id] === undefined){
                     stats[p.player_id] = {};

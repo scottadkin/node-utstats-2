@@ -262,6 +262,36 @@ async function updateWinrateTables(){
     await alterTable(table2, "map", "INT NOT NULL", "AFTER gametype");
 }
 
+async function createMapItemTables(){
+
+
+    const queries = [
+        `CREATE TABLE IF NOT EXISTS nstats_map_items_locations(
+        id int(11) NOT NULL AUTO_INCREMENT,
+        map_id int(11) NOT NULL,
+        match_id int(11) NOT NULL,
+        item_id int(11) NOT NULL,
+        item_name varchar(100) NOT NULL,
+        pos_x float NOT NULL,
+        pos_y float NOT NULL,
+        pos_z float NOT NULL,
+        PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+        
+        `CREATE TABLE IF NOT EXISTS nstats_map_items(
+        id int(11) NOT NULL AUTO_INCREMENT,
+        item_class varchar(100) NOT NULL,
+        item_type varchar(20) NOT NULL,
+        PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
+    ];
+
+    for(let i = 0; i < queries.length; i++){
+
+        const q = queries[i];
+        await mysql.simpleQuery(q);
+    }
+  
+}
+
 
 (async () =>{
 
@@ -286,12 +316,15 @@ async function updateWinrateTables(){
 
         await updateWinrateTables();
         
-        const p = new Players();
-        new Message(`Recalculating player total records, this may take a while.`,"note");
-        await p.recalculateAllPlayerMapGametypeRecords();
+        //const p = new Players();
+        //new Message(`Recalculating player total records, this may take a while.`,"note");
+        //await p.recalculateAllPlayerMapGametypeRecords();
 
 
         await alterTable("nstats_matches", "match_hash", "varchar(32) NOT NULL", "AFTER id");
+
+
+        await createMapItemTables();
 
         process.exit(0);
 

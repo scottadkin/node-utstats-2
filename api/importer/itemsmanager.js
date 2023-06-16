@@ -43,6 +43,7 @@ class ItemsManager{
         this.ampUserKills = {};
         this.ampUserSuicides = {};
 
+        this.locations = [];
         this.parseData();
     }
 
@@ -75,12 +76,29 @@ class ItemsManager{
     }
 
 
+    parseLocation(line){
+
+        const reg = /^(\d+?\.\d+?)\tnstats\t(.+?)_location\t(.+?)\t(.+?)\t(.+?),(.+?),(.+?)$/i;
+
+        const result = reg.exec(line);
+
+        if(result === null) return;
+
+        this.locations.push({
+            "type": result[2],
+            "className": result[3],
+            "name": result[4],
+            "location": {
+                "x": parseFloat(result[5]),
+                "y": parseFloat(result[6]),
+                "z": parseFloat(result[7])
+            }
+        });    
+    }
+
     parseData(){
 
         const reg = /^(\d+?\.\d+?)\titem_get\t(.+?)\t(.+)$/i;
- 
-        let currentItems = 0;
-        
 
         for(let i = 0; i < this.lines.length; i++){
 
@@ -108,7 +126,7 @@ class ItemsManager{
 
                 if(currentPlayerPickup !== undefined){
 
-                    currentItems = currentPlayerPickup.items;
+                    const currentItems = currentPlayerPickup.items;
 
                     if(currentItems[result[2]] === undefined){
                         currentItems[result[2]] = 1;
@@ -120,7 +138,7 @@ class ItemsManager{
                     
                 }else{
 
-                    currentItems = {"items": {}};
+                    const currentItems = {"items": {}};
                     currentItems.items[result[2]] = 1;
 
                     this.matchData.set(parseInt(result[3]), currentItems);
@@ -140,6 +158,9 @@ class ItemsManager{
             }else if(this.deactiveReg.test(line)){
 
                 this.parseActivate(line, true);
+            }else{
+
+                this.parseLocation(line);
             }
         }
     }
@@ -533,7 +554,23 @@ class ItemsManager{
         this.powerUpManager.addEvents(this.events);
         await this.powerUpManager.insertMatchData(matchId, matchDate, mapId, gametypeId);
     }
-    
+
+    async updateMapItems(mapId, matchId){
+
+        const uniqueItems = {};
+
+        for(let i = 0; i < this.locations.length; i++){
+
+            const loc = this.locations[i];
+
+            if(uniqueItems[loc.className] === undefined){
+                uniqueItems[loc.className] = loc.type;
+            }
+        }
+
+
+        await this.items.updateMapItems(uniqueItems, this.locations, mapId, matchId);
+    }
 }
 
 module.exports = ItemsManager;

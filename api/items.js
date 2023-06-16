@@ -791,6 +791,63 @@ class Items{
 
         return await mysql.simpleQuery(query, vars);
     }
+
+    async createMapItemsObject(uniqueItems){
+
+        const namesToIds = {};
+
+        for(const [key, value] of Object.entries(uniqueItems)){
+            namesToIds[key] = await this.getMapItemId(key, value)
+        }
+
+        return namesToIds;
+    }
+
+    createMapItemsLocationInsertVars(namesToIds, locationData, mapId, matchId){
+
+        const insertVars = [];
+
+        for(let i = 0; i < locationData.length; i++){
+
+            const d = locationData[i];
+            const itemId = namesToIds[d.className] ?? -1;
+            insertVars.push([mapId, matchId, itemId, d.name, d.location.x, d.location.y, d.location.z]);
+        }
+
+        return insertVars;
+    }
+
+    async updateMapItems(uniqueItems, locationData, mapId, matchId){
+
+        const namesToIds = await this.createMapItemsObject(uniqueItems);
+
+        const insertVars = this.createMapItemsLocationInsertVars(namesToIds, locationData, mapId, matchId);
+
+        const query = `INSERT INTO nstats_map_items_locations (map_id, match_id, item_id, item_name, pos_x, pos_y, pos_z) VALUES ?`;
+        await mysql.bulkInsert(query, insertVars);
+    }
+
+    async createMapItemId(item, type){
+
+        const query = `INSERT INTO nstats_map_items VALUES(NULL,?,?)`;
+
+        const result = await mysql.simpleQuery(query, [item, type]);
+
+        return result.insertId;
+    }
+
+    async getMapItemId(item, type){
+
+        const query = `SELECT id FROM nstats_map_items WHERE item_class=? AND item_type=?`;
+
+        const result = await mysql.simpleQuery(query, [item, type]);
+
+        if(result.length > 0){
+            return result[0].id;
+        }
+
+        return await this.createMapItemId(item, type);
+    }
 }
 
 module.exports = Items;
