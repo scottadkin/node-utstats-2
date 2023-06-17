@@ -53,6 +53,8 @@ class InteractiveMap{
         this.blueFlag = new Image();
         this.greenFlag = new Image();
         this.yellowFlag = new Image();
+        this.ammoIcon = new Image();
+        this.gunIcon = new Image();
 
         this.zoomButtonSize = {"width":10, "height": this.interfaceHeight * 0.5};
         
@@ -157,6 +159,8 @@ class InteractiveMap{
         await this.loadImage("/images/blueflag.png", this.blueFlag);
         await this.loadImage("/images/greenflag.png", this.greenFlag);
         await this.loadImage("/images/yellowflag.png", this.yellowFlag);
+        await this.loadImage("/images/bullet.png", this.ammoIcon);
+        await this.loadImage("/images/gun.png", this.gunIcon);
 
     }
 
@@ -228,13 +232,13 @@ class InteractiveMap{
         return bit * value;
     }
 
-    renderSpawn(c, data){
+    renderItem(c, data, image, width, height){
 
         c.fillStyle = "orange";
 
-        const imageWidth = this.playerStartImage.width;
-        const imageHeight = this.playerStartImage.height;
-
+        const imageWidth = this.percentToPixels(width, "x");
+        //use x instead of y to keep the image square
+        const imageHeight = this.percentToPixels(height, "x");
         c.font = "12px Arial";
 
         const d = data;
@@ -242,10 +246,9 @@ class InteractiveMap{
         const x = this.percentToPixels(d.x + this.offset.x, "x") - (imageWidth * 0.5);
         const y = this.percentToPixels(d.y + this.offset.y, "y") - (imageHeight * 0.5);
 
-        c.drawImage(this.playerStartImage, x, y);
-        c.fillRect(x, y, 5, 5);
-        c.fillText(`${d.x.toFixed(1)},${d.y.toFixed(1)}`,x, y);
- 
+        c.drawImage(image, x, y, imageWidth, imageHeight);
+        //c.fillRect(x, y, 5, 5);
+        //c.fillText(`${d.x.toFixed(1)},${d.y.toFixed(1)}`,x, y);
     }
 
     renderFlag(c, data){
@@ -254,8 +257,9 @@ class InteractiveMap{
         let image = this.redFlag;
 
 
-        const imageWidth = this.redFlag.width * 2;
-        const imageHeight = this.redFlag.height * 2;
+        const imageWidth = this.percentToPixels(2, "x");
+        //use x instead of y to keep the image square
+        const imageHeight = this.percentToPixels(2, "x");
 
         const d = data;
 
@@ -313,8 +317,8 @@ class InteractiveMap{
 
         if(this.mouse.bMouseDown){
 
-            const mX = this.pixelsToPercent(movementX * 5, "x");
-            const mY = this.pixelsToPercent(movementY * 5, "y");
+            const mX = this.pixelsToPercent(movementX * (this.zoom * 0.1), "x");
+            const mY = this.pixelsToPercent(movementY * (this.zoom * 0.1), "y");
 
             this.offset.x += mX;
             this.offset.y += mY;
@@ -364,31 +368,16 @@ class InteractiveMap{
         this.mouse.bMouseDown = false;
     }
 
-
-    renderAmmo(c, data){
-
-        //console.log(data);
-
-        c.fillStyle = "green";
-
-        const imageWidth = 20;
-        const imageHeight = 20;
-
-        const x = this.percentToPixels(data.x + this.offset.x, "x") - (imageWidth * 0.5);
-        const y = this.percentToPixels(data.y + this.offset.y, "y") - (imageHeight * 0.5);
-
-        c.fillRect(x, y, imageWidth, imageHeight);
-    }
-
     renderData(c){
 
         for(let i = 0; i < this.displayData.length; i++){
 
             const d = this.displayData[i];
 
-            if(d.type === "spawn") this.renderSpawn(c, d);
+            if(d.type === "spawn") this.renderItem(c, d, this.playerStartImage, 2, 2)//this.renderSpawn(c, d);
             if(d.type === "flag") this.renderFlag(c, d);
-            if(d.type === "ammo") this.renderAmmo(c, d);
+            if(d.type === "ammo") this.renderItem(c, d, this.ammoIcon, 2, 2);
+            if(d.type === "weapon") this.renderItem(c, d, this.gunIcon, 2, 2);
         }
 
     }
