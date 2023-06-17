@@ -1077,7 +1077,66 @@ class Maps{
         return await mysql.simpleQuery(query, [mapId]);
     }
 
+    async getLastestMatchId(mapId){
+
+        const query = `SELECT id FROM nstats_matches WHERE map=? ORDER BY date DESC LIMIT 1`;
+
+        const result = await mysql.simpleQuery(query, [mapId]);
+
+        if(result.length === 0) return -1;
+
+        return result[0].id;
+    }
+
+    async getLastestMatchItems(mapId){
+
+        const latestMatchId = await this.getLastestMatchId(mapId);
+
+        if(latestMatchId === -1) return [];
+
+        const query = `SELECT item_id,item_name,pos_x,pos_y,pos_z FROM nstats_map_items_locations WHERE match_id=?`;
+
+        const data = await mysql.simpleQuery(query, [latestMatchId]);
+
+        const uniqueItemIds = this.returnUniqueItems(data);
+
+        const names = await this.getItemNames(uniqueItemIds);
+
+        return {"data": data, "uniqueItemIds": uniqueItemIds, "itemsInfo": names};
+    }
+
+    returnUniqueItems(data){
+
+        return [...new Set(data.map((d) =>{
+            return d.item_id;
+        }))];
+    }
+
+    async getItemNames(ids){
+
+        if(ids.length === 0) return {};
+
+        const query = `SELECT * FROM nstats_map_items WHERE id IN(?)`;
+
+        const result = await mysql.simpleQuery(query, [ids]);
+
+        const data = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            data[r.id] = {
+                "itemClass": r.item_class,
+                "itemType": r.item_type
+            };
+
+        }
+
+        return data;
+    }
 }
+
 
 
 module.exports = Maps;

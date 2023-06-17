@@ -19,7 +19,7 @@ const reducer = (state, action) =>{
                 ...state,
                 "bLoading": false,
                 "error": null,
-                "data": action.data
+                "data": action.data,
             }
         }
     }
@@ -32,8 +32,8 @@ class InteractiveMap{
 
     constructor(canvasRef){
 
-        this.zoom = 100;
-        this.offset = {"x": 0, "y": 0, "z": 0};
+        this.zoom = 200;
+        this.offset = {"x": 50, "y": 50, "z": 0};
 
         console.log(`new Interactive Map`);
         this.canvasRef = canvasRef;
@@ -57,6 +57,17 @@ class InteractiveMap{
         this.zoomButtonSize = {"width":10, "height": this.interfaceHeight * 0.5};
         
         this.main();
+    }
+
+
+    adjustZoom(value){
+
+        if(value > 0) this.zoom += 5;
+        if(value < 0) this.zoom -= 5;
+
+
+        if(this.zoom < 5) this.zoom = 5;
+        this.render();
     }
 
     setMinMax(){
@@ -302,8 +313,8 @@ class InteractiveMap{
 
         if(this.mouse.bMouseDown){
 
-            const mX = this.pixelsToPercent(movementX * 2, "x");
-            const mY = this.pixelsToPercent(movementY * 4, "y");
+            const mX = this.pixelsToPercent(movementX * 5, "x");
+            const mY = this.pixelsToPercent(movementY * 5, "y");
 
             this.offset.x += mX;
             this.offset.y += mY;
@@ -353,6 +364,22 @@ class InteractiveMap{
         this.mouse.bMouseDown = false;
     }
 
+
+    renderAmmo(c, data){
+
+        //console.log(data);
+
+        c.fillStyle = "green";
+
+        const imageWidth = 20;
+        const imageHeight = 20;
+
+        const x = this.percentToPixels(data.x + this.offset.x, "x") - (imageWidth * 0.5);
+        const y = this.percentToPixels(data.y + this.offset.y, "y") - (imageHeight * 0.5);
+
+        c.fillRect(x, y, imageWidth, imageHeight);
+    }
+
     renderData(c){
 
         for(let i = 0; i < this.displayData.length; i++){
@@ -361,6 +388,7 @@ class InteractiveMap{
 
             if(d.type === "spawn") this.renderSpawn(c, d);
             if(d.type === "flag") this.renderFlag(c, d);
+            if(d.type === "ammo") this.renderAmmo(c, d);
         }
 
     }
@@ -461,12 +489,21 @@ const MapInteractiveMap = ({id}) =>{
                 testMap.mouseRelease();
             }
 
+            const mouseWheel = (e) =>{
+
+                e.preventDefault();
+
+                testMap.adjustZoom(e.deltaY);
+            }
+
             testMap.setData(state.data);
             canvasRef.current.addEventListener("mousemove", fart);
             canvasRef.current.addEventListener("mousedown", userClicked);
 
             canvasRef.current.addEventListener("mouseup", mouseRelease);
             canvasRef.current.addEventListener("mouseleave", mouseRelease);
+
+            canvasRef.current.addEventListener("wheel", mouseWheel);
             
             const canvasElem = canvasRef.current;
 
@@ -475,6 +512,7 @@ const MapInteractiveMap = ({id}) =>{
                 canvasElem.removeEventListener("click", userClicked);
                 canvasElem.removeEventListener("mouseup", mouseRelease);
                 canvasElem.removeEventListener("mouseLeave", mouseRelease);
+                canvasElem.removeEventListener("wheel", mouseWheel);
             }
             
         }

@@ -35,10 +35,29 @@ export default async function handler(req, res){
             data.push(f);
         }
 
-        
 
-        console.log(data);
-        res.status(200).json({"data": data});
+        const lastMapItems = await mapManager.getLastestMatchItems(id);
+
+        for(let i = 0; i < lastMapItems.data.length; i++){
+
+            const d = lastMapItems.data[i];
+
+            const info = lastMapItems.itemsInfo[d.item_id] ?? null;
+
+            if(info === null) continue;
+
+            data.push({
+                "name": d.item_name,
+                "type": info.itemType,
+                "className": info.itemClass,
+                "x": d.pos_x,
+                "y": d.pos_y,
+                "z": d.pos_z,
+            });
+
+        }
+
+        res.status(200).json({"data": data, "itemsData": lastMapItems});
         return;
     }
 

@@ -158,6 +158,7 @@ class ItemsManager{
             }else if(this.deactiveReg.test(line)){
 
                 this.parseActivate(line, true);
+                
             }else{
 
                 this.parseLocation(line);
