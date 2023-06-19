@@ -65,7 +65,7 @@ class InteractiveMap{
 
     constructor(canvasRef){
 
-        this.zoom = 200;
+        this.zoom = 2;
         this.offset = {"x": 50, "y": 50, "z": 0};
 
         console.log(`new Interactive Map`);
@@ -80,7 +80,7 @@ class InteractiveMap{
         this.mouse = {"x": -999, "y": -999, "bMouseDown": false};
         //includes scaling with zoom
         this.click = {"x": null, "y": null};
-
+        this.hover = {"x": -9999, "y": -9999};
 
         this.buttons = [];
 
@@ -133,11 +133,11 @@ class InteractiveMap{
 
     adjustZoom(value){
 
-        if(value > 0) this.zoom += 5;
-        if(value < 0) this.zoom -= 5;
+        if(value > 0) this.zoom += 0.05;
+        if(value < 0) this.zoom -= 0.05;
 
 
-        if(this.zoom < 5) this.zoom = 5;
+        if(this.zoom < 0.05) this.zoom = 0.05;
         this.render();
     }
 
@@ -192,10 +192,14 @@ class InteractiveMap{
 
             const d = this.data[i];
 
+            console.log(d);
+
             const current = {
                 "x": this.pixelsToPercent(this.removeOffset(d.x, "x"), "x"),
                 "y": this.pixelsToPercent(this.removeOffset(d.y, "y"), "y"),
-                "type": d.type
+                "type": d.type,
+                "name": d.name,
+                "className": d.className
                 //"z": this.removeOffset(d.y),
             };
 
@@ -309,7 +313,7 @@ class InteractiveMap{
 
         if(size === 0) return 0;
 
-        const bit = size / ((bIgnoreZoom) ? 100 : this.zoom);
+        const bit = size / ((bIgnoreZoom) ? 100 : this.zoom * 100);
 
         return bit * value;
     }
@@ -329,6 +333,17 @@ class InteractiveMap{
         const y = this.percentToPixels(d.y + this.offset.y, "y") - (imageHeight * 0.5);
 
         c.drawImage(image, x, y, imageWidth, imageHeight);
+
+        //console.log(correctX);
+
+        if(this.hover.x >= d.x - (width * 0.5) && this.hover.x <= d.x + (width * 0.5)){
+            
+            if(this.hover.y >= d.y - (height * 0.5) && this.hover.y <= d.y + (height * 0.5)){
+                console.log("ok", d.type, d.name);
+            }
+        }
+
+        //console.log(this.hover);
         //c.fillRect(x, y, 5, 5);
         //c.fillText(`${d.x.toFixed(1)},${d.y.toFixed(1)}`,x, y);
     }
@@ -395,7 +410,7 @@ class InteractiveMap{
 
         c.font = `${this.percentToPixels(3.3, "y", true)}px Arial`;
 
-        c.fillText(`${this.zoom}%`, 20, 20);
+        c.fillText(`${(this.zoom * 100)}%`, 420, 20);
 
         this.renderButtons(c);
 
@@ -417,12 +432,19 @@ class InteractiveMap{
 
         if(this.mouse.bMouseDown){
 
-            const mX = this.pixelsToPercent(movementX * (this.zoom * 0.1), "x");
-            const mY = this.pixelsToPercent(movementY * (this.zoom * 0.1), "y");
+            const mX = this.pixelsToPercent(movementX , "x");
+            const mY = this.pixelsToPercent(movementY , "y");
 
-            this.offset.x += mX;
-            this.offset.y += mY;
+            this.offset.x += mX * 10;
+            this.offset.y += mY * 10;
         }
+
+
+        //mouse location used for mouse over items
+        const correctX = (this.mouse.x  * this.zoom) - this.offset.x;
+        const correctY = (this.mouse.y  * this.zoom) - this.offset.y;
+
+        this.hover = {"x": correctX, "y": correctY};
     }
 
     userClicked(){
@@ -452,8 +474,8 @@ class InteractiveMap{
 
         }else{
 
-            const fixedX = x * (this.zoom / 100);
-            const fixedY = y * (this.zoom / 100);
+            const fixedX = x * (this.zoom * 100);
+            const fixedY = y * (this.zoom * 100);
 
             this.click = {"x": fixedX, "y": fixedY};
             this.mouse.bMouseDown = true;
@@ -530,11 +552,6 @@ class InteractiveMap{
 
         const c = this.canvasRef.current.getContext("2d");
         c.textBasline = "top";
-        //console.log(performance.now());
-
-       // c.fillStyle = "white";
-
-       // c.fillRect(Math.random() * 100, Math.random() * 100, 5, 5);
 
         c.fillStyle = "rgb(12,12,12)";
         c.fillRect(0,0, this.percentToPixels(100, "x", true), this.percentToPixels(100, "y", true));
