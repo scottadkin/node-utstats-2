@@ -348,7 +348,7 @@ class InteractiveMap{
         for(let i = 0; i < this.buttons.length; i++){
 
             const b = this.buttons[i];
-            const fontSize = this.percentToPixels(b.height * b.fontSize, "y", true);
+            const fontSize = this.percentToPixels(2, "x", true);
 
             c.font = `${fontSize}px Arial`;
             c.fillStyle = b.backgroundColor;
@@ -390,8 +390,13 @@ class InteractiveMap{
 
     updateMouseLocation(mouseX, mouseY, movementX, movementY){
 
-        const bitX = 100 / this.canvasRef.current.width;
-        const bitY = 100 / this.canvasRef.current.height;
+        const bounds = this.canvasRef.current.getBoundingClientRect();
+
+        const widthScale = bounds.width / this.canvasRef.current.width;
+        const heightScale = bounds.height / this.canvasRef.current.height;
+        
+        const bitX = 100 / (this.canvasRef.current.width * widthScale);
+        const bitY = 100 / (this.canvasRef.current.height * heightScale);
 
         this.mouse.x = mouseX * bitX;
         this.mouse.y = mouseY * bitY;
@@ -508,7 +513,6 @@ class InteractiveMap{
 
 
         if(this.canvasRef.current === null) return;
-        
 
         const c = this.canvasRef.current.getContext("2d");
         c.textBasline = "top";
@@ -526,6 +530,10 @@ class InteractiveMap{
         this.renderData(c);
 
         this.renderInterface(c);
+
+        c.fillStyle = "white";
+
+        c.fillRect(this.percentToPixels(this.mouse.x, "x", true), this.percentToPixels(this.mouse.y, "y", true), 5, 5);
     }
 }
 
@@ -610,8 +618,7 @@ const MapInteractiveMap = ({id}) =>{
             }
 
             const resizeMap = (e) =>{
-                console.log(e);
-
+    
                 testMap.resize();
             }   
 
