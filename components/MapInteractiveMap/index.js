@@ -55,6 +55,7 @@ class InteractiveMap{
         this.yellowFlag = new Image();
         this.ammoIcon = new Image();
         this.gunIcon = new Image();
+        this.pickupIcon = new Image();
 
         this.zoomButtonSize = {"width":10, "height": this.interfaceHeight * 0.5};
         
@@ -161,6 +162,7 @@ class InteractiveMap{
         await this.loadImage("/images/yellowflag.png", this.yellowFlag);
         await this.loadImage("/images/bullet.png", this.ammoIcon);
         await this.loadImage("/images/gun.png", this.gunIcon);
+        await this.loadImage("/images/health.png", this.pickupIcon);
 
     }
 
@@ -370,14 +372,19 @@ class InteractiveMap{
 
     renderData(c){
 
+        const iconSize = 1.5;
+
         for(let i = 0; i < this.displayData.length; i++){
 
             const d = this.displayData[i];
 
-            if(d.type === "spawn") this.renderItem(c, d, this.playerStartImage, 2, 2)//this.renderSpawn(c, d);
+            if(d.type === "spawn") this.renderItem(c, d, this.playerStartImage, iconSize, iconSize)//this.renderSpawn(c, d);
             if(d.type === "flag") this.renderFlag(c, d);
-            if(d.type === "ammo") this.renderItem(c, d, this.ammoIcon, 2, 2);
-            if(d.type === "weapon") this.renderItem(c, d, this.gunIcon, 2, 2);
+            if(d.type === "ammo") this.renderItem(c, d, this.ammoIcon, iconSize, iconSize);
+            if(d.type === "weapon") this.renderItem(c, d, this.gunIcon, iconSize, iconSize);
+            if(d.type === "pickup") this.renderItem(c, d, this.pickupIcon, iconSize, iconSize);
+
+  
         }
 
     }
@@ -497,11 +504,12 @@ const MapInteractiveMap = ({id}) =>{
             const canvasElem = canvasRef.current;
 
             return () =>{
-                canvasElem.removeEventListener("mousedown", fart);
+                canvasElem.removeEventListener("mousedown", userClicked);
                 canvasElem.removeEventListener("click", userClicked);
                 canvasElem.removeEventListener("mouseup", mouseRelease);
                 canvasElem.removeEventListener("mouseLeave", mouseRelease);
                 canvasElem.removeEventListener("wheel", mouseWheel);
+                canvasElem.removeEventListener("mousemove", fart);
             }
             
         }
