@@ -28,6 +28,24 @@ const reducer = (state, action) =>{
 }
 
 
+class MapButton{
+
+    constructor(text, x, y, width, height, backgroundColor, fontColor, fontSize){
+
+        this.text = text;
+        this.width = width;
+        this.height = height;
+
+        this.x = x; 
+        this.y = y;
+
+
+        this.backgroundColor = backgroundColor;
+        this.fontColor = fontColor;
+        this.fontSize = fontSize;
+    }
+}
+
 class InteractiveMap{
 
     constructor(canvasRef){
@@ -48,20 +66,23 @@ class InteractiveMap{
         //includes scaling with zoom
         this.click = {"x": null, "y": null};
 
-        this.playerStartImage = new Image();
-        this.redFlag = new Image();
-        this.blueFlag = new Image();
-        this.greenFlag = new Image();
-        this.yellowFlag = new Image();
-        this.ammoIcon = new Image();
-        this.gunIcon = new Image();
-        this.pickupIcon = new Image();
+
+        this.buttons = [];
+
 
         this.zoomButtonSize = {"width":10, "height": this.interfaceHeight * 0.5};
         
+        this.createButtons();
         this.main();
     }
 
+    createButtons(){
+
+        this.buttons.push(new MapButton("Zoom In", 0, 0, 10, 5, "pink", "green", 0.7));
+        this.buttons.push(new MapButton("Zoom Out", 0, 5, 10, 5, "pink", "green", 0.7));
+
+        this.buttons.push(new MapButton("Fullscreen", 90, 0, 10, 5, "pink", "green", 0.7));
+    }
 
     adjustZoom(value){
 
@@ -154,6 +175,15 @@ class InteractiveMap{
     }
 
     async loadImages(){
+
+        this.playerStartImage = new Image();
+        this.redFlag = new Image();
+        this.blueFlag = new Image();
+        this.greenFlag = new Image();
+        this.yellowFlag = new Image();
+        this.ammoIcon = new Image();
+        this.gunIcon = new Image();
+        this.pickupIcon = new Image();
 
         await this.loadImage("/images/playerstart.png", this.playerStartImage);
         await this.loadImage("/images/redflag.png", this.redFlag);
@@ -275,6 +305,34 @@ class InteractiveMap{
         c.drawImage(image, x, y, imageWidth, imageHeight);
     }
 
+    renderButtons(c){
+
+        for(let i = 0; i < this.buttons.length; i++){
+
+            const b = this.buttons[i];
+            console.log(i);
+
+            const fontSize = this.percentToPixels(b.height * b.fontSize, "y", true);
+
+            c.font = `${fontSize}px Arial`;
+            c.fillStyle = b.backgroundColor;
+
+            const width = this.percentToPixels(b.width, "x", true);
+            const height = this.percentToPixels(b.height, "y", true);
+            const x = this.percentToPixels(b.x, "x", true);
+            const y = this.percentToPixels(b.y, "y", true);
+
+            console.log(x,y, width, height, fontSize);
+            c.fillRect(x,y, width, height);
+
+            c.fillStyle = b.fontColor;
+            c.fillText(b.text, x + width * 0.5, y + fontSize);
+        
+        
+            
+        }
+    }
+
     renderInterface(c){
 
         c.textBasline = "top";
@@ -292,7 +350,9 @@ class InteractiveMap{
 
         c.fillStyle = "pink";
 
-        const zoomButton = this.zoomButtonSize;
+        this.renderButtons(c);
+
+        /*const zoomButton = this.zoomButtonSize;
 
         const zoomWidth = this.percentToPixels(zoomButton.width, "x", true);
         const zoomStartX = this.percentToPixels(zoomButton.width * 0.5, "x", true);
@@ -304,7 +364,7 @@ class InteractiveMap{
         c.fillRect(0,this.percentToPixels(zoomButton.height, "y", true),  zoomWidth,  this.percentToPixels(zoomButton.height, "y", true));
         
         c.fillStyle = "white";
-        c.fillText("Zoom In", zoomStartX, this.percentToPixels(3, "y", true) * 2.75);
+        c.fillText("Zoom In", zoomStartX, this.percentToPixels(3, "y", true) * 2.75);*/
 
         c.textAlign = "left";
     }
@@ -418,6 +478,7 @@ class InteractiveMap{
         
 
         const c = this.canvasRef.current.getContext("2d");
+        c.textBasline = "top";
         //console.log(performance.now());
 
        // c.fillStyle = "white";
