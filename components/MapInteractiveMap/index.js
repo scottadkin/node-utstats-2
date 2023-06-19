@@ -386,6 +386,27 @@ class InteractiveMap{
 
   
         }
+    }
+
+    renderGrid(c){
+
+        c.fillStyle = "rgba(50,50,255,0.25)";
+
+        let bFinished = false;
+
+        let i = 0;
+
+        while(!bFinished){
+
+            const y = this.percentToPixels(10 * i, "y");
+            const x = this.percentToPixels(10 * i, "x");
+
+            c.fillRect(0, y, this.percentToPixels(100, "x", true), 1);
+            c.fillRect(x, 0, 1, this.percentToPixels(100, "y", true));
+
+            if(this.pixelsToPercent(y, "y") >= 100) bFinished = true;
+            i++;
+        }
 
     }
 
@@ -405,6 +426,8 @@ class InteractiveMap{
 
         c.fillStyle = "rgb(12,12,12)";
         c.fillRect(0,0, this.percentToPixels(100, "x", true), this.percentToPixels(100, "y", true));
+
+        this.renderGrid(c);
 
         this.renderData(c);
 
