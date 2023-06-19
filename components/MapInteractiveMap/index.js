@@ -30,7 +30,7 @@ const reducer = (state, action) =>{
 
 class MapButton{
 
-    constructor(text, x, y, width, height, backgroundColor, fontColor, fontSize){
+    constructor(text, x, y, width, height, backgroundColor, fontColor, fontSize, action){
 
         this.text = text;
         this.width = width;
@@ -43,7 +43,22 @@ class MapButton{
         this.backgroundColor = backgroundColor;
         this.fontColor = fontColor;
         this.fontSize = fontSize;
+
+        this.action = action;
     }
+
+    bTouching(targetX, targetY){
+
+        if(targetX >= this.x && targetX <= this.x + this.width){
+
+            if(targetY >= this.y && targetY <= this.y + this.height){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }
 
 class InteractiveMap{
@@ -72,16 +87,34 @@ class InteractiveMap{
 
         this.zoomButtonSize = {"width":10, "height": this.interfaceHeight * 0.5};
         
-        this.createButtons();
+        
         this.main();
     }
 
     createButtons(){
 
-        this.buttons.push(new MapButton("Zoom In", 0, 0, 10, 5, "pink", "green", 0.7));
-        this.buttons.push(new MapButton("Zoom Out", 0, 5, 10, 5, "pink", "green", 0.7));
+        this.buttons = [];
 
-        this.buttons.push(new MapButton("Fullscreen", 90, 0, 10, 5, "pink", "green", 0.7));
+
+        this.buttons.push(new MapButton("Zoom In", 0, 0, 10, 5, "pink", "green", 0.7, () =>{
+            this.adjustZoom(-1);
+        }));
+
+        this.buttons.push(new MapButton("Zoom Out", 0, 5, 10, 5, "pink", "green", 0.7, () =>{
+            this.adjustZoom(1);
+        }));
+
+        this.buttons.push(new MapButton("Fullscreen", 90, 0, 10, 5, "pink", "green", 0.7, () =>{
+
+            //console.log(document.fullscreenElement);
+            this.canvasRef.current.requestFullscreen().then(() =>{
+           
+                this.canvasRef.current.width = window.innerWidth;
+                this.canvasRef.current.height = window.innerHeight;
+                this.render();
+            });
+            
+        }));
     }
 
     adjustZoom(value){
@@ -207,7 +240,10 @@ class InteractiveMap{
 
         this.createDisplayData();
 
+
         await this.loadImages();
+
+        this.createButtons();
  
         this.render();
         
@@ -307,11 +343,11 @@ class InteractiveMap{
 
     renderButtons(c){
 
+        c.textAlign = "center";
+
         for(let i = 0; i < this.buttons.length; i++){
 
             const b = this.buttons[i];
-            console.log(i);
-
             const fontSize = this.percentToPixels(b.height * b.fontSize, "y", true);
 
             c.font = `${fontSize}px Arial`;
@@ -322,15 +358,14 @@ class InteractiveMap{
             const x = this.percentToPixels(b.x, "x", true);
             const y = this.percentToPixels(b.y, "y", true);
 
-            console.log(x,y, width, height, fontSize);
             c.fillRect(x,y, width, height);
 
             c.fillStyle = b.fontColor;
             c.fillText(b.text, x + width * 0.5, y + fontSize);
-        
-        
             
         }
+
+        c.textAlign = "left";
     }
 
     renderInterface(c){
@@ -348,25 +383,9 @@ class InteractiveMap{
 
         c.fillText(`${this.zoom}%`, 20, 20);
 
-        c.fillStyle = "pink";
-
         this.renderButtons(c);
 
-        /*const zoomButton = this.zoomButtonSize;
-
-        const zoomWidth = this.percentToPixels(zoomButton.width, "x", true);
-        const zoomStartX = this.percentToPixels(zoomButton.width * 0.5, "x", true);
-
-        c.fillRect(0,0,  zoomWidth,  this.percentToPixels(zoomButton.height, "y", true));
-        c.fillStyle = "white";
-        c.fillText("Zoom Out", zoomStartX, this.percentToPixels(3, "y", true));
-        c.fillStyle = "pink";
-        c.fillRect(0,this.percentToPixels(zoomButton.height, "y", true),  zoomWidth,  this.percentToPixels(zoomButton.height, "y", true));
         
-        c.fillStyle = "white";
-        c.fillText("Zoom In", zoomStartX, this.percentToPixels(3, "y", true) * 2.75);*/
-
-        c.textAlign = "left";
     }
 
     updateMouseLocation(mouseX, mouseY, movementX, movementY){
@@ -398,13 +417,17 @@ class InteractiveMap{
         //clicked interface
         if(y <= this.interfaceHeight){
 
-            const zoomScale = 15;
+            for(let i = 0; i < this.buttons.length; i++){
 
-            if(x <= this.zoomButtonSize.width && y < this.zoomButtonSize.height) this.zoom += zoomScale;
-            if(x <= this.zoomButtonSize.width && y >= this.zoomButtonSize.height) this.zoom -= zoomScale;
-            if(this.zoom <= 0) this.zoom = 5;
+                const b = this.buttons[i];
 
-            console.log(this.mouse);
+                if(b.bTouching(x, y)){
+                    console.log("ok");
+                    b.action();
+                }
+
+            }
+        
             //there are no drag events for UI
             this.mouse.bMouseDown = false;
 
@@ -468,6 +491,16 @@ class InteractiveMap{
             i++;
         }
 
+    }
+
+    resize(){
+
+        if(document.fullscreenElement !== this.canvasRef.current){
+
+            this.canvasRef.current.width = 960;
+            this.canvasRef.current.height = 540;
+            this.render();
+        }
     }
 
     render(){
@@ -576,6 +609,12 @@ const MapInteractiveMap = ({id}) =>{
                 testMap.adjustZoom(e.deltaY);
             }
 
+            const resizeMap = (e) =>{
+                console.log(e);
+
+                testMap.resize();
+            }   
+
             testMap.setData(state.data);
             canvasRef.current.addEventListener("mousemove", fart);
             canvasRef.current.addEventListener("mousedown", userClicked);
@@ -584,6 +623,8 @@ const MapInteractiveMap = ({id}) =>{
             canvasRef.current.addEventListener("mouseleave", mouseRelease);
 
             canvasRef.current.addEventListener("wheel", mouseWheel);
+
+            canvasRef.current.addEventListener("fullscreenchange", resizeMap);
             
             const canvasElem = canvasRef.current;
 
@@ -594,6 +635,7 @@ const MapInteractiveMap = ({id}) =>{
                 canvasElem.removeEventListener("mouseLeave", mouseRelease);
                 canvasElem.removeEventListener("wheel", mouseWheel);
                 canvasElem.removeEventListener("mousemove", fart);
+                canvasElem.removeEventListener("fullscreenchange", resizeMap);
             }
             
         }
