@@ -104,7 +104,7 @@ class InteractiveMap{
             this.adjustZoom(1);
         }));
 
-        this.buttons.push(new MapButton("Fullscreen", 90, 0, 10, 5, "pink", "green", 0.7, () =>{
+        this.buttons.push(new MapButton("Fullscreen", 85, 0, 15, 5, "pink", "green", 0.7, () =>{
 
             //console.log(document.fullscreenElement);
             this.canvasRef.current.requestFullscreen().then(() =>{
@@ -112,6 +112,20 @@ class InteractiveMap{
                 this.canvasRef.current.width = window.innerWidth;
                 this.canvasRef.current.height = window.innerHeight;
                 this.render();
+            });
+            
+        }));
+
+        this.buttons.push(new MapButton("Normal View", 85, 5, 15, 5, "pink", "green", 0.7, () =>{
+
+            //console.log(document.fullscreenElement);
+            document.exitFullscreen().then(() =>{
+           
+                this.canvasRef.current.width = window.innerWidth;
+                this.canvasRef.current.height = window.innerHeight;
+                this.render();
+            }).catch(() =>{
+
             });
             
         }));
