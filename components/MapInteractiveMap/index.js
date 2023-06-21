@@ -66,7 +66,7 @@ class InteractiveMap{
     constructor(canvasRef){
 
         this.zoom = 2;
-        this.offset = {"x": 50, "y": 50, "z": 0};
+        this.offset = {"x": 0/*50*/, "y": 0/*50*/, "z": 0};
 
         console.log(`new Interactive Map`);
         this.canvasRef = canvasRef;
@@ -322,10 +322,10 @@ class InteractiveMap{
 
         c.fillStyle = "orange";
 
-        const imageWidth = this.percentToPixels(width, "x");
+        const imageWidth = this.percentToPixels(width, "x", true);
         //use x instead of y to keep the image square
-        const imageHeight = this.percentToPixels(height, "x");
-        c.font = "12px Arial";
+        const imageHeight = this.percentToPixels(height, "y", true);
+        
 
         const d = data;
 
@@ -336,12 +336,31 @@ class InteractiveMap{
 
         //console.log(correctX);
 
-        if(this.hover.x >= d.x - (width * 0.5) && this.hover.x <= d.x + (width * 0.5)){
+        const startX = d.x - ((width * this.zoom) * 0.5);
+        const endX = d.x + ((width * this.zoom)  * 0.5);
+
+        const startY = d.y - ((height * this.zoom) * 0.5);
+        const endY = d.y + ((height * this.zoom) * 0.5);
+
+        c.font = `${this.percentToPixels(2, "y", true)}px Arial`;
+        c.fillStyle = "orange";
+       //c.fillText(`${d.name} ${startY.toFixed(2)} ${endY.toFixed(2)}, location = ${d.x.toFixed(2)},${d.y.toFixed(2)}`, x, y);
+
+        if(this.hover.x >= startX && this.hover.x <= endX){
             
-            if(this.hover.y >= d.y - (height * 0.5) && this.hover.y <= d.y + (height * 0.5)){
+            if(this.hover.y >= startY && this.hover.y <= endY){
                 console.log("ok", d.type, d.name);
+                //c.drawImage(image, x, y, imageWidth * 10, imageHeight * 10);
+                
+                c.fillStyle = "red";
+                c.fillRect(x, y, this.percentToPixels(width, "x", true), this.percentToPixels(height, "x", "true"));
+
+                c.fillStyle = "orange";
+                c.fillText(`${d.name} ${startX.toFixed(2)} ${endX.toFixed(2)}`, x, y);
             }
         }
+
+        
 
         //console.log(this.hover);
         //c.fillRect(x, y, 5, 5);
@@ -411,6 +430,9 @@ class InteractiveMap{
         c.font = `${this.percentToPixels(3.3, "y", true)}px Arial`;
 
         c.fillText(`${(this.zoom * 100)}%`, 420, 20);
+
+
+        c.fillText(`${this.hover.x.toFixed(2)}, ${this.hover.y.toFixed(2)}`, 100, 100);
 
         this.renderButtons(c);
 
@@ -496,17 +518,18 @@ class InteractiveMap{
 
     renderData(c){
 
-        const iconSize = 1.5;
+        const iconWidth = 2.5;
+        const iconHeight = 3.3;
 
         for(let i = 0; i < this.displayData.length; i++){
 
             const d = this.displayData[i];
 
-            if(d.type === "spawn") this.renderItem(c, d, this.playerStartImage, iconSize, iconSize)//this.renderSpawn(c, d);
+            if(d.type === "spawn") this.renderItem(c, d, this.playerStartImage, iconWidth, iconHeight)//this.renderSpawn(c, d);
             if(d.type === "flag") this.renderFlag(c, d);
-            if(d.type === "ammo") this.renderItem(c, d, this.ammoIcon, iconSize, iconSize);
-            if(d.type === "weapon") this.renderItem(c, d, this.gunIcon, iconSize, iconSize);
-            if(d.type === "pickup") this.renderItem(c, d, this.pickupIcon, iconSize, iconSize);
+            if(d.type === "ammo") this.renderItem(c, d, this.ammoIcon, iconWidth, iconHeight);
+            if(d.type === "weapon") this.renderItem(c, d, this.gunIcon, iconWidth, iconHeight);
+            if(d.type === "pickup") this.renderItem(c, d, this.pickupIcon, iconWidth, iconHeight);
 
   
         }
