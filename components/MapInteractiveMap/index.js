@@ -87,6 +87,15 @@ class InteractiveMap{
 
         this.zoomButtonSize = {"width":10, "height": this.interfaceHeight * 0.5};
         
+
+        this.mouseOver = {
+            "bDisplay": false,
+            "text": null,
+            "width": 0,
+            "height": 0,
+            "x": 0,
+            "y": 0
+        };
         
         this.main();
     }
@@ -191,19 +200,30 @@ class InteractiveMap{
         for(let i = 0; i < this.data.length; i++){
 
             const d = this.data[i];
-
-            console.log(d);
-
             const current = {
                 "x": this.pixelsToPercent(this.removeOffset(d.x, "x"), "x"),
                 "y": this.pixelsToPercent(this.removeOffset(d.y, "y"), "y"),
                 "type": d.type,
                 "name": d.name,
-                "className": d.className
+                "className": d.className,
+                "realLocation": {
+                    "x": d.x,
+                    "y": d.y,
+                    "z": d.z
+                }
                 //"z": this.removeOffset(d.y),
             };
 
             if(d.type === "flag" || d.type === "spawn") current.team = d.team;
+
+            if(d.type === "flag"){
+                current.name = "CTF Flag";
+                current.className = "Botpack.CTFFlag";
+            }
+
+            if(d.type === "spawn"){
+                current.className = "Engine.PlayerStart";
+            }
 
 
 
@@ -318,6 +338,14 @@ class InteractiveMap{
         return bit * value;
     }
 
+    setMouseOverInfo(textLines, x, y){
+
+        this.mouseOver.bDisplay = true;
+        this.mouseOver.x = x;
+        this.mouseOver.y = y;
+        this.mouseOver.textLines = textLines;
+    }
+
     renderItem(c, data, image, width, height){
 
         c.fillStyle = "orange";
@@ -342,21 +370,36 @@ class InteractiveMap{
         const startY = d.y - ((height * this.zoom) * 0.5);
         const endY = d.y + ((height * this.zoom) * 0.5);
 
-        c.font = `${this.percentToPixels(2, "y", true)}px Arial`;
+        const fontSize = this.percentToPixels(2, "y", true);
+
+        c.font = `${fontSize}px Arial`;
         c.fillStyle = "orange";
        //c.fillText(`${d.name} ${startY.toFixed(2)} ${endY.toFixed(2)}, location = ${d.x.toFixed(2)},${d.y.toFixed(2)}`, x, y);
 
         if(this.hover.x >= startX && this.hover.x <= endX){
             
             if(this.hover.y >= startY && this.hover.y <= endY){
-                console.log("ok", d.type, d.name);
-                //c.drawImage(image, x, y, imageWidth * 10, imageHeight * 10);
+      
+                
+                const string1 = `Class: ${d.className}`;
+                const string2 = `Name: ${d.name}`;
+                const string3 = `X = ${d.realLocation.x}, Y = ${d.realLocation.y}, Z = ${d.realLocation.z}`;
+                /*
+                const textWidth = c.measureText(string1).width;
+                console.log(textWidth);
                 
                 c.fillStyle = "red";
                 c.fillRect(x, y, this.percentToPixels(width, "x", true), this.percentToPixels(height, "x", "true"));
 
+
+                c.fillStyle = "rgba(0,0,0,0.75)";
+                c.fillRect(x, y, textWidth, fontSize * 2.5);
+
                 c.fillStyle = "orange";
-                c.fillText(`${d.name} ${startX.toFixed(2)} ${endX.toFixed(2)}`, x, y);
+                c.fillText(string1, x, y);
+                c.fillText(string2, x, y + fontSize);*/
+
+                this.setMouseOverInfo([string1, string2, string3], x, y);
             }
         }
 
@@ -365,28 +408,6 @@ class InteractiveMap{
         //console.log(this.hover);
         //c.fillRect(x, y, 5, 5);
         //c.fillText(`${d.x.toFixed(1)},${d.y.toFixed(1)}`,x, y);
-    }
-
-    renderFlag(c, data){
-
-
-        let image = this.redFlag;
-
-
-        const imageWidth = this.percentToPixels(2, "x");
-        //use x instead of y to keep the image square
-        const imageHeight = this.percentToPixels(2, "x");
-
-        const d = data;
-
-        if(d.team === 1) image = this.blueFlag;
-        if(d.team === 2) image = this.greenFlag;
-        if(d.team === 3) image = this.yellowFlag;
-
-        const x = this.percentToPixels(d.x + this.offset.x, "x") - (imageWidth * 0.5);
-        const y = this.percentToPixels(d.y + this.offset.y, "y") - (imageHeight * 0.5);
-
-        c.drawImage(image, x, y, imageWidth, imageHeight);
     }
 
     renderButtons(c){
@@ -516,17 +537,32 @@ class InteractiveMap{
         this.mouse.bMouseDown = false;
     }
 
+    renderFlag(c, item, iconWidth, iconHeight){
+        console.log(item);
+
+        const {team} = item;
+
+        if(team === 0) this.renderItem(c, item, this.redFlag, iconWidth, iconHeight);
+        if(team === 1) this.renderItem(c, item, this.blueFlag, iconWidth, iconHeight);
+        if(team === 2) this.renderItem(c, item, this.greenFlag, iconWidth, iconHeight);
+        if(team === 3) this.renderItem(c, item, this.yellowFlag, iconWidth, iconHeight);
+
+    }
+
     renderData(c){
 
         const iconWidth = 2.5;
         const iconHeight = 3.3;
+
+
+        this.mouseOver.bDisplay = false;
 
         for(let i = 0; i < this.displayData.length; i++){
 
             const d = this.displayData[i];
 
             if(d.type === "spawn") this.renderItem(c, d, this.playerStartImage, iconWidth, iconHeight)//this.renderSpawn(c, d);
-            if(d.type === "flag") this.renderFlag(c, d);
+            if(d.type === "flag") this.renderFlag(c, d, iconWidth, iconHeight);
             if(d.type === "ammo") this.renderItem(c, d, this.ammoIcon, iconWidth, iconHeight);
             if(d.type === "weapon") this.renderItem(c, d, this.gunIcon, iconWidth, iconHeight);
             if(d.type === "pickup") this.renderItem(c, d, this.pickupIcon, iconWidth, iconHeight);
@@ -567,6 +603,53 @@ class InteractiveMap{
         }
     }
 
+    renderMouseOver(c){
+
+        if(!this.mouseOver.bDisplay) return;
+
+        c.fillStyle = "rgba(0,0,0,0.75)";
+
+        const fontSize = this.percentToPixels(2.4 ,"y", true);
+
+        c.font = `${fontSize}px Arial`;
+
+        let maxWidth = 0;
+        let mainHeight = 0;
+
+        let {x, y, textLines} = this.mouseOver
+
+        for(let i = 0; i < textLines.length; i++){
+
+            const line = textLines[i];
+
+            const currentWidth = c.measureText(`_${line}_`).width;
+
+            if(currentWidth > maxWidth) maxWidth = currentWidth;
+
+            mainHeight += fontSize * 1.5;
+
+        }
+
+        x = x + this.percentToPixels(2, "x", true);
+        y = y - this.percentToPixels(1, "y", true);
+        
+
+        c.fillRect(x, y, maxWidth, mainHeight);
+        c.fillStyle = "white";
+
+        let offsetY = fontSize;
+        let offsetX = 5;
+
+        for(let i = 0; i < textLines.length; i++){
+
+            const t = textLines[i];
+
+            c.fillText(t, x + offsetX, y + offsetY);
+
+            offsetY += fontSize * 1.3;
+        }
+    }
+
     render(){
 
 
@@ -576,7 +659,7 @@ class InteractiveMap{
         const c = this.canvasRef.current.getContext("2d");
         c.textBasline = "top";
 
-        c.fillStyle = "rgb(12,12,12)";
+        c.fillStyle = "rgb(12,12,32)";
         c.fillRect(0,0, this.percentToPixels(100, "x", true), this.percentToPixels(100, "y", true));
 
         this.renderGrid(c);
@@ -584,6 +667,8 @@ class InteractiveMap{
         this.renderData(c);
 
         this.renderInterface(c);
+
+        this.renderMouseOver(c);
 
         c.fillStyle = "white";
 
