@@ -28,7 +28,11 @@ class Kills{
 
     async insertMultipleKills(vars){
 
-        const query = "INSERT INTO nstats_kills (match_id,timestamp,killer,killer_team,victim,victim_team,killer_weapon,victim_weapon,distance) VALUES ?";
+        const query = `INSERT INTO nstats_kills (
+            match_id,timestamp,killer,killer_team,victim,victim_team,killer_weapon,victim_weapon,distance,
+            killer_x, killer_y, killer_z,
+            victim_x, victim_y, victim_z
+            ) VALUES ?`;
 
         await mysql.bulkInsert(query, vars);
     }

@@ -92,7 +92,7 @@ class KillManager{
 
         const victim = this.playerManager.getPlayerById(parseInt(result[2]));
 
-        this.kills.push(new Kill(result[1], 'suicide', victim.masterId ?? -1, result[3], -1, null, result[4]));
+        this.kills.push(new Kill(result[1], "suicide", victim.masterId ?? -1, result[3], -1, null, result[4]));
     }
 
     parseLocation(result){
@@ -106,6 +106,7 @@ class KillManager{
 
         const killer = this.playerManager.getPlayerById(parseInt(result[2]));
         const victim = this.playerManager.getPlayerById(parseInt(result[6]));
+
 
         this.setLocations(
             result[1],
@@ -158,7 +159,6 @@ class KillManager{
 
             }
         }
-
     }
 
 
@@ -174,11 +174,33 @@ class KillManager{
             const k = this.kills[i];
 
             if(k.timestamp > timestamp) return null;
+     
+            if(k.timestamp === timestamp && k.killerId === killer && k.victimId === victim) return k;
 
-            if(k.timestamp === timestamp && k.killerId === killer && k.victimId === victim){
+            //suicides
+            //if(k.timestamp === timestamp && k.killerId === killer && k.type === "suicide" && k.victimId === -1) return k;
+            
+        }
 
-                return k;
-            }
+        return null;
+    }
+
+
+    getMatchingSuicide(timestamp, victim){
+
+        timestamp = parseFloat(timestamp);
+        victim = parseInt(victim);
+
+        for(let i = 0; i < this.kills.length; i++){
+
+            const k = this.kills[i];
+
+            if(k.timestamp > timestamp) return null;
+
+            if(k.type !== "suicide") continue;
+            
+
+            if(k.timestamp === timestamp && k.killerId === victim) return k;
         }
 
         return null;
@@ -214,24 +236,39 @@ class KillManager{
         if(kill !== null){
             kill.setDistance(distance);
         }else{
+
+
+            //console.log("KILL IS NULL");
+
+            //const suicide = this.getMatchingSuicide(timestamp, killer.masterId);
+            //console.log(suicide);
+
             if(killer.masterId !== victim.masterId){
                 new Message(`There is no matching kill for ${killer.masterId} -> ${victim.masterId} @ ${timestamp}(setDistance).`,'warning');
             }
         }
     }
 
-    setLocations(timeStamp, killerId, killerLocation, victimId, victimLocation){
+    setLocations(timestamp, killerId, killerLocation, victimId, victimLocation){
 
 
-        const kill = this.getMatchingKill(timeStamp, killerId, victimId);
+        const kill = this.getMatchingKill(timestamp, killerId, victimId);
 
         if(kill !== null){
 
             kill.setLocations(killerLocation, victimLocation);
 
         }else{
+
+            //only works for suicides by weapon, not by keybind
+            const suicide = this.getMatchingSuicide(timestamp, killerId);
+
+            if(suicide !== null){
+                suicide.setLocations(killerLocation, victimLocation);   
+            }
+
             if(killerId !== victimId){
-                new Message(`There is no matching kill for ${killerId} -> ${victimId} @ ${timeStamp}(setLocations).`,'warning');
+                new Message(`There is no matching kill for ${killerId} -> ${victimId} @ ${timestamp}(setLocations).`,'warning');
             }
         }
     }
@@ -269,6 +306,7 @@ class KillManager{
             for(let i = 0; i < this.kills.length; i++){
 
                 const k = this.kills[i];
+
 
                 currentKiller = this.playerManager.getPlayerByMasterId(k.killerId);
 
@@ -323,7 +361,13 @@ class KillManager{
                         currentVictimTeam, 
                         currentKillerWeapon, 
                         currentVictimWeapon, 
-                        (k.killDistance !== null) ? k.killDistance : 0
+                        (k.killDistance !== null) ? k.killDistance : 0,
+                        (k.killerLocation == null) ? 0 : k.killerLocation.x,
+                        (k.killerLocation == null) ? 0 : k.killerLocation.y,
+                        (k.killerLocation == null) ? 0 : k.killerLocation.z,
+                        (k.victimLocation == null) ? 0 : k.victimLocation.x,
+                        (k.victimLocation == null) ? 0 : k.victimLocation.y,
+                        (k.victimLocation == null) ? 0 : k.victimLocation.z,
                     ]
                 );
             }
