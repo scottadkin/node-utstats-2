@@ -655,6 +655,17 @@ function ModifyPlayer(Pawn Other){
       NextMutator.ModifyPlayer(Other);
 }
 
+function LogSuicideLocation(Pawn Victim){
+
+	local string KilledLocation;
+
+		if(Victim.PlayerReplicationInfo != None){
+		
+			KilledLocation = Victim.PlayerReplicationInfo.PlayerId $ Chr(9) $ Victim.Location.x $ "," $ Victim.Location.y $ "," $ Victim.Location.z;					printLog("nstats" $ Chr(9) $ "suicide_loc" $ Chr(9) $ killedLocation);
+		
+		}
+}
+
 
 function bool PreventDeath(Pawn Killed, Pawn Killer, name damageType, vector HitLocation){
 
@@ -663,6 +674,12 @@ function bool PreventDeath(Pawn Killed, Pawn Killer, name damageType, vector Hit
 	if(Killer != None){
 	
 		if(Killer.PlayerReplicationInfo == None && Killed.PlayerReplicationInfo != None){						if(Killer != None){				KillerClass = Killer.class;			}else{				KillerClass = Killed.class;			}					printLog( "nstats" $Chr(9)$ "mk" $Chr(9)$ KillerClass $ Chr(9) $ Killed.PlayerReplicationInfo.PlayerID);		}
+		
+	}else{
+	
+		
+		LogSuicideLocation(Killed);
+	
 	}
 
 	if(bLogFlagKills){
