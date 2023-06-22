@@ -305,7 +305,7 @@ async function updateKillsTable(){
 
     const table = "nstats_kills";
 
-    await changeColumnType(table, "id", "bigint");
+    await changeColumnType(table, "id", "bigint AUTO_INCREMENT");
 
     await alterTable(table, "killer_x", "float NOT NULL", "AFTER distance");
     await alterTable(table, "killer_y", "float NOT NULL", "AFTER killer_x");
