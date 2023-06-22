@@ -362,7 +362,7 @@ const queries = [
         matches int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_kills (
-        id int(11) NOT NULL AUTO_INCREMENT,
+        id BIGINT NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
         timestamp float NOT NULL,
         killer int(11) NOT NULL,
@@ -371,7 +371,13 @@ const queries = [
         victim_team int(11) NOT NULL,
         killer_weapon int(11) NOT NULL,
         victim_weapon int(11) NOT NULL,
-        distance float NOT NULL
+        distance float NOT NULL,
+        killer_x float NOT NULL,
+        killer_y float NOT NULL,
+        killer_z float NOT NULL,
+        victim_x float NOT NULL,
+        victim_y float NOT NULL,
+        victim_z float NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_logs (
         id int(11) NOT NULL AUTO_INCREMENT,
@@ -1682,7 +1688,27 @@ const queries = [
         worst_disc_deaths INT(11) NOT NULL,
         best_disc_multi INT(11) NOT NULL,
         best_disc_spree INT(11) NOT NULL,
-    PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
+    PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+
+
+    `CREATE TABLE IF NOT EXISTS nstats_map_items_locations(
+      id BIGINT NOT NULL AUTO_INCREMENT,
+      map_id int(11) NOT NULL,
+      match_id int(11) NOT NULL,
+      item_id int(11) NOT NULL,
+      item_name varchar(100) NOT NULL,
+      pos_x float NOT NULL,
+      pos_y float NOT NULL,
+      pos_z float NOT NULL,
+      PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+      
+      `CREATE TABLE IF NOT EXISTS nstats_map_items(
+      id int(11) NOT NULL AUTO_INCREMENT,
+      item_class varchar(100) NOT NULL,
+      item_type varchar(20) NOT NULL,
+      item_image varchar(100) NOT NULL,
+      item_display_name varchar(100) NOT NULL,
+      PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
 
 ];
 

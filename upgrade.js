@@ -44,6 +44,13 @@ async function changeColumnName(table, oldName, newName){
     await mysql.simpleQuery(query);
 }
 
+async function changeColumnType(table, columnName, newColumnType){
+
+    const query = `ALTER TABLE ${table} MODIFY ${columnName} ${newColumnType}`;
+
+    await mysql.simpleQuery(query);
+}
+
 async function bSettingExist(category, name){
 
     const query = `SELECT COUNT(*) as total_rows FROM nstats_site_settings WHERE category=? AND name=?`;
@@ -267,7 +274,7 @@ async function createMapItemTables(){
 
     const queries = [
         `CREATE TABLE IF NOT EXISTS nstats_map_items_locations(
-        id int(11) NOT NULL AUTO_INCREMENT,
+        id BIGINT NOT NULL AUTO_INCREMENT,
         map_id int(11) NOT NULL,
         match_id int(11) NOT NULL,
         item_id int(11) NOT NULL,
@@ -281,6 +288,8 @@ async function createMapItemTables(){
         id int(11) NOT NULL AUTO_INCREMENT,
         item_class varchar(100) NOT NULL,
         item_type varchar(20) NOT NULL,
+        item_image varchar(100) NOT NULL,
+        item_display_name varchar(100) NOT NULL,
         PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
     ];
 
@@ -290,6 +299,21 @@ async function createMapItemTables(){
         await mysql.simpleQuery(q);
     }
   
+}
+
+async function updateKillsTable(){
+
+    const table = "nstats_kills";
+
+    await changeColumnType(table, "id", "bigint");
+
+    await alterTable(table, "killer_x", "float NOT NULL", "AFTER distance");
+    await alterTable(table, "killer_y", "float NOT NULL", "AFTER killer_x");
+    await alterTable(table, "killer_z", "float NOT NULL", "AFTER killer_y");
+
+    await alterTable(table, "victim_x", "float NOT NULL", "AFTER killer_z");
+    await alterTable(table, "victim_y", "float NOT NULL", "AFTER victim_x");
+    await alterTable(table, "victim_z", "float NOT NULL", "AFTER victim_y");
 }
 
 
@@ -325,6 +349,8 @@ async function createMapItemTables(){
 
 
         await createMapItemTables();
+
+        await updateKillsTable();
 
         process.exit(0);
 

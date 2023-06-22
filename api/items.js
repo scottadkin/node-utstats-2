@@ -829,7 +829,7 @@ class Items{
 
     async createMapItemId(item, type){
 
-        const query = `INSERT INTO nstats_map_items VALUES(NULL,?,?)`;
+        const query = `INSERT INTO nstats_map_items VALUES(NULL,?,?,"","")`;
 
         const result = await mysql.simpleQuery(query, [item, type]);
 
