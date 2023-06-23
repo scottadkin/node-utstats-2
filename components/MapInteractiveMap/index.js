@@ -96,6 +96,11 @@ class InteractiveMap{
             "x": 0,
             "y": 0
         };
+
+        this.bShowWeapons = true;
+        this.bShowAmmo = true;
+        this.bShowPickups = true;
+        this.bShowSpawns = true;
         
         this.main();
     }
@@ -104,18 +109,39 @@ class InteractiveMap{
 
         this.buttons = [];
 
+        const backgroundColor = "rgb(46,46,46)";
+        const fontColor = "red";
+        const fontSize = 0.7;
 
-        this.buttons.push(new MapButton("Zoom In", 0, 0, 10, 5, "pink", "green", 0.7, () =>{
+
+        this.buttons.push(new MapButton("Zoom In", 0, 0, 10, 5, backgroundColor, fontColor, fontSize, () =>{
             this.adjustZoom(-1);
         }));
 
-        this.buttons.push(new MapButton("Zoom Out", 0, 5, 10, 5, "pink", "green", 0.7, () =>{
+        this.buttons.push(new MapButton("Zoom Out", 0, 5, 10, 5, backgroundColor, fontColor, fontSize, () =>{
             this.adjustZoom(1);
         }));
 
-        this.buttons.push(new MapButton("Fullscreen", 85, 0, 15, 5, "pink", "green", 0.7, () =>{
+        this.buttons.push(new MapButton("Toggle Weapons", 10, 0, 20, 5, backgroundColor, fontColor, fontSize, () =>{
+           
+            this.bShowWeapons = !this.bShowWeapons;
+        }));
 
-            //console.log(document.fullscreenElement);
+        this.buttons.push(new MapButton("Toggle Ammo", 10, 5, 20, 5, backgroundColor, fontColor, fontSize, () =>{  
+            this.bShowAmmo = !this.bShowAmmo;
+        }));
+
+        this.buttons.push(new MapButton("Toggle Pickups", 30, 0, 20, 5, backgroundColor, fontColor, fontSize, () =>{  
+            this.bShowPickups = !this.bShowPickups;
+        }));
+
+        this.buttons.push(new MapButton("Toggle Spawns", 30, 5, 20, 5, backgroundColor, fontColor, fontSize, () =>{  
+            this.bShowSpawns = !this.bShowSpawns;
+        }));
+
+
+        this.buttons.push(new MapButton("Fullscreen", 85, 0, 15, 5, backgroundColor, fontColor, fontSize, () =>{
+
             this.canvasRef.current.requestFullscreen().then(() =>{
            
                 this.canvasRef.current.width = window.innerWidth;
@@ -125,7 +151,7 @@ class InteractiveMap{
             
         }));
 
-        this.buttons.push(new MapButton("Normal View", 85, 5, 15, 5, "pink", "green", 0.7, () =>{
+        this.buttons.push(new MapButton("Normal View", 85, 5, 15, 5,  backgroundColor, fontColor, fontSize, () =>{
 
             //console.log(document.fullscreenElement);
             document.exitFullscreen().then(() =>{
@@ -417,7 +443,8 @@ class InteractiveMap{
         for(let i = 0; i < this.buttons.length; i++){
 
             const b = this.buttons[i];
-            const fontSize = this.percentToPixels(2, "x", true);
+            //const fontSize = this.percentToPixels(2, "x", true);
+            const fontSize = this.percentToPixels(b.height * b.fontSize, "y", true);
 
             c.font = `${fontSize}px Arial`;
             c.fillStyle = b.backgroundColor;
@@ -538,8 +565,7 @@ class InteractiveMap{
     }
 
     renderFlag(c, item, iconWidth, iconHeight){
-        console.log(item);
-
+       
         const {team} = item;
 
         if(team === 0) this.renderItem(c, item, this.redFlag, iconWidth, iconHeight);
@@ -551,8 +577,13 @@ class InteractiveMap{
 
     renderData(c){
 
-        const iconWidth = 2.5;
-        const iconHeight = 3.3;
+        let iconWidth = 2.5;
+        let iconHeight = 3.3;
+
+        const aspectRatio = this.canvasRef.current.width / this.canvasRef.current.height;
+
+        iconHeight = iconWidth * aspectRatio;
+        //console.log(aspectRatio);
 
 
         this.mouseOver.bDisplay = false;
@@ -561,11 +592,11 @@ class InteractiveMap{
 
             const d = this.displayData[i];
 
-            if(d.type === "spawn") this.renderItem(c, d, this.playerStartImage, iconWidth, iconHeight)//this.renderSpawn(c, d);
+            if(d.type === "spawn" && this.bShowSpawns) this.renderItem(c, d, this.playerStartImage, iconWidth, iconHeight)//this.renderSpawn(c, d);
             if(d.type === "flag") this.renderFlag(c, d, iconWidth, iconHeight);
-            if(d.type === "ammo") this.renderItem(c, d, this.ammoIcon, iconWidth, iconHeight);
-            if(d.type === "weapon") this.renderItem(c, d, this.gunIcon, iconWidth, iconHeight);
-            if(d.type === "pickup") this.renderItem(c, d, this.pickupIcon, iconWidth, iconHeight);
+            if(d.type === "ammo" && this.bShowAmmo) this.renderItem(c, d, this.ammoIcon, iconWidth, iconHeight);
+            if(d.type === "weapon" && this.bShowWeapons) this.renderItem(c, d, this.gunIcon, iconWidth, iconHeight);
+            if(d.type === "pickup" && this.bShowPickups) this.renderItem(c, d, this.pickupIcon, iconWidth, iconHeight);
 
   
         }
