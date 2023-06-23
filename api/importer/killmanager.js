@@ -20,6 +20,9 @@ class KillManager{
         this.killsManager = new KillsManager();
         this.headshotsManager = new Headshots();
 
+        //suicides that are not caused by weapon damage
+        this.altSuicides = [];
+
         this.teleFrags = [];
 
         this.killNames = [];
@@ -125,6 +128,24 @@ class KillManager{
         );
     }
 
+    parseSuicideLocation(result){
+
+        const timestamp = parseFloat(result[1]);
+        const playerId = parseInt(result[2]);
+
+        const player = this.playerManager.getPlayerById(playerId);
+
+        this.setLocations(
+            timestamp,
+            player.masterId ?? -1,
+            {
+                "x": result[3],
+                "y": result[4],
+                "z": result[5],
+            }
+        );
+    }
+
     parseData(){
         
         const killReg = /^(\d+\.\d+)\t(kill|teamkill)\t(\d+?)\t(.+?)\t(\d+?)\t(.+?)\t(.+)$/i;
@@ -132,10 +153,16 @@ class KillManager{
         const distanceReg = /^(\d+\.\d+)\tnstats\tkill_distance\t(.+?)\t(\d+?)\t(\d+)$/i;
         const locationReg = /^(\d+\.\d+)\tnstats\tkill_location\t(\d+?)\t(.+?),(.+?),(.+?)\t(\d+?)\t(.+?),(.+?),(.+)$/i;
         const headshotReg = /^(\d+\.\d+)\theadshot\t(.+?)\t(.+)$/i;
+        const suicideLocationReg = /^(\d+\.\d+)\tnstats\tsuicide_loc\t(\d+?)\t(.+?),(.+?),(.+)$/i;
+        //const suicideLocationReg = /^(\d+\.\d+)nstats\tsuicide_loc\t(.+)$/i;
+
+        const altSuicides = [];
 
         for(let i = 0; i < this.data.length; i++){
 
             const d = this.data[i];
+
+            //console.log(d);
 
             if(killReg.test(d)){
 
@@ -157,8 +184,16 @@ class KillManager{
             
                 this.parseHeadshot(headshotReg.exec(d));
 
+            }else if(suicideLocationReg.test(d)){
+                altSuicides.push(suicideLocationReg.exec(d));
+                //this.parseSuicideLocation(suicideLocationReg.exec(d));
             }
         }
+
+        for(let i = 0; i < altSuicides.length; i++){
+            this.parseSuicideLocation(altSuicides[i])
+        }
+        //process.exit();
     }
 
 
@@ -252,24 +287,38 @@ class KillManager{
     setLocations(timestamp, killerId, killerLocation, victimId, victimLocation){
 
 
-        const kill = this.getMatchingKill(timestamp, killerId, victimId);
+        if(victimId !== undefined){
 
-        if(kill !== null){
+            const kill = this.getMatchingKill(timestamp, killerId, victimId);
 
-            kill.setLocations(killerLocation, victimLocation);
+            if(kill !== null){
 
-        }else{
+                kill.setLocations(killerLocation, victimLocation);
 
-            //only works for suicides by weapon, not by keybind
-            const suicide = this.getMatchingSuicide(timestamp, killerId);
+                return;
 
-            if(suicide !== null){
-                suicide.setLocations(killerLocation, victimLocation);   
-            }
+            }else{
 
-            if(killerId !== victimId){
-                new Message(`There is no matching kill for ${killerId} -> ${victimId} @ ${timestamp}(setLocations).`,'warning');
-            }
+                //only works for suicides by weapon, not by keybind
+                const suicide = this.getMatchingSuicide(timestamp, killerId);
+
+                if(suicide !== null){
+                    suicide.setLocations(killerLocation, victimLocation);   
+                }
+
+                if(killerId !== victimId){
+                    new Message(`There is no matching kill for ${killerId} -> ${victimId} @ ${timestamp}(setLocations).`,'warning');
+                }
+
+                return;
+            }        
+        }
+
+        //suicides not by weapons
+        const suicide = this.getMatchingSuicide(timestamp, killerId);
+
+        if(suicide !== null){
+            suicide.setLocations(killerLocation, {"x": 0, "y": 0, "z": 0});   
         }
     }
 

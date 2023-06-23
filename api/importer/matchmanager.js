@@ -576,7 +576,7 @@ class MatchManager{
 
             }
             
-            if(subType === 'kill_distance' || subType == 'kill_location'){
+            if(subType === 'kill_distance' || subType == 'kill_location' || subType === "suicide_loc"){
 
                 this.killLines.push(line);
                 return;
