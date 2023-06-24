@@ -37,8 +37,6 @@ export default async function handler(req, res){
         let playerId = (query.playerId !== undefined) ? parseInt(query.playerId) : 0;
         if(playerId !== playerId) playerId = 0;
 
-        
-
         if(mode === "0"){
 
             const {totalResults, data} = await recordsManager.getPlayerTotalRecords(cat, gametype, map, page, perPage);

@@ -71,7 +71,6 @@ const reducer = (state, action) =>{
     switch(action.type){
 
         case "loaded": {
-
             return {
                 ...state,
                 "bLoading": false,
@@ -243,7 +242,7 @@ const renderError = (state) =>{
 
 const renderPagination = (state, dispatch) =>{
 
-    const url = `/records/?mode=${state.mainTab}&gametype=${state.selectedGametype}&map=${state.selectedMap}&type=${state.playerTotalTab}&page=`;
+    const url = `/records/?mode=${state.mainTab}&gametype=${state.selectedGametype}&map=${state.selectedMap}&pp=${state.perPage}&type=${state.playerTotalTab}&page=`;
 
     return <Pagination 
         event={(page) => {
@@ -530,7 +529,7 @@ const RecordsPage = ({
         );
 
         Router.push(
-            `/records/?mode=${state.mainTab}&gametype=${state.selectedGametype}&map=${state.selectedMap}&type=${state.playerTotalTab}&page=${state.page}`, 
+            `/records/?mode=${state.mainTab}&gametype=${state.selectedGametype}&map=${state.selectedMap}&type=${state.playerTotalTab}&pp=${state.perPage}&page=${state.page}`, 
             undefined, 
             { shallow: true }
         );

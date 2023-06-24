@@ -281,7 +281,7 @@ class Records{
             r.country = countries[r.player_id] ?? "xx";
         }
 
-        return {"result": result, "totalResults": totalResults[0].total_results};
+        return {"result": result, "totalResults": totalResults[0].total_matches};
     }
 
     async getPlayerTotalRecords(type, gametype, map, page, perPage){
@@ -310,7 +310,7 @@ class Records{
             result = await this.getPlayerTotalAllGametypes(map, type, start, perPage);
             
         }else{
-           result = await this.getPlayerTotalSingleGametypes(gametype, map, type, start, perPage);
+            result = await this.getPlayerTotalSingleGametypes(gametype, map, type, start, perPage);
         }
 
         return {
