@@ -30,11 +30,12 @@ const reducer = (state, action) =>{
 
 class MapButton{
 
-    constructor(text, x, y, width, height, backgroundColor, fontColor, fontSize, action){
+    constructor(text, x, y, width, height, backgroundColor, fontColor, fontSize, action, valueName){
 
         this.text = text;
         this.width = width;
         this.height = height;
+        this.valueName = valueName;
 
         this.x = x; 
         this.y = y;
@@ -109,9 +110,9 @@ class InteractiveMap{
 
         this.buttons = [];
 
-        const backgroundColor = "rgb(46,46,46)";
-        const fontColor = "red";
-        const fontSize = 0.7;
+        const backgroundColor = "rgba(32,32,32, 0.8)";
+        const fontColor = "white";
+        const fontSize = 0.66;
 
 
         this.buttons.push(new MapButton("Zoom In", 0, 0, 10, 5, backgroundColor, fontColor, fontSize, () =>{
@@ -122,22 +123,22 @@ class InteractiveMap{
             this.adjustZoom(1);
         }));
 
-        this.buttons.push(new MapButton("Toggle Weapons", 10, 0, 20, 5, backgroundColor, fontColor, fontSize, () =>{
+        this.buttons.push(new MapButton("Weapons", 10, 0, 15, 5, backgroundColor, fontColor, fontSize, () =>{
            
             this.bShowWeapons = !this.bShowWeapons;
-        }));
+        }, "bShowWeapons"));
 
-        this.buttons.push(new MapButton("Toggle Ammo", 10, 5, 20, 5, backgroundColor, fontColor, fontSize, () =>{  
+        this.buttons.push(new MapButton("Ammo", 10, 5, 15, 5, backgroundColor, fontColor, fontSize, () =>{  
             this.bShowAmmo = !this.bShowAmmo;
-        }));
+        }, "bShowAmmo"));
 
-        this.buttons.push(new MapButton("Toggle Pickups", 30, 0, 20, 5, backgroundColor, fontColor, fontSize, () =>{  
+        this.buttons.push(new MapButton("Pickups", 25, 0, 15, 5, backgroundColor, fontColor, fontSize, () =>{  
             this.bShowPickups = !this.bShowPickups;
-        }));
+        }, "bShowPickups"));
 
-        this.buttons.push(new MapButton("Toggle Spawns", 30, 5, 20, 5, backgroundColor, fontColor, fontSize, () =>{  
+        this.buttons.push(new MapButton("Spawns", 25, 5, 15, 5, backgroundColor, fontColor, fontSize, () =>{  
             this.bShowSpawns = !this.bShowSpawns;
-        }));
+        }, "bShowSpawns"));
 
 
         this.buttons.push(new MapButton("Fullscreen", 85, 0, 15, 5, backgroundColor, fontColor, fontSize, () =>{
@@ -206,8 +207,6 @@ class InteractiveMap{
             if(z > this.max.z) this.max.z = z;
         }
 
-        //console.log(this.min, this.max);
-
         this.range.x = Math.abs(this.max.x - this.min.x);
         this.range.y = Math.abs(this.max.y - this.min.y);
         this.range.z = Math.abs(this.max.z - this.min.z);
@@ -216,7 +215,6 @@ class InteractiveMap{
         this.bit.y = (this.range.y !== 0) ? 100 / this.range.y : 0;
         this.bit.z = (this.range.z !== 0) ? 100 / this.range.z : 0;
 
-        //console.log(this.bit);
     }
 
 
@@ -380,15 +378,12 @@ class InteractiveMap{
         //use x instead of y to keep the image square
         const imageHeight = this.percentToPixels(height, "y", true);
         
-
         const d = data;
 
         const x = this.percentToPixels(d.x + this.offset.x, "x") - (imageWidth * 0.5);
         const y = this.percentToPixels(d.y + this.offset.y, "y") - (imageHeight * 0.5);
 
         c.drawImage(image, x, y, imageWidth, imageHeight);
-
-        //console.log(correctX);
 
         const startX = d.x - ((width * this.zoom) * 0.5);
         const endX = d.x + ((width * this.zoom)  * 0.5);
@@ -400,45 +395,31 @@ class InteractiveMap{
 
         c.font = `${fontSize}px Arial`;
         c.fillStyle = "orange";
-       //c.fillText(`${d.name} ${startY.toFixed(2)} ${endY.toFixed(2)}, location = ${d.x.toFixed(2)},${d.y.toFixed(2)}`, x, y);
 
-        if(this.hover.x >= startX && this.hover.x <= endX){
+        if(this.mouse.y > this.interfaceHeight && this.hover.x >= startX && this.hover.x <= endX){
             
             if(this.hover.y >= startY && this.hover.y <= endY){
-      
-                
+              
                 const string1 = `Class: ${d.className}`;
                 const string2 = `Name: ${d.name}`;
                 const string3 = `X = ${d.realLocation.x}, Y = ${d.realLocation.y}, Z = ${d.realLocation.z}`;
-                /*
-                const textWidth = c.measureText(string1).width;
-                console.log(textWidth);
-                
-                c.fillStyle = "red";
-                c.fillRect(x, y, this.percentToPixels(width, "x", true), this.percentToPixels(height, "x", "true"));
-
-
-                c.fillStyle = "rgba(0,0,0,0.75)";
-                c.fillRect(x, y, textWidth, fontSize * 2.5);
-
-                c.fillStyle = "orange";
-                c.fillText(string1, x, y);
-                c.fillText(string2, x, y + fontSize);*/
 
                 this.setMouseOverInfo([string1, string2, string3], x, y);
             }
         }
-
-        
-
-        //console.log(this.hover);
-        //c.fillRect(x, y, 5, 5);
-        //c.fillText(`${d.x.toFixed(1)},${d.y.toFixed(1)}`,x, y);
     }
 
     renderButtons(c){
 
         c.textAlign = "center";
+
+        const enabledColor = "rgba(30,100,30,0.7)";
+        const disabledColor = "rgba(100,30,30,0.7)";
+
+        const bMouseOverInterface = this.mouse.y <= this.interfaceHeight;
+
+        let bMouseOverButton = false;
+
 
         for(let i = 0; i < this.buttons.length; i++){
 
@@ -447,7 +428,12 @@ class InteractiveMap{
             const fontSize = this.percentToPixels(b.height * b.fontSize, "y", true);
 
             c.font = `${fontSize}px Arial`;
-            c.fillStyle = b.backgroundColor;
+
+            if(b.valueName === undefined){
+                c.fillStyle = b.backgroundColor;
+            }else{
+                c.fillStyle = (this[b.valueName]) ? enabledColor : disabledColor;
+            }
 
             const width = this.percentToPixels(b.width, "x", true);
             const height = this.percentToPixels(b.height, "y", true);
@@ -456,11 +442,27 @@ class InteractiveMap{
 
             c.fillRect(x,y, width, height);
 
+            if(bMouseOverInterface){
+
+                if(b.bTouching(this.mouse.x, this.mouse.y)){              
+                    bMouseOverButton = true;    
+                    c.fillStyle = "rgba(255,255,255,0.1)";
+                    c.fillRect(x,y, width, height);
+                }
+            }
+
             c.fillStyle = b.fontColor;
             c.fillText(b.text, x + width * 0.5, y + fontSize);
+
+            
             
         }
 
+        if(bMouseOverButton){
+            this.canvasRef.current.className = "pointer";
+        }else{
+            this.canvasRef.current.className = "";
+        }
         c.textAlign = "left";
     }
 
@@ -469,7 +471,7 @@ class InteractiveMap{
         c.textBasline = "top";
         c.textAlign = "center";
 
-        c.fillStyle = "rgba(255,0,0,0.8)";
+        c.fillStyle = "rgba(0,0,0,0.35)";
 
         c.fillRect(0,0, this.percentToPixels(100, "x", true), this.percentToPixels(this.interfaceHeight, "y", true));
 
