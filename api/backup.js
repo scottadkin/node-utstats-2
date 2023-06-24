@@ -48,6 +48,8 @@ class Backup{
             "nstats_logs",
             "nstats_logs_folder",
             "nstats_map_combogib",
+            "nstats_map_items",
+            "nstats_map_items_locations",
             "nstats_map_spawns",
             "nstats_maps",
             "nstats_maps_flags",
