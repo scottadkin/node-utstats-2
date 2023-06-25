@@ -125,7 +125,7 @@ class FTPImporter{
     }
 
     deleteFile(url){
-
+        
         return new Promise((resolve, reject) =>{
 
             this.client.delete(url, (err) =>{
@@ -235,7 +235,15 @@ class FTPImporter{
             for(let i = 0; i < this.logsFound.length; i++){
 
                 const log = this.logsFound[i];
-                await this.downloadFile(`${this.targetDir}Logs/${log.name}`, `${config.importedLogsFolder}/${log.name}`);
+
+                const originalFile = `${this.targetDir}Logs/${log.name}`;
+                const downloadedFile = `${config.importedLogsFolder}/${log.name}`;
+
+                await this.downloadFile(originalFile, downloadedFile);
+
+                if(this.bDeleteAfter){
+                    await this.deleteFile(originalFile);
+                }
          
             }
 
