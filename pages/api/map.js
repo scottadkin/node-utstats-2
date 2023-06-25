@@ -61,7 +61,31 @@ export default async function handler(req, res){
 
         const killData = await killManager.getInteractiveMapData(latestMatchId);
 
-        res.status(200).json({"data": data, "itemsData": lastMapItems, "killData": killData});
+        for(let i = 0; i < killData.length; i++){
+
+            const k = killData[i];
+
+            data.push({
+                "name": "Killer Location",
+                "type": "kill",
+                "timestamp": k.timestamp,
+                "x": k.killer_x,
+                "y": k.killer_y,
+                "z": k.killer_z,
+            });
+
+            data.push({
+                "name": "Victim Location",
+                "type": "victim",
+                "timestamp": k.timestamp,
+                "x": k.victim_x,
+                "y": k.victim_y,
+                "z": k.victim_z,
+            });
+            
+        }
+
+        res.status(200).json({"data": data, "itemsData": lastMapItems});
         return;
     }
 

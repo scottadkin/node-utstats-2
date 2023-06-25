@@ -102,6 +102,8 @@ class InteractiveMap{
         this.bShowAmmo = true;
         this.bShowPickups = true;
         this.bShowSpawns = true;
+        this.bShowKillers = true;
+        this.bShowDeaths = true;
         
         this.main();
     }
@@ -139,6 +141,14 @@ class InteractiveMap{
         this.buttons.push(new MapButton("Spawns", 25, 5, 15, 5, backgroundColor, fontColor, fontSize, () =>{  
             this.bShowSpawns = !this.bShowSpawns;
         }, "bShowSpawns"));
+
+        this.buttons.push(new MapButton("Killer Location", 40, 0, 15, 5, backgroundColor, fontColor, fontSize, () =>{  
+            this.bShowKillers = !this.bShowKillers;
+        }, "bShowKillers"));
+
+        this.buttons.push(new MapButton("Death Location", 40, 5, 15, 5, backgroundColor, fontColor, fontSize, () =>{  
+            this.bShowDeaths = !this.bShowDeaths;
+        }, "bShowDeaths"));
 
 
         this.buttons.push(new MapButton("Fullscreen", 85, 0, 15, 5, backgroundColor, fontColor, fontSize, () =>{
@@ -577,6 +587,36 @@ class InteractiveMap{
 
     }
 
+
+    renderKillDeath(c, data, size, type){
+        //console.log(data);
+
+
+        c.fillStyle = (type === "kill") ? "green" : "red";
+
+       
+        const x = this.percentToPixels(data.x + this.offset.x, "x");
+        const y = this.percentToPixels(data.y + this.offset.y, "y");
+
+        if(this.hover.x >= data.x - (size * this.zoom) && this.hover.x <= data.x + (size * this.zoom)){
+            //console.log("HORSE");
+
+            if(this.hover.y >= data.y - (size * this.zoom) && this.hover.y <= data.y + (size * this.zoom)){
+                c.fillStyle = "white";
+
+                this.setMouseOverInfo([type], x, y);
+            }
+        }
+
+        size = this.percentToPixels(size, "x", true);
+
+
+        c.beginPath();
+        c.arc(x, y, size, 0, Math.PI * 2);
+        c.fill();
+        c.closePath();
+    }
+
     renderData(c){
 
         let iconWidth = 2.5;
@@ -599,9 +639,11 @@ class InteractiveMap{
             if(d.type === "ammo" && this.bShowAmmo) this.renderItem(c, d, this.ammoIcon, iconWidth, iconHeight);
             if(d.type === "weapon" && this.bShowWeapons) this.renderItem(c, d, this.gunIcon, iconWidth, iconHeight);
             if(d.type === "pickup" && this.bShowPickups) this.renderItem(c, d, this.pickupIcon, iconWidth, iconHeight);
-
-  
+            if(d.type === "kill" && this.bShowKillers) this.renderKillDeath(c, d, 0.4,  "kill");
+            if(d.type === "victim" && this.bShowDeaths) this.renderKillDeath(c, d, 0.4,  "victim");
         }
+
+    
     }
 
     renderGrid(c){
