@@ -1,5 +1,7 @@
 import Maps from "../../api/maps";
 import Kills from "../../api/kills";
+import Players from "../../api/players";
+import {getUniqueValuesFromObject} from "../../api/generic.mjs";
 
 export default async function handler(req, res){
 
@@ -61,6 +63,13 @@ export default async function handler(req, res){
 
         const killData = await killManager.getInteractiveMapData(latestMatchId);
 
+
+        const {uniquePlayers, uniqueWeapons} = getUniqueValuesFromObject(
+            killData, ["killer", "victim", "killer_weapon", "victim_weapon"], 
+            ["uniquePlayers", "uniquePlayers", "uniqueWeapons", "uniqueWeapons"]
+        );
+
+ 
         for(let i = 0; i < killData.length; i++){
 
             const k = killData[i];
@@ -82,9 +91,9 @@ export default async function handler(req, res){
                 "y": k.victim_y,
                 "z": k.victim_z,
             });
-            
         }
 
+        //console.log(uniquePlayers);
         res.status(200).json({"data": data, "itemsData": lastMapItems});
         return;
     }

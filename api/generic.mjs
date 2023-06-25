@@ -230,3 +230,43 @@ export function ignore0(input){
 
     return "";
 }
+
+/**
+ * 
+ * @param {Object} data 
+ * @param {Array} targetKeys Array of target key names
+ * @param {Array} returnKeys Array of the new keys for the unique values, targetKeys[0] = returnKeys[0] ect.
+ */
+export function getUniqueValuesFromObject(data, targetKeys, returnKeys){
+    
+    if(targetKeys.length > returnKeys.length) throw new Error("targetKeys must be at least the same length of returnKeys");
+
+    const obj = {};
+
+    for(let i = 0; i < returnKeys.length; i++){
+
+        if(obj[returnKeys[i]] !== undefined) continue;
+        obj[returnKeys[i]] = new Set();
+    }
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        for(let x = 0; x < targetKeys.length; x++){
+
+            const currentKey = targetKeys[x];
+            const targetKey = returnKeys[x];
+
+            obj[targetKey].add(d[currentKey]);
+        }
+    }
+
+    for(const [key, values] of Object.entries(obj)){
+
+        obj[key] = [...values]; 
+    }
+
+    return obj;
+
+}
