@@ -1088,11 +1088,18 @@ class Maps{
         return result[0].id;
     }
 
-    async getLastestMatchItems(mapId){
+    //if latest matchId is not specified then this method fetches it automatically 
+    async getLastestMatchItems(mapId, optionalLatestMatchId){
 
-        const latestMatchId = await this.getLastestMatchId(mapId);
+        let latestMatchId = -1;
 
-        if(latestMatchId === -1) return [];
+        if(optionalLatestMatchId === undefined){
+            latestMatchId = await this.getLastestMatchId(mapId);
+        }else{
+            latestMatchId = optionalLatestMatchId;
+        }
+
+        if(latestMatchId === -1) return {"data": [], "uniqueItemIds": [], "itemsInfo": []};
 
         const query = `SELECT item_id,item_name,pos_x,pos_y,pos_z FROM nstats_map_items_locations WHERE match_id=?`;
 

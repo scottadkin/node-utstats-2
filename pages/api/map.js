@@ -1,4 +1,5 @@
 import Maps from "../../api/maps";
+import Kills from "../../api/kills";
 
 export default async function handler(req, res){
 
@@ -35,8 +36,8 @@ export default async function handler(req, res){
             data.push(f);
         }
 
-
-        const lastMapItems = await mapManager.getLastestMatchItems(id);
+        const latestMatchId = await mapManager.getLastestMatchId(id);
+        const lastMapItems = await mapManager.getLastestMatchItems(id, latestMatchId);
 
         for(let i = 0; i < lastMapItems.data.length; i++){
 
@@ -54,10 +55,13 @@ export default async function handler(req, res){
                 "y": d.pos_y,
                 "z": d.pos_z,
             });
-
         }
 
-        res.status(200).json({"data": data, "itemsData": lastMapItems});
+        const killManager = new Kills();
+
+        const killData = await killManager.getInteractiveMapData(latestMatchId);
+
+        res.status(200).json({"data": data, "itemsData": lastMapItems, "killData": killData});
         return;
     }
 

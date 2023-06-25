@@ -414,7 +414,7 @@ class InteractiveMap{
         c.textAlign = "center";
 
         const enabledColor = "rgba(30,100,30,0.7)";
-        const disabledColor = "rgba(100,30,30,0.7)";
+        const disabledColor = "rgba(120,2,2,0.7)";
 
         const bMouseOverInterface = this.mouse.y <= this.interfaceHeight;
 

@@ -420,6 +420,18 @@ class Kills{
         
         await this.bulkInsertTeleFrags(matchId, mapId, gametypeId, teleFrags);
     }
+
+
+    async getInteractiveMapData(matchId){
+
+        const query = `SELECT timestamp,killer,killer_team,victim,victim_team,killer_weapon,victim_weapon,distance,
+        killer_x,killer_y,killer_z,victim_x,victim_y,victim_z FROM nstats_kills WHERE match_id=? ORDER BY timestamp ASC`;
+
+        return await mysql.simpleQuery(query, [matchId]);
+    }
 }
+
+
+
 
 module.exports = Kills;
