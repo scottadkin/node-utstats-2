@@ -95,7 +95,17 @@ class KillManager{
 
         const victim = this.playerManager.getPlayerById(parseInt(result[2]));
 
-        this.kills.push(new Kill(result[1], "suicide", victim.masterId ?? -1, result[3], -1, null, result[4]));
+        //suicided if player used the suicide command, fell if left a small crater, unknown if a kill zone
+        const damageType = result[4].toLowerCase(); 
+
+        //self if player used a weapon, None if not
+        const instigatorString = result[5].toLowerCase(); 
+
+
+        const killInfo = new Kill(result[1], "suicide", victim.masterId ?? -1, result[3], -1, null, damageType);
+
+
+        this.kills.push(killInfo);
     }
 
     parseLocation(result){
@@ -191,7 +201,7 @@ class KillManager{
         }
 
         for(let i = 0; i < altSuicides.length; i++){
-            this.parseSuicideLocation(altSuicides[i])
+            this.parseSuicideLocation(altSuicides[i]);
         }
         //process.exit();
     }
@@ -398,6 +408,15 @@ class KillManager{
 
                 if(currentVictim === null){
                     currentVictim = {"masterId": 0};
+                }
+
+                
+
+                if(k.type === "suicide"){
+        
+                    if(k.deathType === "suicided") currentVictimWeapon = -2;
+                    if(k.deathType === "fell") currentVictimWeapon = -3;
+                    if(k.deathType === "unknown") currentVictimWeapon = -4;
                 }
 
                 vars.push(

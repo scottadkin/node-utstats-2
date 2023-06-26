@@ -14,8 +14,6 @@ class Kill{
         this.killerLocation = null;
         this.victimLocation = null;
 
-        //console.log(this);
-
     }
 
 

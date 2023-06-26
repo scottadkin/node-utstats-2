@@ -57,8 +57,6 @@ class MatchManager{
 
             const start = performance.now() * 0.001;
 
-            const logId = await Logs.insert(this.fileName);
-
             if(config.bIgnoreDuplicates){
 
                 if(await Logs.bExists(this.fileName)){
@@ -129,6 +127,7 @@ class MatchManager{
                 return null;
             }
 
+            const logId = await Logs.insert(this.fileName);
 
             new Message(`Log file id is ${logId}`,"note");
 
