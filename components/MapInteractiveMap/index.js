@@ -2,6 +2,7 @@ import { useRef, useEffect, useReducer } from "react";
 import styles from "./MapInteractiveMap.module.css";
 import ErrorMessage from "../ErrorMessage";
 import Loading from "../Loading";
+import {getPlayer, toPlaytime} from "../../api/generic.mjs";
 
 const reducer = (state, action) =>{
 
@@ -20,6 +21,8 @@ const reducer = (state, action) =>{
                 "bLoading": false,
                 "error": null,
                 "data": action.data,
+                "weaponNames": action.weaponNames,
+                "playerNames": action.playerNames
             }
         }
     }
@@ -104,6 +107,7 @@ class InteractiveMap{
         this.bShowSpawns = true;
         this.bShowKillers = true;
         this.bShowDeaths = true;
+        this.bShowSuicides = true;
         
         this.main();
     }
@@ -142,13 +146,17 @@ class InteractiveMap{
             this.bShowSpawns = !this.bShowSpawns;
         }, "bShowSpawns"));
 
-        this.buttons.push(new MapButton("Killer Location", 40, 0, 15, 5, backgroundColor, fontColor, fontSize, () =>{  
+        this.buttons.push(new MapButton("Killer Locations", 40, 0, 15, 5, backgroundColor, fontColor, fontSize, () =>{  
             this.bShowKillers = !this.bShowKillers;
         }, "bShowKillers"));
 
-        this.buttons.push(new MapButton("Death Location", 40, 5, 15, 5, backgroundColor, fontColor, fontSize, () =>{  
+        this.buttons.push(new MapButton("Death Locations", 40, 5, 15, 5, backgroundColor, fontColor, fontSize, () =>{  
             this.bShowDeaths = !this.bShowDeaths;
         }, "bShowDeaths"));
+
+        this.buttons.push(new MapButton("Suicide Locations", 55, 0, 15, 5, backgroundColor, fontColor, fontSize, () =>{  
+            this.bShowSuicides = !this.bShowSuicides;
+        }, "bShowSuicides"));
 
 
         this.buttons.push(new MapButton("Fullscreen", 85, 0, 15, 5, backgroundColor, fontColor, fontSize, () =>{
@@ -260,6 +268,28 @@ class InteractiveMap{
             }
 
 
+            if(d.type === "kill" || d.type === "victim"){
+
+                //d.killerWeapon = 
+                current.killerWeapon = this.weaponNames[d.killerWeapon] ?? "Not Found";
+                current.victimWeapon = this.weaponNames[d.victimWeapon] ?? "Not Found";
+                current.timestamp = d.timestamp;
+
+                if(d.killer !== undefined){
+                    current.killer = getPlayer(this.playerNames, d.killer, true);
+                }
+
+                if(d.victim !== undefined){
+                    current.victim = getPlayer(this.playerNames, d.victim, true);
+                }
+
+                //suicides
+                if(d.victimWeapon <= 0){
+                    current.suicideType = d.victimWeapon;
+                }
+
+            }
+
 
             this.displayData.push(current);
         }
@@ -301,10 +331,12 @@ class InteractiveMap{
 
     }
 
-    async setData(data){
+    async setData(data, weaponNames, playerNames){
 
 
         this.data = data;
+        this.weaponNames = weaponNames;
+        this.playerNames = playerNames;
 
         this.displayData = [];
 
@@ -588,28 +620,53 @@ class InteractiveMap{
     }
 
 
+    getSuicideTypeString(type){
+
+        if(type === -2) return "Suicide command";
+        if(type === -3) return "Left a small crater";
+        if(type === -4) return "Triggered Death/Kill Zone";
+
+        return "Damage to self";
+    }
+
     renderKillDeath(c, data, size, type){
-        //console.log(data);
 
+        c.fillStyle = "rgba(0,255,0,0.5)";
 
-        c.fillStyle = (type === "kill") ? "green" : "red";
-
+        if(type === "suicide") c.fillStyle = "rgba(255,255,0,0.4)";
+        if(type === "victim") c.fillStyle = "rgba(255,0,0,0.5)";
        
         const x = this.percentToPixels(data.x + this.offset.x, "x");
         const y = this.percentToPixels(data.y + this.offset.y, "y");
+
+        let mainInfo = "";
+        let timestamp = "";
+        let extraInfo = "";
 
         if(this.hover.x >= data.x - (size * this.zoom) && this.hover.x <= data.x + (size * this.zoom)){
             //console.log("HORSE");
 
             if(this.hover.y >= data.y - (size * this.zoom) && this.hover.y <= data.y + (size * this.zoom)){
-                c.fillStyle = "white";
 
-                this.setMouseOverInfo([type], x, y);
+                c.fillStyle = "white";      
+                timestamp = toPlaytime(data.timestamp);
+
+                if(type === "suicide"){
+    
+                    mainInfo = `${data.killer.name} killed their own dumbself.`
+                    extraInfo = this.getSuicideTypeString(data.suicideType);
+                    this.setMouseOverInfo([type, mainInfo, extraInfo, timestamp], x, y);
+
+                }else{
+
+
+
+                }
+                
             }
         }
 
         size = this.percentToPixels(size, "x", true);
-
 
         c.beginPath();
         c.arc(x, y, size, 0, Math.PI * 2);
@@ -639,8 +696,9 @@ class InteractiveMap{
             if(d.type === "ammo" && this.bShowAmmo) this.renderItem(c, d, this.ammoIcon, iconWidth, iconHeight);
             if(d.type === "weapon" && this.bShowWeapons) this.renderItem(c, d, this.gunIcon, iconWidth, iconHeight);
             if(d.type === "pickup" && this.bShowPickups) this.renderItem(c, d, this.pickupIcon, iconWidth, iconHeight);
-            if(d.type === "kill" && this.bShowKillers) this.renderKillDeath(c, d, 0.4,  "kill");
-            if(d.type === "victim" && this.bShowDeaths) this.renderKillDeath(c, d, 0.4,  "victim");
+            if(d.type === "kill" && this.bShowKillers && d.suicideType === undefined) this.renderKillDeath(c, d, 0.4,  "kill");
+            if(d.type === "victim" && this.bShowDeaths && d.suicideType === undefined) this.renderKillDeath(c, d, 0.4,  "victim");
+            if(d.suicideType !== undefined && this.bShowSuicides) this.renderKillDeath(c, d, 0.4, "suicide");
         }
 
     
@@ -766,7 +824,7 @@ const loadData = async (controller, id, dispatch) =>{
             return;
         }
 
-        dispatch({"type": "loaded", "data": res.data});
+        dispatch({"type": "loaded", "data": res.data, "weaponNames": res.weaponNames, "playerNames": res.playerNames});
  
 
     }catch(err){
@@ -782,6 +840,8 @@ const MapInteractiveMap = ({id}) =>{
     const [state, dispatch] = useReducer(reducer, {
         "error": null,
         "data": null,
+        "playerNames": null,
+        "weaponNames": null,
         "bLoading": true
     });
 
@@ -836,7 +896,7 @@ const MapInteractiveMap = ({id}) =>{
                 testMap.resize();
             }   
 
-            testMap.setData(state.data);
+            testMap.setData(state.data, state.weaponNames, state.playerNames);
             canvasRef.current.addEventListener("mousemove", fart);
             canvasRef.current.addEventListener("mousedown", userClicked);
 
