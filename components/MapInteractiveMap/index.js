@@ -2,7 +2,7 @@ import { useRef, useEffect, useReducer } from "react";
 import styles from "./MapInteractiveMap.module.css";
 import ErrorMessage from "../ErrorMessage";
 import Loading from "../Loading";
-import {getPlayer, toPlaytime} from "../../api/generic.mjs";
+import {getPlayer, toPlaytime, MMSS} from "../../api/generic.mjs";
 
 const reducer = (state, action) =>{
 
@@ -80,6 +80,7 @@ class InteractiveMap{
         this.range = {"x": 0, "y": 0, "z": 0};
 
         this.interfaceHeight = 10;
+        this.bottomInterfaceHeight = 5;
 
         this.mouse = {"x": -999, "y": -999, "bMouseDown": false};
         //includes scaling with zoom
@@ -108,6 +109,16 @@ class InteractiveMap{
         this.bShowKillers = true;
         this.bShowDeaths = true;
         this.bShowSuicides = true;
+
+
+        //for kills stuff later
+        this.bPlaying = false;
+        this.currentTime = 0;
+        this.endTime = null;
+        this.timeScale = 1;
+        //how many "seconds" to display kill/death/suicide icons 
+        //if event happened at 00:35 display to 00:45 if set to 10
+        this.timeRange = 10;
         
         this.main();
     }
@@ -183,6 +194,19 @@ class InteractiveMap{
             });
             
         }));
+
+        this.buttons.push(new MapButton(
+            "Play/Pause", 
+            0, 
+            100 - this.bottomInterfaceHeight, 
+            10, 
+            this.bottomInterfaceHeight, 
+            backgroundColor, 
+            fontColor, 
+            fontSize, () =>{  
+                this.bPlaying = !this.bPlaying;
+            }, "bPlaying")
+        );
     }
 
     adjustZoom(value){
@@ -201,6 +225,12 @@ class InteractiveMap{
         for(let i = 0; i < this.data.length; i++){
 
             const {x, y, z} = this.data[i];
+
+            
+
+            if(this.data[i].timestamp !== undefined){
+                if(this.data[i].timestamp > this.endTime) this.endTime = this.data[i].timestamp;
+            }
 
             if(i === 0){
 
@@ -508,6 +538,34 @@ class InteractiveMap{
         c.textAlign = "left";
     }
 
+    renderBottomInterface(c){
+
+        c.fillStyle = "green";
+
+        const startY = this.percentToPixels(100 - this.bottomInterfaceHeight, "y", true);
+        const height = this.percentToPixels(this.bottomInterfaceHeight, "y", true);
+        const width = this.percentToPixels(100, "x", "true");
+        c.fillRect(0, startY, width, height);
+
+        const progressStartX = this.percentToPixels(50, "x", true);
+        const progressWidth = this.percentToPixels(50, "x", true);
+        c.fillStyle = "orange";
+        c.fillRect(progressStartX, startY, progressWidth, height);
+
+
+        if(this.endTime === 0) return;
+        c.fillStyle = "pink";
+
+        let percentFinished = 0; 
+        const bit = 100 / this.endTime;
+
+        const currentPercent = bit * this.currentTime;
+
+        c.fillRect(progressStartX, startY, progressWidth * currentPercent, height);
+
+        console.log(currentPercent);
+    }
+
     renderInterface(c){
 
         c.textBasline = "top";
@@ -526,9 +584,9 @@ class InteractiveMap{
 
         c.fillText(`${this.hover.x.toFixed(2)}, ${this.hover.y.toFixed(2)}`, 100, 100);
 
-        this.renderButtons(c);
+        this.renderBottomInterface(c);
 
-        
+        this.renderButtons(c);
     }
 
     updateMouseLocation(mouseX, mouseY, movementX, movementY){
@@ -570,7 +628,7 @@ class InteractiveMap{
         const y = this.mouse.y;
 
         //clicked interface
-        if(y <= this.interfaceHeight){
+        if(y <= this.interfaceHeight || y >= 100 - this.bottomInterfaceHeight){
 
             for(let i = 0; i < this.buttons.length; i++){
 
@@ -630,6 +688,11 @@ class InteractiveMap{
     }
 
     renderKillDeath(c, data, size, type){
+
+        if(this.bPlaying){
+            if(data.timestamp < this.currentTime) return;
+            if(data.timestamp > this.currentTime + this.timeRange) return;
+        }
 
         c.fillStyle = "rgba(0,255,0,0.5)";
 
@@ -806,6 +869,11 @@ class InteractiveMap{
         c.fillStyle = "white";
 
         c.fillRect(this.percentToPixels(this.mouse.x, "x", true), this.percentToPixels(this.mouse.y, "y", true), 5, 5);
+
+        c.fillText(MMSS(this.currentTime, true), 100,200);
+
+        this.currentTime += 0.1;
+        if(this.currentTime > this.endTime) this.currentTime = 0;
     }
 }
 

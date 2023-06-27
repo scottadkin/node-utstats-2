@@ -80,9 +80,9 @@ export default async function handler(req, res){
 
             const k = killData[i];
 
-            if(k.victim_team === -1 && k.distance === -1 && k.victim_weapon !== 0){
-                console.log("suicide with weapon");
-            }
+            //if(k.victim_team === -1 && k.distance === -1 && k.victim_weapon !== 0){
+            //    console.log("suicide with weapon");
+           // }
 
             if(k.victim_weapon > 0 || k.killer === k.victim){
 

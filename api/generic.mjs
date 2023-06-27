@@ -268,5 +268,32 @@ export function getUniqueValuesFromObject(data, targetKeys, returnKeys){
     }
 
     return obj;
+}
 
+export function MMSS(timestamp){
+
+    let seconds = Math.floor(timestamp % 60);
+    let minutes = Math.floor(timestamp / 60);
+    let hours = Math.floor(minutes / 60);
+
+    if(seconds < 0) seconds = 0;
+    if(minutes < 0) minutes = 0;
+
+    if(seconds < 10){
+        seconds = `0${seconds}`;
+    }
+
+    if(minutes < 10){
+        minutes = `0${minutes}`;
+    }
+
+    if(hours < 1){
+        return `${minutes}:${seconds}`;
+    }else{
+
+        minutes = minutes % 60;
+        if(minutes < 10) minutes = `0${minutes}`;
+        
+        return `${hours}:${minutes}:${seconds}`;
+    }
 }
