@@ -190,7 +190,7 @@ class MatchScreenshot{
             const face = facesArray[i];
 
             this.playerIcons[face] = new Image();
-            this.playerIcons[face].src = `/images/faces/${this.getPlayerIconName(face)}.png`
+            this.playerIcons[face].src = `/images/faces/${this.getPlayerIconName(face)}.png`;
         }
 
         return facesArray.map((faceId) =>{  

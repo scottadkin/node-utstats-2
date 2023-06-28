@@ -620,14 +620,11 @@ class InteractiveMap{
         if(this.endTime === 0) return;
         c.fillStyle = "pink";
 
-        let percentFinished = 0; 
         const bit = 100 / this.endTime;
 
         const currentPercent = bit * this.currentTime;
 
-        c.fillRect(progressStartX, startY, progressWidth * currentPercent, height);
-
-        console.log(currentPercent);
+        c.fillRect(progressStartX, startY, progressWidth *( currentPercent * 0.01), height);
     }
 
     renderInterface(c){
@@ -842,7 +839,9 @@ class InteractiveMap{
         const bOverVictim = (this.hover.x >= victimStartX && this.hover.x <= victimEndX) && (this.hover.y >= victimStartY && this.hover.y <= victimEndY);
         //console.log(bOverKiller, bOverVictim);
 
-        if(bOverKiller || bOverVictim){
+        const bDisplayLink = this.bShowKillers && this.bShowDeaths;
+        
+        if(bDisplayLink && (bOverKiller || bOverVictim)){
          
             c.beginPath();
             c.moveTo(
@@ -854,17 +853,27 @@ class InteractiveMap{
                 victimY
             );
             c.stroke();
-            c.closePath();
-           
+            c.closePath();    
         }
 
 
         
-        if(data.killerId === data.victimId){
-            this.fillCircle(c, killerX, killerY, this.percentToPixels(size, "y"), "yellow");
+        if(this.bShowSuicides && data.killerId === data.victimId){
+
+            this.fillCircle(c, killerX, killerY, this.percentToPixels(size, "y"), "rgba(255,255,0,0.5)");
+
         }else{
-            this.fillCircle(c, killerX, killerY, this.percentToPixels(size, "y"), "green");
-            this.fillCircle(c, victimX, victimY, this.percentToPixels(size, "y"), "red");
+
+            if(data.killerId === data.victimId) return;
+
+            if(this.bShowKillers){
+                this.fillCircle(c, killerX, killerY, this.percentToPixels(size, "y"), "rgba(0,255,0,0.25)");
+            }
+
+            if(this.bShowDeaths){
+                this.fillCircle(c, victimX, victimY, this.percentToPixels(size, "y"), "rgba(255,0,0,0.25)");
+            }
+              
         }
 
     }
