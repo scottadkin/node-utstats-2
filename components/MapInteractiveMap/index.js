@@ -352,6 +352,7 @@ class InteractiveMap{
             const k = this.killData[i];
 
             const current = {
+                "timestamp": k.timestamp,
                 "killerId": k.killer,
                 "killerWeapon": k.killer_weapon,
                 "killerLocation": {
@@ -748,55 +749,6 @@ class InteractiveMap{
         return "Damage to self";
     }
 
-    renderKillDeath(c, data, size, type){
-
-        if(this.bPlaying){
-            if(data.timestamp < this.currentTime) return;
-            if(data.timestamp > this.currentTime + this.timeRange) return;
-        }
-
-        c.fillStyle = "rgba(0,255,0,0.5)";
-
-        if(type === "suicide") c.fillStyle = "rgba(255,255,0,0.4)";
-        if(type === "victim") c.fillStyle = "rgba(255,0,0,0.5)";
-       
-        const x = this.percentToPixels(data.x + this.offset.x, "x");
-        const y = this.percentToPixels(data.y + this.offset.y, "y");
-
-        let mainInfo = "";
-        let timestamp = "";
-        let extraInfo = "";
-
-        if(this.hover.x >= data.x - (size * this.zoom) && this.hover.x <= data.x + (size * this.zoom)){
-            //console.log("HORSE");
-
-            if(this.hover.y >= data.y - (size * this.zoom) && this.hover.y <= data.y + (size * this.zoom)){
-
-                c.fillStyle = "white";      
-                timestamp = toPlaytime(data.timestamp);
-
-                if(type === "suicide"){
-    
-                    mainInfo = `${data.killer.name} killed their own dumbself.`
-                    extraInfo = this.getSuicideTypeString(data.suicideType);
-                    this.setMouseOverInfo([type, mainInfo, extraInfo, timestamp], x, y);
-
-                }else{
-
-
-
-                }
-                
-            }
-        }
-
-        size = this.percentToPixels(size, "x", true);
-
-        c.beginPath();
-        c.arc(x, y, size, 0, Math.PI * 2);
-        c.fill();
-        c.closePath();
-    }
 
     fillCircle(c, x, y, size, color){
 
@@ -838,6 +790,52 @@ class InteractiveMap{
         const bOverKiller = (this.hover.x >= killerStartX && this.hover.x <= killerEndX) && (this.hover.y >= killerStartY && this.hover.y <= killerEndY);
         const bOverVictim = (this.hover.x >= victimStartX && this.hover.x <= victimEndX) && (this.hover.y >= victimStartY && this.hover.y <= victimEndY);
         //console.log(bOverKiller, bOverVictim);
+
+        if(bOverKiller || bOverVictim){
+
+            //console.log(this.playerNames);
+
+            const killer = getPlayer(this.playerNames, data.killerId, true);
+            const victim = getPlayer(this.playerNames, data.victimId, true);
+
+            const killerWeapon = this.weaponNames[data.killerWeapon] ?? "Not Found";
+
+            const bSuicide = data.killerId === data.victimId;
+
+            const lines = [];
+
+            lines.push((bOverKiller) ? (bSuicide) ? "Suicide Location" : "Killer Location" : "Victim Location");
+
+            if(!bSuicide){
+                lines.push(`${killer.name} killed ${victim.name}`);
+            }else{
+
+                console.log(data.killerWeapon);
+                if(data.killerWeapon === -2) lines.push(`Suicide command`);
+                if(data.killerWeapon === -3) lines.push(`Left a small crater`);
+                if(data.killerWeapon === -4) lines.push(`Killzone/Triggered Death`);
+                
+            }
+
+            if(data.killerWeapon > 0){
+                lines.push(`Weapon: ${killerWeapon}`);
+            }
+            lines.push(`Timestamp ${MMSS(data.timestamp)}`);
+
+            let mouseOverX = 0;
+            let mouseOverY = 0;
+
+            if(bOverKiller){
+                mouseOverX = this.percentToPixels(data.killerLocation.display.x + this.offset.x, "x");
+                mouseOverY = this.percentToPixels(data.killerLocation.display.y + this.offset.y, "y");
+            }
+
+            if(bOverVictim){
+                mouseOverX = this.percentToPixels(data.victimLocation.display.x + this.offset.x, "x");
+            }
+
+            this.setMouseOverInfo(lines, mouseOverX, mouseOverY);
+        }
 
         const bDisplayLink = this.bShowKillers && this.bShowDeaths;
         
