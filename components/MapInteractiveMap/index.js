@@ -832,6 +832,7 @@ class InteractiveMap{
 
             if(bOverVictim){
                 mouseOverX = this.percentToPixels(data.victimLocation.display.x + this.offset.x, "x");
+                mouseOverY = this.percentToPixels(data.victimLocation.display.y + this.offset.y, "y");
             }
 
             this.setMouseOverInfo(lines, mouseOverX, mouseOverY);
