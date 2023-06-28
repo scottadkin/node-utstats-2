@@ -21,6 +21,7 @@ const reducer = (state, action) =>{
                 "bLoading": false,
                 "error": null,
                 "data": action.data,
+                "killData": action.killData,
                 "weaponNames": action.weaponNames,
                 "playerNames": action.playerNames
             }
@@ -219,6 +220,36 @@ class InteractiveMap{
         this.render();
     }
 
+    updateMinMax(x, y, z){
+
+        if(this.min.x === null || this.min.y === null || this.min.z === null){
+
+            this.min.x = x;
+            this.min.y = y;
+            this.min.z = z;
+
+            this.max.x = x;
+            this.max.y = y;
+            this.max.z = z;
+
+            return;
+        }
+
+        if(x < this.min.x) this.min.x = x;
+        if(x > this.max.x) this.max.x = x;
+
+        if(y < this.min.y) this.min.y = y;
+        if(y > this.max.y) this.max.y = y;
+
+        if(z < this.min.z) this.min.z = z;
+        if(z > this.max.z) this.max.z = z;
+    }
+
+    updateEndTime(timestamp){
+
+        if(timestamp > this.endTime) this.endTime = timestamp;
+    }
+
     setMinMax(){
 
 
@@ -226,33 +257,21 @@ class InteractiveMap{
 
             const {x, y, z} = this.data[i];
 
-            
-
             if(this.data[i].timestamp !== undefined){
-                if(this.data[i].timestamp > this.endTime) this.endTime = this.data[i].timestamp;
+                this.updateEndTime(this.data[i].timestamp);
             }
 
-            if(i === 0){
+            this.updateMinMax(x, y, z);
+        }
 
-                this.min.x = x;
-                this.min.y = y;
-                this.min.z = z;
+        for(let i = 0; i < this.killData.length; i++){
 
-                this.max.x = x;
-                this.max.y = y;
-                this.max.z = z;
+            const k = this.killData[i];
 
-                continue;
-            }
-
-            if(x < this.min.x) this.min.x = x;
-            if(x > this.max.x) this.max.x = x;
-
-            if(y < this.min.y) this.min.y = y;
-            if(y > this.max.y) this.max.y = y;
-
-            if(z < this.min.z) this.min.z = z;
-            if(z > this.max.z) this.max.z = z;
+            this.updateMinMax(k.victim_x, k.victim_y, k.victim_z);
+            this.updateMinMax(k.killer_x, k.killer_y, k.killer_z);
+            this.updateEndTime(k.timestamp);
+            console.log(k);
         }
 
         this.range.x = Math.abs(this.max.x - this.min.x);
@@ -298,7 +317,7 @@ class InteractiveMap{
             }
 
 
-            if(d.type === "kill" || d.type === "victim"){
+            /*if(d.type === "kill" || d.type === "victim"){
 
                 //d.killerWeapon = 
                 current.killerWeapon = this.weaponNames[d.killerWeapon] ?? "Not Found";
@@ -318,11 +337,55 @@ class InteractiveMap{
                     current.suicideType = d.victimWeapon;
                 }
 
-            }
+                console.log(current);
+
+            }*/
 
 
             this.displayData.push(current);
         }
+
+        this.displayKillData = [];
+
+        for(let i = 0; i < this.killData.length; i++){
+
+            const k = this.killData[i];
+
+            const current = {
+                "killerId": k.killer,
+                "killerWeapon": k.killer_weapon,
+                "killerLocation": {
+                    "display": {
+                        "x": this.pixelsToPercent(this.removeOffset(k.killer_x, "x"), "x"),
+                        "y": this.pixelsToPercent(this.removeOffset(k.killer_y, "y"), "y"),
+                    },
+                    "real": {
+                        "x": k.killer_x,
+                        "y": k.killer_y,
+                        "z": k.killer_z
+                    }
+                },
+                "victimId": k.victim,
+                "victimWeapon": k.victim_weapon,
+                "victimLocation": {
+                    "display": {
+                        "x": this.pixelsToPercent(this.removeOffset(k.victim_x, "x"), "x"),
+                        "y": this.pixelsToPercent(this.removeOffset(k.victim_y, "y"), "y"),
+                    },
+                    "real": {
+                        "x": k.victim_x,
+                        "y": k.victim_y,
+                        "z": k.victim_z
+                    }
+                },
+                "type": k.type,
+                "name": k.name,
+            };
+
+            this.displayKillData.push(current);
+        }
+
+        console.log(this.displayKillData);
     }
 
     async loadImage(url, image){
@@ -361,10 +424,11 @@ class InteractiveMap{
 
     }
 
-    async setData(data, weaponNames, playerNames){
+    async setData(data, killData, weaponNames, playerNames){
 
 
         this.data = data;
+        this.killData = killData;
         this.weaponNames = weaponNames;
         this.playerNames = playerNames;
 
@@ -737,6 +801,67 @@ class InteractiveMap{
         c.closePath();
     }
 
+    fillCircle(c, x, y, size, color){
+
+        c.fillStyle = color;
+        c.beginPath();
+        c.arc(x, y, size, 0, Math.PI * 2);
+        c.fill();
+        c.closePath();
+    }
+
+    renderKillTest(c, data){
+
+        c.fillStyle = "white";
+        c.strokeStyle = "rgba(255,255,255,0.8)";
+        c.lineWidth = 1;
+
+        const killerX = this.percentToPixels(data.killerLocation.display.x + this.offset.x, "x");
+        const killerY = this.percentToPixels(data.killerLocation.display.y + this.offset.y, "y");
+
+        const victimX = this.percentToPixels(data.victimLocation.display.x + this.offset.x, "x");
+        const victimY = this.percentToPixels(data.victimLocation.display.y + this.offset.y, "y");
+
+        const size = 1;
+
+        const fixedSize = size * 0.5// * this.zoom;
+
+        const killerStartX = data.killerLocation.display.x - fixedSize;
+        const killerEndX = data.killerLocation.display.x  + fixedSize;
+
+        const killerStartY = data.killerLocation.display.y - fixedSize;
+        const killerEndY = data.killerLocation.display.y + fixedSize;
+
+        const victimStartX = data.victimLocation.display.x - fixedSize;
+        const victimEndX = data.victimLocation.display.x  + fixedSize;
+
+        const victimStartY = data.victimLocation.display.y - fixedSize;
+        const victimEndY = data.victimLocation.display.y + fixedSize;
+
+        const bOverKiller = (this.hover.x >= killerStartX && this.hover.x <= killerEndX) && (this.hover.y >= killerStartY && this.hover.y <= killerEndY);
+        const bOverVictim = (this.hover.x >= victimStartX && this.hover.x <= victimEndX) && (this.hover.y >= victimStartY && this.hover.y <= victimEndY);
+        //console.log(bOverKiller, bOverVictim);
+
+        if(bOverKiller || bOverVictim){
+         
+            c.beginPath();
+            c.moveTo(
+                killerX,
+                killerY
+            );
+            c.lineTo(
+                victimX,
+                victimY
+            );
+            c.stroke();
+            c.closePath();
+           
+        }
+
+        this.fillCircle(c, killerX, killerY, this.percentToPixels(size, "y"), "green");
+        this.fillCircle(c, victimX, victimY, this.percentToPixels(size, "y"), "red");
+    }
+
     renderData(c){
 
         let iconWidth = 2.5;
@@ -759,11 +884,17 @@ class InteractiveMap{
             if(d.type === "ammo" && this.bShowAmmo) this.renderItem(c, d, this.ammoIcon, iconWidth, iconHeight);
             if(d.type === "weapon" && this.bShowWeapons) this.renderItem(c, d, this.gunIcon, iconWidth, iconHeight);
             if(d.type === "pickup" && this.bShowPickups) this.renderItem(c, d, this.pickupIcon, iconWidth, iconHeight);
-            if(d.type === "kill" && this.bShowKillers && d.suicideType === undefined) this.renderKillDeath(c, d, 0.4,  "kill");
-            if(d.type === "victim" && this.bShowDeaths && d.suicideType === undefined) this.renderKillDeath(c, d, 0.4,  "victim");
-            if(d.suicideType !== undefined && this.bShowSuicides) this.renderKillDeath(c, d, 0.4, "suicide");
+            //if(d.type === "kill" && this.bShowKillers && d.suicideType === undefined) this.renderKillDeath(c, d, 0.4,  "kill");
+            //if(d.type === "victim" && this.bShowDeaths && d.suicideType === undefined) this.renderKillDeath(c, d, 0.4,  "victim");
+            //if(d.suicideType !== undefined && this.bShowSuicides) this.renderKillDeath(c, d, 0.4, "suicide");
         }
 
+        for(let i = 0; i < this.displayKillData.length; i++){
+
+            const k = this.displayKillData[i];
+
+            this.renderKillTest(c, k);
+        }
     
     }
 
@@ -892,7 +1023,13 @@ const loadData = async (controller, id, dispatch) =>{
             return;
         }
 
-        dispatch({"type": "loaded", "data": res.data, "weaponNames": res.weaponNames, "playerNames": res.playerNames});
+        dispatch({
+            "type": "loaded", 
+            "data": res.data, 
+            "killData": res.killData, 
+            "weaponNames": res.weaponNames, 
+            "playerNames": res.playerNames
+        });
  
 
     }catch(err){
@@ -908,6 +1045,7 @@ const MapInteractiveMap = ({id}) =>{
     const [state, dispatch] = useReducer(reducer, {
         "error": null,
         "data": null,
+        "killData": null,
         "playerNames": null,
         "weaponNames": null,
         "bLoading": true
@@ -964,7 +1102,7 @@ const MapInteractiveMap = ({id}) =>{
                 testMap.resize();
             }   
 
-            testMap.setData(state.data, state.weaponNames, state.playerNames);
+            testMap.setData(state.data, state.killData, state.weaponNames, state.playerNames);
             canvasRef.current.addEventListener("mousemove", fart);
             canvasRef.current.addEventListener("mousedown", userClicked);
 

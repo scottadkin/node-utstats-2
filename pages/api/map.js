@@ -76,7 +76,8 @@ export default async function handler(req, res){
         const weaponNames = await weaponsManager.getNamesByIds(uniqueWeapons, true);
 
  
-        for(let i = 0; i < killData.length; i++){
+        //console.log(killData);
+        /*for(let i = 0; i < killData.length; i++){
 
             const k = killData[i];
 
@@ -96,7 +97,8 @@ export default async function handler(req, res){
                     "killerWeapon": k.killer_weapon,
                     "victimWeapon": k.victim_weapon,
                     "killer": k.killer,
-                    "victim": k.victim
+                    "victim": k.victim,
+                    
                 });
                 
             }
@@ -113,14 +115,15 @@ export default async function handler(req, res){
                 "killer": k.killer,
                 "victim": k.victim
             });
-        }
+        }*/
 
         //console.log(uniquePlayers);
         res.status(200).json({
             "data": data, 
             "itemsData": lastMapItems, 
             "playerNames": playerNames, 
-            "weaponNames": weaponNames
+            "weaponNames": weaponNames,
+            "killData": killData
         });
 
         return;
