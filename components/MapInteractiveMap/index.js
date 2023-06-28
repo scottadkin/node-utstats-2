@@ -858,8 +858,15 @@ class InteractiveMap{
            
         }
 
-        this.fillCircle(c, killerX, killerY, this.percentToPixels(size, "y"), "green");
-        this.fillCircle(c, victimX, victimY, this.percentToPixels(size, "y"), "red");
+
+        
+        if(data.killerId === data.victimId){
+            this.fillCircle(c, killerX, killerY, this.percentToPixels(size, "y"), "yellow");
+        }else{
+            this.fillCircle(c, killerX, killerY, this.percentToPixels(size, "y"), "green");
+            this.fillCircle(c, victimX, victimY, this.percentToPixels(size, "y"), "red");
+        }
+
     }
 
     renderData(c){
