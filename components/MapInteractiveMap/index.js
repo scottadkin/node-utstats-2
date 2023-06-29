@@ -115,12 +115,13 @@ class InteractiveMap{
 
         //for kills stuff later
         this.bPlaying = false;
+        this.playLoop = null;
         this.currentTime = 0;
         this.endTime = null;
         this.timeScale = 1;
         //how many "seconds" to display kill/death/suicide icons 
         //if event happened at 00:35 display to 00:45 if set to 10
-        this.timeRange = 10;
+        this.timeRange = 30;
         
         this.main();
     }
@@ -207,6 +208,17 @@ class InteractiveMap{
             fontColor, 
             fontSize, () =>{  
                 this.bPlaying = !this.bPlaying;
+
+                if(this.bPlaying){
+
+                    this.playLoop = setInterval(() =>{
+                        this.currentTime += this.timeScale;
+                        this.render();
+                    }, 33);
+                }else{
+
+                    clearInterval(this.playLoop);
+                }
             }, "bPlaying")
         );
     }
@@ -424,11 +436,6 @@ class InteractiveMap{
 
     main(){
 
-        console.log(`main()`);
-
-        /*this.loop = setInterval(() =>{
-            this.render();
-        }, 1000 / 3);*/
     }
 
     removeOffset(value, type){
@@ -593,6 +600,16 @@ class InteractiveMap{
         c.fillRect(progressStartX, startY, progressWidth, height);
 
 
+        const timestampFontSize = this.percentToPixels(3.5,"y",true);
+
+        c.font = `${timestampFontSize}px Arial`;
+        c.fillStyle = "white";
+        c.textAlign = "center";
+        const timestamp = `${MMSS(this.currentTime)}/${MMSS(this.endTime)}`;
+        const timestampWidth = c.measureText(timestamp).width;
+        c.fillText(timestamp, this.percentToPixels(10, "x", true) + (timestampWidth * 0.6), startY + timestampFontSize);
+
+
         if(this.endTime === 0) return;
         c.fillStyle = "pink";
 
@@ -700,8 +717,6 @@ class InteractiveMap{
 
     mouseRelease(){
 
-        console.log(`ll`);
-
         this.mouse.bMouseDown = false;
     }
 
@@ -736,7 +751,7 @@ class InteractiveMap{
         c.closePath();
     }
 
-    renderKillTest(c, data){
+    renderKill(c, data){
 
         c.fillStyle = "white";
         c.strokeStyle = "rgba(255,255,255,0.8)";
@@ -855,8 +870,8 @@ class InteractiveMap{
 
     renderData(c){
 
-        let iconWidth = 2.5;
-        let iconHeight = 3.3;
+        let iconWidth = 2;
+        let iconHeight = 1.7;
 
         const aspectRatio = this.canvasRef.current.width / this.canvasRef.current.height;
 
@@ -875,16 +890,20 @@ class InteractiveMap{
             if(d.type === "ammo" && this.bShowAmmo) this.renderItem(c, d, this.ammoIcon, iconWidth, iconHeight);
             if(d.type === "weapon" && this.bShowWeapons) this.renderItem(c, d, this.gunIcon, iconWidth, iconHeight);
             if(d.type === "pickup" && this.bShowPickups) this.renderItem(c, d, this.pickupIcon, iconWidth, iconHeight);
-            //if(d.type === "kill" && this.bShowKillers && d.suicideType === undefined) this.renderKillDeath(c, d, 0.4,  "kill");
-            //if(d.type === "victim" && this.bShowDeaths && d.suicideType === undefined) this.renderKillDeath(c, d, 0.4,  "victim");
-            //if(d.suicideType !== undefined && this.bShowSuicides) this.renderKillDeath(c, d, 0.4, "suicide");
         }
 
         for(let i = 0; i < this.displayKillData.length; i++){
 
             const k = this.displayKillData[i];
 
-            this.renderKillTest(c, k);
+            const timestamp = k.timestamp;
+
+            if(this.bPlaying){
+                if(timestamp > this.currentTime + this.timeRange) return;
+                if(timestamp < this.currentTime) continue;
+            }
+
+            this.renderKill(c, k);
         }
     
     }
@@ -1020,9 +1039,6 @@ class InteractiveMap{
 
         c.fillRect(this.percentToPixels(this.mouse.x, "x", true), this.percentToPixels(this.mouse.y, "y", true), 5, 5);
 
-        c.fillText(MMSS(this.currentTime, true), 100,200);
-
-        this.currentTime += 0.1;
         if(this.currentTime > this.endTime) this.currentTime = 0;
     }
 }
