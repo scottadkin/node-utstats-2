@@ -644,7 +644,9 @@ class InteractiveMap{
         c.fillText(`${(this.zoom * 100)}%`, 420, 20);
 
 
-        c.fillText(`${this.hover.x.toFixed(2)}, ${this.hover.y.toFixed(2)}`, 100, 100);
+        
+        c.fillText(`this.hover = ${this.hover.x.toFixed(2)}, ${this.hover.y.toFixed(2)}`, 100, 100);
+        c.fillText(`this.mouse = ${this.mouse.x.toFixed(2)}, ${this.mouse.y.toFixed(2)}`, 100, 130);
 
         this.renderBottomInterface(c);
 
@@ -791,7 +793,7 @@ class InteractiveMap{
         const bOverVictim = (this.hover.x >= victimStartX && this.hover.x <= victimEndX) && (this.hover.y >= victimStartY && this.hover.y <= victimEndY);
         //console.log(bOverKiller, bOverVictim);
 
-        if(bOverKiller || bOverVictim){
+        if(this.mouse.y > this.interfaceHeight && this.mouse.y < 100 - this.bottomInterfaceHeight && (bOverKiller || bOverVictim)){
 
             //console.log(this.playerNames);
 
@@ -809,8 +811,6 @@ class InteractiveMap{
             if(!bSuicide){
                 lines.push(`${killer.name} killed ${victim.name}`);
             }else{
-
-                console.log(data.killerWeapon);
                 if(data.killerWeapon === -2) lines.push(`Suicide command`);
                 if(data.killerWeapon === -3) lines.push(`Left a small crater`);
                 if(data.killerWeapon === -4) lines.push(`Killzone/Triggered Death`);
@@ -975,6 +975,15 @@ class InteractiveMap{
         x = x + this.percentToPixels(2, "x", true);
         y = y - this.percentToPixels(1, "y", true);
         
+
+        const endX = x + maxWidth;
+        const overLapX = this.canvasRef.current.width - endX;
+
+        const endY = y + mainHeight;
+        const overLapY = this.canvasRef.current.height - (this.percentToPixels(this.bottomInterfaceHeight,"y", true)) - endY;
+
+        if(overLapX < 0) x += overLapX;
+        if(overLapY < 0) y += overLapY;
 
         c.fillRect(x, y, maxWidth, mainHeight);
         c.fillStyle = "white";
