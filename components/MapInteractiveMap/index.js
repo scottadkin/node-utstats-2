@@ -2,7 +2,7 @@ import { useRef, useEffect, useReducer } from "react";
 import styles from "./MapInteractiveMap.module.css";
 import ErrorMessage from "../ErrorMessage";
 import Loading from "../Loading";
-import {getPlayer, toPlaytime, MMSS} from "../../api/generic.mjs";
+import {getPlayer, toPlaytime, MMSS, firstCharToUpperCase} from "../../api/generic.mjs";
 
 const reducer = (state, action) =>{
 
@@ -95,6 +95,7 @@ class InteractiveMap{
         
 
         this.mouseOver = {
+            "title": "",
             "bDisplay": false,
             "text": null,
             "width": 0,
@@ -271,7 +272,6 @@ class InteractiveMap{
             this.updateMinMax(k.victim_x, k.victim_y, k.victim_z);
             this.updateMinMax(k.killer_x, k.killer_y, k.killer_z);
             this.updateEndTime(k.timestamp);
-            console.log(k);
         }
 
         this.range.x = Math.abs(this.max.x - this.min.x);
@@ -317,31 +317,6 @@ class InteractiveMap{
             }
 
 
-            /*if(d.type === "kill" || d.type === "victim"){
-
-                //d.killerWeapon = 
-                current.killerWeapon = this.weaponNames[d.killerWeapon] ?? "Not Found";
-                current.victimWeapon = this.weaponNames[d.victimWeapon] ?? "Not Found";
-                current.timestamp = d.timestamp;
-
-                if(d.killer !== undefined){
-                    current.killer = getPlayer(this.playerNames, d.killer, true);
-                }
-
-                if(d.victim !== undefined){
-                    current.victim = getPlayer(this.playerNames, d.victim, true);
-                }
-
-                //suicides
-                if(d.victimWeapon <= 0){
-                    current.suicideType = d.victimWeapon;
-                }
-
-                console.log(current);
-
-            }*/
-
-
             this.displayData.push(current);
         }
 
@@ -385,8 +360,6 @@ class InteractiveMap{
 
             this.displayKillData.push(current);
         }
-
-        console.log(this.displayKillData);
     }
 
     async loadImage(url, image){
@@ -499,8 +472,8 @@ class InteractiveMap{
         return bit * value;
     }
 
-    setMouseOverInfo(textLines, x, y){
-
+    setMouseOverInfo(title, textLines, x, y){
+        this.mouseOver.title = title ?? "No Title Set";
         this.mouseOver.bDisplay = true;
         this.mouseOver.x = x;
         this.mouseOver.y = y;
@@ -508,6 +481,7 @@ class InteractiveMap{
     }
 
     renderItem(c, data, image, width, height){
+
 
         c.fillStyle = "orange";
 
@@ -541,7 +515,8 @@ class InteractiveMap{
                 const string2 = `Name: ${d.name}`;
                 const string3 = `X = ${d.realLocation.x}, Y = ${d.realLocation.y}, Z = ${d.realLocation.z}`;
 
-                this.setMouseOverInfo([string1, string2, string3], x, y);
+
+                this.setMouseOverInfo(`${firstCharToUpperCase(data.type)} Location`, [string1, string2, string3], x, y);
             }
         }
     }
@@ -806,20 +781,21 @@ class InteractiveMap{
 
             const lines = [];
 
-            lines.push((bOverKiller) ? (bSuicide) ? "Suicide Location" : "Killer Location" : "Victim Location");
+            const title = (bOverKiller) ? (bSuicide) ? "Suicide Location" : "Killer Location" : "Victim Location";
 
             if(!bSuicide){
                 lines.push(`${killer.name} killed ${victim.name}`);
             }else{
-                if(data.killerWeapon === -2) lines.push(`Suicide command`);
-                if(data.killerWeapon === -3) lines.push(`Left a small crater`);
-                if(data.killerWeapon === -4) lines.push(`Killzone/Triggered Death`);
-                
+                lines.push(`Player: ${killer.name}`);
+                if(data.victimWeapon === -2) lines.push(`Suicide command`);
+                if(data.victimWeapon === -3) lines.push(`Left a small crater`);
+                if(data.victimWeapon === -4) lines.push(`Killzone/Triggered Death`);   
             }
 
-            if(data.killerWeapon > 0){
+            if(data.killerWeapon >= 0 && data.victimWeapon >= 0){
                 lines.push(`Weapon: ${killerWeapon}`);
             }
+
             lines.push(`Timestamp ${MMSS(data.timestamp)}`);
 
             let mouseOverX = 0;
@@ -835,12 +811,12 @@ class InteractiveMap{
                 mouseOverY = this.percentToPixels(data.victimLocation.display.y + this.offset.y, "y");
             }
 
-            this.setMouseOverInfo(lines, mouseOverX, mouseOverY);
+            this.setMouseOverInfo(title, lines, mouseOverX, mouseOverY);
         }
 
         const bDisplayLink = this.bShowKillers && this.bShowDeaths;
         
-        if(bDisplayLink && (bOverKiller || bOverVictim)){
+        if(bDisplayLink && (bOverKiller || bOverVictim) && (data.killerId !== data.victimId)){
          
             c.beginPath();
             c.moveTo(
@@ -951,14 +927,25 @@ class InteractiveMap{
 
         c.fillStyle = "rgba(0,0,0,0.75)";
 
+        const titleFontSize = this.percentToPixels(3 ,"y", true);
         const fontSize = this.percentToPixels(2.4 ,"y", true);
 
-        c.font = `${fontSize}px Arial`;
+        
 
         let maxWidth = 0;
         let mainHeight = 0;
 
-        let {x, y, textLines} = this.mouseOver
+        let {title, x, y, textLines} = this.mouseOver;
+
+        c.font = `bold ${titleFontSize}px Arial`;
+
+        mainHeight += titleFontSize * 1.5;
+
+        const titleWidth = c.measureText(`_${title}_`).width;
+
+        maxWidth = titleWidth;
+
+        c.font = `${fontSize}px Arial`;
 
         for(let i = 0; i < textLines.length; i++){
 
@@ -988,8 +975,16 @@ class InteractiveMap{
         c.fillRect(x, y, maxWidth, mainHeight);
         c.fillStyle = "white";
 
-        let offsetY = fontSize;
+        let offsetY = titleFontSize;
         let offsetX = 5;
+
+        c.font = `bold ${titleFontSize}px Arial`;
+        c.fillStyle = "yellow";
+        c.fillText(title, x + offsetX, y + offsetY);
+        offsetY += titleFontSize;
+
+        c.fillStyle = "white";
+        c.font = `${fontSize}px Arial`;
 
         for(let i = 0; i < textLines.length; i++){
 

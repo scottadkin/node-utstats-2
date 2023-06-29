@@ -297,3 +297,16 @@ export function MMSS(timestamp){
         return `${hours}:${minutes}:${seconds}`;
     }
 }
+
+
+export function firstCharToUpperCase(text){
+
+    if(text.length === 0) return "";
+
+    const char1 = text[0].toUpperCase();
+
+    const otherChars = text.substring(1);
+
+    return `${char1}${otherChars}`;
+
+}
