@@ -35,7 +35,7 @@ export function toPlaytime(seconds, bIncludeMilliSeconds){
     if(bIncludeMilliSeconds === undefined) bIncludeMilliSeconds = false;
 
     const rSeconds = Math.floor(seconds % 60);
-    const secondString = plural(rSeconds, "Second");
+    let secondString = plural(rSeconds, "Second");
 
     const totalMintues = Math.floor(seconds / 60);
 
@@ -75,7 +75,11 @@ export function toPlaytime(seconds, bIncludeMilliSeconds){
             if(rSeconds > 0){
 
                 if(bIncludeMilliSeconds){
-                    return `${rSeconds}.${Math.floor(milliSeconds * 100)} ${secondString}`;
+
+                    let ms = Math.floor(milliSeconds * 100);
+                    if(ms < 10) ms = `0${ms}`;
+             
+                    return `${rSeconds}.${ms} Seconds`;
                 }
 
                 return `${rSeconds} ${secondString}`;
@@ -308,5 +312,17 @@ export function firstCharToUpperCase(text){
     const otherChars = text.substring(1);
 
     return `${char1}${otherChars}`;
+}
 
+
+export function toTeamColor(teamId){
+
+    teamId = parseInt(teamId);
+
+    if(teamId === 0) return "Red";
+    if(teamId === 1) return "Blue";
+    if(teamId === 2) return "Green";
+    if(teamId === 3) return "Yellow";
+
+    return "None";
 }

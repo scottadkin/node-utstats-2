@@ -2,7 +2,7 @@ import { useRef, useEffect, useReducer } from "react";
 import styles from "./MapInteractiveMap.module.css";
 import ErrorMessage from "../ErrorMessage";
 import Loading from "../Loading";
-import {getPlayer, toPlaytime, MMSS, firstCharToUpperCase} from "../../api/generic.mjs";
+import {getPlayer, toPlaytime, MMSS, firstCharToUpperCase, toTeamColor} from "../../api/generic.mjs";
 
 const reducer = (state, action) =>{
 
@@ -23,7 +23,8 @@ const reducer = (state, action) =>{
                 "data": action.data,
                 "killData": action.killData,
                 "weaponNames": action.weaponNames,
-                "playerNames": action.playerNames
+                "playerNames": action.playerNames,
+                "flagDrops": action.flagDrops
             }
         }
     }
@@ -286,6 +287,13 @@ class InteractiveMap{
             this.updateEndTime(k.timestamp);
         }
 
+        for(let i = 0; i < this.flagDrops.length; i++){
+
+            const f = this.flagDrops[i];
+            this.updateMinMax(f.position_x, f.position_y, f.position_z);
+            this.updateEndTime(f.timestamp);
+        }
+
         this.range.x = Math.abs(this.max.x - this.min.x);
         this.range.y = Math.abs(this.max.y - this.min.y);
         this.range.z = Math.abs(this.max.z - this.min.z);
@@ -372,6 +380,28 @@ class InteractiveMap{
 
             this.displayKillData.push(current);
         }
+
+        this.displayFlagDropsData = [];
+
+        console.log(this.flagDrops);
+
+        for(let i = 0; i < this.flagDrops.length; i++){
+
+            const f = this.flagDrops[i];
+
+            this.displayFlagDropsData.push({
+                "bReturned": f.cap_id !== -1,
+                "timestamp": f.timestamp,
+                "location": {
+                    "x": this.pixelsToPercent(this.removeOffset(f.position_x, "x"), "x"),
+                    "y": this.pixelsToPercent(this.removeOffset(f.position_y, "y"), "y")
+                },
+                "flagTeam": f.flag_team,
+                "playerTeam": f.player_team,
+                "playerId": f.player_id,
+                "timeDropped": f.time_dropped
+            });
+        }
     }
 
     async loadImage(url, image){
@@ -410,13 +440,14 @@ class InteractiveMap{
 
     }
 
-    async setData(data, killData, weaponNames, playerNames){
+    async setData(data, killData, weaponNames, playerNames, flagDrops){
 
 
         this.data = data;
         this.killData = killData;
         this.weaponNames = weaponNames;
         this.playerNames = playerNames;
+        this.flagDrops = flagDrops;
 
         this.displayData = [];
 
@@ -449,7 +480,7 @@ class InteractiveMap{
             throw new Error("Unknown type");
         }
 
-        const offset = 0 - this.min[type];
+        const offset = -this.min[type];
         return value + offset;
     }
 
@@ -520,10 +551,10 @@ class InteractiveMap{
               
                 const string1 = `Class: ${d.className}`;
                 const string2 = `Name: ${d.name}`;
-                const string3 = `X = ${d.realLocation.x}, Y = ${d.realLocation.y}, Z = ${d.realLocation.z}`;
+                //const string3 = `X = ${d.realLocation.x}, Y = ${d.realLocation.y}, Z = ${d.realLocation.z}`;
 
 
-                this.setMouseOverInfo(`${firstCharToUpperCase(data.type)} Location`, [string1, string2, string3], x, y);
+                this.setMouseOverInfo(`${firstCharToUpperCase(data.type)} Location`, [string1, string2], x, y);
             }
         }
     }
@@ -765,7 +796,7 @@ class InteractiveMap{
 
         const size = 1;
 
-        const fixedSize = size * 0.5// * this.zoom;
+        const fixedSize = (size * 0.5) * this.zoom;
 
         const killerStartX = data.killerLocation.display.x - fixedSize;
         const killerEndX = data.killerLocation.display.x  + fixedSize;
@@ -850,21 +881,66 @@ class InteractiveMap{
         
         if(this.bShowSuicides && data.killerId === data.victimId){
 
-            this.fillCircle(c, killerX, killerY, this.percentToPixels(size, "y"), "rgba(255,255,0,0.5)");
+            this.fillCircle(c, killerX, killerY, this.percentToPixels(size, "y", true), "rgba(255,255,0,0.5)");
 
         }else{
 
             if(data.killerId === data.victimId) return;
 
             if(this.bShowKillers){
-                this.fillCircle(c, killerX, killerY, this.percentToPixels(size, "y"), "rgba(0,255,0,0.25)");
+                this.fillCircle(c, killerX, killerY, this.percentToPixels(size, "y", true), "rgba(0,255,0,0.25)");
             }
 
             if(this.bShowDeaths){
-                this.fillCircle(c, victimX, victimY, this.percentToPixels(size, "y"), "rgba(255,0,0,0.25)");
+                this.fillCircle(c, victimX, victimY, this.percentToPixels(size, "y", true), "rgba(255,0,0,0.25)");
             }
               
         }
+    }
+
+    renderFlagDrop(c, data){
+
+        const width = this.percentToPixels(2, "x", true);
+        const height = this.percentToPixels(2, "y", true);
+
+        c.fillStyle = "pink";
+
+        const startX = this.percentToPixels(data.location.x + this.offset.x, "x");
+        const startY = this.percentToPixels(data.location.y + this.offset.y, "y");
+
+        c.fillRect(startX,startY ,width, height);
+
+        c.fillStyle = "red";
+
+        const percentSize = 2;
+        const scaledSize = this.percentToPixels(percentSize, "y", true);
+
+      
+        //use data.location instead of the corrected display data coordinates
+        const distanceX = this.hover.x - data.location.x;
+        const distanceY = this.hover.y - data.location.y;
+        const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+
+        this.fillCircle(c, startX , startY , scaledSize, "orange");
+       
+        if(distance <= (percentSize * this.zoom) * 0.5){
+
+            const player = getPlayer(this.playerNames, data.playerId, true);
+            
+
+            const lines = [
+                `${player.name} dropped the ${toTeamColor(data.flagTeam)} Flag`,
+                `Dropped For: ${toPlaytime(data.timeDropped, true)}`,
+                `${(data.bReturned) ? "Was Returned" : "Was Later Capped"}`,            
+                `Timestamp: ${MMSS(data.timestamp)}`
+            ];
+
+            
+
+            this.setMouseOverInfo("Flag Drop Location", lines, startX, startY);
+        }
+
+
 
     }
 
@@ -899,11 +975,18 @@ class InteractiveMap{
             const timestamp = k.timestamp;
 
             if(this.bPlaying){
-                if(timestamp > this.currentTime + this.timeRange) return;
+                if(timestamp > this.currentTime + this.timeRange) break;
                 if(timestamp < this.currentTime) continue;
             }
 
             this.renderKill(c, k);
+        }
+
+
+        for(let i = 0; i < this.displayFlagDropsData.length; i++){
+
+            const d = this.displayFlagDropsData[i];
+            this.renderFlagDrop(c, d);
         }
     
     }
@@ -1063,7 +1146,8 @@ const loadData = async (controller, id, dispatch) =>{
             "data": res.data, 
             "killData": res.killData, 
             "weaponNames": res.weaponNames, 
-            "playerNames": res.playerNames
+            "playerNames": res.playerNames,
+            "flagDrops": res.flagDrops
         });
  
 
@@ -1083,6 +1167,7 @@ const MapInteractiveMap = ({id}) =>{
         "killData": null,
         "playerNames": null,
         "weaponNames": null,
+        "flagDrops": null,
         "bLoading": true
     });
 
@@ -1137,7 +1222,7 @@ const MapInteractiveMap = ({id}) =>{
                 testMap.resize();
             }   
 
-            testMap.setData(state.data, state.killData, state.weaponNames, state.playerNames);
+            testMap.setData(state.data, state.killData, state.weaponNames, state.playerNames, state.flagDrops);
             canvasRef.current.addEventListener("mousemove", fart);
             canvasRef.current.addEventListener("mousedown", userClicked);
 

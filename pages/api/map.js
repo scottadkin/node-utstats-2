@@ -3,6 +3,7 @@ import Kills from "../../api/kills";
 import Players from "../../api/players";
 import {getUniqueValuesFromObject} from "../../api/generic.mjs";
 import Weapons from "../../api/weapons";
+import CTF from "../../api/ctf"
 
 export default async function handler(req, res){
 
@@ -75,55 +76,17 @@ export default async function handler(req, res){
         const weaponsManager = new Weapons();
         const weaponNames = await weaponsManager.getNamesByIds(uniqueWeapons, true);
 
- 
-        //console.log(killData);
-        /*for(let i = 0; i < killData.length; i++){
+        const ctfManager = new CTF();
 
-            const k = killData[i];
+        const flagDrops = await ctfManager.getMatchFlagDrops(latestMatchId, "all");
 
-            //if(k.victim_team === -1 && k.distance === -1 && k.victim_weapon !== 0){
-            //    console.log("suicide with weapon");
-           // }
-
-            if(k.victim_weapon > 0 || k.killer === k.victim){
-
-                data.push({
-                    "name": "Killer Location",
-                    "type": "kill",
-                    "timestamp": k.timestamp,
-                    "x": k.killer_x,
-                    "y": k.killer_y,
-                    "z": k.killer_z,
-                    "killerWeapon": k.killer_weapon,
-                    "victimWeapon": k.victim_weapon,
-                    "killer": k.killer,
-                    "victim": k.victim,
-                    
-                });
-                
-            }
-
-            data.push({
-                "name": "Victim Location",
-                "type": "victim",
-                "timestamp": k.timestamp,
-                "x": k.victim_x,
-                "y": k.victim_y,
-                "z": k.victim_z,
-                "killerWeapon": k.killer_weapon,
-                "victimWeapon": k.victim_weapon,
-                "killer": k.killer,
-                "victim": k.victim
-            });
-        }*/
-
-        //console.log(uniquePlayers);
         res.status(200).json({
             "data": data, 
             "itemsData": lastMapItems, 
             "playerNames": playerNames, 
             "weaponNames": weaponNames,
-            "killData": killData
+            "killData": killData,
+            "flagDrops": flagDrops
         });
 
         return;
