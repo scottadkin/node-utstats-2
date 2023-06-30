@@ -112,6 +112,7 @@ class InteractiveMap{
         this.bShowKillers = true;
         this.bShowDeaths = true;
         this.bShowSuicides = true;
+        this.bShowFlagDrops = true;
 
 
         //for kills stuff later
@@ -172,6 +173,10 @@ class InteractiveMap{
         this.buttons.push(new MapButton("Suicide Locations", 55, 0, 15, 5, backgroundColor, fontColor, fontSize, () =>{  
             this.bShowSuicides = !this.bShowSuicides;
         }, "bShowSuicides"));
+
+        this.buttons.push(new MapButton("Flag Drops", 55, 5, 15, 5, backgroundColor, fontColor, fontSize, () =>{  
+            this.bShowFlagDrops = !this.bShowFlagDrops;
+        }, "bShowFlagDrops"));
 
 
         this.buttons.push(new MapButton("Fullscreen", 85, 0, 15, 5, backgroundColor, fontColor, fontSize, () =>{
@@ -913,15 +918,8 @@ class InteractiveMap{
 
     renderFlagDrop(c, data){
 
-        const width = this.percentToPixels(2, "x", true);
-        const height = this.percentToPixels(2, "y", true);
-
-        c.fillStyle = "pink";
-
         const startX = this.percentToPixels(data.location.x + this.offset.x, "x");
         const startY = this.percentToPixels(data.location.y + this.offset.y, "y");
-
-        c.fillRect(startX,startY ,width, height);
 
         c.fillStyle = "red";
 
@@ -938,7 +936,14 @@ class InteractiveMap{
         const distanceY = this.hover.y - data.location.y;
         const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
 
-        this.fillCircle(c, startX , startY , scaledSize, "orange");
+        let color = "red";
+
+        if(data.flagTeam === 1) color = "blue";
+        if(data.flagTeam === 2) color = "green";
+        if(data.flagTeam === 3) color = "yellow";
+
+
+        this.fillCircle(c, startX , startY , scaledSize, color);
 
         this.fillText(c, "FD", startX, startY + (fontSize * 0.4), fontSize, "rgba(255,255,255,0.75)", "center");
        
@@ -1002,10 +1007,18 @@ class InteractiveMap{
         }
 
 
-        for(let i = 0; i < this.displayFlagDropsData.length; i++){
+        if(this.bShowFlagDrops){
+            for(let i = 0; i < this.displayFlagDropsData.length; i++){
 
-            const d = this.displayFlagDropsData[i];
-            this.renderFlagDrop(c, d);
+                const d = this.displayFlagDropsData[i];
+                const timestamp = d.timestamp;
+
+                if(this.bPlaying){
+                    if(timestamp > this.currentTime + this.timeRange) break;
+                    if(timestamp < this.currentTime) continue;
+                }
+                this.renderFlagDrop(c, d);
+            }
         }
     
     }
