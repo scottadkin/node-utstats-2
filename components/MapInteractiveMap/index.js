@@ -655,7 +655,7 @@ class InteractiveMap{
 
     renderBottomInterface(c){
 
-        c.fillStyle = "green";
+        c.fillStyle = "rgba(0,0,0,0.5)";
 
         const startY = this.percentToPixels(100 - this.bottomInterfaceHeight, "y", true);
         const height = this.percentToPixels(this.bottomInterfaceHeight, "y", true);
@@ -665,36 +665,36 @@ class InteractiveMap{
         const progressStartX = this.percentToPixels(50, "x", true);
         const progressWidth = this.percentToPixels(50, "x", true);
 
-        c.fillStyle = "orange";
-        if(this.mouse.x >= 50 && this.mouse.y >= 100 - this.bottomInterfaceHeight){
+        c.fillStyle = "rgba(255,255,255,0.1)";
+        /*if(this.mouse.x >= 50 && this.mouse.y >= 100 - this.bottomInterfaceHeight){
 
             c.fillStyle = "black";
-        } 
+        } */
         
         c.fillRect(progressStartX, startY, progressWidth, height);
 
 
-        const timestampFontSize = this.percentToPixels(3.5,"y",true);
-
-        c.font = `${timestampFontSize}px Arial`;
-        c.fillStyle = "white";
-        c.textAlign = "center";
-
-        if(!this.bDisplayAll){
-            const timestamp = `${MMSS(this.currentTime)}/${MMSS(this.endTime)}`;
-            const timestampWidth = c.measureText(timestamp).width;
-            c.fillText(timestamp, this.percentToPixels(20, "x", true) + (timestampWidth * 0.6), startY + timestampFontSize);
-        }
+        
 
 
         if(this.endTime === 0) return;
-        c.fillStyle = "pink";
+        c.fillStyle = "rgba(255,255,0,0.5)";
 
         const bit = 100 / this.endTime;
 
         const currentPercent = bit * this.currentTime;
 
         c.fillRect(progressStartX, startY, progressWidth *( currentPercent * 0.01), height);
+
+        const timestampFontSize = this.percentToPixels(3.5,"y",true);
+        c.font = `${timestampFontSize}px Arial`;
+        c.fillStyle = "white";
+        c.textAlign = "center";
+
+        //if(!this.bDisplayAll){
+            const timestamp = `${MMSS(this.currentTime)}/${MMSS(this.endTime)}`;
+            c.fillText(timestamp, this.percentToPixels(75, "x", true), startY + timestampFontSize);
+        //}
     }
 
     renderInterface(c){
@@ -933,9 +933,7 @@ class InteractiveMap{
                         mouseOverY = this.percentToPixels(data.victimLocation.display.y + this.offset.y, "y");
                     }
                     this.setMouseOverInfo(title, lines, mouseOverX, mouseOverY);
-                }
-
-                
+                }   
             }
         }
 
