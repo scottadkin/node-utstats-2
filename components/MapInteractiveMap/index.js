@@ -898,6 +898,7 @@ class InteractiveMap{
 
             const title = (bOverKiller) ? (bSuicide) ? "Suicide Location" : "Killer Location" : "Victim Location";
 
+        
             if(!bSuicide){
                 lines.push(`${killer.name} killed ${victim.name}`);
             }else{
@@ -912,21 +913,30 @@ class InteractiveMap{
             }
 
             lines.push(`Timestamp ${MMSS(data.timestamp)}`);
+            
+            if((bSuicide && this.bShowSuicides) || (bOverKiller && this.bShowKillers)  || (bOverVictim && this.bShowDeaths)){
+                let mouseOverX = 0;
+                let mouseOverY = 0;
+       
+                if(bSuicide && bOverKiller && bOverVictim && !this.bShowSuicides){
+                    //stop suicides from being displayed even when disabled with killers/victims being enabled
+                    return;
+                }else{
 
-            let mouseOverX = 0;
-            let mouseOverY = 0;
+                    if(bOverKiller){
+                        mouseOverX = this.percentToPixels(data.killerLocation.display.x + this.offset.x, "x");
+                        mouseOverY = this.percentToPixels(data.killerLocation.display.y + this.offset.y, "y");
+                    }
 
-            if(bOverKiller){
-                mouseOverX = this.percentToPixels(data.killerLocation.display.x + this.offset.x, "x");
-                mouseOverY = this.percentToPixels(data.killerLocation.display.y + this.offset.y, "y");
+                    if(bOverVictim){
+                        mouseOverX = this.percentToPixels(data.victimLocation.display.x + this.offset.x, "x");
+                        mouseOverY = this.percentToPixels(data.victimLocation.display.y + this.offset.y, "y");
+                    }
+                    this.setMouseOverInfo(title, lines, mouseOverX, mouseOverY);
+                }
+
+                
             }
-
-            if(bOverVictim){
-                mouseOverX = this.percentToPixels(data.victimLocation.display.x + this.offset.x, "x");
-                mouseOverY = this.percentToPixels(data.victimLocation.display.y + this.offset.y, "y");
-            }
-
-            this.setMouseOverInfo(title, lines, mouseOverX, mouseOverY);
         }
 
         const bDisplayLink = this.bShowKillers && this.bShowDeaths;
