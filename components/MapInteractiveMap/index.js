@@ -118,6 +118,7 @@ class InteractiveMap{
         //for kills stuff later
         this.bPlaying = false;
         this.playLoop = null;
+        this.bLoopAnimation = true;
         //if false only display items within the selected time frame
         this.bDisplayAll = true;
         this.currentTime = 0;
@@ -244,6 +245,19 @@ class InteractiveMap{
                     clearInterval(this.playLoop);
                 }
             }, "bPlaying")
+        );
+
+        this.buttons.push(new MapButton(
+            "Loop", 
+            40, 
+            100 - this.bottomInterfaceHeight, 
+            10, 
+            this.bottomInterfaceHeight, 
+            backgroundColor, 
+            fontColor, 
+            fontSize, () =>{  
+                this.bLoopAnimation = !this.bLoopAnimation;      
+            }, "bLoopAnimation")
         );
     }
 
@@ -650,7 +664,13 @@ class InteractiveMap{
 
         const progressStartX = this.percentToPixels(50, "x", true);
         const progressWidth = this.percentToPixels(50, "x", true);
+
         c.fillStyle = "orange";
+        if(this.mouse.x >= 50 && this.mouse.y >= 100 - this.bottomInterfaceHeight){
+
+            c.fillStyle = "black";
+        } 
+        
         c.fillRect(progressStartX, startY, progressWidth, height);
 
 
@@ -696,6 +716,7 @@ class InteractiveMap{
         
         c.fillText(`this.hover = ${this.hover.x.toFixed(2)}, ${this.hover.y.toFixed(2)}`, 100, 100);
         c.fillText(`this.mouse = ${this.mouse.x.toFixed(2)}, ${this.mouse.y.toFixed(2)}`, 100, 130);
+        c.fillText(this.mouse.bMouseDown, 100, 150);
 
         this.renderBottomInterface(c);
 
@@ -732,6 +753,17 @@ class InteractiveMap{
         this.hover = {"x": correctX, "y": correctY};
     }
 
+    seekTo(){
+
+        if(this.endTime === 0) return;
+
+        const offset = this.mouse.x - 50;
+
+        const bit = this.endTime / 50;
+        this.currentTime = bit * offset;// this.percentToPixels(bit * offset, "x", true);
+
+    }
+
     userClicked(){
 
         console.log(`click`);
@@ -741,7 +773,7 @@ class InteractiveMap{
         const y = this.mouse.y;
 
         //clicked interface
-        if(y <= this.interfaceHeight || y >= 100 - this.bottomInterfaceHeight){
+        if(y <= this.interfaceHeight || ((y >= 100 - this.bottomInterfaceHeight) && x < 50)){
 
             for(let i = 0; i < this.buttons.length; i++){
 
@@ -766,7 +798,9 @@ class InteractiveMap{
             this.mouse.bMouseDown = true;
         }
 
-
+        if(this.mouse.y >= 100 - this.bottomInterfaceHeight && this.mouse.x >= 50){
+            this.seekTo();
+        }
         
         this.render();
 
@@ -1151,6 +1185,10 @@ class InteractiveMap{
         }
     }
 
+    stopPlayback(){
+        clearInterval(this.playLoop);
+        this.bPlaying = false;
+    }
     render(){
 
 
@@ -1175,7 +1213,11 @@ class InteractiveMap{
 
         c.fillRect(this.percentToPixels(this.mouse.x, "x", true), this.percentToPixels(this.mouse.y, "y", true), 5, 5);
 
-        if(this.currentTime > this.endTime) this.currentTime = 0;
+        if(this.currentTime > this.endTime && this.bLoopAnimation) this.currentTime = 0;
+        if(!this.bLoopAnimation && this.currentTime > this.endTime){
+
+            this.stopPlayback();
+        }
     }
 }
 
