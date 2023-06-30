@@ -79,6 +79,9 @@ export default async function handler(req, res){
         const ctfManager = new CTF();
 
         const flagDrops = await ctfManager.getMatchFlagDrops(latestMatchId, "all");
+        //const flagPickups = await ctfManager.getMatchFlagPickups(latestMatchId, "all");
+
+        //console.log(flagPickups);
 
         res.status(200).json({
             "data": data, 

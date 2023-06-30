@@ -118,6 +118,8 @@ class InteractiveMap{
         //for kills stuff later
         this.bPlaying = false;
         this.playLoop = null;
+        //if false only display items within the selected time frame
+        this.bDisplayAll = true;
         this.currentTime = 0;
         this.endTime = null;
         this.timeScale = 1;
@@ -205,7 +207,7 @@ class InteractiveMap{
         }));
 
         this.buttons.push(new MapButton(
-            "Play/Pause", 
+            "Display All", 
             0, 
             100 - this.bottomInterfaceHeight, 
             10, 
@@ -213,7 +215,23 @@ class InteractiveMap{
             backgroundColor, 
             fontColor, 
             fontSize, () =>{  
+                //don't allow users to show all while in animation state
+                if(this.bPlaying) return;
+                this.bDisplayAll = !this.bDisplayAll;
+            }, "bDisplayAll")
+        );
+
+        this.buttons.push(new MapButton(
+            "Play/Pause", 
+            10, 
+            100 - this.bottomInterfaceHeight, 
+            10, 
+            this.bottomInterfaceHeight, 
+            backgroundColor, 
+            fontColor, 
+            fontSize, () =>{  
                 this.bPlaying = !this.bPlaying;
+                if(this.bPlaying) this.bDisplayAll = false;
 
                 if(this.bPlaying){
 
@@ -571,7 +589,7 @@ class InteractiveMap{
         const enabledColor = "rgba(30,100,30,0.7)";
         const disabledColor = "rgba(120,2,2,0.7)";
 
-        const bMouseOverInterface = this.mouse.y <= this.interfaceHeight;
+        const bMouseOverInterface = this.mouse.y <= this.interfaceHeight || this.mouse.y >= 100 - this.bottomInterfaceHeight;
 
         let bMouseOverButton = false;
 
@@ -641,9 +659,12 @@ class InteractiveMap{
         c.font = `${timestampFontSize}px Arial`;
         c.fillStyle = "white";
         c.textAlign = "center";
-        const timestamp = `${MMSS(this.currentTime)}/${MMSS(this.endTime)}`;
-        const timestampWidth = c.measureText(timestamp).width;
-        c.fillText(timestamp, this.percentToPixels(10, "x", true) + (timestampWidth * 0.6), startY + timestampFontSize);
+
+        if(!this.bDisplayAll){
+            const timestamp = `${MMSS(this.currentTime)}/${MMSS(this.endTime)}`;
+            const timestampWidth = c.measureText(timestamp).width;
+            c.fillText(timestamp, this.percentToPixels(20, "x", true) + (timestampWidth * 0.6), startY + timestampFontSize);
+        }
 
 
         if(this.endTime === 0) return;
@@ -998,7 +1019,7 @@ class InteractiveMap{
 
             const timestamp = k.timestamp;
 
-            if(this.bPlaying){
+            if(this.bPlaying || !this.bDisplayAll){
                 if(timestamp > this.currentTime + this.timeRange) break;
                 if(timestamp < this.currentTime) continue;
             }
@@ -1013,7 +1034,7 @@ class InteractiveMap{
                 const d = this.displayFlagDropsData[i];
                 const timestamp = d.timestamp;
 
-                if(this.bPlaying){
+                if(this.bPlaying || !this.bDisplayAll){
                     if(timestamp > this.currentTime + this.timeRange) break;
                     if(timestamp < this.currentTime) continue;
                 }
