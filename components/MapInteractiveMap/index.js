@@ -782,6 +782,15 @@ class InteractiveMap{
         c.closePath();
     }
 
+    fillText(c, text, x, y, size, color, align, bBold){
+
+        if(bBold === undefined) bBold = false;
+        c.fillStyle = color;
+        c.textAlign = align;
+        c.font = `${(bBold) ? "bold " : ""}${size}px Arial`;
+        c.fillText(text, x, y);
+    }
+
     renderKill(c, data){
 
         c.fillStyle = "white";
@@ -794,7 +803,7 @@ class InteractiveMap{
         const victimX = this.percentToPixels(data.victimLocation.display.x + this.offset.x, "x");
         const victimY = this.percentToPixels(data.victimLocation.display.y + this.offset.y, "y");
 
-        const size = 1;
+        const size = 1.5;
 
         const fixedSize = (size * 0.5) * this.zoom;
 
@@ -877,11 +886,14 @@ class InteractiveMap{
             c.closePath();    
         }
 
+        const fontSize = this.percentToPixels(2, "y", true);
+        const fontColor = "rgba(255,255,255,0.5)";
 
         
         if(this.bShowSuicides && data.killerId === data.victimId){
 
             this.fillCircle(c, killerX, killerY, this.percentToPixels(size, "y", true), "rgba(255,255,0,0.5)");
+            this.fillText(c, "S", killerX, killerY + (fontSize * 0.4), fontSize, fontColor, "center");
 
         }else{
 
@@ -889,12 +901,13 @@ class InteractiveMap{
 
             if(this.bShowKillers){
                 this.fillCircle(c, killerX, killerY, this.percentToPixels(size, "y", true), "rgba(0,255,0,0.25)");
+                this.fillText(c, "K", killerX, killerY + (fontSize * 0.4), fontSize, fontColor, "center");
             }
 
             if(this.bShowDeaths){
                 this.fillCircle(c, victimX, victimY, this.percentToPixels(size, "y", true), "rgba(255,0,0,0.25)");
-            }
-              
+                this.fillText(c, "D", victimX, victimY + (fontSize * 0.4), fontSize, fontColor, "center");
+            }          
         }
     }
 
@@ -915,6 +928,10 @@ class InteractiveMap{
         const percentSize = 2;
         const scaledSize = this.percentToPixels(percentSize, "y", true);
 
+        const fontSize = this.percentToPixels(2.3, "y", true);
+
+        c.font = `bold ${fontSize}px Arial`;
+
       
         //use data.location instead of the corrected display data coordinates
         const distanceX = this.hover.x - data.location.x;
@@ -922,6 +939,8 @@ class InteractiveMap{
         const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
 
         this.fillCircle(c, startX , startY , scaledSize, "orange");
+
+        this.fillText(c, "FD", startX, startY + (fontSize * 0.4), fontSize, "rgba(255,255,255,0.75)", "center");
        
         if(distance <= (percentSize * this.zoom) * 0.5){
 
@@ -1057,7 +1076,7 @@ class InteractiveMap{
 
             if(currentWidth > maxWidth) maxWidth = currentWidth;
 
-            mainHeight += fontSize * 1.5;
+            mainHeight += fontSize * 1.3;
 
         }
 
