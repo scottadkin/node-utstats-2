@@ -1723,7 +1723,11 @@ class CTF{
 
         //insertCRKills
 
-        this.crKills.push([eventType, matchId, matchDate, mapId, capId, timestamp, playerId, playerTeam, kills]);
+        const vars = [
+            matchId, matchDate, mapId, capId, eventType, timestamp, playerId, playerTeam, kills
+        ];
+
+        this.crKills.push(vars);
     }
 
     async insertCRKills(){
