@@ -483,7 +483,7 @@ class Maps{
 
     async getRecent(id, page, perPage, playerManager){
 
-        const query = "SELECT * FROM nstats_matches WHERE map=? AND playtime>=? AND players>=? ORDER BY date DESC LIMIT ?, ?";
+        const query = "SELECT * FROM nstats_matches WHERE map=? AND playtime>=? AND players>=? ORDER BY date DESC, id DESC LIMIT ?, ?";
 
         const settings = this.currentSettings();
 

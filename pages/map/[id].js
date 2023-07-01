@@ -230,21 +230,15 @@ function setTimeFrameValues(data, timeFrame, arrayLength, label){
 
     const now = Math.floor(new Date() * 0.001);
 
-    let diff = 0;
-    let d = 0;
-
-    let index = 0;
-
-
     for(let i = 0; i < data.length; i++){
 
-        d = data[i];
+        const d = data[i];
 
-        diff = now - d;
+        const diff = now - d;
 
         for(let x = 0; x < arrayLength; x++){
 
-            index = Math.floor(diff / timeFrame);
+            const index = Math.floor(diff / timeFrame);
 
             if(index === x){
                 values[index]++;

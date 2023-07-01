@@ -651,6 +651,13 @@ class CTF{
         return await mysql.simpleQuery(query, [matchId]);
     }
 
+    async getMatchReturnsInteractiveData(matchId){
+
+        const query = `SELECT flag_team,return_time,return_player,pos_x,pos_y,pos_z FROM nstats_ctf_returns WHERE match_id=? ORDER BY return_time DESC`;
+
+        return await mysql.simpleQuery(query, [matchId]);
+    }
+
     filterFlagCovers(covers, team, start, end, bSelfCovers){
 
         const found = [];
