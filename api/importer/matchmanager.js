@@ -416,6 +416,7 @@ class MatchManager{
                 await this.CTFManager.insertFlagCovers();
                 await this.CTFManager.bulkInsertFlagPickups();
                 await this.CTFManager.bulkInsertSelfCovers();
+                await this.CTFManager.insertCapReturnKills();
 
 
 

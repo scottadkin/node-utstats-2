@@ -1730,7 +1730,7 @@ class CTF{
 
         const query = "INSERT INTO nstats_ctf_cr_kills (match_id,match_date,map_id,cap_id,event_type,timestamp,player_id,player_team,total_events) VALUES ?";
 
-        await mysql.insertBulk(query, this.crKills);
+        await mysql.bulkInsert(query, this.crKills);
     }
 
     /*async insertCRKills(eventType, matchId, matchDate, mapId, capId, timestamp, playerId, playerTeam, kills){
