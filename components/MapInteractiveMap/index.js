@@ -25,7 +25,8 @@ const reducer = (state, action) =>{
                 "weaponNames": action.weaponNames,
                 "playerNames": action.playerNames,
                 "flagDrops": action.flagDrops,
-                "flagReturns": action.flagReturns
+                "flagReturns": action.flagReturns,
+                "flagCovers": action.flagCovers
             }
         }
     }
@@ -115,6 +116,7 @@ class InteractiveMap{
         this.bShowSuicides = true;
         this.bShowFlagDrops = true;
         this.bShowFlagReturns = true;
+        this.bShowFlagCovers = true;
 
 
         //for kills stuff later
@@ -186,6 +188,10 @@ class InteractiveMap{
         this.buttons.push(new MapButton("Flag Returns", 60, 0, 15, 5, backgroundColor, fontColor, fontSize, () =>{  
             this.bShowFlagReturns = !this.bShowFlagReturns;
         }, "bShowFlagReturns"));
+
+        this.buttons.push(new MapButton("Flag Covers", 60, 5, 15, 5, backgroundColor, fontColor, fontSize, () =>{  
+            this.bShowFlagCovers = !this.bShowFlagCovers;
+        }, "bShowFlagCovers"));
 
 
         this.buttons.push(new MapButton("Fullscreen", 85, 0, 15, 5, backgroundColor, fontColor, fontSize, () =>{
@@ -426,6 +432,8 @@ class InteractiveMap{
                 },
                 "type": k.type,
                 "name": k.name,
+                "killerTeam": k.killer_team,
+                "victimTeam": k.victim_team
             };
 
             this.displayKillData.push(current);
@@ -510,7 +518,7 @@ class InteractiveMap{
 
     }
 
-    async setData(data, killData, weaponNames, playerNames, flagDrops, flagReturns){
+    async setData(data, killData, weaponNames, playerNames, flagDrops, flagReturns, flagCovers){
 
 
         this.data = data;
@@ -519,6 +527,7 @@ class InteractiveMap{
         this.playerNames = playerNames;
         this.flagDrops = flagDrops;
         this.flagReturns = flagReturns;
+        this.flagCovers = flagCovers;
 
         this.displayData = [];
 
@@ -885,6 +894,24 @@ class InteractiveMap{
         c.fillText(text, x, y);
     }
 
+    bKillCover(timestamp, killerId, victimId){
+
+        for(let i = 0; i < this.flagCovers.length; i++){
+
+            const c = this.flagCovers[i];
+
+            if(c.timestamp > timestamp) return false;
+            if(c.timestamp < timestamp) continue;
+
+            if(c.timestamp === timestamp && killerId === c.killer_id && victimId === c.victim_id){
+                return true;
+            }
+        }
+
+
+        return false;
+    }
+
     renderKill(c, data){
 
         c.fillStyle = "white";
@@ -897,7 +924,9 @@ class InteractiveMap{
         const victimX = this.percentToPixels(data.victimLocation.display.x + this.offset.x, "x");
         const victimY = this.percentToPixels(data.victimLocation.display.y + this.offset.y, "y");
 
-        const size = 1.5;
+        const bCover = this.bKillCover(data.timestamp, data.killerId, data.victimId);
+
+        const size = (bCover && this.bShowFlagCovers) ? 2 : 1.5;
 
         const fixedSize = (size * 0.5) * this.zoom;
 
@@ -930,8 +959,9 @@ class InteractiveMap{
 
             const lines = [];
 
-            const title = (bOverKiller) ? (bSuicide) ? "Suicide Location" : "Killer Location" : "Victim Location";
+            let title = (bOverKiller) ? (bSuicide) ? "Suicide Location" : "Killer Location" : "Victim Location";
 
+            if(bCover && bOverKiller && this.bShowFlagCovers) title = "Flag Cover Location";
         
             if(!bSuicide){
                 lines.push(`${killer.name} killed ${victim.name}`);
@@ -948,7 +978,7 @@ class InteractiveMap{
 
             lines.push(`Timestamp ${MMSS(data.timestamp)}`);
             
-            if((bSuicide && this.bShowSuicides) || (bOverKiller && this.bShowKillers)  || (bOverVictim && this.bShowDeaths)){
+            if((bSuicide && this.bShowSuicides) || (bOverKiller && this.bShowKillers)  || (bOverVictim && this.bShowDeaths) || (bCover && bOverKiller && this.bShowFlagCovers)){
                 let mouseOverX = 0;
                 let mouseOverY = 0;
        
@@ -1006,6 +1036,13 @@ class InteractiveMap{
                 this.fillText(c, "K", killerX, killerY + (fontSize * 0.4), fontSize, fontColor, "center");
             }
 
+            if(bCover && this.bShowFlagCovers){
+  
+                this.fillCircle(c, killerX, killerY, this.percentToPixels(size, "y", true), this.getTeamColor(data.killerTeam));
+                this.fillText(c, "FC", killerX, killerY + (fontSize * 0.4), fontSize, "white", "center");
+                
+            }
+
             if(this.bShowDeaths){
                 this.fillCircle(c, victimX, victimY, this.percentToPixels(size, "y", true), "rgba(255,0,0,0.25)");
                 this.fillText(c, "D", victimX, victimY + (fontSize * 0.4), fontSize, fontColor, "center");
@@ -1013,6 +1050,18 @@ class InteractiveMap{
         }
     }
 
+
+    getTeamColor(teamId){
+
+        teamId = parseInt(teamId);
+
+        if(teamId === 0) return "red";
+        if(teamId === 1) return "blue";
+        if(teamId === 2) return "green";
+        if(teamId === 3) return "yellow";
+
+        return "grey";
+    }
 
     renderFlagEvent(c, data, title, iconText, lines){
 
@@ -1034,11 +1083,8 @@ class InteractiveMap{
         const distanceY = this.hover.y - data.location.y;
         const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
 
-        let color = "red";
+        const color = this.getTeamColor(data.flagTeam);
 
-        if(data.flagTeam === 1) color = "blue";
-        if(data.flagTeam === 2) color = "green";
-        if(data.flagTeam === 3) color = "yellow";
 
 
         this.fillCircle(c, startX , startY , scaledSize, color);
@@ -1143,6 +1189,7 @@ class InteractiveMap{
         }
 
         if(this.bShowFlagReturns){
+
             for(let i = 0; i < this.displayFlagReturnsData.length; i++){
 
                 const d = this.displayFlagReturnsData[i];
@@ -1157,7 +1204,6 @@ class InteractiveMap{
                 this.renderFlagReturn(c, d);
             }
         }
-    
     }
 
     renderGrid(c){
@@ -1326,7 +1372,8 @@ const loadData = async (controller, id, dispatch) =>{
             "weaponNames": res.weaponNames, 
             "playerNames": res.playerNames,
             "flagDrops": res.flagDrops,
-            "flagReturns": res.flagReturns
+            "flagReturns": res.flagReturns,
+            "flagCovers": res.flagCovers
         });
  
 
@@ -1348,6 +1395,7 @@ const MapInteractiveMap = ({id}) =>{
         "weaponNames": null,
         "flagDrops": null,
         "flagReturns": null,
+        "flagCovers": null,
         "bLoading": true
     });
 
@@ -1402,7 +1450,16 @@ const MapInteractiveMap = ({id}) =>{
                 testMap.resize();
             }   
 
-            testMap.setData(state.data, state.killData, state.weaponNames, state.playerNames, state.flagDrops, state.flagReturns);
+            testMap.setData(
+                state.data, 
+                state.killData, 
+                state.weaponNames, 
+                state.playerNames, 
+                state.flagDrops, 
+                state.flagReturns, 
+                state.flagCovers
+            );
+
             canvasRef.current.addEventListener("mousemove", fart);
             canvasRef.current.addEventListener("mousedown", userClicked);
 

@@ -524,11 +524,13 @@ class CTF{
         return await mysql.simpleQuery(query, [matchId]);
     }
 
-    async getMatchCovers(matchId, bOnlyCapped){
+    async getMatchCovers(matchId, bOnlyCapped, bIgnoreId){
+
+        if(bIgnoreId === undefined) bIgnoreId = false;
 
         const extra = " AND cap_id!=-1";
 
-        const query = `SELECT id,cap_id,timestamp,killer_id,victim_id FROM nstats_ctf_covers
+        const query = `SELECT ${(bIgnoreId) ? "" :"id,"}cap_id,timestamp,killer_id,victim_id FROM nstats_ctf_covers
         WHERE match_id=? ${(bOnlyCapped) ? extra : ""} ORDER BY timestamp ASC`;
 
         return await mysql.simpleQuery(query, [matchId]);

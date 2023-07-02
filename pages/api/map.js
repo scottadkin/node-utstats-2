@@ -81,6 +81,7 @@ export default async function handler(req, res){
         const flagDrops = await ctfManager.getMatchFlagDrops(latestMatchId, "all");
         const flagReturns = await ctfManager.getMatchReturnsInteractiveData(latestMatchId);
 
+        const flagCovers = await ctfManager.getMatchCovers(latestMatchId, false, true);
 
         res.status(200).json({
             "data": data, 
@@ -89,7 +90,8 @@ export default async function handler(req, res){
             "weaponNames": weaponNames,
             "killData": killData,
             "flagDrops": flagDrops,
-            "flagReturns": flagReturns
+            "flagReturns": flagReturns,
+            "flagCovers": flagCovers
         });
 
         return;
