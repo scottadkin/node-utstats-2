@@ -1,46 +1,38 @@
 import styles from './MapDefaultBox.module.css';
-import Functions from '../../api/functions';
 import Link from 'next/link';
 import React from 'react';
-import Playtime from '../Playtime';
+import { convertTimestamp, toPlaytime, removeUnr, cleanMapName } from '../../api/generic.mjs';
 
-class MapDefaultBox extends React.Component{
-
-    constructor(props){
-        super(props);
-    }
-
-    getImage(){
+function getImage(name, images, host){
         
+    const fixedName = cleanMapName(name).toLowerCase();
 
-        const fixedName = Functions.cleanMapName(this.props.data.name).toLowerCase();
-        const images = JSON.parse(this.props.images);
-
-       // const index = images.indexOf(fixedName);
-
-        if(images[fixedName] !== undefined){
-            return `${this.props.host}/images/maps/thumbs/${images[fixedName]}.jpg`;
-        }
-
-        return `${this.props.host}/images/maps/thumbs/default.jpg`;
+    if(images[fixedName] !== undefined){
+        return `${host}/images/maps/thumbs/${images[fixedName]}.jpg`;
     }
 
-    render(){
+    return `${host}/images/maps/thumbs/default.jpg`;
+}
 
-        return (<Link href={`/map/${this.props.data.id}`}><div className={styles.wrapper}>
+const MapDefaultBox = ({host, data, images}) =>{
+
+    const imageUrl = getImage(data.name, images, host);
+
+    return <Link href={`/map/${data.id}`}>
+        <div className={styles.wrapper}>
             <div className={styles.title}>
-                {Functions.removeUnr(this.props.data.name)}
+                {removeUnr(data.name)}
             </div>
-            <img className="thumb-sshot" src={this.getImage()} alt="image"/>
+            <img className="thumb-sshot" src={imageUrl} alt="image"/>
             <div className={styles.info}>
                 
-                {this.props.data.matches} {(this.props.data.matches === 1) ? "Match" : "Matches"}<br/>
-                Playtime <Playtime timestamp={this.props.data.playtime}/><br/>
-                First {Functions.convertTimestamp(this.props.data.first, true)}<br/>
-                Last {Functions.convertTimestamp(this.props.data.last, true)}<br/>
+                {data.matches} {(data.matches === 1) ? "Match" : "Matches"}<br/>
+                Playtime {toPlaytime(data.playtime)}<br/>
+                First {convertTimestamp(data.first, true)}<br/>
+                Last {convertTimestamp(data.last, true)}<br/>
             </div>
-        </div></Link>);
-    }
+        </div>
+    </Link>;
 }
 
 export default MapDefaultBox;

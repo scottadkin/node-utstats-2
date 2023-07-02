@@ -41,9 +41,11 @@ class MapList extends React.Component{
             </div>;
 
         }else{
+
+            const images = JSON.parse(this.props.images);
         
             for(let i = 0; i < maps.length; i++){
-                elems.push(<MapDefaultBox host={this.props.host} key={i} data={maps[i]} images={this.props.images}/>);
+                elems.push(<MapDefaultBox host={this.props.host} key={i} data={maps[i]} images={images}/>);
             }
 
             return <div className={styles.dwrapper}>

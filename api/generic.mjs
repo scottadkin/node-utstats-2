@@ -326,3 +326,40 @@ export function toTeamColor(teamId){
 
     return "None";
 }
+
+export function removeUnr(name){
+
+    const reg = /^(.+?)\.unr$/i;
+
+    const result = reg.exec(name);
+
+    if(result !== null){
+        return result[1];
+    }
+
+    return name;
+}
+
+export function removeMapGametypePrefix(name){
+
+    const reg = /^.*?-(.+)$/i;
+
+    const result = reg.exec(name);
+
+    if(result === null){
+        return name;
+    }else{
+
+        return result[1];
+    }
+}
+
+export function cleanMapName(name){
+
+    name = removeUnr(name);
+    name = removeMapGametypePrefix(name);
+
+    name = name.replace(/[\[\]\'\`]/ig,"");
+
+    return name;
+}
