@@ -4,6 +4,11 @@ import React from 'react';
 import Table2 from '../Table2';
 import styles from "./MapList.module.css";
 
+const MapList = ({}) =>{
+
+    return <div>Horse noise</div>
+}
+/*
 class MapList extends React.Component{
 
     constructor(props){
@@ -53,7 +58,7 @@ class MapList extends React.Component{
             </div>;
         }
     }
-}
+}*/
 
 
 export default MapList;

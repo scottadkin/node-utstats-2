@@ -441,8 +441,6 @@ class InteractiveMap{
 
         this.displayFlagDropsData = [];
 
-        console.log(this.flagDrops);
-
         for(let i = 0; i < this.flagDrops.length; i++){
 
             const f = this.flagDrops[i];
@@ -1055,12 +1053,14 @@ class InteractiveMap{
 
         teamId = parseInt(teamId);
 
-        if(teamId === 0) return "red";
-        if(teamId === 1) return "blue";
-        if(teamId === 2) return "green";
-        if(teamId === 3) return "yellow";
+        const alpha = 0.5;
 
-        return "grey";
+        if(teamId === 0) return `rgba(255,0,0,${alpha})`;
+        if(teamId === 1) return `rgba(0,0,255,${alpha})`;
+        if(teamId === 2) return `rgba(0,255,0,${alpha})`;
+        if(teamId === 3) return `rgba(255,255,0,${alpha})`;
+
+        return `rgba(120,120,120,${alpha})`;
     }
 
     renderFlagEvent(c, data, title, iconText, lines){

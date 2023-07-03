@@ -6,14 +6,58 @@ import MapManager from '../api/maps';
 import MapList from '../components/MapList/';
 import Functions from '../api/functions';
 import Pagination from '../components/Pagination';
-import Option2 from '../components/Option2/';
 import React from 'react';
 import Session from '../api/session';
 import SiteSettings from '../api/sitesettings';
 import Analytics from '../api/analytics';
+import Router from 'next/router';
 
 
 
+const Maps = ({session, navSettings, pageSettings, host, page, pages, results, perPage, maps, images, name, dropDownOptions}) =>{
+
+    let start = (page - 1) * perPage;
+    if(start < 0) start = 0;
+    let end = start + perPage;
+    
+    maps = JSON.parse(maps);
+    images = JSON.parse(images);
+
+    let title = "Maps";
+    let description = "View all the maps that have been played on our servers.";
+
+    if(name !== ""){
+
+        title = `Search result for "${name}"`;
+        description = `Search results for "${name}", page ${page} of ${pages}.`;
+    }
+
+    return <div>
+        <DefaultHead host={host} title={`${title} - Page ${page} of ${pages}`}  
+        description={description} 
+        keywords={`search,map,maps`}/>
+        <main>
+        <Nav settings={navSettings} session={session}/>
+        <div id="content">
+            <div className="default">
+                <div className="default-header" onClick={() =>{
+                    Router.push({
+                        pathname: '/maps',
+                        query: { sortBy: 'price' }
+                      }, 
+                      undefined/*optional decorator */, { shallow: true }
+                      )
+                }}>
+                    Maps
+                </div>
+                <MapList maps={maps} images={images}/>
+            </div>
+        </div>
+        <Footer session={session}/>
+        </main>   
+    </div>
+}
+/*
 class Maps extends React.Component{
 
     constructor(props){
@@ -154,7 +198,7 @@ class Maps extends React.Component{
             </div>
         );
     }
-}
+}*/
 
 
 export async function getServerSideProps({req, query}){
@@ -181,26 +225,38 @@ export async function getServerSideProps({req, query}){
 
     let displayType = 0;
     let name = "";
-
-    page = Functions.setSafeInt(query.page, 1, 1);
-    perPage = Functions.setSafeInt(query.perPage, perPage, 1, 100);
-    displayType = Functions.setSafeInt(query.displayType, 0);
-
-    if(query.name !== undefined){
-
-        name = query.name;
-    }
+    let bAsc = 1;
 
 
+    page = (query.page !== undefined) ? parseInt(query.page) : 1;
+    perPage = (query.perPage !== undefined) ? parseInt(query.perPage) : 25;
+    displayType = (query.displayType !== undefined) ? parseInt(query.displayType) : 0;
+    if(query.name !== undefined) name = query.name;
+    bAsc = (query.bAsc !== undefined) ? parseInt(query.bAsc) : 1;
+    if(bAsc !== bAsc) bAsc = 1;
+    
+    if(page !== page) page = 1;
+    if(perPage !== perPage) perPage = 25;
+
+    console.log(`page = ${page}`);
     const manager = new MapManager();
 
-    const maps = await manager.get(page, perPage, name);
+    const maps = await manager.defaultSearch(page, perPage, name, bAsc);
+
+    console.log(maps);
 
     const names = Functions.getUniqueValues(maps, 'name');
+
+    const dropDownOptions = await manager.getAllDropDownOptions();
     
     const images = await manager.getImages(names);
     const totalResults = await manager.getTotalResults(name);
 
+    let pages = 1;
+
+    if(totalResults !== 0){
+        pages = Math.ceil(totalResults / perPage);
+    }
     
 
     await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
@@ -213,12 +269,14 @@ export async function getServerSideProps({req, query}){
             "images": JSON.stringify(images),
             "results": totalResults,
             "page": page,
+            "pages": pages,
             "perPage": perPage,
             "displayType": displayType,
             "name": name,
             "session": JSON.stringify(session.settings),
             "navSettings": JSON.stringify(navSettings),
-            "pageSettings": JSON.stringify(pageSettings)
+            "pageSettings": JSON.stringify(pageSettings),
+            "dropDownOptions": dropDownOptions
         }
     };
 }

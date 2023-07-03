@@ -275,8 +275,6 @@ class Maps{
 
     }
 
-    
-
     removePrefix(name){
 
         const reg = /^.+?-(.+)$/i;
@@ -401,7 +399,42 @@ class Maps{
     }
 
 
-    get(page, perPage, name){
+
+    async defaultSearch(page, perPage, name, bAscending){
+
+        page = parseInt(page);
+        if(page !== page) page = 1;
+        page--;
+
+        perPage = parseInt(perPage);
+        if(perPage != perPage) perPage = 25;
+
+        let start = perPage * page;
+        if(start < 0) start = 0;
+
+        console.log(`bAscending = ${bAscending}`);
+        const bAsc = (bAscending) ? "ASC" : "DESC";
+
+        const vars = [start, perPage];
+
+        let nameSearch = "";
+
+        if(name !== ""){
+
+            nameSearch = "WHERE name LIKE (?)";
+            vars.unshift(`%${name}%`);
+        }
+
+        const query = `SELECT * FROM nstats_maps ${nameSearch} ORDER BY name ${bAsc} LIMIT ?, ?`;
+
+        
+        console.log(query);
+        return await mysql.simpleQuery(query, vars);
+
+    
+    }
+
+    /*get(page, perPage, name){
 
         return new Promise((resolve, reject) =>{
 
@@ -436,7 +469,7 @@ class Maps{
                 resolve([]);
             });
         });
-    }
+    }*/
 
 
     getSingle(id){
