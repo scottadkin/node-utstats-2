@@ -50,20 +50,23 @@ const reducer = (state, action) =>{
                 "order": action.value
             }
         }
-        case "reverseOrder": {
+        case "changeSortBy": {
 
             let currentOrder = state.order;
-            if(currentOrder === 0) currentOrder = 1;
-            else if(currentOrder === 1) currentOrder = 0;
-            return {
-                ...state,
-                "order": currentOrder
+
+            if(action.value === state.sortBy){
+
+                if(currentOrder === 0){
+                    currentOrder = 1;
+                }else if(currentOrder === 1){
+                    currentOrder = 0;
+                }
             }
-        }
-        case "changeSortBy": {
+
             return {
                 ...state,
-                "sortBy": action.value
+                "sortBy": action.value,
+                "order": currentOrder
             }
         }
         case "loaded": {
@@ -167,7 +170,7 @@ const Maps = ({session, navSettings, pageSettings, host, page, pages, results, p
                 "content": "This is some content"
             },
             "onClick": () =>{
-                dispatch({"type": "reverseOrder"});
+                dispatch({"type": "changeSortBy", "value": "name"});
             }
         },
         "first": {
@@ -176,6 +179,9 @@ const Maps = ({session, navSettings, pageSettings, host, page, pages, results, p
                 "title": "First Match Date",
                 "content": "The date of the first match played for this map."
             },
+            "onClick": () =>{
+                dispatch({"type": "changeSortBy", "value": "first"});
+            }
         },
         "last": {
             "display": "Last",
@@ -183,12 +189,21 @@ const Maps = ({session, navSettings, pageSettings, host, page, pages, results, p
                 "title": "Last Match Date",
                 "content": "The date of the most recent match played for this map."
             },
+            "onClick": () =>{
+                dispatch({"type": "changeSortBy", "value": "last"});
+            }
         },
         "playtime": {
-            "display": "Playtime"
+            "display": "Playtime",
+            "onClick": () =>{
+                dispatch({"type": "changeSortBy", "value": "playtime"});
+            }
         },
         "matches": {
-            "display": "Matches"
+            "display": "Matches",
+            "onClick": () =>{
+                dispatch({"type": "changeSortBy", "value": "matches"});
+            }
         }
     };
 
@@ -266,7 +281,7 @@ const Maps = ({session, navSettings, pageSettings, host, page, pages, results, p
                         changeSelected={(name, value) =>{
                             dispatch({"type": "changeSortBy", "value": value});
                         }}
-                        originalValue={state.order}  
+                        originalValue={state.sortBy}  
                     />
       
                     <DropDown dName="Order" 
