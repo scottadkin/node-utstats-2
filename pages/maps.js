@@ -1,24 +1,122 @@
-import Link from 'next/link';
-import DefaultHead from '../components/defaulthead';
-import Nav from '../components/Nav/';
-import Footer from '../components/Footer/';
-import MapManager from '../api/maps';
-import MapList from '../components/MapList/';
-import Functions from '../api/functions';
-import Pagination from '../components/Pagination';
-import React from 'react';
-import Session from '../api/session';
-import SiteSettings from '../api/sitesettings';
-import Analytics from '../api/analytics';
-import Router from 'next/router';
+import Link from "next/link";
+import DefaultHead from "../components/defaulthead";
+import Nav from "../components/Nav/";
+import Footer from "../components/Footer/";
+import MapManager from "../api/maps";
+import MapList from "../components/MapList/";
+import Functions from "../api/functions";
+import Pagination from "../components/Pagination";
+import {useState, useReducer, useEffect} from "react";
+import Session from "../api/session";
+import SiteSettings from "../api/sitesettings";
+import Analytics from "../api/analytics";
+import Router from "next/router";
+import DropDown from "../components/DropDown";
+
+const reducer = (state, action) =>{
+
+    switch(action.type){
+
+        case "loadMaps": {
+            return {
+                ...state,
+                "bLoading": true,
+                "error": null
+            }
+        }
+        case "changePerPage": {
+            return {
+                ...state,
+                "perPage": action.value
+            }
+        }
+        case "changeDisplayMode": {
+            return {
+                ...state,
+                "displayMode": action.value
+            }
+        }
+        case "changeSearchName": {
+            return {
+                ...state,
+                "searchName": action.value
+            }
+        }
+        case "changeOrder": {
+            return {
+                ...state,
+                "order": action.value
+            }
+        }
+        case "loaded": {
+            return {
+                ...state,
+                "bLoading": false,
+                "error": null,
+                "data": action.data
+            }
+        }
+    }
+
+    return state;
+}
+
+async function loadData(state, dispatch, page, controller){
+
+    const url = `/api/mapsearch?name=${state.searchName}&page=${page}&order=${state.order}&perPage=${state.perPage}`;
+
+    console.log(url);
+    const req = await fetch(url, {
+        "signal": controller.signal
+    });
+
+    const res = await req.json();
+
+    if(res.error === undefined){
+
+        console.log(res.data);
+        dispatch({"type": "loaded", "data": res.data});
+    }
+
+    console.log(res);
+}
 
 
+const Maps = ({session, navSettings, pageSettings, host, page, pages, results, perPage, maps, images, name, displayType, bAsc}) =>{
 
-const Maps = ({session, navSettings, pageSettings, host, page, pages, results, perPage, maps, images, name, dropDownOptions}) =>{
+    const [state, dispatch] = useReducer(reducer, {
+        "bLoading": true,
+        "error": null,
+        "page": page,
+        "perPage": perPage,
+        "mapList": [],
+        "data": [],
+        "pages": pages,
+        "displayMode": displayType,
+        "searchName": name,
+        "order": bAsc
+    });
 
-    let start = (page - 1) * perPage;
+    useEffect(() =>{
+
+        const controller = new AbortController();
+
+        console.log("horse noise", page);
+        loadData(state, dispatch, page, controller);
+
+        return () =>{
+            controller.abort();
+        }
+
+    }, [state.searchName, page, state.perPage, state.order]);
+
+    useEffect(() =>{
+        //console.log(page);
+    }, [page]);
+
+    let start = (page - 1) * state.perPage;
     if(start < 0) start = 0;
-    let end = start + perPage;
+    let end = start + state.perPage;
     
     maps = JSON.parse(maps);
     images = JSON.parse(images);
@@ -26,14 +124,24 @@ const Maps = ({session, navSettings, pageSettings, host, page, pages, results, p
     let title = "Maps";
     let description = "View all the maps that have been played on our servers.";
 
-    if(name !== ""){
+    if(state.searchName !== ""){
 
-        title = `Search result for "${name}"`;
-        description = `Search results for "${name}", page ${page} of ${pages}.`;
+        title = `Search result for "${state.searchName}"`;
+        description = `Search results for "${state.searchName}", page ${page} of ${state.pages}.`;
     }
 
+    let url = "";
+
+    if(state.searchName !== ""){
+        url = `/maps?displayType=${state.displayMode}&perPage=${state.perPage}&bAsc=${state.order}&name=${state.searchName}&page=`;
+    }else{
+        url = `/maps?displayType=${state.displayMode}&perPage=${state.perPage}&bAsc=${state.order}&page=`;
+    }
+
+    const pageinationElem = <Pagination url={url} results={results} currentPage={page} pages={state.pages} perPage={state.perPage}/>;
+
     return <div>
-        <DefaultHead host={host} title={`${title} - Page ${page} of ${pages}`}  
+        <DefaultHead host={host} title={`${title} - Page ${page} of ${state.pages}`}  
         description={description} 
         keywords={`search,map,maps`}/>
         <main>
@@ -42,15 +150,55 @@ const Maps = ({session, navSettings, pageSettings, host, page, pages, results, p
             <div className="default">
                 <div className="default-header" onClick={() =>{
                     Router.push({
-                        pathname: '/maps',
-                        query: { sortBy: 'price' }
+                        pathname: "/maps",
+                        query: { sortBy: "price" }
                       }, 
                       undefined/*optional decorator */, { shallow: true }
                       )
                 }}>
                     Maps
                 </div>
-                <MapList maps={maps} images={images}/>
+                <div className="form m-bottom-25">
+                    <div className="default-sub-header-alt">Search For A Map</div>
+                    <div className="form-row">
+                        <div className="form-label">Map Name</div>
+                        <input type="text" className="default-textbox" placeholder="name..." onKeyDown={((e) =>{
+                            dispatch({"type": "changeSearchName", "value": e.target.value});
+                        })} onKeyUp={((e) =>{
+                            dispatch({"type": "changeSearchName", "value": e.target.value});
+                        })}/>   
+                    </div>
+      
+                    <DropDown dName="Order" 
+                        fName="order"
+                        data={[
+                            {"value": 1, "displayValue": "Ascending"},
+                            {"value": 0, "displayValue": "Descending"},
+                        ]}
+                        changeSelected={(name, value) =>{
+                            dispatch({"type": "changeOrder", "value": value});
+                        }}
+                        originalValue={state.order}  
+                    />
+                    <DropDown dName="Results Per Page"
+                        data={[
+                            {"value": 5, "displayValue": 5},
+                            {"value": 10, "displayValue": 10},
+                            {"value": 25, "displayValue": 25},
+                            {"value": 50, "displayValue": 50},
+                            {"value": 100, "displayValue": 100}
+                        ]} 
+                        fName="order"
+                        changeSelected={(name, value) =>{
+                            dispatch({"type": "changePerPage", "value": value});
+                        }}
+                        originalValue={state.perPage}
+                    />
+                
+                </div>
+                perPage = {state.perPage}
+                {pageinationElem}
+                <MapList maps={state.data} images={images} displayType={state.displayMode}/>
             </div>
         </div>
         <Footer session={session}/>
@@ -130,7 +278,7 @@ class Maps extends React.Component{
 
         if(pages < 1) pages = 1;
 
-        let url = '';
+        let url = "";
 
         if(this.state.name !== ""){
             url = `/maps?displayType=${this.state.displayType}&perPage=${this.state.perPage}&name=${this.state.name}&page=`;
@@ -138,7 +286,7 @@ class Maps extends React.Component{
             url = `/maps?displayType=${this.state.displayType}&perPage=${this.state.perPage}&page=`;
         }
 
-        let notFound = '';
+        let notFound = "";
 
         if(this.props.results === 0){
             notFound = <div className="not-found">There are no matching results.</div>
@@ -225,29 +373,27 @@ export async function getServerSideProps({req, query}){
 
     let displayType = 0;
     let name = "";
-    let bAsc = 1;
+    let bAsc = 0;
 
 
     page = (query.page !== undefined) ? parseInt(query.page) : 1;
-    perPage = (query.perPage !== undefined) ? parseInt(query.perPage) : 25;
+    perPage = (query.perPage !== undefined) ? parseInt(query.perPage) : 5;
     displayType = (query.displayType !== undefined) ? parseInt(query.displayType) : 0;
     if(query.name !== undefined) name = query.name;
     bAsc = (query.bAsc !== undefined) ? parseInt(query.bAsc) : 1;
     if(bAsc !== bAsc) bAsc = 1;
     
     if(page !== page) page = 1;
-    if(perPage !== perPage) perPage = 25;
+    if(perPage !== perPage) perPage = 5;//25;
 
     console.log(`page = ${page}`);
     const manager = new MapManager();
 
-    const maps = await manager.defaultSearch(page, perPage, name, bAsc);
+    const maps = []//await manager.defaultSearch(page, perPage, name, bAsc);
 
-    console.log(maps);
+    //console.log(maps);
 
-    const names = Functions.getUniqueValues(maps, 'name');
-
-    const dropDownOptions = await manager.getAllDropDownOptions();
+    const names = Functions.getUniqueValues(maps, "name");
     
     const images = await manager.getImages(names);
     const totalResults = await manager.getTotalResults(name);
@@ -259,7 +405,7 @@ export async function getServerSideProps({req, query}){
     }
     
 
-    await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
+    await Analytics.insertHit(session.userIp, req.headers.host, req.headers["user-agent"]);
 
 
     return {
@@ -273,10 +419,10 @@ export async function getServerSideProps({req, query}){
             "perPage": perPage,
             "displayType": displayType,
             "name": name,
+            "bAsc": bAsc,
             "session": JSON.stringify(session.settings),
             "navSettings": JSON.stringify(navSettings),
-            "pageSettings": JSON.stringify(pageSettings),
-            "dropDownOptions": dropDownOptions
+            "pageSettings": JSON.stringify(pageSettings)
         }
     };
 }

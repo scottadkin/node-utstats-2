@@ -1,12 +1,64 @@
 import MapDefaultBox from '../MapDefaultBox/';
 import MapTableRow from '../MapTableRow/';
-import React from 'react';
-import Table2 from '../Table2';
+import {useEffect} from 'react';
+import InteractiveTable from '../InteractiveTable';
 import styles from "./MapList.module.css";
+import { removeUnr, convertTimestamp, toPlaytime } from '../../api/generic.mjs';
 
-const MapList = ({}) =>{
+const MapList = ({displayType, maps, images}) =>{
 
-    return <div>Horse noise</div>
+    useEffect(() =>{
+
+    }, [displayType]);
+
+    console.log(maps);
+
+    const headers = {
+        "name": "Name",
+        //"author": "Author"
+        "first": "First",
+        "last": "Last",
+        "playtime": "Playtime",
+        "matches": "Matches"
+        
+    };
+
+    const tableData = maps.map((map) =>{
+
+        return {
+            "name": {
+                "value": map.name.toLowerCase(), 
+                "displayValue": removeUnr(map.name), 
+                "className": "text-left"
+            },
+            /*"author": {
+                "value": map.author.toLowerCase(),
+                "displayValue": map.author
+            }*/
+            "first": {
+                "value": map.first,
+                "displayValue": convertTimestamp(map.first, true),
+                "className": "playtime"
+            },
+            "last": {
+                "value": map.last,
+                "displayValue": convertTimestamp(map.last, true),
+                "className": "playtime"
+            },
+            "matches": {
+                "value": map.matches
+            },
+            "playtime": {
+                "value": map.playtime,
+                "displayValue": toPlaytime(map.playtime),
+                "className": "playtime"
+            }
+        }
+    });
+
+    return <div>
+        <InteractiveTable bDisableSorting={true} width={1} headers={headers} data={tableData}/>
+    </div>
 }
 /*
 class MapList extends React.Component{

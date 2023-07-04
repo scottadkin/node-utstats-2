@@ -401,7 +401,7 @@ class Maps{
 
 
     async defaultSearch(page, perPage, name, bAscending){
-
+    
         page = parseInt(page);
         if(page !== page) page = 1;
         page--;
