@@ -1,19 +1,17 @@
-import Link from "next/link";
 import DefaultHead from "../components/defaulthead";
 import Nav from "../components/Nav/";
 import Footer from "../components/Footer/";
 import MapManager from "../api/maps";
 import Functions from "../api/functions";
 import Pagination from "../components/Pagination";
-import {useState, useReducer, useEffect} from "react";
+import {useReducer, useEffect} from "react";
 import Session from "../api/session";
 import SiteSettings from "../api/sitesettings";
 import Analytics from "../api/analytics";
 import Router from "next/router";
 import DropDown from "../components/DropDown";
-import CustomTable from "../components/CustomTable";
-import { removeUnr, convertTimestamp, toPlaytime } from '../api/generic.mjs';
-import MapDefaultBox from "../components/MapDefaultBox";
+import MapsDefaultView from "../components/MapsDefaultView";
+import MapsTableView from "../components/MapsTableView";
 
 const setUrl = (query) =>{
 
@@ -179,7 +177,6 @@ async function loadData(dispatch, searchName, page, order, sortBy, perPage, cont
 
     const url = `/api/mapsearch?name=${searchName}&page=${page}&order=${order}&sortBy=${sortBy}&perPage=${perPage}`;
 
-    console.log(url);
     const req = await fetch(url, {
         "signal": controller.signal
     });
@@ -191,94 +188,7 @@ async function loadData(dispatch, searchName, page, order, sortBy, perPage, cont
         console.log(res.data);
         dispatch({"type": "loaded", "data": res.data});
     }
-
-    console.log(res);
 }
-
-const renderTable = (data, dispatch) =>{
-
-    const headers = {
-        "name": {
-            "display": "Name",
-            "mouseOver": {
-                "title": "test title",
-                "content": "This is some content"
-            },
-            "onClick": () =>{
-                dispatch({"type": "changeSortBy", "value": "name"});
-            }
-        },
-        "first": {
-            "display": "First",
-            "mouseOver": {
-                "title": "First Match Date",
-                "content": "The date of the first match played for this map."
-            },
-            "onClick": () =>{
-                dispatch({"type": "changeSortBy", "value": "first"});
-            }
-        },
-        "last": {
-            "display": "Last",
-            "mouseOver": {
-                "title": "Last Match Date",
-                "content": "The date of the most recent match played for this map."
-            },
-            "onClick": () =>{
-                dispatch({"type": "changeSortBy", "value": "last"});
-            }
-        },
-        "playtime": {
-            "display": "Playtime",
-            "onClick": () =>{
-                dispatch({"type": "changeSortBy", "value": "playtime"});
-            }
-        },
-        "matches": {
-            "display": "Matches",
-            "onClick": () =>{
-                dispatch({"type": "changeSortBy", "value": "matches"});
-            }
-        }
-    };
-
-    const testData = data.map((d) =>{
-
-        return {
-            "name": {
-                "value": d.name.toLowerCase(), 
-                "displayValue": removeUnr(d.name), 
-                "className": "text-left"
-            },
-            /*"author": {
-                "value": map.author.toLowerCase(),
-                "displayValue": map.author
-            }*/
-            "first": {
-                "value": d.first,
-                "displayValue": convertTimestamp(d.first, true),
-                "className": "playtime"
-            },
-            "last": {
-                "value": d.last,
-                "displayValue": convertTimestamp(d.last, true),
-                "className": "playtime"
-            },
-            "playtime": {
-                "value": d.playtime,
-                "displayValue": toPlaytime(d.playtime),
-                "className": "playtime"
-            },
-            "matches": {
-                "value": d.matches
-            },
-        }
-    });
-
-   return  <CustomTable headers={headers} data={testData}/>
-
-}
-
 
 const Maps = ({session, navSettings, pageSettings, host, page, pages, results, perPage, maps, name, displayType, bAsc, sortBy}) =>{
 
@@ -308,13 +218,9 @@ const Maps = ({session, navSettings, pageSettings, host, page, pages, results, p
 
     }, [state.searchName, page, state.perPage, state.order, state.sortBy]);
 
-    useEffect(() =>{
-        //console.log(page);
-    }, [page]);
 
     let start = (page - 1) * state.perPage;
     if(start < 0) start = 0;
-    let end = start + state.perPage;
     
     maps = JSON.parse(maps);
 
@@ -336,24 +242,14 @@ const Maps = ({session, navSettings, pageSettings, host, page, pages, results, p
     }
 
     const pageinationElem = <Pagination url={url} results={results} currentPage={page} pages={state.pages} perPage={state.perPage}/>;
-
-    
-
     const imageHost = Functions.getImageHostAndPort(host);
 
     let elems = null;
 
     if(state.displayMode === 0){
-
-        elems = state.data.map((d) =>{
-            return <MapDefaultBox key={d.id} host={imageHost} data={d}/>
-        });
-
-        elems = <div>{elems}</div>;
-        
+        elems = <MapsDefaultView data={state.data} host={imageHost}/>;      
     }else{
-
-        elems = renderTable(state.data, dispatch);
+        elems = <MapsTableView data={state.data} dispatch={dispatch} />//renderTable(state.data, dispatch);
     }
 
     return <div>

@@ -1,9 +1,0 @@
-.table td:nth-child(1){
-    text-align:left;
-}
-
-.dwrapper{
-    width:var(--width-1);
-    margin-left:auto;
-    margin-right:auto;
-}
