@@ -15,6 +15,17 @@ import DropDown from "../components/DropDown";
 import CustomTable from "../components/CustomTable";
 import { removeUnr, convertTimestamp, toPlaytime } from '../api/generic.mjs';
 
+const setUrl = (query) =>{
+
+
+    Router.push({
+        "pathname": "/maps",
+        "query": query
+      }, 
+      undefined, { shallow: true }
+      )
+}
+
 const reducer = (state, action) =>{
 
     switch(action.type){
@@ -27,6 +38,23 @@ const reducer = (state, action) =>{
             }
         }
         case "changePerPage": {
+
+
+            const query = {
+                "displayType": state.displayMode,
+                "perPage": action.value,
+                "sortBy": state.sortBy,
+                "bAsc": state.order,
+                "page": 1
+            };
+
+            if(state.searchName !== ""){
+
+                query.name = state.searchName;
+            }
+            
+            setUrl(query);
+
             return {
                 ...state,
                 "perPage": action.value
@@ -39,12 +67,44 @@ const reducer = (state, action) =>{
             }
         }
         case "changeSearchName": {
+
+            const query = {
+                "displayType": state.displayMode,
+                "perPage": state.perPage,
+                "sortBy": state.sortBy,
+                "bAsc": state.order,
+                "page": 1
+            };
+
+            //if(state.searchName !== ""){
+
+                query.name = action.value;
+            //}
+            
+            setUrl(query);
+
             return {
                 ...state,
                 "searchName": action.value
             }
         }
         case "changeOrder": {
+
+            const query = {
+                "displayType": state.displayMode,
+                "perPage": state.perPage,
+                "sortBy": state.sortBy,
+                "bAsc": action.value,
+                "page": 1
+            };
+
+            if(state.searchName !== ""){
+
+                query.name = state.searchName;
+            }
+
+            setUrl(query);
+
             return {
                 ...state,
                 "order": action.value
@@ -65,10 +125,10 @@ const reducer = (state, action) =>{
 
             //let url = "";
 
-            let query = {
+            const query = {
                 "displayType": state.displayMode,
                 "perPage": state.perPage,
-                "sortBy": state.sortBy,
+                "sortBy": action.value,
                 "bAsc": state.order,
                 "page": 1
             };
@@ -76,20 +136,9 @@ const reducer = (state, action) =>{
             if(state.searchName !== ""){
 
                 query.name = state.searchName;
-                
-           //     url = `/maps?displayType=${state.displayMode}&perPage=${state.perPage}&sortBy=${state.sortBy}&bAsc=${state.order}&name=${state.searchName}&page=1`;
-            }else{
-                //url = `/maps?displayType=${state.displayMode}&perPage=${state.perPage}&sortBy=${state.sortBy}&bAsc=${state.order}&page=1`;
             }
 
-
-
-            Router.push({
-                "pathname": "/maps/",
-                "query": query
-              }, 
-              undefined/*optional decorator */, { shallow: true }
-            )
+            setUrl(query);
 
             return {
                 ...state,
@@ -276,12 +325,12 @@ const Maps = ({session, navSettings, pageSettings, host, page, pages, results, p
         <div id="content">
             <div className="default">
                 <div className="default-header" onClick={() =>{
-                    Router.push({
+                    /*Router.push({
                         pathname: "/maps",
                         query: { sortBy: "price" }
                       }, 
-                      undefined/*optional decorator */, { shallow: true }
-                      )
+                      undefined, { shallow: true }
+                      )*/
                 }}>
                     Maps
                 </div>
@@ -289,7 +338,7 @@ const Maps = ({session, navSettings, pageSettings, host, page, pages, results, p
                     <div className="default-sub-header-alt">Search For A Map</div>
                     <div className="form-row">
                         <div className="form-label">Map Name</div>
-                        <input type="text" className="default-textbox" placeholder="name..." onKeyDown={((e) =>{
+                        <input type="text" className="default-textbox" placeholder="name..." defaultValue={name} onKeyDown={((e) =>{
                             dispatch({"type": "changeSearchName", "value": e.target.value});
                         })} onKeyUp={((e) =>{
                             dispatch({"type": "changeSearchName", "value": e.target.value});
