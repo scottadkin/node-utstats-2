@@ -54,7 +54,8 @@ const MapsDefaultView = ({data, dispatch}) =>{
             "name": {
                 "value": d.name.toLowerCase(), 
                 "displayValue": removeUnr(d.name), 
-                "className": "text-left"
+                "className": "text-left",
+                "url": `/map/${d.id}`
             },
             /*"author": {
                 "value": map.author.toLowerCase(),

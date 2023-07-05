@@ -1,5 +1,6 @@
 import styles from "./CustomTable.module.css";
 import MouseOver from "../MouseOver";
+import Link from "next/link";
 
 
 const createRow = (data, index) =>{
@@ -8,13 +9,18 @@ const createRow = (data, index) =>{
 
     for(const key of Object.keys(data)){
 
-        const {value, displayValue, className} = data[key];
+        const {value, displayValue, className, url} = data[key];
 
         const currentStyleClass = (className !== undefined) ? className : null;
-        
 
+        let inner = (displayValue === undefined) ? value : displayValue;
+
+        if(url !== undefined){
+            inner = <Link href={url}>{inner}</Link>
+        }
+        
         elems.push(<td className={currentStyleClass} key={key}>
-            {(displayValue === undefined) ? value : displayValue}
+            {inner}
         </td>);
     }
 
