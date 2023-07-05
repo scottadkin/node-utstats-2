@@ -3,20 +3,14 @@ import Link from 'next/link';
 import React from 'react';
 import { convertTimestamp, toPlaytime, removeUnr, cleanMapName } from '../../api/generic.mjs';
 
-function getImage(name, images, host){
+function getImage(image, host){
         
-    const fixedName = cleanMapName(name).toLowerCase();
-
-    if(images[fixedName] !== undefined){
-        return `${host}/images/maps/thumbs/${images[fixedName]}.jpg`;
-    }
-
-    return `${host}/images/maps/thumbs/default.jpg`;
+    return `${host}/images/maps/thumbs/${image}.jpg`;
 }
 
-const MapDefaultBox = ({host, data, images}) =>{
+const MapDefaultBox = ({host, data}) =>{
 
-    const imageUrl = getImage(data.name, images, host);
+    const imageUrl = getImage(data.image, host);
 
     return <Link href={`/map/${data.id}`}>
         <div className={styles.wrapper}>

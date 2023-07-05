@@ -59,6 +59,11 @@ const CustomTable = ({width, headers, data}) =>{
         
     });
 
+    if(dataRows.length === 0){
+
+        dataRows.push(<tr key="none"><td colSpan={Object.keys(headers).length}>No Data</td></tr>);
+    }
+
     return <table className={`${styles.wrapper} ${tableClassName}`}>
             <tbody>
                 {headerRow}

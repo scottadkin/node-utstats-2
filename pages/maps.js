@@ -3,7 +3,6 @@ import DefaultHead from "../components/defaulthead";
 import Nav from "../components/Nav/";
 import Footer from "../components/Footer/";
 import MapManager from "../api/maps";
-import MapList from "../components/MapList/";
 import Functions from "../api/functions";
 import Pagination from "../components/Pagination";
 import {useState, useReducer, useEffect} from "react";
@@ -14,6 +13,7 @@ import Router from "next/router";
 import DropDown from "../components/DropDown";
 import CustomTable from "../components/CustomTable";
 import { removeUnr, convertTimestamp, toPlaytime } from '../api/generic.mjs';
+import MapDefaultBox from "../components/MapDefaultBox";
 
 const setUrl = (query) =>{
 
@@ -61,6 +61,22 @@ const reducer = (state, action) =>{
             }
         }
         case "changeDisplayMode": {
+
+            const query = {
+                "displayType": action.value,
+                "perPage": state.perPage,
+                "sortBy": state.sortBy,
+                "bAsc": state.order,
+                "page": 1
+            };
+
+            if(state.searchName !== ""){
+
+                query.name = state.searchName;
+            }
+            
+            setUrl(query);
+
             return {
                 ...state,
                 "displayMode": action.value
@@ -179,64 +195,7 @@ async function loadData(dispatch, searchName, page, order, sortBy, perPage, cont
     console.log(res);
 }
 
-
-const Maps = ({session, navSettings, pageSettings, host, page, pages, results, perPage, maps, images, name, displayType, bAsc, sortBy}) =>{
-
-    const [state, dispatch] = useReducer(reducer, {
-        "bLoading": true,
-        "error": null,
-        "page": page,
-        "perPage": perPage,
-        "mapList": [],
-        "data": [],
-        "pages": pages,
-        "displayMode": displayType,
-        "searchName": name,
-        "order": bAsc,
-        "sortBy": sortBy
-    });
-
-    useEffect(() =>{
-
-        const controller = new AbortController();
-
-        loadData(dispatch, state.searchName, page, state.order, state.sortBy, state.perPage, controller);
-
-        return () =>{
-            controller.abort();
-        }
-
-    }, [state.searchName, page, state.perPage, state.order, state.sortBy]);
-
-    useEffect(() =>{
-        //console.log(page);
-    }, [page]);
-
-    let start = (page - 1) * state.perPage;
-    if(start < 0) start = 0;
-    let end = start + state.perPage;
-    
-    maps = JSON.parse(maps);
-    images = JSON.parse(images);
-
-    let title = "Maps";
-    let description = "View all the maps that have been played on our servers.";
-
-    if(state.searchName !== ""){
-
-        title = `Search result for "${state.searchName}"`;
-        description = `Search results for "${state.searchName}", page ${page} of ${state.pages}.`;
-    }
-
-    let url = "";
-
-    if(state.searchName !== ""){
-        url = `/maps?displayType=${state.displayMode}&perPage=${state.perPage}&sortBy=${state.sortBy}&bAsc=${state.order}&name=${state.searchName}&page=`;
-    }else{
-        url = `/maps?displayType=${state.displayMode}&perPage=${state.perPage}&sortBy=${state.sortBy}&bAsc=${state.order}&page=`;
-    }
-
-    const pageinationElem = <Pagination url={url} results={results} currentPage={page} pages={state.pages} perPage={state.perPage}/>;
+const renderTable = (data, dispatch) =>{
 
     const headers = {
         "name": {
@@ -283,7 +242,7 @@ const Maps = ({session, navSettings, pageSettings, host, page, pages, results, p
         }
     };
 
-    const testData = state.data.map((d) =>{
+    const testData = data.map((d) =>{
 
         return {
             "name": {
@@ -316,6 +275,87 @@ const Maps = ({session, navSettings, pageSettings, host, page, pages, results, p
         }
     });
 
+   return  <CustomTable headers={headers} data={testData}/>
+
+}
+
+
+const Maps = ({session, navSettings, pageSettings, host, page, pages, results, perPage, maps, name, displayType, bAsc, sortBy}) =>{
+
+    const [state, dispatch] = useReducer(reducer, {
+        "bLoading": true,
+        "error": null,
+        "page": page,
+        "perPage": perPage,
+        "mapList": [],
+        "data": [],
+        "pages": pages,
+        "displayMode": displayType,
+        "searchName": name,
+        "order": bAsc,
+        "sortBy": sortBy
+    });
+
+    useEffect(() =>{
+
+        const controller = new AbortController();
+
+        loadData(dispatch, state.searchName, page, state.order, state.sortBy, state.perPage, controller);
+
+        return () =>{
+            controller.abort();
+        }
+
+    }, [state.searchName, page, state.perPage, state.order, state.sortBy]);
+
+    useEffect(() =>{
+        //console.log(page);
+    }, [page]);
+
+    let start = (page - 1) * state.perPage;
+    if(start < 0) start = 0;
+    let end = start + state.perPage;
+    
+    maps = JSON.parse(maps);
+
+    let title = "Maps";
+    let description = "View all the maps that have been played on our servers.";
+
+    if(state.searchName !== ""){
+
+        title = `Map search result for "${state.searchName}"`;
+        description = `Map search results for "${state.searchName}", page ${page} of ${state.pages}.`;
+    }
+
+    let url = "";
+
+    if(state.searchName !== ""){
+        url = `/maps?displayType=${state.displayMode}&perPage=${state.perPage}&sortBy=${state.sortBy}&bAsc=${state.order}&name=${state.searchName}&page=`;
+    }else{
+        url = `/maps?displayType=${state.displayMode}&perPage=${state.perPage}&sortBy=${state.sortBy}&bAsc=${state.order}&page=`;
+    }
+
+    const pageinationElem = <Pagination url={url} results={results} currentPage={page} pages={state.pages} perPage={state.perPage}/>;
+
+    
+
+    const imageHost = Functions.getImageHostAndPort(host);
+
+    let elems = null;
+
+    if(state.displayMode === 0){
+
+        elems = state.data.map((d) =>{
+            return <MapDefaultBox key={d.id} host={imageHost} data={d}/>
+        });
+
+        elems = <div>{elems}</div>;
+        
+    }else{
+
+        elems = renderTable(state.data, dispatch);
+    }
+
     return <div>
         <DefaultHead host={host} title={`${title} - Page ${page} of ${state.pages}`}  
         description={description} 
@@ -324,14 +364,7 @@ const Maps = ({session, navSettings, pageSettings, host, page, pages, results, p
         <Nav settings={navSettings} session={session}/>
         <div id="content">
             <div className="default">
-                <div className="default-header" onClick={() =>{
-                    /*Router.push({
-                        pathname: "/maps",
-                        query: { sortBy: "price" }
-                      }, 
-                      undefined, { shallow: true }
-                      )*/
-                }}>
+                <div className="default-header">
                     Maps
                 </div>
                 <div className="form m-bottom-25">
@@ -371,6 +404,17 @@ const Maps = ({session, navSettings, pageSettings, host, page, pages, results, p
                         }}
                         originalValue={state.order}  
                     />
+                    <DropDown dName="Display" 
+                        fName="display"
+                        data={[
+                            {"value": 0, "displayValue": "Normal View"},
+                            {"value": 1, "displayValue": "Table View"}           
+                        ]}
+                        changeSelected={(name, value) =>{
+                            dispatch({"type": "changeDisplayMode", "value": value});
+                        }}
+                        originalValue={state.displayMode}  
+                    />
                     <DropDown dName="Results Per Page"
                         data={[
                             {"value": 5, "displayValue": 5},
@@ -387,9 +431,9 @@ const Maps = ({session, navSettings, pageSettings, host, page, pages, results, p
                     />
                 
                 </div>
-                perPage = {state.perPage} sortBy {state.sortBy}
                 {pageinationElem}
-                <CustomTable headers={headers} data={testData}/>
+                {elems}
+                {pageinationElem}
             </div>
         </div>
         <Footer session={session}/>
@@ -542,6 +586,8 @@ class Maps extends React.Component{
 
 export async function getServerSideProps({req, query}){
 
+    console.log("*********************************************************");
+
     const session = new Session(req);
 
 	await session.load();
@@ -567,28 +613,26 @@ export async function getServerSideProps({req, query}){
     let bAsc = 0;
     let sortBy = (query.sortBy !== undefined) ? query.sortBy : "name";
 
+    const defaultPerPage = 10;
+
 
     page = (query.page !== undefined) ? parseInt(query.page) : 1;
-    perPage = (query.perPage !== undefined) ? parseInt(query.perPage) : 5;
+    perPage = (query.perPage !== undefined) ? parseInt(query.perPage) : defaultPerPage;
     displayType = (query.displayType !== undefined) ? parseInt(query.displayType) : 0;
     if(query.name !== undefined) name = query.name;
     bAsc = (query.bAsc !== undefined) ? parseInt(query.bAsc) : 1;
     if(bAsc !== bAsc) bAsc = 1;
     
     if(page !== page) page = 1;
-    if(perPage !== perPage) perPage = 5;//25;
+    if(perPage !== perPage) perPage = defaultPerPage;
 
 
-    console.log(`page = ${page}`);
     const manager = new MapManager();
 
     const maps = []//await manager.defaultSearch(page, perPage, name, bAsc);
 
     //console.log(maps);
 
-    const names = Functions.getUniqueValues(maps, "name");
-    
-    const images = await manager.getImages(names);
     const totalResults = await manager.getTotalResults(name);
 
     let pages = 1;
@@ -597,15 +641,12 @@ export async function getServerSideProps({req, query}){
         pages = Math.ceil(totalResults / perPage);
     }
     
-
     await Analytics.insertHit(session.userIp, req.headers.host, req.headers["user-agent"]);
-
 
     return {
         props: {
             "host": req.headers.host,
             "maps": JSON.stringify(maps),
-            "images": JSON.stringify(images),
             "results": totalResults,
             "page": page,
             "pages": pages,

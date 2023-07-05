@@ -1,4 +1,5 @@
-const Maps = require("../../api/maps");
+import Maps from "../../api/maps";
+import {cleanMapName} from "../../api/generic.mjs";
 
 export default async function handler(req, res){
     console.log(req.query);
@@ -19,7 +20,23 @@ export default async function handler(req, res){
 
     const data = await manager.defaultSearch(page, perPage, name, order, sortBy);
 
-    //onsole.log(data);
+    const uniqueMapNames = [...new Set([...data.map((d) =>{
+        
+        return cleanMapName(d.name).toLowerCase();
+    })])];
+
+    const mapImages = await manager.getImages(uniqueMapNames);
+ 
+    for(let i = 0; i < data.length; i++){
+
+        const currentName = cleanMapName(data[i].name).toLowerCase();
+
+        if(mapImages[currentName] === undefined){
+            data[i].image = "default";
+        }else{
+            data[i].image = mapImages[currentName];
+        }
+    }
 
     res.status(200).json({"data": data});
     return;
