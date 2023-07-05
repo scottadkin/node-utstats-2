@@ -10,6 +10,10 @@ class Maps{
         if(settings !== undefined){
             this.settings = settings;
         }
+
+        this.validSearchOptions = [
+            "name", "first", "last", "matches", "playtime"
+        ];
         
     }
 
@@ -400,7 +404,8 @@ class Maps{
 
 
 
-    async defaultSearch(page, perPage, name, bAscending){
+    async defaultSearch(page, perPage, name, bAscending, sortBy){
+
     
         page = parseInt(page);
         if(page !== page) page = 1;
@@ -412,8 +417,18 @@ class Maps{
         let start = perPage * page;
         if(start < 0) start = 0;
 
-        console.log(`bAscending = ${bAscending}`);
         const bAsc = (bAscending) ? "ASC" : "DESC";
+
+        if(sortBy === undefined){
+            sortBy = "name";
+        }else{
+
+            sortBy = sortBy.toLowerCase();
+
+            if(this.validSearchOptions.indexOf(sortBy) === -1){
+                sortBy = "name";
+            }
+        }
 
         const vars = [start, perPage];
 
@@ -425,10 +440,9 @@ class Maps{
             vars.unshift(`%${name}%`);
         }
 
-        const query = `SELECT * FROM nstats_maps ${nameSearch} ORDER BY name ${bAsc} LIMIT ?, ?`;
+        const query = `SELECT * FROM nstats_maps ${nameSearch} ORDER BY ${sortBy} ${bAsc} LIMIT ?, ?`;
 
         
-        console.log(query);
         return await mysql.simpleQuery(query, vars);
 
     

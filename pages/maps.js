@@ -63,6 +63,34 @@ const reducer = (state, action) =>{
                 }
             }
 
+            //let url = "";
+
+            let query = {
+                "displayType": state.displayMode,
+                "perPage": state.perPage,
+                "sortBy": state.sortBy,
+                "bAsc": state.order,
+                "page": 1
+            };
+
+            if(state.searchName !== ""){
+
+                query.name = state.searchName;
+                
+           //     url = `/maps?displayType=${state.displayMode}&perPage=${state.perPage}&sortBy=${state.sortBy}&bAsc=${state.order}&name=${state.searchName}&page=1`;
+            }else{
+                //url = `/maps?displayType=${state.displayMode}&perPage=${state.perPage}&sortBy=${state.sortBy}&bAsc=${state.order}&page=1`;
+            }
+
+
+
+            Router.push({
+                "pathname": "/maps/",
+                "query": query
+              }, 
+              undefined/*optional decorator */, { shallow: true }
+            )
+
             return {
                 ...state,
                 "sortBy": action.value,
@@ -82,9 +110,9 @@ const reducer = (state, action) =>{
     return state;
 }
 
-async function loadData(state, dispatch, page, controller){
+async function loadData(dispatch, searchName, page, order, sortBy, perPage, controller){
 
-    const url = `/api/mapsearch?name=${state.searchName}&page=${page}&order=${state.order}&perPage=${state.perPage}`;
+    const url = `/api/mapsearch?name=${searchName}&page=${page}&order=${order}&sortBy=${sortBy}&perPage=${perPage}`;
 
     console.log(url);
     const req = await fetch(url, {
@@ -123,14 +151,13 @@ const Maps = ({session, navSettings, pageSettings, host, page, pages, results, p
 
         const controller = new AbortController();
 
-        console.log("horse noise", page);
-        loadData(state, dispatch, page, controller);
+        loadData(dispatch, state.searchName, page, state.order, state.sortBy, state.perPage, controller);
 
         return () =>{
             controller.abort();
         }
 
-    }, [state.searchName, page, state.perPage, state.order]);
+    }, [state.searchName, page, state.perPage, state.order, state.sortBy]);
 
     useEffect(() =>{
         //console.log(page);
@@ -155,9 +182,9 @@ const Maps = ({session, navSettings, pageSettings, host, page, pages, results, p
     let url = "";
 
     if(state.searchName !== ""){
-        url = `/maps?displayType=${state.displayMode}&perPage=${state.perPage}&bAsc=${state.order}&name=${state.searchName}&page=`;
+        url = `/maps?displayType=${state.displayMode}&perPage=${state.perPage}&sortBy=${state.sortBy}&bAsc=${state.order}&name=${state.searchName}&page=`;
     }else{
-        url = `/maps?displayType=${state.displayMode}&perPage=${state.perPage}&bAsc=${state.order}&page=`;
+        url = `/maps?displayType=${state.displayMode}&perPage=${state.perPage}&sortBy=${state.sortBy}&bAsc=${state.order}&page=`;
     }
 
     const pageinationElem = <Pagination url={url} results={results} currentPage={page} pages={state.pages} perPage={state.perPage}/>;
@@ -229,14 +256,14 @@ const Maps = ({session, navSettings, pageSettings, host, page, pages, results, p
                 "displayValue": convertTimestamp(d.last, true),
                 "className": "playtime"
             },
-            "matches": {
-                "value": d.matches
-            },
             "playtime": {
                 "value": d.playtime,
                 "displayValue": toPlaytime(d.playtime),
                 "className": "playtime"
-            }
+            },
+            "matches": {
+                "value": d.matches
+            },
         }
     });
 
@@ -314,7 +341,6 @@ const Maps = ({session, navSettings, pageSettings, host, page, pages, results, p
                 perPage = {state.perPage} sortBy {state.sortBy}
                 {pageinationElem}
                 <CustomTable headers={headers} data={testData}/>
-                <MapList maps={state.data} images={images} displayType={state.displayMode}/>
             </div>
         </div>
         <Footer session={session}/>

@@ -13,9 +13,11 @@ export default async function handler(req, res){
 
     let order = (req.query.order !== undefined) ? parseInt(req.query.order) : 1; 
 
+    let sortBy = (req.query.sortBy !== undefined) ? req.query.sortBy.toLowerCase() : "name";
+
     console.log(`page = ${page}`, `perPage = ${perPage}`, name, order);
 
-    const data = await manager.defaultSearch(page, perPage, name, order);
+    const data = await manager.defaultSearch(page, perPage, name, order, sortBy);
 
     //onsole.log(data);
 
