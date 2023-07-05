@@ -1,7 +1,6 @@
 import DefaultHead from "../components/defaulthead";
 import Nav from "../components/Nav/";
 import Footer from "../components/Footer/";
-import MapManager from "../api/maps";
 import Functions from "../api/functions";
 import Pagination from "../components/Pagination";
 import {useReducer, useEffect} from "react";
@@ -12,31 +11,24 @@ import Router from "next/router";
 import DropDown from "../components/DropDown";
 import MapsDefaultView from "../components/MapsDefaultView";
 import MapsTableView from "../components/MapsTableView";
+import Loading from "../components/Loading";
+import ErrorMessages from "../components/ErrorMessage";
 
 const setUrl = (query) =>{
-
 
     Router.push({
         "pathname": "/maps",
         "query": query
       }, 
       undefined, { shallow: true }
-      )
+    );
 }
 
 const reducer = (state, action) =>{
 
     switch(action.type){
 
-        case "loadMaps": {
-            return {
-                ...state,
-                "bLoading": true,
-                "error": null
-            }
-        }
         case "changePerPage": {
-
 
             const query = {
                 "displayType": state.displayMode,
@@ -165,7 +157,16 @@ const reducer = (state, action) =>{
                 ...state,
                 "bLoading": false,
                 "error": null,
-                "data": action.data
+                "data": action.data,
+                "totalResults": action.totalResults
+            }
+        }
+        case "error": {
+            return {
+                ...state,
+                "bLoading": false,
+                "error": action.errorMessage,
+                "data": []
             }
         }
     }
@@ -177,20 +178,33 @@ async function loadData(dispatch, searchName, page, order, sortBy, perPage, cont
 
     const url = `/api/mapsearch?name=${searchName}&page=${page}&order=${order}&sortBy=${sortBy}&perPage=${perPage}`;
 
-    const req = await fetch(url, {
-        "signal": controller.signal
-    });
+    try{
 
-    const res = await req.json();
+        const req = await fetch(url, {
+            "signal": controller.signal
+        });
+        
 
-    if(res.error === undefined){
+        const res = await req.json();
 
-        console.log(res.data);
-        dispatch({"type": "loaded", "data": res.data});
+        console.log(res);
+
+        if(res.error !== undefined){
+
+            dispatch({"type": "error", "errorMessage": res.error});
+            return;
+        }
+
+        dispatch({"type": "loaded", "data": res.data, "totalResults": res.totalResults});
+
+    }catch(err){
+        if(err.name === "AbortError") return;
+        console.trace(err);
+        dispatch({"type": "error", "errorMessage": err.toString()});
     }
 }
 
-const Maps = ({session, navSettings, pageSettings, host, page, pages, results, perPage, maps, name, displayType, bAsc, sortBy}) =>{
+const Maps = ({session, navSettings, pageSettings, host, page, perPage, name, displayType, bAsc, sortBy}) =>{
 
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
@@ -199,11 +213,12 @@ const Maps = ({session, navSettings, pageSettings, host, page, pages, results, p
         "perPage": perPage,
         "mapList": [],
         "data": [],
-        "pages": pages,
+        "pages": 1,
         "displayMode": displayType,
         "searchName": name,
         "order": bAsc,
-        "sortBy": sortBy
+        "sortBy": sortBy,
+        "totalResults": 9
     });
 
     useEffect(() =>{
@@ -222,7 +237,6 @@ const Maps = ({session, navSettings, pageSettings, host, page, pages, results, p
     let start = (page - 1) * state.perPage;
     if(start < 0) start = 0;
     
-    maps = JSON.parse(maps);
 
     let title = "Maps";
     let description = "View all the maps that have been played on our servers.";
@@ -241,15 +255,25 @@ const Maps = ({session, navSettings, pageSettings, host, page, pages, results, p
         url = `/maps?displayType=${state.displayMode}&perPage=${state.perPage}&sortBy=${state.sortBy}&bAsc=${state.order}&page=`;
     }
 
-    const pageinationElem = <Pagination url={url} results={results} currentPage={page} pages={state.pages} perPage={state.perPage}/>;
+    const pageinationElem = <Pagination url={url} results={state.totalResults} currentPage={page} perPage={state.perPage}/>;
     const imageHost = Functions.getImageHostAndPort(host);
 
     let elems = null;
 
-    if(state.displayMode === 0){
-        elems = <MapsDefaultView data={state.data} host={imageHost}/>;      
-    }else{
-        elems = <MapsTableView data={state.data} dispatch={dispatch} />//renderTable(state.data, dispatch);
+    if(state.bLoading){
+        elems = <Loading />;
+    }
+
+    if(state.error === null && !state.bLoading){
+
+        if(state.displayMode === 0){
+            elems = <MapsDefaultView data={state.data} host={imageHost}/>;      
+        }else{
+            elems = <MapsTableView data={state.data} dispatch={dispatch} />//renderTable(state.data, dispatch);
+        }
+
+    }else if(!state.bLoading){
+        elems = <ErrorMessages title="Maps List" text={state.error}/>
     }
 
     return <div>
@@ -482,8 +506,6 @@ class Maps extends React.Component{
 
 export async function getServerSideProps({req, query}){
 
-    console.log("*********************************************************");
-
     const session = new Session(req);
 
 	await session.load();
@@ -500,7 +522,6 @@ export async function getServerSideProps({req, query}){
     if(session.cookies["mapsPerPage"] !== undefined){
 
         perPage = parseInt(session.cookies["mapsPerPage"]);
-
         if(perPage !== perPage) perPage = parseInt(pageSettings["Default Display Per Page"]);
     }
 
@@ -511,7 +532,6 @@ export async function getServerSideProps({req, query}){
 
     const defaultPerPage = 10;
 
-
     page = (query.page !== undefined) ? parseInt(query.page) : 1;
     perPage = (query.perPage !== undefined) ? parseInt(query.perPage) : defaultPerPage;
     displayType = (query.displayType !== undefined) ? parseInt(query.displayType) : 0;
@@ -521,31 +541,13 @@ export async function getServerSideProps({req, query}){
     
     if(page !== page) page = 1;
     if(perPage !== perPage) perPage = defaultPerPage;
-
-
-    const manager = new MapManager();
-
-    const maps = []//await manager.defaultSearch(page, perPage, name, bAsc);
-
-    //console.log(maps);
-
-    const totalResults = await manager.getTotalResults(name);
-
-    let pages = 1;
-
-    if(totalResults !== 0){
-        pages = Math.ceil(totalResults / perPage);
-    }
     
     await Analytics.insertHit(session.userIp, req.headers.host, req.headers["user-agent"]);
 
     return {
         props: {
             "host": req.headers.host,
-            "maps": JSON.stringify(maps),
-            "results": totalResults,
             "page": page,
-            "pages": pages,
             "perPage": perPage,
             "displayType": displayType,
             "name": name,

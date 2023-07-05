@@ -23,6 +23,7 @@ export default async function handler(req, res){
     const uniqueMapNames = [...new Set([...data.map((d) =>{
         
         return cleanMapName(d.name).toLowerCase();
+
     })])];
 
     const mapImages = await manager.getImages(uniqueMapNames);
@@ -38,7 +39,13 @@ export default async function handler(req, res){
         }
     }
 
-    res.status(200).json({"data": data});
+    let totalResults = 0;
+
+    if(data.length > 0){
+        totalResults = await manager.getTotalResults(name);
+    }
+
+    res.status(200).json({"data": data, "totalResults": totalResults});
     return;
 
 
