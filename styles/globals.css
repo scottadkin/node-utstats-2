@@ -537,6 +537,7 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 .not-found{
 	color:white;
 	padding:10px;
+	font-size:14px;
 }
 
 input[type="range"]{
@@ -793,4 +794,3 @@ input[type="range"]{
 .admin-selected{
 	background-color:yellow;
 }
-
