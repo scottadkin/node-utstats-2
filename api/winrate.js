@@ -355,7 +355,6 @@ class WinRate{
             const map = h.map;
 
             await this.createPlayerLatestFromRecalculation(playerId, gametype, map, h.data);
-
         }
     }
 
@@ -382,11 +381,63 @@ class WinRate{
         await mysql.simpleQuery("DELETE FROM nstats_winrates WHERE player=?", [playerId]);
         await mysql.simpleQuery("DELETE FROM nstats_winrates_latest WHERE player=?", [playerId]);
     }
+
+
+    //get match date, gametype, map, winner/loss/draw
+    async getPlayerMatchResultsFromMatchTable(playerId){
+
+        const query = `SELECT match_id,match_date,map_id,gametype,winner,draw FROM nstats_player_matches WHERE player_id=? ORDER BY match_date ASC`;
+        return await mysql.simpleQuery(query, [playerId]);
+    }
     
     async recalculatePlayerHistoryAfterMerge(playerId){
 
-        await this.recaluatePlayerHistory(playerId);
+        const history = await this.getPlayerMatchResultsFromMatchTable(playerId);
+
+        const uniqueMaps = new Set();
+        const uniqueGametypes = new Set();
+
+        const data = [];
+
+        for(let i = 0; i < history.length; i++){
+
+            const h = history[i];
+
+            uniqueMaps.add(h.map_id);
+            uniqueGametypes.add(h.gametype);
+
+            let currentMatchResult = 0;
+
+            //0 loss, 1 win, 2 draw
+            if(h.winner === 0 && h.draw === 0) currentMatchResult = 0;
+            if(h.winner === 0 && h.draw === 1) currentMatchResult = 2;
+            if(h.winner === 1) currentMatchResult = 1;
+
+            //map +  gametype
+            this.updateHistoryObject(data, h.gametype, h.map_id, h.match_id, h.match_date, currentMatchResult);
+            //map total
+            this.updateHistoryObject(data, 0, h.map_id, h.match_id, h.match_date, currentMatchResult);
+            //gametype total
+            this.updateHistoryObject(data, h.gametype, 0, h.match_id, h.match_date, currentMatchResult);
+            //all time
+            this.updateHistoryObject(data, 0, 0, h.match_id, h.match_date, currentMatchResult);
+
+        }
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            const gametype = d.gametype;
+            const map = d.map;
+
+            await this.createPlayerLatestFromRecalculation(playerId, gametype, map, d.data);
+        }
+
+        //await this.recaluatePlayerHistory(playerId);
     }
+
+
     /*async getPlayersCurrentData(players, gametypes, maps){
 
         const query = `SELECT * FROM nstats_winrates_latest WHERE player IN(?) AND gametype IN(?) AND map IN(?)`;
