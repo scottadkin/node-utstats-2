@@ -198,6 +198,9 @@ class PlayerRecentMatches extends React.Component{
                 </tr>
                 {elems}
             </Table2>
+        }else{
+
+            elems = <div className={`${styles.main} center`}>{elems}</div>
         }
         
         return (
@@ -232,9 +235,9 @@ class PlayerRecentMatches extends React.Component{
                     
                 />
             
-                <div className={`${styles.main} center`}>
+                
                     {elems}   
-                </div>
+                
             </div>} 
             </div>
         );
