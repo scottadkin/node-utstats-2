@@ -24,7 +24,6 @@ import MapCTFCaps from '../../components/MapCTFCaps';
 import MapSummary from '../../components/MapSummary';
 import CombogibMapRecords from '../../components/CombogibMapRecords';
 import CombogibMapTotals from "../../components/CombogibMapTotals";
-import MapInteractiveMap from '../../components/MapInteractiveMap';
 
 
 const PlayedGraph = ({dates}) =>{
@@ -200,7 +199,6 @@ class Map extends React.Component{
 
                 <div className="default">
 
-                    <MapInteractiveMap id={basic.id}/>
 
                     <div className="default-header">
                         {Functions.removeUnr(basic.name)}

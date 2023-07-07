@@ -1484,7 +1484,7 @@ const MapInteractiveMap = ({id}) =>{
             
         }
 
-    }, [state.data]);
+    }, [state.data, state.flagCovers, state.flagDrops, state.flagReturns, state.killData, state.playerNames, state.weaponNames]);
 
     if(state.bLoading){
         return <Loading />;
