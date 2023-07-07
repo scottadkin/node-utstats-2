@@ -202,27 +202,35 @@ const MapCTFCaps = ({mapId, mode, perPage, page}) =>{
 
             const capMode = (mode === 0) ? "solo" : "assist";
 
-            const req = await fetch("/api/ctf", {
-                "signal": controller.signal,
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({
-                    "mode": "map-caps", 
-                    "mapId": mapId, 
-                    "perPage": perPage, 
-                    "page": page,
-                    "capType": capMode,
-                })
-            });
+            try{
 
-            const res = await req.json();
+                const req = await fetch("/api/ctf", {
+                    "signal": controller.signal,
+                    "headers": {"Content-type": "application/json"},
+                    "method": "POST",
+                    "body": JSON.stringify({
+                        "mode": "map-caps", 
+                        "mapId": mapId, 
+                        "perPage": perPage, 
+                        "page": page,
+                        "capType": capMode,
+                    })
+                });
 
-            if(res.error !== undefined){
-                dispatch({"type": "error", "errorMessage": res.error});
-                return;
+                const res = await req.json();
+
+                if(res.error !== undefined){
+                    dispatch({"type": "error", "errorMessage": res.error});
+                    return;
+                }
+                
+                dispatch({"type": "loaded", "caps": res.caps, "players": res.players, "totalCaps": res.totalCaps});
+
+            }catch(err){
+
+                if(err.name === "AbortError") return;
+                dispatch({"type": "error", "errorMessage": err.toString()});
             }
-            
-            dispatch({"type": "loaded", "caps": res.caps, "players": res.players, "totalCaps": res.totalCaps});
             
         }
 
