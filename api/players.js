@@ -30,6 +30,19 @@ class Players{
         this.player = new Player();
     }
 
+
+    //get all player all time total ids
+    async getAllPlayerIds(){
+
+        const query = `SELECT id FROM nstats_player_totals WHERE player_id=0`;
+
+        const result = await mysql.simpleQuery(query);
+
+        return result.map((r) =>{
+            return r.id;
+        });
+    }
+
     debugGetAll(){
 
         return new Promise((resolve, reject) =>{
