@@ -14,7 +14,7 @@
     "express": "^4.17.2",
     "formidable": "^2.1.1",
     "ftp": "^0.3.10",
-    "geoip-country": "^4.1.57",
+    "geoip-country": "^4.2.3",
     "geoip-lite": "^1.4.7",
     "i18n-iso-countries": "^7.6.0",
     "jimp": "^0.22.8",

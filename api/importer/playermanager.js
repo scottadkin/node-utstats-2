@@ -32,6 +32,8 @@ class PlayerManager{
         this.HWIDS = {};
 
         this.HWIDSToNames = {};
+
+
         this.idsToNames = {};
         this.masterIdsToNames = {};
 
@@ -84,25 +86,12 @@ class PlayerManager{
         }
     }
 
-
-    getPreliminaryPlayerByHWID(HWID){
-
-        for(let i = 0; i < this.preliminaryPlayers.length; i++){
-
-            const p = this.preliminaryPlayers[i];
-
-            if(p.hwid === HWID) p;
-        }
-
-        return null;
-    }
-
     connectPlayer(subString){
 
         const reg = /^(.+?)\t(\d+?)\t.+$/i;
 
         const result = reg.exec(subString);
-        //console.log(result);
+
         if(result === null) return;
 
         const playerName = result[1];
@@ -111,27 +100,10 @@ class PlayerManager{
 
         this.idsToNames[playerId] = playerName.toLowerCase();
 
-        //connect(timestamp, bSpectator)
-
-        if(HWID !== ""){
-
-            this.HWIDSToNames[HWID] = playerName.toLowerCase();
-
-            if(this.bPreliminaryPlayerExits(playerId, HWID)){
-
-                const player = this.getPreliminaryPlayerByHWID(HWID);
-                if(player !== null) player.bSpectator = false;
-                return;
-            }
-        }
-
         this.createPreliminaryPlayer(playerName, playerId, HWID, false);
-
-        //this.preliminaryPlayers.push({"name": playerName, "id": playerId, "hwid": HWID ?? "", "bSpectator": false});
     }
 
     renameIdsToName(oldName, newName){
-
 
         oldName = oldName.toLowerCase();
         newName = newName.toLowerCase();
@@ -141,21 +113,6 @@ class PlayerManager{
             if(playerName.toLowerCase() === oldName){
                 this.idsToNames[playerId] = newName;
             } 
-        }
-    }
-
-    renamePreliminaryByHWID(HWID, newName){
-
-        if(HWID === "") return;
-
-        for(let i = 0; i < this.preliminaryPlayers.length; i++){
-
-            const p = this.preliminaryPlayers[i];
-
-            if(p.hwid === HWID){
-                this.renameIdsToName(p.name, newName);
-                p.name = newName;
-            }
         }
     }
 
@@ -195,16 +152,9 @@ class PlayerManager{
             const p = this.preliminaryPlayers[i];
 
             if(p.name === name || p.id === id){
+
                 p.bSpectator = bSpectator;
                 return;
-            }
-            
-            if(p.hwid !== "" && hwid !== ""){
-
-                if(p.hwid === hwid){
-                    p.bSpectator = bSpectator;
-                    return;
-                }
             }
         }
 
@@ -225,19 +175,9 @@ class PlayerManager{
         const HWID = this.HWIDS[playerId] ?? "";
 
         this.createPreliminaryPlayer(playerName, playerId, HWID, true);
-
-        if(HWID !== "") this.HWIDSToNames[HWID] = playerName.toLowerCase();
         this.idsToNames[playerId] = playerName.toLowerCase();
+        this.renamePreliminaryByPlayerId(playerId, playerName);
 
-        if(HWID === ""){
-
-            this.renamePreliminaryByPlayerId(playerId, playerName);
-        }
-        
-
-        if(HWID === "") return;
-
-        this.renamePreliminaryByHWID(HWID, playerName);
     }
 
     updatePreliminaryPlayers(subString, type){
@@ -284,7 +224,6 @@ class PlayerManager{
             }
         }
 
-        console.log(this.preliminaryPlayers);
     }
 
 
@@ -294,8 +233,6 @@ class PlayerManager{
 
         this.parseHWIDS();
 
-        console.log(this.HWIDS);
-
         this.createPreliminaryPlayers();
 
         
@@ -304,18 +241,6 @@ class PlayerManager{
             const p = this.preliminaryPlayers[i];
 
             let masterIds = null;
-
-            /*if(!this.bUsePlayerACEHWID || p.hwid === ""){
-
-                new Message(`Player.getMasterIds(${p.name}, ${gametypeId}, ${mapId})`,"note");
-                masterIds = await Player.getMasterIds(p.name, gametypeId, mapId);
-
-            }else{
-
-                new Message(`Player.getMasterIdsByHWID(${p.hwid}, ${p.name}, ${gametypeId}, ${mapId})`,"note");
-                masterIds = await Player.getMasterIdsByHWID(p.hwid, p.name, gametypeId, mapId);
-                //player.setHWID(p.hwid);
-            }*/
 
             new Message(`Player.getMasterIds(${p.name}, ${gametypeId}, ${mapId})`,"note");
             masterIds = await Player.getMasterIds(p.name, gametypeId, mapId);
@@ -328,26 +253,8 @@ class PlayerManager{
             this.players.push(player);
 
         }
-
-        console.log(this.idsToNames);
-        console.log(this.HWIDSToNames);
-        console.log(this.masterIdsToNames);
-        console.table(this.preliminaryPlayers);
-
     }
 
-
-    getPlayerByHWID(hwid){
-
-        for(let i = 0; i < this.players.length; i++){
-
-            const p = this.players[i];
-
-            if(p.HWID === hwid) return p;
-        }
-
-        return null;
-    }
 
     getPlayerById(id){
         
