@@ -404,6 +404,23 @@ const renderPlayerData = (state, validTypes, gametypeList, mapList) =>{
     return <InteractiveTable width={1} headers={headers} data={data} perPage={100} bDisableSorting={true}/>;
 }
 
+const filterCTFMaps = (map) =>{
+
+    if(map.value === 0) return true;
+
+    const reg = /^(.+?)-(.+)$/i;
+    const result = reg.exec(map.displayValue);
+
+    if(result === null){
+        console.log(`filterCTFMaps regular expression result is null`);
+        return false;
+    }
+
+    if(result[1].toLowerCase() === "ctf") return true;
+
+    return false;
+}
+
 const renderGeneralRecordForm = (state, dispatch, validTypes, gametypesList, mapList, perPageOptions) =>{
 
     //if(state.mainTab > 1) return null;
@@ -430,6 +447,10 @@ const renderGeneralRecordForm = (state, dispatch, validTypes, gametypesList, map
         lastElem = <DropDown dName="Results Per Page" originalValue={state.perPage} data={perPageOptions}
             changeSelected={(name, value) => { dispatch({"type": "changePerPage", "perPage": value})}}
         />
+    }
+
+    if(state.mainTab === 2){
+        mapList = mapList.filter(filterCTFMaps);  
     }
 
     return <>
