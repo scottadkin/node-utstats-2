@@ -103,8 +103,11 @@ export default async function handler(req, res){
                     const d = data[types[t]][i];
                     d.date = matchDates[d.match_id] ?? 0;
 
-                    d.grabPlayer = getPlayer(names,grabCapPlayers[d.cap_id].grab, true); 
-                    d.capPlayer = getPlayer(names,grabCapPlayers[d.cap_id].cap, true); 
+                    const grabPlayerId = (grabCapPlayers[d.cap_id] !== undefined) ? grabCapPlayers[d.cap_id].grab :-1;
+                    const capPlayerId = (grabCapPlayers[d.cap_id] !== undefined) ? grabCapPlayers[d.cap_id].cap :-1;
+
+                    d.grabPlayer = getPlayer(names, grabPlayerId, true); 
+                    d.capPlayer = getPlayer(names, capPlayerId, true); 
 
                     d.totalAssists = 0;
 
