@@ -176,7 +176,7 @@ class Admin extends React.Component{
     displayPlayersManager(){
 
         if(this.state.mode !== 5) return null
-        return <AdminPlayersManager />
+        return <AdminPlayersManager />;
     }
 
     displayGametypeManager(){

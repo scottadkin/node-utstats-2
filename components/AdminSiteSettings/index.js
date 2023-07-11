@@ -104,21 +104,30 @@ const renderTabs = (state, dispatch) =>{
 
 const loadSettings = async (dispatch, signal) =>{
 
-    const req = await fetch("/api/admin", {
-        "signal": signal,
-        "headers": {"Content-type": "application/json"},
-        "method": "POST",
-        "body": JSON.stringify({"mode": "get-current-settings"})
-    });
+    try{
 
-    const res = await req.json();
+        const req = await fetch("/api/admin", {
+            "signal": signal,
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "get-current-settings"})
+        });
 
-    if(res.error !== undefined){
-        dispatch({"type": "error", "errorMessage": res.error});
-        return;
+        const res = await req.json();
+
+        if(res.error !== undefined){
+            dispatch({"type": "error", "errorMessage": res.error});
+            return;
+        }
+
+        dispatch({"type": "loaded", "settings": res.settings});
+
+    }catch(err){
+
+        if(err.name === "AbortError") return null;
+
+        dispatch({"type": "error", "errorMessage": err.toString()});
     }
-
-    dispatch({"type": "loaded", "settings": res.settings});
 }
 
 const renderError = (state) =>{
@@ -441,21 +450,31 @@ const saveChanges = async (state, dispatch, signal) =>{
 
     const changes = getChangedSettings(state);
 
-    const req = await fetch("/api/admin", {
-        "signal": signal,
-        "headers": {"Content-type": "application/json"},
-        "method": "POST",
-        "body": JSON.stringify({"mode": "save-setting-changes", "changes": changes})
-    });
+    try{
 
-    const res = await req.json();
+        const req = await fetch("/api/admin", {
+            "signal": signal,
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "save-setting-changes", "changes": changes})
+        });
 
-    if(res.error !== undefined){
+        const res = await req.json();
 
-        dispatch({"type": "saveError", "errorMessage": res.error});
+        if(res.error !== undefined){
+
+            dispatch({"type": "saveError", "errorMessage": res.error});
+            return;
+        }
+
+        console.log(res);
+
+    }catch(err){
+
+        if(err.name === "AbortError") return;
+        dispatch({"type": "error", "errorMessage": err.toString()});
         return;
     }
-    console.log(res);
 
     dispatch({"type": "savePass", "settings": settings});
 
@@ -514,7 +533,6 @@ const renderPass = (state) =>{
 const AdminSiteSettings = () =>{
 
     const controller = new AbortController();
-
 
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true, 
