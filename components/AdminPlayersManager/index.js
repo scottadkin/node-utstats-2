@@ -13,7 +13,7 @@ class AdminPlayersManager extends React.Component{
 
         super(props);
         this.state = {
-            "mode": 0, 
+            "mode": 3, 
             "players": [], 
             "names": [],
             "bFinishedLoadingGeneral": false, 

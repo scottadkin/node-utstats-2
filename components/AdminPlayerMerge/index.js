@@ -1,8 +1,104 @@
-import React from 'react';
-import Loading from '../Loading';
-import Notification from '../Notification';
+import {useEffect, useReducer} from "react";
+import Loading from "../Loading";
+import ErrorMessage from "../ErrorMessage";
+import InteractivePlayerSearchBox from "../InteractivePlayerSearchBox";
 
 
+const reducer = (state, action) =>{
+
+    switch(action.type){
+
+        case "loaded": {
+            return {
+                ...state,
+                "bLoading": false
+            }
+        }
+        case "error": {
+            return {
+                ...state,
+                "bLoading": false,
+                "error": action.errorMessage
+            }
+        }
+        case "loadedPlayerList": {
+            return {
+                ...state,
+                "error": null,
+                "bLoading": false,
+                "playerList": action.playerList
+            }
+        }
+    }
+
+    return state;
+}
+
+const loadPlayerList = async (dispatch, controller) =>{
+
+    try{
+
+        const req = await fetch("/api/adminplayers", {
+            "signal": controller.signal,
+            "headers": {
+                "Content-type": "application/json"
+            },
+            "method": "POST",
+            "body": JSON.stringify({"mode": "player-list"})
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined){
+            dispatch({"type": "error", "errorMessage": res.error});
+            return;
+        }
+
+        console.log(res);
+
+        dispatch({"type": "loadedPlayerList", "error": null, "playerList": res.players});
+
+    }catch(err){
+
+        if(err.name === "AbortError") return;
+        dispatch({"type": "error", "errorMessage": err.toString()});
+    }
+}
+
+const AdminPlayerMerge = ({}) =>{
+
+
+    const [state, dispatch] = useReducer(reducer, {
+        "bLoading": true,
+        "error": null,
+        "playerList": []
+    });
+
+    useEffect(() =>{
+
+        const controller = new AbortController();
+
+
+        loadPlayerList(dispatch, controller);
+
+        return () =>{
+            controller.abort();
+        }
+
+    }, []);
+
+    return <div>
+        <div className="default-header">Merge Players</div>
+        <Loading value={!state.bLoading} />
+        <div>
+            <InteractivePlayerSearchBox data={state.playerList} maxDisplay={25}/>
+        </div>
+    </div>
+}
+
+export default AdminPlayerMerge;
+
+/*
 class AdminPlayerMerge extends React.Component{
 
     constructor(props){
@@ -212,4 +308,4 @@ class AdminPlayerMerge extends React.Component{
     }
 }
 
-export default AdminPlayerMerge;
+export default AdminPlayerMerge;*/

@@ -718,10 +718,10 @@ class Players{
         if(bOnlyNames === undefined) bOnlyNames = false;
 
         if(!bOnlyNames){
-            return await mysql.simpleFetch("SELECT id,name,country FROM nstats_player_totals WHERE gametype=0 ORDER BY name ASC");
+            return await mysql.simpleFetch("SELECT id,name,country FROM nstats_player_totals WHERE gametype=0 AND map=0 ORDER BY name ASC");
         }
 
-        const result = await mysql.simpleQuery("SELECT name FROM nstats_player_totals WHERE gametype=0 ORDER BY name ASC");
+        const result = await mysql.simpleQuery("SELECT name FROM nstats_player_totals WHERE gametype=0 AND map=0 ORDER BY name ASC");
 
         const names = [];
 
