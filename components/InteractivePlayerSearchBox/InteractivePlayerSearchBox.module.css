@@ -1,11 +1,17 @@
+.wrapper{
+    background-color:green;
+    max-width:290px;
+    width:290px;
+}
+
 .players{
     width:var(--width-1);
     max-width:290px;
     width:290px;
-    margin-left:auto;
-    margin-right:auto;
-    max-height:50vh;
+    max-height:20vh;
     overflow-y:auto;
+    position:absolute;
+    z-index:99999;
 }
 
 .player{
@@ -18,4 +24,26 @@
     margin-top:-1px;
     margin-left:-1px;
     text-align:left;
+    user-select:none;
+}
+
+.player:hover{
+    cursor:pointer;
+    background-color:var(--color-2);
+}
+
+.wrapper input[type=text]{
+    max-width:290px;
+    width:100%;
+    background-color:var(--color-3a);
+    font-size:18px;
+    font-weight:300;
+    padding:5px;
+    border:1px solid var(--border-color-3);
+    color:white;
+}
+
+.selected{
+    background-color:var(--color-3);
+    color:yellow;
 }

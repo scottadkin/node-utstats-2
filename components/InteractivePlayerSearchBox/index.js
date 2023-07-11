@@ -6,19 +6,53 @@ const reducer = (state, action) =>{
 
     switch(action.type){
 
+        case "setDisplay": {
+
+            return {
+                ...state,
+                "bDisplay": action.value
+            }
+        }
+        
         case "togglePlayer": {
+
+            let newPlayers = [];
+
+            console.log(action.targetPlayer);
+
+            const index = state.selectedPlayers.indexOf(action.targetPlayer);
+
+            if(index !== -1){
+
+                for(let i = 0; i < state.selectedPlayers.length; i++){
+
+                    const id = state.selectedPlayers[i];
+
+                    if(id === action.targetPlayer){
+                        continue;
+                    }
+
+                    newPlayers.push(id);
+                }
+            }else{
+
+                newPlayers = [...state.selectedPlayers, action.targetPlayer];
+            }
+
+            console.log(newPlayers);
 
             //if playerId is not in array add it otherwise remove
             return {
                 ...state,
-                "selectedPlayers": []
+                "selectedPlayers": newPlayers
             }
         }
-        case "setMasterPlayer": {
 
+        case "updateSearch": {
             return {
                 ...state,
-                "masterPlayer": action.masterPlayer
+                "searchValue": action.searchValue,
+                "bDisplay": true
             }
         }
     }
@@ -30,13 +64,13 @@ const InteractivePlayerSearchBox = ({data, maxDisplay}) =>{
 
     if(maxDisplay === undefined) maxDisplay = 100;
 
-    const [searchValue, setSearchValue] = useState("");
     const [state, dispatch] = useReducer(reducer, {
         "selectedPlayers": [],
-        "masterPlayer": null
+        "bDisplay": false,
+        "searchValue": ""
     });
 
-    if(searchValue !== ""){
+    if(state.searchValue !== ""){
 
         let currentIndex = 0;
 
@@ -46,7 +80,7 @@ const InteractivePlayerSearchBox = ({data, maxDisplay}) =>{
 
             const name = d.name.toLowerCase();
 
-            const index = name.indexOf(searchValue);
+            const index = name.indexOf(state.searchValue);
 
             if(index !== -1){
                 currentIndex++;
@@ -58,23 +92,32 @@ const InteractivePlayerSearchBox = ({data, maxDisplay}) =>{
 
     let elems = [];
 
-    if(searchValue !== ""){
+    if(state.searchValue !== "" && state.bDisplay){
+
         elems = data.map((d) =>{
-            return <div className={styles.player} key={d.id}>
+
+            const index = state.selectedPlayers.indexOf(d.id);
+
+            return <div className={`${styles.player} ${(index !== -1) ? styles.selected : ""}`} key={d.id} onClick={() =>{
+                dispatch({"type": "togglePlayer", "targetPlayer": d.id});
+            }}>
                 <CountryFlag country={d.country} />{d.name}
             </div>;
         });
     }
 
 
-    return <div>
-        <input type="text" className="default-textbox" onChange={(e) =>{
-            console.log(e.target.value);
-            setSearchValue(e.target.value);
-        }} value={searchValue} placeholder="player name..."/>
-   
-        <div className={styles.players}>{elems}</div>
+    return <div className={styles.wrapper} onMouseLeave={() =>{
+        dispatch({"type": "setDisplay", "value": false});
+    }} onMouseEnter={() =>{
+        dispatch({"type": "setDisplay", "value": true});
+    }}>
+        <input type="text" onChange={(e) =>{
       
+            dispatch({"type": "updateSearch", "searchValue": e.target.value});
+        }} value={state.searchValue} placeholder="player name..."/>
+   
+        <div className={styles.players} >{elems}</div>   
     </div>
 }
 

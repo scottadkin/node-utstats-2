@@ -90,8 +90,16 @@ const AdminPlayerMerge = ({}) =>{
     return <div>
         <div className="default-header">Merge Players</div>
         <Loading value={!state.bLoading} />
-        <div>
-            <InteractivePlayerSearchBox data={state.playerList} maxDisplay={25}/>
+        <div className="form">
+            <div className="select-row">
+                <div className="select-label">Target Player</div>
+                <InteractivePlayerSearchBox data={state.playerList} maxDisplay={25}/>
+            </div>
+            <div className="select-row">
+                <div className="select-label">Master Player</div>
+                <InteractivePlayerSearchBox data={state.playerList} maxDisplay={25}/>
+            </div>
+            
         </div>
     </div>
 }
