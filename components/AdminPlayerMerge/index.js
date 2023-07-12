@@ -2,6 +2,9 @@ import {useEffect, useReducer} from "react";
 import Loading from "../Loading";
 import ErrorMessage from "../ErrorMessage";
 import InteractivePlayerSearchBox from "../InteractivePlayerSearchBox";
+import { getPlayer } from "../../api/generic.mjs";
+import CountryFlag from "../CountryFlag";
+import styles from "./AdminPlayerMerge.module.css";
 
 
 const reducer = (state, action) =>{
@@ -62,6 +65,24 @@ const reducer = (state, action) =>{
                 "selectedPlayers": newPlayers
             }
         }
+        case "setMasterPlayer": {
+            return {
+                ...state,
+                "masterPlayer": [action.targetPlayer]
+            }
+        }
+        case "updateTargetSearch": {
+            return {
+                ...state,
+                "targetSearch": action.value
+            }
+        }
+        case "updateMasterSearch": {
+            return {
+                ...state,
+                "masterSearch": action.value
+            }
+        }
     }
 
     return state;
@@ -98,6 +119,26 @@ const loadPlayerList = async (dispatch, controller) =>{
     }
 }
 
+const renderSelectedPlayers = (state, dispatch) =>{
+
+    const elems = state.selectedPlayers.map((id) =>{
+
+        const player = getPlayer(state.playerList, id, false);
+
+        return <div key={id} className={styles.selected} onClick={() =>{
+            dispatch({"type": "togglePlayer", "targetPlayer": id});
+        }}><CountryFlag country={player.country}/>{player.name}</div>
+
+    });
+
+    if(elems.length === 0) return null;
+
+    return <div className="m-bottom-25">
+        <div className="default-sub-header">Selected Players</div>
+        {elems}
+    </div>
+}
+
 const AdminPlayerMerge = ({}) =>{
 
 
@@ -105,14 +146,15 @@ const AdminPlayerMerge = ({}) =>{
         "bLoading": true,
         "error": null,
         "playerList": [],
-        "selectedPlayers": []
+        "selectedPlayers": [],
+        "masterPlayer": [],
+        "targetSearch": "",
+        "masterSearch": "",
     });
 
     useEffect(() =>{
 
         const controller = new AbortController();
-
-
         loadPlayerList(dispatch, controller);
 
         return () =>{
@@ -125,17 +167,34 @@ const AdminPlayerMerge = ({}) =>{
         <div className="default-header">Merge Players</div>
         <Loading value={!state.bLoading} />
         <div className="form">
+            <div className="form-info">
+                Select one or more players to be merged into another, the selected players will be merged into the master player's profile.
+            </div>
             <div className="select-row">
-                <div className="select-label">Target Player</div>
-                <InteractivePlayerSearchBox data={state.playerList} maxDisplay={25} togglePlayer={(value) =>{
+                <div className="select-label">Add Target Player</div>
+                <InteractivePlayerSearchBox searchValue={state.targetSearch} data={state.playerList} bAutoSet={false} setSearchValue={(value) =>{
+                    console.log(`VALUE = ${value}`);
+                    dispatch({"type": "updateTargetSearch", "value": value});
+                }} togglePlayer={(value) =>{
                     dispatch({"type": "togglePlayer", "targetPlayer": value});
                 }} selectedPlayers={state.selectedPlayers}/>
             </div>
+            {renderSelectedPlayers(state, dispatch)}
             <div className="select-row">
                 <div className="select-label">Master Player</div>
-                <div>f</div>
+                <InteractivePlayerSearchBox searchValue={state.masterSearch} 
+                    setSearchValue={(value) =>{
+                        
+                        dispatch({"type": "updateMasterSearch", "value": value});
+                    }}  
+                    data={state.playerList} togglePlayer={(value) =>{
+                        
+                        dispatch({"type": "setMasterPlayer", "value": value});
+                    }} 
+                    bAutoSet={true}
+                    selectedPlayers={state.masterPlayer}
+                />
             </div>
-            
         </div>
     </div>
 }

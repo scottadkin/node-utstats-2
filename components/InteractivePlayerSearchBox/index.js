@@ -13,28 +13,25 @@ const reducer = (state, action) =>{
                 "bDisplay": action.value
             }
         }
-        case "updateSearch": {
-            return {
-                ...state,
-                "searchValue": action.searchValue,
-                "bDisplay": true
-            }
-        }
     }
 
     return state;
 }
 
-const InteractivePlayerSearchBox = ({data, maxDisplay, selectedPlayers, togglePlayer}) =>{
+const InteractivePlayerSearchBox = ({data, maxDisplay, searchValue, selectedPlayers, togglePlayer, setSearchValue, bAutoSet}) =>{
 
     if(maxDisplay === undefined) maxDisplay = 100;
 
+    if(setSearchValue === undefined){
+
+        setSearchValue = () =>{};
+    }
+
     const [state, dispatch] = useReducer(reducer, {
-        "bDisplay": false,
-        "searchValue": ""
+        "bDisplay": false
     });
 
-    if(state.searchValue !== ""){
+    if(searchValue !== ""){
 
         let currentIndex = 0;
 
@@ -44,7 +41,7 @@ const InteractivePlayerSearchBox = ({data, maxDisplay, selectedPlayers, togglePl
 
             const name = d.name.toLowerCase();
 
-            const index = name.indexOf(state.searchValue);
+            const index = name.indexOf(searchValue.toLowerCase());
 
             if(index !== -1){
                 currentIndex++;
@@ -56,7 +53,7 @@ const InteractivePlayerSearchBox = ({data, maxDisplay, selectedPlayers, togglePl
 
     let elems = [];
 
-    if(state.searchValue !== "" && state.bDisplay){
+    if(searchValue !== "" && state.bDisplay){
 
         elems = data.map((d) =>{
 
@@ -64,6 +61,9 @@ const InteractivePlayerSearchBox = ({data, maxDisplay, selectedPlayers, togglePl
 
             return <div className={`${styles.player} ${(index !== -1) ? styles.selected : ""}`} key={d.id} onClick={() =>{
                 togglePlayer(d.id);
+                if(bAutoSet){
+                    setSearchValue(d.name);
+                }
             }}>
                 <CountryFlag country={d.country} />{d.name}
             </div>;
@@ -76,10 +76,10 @@ const InteractivePlayerSearchBox = ({data, maxDisplay, selectedPlayers, togglePl
     }} onMouseEnter={() =>{
         dispatch({"type": "setDisplay", "value": true});
     }}>
-        <input type="text" onChange={(e) =>{
-      
-            dispatch({"type": "updateSearch", "searchValue": e.target.value});
-        }} value={state.searchValue} placeholder="player name..."/>
+        <input type="text" value={searchValue} onChange={(e) =>{
+            setSearchValue(e.target.value);
+            dispatch({"type": "setDisplay", "value": true});
+        }}  placeholder="player name..."/>
    
         <div className={styles.players} >{elems}</div>   
     </div>
