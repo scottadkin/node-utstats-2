@@ -5,6 +5,7 @@ import InteractivePlayerSearchBox from "../InteractivePlayerSearchBox";
 import { getPlayer } from "../../api/generic.mjs";
 import CountryFlag from "../CountryFlag";
 import styles from "./AdminPlayerMerge.module.css";
+import NotificationSmall from "../NotificationSmall";
 
 
 const reducer = (state, action) =>{
@@ -21,7 +22,10 @@ const reducer = (state, action) =>{
             return {
                 ...state,
                 "bLoading": false,
-                "error": action.errorMessage
+                "error": action.errorMessage,
+                "notificationType": "error",
+                "notificationTitle": "Error",
+                "notificationText": action.errorMessage
             }
         }
         case "loadedPlayerList": {
@@ -66,9 +70,23 @@ const reducer = (state, action) =>{
             }
         }
         case "setMasterPlayer": {
+
+            let newArray = [];
+
+            if(state.masterPlayer.length > 0){
+
+                const current = state.masterPlayer[0];
+
+                if(current !== action.value){
+                    newArray.push(action.value);
+                }
+
+            }else{
+                newArray.push(action.value);
+            }
             return {
                 ...state,
-                "masterPlayer": [action.targetPlayer]
+                "masterPlayer": newArray
             }
         }
         case "updateTargetSearch": {
@@ -81,6 +99,15 @@ const reducer = (state, action) =>{
             return {
                 ...state,
                 "masterSearch": action.value
+            }
+        }
+        case "mergePlayers": {
+            return {
+                ...state,
+                "notificationType": "warning",
+                "notificationTitle": "Merging In Progress",
+                "notificationText": "Please wait..."
+
             }
         }
     }
@@ -119,14 +146,22 @@ const loadPlayerList = async (dispatch, controller) =>{
     }
 }
 
-const renderSelectedPlayers = (state, dispatch) =>{
+const renderSelectedPlayers = (state, dispatch, bMaster) =>{
 
-    const elems = state.selectedPlayers.map((id) =>{
+    const players = (bMaster) ? state.masterPlayer  : state.selectedPlayers;
+    const title = (bMaster) ? "Will be merged into"  : "Selected Players";
+
+    const elems = players.map((id) =>{
 
         const player = getPlayer(state.playerList, id, false);
 
         return <div key={id} className={styles.selected} onClick={() =>{
-            dispatch({"type": "togglePlayer", "targetPlayer": id});
+
+            if(!bMaster){
+                dispatch({"type": "togglePlayer", "targetPlayer": id});
+            }else{
+                dispatch({"type": "setMasterPlayer", "value": id});
+            }
         }}><CountryFlag country={player.country}/>{player.name}</div>
 
     });
@@ -134,9 +169,33 @@ const renderSelectedPlayers = (state, dispatch) =>{
     if(elems.length === 0) return null;
 
     return <div className="m-bottom-25">
-        <div className="default-sub-header">Selected Players</div>
+        <div className="default-sub-header">{title}</div>
         {elems}
     </div>
+}
+
+const mergePlayers = (state, dispatch) =>{
+
+
+    dispatch({"type": "mergePlayers"});
+}
+
+const renderButton = (state, dispatch) =>{
+
+    if(state.selectedPlayers.length === 0 || state.masterPlayer.length === 0) return null;
+
+    return <div className="search-button m-top-25" onClick={() =>{
+        mergePlayers(state, dispatch);
+    }}>Merge Players</div>;
+}
+
+const renderNotification = (state) =>{
+
+    if(state.notificationType === null) return null;
+
+    return <NotificationSmall type={state.notificationType} title={state.notificationTitle}>
+        {state.notificationText}
+    </NotificationSmall>;
 }
 
 const AdminPlayerMerge = ({}) =>{
@@ -150,6 +209,9 @@ const AdminPlayerMerge = ({}) =>{
         "masterPlayer": [],
         "targetSearch": "",
         "masterSearch": "",
+        "notificationType": null,
+        "notificationTitle": null,
+        "notificationText": null,
     });
 
     useEffect(() =>{
@@ -170,8 +232,10 @@ const AdminPlayerMerge = ({}) =>{
             <div className="form-info">
                 Select one or more players to be merged into another, the selected players will be merged into the master player's profile.
             </div>
+            {renderSelectedPlayers(state, dispatch, false)}
+            {renderSelectedPlayers(state, dispatch, true)}
             <div className="select-row">
-                <div className="select-label">Add Target Player</div>
+                <div className="select-label">Search For A Target Player</div>
                 <InteractivePlayerSearchBox searchValue={state.targetSearch} data={state.playerList} bAutoSet={false} setSearchValue={(value) =>{
                     console.log(`VALUE = ${value}`);
                     dispatch({"type": "updateTargetSearch", "value": value});
@@ -179,22 +243,23 @@ const AdminPlayerMerge = ({}) =>{
                     dispatch({"type": "togglePlayer", "targetPlayer": value});
                 }} selectedPlayers={state.selectedPlayers}/>
             </div>
-            {renderSelectedPlayers(state, dispatch)}
+            
             <div className="select-row">
-                <div className="select-label">Master Player</div>
+                <div className="select-label">Search For A Master Player</div>
                 <InteractivePlayerSearchBox searchValue={state.masterSearch} 
                     setSearchValue={(value) =>{
                         
                         dispatch({"type": "updateMasterSearch", "value": value});
                     }}  
                     data={state.playerList} togglePlayer={(value) =>{
-                        
                         dispatch({"type": "setMasterPlayer", "value": value});
                     }} 
-                    bAutoSet={true}
+                    bAutoSet={false}
                     selectedPlayers={state.masterPlayer}
                 />
             </div>
+            {renderButton(state, dispatch)}
+            {renderNotification(state)}
         </div>
     </div>
 }
