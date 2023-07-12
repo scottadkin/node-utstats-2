@@ -13,41 +13,6 @@ const reducer = (state, action) =>{
                 "bDisplay": action.value
             }
         }
-        
-        case "togglePlayer": {
-
-            let newPlayers = [];
-
-            console.log(action.targetPlayer);
-
-            const index = state.selectedPlayers.indexOf(action.targetPlayer);
-
-            if(index !== -1){
-
-                for(let i = 0; i < state.selectedPlayers.length; i++){
-
-                    const id = state.selectedPlayers[i];
-
-                    if(id === action.targetPlayer){
-                        continue;
-                    }
-
-                    newPlayers.push(id);
-                }
-            }else{
-
-                newPlayers = [...state.selectedPlayers, action.targetPlayer];
-            }
-
-            console.log(newPlayers);
-
-            //if playerId is not in array add it otherwise remove
-            return {
-                ...state,
-                "selectedPlayers": newPlayers
-            }
-        }
-
         case "updateSearch": {
             return {
                 ...state,
@@ -60,12 +25,11 @@ const reducer = (state, action) =>{
     return state;
 }
 
-const InteractivePlayerSearchBox = ({data, maxDisplay}) =>{
+const InteractivePlayerSearchBox = ({data, maxDisplay, selectedPlayers, togglePlayer}) =>{
 
     if(maxDisplay === undefined) maxDisplay = 100;
 
     const [state, dispatch] = useReducer(reducer, {
-        "selectedPlayers": [],
         "bDisplay": false,
         "searchValue": ""
     });
@@ -96,10 +60,10 @@ const InteractivePlayerSearchBox = ({data, maxDisplay}) =>{
 
         elems = data.map((d) =>{
 
-            const index = state.selectedPlayers.indexOf(d.id);
+            const index = selectedPlayers.indexOf(d.id);
 
             return <div className={`${styles.player} ${(index !== -1) ? styles.selected : ""}`} key={d.id} onClick={() =>{
-                dispatch({"type": "togglePlayer", "targetPlayer": d.id});
+                togglePlayer(d.id);
             }}>
                 <CountryFlag country={d.country} />{d.name}
             </div>;

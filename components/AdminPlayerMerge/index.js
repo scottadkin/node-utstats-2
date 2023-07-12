@@ -29,6 +29,39 @@ const reducer = (state, action) =>{
                 "playerList": action.playerList
             }
         }
+        case "togglePlayer": {
+
+            let newPlayers = [];
+
+            console.log(action.targetPlayer);
+
+            const index = state.selectedPlayers.indexOf(action.targetPlayer);
+
+            if(index !== -1){
+
+                for(let i = 0; i < state.selectedPlayers.length; i++){
+
+                    const id = state.selectedPlayers[i];
+
+                    if(id === action.targetPlayer){
+                        continue;
+                    }
+
+                    newPlayers.push(id);
+                }
+            }else{
+
+                newPlayers = [...state.selectedPlayers, action.targetPlayer];
+            }
+
+            console.log(newPlayers);
+
+            //if playerId is not in array add it otherwise remove
+            return {
+                ...state,
+                "selectedPlayers": newPlayers
+            }
+        }
     }
 
     return state;
@@ -71,7 +104,8 @@ const AdminPlayerMerge = ({}) =>{
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
         "error": null,
-        "playerList": []
+        "playerList": [],
+        "selectedPlayers": []
     });
 
     useEffect(() =>{
@@ -93,11 +127,13 @@ const AdminPlayerMerge = ({}) =>{
         <div className="form">
             <div className="select-row">
                 <div className="select-label">Target Player</div>
-                <InteractivePlayerSearchBox data={state.playerList} maxDisplay={25}/>
+                <InteractivePlayerSearchBox data={state.playerList} maxDisplay={25} togglePlayer={(value) =>{
+                    dispatch({"type": "togglePlayer", "targetPlayer": value});
+                }} selectedPlayers={state.selectedPlayers}/>
             </div>
             <div className="select-row">
                 <div className="select-label">Master Player</div>
-                <InteractivePlayerSearchBox data={state.playerList} maxDisplay={25}/>
+                <div>f</div>
             </div>
             
         </div>
