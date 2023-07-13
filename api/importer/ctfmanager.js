@@ -885,7 +885,14 @@ class CTFManager{
         const distanceY = flag.flagStand.y - targetLocation.y;
         const distanceZ = flag.flagStand.z - targetLocation.z;
 
-        return Math.hypot(distanceX, distanceY, distanceZ);
+        const result = Math.hypot(distanceX, distanceY, distanceZ);
+
+        if(result !== result){
+            new Message(`CTFManager.getDistanceToCapping() result is null`, "warning");
+            return -1;
+        }
+
+        return result;
     }
 
     async dropAllFlags(player, timestamp){
