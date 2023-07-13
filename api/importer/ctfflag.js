@@ -87,12 +87,13 @@ class CTFFlag{
         this.takenPlayer = null;
         this.deaths = [];
         this.lastDroppedLocation = null;
-        this.lastReturnTimestamp = null;
+        //this.lastReturnTimestamp = null;
     }
 
     async returned(timestamp, playerId, smartCTFLocation){
 
-        //this.debugSeals("RETURNED");
+        //skip duplicate events, normally caused by taken event being logged 1 line before timeout_returned(standing at flag base as its returned)
+        if(timestamp === this.lastReturnTimestamp) return;
 
         this.lastReturnTimestamp = timestamp;
 
@@ -105,6 +106,9 @@ class CTFFlag{
 
     async timedOutReturn(timestamp){
 
+        //skip duplicate events, normally caused by taken event being logged 1 line before timeout_returned(standing at flag base as its returned)
+        if(timestamp === this.lastReturnTimestamp) return;
+
         this.lastReturnTimestamp = timestamp;
 
         this.ctfManager.addEvent(this.matchId, timestamp, -1, "returned_timeout", this.team);
@@ -114,7 +118,7 @@ class CTFFlag{
         await this.reset(true, -1);
     }
 
-    async taken(timestamp, playerId){
+    async taken(timestamp, playerId, bTakenAtTimeoutReturn){
 
         //just in case some data isn't reset
         //await this.reset(true);
@@ -129,6 +133,13 @@ class CTFFlag{
 
         if(this.covers.length > 0){
             new Message(`CTFFlag.taken() this.covers is not empty.`,"warning");
+        }
+
+        //work around for flag taken being logged before flag_returned_timeout
+        //646.91	flag_taken	5	0
+        //646.91	flag_returned_timeout	0
+        if(bTakenAtTimeoutReturn){
+            await this.timedOutReturn(timestamp);
         }
 
         this.bDropped = false;

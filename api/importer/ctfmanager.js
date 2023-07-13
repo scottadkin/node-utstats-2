@@ -285,6 +285,24 @@ class CTFManager{
         }  
     }
 
+
+    //weird issue when flag taken is logged a line before flag returned event
+    bTakenAtTimeoutReturn(targetTimestamp, targetTeam){
+
+        for(let i = 0; i < this.timeoutReturns.length; i++){
+
+            const {timestamp, team} = this.timeoutReturns[i];
+
+            if(timestamp > targetTimestamp) return false;
+
+            if(team === targetTeam && timestamp === targetTimestamp){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     async createFlagTaken(timestamp, line){
 
         const reg = /^.+?\tflag_taken\t(\d+?)\t(\d+)$/i;
@@ -312,7 +330,7 @@ class CTFManager{
 
         player.setCTFNewValue("taken", timestamp, totalDeaths);
 
-        await this.flags[flagTeam].taken(timestamp, player.masterId);
+        await this.flags[flagTeam].taken(timestamp, player.masterId, this.bTakenAtTimeoutReturn(timestamp, flagTeam));
 
     }
 
@@ -723,6 +741,30 @@ class CTFManager{
         }
     }
 
+
+    //work around for flag_taken being logged before flag_returned_timeout issue...
+    parseTimeoutReturns(){
+
+        this.timeoutReturns = [];
+
+        const reg = /^(\d+?\.\d+?)\tflag_returned_timeout\t(.+)$/i;
+
+        for(let i = 0; i < this.lines.length; i++){
+
+            const line = this.lines[i];
+
+            const result = reg.exec(line);
+
+            if(result !== null){
+
+                this.timeoutReturns.push({
+                    "timestamp": parseFloat(result[1]),
+                    "team": parseInt(result[2])
+                });         
+            }   
+        }
+    }
+
     async parseData(matchStartTimestamp){
 
         
@@ -731,6 +773,8 @@ class CTFManager{
 
         this.matchStartTimestamp = matchStartTimestamp;
 
+        this.parseTimeoutReturns();
+        //process.exit();
    
         for(let i = 0; i < this.lines.length; i++){
 

@@ -286,8 +286,8 @@ class CTF{
             matchDate, 
             mapId, 
             flagTeam, 
-            grabTime, 
-            grabPlayer, 
+            grabTime, //
+            grabPlayer, //
             returnTime, 
             returnPlayer, 
             returnString,
