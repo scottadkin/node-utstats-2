@@ -106,8 +106,16 @@ const reducer = (state, action) =>{
                 ...state,
                 "notificationType": "warning",
                 "notificationTitle": "Merging In Progress",
-                "notificationText": "Please wait..."
+                "notificationText": "Please wait...",
+                "currentMergedList": []
 
+            }
+        }
+        case "updateCurrentMergedList": {
+
+            return {
+                ...state,
+                "currentMergedList": [...state.currentMergedList, {"type": action.messageType, "playerId": action.playerId, "message": action.message}]
             }
         }
     }
@@ -149,7 +157,7 @@ const loadPlayerList = async (dispatch, controller) =>{
 const renderSelectedPlayers = (state, dispatch, bMaster) =>{
 
     const players = (bMaster) ? state.masterPlayer  : state.selectedPlayers;
-    const title = (bMaster) ? "Will be merged into"  : "Selected Players";
+    const title = (bMaster) ? "Will be merged into"  : `Selected Players (${state.selectedPlayers.length})`;
 
     const elems = players.map((id) =>{
 
@@ -162,11 +170,16 @@ const renderSelectedPlayers = (state, dispatch, bMaster) =>{
             }else{
                 dispatch({"type": "setMasterPlayer", "value": id});
             }
+
         }}><CountryFlag country={player.country}/>{player.name}</div>
 
     });
 
-    if(elems.length === 0) return null;
+    if(elems.length === 0 && bMaster){
+        return null;
+    }else if(elems.length === 0 && !bMaster){
+        elems.push(<div key="none" className="small-font grey">None Selected</div>);
+    }
 
     return <div className="m-bottom-25">
         <div className="default-sub-header">{title}</div>
@@ -174,10 +187,84 @@ const renderSelectedPlayers = (state, dispatch, bMaster) =>{
     </div>
 }
 
-const mergePlayers = (state, dispatch) =>{
+const mergePlayer = async (dispatch, playerId, masterPlayerId) =>{
 
+    try{
+
+        const req = await fetch("/api/adminplayers", {
+            "headers": {
+                "Content-type": "application/json"
+            },
+            "method": "POST",
+            "body": JSON.stringify({"mode": "merge", "player1": playerId, "player2": masterPlayerId})
+        });
+
+        const res = await req.json();
+
+        if(res.error === undefined){
+
+            dispatch({
+                "type": "updateCurrentMergedList", 
+                "messageType": "pass",
+                "playerId": playerId,
+                "message": "Merge completed."
+            });
+
+            return;
+
+        }else{
+
+            dispatch({
+                "type": "updateCurrentMergedList", 
+                "messageType": "fail",
+                "playerId": playerId,
+                "message": res.error
+                
+            });
+
+            return;
+        }
+
+    }catch(err){
+        console.trace(err);
+    }
+    /*
+    return new Promise((resolve, reject) =>{
+
+        setTimeout(() =>{
+            console.log("done");
+
+            dispatch({
+                "type": "updateCurrentMergedList", 
+                "messageType": "pass",
+                "message": playerId
+            });
+            resolve();
+        }, 500);
+
+    });*/
+    
+}
+
+const mergePlayers = async (state, dispatch) =>{
+
+
+    if(state.masterPlayer.length === 0){
+        return;
+    }
+
+    
 
     dispatch({"type": "mergePlayers"});
+
+    
+    for(let i = 0; i < state.selectedPlayers.length; i++){
+
+        const targetPlayer = state.selectedPlayers[i];
+
+        await mergePlayer(dispatch, targetPlayer, state.masterPlayer[0]);
+    }
+
 }
 
 const renderButton = (state, dispatch) =>{
@@ -195,6 +282,14 @@ const renderNotification = (state) =>{
 
     return <NotificationSmall type={state.notificationType} title={state.notificationTitle}>
         {state.notificationText}
+        {state.currentMergedList.map((a) =>{
+
+            const player = getPlayer(state.playerList, parseInt(a.playerId));
+
+            return <div className={`${(a.type === "pass") ? "team-green" : "team-red" }`}>
+                <b>{a.type.toUpperCase()}:</b> <CountryFlag country={player.country}/>{a.message}
+            </div>;
+        })}
     </NotificationSmall>;
 }
 
@@ -212,6 +307,7 @@ const AdminPlayerMerge = ({}) =>{
         "notificationType": null,
         "notificationTitle": null,
         "notificationText": null,
+        "currentMergedList": []
     });
 
     useEffect(() =>{
