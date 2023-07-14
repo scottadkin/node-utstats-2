@@ -207,7 +207,7 @@ const mergePlayer = async (dispatch, playerId, masterPlayerId) =>{
                 "type": "updateCurrentMergedList", 
                 "messageType": "pass",
                 "playerId": playerId,
-                "message": "Merge completed."
+                "message": ""
             });
 
             return;
@@ -282,15 +282,37 @@ const renderNotification = (state) =>{
 
     return <NotificationSmall type={state.notificationType} title={state.notificationTitle}>
         {state.notificationText}
-        {state.currentMergedList.map((a) =>{
-
-            const player = getPlayer(state.playerList, parseInt(a.playerId));
-
-            return <div className={`${(a.type === "pass") ? "team-green" : "team-red" }`}>
-                <b>{a.type.toUpperCase()}:</b> <CountryFlag country={player.country}/>{a.message}
-            </div>;
-        })}
+        
     </NotificationSmall>;
+}
+
+const renderMergeNotifications = (state) =>{
+
+    const targetPlayer = getPlayer(state.playerList, (state.masterPlayer.length > 0) ? state.masterPlayer[0] : -1);
+
+    const elems = state.currentMergedList.map((a) =>{
+
+        const player = getPlayer(state.playerList, parseInt(a.playerId));
+
+        let message = null;
+
+        if(a.type === "pass"){
+            message = <>Merged into <CountryFlag country={targetPlayer.country}/>{targetPlayer.name}</>;
+        }
+
+        return <div  key={a.playerId} className={`${styles.notification} ${(a.type === "pass") ? "team-green" : "team-red" }`}>
+            <div className={styles["n-title"]}>{a.type.toUpperCase()}</div>
+            <div className={styles["n-text"]}>
+                <CountryFlag country={player.country}/>
+                <b>{player.name}</b>&nbsp;
+                {message}
+            </div>
+        </div>;
+    });
+
+    if(elems.length === 0) return null;
+
+    return <div>{elems}</div>
 }
 
 const AdminPlayerMerge = ({}) =>{
@@ -356,6 +378,7 @@ const AdminPlayerMerge = ({}) =>{
             </div>
             {renderButton(state, dispatch)}
             {renderNotification(state)}
+            {renderMergeNotifications(state)}
         </div>
     </div>
 }
