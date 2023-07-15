@@ -1,7 +1,3 @@
-.wrapper{
-    max-width:290px;
-    width:290px;
-}
 
 .players{
     width:var(--width-1);
@@ -40,6 +36,7 @@
     padding:5px;
     border:1px solid var(--border-color-3);
     color:white;
+    overflow:hidden;
 }
 
 .selected{

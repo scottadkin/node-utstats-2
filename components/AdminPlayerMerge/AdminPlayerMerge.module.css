@@ -11,7 +11,7 @@
 }
 
 .notification{
-    padding:5px;
+    padding:10px;
     display:grid;
     grid-template-columns: 50% 50%;
 }
@@ -19,6 +19,7 @@
 .n-title{
     text-align:right;
     padding-right:5px;
+    font-weight:bold;
 }
 
 .n-text{

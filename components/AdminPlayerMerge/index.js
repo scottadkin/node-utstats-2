@@ -29,6 +29,7 @@ const reducer = (state, action) =>{
             }
         }
         case "loadedPlayerList": {
+
             return {
                 ...state,
                 "error": null,
@@ -40,7 +41,6 @@ const reducer = (state, action) =>{
 
             let newPlayers = [];
 
-            console.log(action.targetPlayer);
 
             const index = state.selectedPlayers.indexOf(action.targetPlayer);
 
@@ -60,8 +60,6 @@ const reducer = (state, action) =>{
 
                 newPlayers = [...state.selectedPlayers, action.targetPlayer];
             }
-
-            console.log(newPlayers);
 
             //if playerId is not in array add it otherwise remove
             return {
@@ -104,6 +102,7 @@ const reducer = (state, action) =>{
         case "mergePlayers": {
             return {
                 ...state,
+                "bMergeInProgress": true,
                 "notificationType": "warning",
                 "notificationTitle": "Merging In Progress",
                 "notificationText": "Please wait...",
@@ -115,7 +114,34 @@ const reducer = (state, action) =>{
 
             return {
                 ...state,
-                "currentMergedList": [...state.currentMergedList, {"type": action.messageType, "playerId": action.playerId, "message": action.message}]
+                "currentMergedList": [...state.currentMergedList, {
+                    "type": action.messageType, 
+                    "targetPlayer": action.targetPlayer, 
+                    "masterPlayer": action.masterPlayer, 
+                    "message": action.message
+                }]
+            }
+        }
+
+        case "currentMergeFinished": {
+            return {
+                ...state,
+                "bMergeInProgress": false,
+                "notificationType": "pass",
+                "notificationTitle": "Finished",
+                "notificationText": "Merging players completed.",
+
+            }
+        }
+
+        case "updatePlayerList": {
+            return {
+                ...state,
+                "playerList": action.playerList,
+                "selectedPlayers": [],
+                "masterPlayer": [],
+                "targetSearch": "",
+                "masterSearch": ""
             }
         }
     }
@@ -142,8 +168,6 @@ const loadPlayerList = async (dispatch, controller) =>{
             dispatch({"type": "error", "errorMessage": res.error});
             return;
         }
-
-        console.log(res);
 
         dispatch({"type": "loadedPlayerList", "error": null, "playerList": res.players});
 
@@ -187,7 +211,7 @@ const renderSelectedPlayers = (state, dispatch, bMaster) =>{
     </div>
 }
 
-const mergePlayer = async (dispatch, playerId, masterPlayerId) =>{
+const mergePlayer = async (state, dispatch, playerId, masterPlayerId) =>{
 
     try{
 
@@ -201,12 +225,16 @@ const mergePlayer = async (dispatch, playerId, masterPlayerId) =>{
 
         const res = await req.json();
 
+        const targetPlayer = getPlayer(state.playerList, playerId, false);
+        const masterPlayer = getPlayer(state.playerList, masterPlayerId, false);
+
         if(res.error === undefined){
 
             dispatch({
-                "type": "updateCurrentMergedList", 
-                "messageType": "pass",
-                "playerId": playerId,
+                "type": "updateCurrentMergedList",
+                "messageType": "pass", 
+                "targetPlayer": targetPlayer,
+                "masterPlayer": masterPlayer,
                 "message": ""
             });
 
@@ -215,9 +243,10 @@ const mergePlayer = async (dispatch, playerId, masterPlayerId) =>{
         }else{
 
             dispatch({
-                "type": "updateCurrentMergedList", 
-                "messageType": "fail",
-                "playerId": playerId,
+                "type": "updateCurrentMergedList",
+                "messageType": "fail",       
+                "targetPlayer": targetPlayer,
+                "masterPlayer": masterPlayer,
                 "message": res.error
                 
             });
@@ -228,22 +257,22 @@ const mergePlayer = async (dispatch, playerId, masterPlayerId) =>{
     }catch(err){
         console.trace(err);
     }
-    /*
-    return new Promise((resolve, reject) =>{
+}
 
-        setTimeout(() =>{
-            console.log("done");
+const removeMergedPlayers = (state) =>{
 
-            dispatch({
-                "type": "updateCurrentMergedList", 
-                "messageType": "pass",
-                "message": playerId
-            });
-            resolve();
-        }, 500);
+    const remainingPlayers = [];
 
-    });*/
-    
+    for(let i = 0; i < state.playerList.length; i++){
+
+        const p = state.playerList[i];
+
+        if(state.selectedPlayers.indexOf(p.id) === -1){
+            remainingPlayers.push(p);
+        }
+    }
+
+    return remainingPlayers
 }
 
 const mergePlayers = async (state, dispatch) =>{
@@ -253,23 +282,25 @@ const mergePlayers = async (state, dispatch) =>{
         return;
     }
 
-    
-
     dispatch({"type": "mergePlayers"});
-
     
     for(let i = 0; i < state.selectedPlayers.length; i++){
 
         const targetPlayer = state.selectedPlayers[i];
 
-        await mergePlayer(dispatch, targetPlayer, state.masterPlayer[0]);
+        await mergePlayer(state, dispatch, targetPlayer, state.masterPlayer[0]);
     }
+
+    dispatch({"type": "currentMergeFinished"});
+
+    dispatch({"type": "updatePlayerList", "playerList": removeMergedPlayers(state)});
 
 }
 
 const renderButton = (state, dispatch) =>{
 
     if(state.selectedPlayers.length === 0 || state.masterPlayer.length === 0) return null;
+    if(state.bMergeInProgress) return null;
 
     return <div className="search-button m-top-25" onClick={() =>{
         mergePlayers(state, dispatch);
@@ -288,23 +319,33 @@ const renderNotification = (state) =>{
 
 const renderMergeNotifications = (state) =>{
 
-    const targetPlayer = getPlayer(state.playerList, (state.masterPlayer.length > 0) ? state.masterPlayer[0] : -1);
+    let index = 0;
 
     const elems = state.currentMergedList.map((a) =>{
 
-        const player = getPlayer(state.playerList, parseInt(a.playerId));
+        index++;
 
         let message = null;
 
         if(a.type === "pass"){
-            message = <>Merged into <CountryFlag country={targetPlayer.country}/>{targetPlayer.name}</>;
+
+            message = <>
+                <CountryFlag country={a.targetPlayer.country}/> {a.targetPlayer.name} merged into &nbsp;
+                <CountryFlag country={a.masterPlayer.country}/> {a.masterPlayer.name}
+            </>;
+        }else{
+
+            message = <>
+                Failed to merge <CountryFlag country={a.targetPlayer.country}/>{a.targetPlayer.name} into&nbsp;
+                <CountryFlag country={a.masterPlayer.country}/>{a.masterPlayer.name} <br/>
+                {a.message}
+            </>;
         }
 
-        return <div  key={a.playerId} className={`${styles.notification} ${(a.type === "pass") ? "team-green" : "team-red" }`}>
+
+        return <div key={index} className={`${styles.notification} ${(a.type === "pass") ? "team-green" : "team-red" }`}>
             <div className={styles["n-title"]}>{a.type.toUpperCase()}</div>
             <div className={styles["n-text"]}>
-                <CountryFlag country={player.country}/>
-                <b>{player.name}</b>&nbsp;
                 {message}
             </div>
         </div>;
@@ -313,6 +354,37 @@ const renderMergeNotifications = (state) =>{
     if(elems.length === 0) return null;
 
     return <div>{elems}</div>
+}
+
+const renderSearchBoxes = (state, dispatch) =>{
+
+    if(state.bMergeInProgress) return null;
+
+    return <>
+        <div className="select-row">
+        <div className="select-label">Search For A Target Player</div>
+            <InteractivePlayerSearchBox searchValue={state.targetSearch} data={state.playerList} bAutoSet={false} setSearchValue={(value) =>{
+                dispatch({"type": "updateTargetSearch", "value": value});
+            }} togglePlayer={(value) =>{
+                dispatch({"type": "togglePlayer", "targetPlayer": value});
+            }} selectedPlayers={state.selectedPlayers}/>
+        </div>
+        
+        <div className="select-row">
+            <div className="select-label">Search For A Master Player</div>
+            <InteractivePlayerSearchBox searchValue={state.masterSearch} 
+                setSearchValue={(value) =>{
+                    
+                    dispatch({"type": "updateMasterSearch", "value": value});
+                }}  
+                data={state.playerList} togglePlayer={(value) =>{
+                    dispatch({"type": "setMasterPlayer", "value": value});
+                }} 
+                bAutoSet={false}
+                selectedPlayers={state.masterPlayer}
+            />
+        </div>
+    </>
 }
 
 const AdminPlayerMerge = ({}) =>{
@@ -329,6 +401,7 @@ const AdminPlayerMerge = ({}) =>{
         "notificationType": null,
         "notificationTitle": null,
         "notificationText": null,
+        "bMergeInProgress": false,
         "currentMergedList": []
     });
 
@@ -348,34 +421,11 @@ const AdminPlayerMerge = ({}) =>{
         <Loading value={!state.bLoading} />
         <div className="form">
             <div className="form-info">
-                Select one or more players to be merged into another, the selected players will be merged into the master player's profile.
+                Select one or more players to be merged into another, the selected players will be merged into the master player&apos;s profile.
             </div>
             {renderSelectedPlayers(state, dispatch, false)}
             {renderSelectedPlayers(state, dispatch, true)}
-            <div className="select-row">
-                <div className="select-label">Search For A Target Player</div>
-                <InteractivePlayerSearchBox searchValue={state.targetSearch} data={state.playerList} bAutoSet={false} setSearchValue={(value) =>{
-                    console.log(`VALUE = ${value}`);
-                    dispatch({"type": "updateTargetSearch", "value": value});
-                }} togglePlayer={(value) =>{
-                    dispatch({"type": "togglePlayer", "targetPlayer": value});
-                }} selectedPlayers={state.selectedPlayers}/>
-            </div>
-            
-            <div className="select-row">
-                <div className="select-label">Search For A Master Player</div>
-                <InteractivePlayerSearchBox searchValue={state.masterSearch} 
-                    setSearchValue={(value) =>{
-                        
-                        dispatch({"type": "updateMasterSearch", "value": value});
-                    }}  
-                    data={state.playerList} togglePlayer={(value) =>{
-                        dispatch({"type": "setMasterPlayer", "value": value});
-                    }} 
-                    bAutoSet={false}
-                    selectedPlayers={state.masterPlayer}
-                />
-            </div>
+            {renderSearchBoxes(state, dispatch)}
             {renderButton(state, dispatch)}
             {renderNotification(state)}
             {renderMergeNotifications(state)}

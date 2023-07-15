@@ -76,7 +76,7 @@ const InteractivePlayerSearchBox = ({data, maxDisplay, searchValue, selectedPlay
     }} onMouseEnter={() =>{
         dispatch({"type": "setDisplay", "value": true});
     }}>
-        <input type="text" value={searchValue} onChange={(e) =>{
+        <input type="text" className={styles.textbox} value={searchValue} onChange={(e) =>{
             setSearchValue(e.target.value);
             dispatch({"type": "setDisplay", "value": true});
         }}  placeholder="player name..."/>
