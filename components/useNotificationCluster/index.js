@@ -1,58 +1,65 @@
 import { useReducer } from "react";
 
-
 const reducer = (state, action) =>{
 
     switch(action.type){
-        case "setNotifications": {
+        case "set": {
             return {
                 ...state,
-                "notifications": action.newNotifications
+                "notifications": [...action.notifications]
+            }
+        }
+
+        case "add": {
+            return {
+                ...state,
+                "notifications": [...state.notifications, action.notification]
             }
         }
     }
-
     return state;
 }
 
-const useNotificationCluster = (notifications) =>{
-
+const useNotificationCluster = () =>{
 
     const [state, dispatch] = useReducer(reducer, {
-        "notifications": [...notifications]
+        "notifications": []
     });
 
     const addNotification = (type, content) =>{
 
-        const current = {
+        dispatch({"type": "add", "notification": {
             "type": type, 
             "content": content,
             "bDisplay": true,
             "id": state.notifications.length
-        };
-    
-        dispatch({"type": "setNotifications", "newNotifications": [...state.notifications, current]});
+        }});
+    }
+
+    const setNotifications = (notifications) =>{
+        dispatch({"type": "set", "notifications": notifications});
     }
     
-    const hideNotification = (targetId) =>{
+    const hideNotification = (notifications, targetId) =>{
     
-        const newNotifications = [];
+        const result = [];
     
-        for(let i = 0; i < state.notifications.length; i++){
+        for(let i = 0; i < notifications.length; i++){
     
-            const n = state.notifications[i];
+            const n = notifications[i];
     
             if(n.id === targetId) n.bDisplay = false;
-            newNotifications.push(n);
+            result.push(n);
         }
     
-        dispatch({"type": "setNotifications", "newNotifications": newNotifications});
+        return result;
     }
     
     return [
         state.notifications,
         addNotification,
-        hideNotification
+        hideNotification,
+        setNotifications
     ]
 }
 

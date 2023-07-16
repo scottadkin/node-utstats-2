@@ -146,6 +146,12 @@ const reducer = (state, action) =>{
                 "masterSearch": ""
             }
         }
+        case "setNotifications": {
+            return {
+                ...state,
+                "notifications": action.newNotifications
+            }
+        }
     }
 
     return state;
@@ -213,7 +219,7 @@ const renderSelectedPlayers = (state, dispatch, bMaster) =>{
     </div>
 }
 
-const mergePlayer = async (state, dispatch, playerId, masterPlayerId) =>{
+const mergePlayer = async (state, dispatch, playerId, masterPlayerId, createNotification) =>{
 
     try{
 
@@ -232,6 +238,8 @@ const mergePlayer = async (state, dispatch, playerId, masterPlayerId) =>{
 
         if(res.error === undefined){
 
+            createNotification("pass", <b>test {playerId}</b>);
+
             dispatch({
                 "type": "updateCurrentMergedList",
                 "messageType": "pass", 
@@ -243,6 +251,8 @@ const mergePlayer = async (state, dispatch, playerId, masterPlayerId) =>{
             return;
 
         }else{
+
+            createNotification("error", <b>{res.error}</b>);
 
             dispatch({
                 "type": "updateCurrentMergedList",
@@ -277,7 +287,7 @@ const removeMergedPlayers = (state) =>{
     return remainingPlayers
 }
 
-const mergePlayers = async (state, dispatch) =>{
+const mergePlayers = async (state, dispatch, createNotification) =>{
 
 
     if(state.masterPlayer.length === 0){
@@ -285,12 +295,17 @@ const mergePlayers = async (state, dispatch) =>{
     }
 
     dispatch({"type": "mergePlayers"});
+
+
+    const mergeNotifications = [];
     
     for(let i = 0; i < state.selectedPlayers.length; i++){
 
         const targetPlayer = state.selectedPlayers[i];
 
-        await mergePlayer(state, dispatch, targetPlayer, state.masterPlayer[0]);
+        await mergePlayer(state, dispatch, targetPlayer, state.masterPlayer[0], createNotification);
+
+       // createNotification("pass", <b>test {targetPlayer}</b>);
     }
 
     dispatch({"type": "currentMergeFinished"});
@@ -299,13 +314,13 @@ const mergePlayers = async (state, dispatch) =>{
 
 }
 
-const renderButton = (state, dispatch) =>{
+const renderButton = (state, dispatch, createNotification) =>{
 
     if(state.selectedPlayers.length === 0 || state.masterPlayer.length === 0) return null;
     if(state.bMergeInProgress) return null;
 
     return <div className="search-button m-top-25" onClick={() =>{
-        mergePlayers(state, dispatch);
+        mergePlayers(state, dispatch, createNotification);
     }}>Merge Players</div>;
 }
 
@@ -387,6 +402,7 @@ const renderSearchBoxes = (state, dispatch) =>{
 
 const AdminPlayerMerge = ({}) =>{
 
+    const [notifications, createNotification, hideNotification] = useNotificationCluster();
 
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
@@ -400,14 +416,11 @@ const AdminPlayerMerge = ({}) =>{
         "notificationTitle": null,
         "notificationText": null,
         "bMergeInProgress": false,
-        "currentMergedList": []
+        "currentMergedList": [],
+        "notifications": []
     });
 
-
-    const [notifications, addNotification, hideNotification] = useNotificationCluster([{"type": "pass",  "content": <>this is some content</>, "id": 0, "bDisplay": true},
-    {"type": "error",  "content": <>this is some content</>, "id": 1, "bDisplay": true},
-    {"type": "warning",  "content": <>this is some content</>, "id": 2, "bDisplay": true},
-    {"type": "note", "content": <>this is some content</>, "id": 3, "bDisplay": true}]);
+    
 
 
     useEffect(() =>{
@@ -429,23 +442,30 @@ const AdminPlayerMerge = ({}) =>{
                 Select one or more players to be merged into another, the selected players will be merged into the master player&apos;s profile.
             </div>
             <b onClick={() =>{
-                addNotification("pass", "action.content");
+
+                createNotification("pass", <b>test</b>);
+
             }}>Add Pass</b>
             <b onClick={() =>{
-                addNotification("error", "action.content");
+
+                createNotification("error", <b>test</b>);
+        
+
             }}>Add fail</b>
             <b onClick={() =>{
-                addNotification("warning", "action.content");
+                createNotification("warning", <b>test</b>);
+                
             }}>Add Warning</b>
             <b onClick={() =>{
-                addNotification("note", "action.content");
+                createNotification("note", <b>test</b>);
+              
             }}>Add Note</b>
 
             <NotificationsCluster notifications={notifications} hide={(id) =>hideNotification(id)}/>
             {renderSelectedPlayers(state, dispatch, false)}
             {renderSelectedPlayers(state, dispatch, true)}
             {renderSearchBoxes(state, dispatch)}
-            {renderButton(state, dispatch)}
+            {renderButton(state, dispatch, createNotification)}
             {renderNotification(state)}
             {renderMergeNotifications(state)}
         </div>
