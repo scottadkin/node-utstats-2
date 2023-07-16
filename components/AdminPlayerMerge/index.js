@@ -7,6 +7,7 @@ import CountryFlag from "../CountryFlag";
 import styles from "./AdminPlayerMerge.module.css";
 import NotificationSmall from "../NotificationSmall";
 import NotificationsCluster from "../NotificationsCluster";
+import useNotificationCluster from "../useNotificationCluster";
 
 
 const reducer = (state, action) =>{
@@ -146,17 +147,10 @@ const reducer = (state, action) =>{
             }
         }
 
-        case "hideNotification": {
+        case "setNotifications": {
             return {
                 ...state,
-                "notifications": hideNotification(state.notifications, action.id)
-            }
-        }
-
-        case "addNotification": {
-            return {
-                ...state,
-                "notifications": addNotification(state.notifications, action.notificationType, action.content)
+                "notifications": action.notifications
             }
         }
     }
@@ -398,37 +392,6 @@ const renderSearchBoxes = (state, dispatch) =>{
     </>
 }
 
-const addNotification = (notifications, type, content) =>{
-
-    const current = {
-        "type": type, 
-        "content": content,
-        "bDisplay": true,
-        "id": notifications.length
-    };
-
-    return [...notifications, current];
-}
-
-const hideNotification = (notifications, targetId) =>{
-
-    console.log(`hide = ${targetId}`);
-
-    const result = [];
-
-    for(let i = 0; i < notifications.length; i++){
-
-        const n = notifications[i];
-
-        if(n.id === targetId) n.bDisplay = false;
-        result.push(n);
-    }
-
-    console.log(result);
-
-    return result;
-}
-
 const AdminPlayerMerge = ({}) =>{
 
 
@@ -450,7 +413,10 @@ const AdminPlayerMerge = ({}) =>{
         {"type": "warning",  "content": <>this is some content</>, "id": 2, "bDisplay": true},
         {"type": "note", "content": <>this is some content</>, "id": 3, "bDisplay": true}]
     });
-    
+
+
+    const [addNotification, hideNotification] = useNotificationCluster();
+
 
     useEffect(() =>{
 
@@ -471,11 +437,17 @@ const AdminPlayerMerge = ({}) =>{
                 Select one or more players to be merged into another, the selected players will be merged into the master player&apos;s profile.
             </div>
             <b onClick={() =>{
-                console.log("fafafa");
-                dispatch({"type": "addNotification", "notificationType": "pass", "content": <>fart</>})
-            }}>ffffsff</b>
+
+                const newNotifications = addNotification(state.notifications, "pass", "action.content");
+                dispatch({"type": "setNotifications", "notifications": newNotifications});
+
+            }}>Add test</b>
+
             <NotificationsCluster notifications={state.notifications} hide={(id) =>{
-                dispatch({"type": "hideNotification", "id": id});
+
+                const newNotifications = hideNotification(state.notifications, id);
+                dispatch({"type": "setNotifications", "notifications": newNotifications});
+              
             }}/>
             {renderSelectedPlayers(state, dispatch, false)}
             {renderSelectedPlayers(state, dispatch, true)}
