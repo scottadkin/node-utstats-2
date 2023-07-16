@@ -32,7 +32,7 @@ const NotificationsCluster = ({notifications, hide}) =>{
                 hide(id);
             }}>X</div>
             <div className={styles.title}>{title}</div>
-            <div className={styles.content}>{content}</div>
+            <div className={styles.content}>{content} my id = {id}</div>
         </div>);
     }
 

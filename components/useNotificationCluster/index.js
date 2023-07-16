@@ -11,6 +11,9 @@ const reducer = (state, action) =>{
         }
 
         case "add": {
+
+            action.notification.id = state.notifications.length;
+
             return {
                 ...state,
                 "notifications": [...state.notifications, action.notification]
@@ -31,8 +34,7 @@ const useNotificationCluster = () =>{
         dispatch({"type": "add", "notification": {
             "type": type, 
             "content": content,
-            "bDisplay": true,
-            "id": state.notifications.length
+            "bDisplay": true
         }});
     }
 
@@ -40,19 +42,19 @@ const useNotificationCluster = () =>{
         dispatch({"type": "set", "notifications": notifications});
     }
     
-    const hideNotification = (notifications, targetId) =>{
+    const hideNotification = (targetId) =>{
     
         const result = [];
     
-        for(let i = 0; i < notifications.length; i++){
+        for(let i = 0; i < state.notifications.length; i++){
     
-            const n = notifications[i];
+            const n = state.notifications[i];
     
             if(n.id === targetId) n.bDisplay = false;
             result.push(n);
         }
-    
-        return result;
+
+        dispatch({"type": "set", "notifications": result});
     }
     
     return [
