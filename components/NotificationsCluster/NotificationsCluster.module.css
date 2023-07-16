@@ -1,0 +1,30 @@
+.wrapper{
+    position:relative;
+}
+
+.notification{
+    border:1px solid var(--border-color-3);
+    margin-top:-1px;
+    margin-bottom:5px;
+}
+
+.title{
+    padding:5px;
+    font-weight:500;
+    background-color:rgba(0,0,0,0.125);
+}
+
+.content{
+    padding:5px;
+}
+
+.close{
+    display:inline-block;
+    position:absolute;
+    right:0;
+    padding:5px;
+}
+
+.close:hover{
+    cursor:pointer;
+}

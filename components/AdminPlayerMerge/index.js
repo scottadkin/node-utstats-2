@@ -6,6 +6,7 @@ import { getPlayer } from "../../api/generic.mjs";
 import CountryFlag from "../CountryFlag";
 import styles from "./AdminPlayerMerge.module.css";
 import NotificationSmall from "../NotificationSmall";
+import NotificationsCluster from "../NotificationsCluster";
 
 
 const reducer = (state, action) =>{
@@ -142,6 +143,20 @@ const reducer = (state, action) =>{
                 "masterPlayer": [],
                 "targetSearch": "",
                 "masterSearch": ""
+            }
+        }
+
+        case "hideNotification": {
+            return {
+                ...state,
+                "notifications": hideNotification(state.notifications, action.id)
+            }
+        }
+
+        case "addNotification": {
+            return {
+                ...state,
+                "notifications": addNotification(state.notifications, action.notificationType, action.content)
             }
         }
     }
@@ -319,11 +334,7 @@ const renderNotification = (state) =>{
 
 const renderMergeNotifications = (state) =>{
 
-    let index = 0;
-
-    const elems = state.currentMergedList.map((a) =>{
-
-        index++;
+    const elems = state.currentMergedList.map((a, i) =>{
 
         let message = null;
 
@@ -343,7 +354,7 @@ const renderMergeNotifications = (state) =>{
         }
 
 
-        return <div key={index} className={`${styles.notification} ${(a.type === "pass") ? "team-green" : "team-red" }`}>
+        return <div key={i} className={`${styles.notification} ${(a.type === "pass") ? "team-green" : "team-red" }`}>
             <div className={styles["n-title"]}>{a.type.toUpperCase()}</div>
             <div className={styles["n-text"]}>
                 {message}
@@ -387,6 +398,37 @@ const renderSearchBoxes = (state, dispatch) =>{
     </>
 }
 
+const addNotification = (notifications, type, content) =>{
+
+    const current = {
+        "type": type, 
+        "content": content,
+        "bDisplay": true,
+        "id": notifications.length
+    };
+
+    return [...notifications, current];
+}
+
+const hideNotification = (notifications, targetId) =>{
+
+    console.log(`hide = ${targetId}`);
+
+    const result = [];
+
+    for(let i = 0; i < notifications.length; i++){
+
+        const n = notifications[i];
+
+        if(n.id === targetId) n.bDisplay = false;
+        result.push(n);
+    }
+
+    console.log(result);
+
+    return result;
+}
+
 const AdminPlayerMerge = ({}) =>{
 
 
@@ -402,8 +444,13 @@ const AdminPlayerMerge = ({}) =>{
         "notificationTitle": null,
         "notificationText": null,
         "bMergeInProgress": false,
-        "currentMergedList": []
+        "currentMergedList": [],
+        "notifications": [{"type": "pass",  "content": <>this is some content</>, "id": 0, "bDisplay": true},
+        {"type": "error",  "content": <>this is some content</>, "id": 1, "bDisplay": true},
+        {"type": "warning",  "content": <>this is some content</>, "id": 2, "bDisplay": true},
+        {"type": "note", "content": <>this is some content</>, "id": 3, "bDisplay": true}]
     });
+    
 
     useEffect(() =>{
 
@@ -423,6 +470,13 @@ const AdminPlayerMerge = ({}) =>{
             <div className="form-info">
                 Select one or more players to be merged into another, the selected players will be merged into the master player&apos;s profile.
             </div>
+            <b onClick={() =>{
+                console.log("fafafa");
+                dispatch({"type": "addNotification", "notificationType": "pass", "content": <>fart</>})
+            }}>ffffsff</b>
+            <NotificationsCluster notifications={state.notifications} hide={(id) =>{
+                dispatch({"type": "hideNotification", "id": id});
+            }}/>
             {renderSelectedPlayers(state, dispatch, false)}
             {renderSelectedPlayers(state, dispatch, true)}
             {renderSearchBoxes(state, dispatch)}
@@ -434,215 +488,3 @@ const AdminPlayerMerge = ({}) =>{
 }
 
 export default AdminPlayerMerge;
-
-/*
-class AdminPlayerMerge extends React.Component{
-
-    constructor(props){
-
-        super(props);
-
-        this.state = {
-            "bLoading": true, 
-            "players": [], 
-            "bFailed": false, 
-            "message": "", 
-            "bMergeInProgress": false,
-            "displayUntil": 0
-        };
-
-        this.merge = this.merge.bind(this);
-    }
-
-    async merge(e){
-
-        try{
-
-            e.preventDefault();
-
-            this.setState({
-                "bMergeInProgress": true, 
-                "bFailed": false, 
-                "message": "Merge in progress, please wait...",
-                "displayUntil": Math.floor(Date.now() * 0.001) + 15
-            });
-
-            let player1 = parseInt(e.target[0].value);
-            let player2 = parseInt(e.target[1].value);
-
-            if(player1 === -1 || player2 === -1){
-
-                this.setState({
-                    "bFailed": true, 
-                    "bMergeInProgress": false, 
-                    "message": "You must select two players to merge.",
-                    "displayUntil": Math.floor(Date.now() * 0.001) + 5
-                });
-                return;
-            }
-
-            if(player1 === player2){
-
-                this.setState({
-                    "bFailed": true, 
-                    "bMergeInProgress": false, 
-                    "message": "You can't merge a player into itself.",
-                    "displayUntil": Math.floor(Date.now() * 0.001) + 5
-                });
-                return;
-            }
-
-
-            const req = await fetch("/api/adminplayers", {
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({
-                    "mode": "merge", 
-                    "player1": player1, 
-                    "player2": player2
-                })
-            });
-
-            const res = await req.json();
-
-            if(res.error === undefined){
-
-                this.setState({
-                    "bFailed": false, 
-                    "bMergeInProgress": false, 
-                    "message": res.message,
-                    "displayUntil": Math.floor(Date.now() * 0.001) + 5
-                });
-
-                await this.loadPlayers();
-                return;
-
-            }else{
-
-                this.setState({
-                    "bFailed": true, 
-                    "bMergeInProgress": false, 
-                    "message": res.error,
-                    "displayUntil": Math.floor(Date.now() * 0.001) + 5
-                });
-                return;
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-    async loadPlayers(){
-
-        try{
-
-            this.setState({"bLoading": true, "players": [], "bFailed": false});
-
-            const req = await fetch("/api/adminplayers", {
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({"mode": "allnames"})
-            });
-
-            const res = await req.json();
-
-            if(res.error === undefined){
-
-                this.setState({"bLoading": false, "players": res.names, "bFailed": false});
-
-            }else{
-                this.setState({"bLoading": false, "bFailed": true, "message": "There was a problem loading player list."});
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-
-    componentDidMount(){
-
-        this.loadPlayers();
-    }
-
-    renderDropDown(){
-
-        const options = [];
-
-        for(let i = 0; i < this.state.players.length; i++){
-
-            const p = this.state.players[i];
-
-            options.push(<option key={i} value={p.id}>{p.name}</option>);
-        }
-
-        return <select className="default-select">
-            <option value="-1">Select a player</option>
-            {options}
-        </select>
-    }
-
-
-    renderForm(){
-
-        return <div className="form">
-            <div className="form-info m-bottom-25">Merge Players.<br/>Merge two players into one, taking player 2&apos;s name.</div>
-            <form action="/" method="POST" onSubmit={this.merge}>
-                <div className="select-row">
-                    <div className="select-label">Player 1</div>
-                    <div>
-                        {this.renderDropDown()}
-                    </div>
-                </div>
-                <div className="select-row">
-                    <div className="select-label">Player 2</div>
-                    <div>
-                    {this.renderDropDown()}
-                    </div>
-                </div>
-                <input type="submit" className="search-button" value="Merge"/>
-            </form>
-        </div>
-    }
-
-
-    render(){
-
-        let elems = null;
-        let notification = null;
-
-        if(this.state.bLoading){
-
-            elems = <Loading />;
-
-        }
-        
-        if(this.state.bFailed){
-
-            notification = <Notification type="error" >{this.state.message}</Notification>
-
-        }else if(this.state.bMergeInProgress){
-
-            notification = <Notification type="warning" >{this.state.message}</Notification>
-
-        }else{
-
-            notification = <Notification type="pass">{this.state.message}</Notification>
-
-        }
-
-        if(elems === null){
-
-            elems = this.renderForm();
-        }
-
-        return <div>
-            <div className="default-header">Merge Players</div>
-            {elems}
-            {notification}
-        </div>
-    }
-}
-
-export default AdminPlayerMerge;*/
