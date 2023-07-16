@@ -146,13 +146,6 @@ const reducer = (state, action) =>{
                 "masterSearch": ""
             }
         }
-
-        case "setNotifications": {
-            return {
-                ...state,
-                "notifications": action.notifications
-            }
-        }
     }
 
     return state;
@@ -407,15 +400,14 @@ const AdminPlayerMerge = ({}) =>{
         "notificationTitle": null,
         "notificationText": null,
         "bMergeInProgress": false,
-        "currentMergedList": [],
-        "notifications": [{"type": "pass",  "content": <>this is some content</>, "id": 0, "bDisplay": true},
-        {"type": "error",  "content": <>this is some content</>, "id": 1, "bDisplay": true},
-        {"type": "warning",  "content": <>this is some content</>, "id": 2, "bDisplay": true},
-        {"type": "note", "content": <>this is some content</>, "id": 3, "bDisplay": true}]
+        "currentMergedList": []
     });
 
 
-    const [addNotification, hideNotification] = useNotificationCluster();
+    const [notifications, addNotification, hideNotification] = useNotificationCluster([{"type": "pass",  "content": <>this is some content</>, "id": 0, "bDisplay": true},
+    {"type": "error",  "content": <>this is some content</>, "id": 1, "bDisplay": true},
+    {"type": "warning",  "content": <>this is some content</>, "id": 2, "bDisplay": true},
+    {"type": "note", "content": <>this is some content</>, "id": 3, "bDisplay": true}]);
 
 
     useEffect(() =>{
@@ -437,18 +429,19 @@ const AdminPlayerMerge = ({}) =>{
                 Select one or more players to be merged into another, the selected players will be merged into the master player&apos;s profile.
             </div>
             <b onClick={() =>{
+                addNotification("pass", "action.content");
+            }}>Add Pass</b>
+            <b onClick={() =>{
+                addNotification("error", "action.content");
+            }}>Add fail</b>
+            <b onClick={() =>{
+                addNotification("warning", "action.content");
+            }}>Add Warning</b>
+            <b onClick={() =>{
+                addNotification("note", "action.content");
+            }}>Add Note</b>
 
-                const newNotifications = addNotification(state.notifications, "pass", "action.content");
-                dispatch({"type": "setNotifications", "notifications": newNotifications});
-
-            }}>Add test</b>
-
-            <NotificationsCluster notifications={state.notifications} hide={(id) =>{
-
-                const newNotifications = hideNotification(state.notifications, id);
-                dispatch({"type": "setNotifications", "notifications": newNotifications});
-              
-            }}/>
+            <NotificationsCluster notifications={notifications} hide={(id) =>hideNotification(id)}/>
             {renderSelectedPlayers(state, dispatch, false)}
             {renderSelectedPlayers(state, dispatch, true)}
             {renderSearchBoxes(state, dispatch)}

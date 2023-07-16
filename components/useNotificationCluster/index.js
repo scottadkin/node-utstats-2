@@ -1,33 +1,56 @@
-const useNotificationCluster = () =>{
+import { useReducer } from "react";
 
-    const addNotification = (notifications, type, content) =>{
+
+const reducer = (state, action) =>{
+
+    switch(action.type){
+        case "setNotifications": {
+            return {
+                ...state,
+                "notifications": action.newNotifications
+            }
+        }
+    }
+
+    return state;
+}
+
+const useNotificationCluster = (notifications) =>{
+
+
+    const [state, dispatch] = useReducer(reducer, {
+        "notifications": [...notifications]
+    });
+
+    const addNotification = (type, content) =>{
 
         const current = {
             "type": type, 
             "content": content,
             "bDisplay": true,
-            "id": notifications.length
+            "id": state.notifications.length
         };
     
-        return [...notifications, current];
+        dispatch({"type": "setNotifications", "newNotifications": [...state.notifications, current]});
     }
     
-    const hideNotification = (notifications, targetId) =>{
+    const hideNotification = (targetId) =>{
     
-        const result = [];
+        const newNotifications = [];
     
-        for(let i = 0; i < notifications.length; i++){
+        for(let i = 0; i < state.notifications.length; i++){
     
-            const n = notifications[i];
+            const n = state.notifications[i];
     
             if(n.id === targetId) n.bDisplay = false;
-            result.push(n);
+            newNotifications.push(n);
         }
     
-        return result;
+        dispatch({"type": "setNotifications", "newNotifications": newNotifications});
     }
     
     return [
+        state.notifications,
         addNotification,
         hideNotification
     ]
