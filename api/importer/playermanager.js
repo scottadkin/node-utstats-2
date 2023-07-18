@@ -1447,10 +1447,11 @@ class PlayerManager{
                 //all time win rate
                 await this.winRateManager.updatePlayerLatest(p.masterId, 0, 0, currentResult, matchDate, matchId);
 
+                /*
                 if(bNeedToRecalulate){
                     //console.log("REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
                     await this.winRateManager.recaluatePlayerHistory(p.masterId, [0, gametypeId], [0, mapId]);
-                }
+                }*/
             }
 
         }catch(err){
@@ -1465,9 +1466,12 @@ class PlayerManager{
     
             //date = -1//Math.floor(Math.random() * 10000000);
             
-            const bNeedToRecalulate = await this.winRateManager.bNeedToRecalulate(date);
+            //TODO change this so that it's an admin tool from the website, 
+            //it makes more sense to do it there once instead of after each log if there is an older log
+
+            //const bNeedToRecalulate = await this.winRateManager.bNeedToRecalulate(date);
         
-            await this.updateCurrentWinRates(gametypeId, mapId, date, matchId, bNeedToRecalulate);
+            await this.updateCurrentWinRates(gametypeId, mapId, date, matchId, false/*bNeedToRecalulate*/);
 
         }catch(err){
             new Message(`PlayerManager.updateWinRates() ${err}`,'error');

@@ -386,7 +386,7 @@ class WinRate{
     //get match date, gametype, map, winner/loss/draw
     async getPlayerMatchResultsFromMatchTable(playerId){
 
-        const query = `SELECT match_id,match_date,map_id,gametype,winner,draw FROM nstats_player_matches WHERE player_id=? ORDER BY match_date ASC`;
+        const query = `SELECT match_id,match_date,map_id,gametype,winner,draw FROM nstats_player_matches WHERE player_id=? AND playtime>0 ORDER BY match_date ASC`;
         return await mysql.simpleQuery(query, [playerId]);
     }
     
