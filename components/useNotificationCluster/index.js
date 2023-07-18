@@ -19,6 +19,13 @@ const reducer = (state, action) =>{
                 "notifications": [...state.notifications, action.notification]
             }
         }
+
+        case "clearAll": {
+            return {
+                ...state,
+                "notifications": []
+            }
+        }
     }
     return state;
 }
@@ -38,9 +45,9 @@ const useNotificationCluster = () =>{
         }});
     }
 
-    const setNotifications = (notifications) =>{
+    /*const setNotifications = (notifications) =>{
         dispatch({"type": "set", "notifications": notifications});
-    }
+    }*/
     
     const hideNotification = (targetId) =>{
     
@@ -57,11 +64,18 @@ const useNotificationCluster = () =>{
         dispatch({"type": "set", "notifications": result});
     }
     
+
+    const clearAllNotifications = () =>{
+
+        dispatch({"type": "clearAll"});
+    }
+
     return [
         state.notifications,
         addNotification,
         hideNotification,
-        setNotifications
+        /*setNotifications,*/
+        clearAllNotifications
     ]
 }
 
