@@ -2,6 +2,7 @@ import Session from "../../api/session";
 import Players from "../../api/players";
 import Matches from "../../api/matches";
 import Combogib from "../../api/combogib";
+import WinRate from "../../api/winrate";
 
 
 export default async function handler (req, res){
@@ -49,6 +50,21 @@ export default async function handler (req, res){
                 const playersList = await playerManager.adminGetPlayersBasic();
 
                 res.status(200).json({"players": playersList, "hwidList": playersHWIDList});
+                return;
+            }
+
+            if(mode === "recalculate-winrates"){
+
+                const winrateManager = new WinRate();
+
+                const playerIds = await playerManager.getAllPlayerIds();
+
+                for(let i = 0; i < playerIds.length; i++){
+
+                    await winrateManager.recalculatePlayerHistoryAfterMerge(playerIds[i]);
+                }
+
+                res.status(200).json({"message": "passed"});
                 return;
             }
 

@@ -364,8 +364,6 @@ const AdminPlayerMerge = ({}) =>{
     
     useEffect(() =>{
 
-        console.log("HORSE NOISE");
-
         const controller = new AbortController();
         loadPlayerList(dispatch, controller);
 

@@ -290,25 +290,25 @@ class Admin extends React.Component{
                             })}>Logs Importer Manager</div>
                             <div className={`big-tab ${(this.state.mode === 2) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(2);
-                            })}>Manage User Accounts</div>
+                            })}>User Accounts</div>
                             <div className={`big-tab ${(this.state.mode === 14) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(14);
-                            })}>Manage Servers</div>
+                            })}>Servers</div>
                             <div className={`big-tab ${(this.state.mode === 4) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(4);
-                            })}>Manage Matches</div>
+                            })}>Matches</div>
                             <div className={`big-tab ${(this.state.mode === 5) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(5);
-                            })}>Manage Players</div>
+                            })}>Players</div>
                             <div className={`big-tab ${(this.state.mode === 6) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(6);
-                            })}>Manage Gametypes</div>
+                            })}>Gametypes</div>
                             <div className={`big-tab ${(this.state.mode === 7) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(7);
                             })}>Manage Rankings</div>
                             <div className={`big-tab ${(this.state.mode === 8) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(8);
-                            })}>Manage Pickups</div>
+                            })}>Pickups</div>
                             <div className={`big-tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(1);
                             })}>Map Manager</div>
@@ -326,7 +326,7 @@ class Admin extends React.Component{
                             })}>MonsterHunt</div>
                             <div className={`big-tab ${(this.state.mode === 15) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(15);
-                            })}>Backup Manager</div>
+                            })}>Backups</div>
                             <div className={`big-tab ${(this.state.mode === 16) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(16);
                             })}>Clear Database</div>

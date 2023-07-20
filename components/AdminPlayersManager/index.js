@@ -1,11 +1,12 @@
-import React from 'react';
-import Loading from '../Loading';
-import AdminPlayerRename from '../AdminPlayerRename';
-import AdminDeletePlayer from '../AdminDeletePlayer';
-import BasicUIBox from '../BasicUIBox';
-import AdminPlayerMerge from '../AdminPlayerMerge';
-import AdminPlayerSearch from '../AdminPlayerSearch';
-//import AdminPlayerHWIDMerge from '../AdminPlayerHWIDMerge';
+import React from "react";
+import Loading from "../Loading";
+import AdminPlayerRename from "../AdminPlayerRename";
+import AdminDeletePlayer from "../AdminDeletePlayer";
+import BasicUIBox from "../BasicUIBox";
+import AdminPlayerMerge from "../AdminPlayerMerge";
+import AdminPlayerSearch from "../AdminPlayerSearch";
+//import AdminPlayerHWIDMerge from "../AdminPlayerHWIDMerge";
+import AdminPlayerWinRateRecalculation from "../AdminPlayerWinRateRecalculation";
 
 class AdminPlayersManager extends React.Component{
 
@@ -13,7 +14,7 @@ class AdminPlayersManager extends React.Component{
 
         super(props);
         this.state = {
-            "mode": 3, 
+            "mode": 6, 
             "players": [], 
             "names": [],
             "bFinishedLoadingGeneral": false, 
@@ -122,6 +123,13 @@ class AdminPlayersManager extends React.Component{
         return <AdminPlayerHWIDMerge />;*/
     }
 
+    renderWinrate(){
+
+        if(this.state.mode !== 6) return null;
+
+        return <AdminPlayerWinRateRecalculation />;
+    }
+
     render(){
 
         return <div>
@@ -142,12 +150,16 @@ class AdminPlayersManager extends React.Component{
                 <div className={`tab ${(this.state.mode === 4) ? "tab-selected" : ""}`} onClick={(() =>{
                     this.changeMode(4);  
                 })}>Delete Player</div>
+                <div className={`tab ${(this.state.mode === 6) ? "tab-selected" : ""}`} onClick={(() =>{
+                    this.changeMode(6);  
+                })}>Recalculate Win Rates</div>
             </div>
             {this.renderGeneral()}
             {this.renderSearch()}
             {this.renderRename()}
             {this.renderMerge()}
             {this.renderDelete()}
+            {this.renderWinrate()}
         </div>
     }
 }
