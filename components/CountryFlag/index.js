@@ -1,61 +1,45 @@
 import Countries from '../../api/countries';
 import React from 'react';
 import styles from './CountryFlag.module.css';
-import Image from 'next/image';
+import { useState } from 'react';
 
-class CountryFlag extends React.Component{
+const renderHoverElem = (bDisplay, flag, image) =>{
 
-    constructor(props){
+    if(!bDisplay) return null;
 
-        super(props);
-        this.state = {"show": false};
+    return <div className={styles.mouse}>
+        <div className={styles["country-name"]}>{flag.country}</div>
+        <img src={image} alt="big-flag" />
+    </div>
+}
 
-        this.show = this.show.bind(this);
-        this.hide = this.hide.bind(this);
+const CountryFlag = ({country, bNoHover, small}) =>{
+
+    const [bDisplay, setBDisplay] = useState(false);
+
+    if(bNoHover === undefined) bNoHover = false;
+    if(small === undefined) small = false;
+
+    let width = 16;
+    let height = 10;
+
+    if(small){
+        width = 12;
+        height = 8;
     }
 
-    show(){
+    const flag = Countries(country);
 
-        if(this.props.bNoHover !== undefined && this.props.bNoHover) return;
+    const url = `/images/flags/${flag.code.toLowerCase()}.svg`;
 
-        this.setState({"show": true});
-    }
-
-    hide(){
-
-        this.setState({"show": false});
-    }
-    
-
-    render(){
-
-        const flag = Countries(this.props.country);
-
-        const hiddenClass = (this.state.show) ? "" : "hidden";
-
-        const url = `/images/flags/${flag.code.toLowerCase()}.svg`;
-
-        const hoverElem = (this.state.show) ? <div className={`${styles.mouse} ${hiddenClass}`} onMouseOver={this.hide}>
-            <div className={styles["country-name"]} >{flag.country}</div>
-            <Image src={url} width={100} height={60} alt="image"/>
-        </div> : null;
-
-        let width = 16;
-        let height = 10;
-
-        const small = (this.props.small === undefined) ? false : this.props.small;
-
-        if(small){
-            width = 12;
-            height = 8;
-        }
-
-        return <div className={styles.wrapper} onMouseOver={this.show} onMouseLeave={this.hide}>
-            {hoverElem}
-            <Image className="country-flag" width={width} height={height} src={url} alt="flag"/>
-        </div>;
-
-    }
+    return <div className={styles.wrapper} onMouseOver={(() =>{
+        setBDisplay(true);
+    })} onMouseLeave={(() =>{
+        setBDisplay(false);
+    })}>
+        {renderHoverElem(bDisplay, flag, url)}
+        <img className="country-flag" src={url} alt="flag"/>
+    </div>
 }
 
 export default CountryFlag;
