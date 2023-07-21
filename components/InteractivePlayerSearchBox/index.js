@@ -27,6 +27,10 @@ const InteractivePlayerSearchBox = ({data, maxDisplay, searchValue, selectedPlay
         setSearchValue = () =>{};
     }
 
+    if(togglePlayer === undefined){
+        togglePlayer = () =>{}
+    }
+
     const [state, dispatch] = useReducer(reducer, {
         "bDisplay": false
     });
