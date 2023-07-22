@@ -7,6 +7,7 @@ import useNotificationCluster from "../useNotificationCluster";
 import InteractiveTable from "../InteractiveTable";
 import CountryFlag from "../CountryFlag";
 import { convertTimestamp, toPlaytime } from "../../api/generic.mjs";
+import AdminPlayerHistory from "../AdminPlayerHistory";
 
 const reducer = (state, action) =>{
 
@@ -38,6 +39,13 @@ const reducer = (state, action) =>{
             return {
                 ...state,
                 "searchResult": action.result
+            }
+        }
+
+        case "setSelectedPlayer": {
+            return {
+                ...state,
+                "selectedPlayerProfile": action.playerId
             }
         }
 
@@ -87,31 +95,36 @@ const nameSearch = async (state, dispatch, addNotification) =>{
 
 const renderNameSearch = (state, dispatch, addNotification) =>{
 
-    if(state.selectedTab !== 0 || state.bLoading) return null;
+    if((state.selectedTab !== 0 && state.selectedTab !== 3) || state.bLoading) return null;
 
     console.log(state.playerNames);
-    return <>  
+    return <div className="form">
         <div className="form-info">
             Search for a player by name.
         </div>
         <div className="form-row">
             <div className="form-label">Player Name</div>
             <InteractivePlayerSearchBox 
-            searchValue={state.nameSearch} 
-            setSearchValue={(value) =>{
-                console.log(value);
-                dispatch({"type": "updateSearchName", "value": value})
-            }}
-            data={state.playerNames} 
-            maxDisplay={50} 
-            selectedPlayers={[]}
-            bAutoSet={true}
-        />
+                searchValue={state.nameSearch} 
+                setSearchValue={(value) =>{
+                    console.log(value);
+                    dispatch({"type": "updateSearchName", "value": value})
+                    
+                }}
+                data={state.playerNames} 
+                maxDisplay={50} 
+                selectedPlayers={[]}
+                bAutoSet={true}
+                togglePlayer={(id) =>{
+                    dispatch({"type": "setSelectedPlayer", "playerId": id});
+                }}
+                
+            />
         </div>
         <div className="search-button" onClick={() =>{
             nameSearch(state, dispatch, addNotification);
         }}>Search</div>
-    </>
+    </div>
     
 }
 //data, maxDisplay, searchValue, selectedPlayers, togglePlayer, setSearchValue, bAutoSet
@@ -146,10 +159,12 @@ const loadData = async (controller, dispatch) =>{
 
 const renderSearchResult = (state, dispatch) =>{
 
+    if(state.selectedTab !== 0) return null;
+
     const headers = {
         "name": "Name",
         "ip": "Last Used IP",
-       // "hwid": "Latest HWID",
+        "hwid": "Latest HWID",
         "first": "First Seen",
         "last": "Last Seen",
         "playtime": "Playtime",
@@ -167,7 +182,7 @@ const renderSearchResult = (state, dispatch) =>{
                 "className": "text-left"
             },
             "ip": {"value": d.ip},
-           // "hwid": {"value": d.hwid},
+            "hwid": {"value": d.hwid},
             "first": {"value": d.first, "displayValue": convertTimestamp(d.first, true)},
             "last": {"value": d.last, "displayValue": convertTimestamp(d.last, true)},
             "playtime": {
@@ -188,6 +203,13 @@ const renderSearchResult = (state, dispatch) =>{
         <div className="default-header">Search Result</div>
         <InteractiveTable width={1} headers={headers} data={data}/>
     </>
+}
+
+const renderHistory = (state) =>{
+
+    if(state.selectedTab !== 3) return null;
+
+    return <AdminPlayerHistory playerNames={state.playerNames} selectedPlayerProfile={state.selectedPlayerProfile}/>;
 }
 
 const AdminPlayerSearch = () =>{
@@ -229,12 +251,10 @@ const AdminPlayerSearch = () =>{
             dispatch({"type": "changeTab", "tab": value});
         }}/>
         <Loading value={!state.bLoading}/>
-        <div className="form">
-            {renderNameSearch(state, dispatch, addNotification)}
-            <NotificationsCluster notifications={notifications} hide={hideNotification}/>
-        </div>
-
+        <NotificationsCluster notifications={notifications} hide={hideNotification}/>
+        {renderNameSearch(state, dispatch, addNotification)}
         {renderSearchResult(state, dispatch)}
+        {renderHistory(state)}
     </div>
 }
 

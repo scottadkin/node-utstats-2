@@ -187,6 +187,13 @@ footer{
 	color:yellow;
 }
 
+.default-box{
+	background-color:var(--color-9);
+	width:var(--width-1);
+	margin-left:auto;
+	margin-right:auto;
+	padding:5px;
+}
 
 table{
 	border-collapse: collapse;
