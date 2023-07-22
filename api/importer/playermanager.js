@@ -244,6 +244,10 @@ class PlayerManager{
 
             new Message(`Player.getMasterIds(${p.name}, ${gametypeId}, ${mapId})`,"note");
             masterIds = await Player.getMasterIds(p.name, gametypeId, mapId);
+            
+            if(p.hwid !== ""){
+                await Player.setLatestHWIDInfo(masterIds.masterId, p.hwid);
+            }
 
             this.masterIdsToNames[masterIds.masterId] = p.name.toLowerCase();
 

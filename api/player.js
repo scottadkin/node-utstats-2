@@ -1014,6 +1014,14 @@ class Player{
 
         return await mysql.simpleQuery(query, [playerId]);
     }
+
+
+    async setLatestHWIDInfo(playerId, hwid){
+
+        const query = "UPDATE nstats_player_totals SET hwid=? WHERE player_id=0 AND id=?";
+
+        return await mysql.simpleQuery(query, [hwid, playerId]);
+    }
 }
 
 module.exports = Player;
