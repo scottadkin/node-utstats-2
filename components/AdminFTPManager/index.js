@@ -109,7 +109,7 @@ class AdminFTPManager extends React.Component{
 
     bAndLogsFolderChanges(){
 
-        if(this.state.logsFolder === null) return false;
+        if(this.state.logsFolder == null) return false;
 
         for(const key of Object.keys(this.state.logsFolder)){
 
@@ -121,7 +121,7 @@ class AdminFTPManager extends React.Component{
 
     bAnyChangesNotSaved(){
 
-        if(this.state.data === null) return false;
+        if(this.state.data == null) return false;
 
         if(this.state.data.length !== this.state.lastSavedData.length) return true;
 
