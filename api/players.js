@@ -2232,8 +2232,8 @@ class Players{
 
         if(valid.indexOf(columnName) === -1) return [];
 
-        const query = `SELECT player_id,name,ip,country,first,last,playtime,matches as total_matches
-        FROM nstats_player_totals WHERE ${columnName} LIKE ? AND gametype=0 ORDER BY ${columnName} ASC`;
+        const query = `SELECT id,player_id,hwid,name,ip,country,first,last,playtime,matches as total_matches
+        FROM nstats_player_totals WHERE player_id=0 AND ${columnName} LIKE ? AND gametype=0 ORDER BY ${columnName} ASC`;
 
         const result = await mysql.simpleQuery(query, [`%${value}%`]);
 

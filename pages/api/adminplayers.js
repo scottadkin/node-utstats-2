@@ -68,6 +68,22 @@ export default async function handler (req, res){
                 return;
             }
 
+            if(mode === "namesearch"){
+
+                const name = req.body.name ?? null;
+
+                if(name === null || name === ""){
+
+                    res.status(200).json({"error": "Name for user search was null or blank."});
+                    return;
+                }
+
+                const result = await playerManager.adminTotalsSearchFor("name", name);
+
+                res.status(200).json({"names": result});
+                return;
+            }
+
             if(mode === "general"){
 
                 const totalPlayers = await playerManager.getTotalPlayers();
@@ -173,8 +189,9 @@ export default async function handler (req, res){
                 }
                 //mergePlayers(first, second, matchManager)
 
-            }else if(mode === "namesearch"){
+            }/*else if(mode === "namesearch"){
 
+                //old method don't use
                 const name = req.body.name ?? null;
 
                 if(name === null || name === ""){
@@ -188,7 +205,7 @@ export default async function handler (req, res){
                 res.status(200).json({"names": result});
                 return;
 
-            }else if(mode === "ipsearch"){
+            }*/else if(mode === "ipsearch"){
 
                 const ip = req.body.ip ?? null;
 
