@@ -189,7 +189,8 @@ footer{
 
 .default-box{
 	background-color:var(--color-9);
-	width:var(--width-1);
+	width:90%;
+	max-width:var(--max-width-1);
 	margin-left:auto;
 	margin-right:auto;
 	padding:5px;
