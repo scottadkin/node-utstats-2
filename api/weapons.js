@@ -1411,6 +1411,7 @@ class Weapons{
 
         for(const [playerId, value] of Object.entries(data)){
 
+
             for(let i = 0; i < value.length; i++){
                 insertVars.push([parseInt(playerId), mapId, gametypeId, 0, value[i],0,0,0,0,0,0,0,0,0,0]);
             }    
@@ -1443,6 +1444,83 @@ class Weapons{
         }
 
         await mysql.simpleQuery(query);     
+    }
+
+    async getCurrentPlayerTotals(mapId, gametypeId, playerIds, weaponIds){
+
+        const query = `SELECT * FROM nstats_player_weapon_totals WHERE map_id=? AND gametype=? AND player_id IN(?) AND weapon IN(?)`;
+
+        const result = await mysql.simpleQuery(query, [mapId, gametypeId, playerIds, weaponIds]);
+
+        const data = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            if(data[r.weapon] === undefined){
+                data[r.weapon] = {};
+            }
+
+            data[r.weapon][r.player_id] = r;
+        }
+
+        return data;
+    }
+
+    async deleteTotalPlayerDataRowsById(ids){
+
+        if(ids.length === 0) return;
+
+        const query = `DELETE FROM nstats_player_weapon_totals WHERE id IN (?)`;
+
+        return await mysql.simpleQuery(query, [ids]);
+    }
+
+    async insertTest(data){
+
+        const query = `INSERT INTO nstats_player_weapon_totals (player_id, map_id, gametype, playtime, weapon, kills, team_kills, deaths, suicides, efficiency, accuracy, shots, hits, damage, matches) VALUES ?`;
+        const insertVars = [];
+
+        const start = performance.now();
+
+        for(const [weaponId, playerData] of Object.entries(data)){
+
+            for(const [playerId, weaponStats] of Object.entries(playerData)){
+  
+                insertVars.push([
+                    playerId,
+                    weaponStats.map_id,
+                    weaponStats.gametype,
+                    weaponStats.playtime,
+                    weaponId,
+                    weaponStats.kills,
+                    weaponStats.team_kills,
+                    weaponStats.deaths,
+                    weaponStats.suicides,
+                    weaponStats.efficiency,
+                    weaponStats.accuracy,
+                    weaponStats.shots,
+                    weaponStats.hits,
+                    weaponStats.damage,
+                    weaponStats.matches
+                ]);
+            }
+        }
+
+        await mysql.bulkInsert(query, insertVars);
+
+        const end = performance.now();
+
+        console.log(`took ${(end - start) * 0.001} seconds`);
+    }
+
+
+    async deleteOldTotalData(gametypeId, mapId, playerIds, weaponIds){
+
+        const query = `DELETE FROM nstats_player_weapon_totals WHERE gametype=? AND map_id=? AND player_id IN (?) AND weapon IN (?)`;
+
+        return await mysql.simpleQuery(query, [gametypeId, mapId, playerIds, weaponIds]);
     }
 }
 
