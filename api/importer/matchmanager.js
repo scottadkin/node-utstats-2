@@ -276,6 +276,8 @@ class MatchManager{
                 await this.monsterHuntManager.setMatchMonsterKills(this.matchId);
             }
 
+            console.log("check1");
+
             if(this.weaponsManager !== undefined){
 
                 this.weaponsManager.matchId = this.matchId;
@@ -283,13 +285,17 @@ class MatchManager{
                 this.weaponsManager.gametypeId = this.gametype.currentMatchGametype;
                 
                 this.weaponsManager.parseData();
+                console.log("checka");
                 this.weaponsManager.addKillNames(this.killManager.killNames);
+                console.log("checkb");
                 await this.weaponsManager.update(this.playerManager);
                 new Message(`Updated player weapon stats.`,'pass');
 
             }else{
                 this.weaponsManager = new WeaponsManager();
             }
+
+            console.log("check 2");
 
             this.itemsManager = new ItemsManager(this.itemLines, this.playerManager, this.killManager, this.gameInfo.totalTeams);
           
