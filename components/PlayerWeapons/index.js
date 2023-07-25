@@ -256,8 +256,8 @@ const renderTabs = (state, dispatch) =>{
     const selected = state.selectedTab;
 
     const options = [
-        {"name": "Total Stats", "value": 0},
-        {"name": "Best Stats", "value": 1},
+        //{"name": "Total Stats", "value": 0},
+       // {"name": "Best Stats", "value": 1},
     ];
 
     const displayOptions = [

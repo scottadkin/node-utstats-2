@@ -19,6 +19,8 @@ class Maps{
 
     bExists(name){
 
+        
+
         return new Promise((resolve, reject) =>{
 
             const query = "SELECT COUNT(*) as total_maps FROM nstats_maps WHERE name=?";
@@ -39,19 +41,11 @@ class Maps{
         });
     }
 
-    insert(name, title, author, idealPlayerCount, levelEnterText, date, matchLength){
+    async insert(name, title, author, idealPlayerCount, levelEnterText, date, matchLength){
 
-        return new Promise((resolve, reject) =>{
+        const query = "INSERT INTO nstats_maps VALUES(NULL,?,?,?,?,?,?,?,1,?)";
+        return await mysql.simpleQuery(query, [name, title, author, idealPlayerCount, levelEnterText, date, date, matchLength]);
 
-            const query = "INSERT INTO nstats_maps VALUES(NULL,?,?,?,?,?,?,?,1,?)";
-
-            mysql.query(query, [name, title, author, idealPlayerCount, levelEnterText, date, date, matchLength], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
     }
 
     updatePlaytime(name, matchLength){
@@ -146,6 +140,10 @@ class Maps{
 
         try{
 
+            //name = name.removeUnr();
+
+            //name = `${name}.unr`;
+
             if(!await this.bExists(name)){
 
                 await this.insert(name, title, author, idealPlayerCount, levelEnterText, date, matchLength);
@@ -163,23 +161,16 @@ class Maps{
 
 
 
-    getId(name){
+    async getId(name){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT id FROM nstats_maps WHERE name=? LIMIT 1";
 
-            const query = "SELECT id FROM nstats_maps WHERE name=? LIMIT 1";
+        const result = await mysql.simpleQuery(query, [name]);
 
-            mysql.query(query, [name], (err, result) =>{
+        if(result.length === 0) return null;
 
-                if(err) reject(err);
+        return result[0].id;
 
-                if(result !== undefined){
-                    if(result !== []) resolve(result[0].id);
-                }
-
-                resolve(null);
-            });
-        });
     }
 
     getName(id){

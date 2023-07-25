@@ -358,7 +358,6 @@ export function cleanMapName(name){
 
     name = removeUnr(name);
     name = removeMapGametypePrefix(name);
-
     name = name.replace(/[\[\]\'\`]/ig,"");
 
     return name;

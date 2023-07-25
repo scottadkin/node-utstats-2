@@ -351,7 +351,7 @@ class Backup{
 
         const start = performance.now() * 0.001;
 
-        await this.emptyAllTables();
+        //await this.emptyAllTables();
 
     
         const dir = "./restore-from/";

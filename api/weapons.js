@@ -1477,12 +1477,12 @@ class Weapons{
         return await mysql.simpleQuery(query, [ids]);
     }
 
-    async insertTest(data){
+    async insertNewPlayerTotalStats(data){
 
-        const query = `INSERT INTO nstats_player_weapon_totals (player_id, map_id, gametype, playtime, weapon, kills, team_kills, deaths, suicides, efficiency, accuracy, shots, hits, damage, matches) VALUES ?`;
+        const query = `INSERT INTO nstats_player_weapon_totals 
+        (player_id, map_id, gametype, playtime, weapon, kills, team_kills, deaths, suicides, efficiency, accuracy, shots, hits, damage, matches) VALUES ?`;
+
         const insertVars = [];
-
-        const start = performance.now();
 
         for(const [weaponId, playerData] of Object.entries(data)){
 
@@ -1509,10 +1509,6 @@ class Weapons{
         }
 
         await mysql.bulkInsert(query, insertVars);
-
-        const end = performance.now();
-
-        console.log(`took ${(end - start) * 0.001} seconds`);
     }
 
 

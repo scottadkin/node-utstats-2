@@ -45,6 +45,44 @@ class WeaponsManager{
         }
     }
 
+    updatePlayerCurrentStats(stats, value, playtime){
+
+        if(stats === undefined){
+            new Message(`WeaponsManager.update() stats is undefined`,"error");
+            process.exit();
+        }
+
+
+        stats.playtime += playtime;
+        stats.kills += value.kills;
+        stats.team_kills += value.teamKills;
+        stats.deaths += value.deaths;
+        stats.suicides += value.suicides;
+        stats.shots += value.shots;
+        stats.hits += value.hits;
+
+        stats.efficiency = 0;
+
+        if(stats.kills > 0){
+
+            if(stats.deaths === 0){
+                stats.efficiency = 100;
+            }else{
+                stats.efficiency = (stats.kills / (stats.kills + stats.deaths)) * 100
+            }
+        }
+
+        stats.accuracy = 0;
+
+        if(stats.hits > 0 && stats.shots > 0){
+
+            stats.accuracy = (stats.hits / stats.shots) * 100;
+        }
+
+        stats.damage += Math.abs(value.damage);
+        stats.matches += 1;
+    }
+
     async update(playerManager){
 
         try{
@@ -64,30 +102,26 @@ class WeaponsManager{
                 return p.masterId;
             });
 
-            //const query = `SELECT player_id,weapon_id FROM nstats_player_weapon_totals WHERE map_id=${this.mapId} AND gametype=${this.gametypeId} AND weapon IN (${[...weaponIds]})`;
-
-            //const missingPlayerTotalData = await this.weapons.getMissingPlayerWeaponTotals(this.mapId, this.gametypeId, weaponIds, playerIds);
+      
             const missingPlayerTotalData = await this.weapons.getMissingPlayerWeaponTotals(0, 0, weaponIds, playerIds);
-            //const missingPlayerGamtypeTotalData = await this.weapons.getMissingPlayerWeaponTotals(0, this.gametypeId, weaponIds, playerIds);
-           // const missingPlayerMapTotalData = await this.weapons.getMissingPlayerWeaponTotals(this.mapId, 0, weaponIds, playerIds);
+           // const missingPlayerGamtypeTotalData = await this.weapons.getMissingPlayerWeaponTotals(0, this.gametypeId, weaponIds, playerIds);
+            //const missingPlayerMapTotalData = await this.weapons.getMissingPlayerWeaponTotals(this.mapId, 0, weaponIds, playerIds);
             //console.log(query);
 
             await this.weapons.createMissingPlayerTotalData(missingPlayerTotalData, 0, 0);
-            //await this.weapons.createMissingPlayerTotalData(missingPlayerGamtypeTotalData, 0, this.gametypeId);
-            //await this.weapons.createMissingPlayerTotalData(missingPlayerMapTotalData, this.mapId, 0);
+           // await this.weapons.createMissingPlayerTotalData(missingPlayerGamtypeTotalData, 0, this.gametypeId);
+           // await this.weapons.createMissingPlayerTotalData(missingPlayerMapTotalData, this.mapId, 0);
             //process.exit();
 
             const currentTotals = await this.weapons.getCurrentPlayerTotals(0,0, playerIds, weaponIds);
+           // const currentGametypeTotals = await this.weapons.getCurrentPlayerTotals(0, this.gametypeId, playerIds, weaponIds);
+           // const currentMapTotals = await this.weapons.getCurrentPlayerTotals(this.mapId, 0, playerIds, weaponIds);
 
             for(let i = 0; i < playerManager.players.length; i++){
 
                 const p = playerManager.players[i];
-
-                //playerUsedWeapons[p.masterId] = [];
-                
+        
                 const playtime = p.getTotalPlaytime(playerManager.totalTeams);
-
-               // console.log(p.weaponStats.keys());
 
                 for(const [key, value] of p.weaponStats.entries()){
    
@@ -106,42 +140,11 @@ class WeaponsManager{
                             value.accuracy, value.shots, value.hits, Math.abs(value.damage), value.efficiency
                         ]);
 
-                        const stats = currentTotals[currentWeaponId][p.masterId];
+                        //const stats = currentTotals[currentWeaponId][p.masterId];
 
-                        if(stats === undefined){
-                            new Message(`WeaponsManager.update() stats is undefined`,"error");
-                            process.exit();
-                        }
-
-
-                        stats.playtime += playtime;
-                        stats.kills += value.kills;
-                        stats.team_kills += value.teamKills;
-                        stats.deaths += value.deaths;
-                        stats.suicides += value.suicides;
-                        stats.shots += value.shots;
-                        stats.hits += value.hits;
-
-                        stats.efficiency = 0;
-
-                        if(stats.kills > 0){
-
-                            if(stats.deaths === 0){
-                                stats.efficiency = 100;
-                            }else{
-                                stats.efficiency = (stats.kills / (stats.kills + stats.deaths)) * 100
-                            }
-                        }
-
-                        stats.accuracy = 0;
-
-                        if(stats.hits > 0 && stats.shots > 0){
-
-                            stats.accuracy = (stats.hits / stats.shots) * 100;
-                        }
-
-                        stats.damage += Math.abs(value.damage);
-                        stats.matches += 1;
+                        this.updatePlayerCurrentStats(currentTotals[currentWeaponId][p.masterId], value, playtime);
+                      //  this.updatePlayerCurrentStats(currentGametypeTotals[currentWeaponId][p.masterId], value, playtime);
+                     //   this.updatePlayerCurrentStats(currentMapTotals[currentWeaponId][p.masterId], value, playtime);
 
                        // await this.weapons.updatePlayerBest(p.masterId, this.mapId, this.gametypeId, currentWeaponId, value);
                      
@@ -178,9 +181,18 @@ class WeaponsManager{
 
             //console.log(await this.weapons.deleteTotalPlayerDataRowsById(rowsToDelete));
 
-            console.log(await this.weapons.deleteOldTotalData(0, 0, playerIds, weaponIds));
+            //const start = performance.now();
+            await this.weapons.deleteOldTotalData(0, 0, playerIds, weaponIds);
+           // await this.weapons.deleteOldTotalData(0, this.mapId, playerIds, weaponIds);
+          //  await this.weapons.deleteOldTotalData(this.gametypeId, 0, playerIds, weaponIds);
 
-            await this.weapons.insertTest(currentTotals);
+            await this.weapons.insertNewPlayerTotalStats(currentTotals);
+          //  await this.weapons.insertNewPlayerTotalStats(currentGametypeTotals);
+         //   await this.weapons.insertNewPlayerTotalStats(currentMapTotals);
+
+            //const end = performance.now();
+
+            //console.log(`Weapon stats took ${(end - start) * 0.001} seconds`);
             //process.exit();
             //console.log(currentTotals);
             //process.exit();
