@@ -106,7 +106,7 @@ class DropDown extends React.Component{
  
         const zStyle = (this.state.bActive) ? {"position":"relative", "width": "100%", "border": "1px solid var(--border-color-3)"} : { "overflow": "hidden"};
 
-        return <div className={styles.entries} style={zStyle} onClick={this.changeActive}>
+        return <div className={styles.entries} onMouseLeave={this.hide} style={zStyle} onClick={this.changeActive}>
             {elems}
         </div>
     }
