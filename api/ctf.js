@@ -3247,6 +3247,13 @@ class CTF{
         }
     }
 
+    async changeMatchDataGamtypeIds(oldId, newId){
+
+        const query = `UPDATE nstats_player_ctf_match SET gametype_id=? WHERE gametype_id=?`;
+
+        return await mysql.simpleQuery(query, [newId, oldId]);
+    }
+
     async mergeGametypes(oldId, newId){
 
         await this.changeCapTableGametypes(oldId, newId);
@@ -3258,12 +3265,14 @@ class CTF{
 
         await this.mergeCTFBest(oldId, newId);
         await this.fixDuplicatePlayerBestRecords(newId);
+        await this.fixDuplicatePlayersBestLifeRecords(newId);
+        await this.changeMatchDataGamtypeIds(oldId, newId);
 
         //TODO change gametype ids, check for duplicates for gametypes, then merge the two together
         /**
-         * player_ctf_best
-         * player_ctf_best_life
-         * player_ctf_match
+         * player_ctf_bestX
+         * player_ctf_best_lifeX
+         * player_ctf_matchX
          * player_ctf_totals
          */
     }
