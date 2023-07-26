@@ -3132,9 +3132,13 @@ class CTF{
         return await mysql.simpleQuery(query, [newId, oldId]);
     }
 
-    async getDuplicatePlayerBestRecordIds(gametypeId){
+    async getDuplicatePlayerBestRecordIds(gametypeId, bBestLife){
 
-        const query = `SELECT player_id,COUNT(*) total_results FROM nstats_player_ctf_best WHERE gametype_id=? GROUP BY player_id`;
+        if(bBestLife === undefined) bBestLife = false;
+
+        const tableName = (!bBestLife) ? "nstats_player_ctf_best" : "nstats_player_ctf_best_life";
+
+        const query = `SELECT player_id,COUNT(*) total_results FROM ${tableName} WHERE gametype_id=? GROUP BY player_id`;
 
         const result = await mysql.simpleQuery(query, [gametypeId]);
 
@@ -3151,67 +3155,95 @@ class CTF{
         return duplicates;
     }
 
-    async deletePlayerCTFBestRecords(playerId, gametypeId){
+    async deletePlayerCTFBestRecords(playerId, gametypeId, bBestLife){
 
-        const query = `DELETE FROM nstats_player_ctf_best WHERE player_id=? AND gametype_id=?`;
+        if(bBestLife === undefined) bBestLife = false;
+
+        const table = (!bBestLife) ? "nstats_player_ctf_best" : "nstats_player_ctf_best_life";
+
+        const query = `DELETE FROM ${table} WHERE player_id=? AND gametype_id=?`;
 
         return await mysql.simpleQuery(query, [playerId, gametypeId]);
     }
 
-    async fixDuplicatePlayerBestRecords(playerId, gametypeId){
+    async fixDuplicatePlayerBestRecords(playerId, gametypeId, bBestLife){
+
+        if(bBestLife === undefined) bBestLife = false;
+
+        console.log(`fixDuplicatePlayerBestRecords(${playerId}, ${gametypeId}, ${bBestLife})`);
+
+        const table = (!bBestLife) ? "nstats_player_ctf_best" :"nstats_player_ctf_best_life";
 
         const query = `SELECT gametype_id,
-        SUM(flag_assist) as flag_assist,
-        SUM(flag_return) as flag_return,
-        SUM(flag_return_base) as flag_return_base,
-        SUM(flag_return_mid) as flag_return_mid,
-        SUM(flag_return_enemy_base) as flag_return_enemy_base,
-        SUM(flag_return_save) as flag_return_save,
-        SUM(flag_dropped) as flag_dropped,
-        SUM(flag_kill) as flag_kill,
-        SUM(flag_suicide) as flag_suicide,
-        SUM(flag_seal) as flag_seal,
-        SUM(flag_seal_pass) as flag_seal_pass,
-        SUM(flag_seal_fail) as flag_seal_fail,
+        MAX(flag_assist) as flag_assist,
+        MAX(flag_return) as flag_return,
+        MAX(flag_return_base) as flag_return_base,
+        MAX(flag_return_mid) as flag_return_mid,
+        MAX(flag_return_enemy_base) as flag_return_enemy_base,
+        MAX(flag_return_save) as flag_return_save,
+        MAX(flag_dropped) as flag_dropped,
+        MAX(flag_kill) as flag_kill,
+        ${(bBestLife) ? "" : `MAX(flag_suicide) as flag_suicide,`}
+        MAX(flag_seal) as flag_seal,
+        MAX(flag_seal_pass) as flag_seal_pass,
+        MAX(flag_seal_fail) as flag_seal_fail,
         MAX(best_single_seal) as best_single_seal,
-        SUM(flag_cover) as flag_cover,
-        SUM(flag_cover_pass) as flag_cover_pass,
-        SUM(flag_cover_fail) as flag_cover_fail,
-        SUM(flag_cover_multi) as flag_cover_multi,
-        SUM(flag_cover_spree) as flag_cover_spree,
+        MAX(flag_cover) as flag_cover,
+        MAX(flag_cover_pass) as flag_cover_pass,
+        MAX(flag_cover_fail) as flag_cover_fail,
+        MAX(flag_cover_multi) as flag_cover_multi,
+        MAX(flag_cover_spree) as flag_cover_spree,
         MAX(best_single_cover) as best_single_cover,
-        SUM(flag_capture) as flag_capture,
-        SUM(flag_carry_time) as flag_carry_time,
-        SUM(flag_taken) as flag_taken,
-        SUM(flag_pickup) as flag_pickup,
-        SUM(flag_self_cover) as flag_self_cover,
-        SUM(flag_self_cover_pass) as flag_self_cover_pass,
-        SUM(flag_self_cover_fail) as flag_self_cover_fail,
+        MAX(flag_capture) as flag_capture,
+        MAX(flag_carry_time) as flag_carry_time,
+        MAX(flag_taken) as flag_taken,
+        MAX(flag_pickup) as flag_pickup,
+        MAX(flag_self_cover) as flag_self_cover,
+        MAX(flag_self_cover_pass) as flag_self_cover_pass,
+        MAX(flag_self_cover_fail) as flag_self_cover_fail,
         MAX(best_single_self_cover) as best_single_self_cover,
-        SUM(flag_solo_capture) as flag_solo_capture
-        FROM nstats_player_ctf_best WHERE player_id=? AND gametype_id=?`;
+        MAX(flag_solo_capture) as flag_solo_capture
+        FROM ${table} WHERE player_id=? AND gametype_id=?`;
 
         const result = await mysql.simpleQuery(query, [playerId, gametypeId]);
 
         if(result.length === 0){
-            new Message(`ctf.fixDuplicatePlayerBestRecords result is empty`,"error");
+            new Message(`ctf.fixDuplicatePlayerBestRecords result is empty, bBestLife = ${bBestLife}`,"error");
             return;
         }
 
-        await this.deletePlayerCTFBestRecords(playerId, gametypeId);
-        await this.insertNewPlayerBest(playerId, result[0]);
+        await this.deletePlayerCTFBestRecords(playerId, gametypeId, bBestLife);
+
+        if(!bBestLife){
+            await this.insertNewPlayerBest(playerId, result[0]);
+        }else{
+            await this.insertNewPlayerBestSingleLife(playerId, result[0]);
+        }
 
     }
 
     async fixDuplicatePlayersBestRecords(gametypeId){
 
-        const duplicatePlayerIds = await this.getDuplicatePlayerBestRecordIds(gametypeId);
+        const duplicatePlayerIds = await this.getDuplicatePlayerBestRecordIds(gametypeId, false);
 
         for(let i = 0; i < duplicatePlayerIds.length; i++){
 
             const playerId = duplicatePlayerIds[i];
 
-            await this.fixDuplicatePlayerBestRecords(playerId, gametypeId);
+            await this.fixDuplicatePlayerBestRecords(playerId, gametypeId, false);
+        }
+    }
+
+
+    async fixDuplicatePlayersBestLifeRecords(gametypeId){
+
+        const duplicatePlayerIds = await this.getDuplicatePlayerBestRecordIds(gametypeId, true);
+
+        for(let i = 0; i < duplicatePlayerIds.length; i++){
+
+            const playerId = duplicatePlayerIds[i];
+
+            await this.fixDuplicatePlayerBestRecords(playerId, gametypeId, true);
         }
     }
 
