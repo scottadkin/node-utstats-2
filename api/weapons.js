@@ -1517,6 +1517,124 @@ class Weapons{
 
         return await mysql.simpleQuery(query, [gametypeId, mapId, playerIds, weaponIds]);
     }
+
+
+    async changeMatchGametypes(oldId, newId){
+
+        const query = `UPDATE nstats_player_weapon_match SET gametype=? WHERE gametype=?`;
+
+        return await mysql.simpleQuery(query, [newId, oldId]);
+    }
+
+    async changeTotalsGametypes(oldId, newId){
+
+        const query = `UPDATE nstats_player_weapon_totals SET gametype=? WHERE gametype=?`;
+
+        return await mysql.simpleQuery(query, [newId, oldId]);
+    }
+
+    async getDuplicateTotalsData(gametypeId){
+
+        const query = `SELECT player_id,weapon,map_id,gametype,COUNT(*) as total_matches FROM nstats_player_weapon_totals WHERE gametype=? GROUP BY player_id,map_id,weapon`;
+
+        const result = await mysql.simpleQuery(query, [gametypeId]);
+
+        const duplicates = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            if(r.total_matches < 2) continue;
+
+            duplicates.push(r);
+        }
+
+        return duplicates;
+    }
+
+    async deletePlayerTotalDataCustom(playerId, gametypeId, mapId, weaponId){
+
+        const query = `DELETE FROM nstats_player_weapon_totals WHERE player_id=? AND gametype=? AND map_id=? AND weapon=?`;
+
+        return await mysql.simpleQuery(query, [playerId, gametypeId, mapId, weaponId]);
+    }
+
+    async combineTotalsData(playerId, gametypeId, mapId, weaponId){
+
+        const fetchQuery = `SELECT 
+        SUM(playtime) as playtime,
+        SUM(kills) as kills,
+        SUM(team_kills) as team_kills,
+        SUM(deaths) as deaths,
+        SUM(suicides) as suicides,
+        SUM(shots) as shots,
+        SUM(hits) as hits,
+        SUM(damage) as damage,
+        SUM(matches) as matches
+        FROM nstats_player_weapon_totals WHERE player_id=? AND gametype=? AND map_id=? AND weapon=?`;
+
+        const result = await mysql.simpleQuery(fetchQuery, [playerId, gametypeId, mapId, weaponId]);
+
+        if(result.length === 0) return;
+
+        await this.deletePlayerTotalDataCustom(playerId, gametypeId, mapId, weaponId);
+
+        const r = result[0];
+
+        let accuracy = 0;
+        let efficiency = 0;
+
+        if(r.shots > 0){
+            if(r.hits > 0){
+                accuracy = (r.hits / r.shots) * 100;
+            }
+        }
+
+        if(r.kills > 0){
+            if(r.deaths > 0){
+                efficiency = (r.kills / (r.kills + r.deaths)) * 100;
+            }else{
+                efficiency = 100;
+            }
+        }
+
+        await this.createPlayerTotalCustom(
+            playerId, 
+            mapId, 
+            gametypeId, 
+            weaponId, 
+            r.playtime, 
+            r.kills, 
+            r.team_kills, 
+            r.deaths, 
+            r.suicides, 
+            efficiency, 
+            accuracy, 
+            r.shots, 
+            r.hits, 
+            r.damage, 
+            r.matches
+        );
+    }
+
+    async fixDuplicateTotalsData(gametypeId){
+
+        const duplicates = await this.getDuplicateTotalsData(gametypeId);
+        
+        for(let i = 0; i < duplicates.length; i++){
+
+            const d = duplicates[i];
+
+            await this.combineTotalsData(d.player_id, d.gametype, d.map_id, d.weapon);
+        }
+    }
+
+    async mergeGametypes(oldId, newId){
+
+        await this.changeMatchGametypes(oldId, newId);
+        await this.changeTotalsGametypes(oldId, newId);
+    }
 }
 
 

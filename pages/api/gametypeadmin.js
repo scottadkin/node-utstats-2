@@ -1,11 +1,12 @@
-import Session from '../../api/session';
-import Gametypes from '../../api/gametypes';
-import Rankings from '../../api/rankings';
-import Winrate from '../../api/winrate';
-import Matches from '../../api/matches';
-import Players from '../../api/players';
-import CountriesManager from '../../api/countriesmanager';
-import CTF from '../../api/ctf';
+import Session from "../../api/session";
+import Gametypes from "../../api/gametypes";
+import Rankings from "../../api/rankings";
+import Winrate from "../../api/winrate";
+import Matches from "../../api/matches";
+import Players from "../../api/players";
+import CountriesManager from "../../api/countriesmanager";
+import CTF from "../../api/ctf";
+import Weapons from "../../api/weapons";
 
 export default async function handler(req, res){
 
@@ -79,7 +80,9 @@ export default async function handler(req, res){
 
                 const ctfManager = new CTF();
 
-                await gametypeManager.merge(oldId, newId, rankingManager, winrateManager, ctfManager);
+                const weaponsManager = new Weapons();
+
+                await gametypeManager.merge(oldId, newId, rankingManager, winrateManager, ctfManager, weaponsManager);
 
                 
             }else if(mode === "delete"){

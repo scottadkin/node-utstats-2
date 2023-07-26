@@ -554,41 +554,13 @@ class Gametypes{
     }
 
 
-    async deleteGametypePlayerWeaponTotals(id){
-
-        await mysql.simpleDelete("DELETE FROM nstats_player_weapon_totals WHERE gametype=?", [id]);
-    }
-
-    async mergeGametypeWeaponTotals(oldId, newId){
-
-        try{
-
-            const oldGametypeTotals = await this.getWeaponTotals(oldId);
-
-            let d = 0;
-
-            for(let i = 0; i < oldGametypeTotals.length; i++){
-
-                d = oldGametypeTotals[i];
-
-                await this.updateWeaponPlayerTotal(newId, d);
-            }
-
-
-            await this.deleteGametypePlayerWeaponTotals(oldId);
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
     async deleteGametype(id){
 
         await mysql.simpleDelete("DELETE FROM nstats_gametypes WHERE id=?", [id]);
 
     }
 
-    async merge(oldId, newId, rankingManager, winrateManager, ctfManager){
+    async merge(oldId, newId, rankingManager, winrateManager, ctfManager, weaponsManager){
 
         try{
 
@@ -611,7 +583,7 @@ class Gametypes{
 
 
             //TODO: Fix weapon stats
-            await this.mergeGametypeWeaponTotals(oldId, newId);
+            await weaponsManager.mergeGametypes(oldId, newId);
 
 
             //update rankings
