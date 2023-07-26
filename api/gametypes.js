@@ -297,9 +297,6 @@ class Gametypes{
 
         try{
 
-
-            let d = 0;
-
             const query = `UPDATE nstats_player_totals SET
             matches=matches+?,
             wins=wins+?,
@@ -338,26 +335,6 @@ class Gametypes{
             fastest_kill = IF(fastest_kill > ?, ?, fastest_kill),
             slowest_kill = IF(slowest_kill < ?, ?, slowest_kill),
             best_spawn_kill_spree = IF(best_spawn_kill_spree < ?, ?, best_spawn_kill_spree),
-            flag_assist=flag_assist+?,
-            flag_return=flag_return+?,
-            flag_taken=flag_taken+?,
-            flag_dropped=flag_dropped+?,
-            flag_capture=flag_capture+?,
-            flag_pickup=flag_pickup+?,
-            flag_seal=flag_seal+?,
-            flag_cover=flag_cover+?,
-            flag_cover_pass=flag_cover_pass+?,
-            flag_cover_fail=flag_cover_fail+?,
-            flag_self_cover=flag_self_cover+?,
-            flag_self_cover_pass=flag_self_cover_pass+?,
-            flag_self_cover_fail=flag_self_cover_fail+?,
-            flag_multi_cover=flag_multi_cover+?,
-            flag_spree_cover=flag_spree_cover+?,
-            flag_cover_best = IF(flag_cover_best < ?, ?, flag_cover_best),
-            flag_self_cover_best = IF(flag_self_cover_best < ?, ?, flag_self_cover_best),
-            flag_kill=flag_kill+?,
-            flag_save=flag_save=?,
-            flag_carry_time=flag_carry_time+?,
             assault_objectives=assault_objectives+?,
             dom_caps=dom_caps+?,
             dom_caps_best = IF(dom_caps_best < ?, ?, dom_caps_best),
@@ -374,21 +351,27 @@ class Gametypes{
             pads=pads+?,
             armor=armor+?,
             boots=boots+?,
-            super_health=super_health+?
+            super_health=super_health+?,
             
-        
-
+            mh_kills=mh_kills+?,
+            mh_kills_best_life=IF(mh_kills_best_life < ?, ?, mh_kills_best_life),
+            mh_kills_best=IF(mh_kills_best < ?, ?, mh_kills_best),
+            mh_deaths=mh_deaths+?,
+            mh_deaths_worst=IF(mh_deaths_worst < ?, ?, mh_deaths_worst)
 
 
 
             WHERE player_id=? AND gametype=?`;
+
+            
+
 
             //if statments for division by zero
             let vars = [];
 
             for(let i = 0; i < data.length; i++){
 
-                d = data[i];
+                const d = data[i];
 
                 vars = [
                     d.matches,
@@ -428,28 +411,6 @@ class Gametypes{
                     d.slowest_kill,
                     d.best_spawn_kill_spree,
                     d.best_spawn_kill_spree,
-                    d.flag_assist,
-                    d.flag_return,
-                    d.flag_taken,
-                    d.flag_dropped,
-                    d.flag_capture,
-                    d.flag_pickup,
-                    d.flag_seal,
-                    d.flag_cover,
-                    d.flag_cover_pass,
-                    d.flag_cover_fail,
-                    d.flag_self_cover,
-                    d.flag_self_cover_pass,
-                    d.flag_self_cover_fail,
-                    d.flag_multi_cover,
-                    d.flag_spree_cover,
-                    d.flag_cover_best,
-                    d.flag_cover_best,
-                    d.flag_self_cover_best,
-                    d.flag_self_cover_best,
-                    d.flag_kill,
-                    d.flag_save,
-                    d.flag_carry_time,
                     d.assault_objectives,
                     d.dom_caps,
                     d.dom_caps_best,
@@ -470,6 +431,11 @@ class Gametypes{
                     d.boots,
                     d.super_health,
 
+                    d.mh_kills,
+                    d.mh_kills_best_life, d.mh_kills_best_life,
+                    d.mh_kills_best, d.mh_kills_best,
+                    d.mh_deaths,
+                    d.mh_deaths_worst, d.mh_deaths_worst,
 
 
                     d.player_id,
@@ -500,7 +466,7 @@ class Gametypes{
 
         try{
 
-            const query = `INSERT INTO nstats_player_weapon_totals VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?)`;
+            const query = `INSERT INTO nstats_player_weapon_totals VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
             
             let efficiency = 0;
             let accuracy = 0;
@@ -638,6 +604,8 @@ class Gametypes{
 
             await this.mergePlayerGametypeTotals(oldGametypePlayerTotals, newId);
             await this.deleteGametypePlayerTotals(oldId);
+
+            //TODO add ctf stuff here
 
             await this.mergeGametypeWeaponTotals(oldId, newId);
 
