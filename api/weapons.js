@@ -1521,7 +1521,7 @@ class Weapons{
 
     async changeMatchGametypes(oldId, newId){
 
-        const query = `UPDATE nstats_player_weapon_match SET gametype=? WHERE gametype=?`;
+        const query = `UPDATE nstats_player_weapon_match SET gametype_id=? WHERE gametype_id=?`;
 
         return await mysql.simpleQuery(query, [newId, oldId]);
     }

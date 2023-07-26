@@ -2434,6 +2434,14 @@ class CTF{
 
     async insertNewPlayerBest(playerId, data){
 
+        
+        const d = data;
+
+        if(d.gametype_id === null){
+            new Message(`CTF.insertNewPlayerBest(d.gametype_id is null)`,"warning");
+            return;
+        }
+
         const query = `INSERT INTO nstats_player_ctf_best VALUES(NULL,?,?,
             ?,?,?,?,?,?,
             ?,?,?,?,?,?,?,
@@ -2441,7 +2449,6 @@ class CTF{
             ?,?,?,?,?,?,
             ?,?,?)`;
 
-        const d = data;
 
         const vars = [playerId, d.gametype_id,
             d.flag_assist, d.flag_return, d.flag_return_base, d.flag_return_mid, d.flag_return_enemy_base, d.flag_return_save,
