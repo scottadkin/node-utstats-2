@@ -3125,6 +3125,96 @@ class CTF{
         await this.fixDuplicateMapCapRecordsOfType(gametypeId, 1);
     }
 
+    async mergeCTFBest(oldId, newId){
+
+        const query = `UPDATE nstats_player_ctf_best SET gametype_id=? WHERE gametype_id=?`;
+
+        return await mysql.simpleQuery(query, [newId, oldId]);
+    }
+
+    async getDuplicatePlayerBestRecordIds(gametypeId){
+
+        const query = `SELECT player_id,COUNT(*) total_results FROM nstats_player_ctf_best WHERE gametype_id=? GROUP BY player_id`;
+
+        const result = await mysql.simpleQuery(query, [gametypeId]);
+
+        const duplicates = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            if(r.total_results <= 1) continue;
+            duplicates.push(r.player_id);
+        }
+
+        return duplicates;
+    }
+
+    async deletePlayerCTFBestRecords(playerId, gametypeId){
+
+        const query = `DELETE FROM nstats_player_ctf_best WHERE player_id=? AND gametype_id=?`;
+
+        return await mysql.simpleQuery(query, [playerId, gametypeId]);
+    }
+
+    async fixDuplicatePlayerBestRecords(playerId, gametypeId){
+
+        const query = `SELECT gametype_id,
+        SUM(flag_assist) as flag_assist,
+        SUM(flag_return) as flag_return,
+        SUM(flag_return_base) as flag_return_base,
+        SUM(flag_return_mid) as flag_return_mid,
+        SUM(flag_return_enemy_base) as flag_return_enemy_base,
+        SUM(flag_return_save) as flag_return_save,
+        SUM(flag_dropped) as flag_dropped,
+        SUM(flag_kill) as flag_kill,
+        SUM(flag_suicide) as flag_suicide,
+        SUM(flag_seal) as flag_seal,
+        SUM(flag_seal_pass) as flag_seal_pass,
+        SUM(flag_seal_fail) as flag_seal_fail,
+        MAX(best_single_seal) as best_single_seal,
+        SUM(flag_cover) as flag_cover,
+        SUM(flag_cover_pass) as flag_cover_pass,
+        SUM(flag_cover_fail) as flag_cover_fail,
+        SUM(flag_cover_multi) as flag_cover_multi,
+        SUM(flag_cover_spree) as flag_cover_spree,
+        MAX(best_single_cover) as best_single_cover,
+        SUM(flag_capture) as flag_capture,
+        SUM(flag_carry_time) as flag_carry_time,
+        SUM(flag_taken) as flag_taken,
+        SUM(flag_pickup) as flag_pickup,
+        SUM(flag_self_cover) as flag_self_cover,
+        SUM(flag_self_cover_pass) as flag_self_cover_pass,
+        SUM(flag_self_cover_fail) as flag_self_cover_fail,
+        MAX(best_single_self_cover) as best_single_self_cover,
+        SUM(flag_solo_capture) as flag_solo_capture
+        FROM nstats_player_ctf_best WHERE player_id=? AND gametype_id=?`;
+
+        const result = await mysql.simpleQuery(query, [playerId, gametypeId]);
+
+        if(result.length === 0){
+            new Message(`ctf.fixDuplicatePlayerBestRecords result is empty`,"error");
+            return;
+        }
+
+        await this.deletePlayerCTFBestRecords(playerId, gametypeId);
+        await this.insertNewPlayerBest(playerId, result[0]);
+
+    }
+
+    async fixDuplicatePlayersBestRecords(gametypeId){
+
+        const duplicatePlayerIds = await this.getDuplicatePlayerBestRecordIds(gametypeId);
+
+        for(let i = 0; i < duplicatePlayerIds.length; i++){
+
+            const playerId = duplicatePlayerIds[i];
+
+            await this.fixDuplicatePlayerBestRecords(playerId, gametypeId);
+        }
+    }
+
     async mergeGametypes(oldId, newId){
 
         await this.changeCapTableGametypes(oldId, newId);
@@ -3134,6 +3224,8 @@ class CTF{
         await this.fixDuplicateMapCapRecords(newId);
         //need to check for duplicate cap records and only save the fastest
 
+        await this.mergeCTFBest(oldId, newId);
+        await this.fixDuplicatePlayerBestRecords(newId);
 
         //TODO change gametype ids, check for duplicates for gametypes, then merge the two together
         /**
