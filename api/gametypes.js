@@ -588,7 +588,7 @@ class Gametypes{
 
     }
 
-    async merge(oldId, newId, rankingManager, winrateManager){
+    async merge(oldId, newId, rankingManager, winrateManager, ctfManager){
 
         try{
 
@@ -607,6 +607,10 @@ class Gametypes{
 
             //TODO add ctf stuff here
 
+            await ctfManager.mergeGametypes(oldId, newId);
+
+
+            //TODO: Fix weapon stats
             await this.mergeGametypeWeaponTotals(oldId, newId);
 
 

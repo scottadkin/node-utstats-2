@@ -3027,6 +3027,38 @@ class CTF{
 
         return data;
     }
+
+
+
+    async changeCapTableGametypes(oldId, newId){
+
+        const query = `UPDATE nstats_ctf_caps SET gametype_id=? WHERE gametype_id=?`;
+
+        return await mysql.simpleQuery(query, [newId, oldId]);
+    }
+
+    async changeCapRecordTableGametypes(oldId, newId){
+
+        const query = `UPDATE nstats_ctf_cap_records SET gametype_id=? WHERE gametype_id=?`;
+        return await mysql.simpleQuery(query, [newId, oldId]);
+    }
+
+    async mergeGametypes(oldId, newId){
+
+        await this.changeCapTableGametypes(oldId, newId);
+
+        await this.changeCapRecordTableGametypes(oldId, newId);
+        //need to check for duplicate cap records and only save the fastest
+
+
+        //TODO change gametype ids, check for duplicates for gametypes, then merge the two together
+        /**
+         * player_ctf_best
+         * player_ctf_best_life
+         * player_ctf_match
+         * player_ctf_totals
+         */
+    }
 }
 
 

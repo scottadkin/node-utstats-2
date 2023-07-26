@@ -5,6 +5,7 @@ import Winrate from '../../api/winrate';
 import Matches from '../../api/matches';
 import Players from '../../api/players';
 import CountriesManager from '../../api/countriesmanager';
+import CTF from '../../api/ctf';
 
 export default async function handler(req, res){
 
@@ -76,7 +77,9 @@ export default async function handler(req, res){
                 await rankingManager.init();
                 const winrateManager = new Winrate();
 
-                await gametypeManager.merge(oldId, newId, rankingManager, winrateManager);
+                const ctfManager = new CTF();
+
+                await gametypeManager.merge(oldId, newId, rankingManager, winrateManager, ctfManager);
 
                 
             }else if(mode === "delete"){
