@@ -144,15 +144,6 @@ class Weapons{
 
     }
 
-    async createPlayerTotal(mapId, gametypeId, playerId, weaponId, playtime, kills, teamKills, deaths, suicides, accuracy, shots, hits, damage){
-
-        const query = "INSERT INTO nstats_player_weapon_totals VALUES(NULL,?,?,?,?,?,?,?,?,?,0,?,?,?,?,1)";//13
-        const vars = [playerId, mapId, gametypeId, playtime, weaponId, kills, teamKills, deaths, suicides, accuracy, shots, hits, Math.abs(damage)];
-
-        return await mysql.simpleQuery(query, vars);
-
-    }
-
     async updatePlayerTotals(mapId, gametypeId, playerId, weaponId, playtime, stats){
 
         const query = `UPDATE nstats_player_weapon_totals SET playtime=playtime+?,kills=kills+?, 
@@ -941,6 +932,14 @@ class Weapons{
                     d.efficiency, d.accuracy, d.shots, d.hits, d.damage, d.matches);
             }
         }
+    }
+
+    async createPlayerTotal(mapId, gametypeId, playerId, weaponId, playtime, kills, teamKills, deaths, suicides, accuracy, shots, hits, damage){
+
+        const query = "INSERT INTO nstats_player_weapon_totals VALUES(NULL,?,?,?,?,?,?,?,?,?,0,?,?,?,?,1)";//13
+        const vars = [playerId, mapId, gametypeId, playtime, weaponId, kills, teamKills, deaths, suicides, accuracy, shots, hits, Math.abs(damage)];
+
+        return await mysql.simpleQuery(query, vars);
 
     }
 

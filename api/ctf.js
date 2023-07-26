@@ -3043,11 +3043,95 @@ class CTF{
         return await mysql.simpleQuery(query, [newId, oldId]);
     }
 
+
+    async getDuplicateMapCapRecords(gametype, capType){
+
+        const query = `SELECT map_id,COUNT(*) as total_records FROM nstats_ctf_cap_records WHERE gametype_id=? AND cap_type=? GROUP BY map_id`;
+
+        const result = await mysql.simpleQuery(query, [gametype, capType]);
+   
+        const data = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+            //console.log(r);
+            if(r.total_records <= 1) continue;
+            data.push(r.map_id);
+        }
+        
+
+        return data;
+    }
+
+    async getMapGametypeCapRecordId(gametypeId, mapId, capType){
+        
+        capType = parseInt(capType);
+
+        if(capType !== capType){
+            throw new Error(`capType must be 0 or 1`);
+        }
+
+        const query = `SELECT id FROM nstats_ctf_cap_records WHERE gametype_id=? AND map_id=? AND cap_type=? ORDER BY travel_time ASC LIMIT 1`;
+
+        const result = await mysql.simpleQuery(query, [gametypeId, mapId, capType]);
+
+        if(result.length > 0){
+            return result[0].id;
+        }
+
+        return -1;
+        
+    }
+
+
+    /**
+     * 
+     * @param {*} gametypeId 
+     * @param {*} mapId 
+     * @param {*} ignoreId The id of the record we don't want to delete(the current record)
+     */
+    async deleteDuplicateMapCapRecords(gametypeId, mapId, capType, ignoreId){
+
+        const query = `DELETE FROM nstats_ctf_cap_records WHERE gametype_id=? AND map_id=? AND cap_type=? AND id!=?`;
+
+        return await mysql.simpleQuery(query, [gametypeId, mapId, capType, ignoreId]);
+    }
+
+    async fixDuplicateMapCapRecordsOfType(gametypeId, capType){
+
+        const capDuplicates = await this.getDuplicateMapCapRecords(gametypeId, capType);
+
+        console.log(`Found ${capDuplicates.length} duplicate for capType ${capType} for gametype ${gametypeId}`);
+
+        for(let i = 0; i < capDuplicates.length; i++){
+
+            const mapId = capDuplicates[i];
+
+            const currentCapRecord = await this.getMapGametypeCapRecordId(gametypeId, mapId, capType);
+
+            if(currentCapRecord === -1){
+                new Message(`Couldn't find map record.`,"warning");
+                continue;
+            }
+
+            await this.deleteDuplicateMapCapRecords(gametypeId, mapId, capType, currentCapRecord);
+        }
+    }
+
+    async fixDuplicateMapCapRecords(gametypeId){
+
+        await this.fixDuplicateMapCapRecordsOfType(gametypeId, 0);
+        await this.fixDuplicateMapCapRecordsOfType(gametypeId, 1);
+    }
+
     async mergeGametypes(oldId, newId){
 
         await this.changeCapTableGametypes(oldId, newId);
 
         await this.changeCapRecordTableGametypes(oldId, newId);
+
+        await this.fixDuplicateMapCapRecords(newId);
         //need to check for duplicate cap records and only save the fastest
 
 
