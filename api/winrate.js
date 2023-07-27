@@ -261,7 +261,6 @@ class WinRate{
 
     async bulkInsertPlayerHistory(data, playerId, gametypeId, mapId){
 
-
         const query = `INSERT INTO nstats_winrates (
         date, match_id, player, gametype, map, 
         match_result, matches, wins, draws, losses, 
@@ -339,7 +338,7 @@ class WinRate{
 
         }
         
-        //skip this step when recalculating all player gametypes/maps gametypeIds/mapIds[0] is always gametype 0
+        //skip this step when recalculating all player gametypes/maps, gametypeIds/mapIds[0] is always gametype 0
         if(gametypeIds !== undefined && mapIds !== undefined){
             await this.bulkInsertPlayerHistory(history, playerId, gametypeIds[1], mapIds[1]);
         }
@@ -437,6 +436,78 @@ class WinRate{
         //await this.recaluatePlayerHistory(playerId);
     }
 
+    async changeGametypeId(oldId, newId){
+
+        await mysql.simpleUpdate("UPDATE nstats_winrates SET gametype=? WHERE gametype=?", [newId, oldId]);
+        await mysql.simpleUpdate("UPDATE nstats_winrates_latest SET gametype=? WHERE gametype=?", [newId, oldId]);
+    }
+
+
+    async getAllGametypeHistory(gametypeId){
+
+        const query = `SELECT * FROM nstats_winrates WHERE gametype=? ORDER BY date ASC`;
+
+        return await mysql.simpleQuery(query, [gametypeId]);
+    }
+
+    async getGametypeResultsFromMatchesTable(gametypeId){
+
+        const query = `SELECT match_date,match_id,map_id,gametype,winner,draw,player_id FROM nstats_player_matches 
+        WHERE gametype=? AND playtime>0 ORDER BY match_date ASC`;
+
+
+        return await mysql.simpleQuery(query, [gametypeId]);
+    }
+
+    async recalculateGametype(gametypeId){
+
+        //const history = await this.getAllGametypeHistory(gametypeId);
+
+        const data = await this.getGametypeResultsFromMatchesTable(gametypeId);
+
+        //updateHistoryObject(data, gametype, map, matchId, matchDate, matchResult)
+
+        //0 = loss, 1 = win, 2 = draw
+
+        const playerHistory = {};
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            if(playerHistory[d.player_id] === undefined){
+                playerHistory[d.player_id] = [];
+            }
+
+            let matchResult = 0;
+
+            if(d.winner) matchResult = 1;
+            if(!d.winner && d.draw) matchResult = 2;
+
+            //we only want to change for this selected gametype, it won't effect all time totals, and map all time totals
+
+            //map & gametype totals
+            this.updateHistoryObject(playerHistory[d.player_id], d.gametype, d.map_id, d.match_id, d.match_date, matchResult);
+            //gametype totals
+            this.updateHistoryObject(playerHistory[d.player_id], d.gametype, 0, d.match_id, d.match_date, matchResult);
+
+        }
+
+        for(const [playerId, playerData] of Object.entries(playerHistory)){
+
+            for(let i = 0; i < playerData.length; i++){
+
+                const currentGametype = playerData[i].gametype;
+                const map = playerData[i].map;
+               // const history = playerData[i].history;
+                const currentStats = playerData[i].data;
+
+                await this.bulkInsertPlayerHistory(playerData[i], playerId, currentGametype, map);
+
+                await this.createPlayerLatestFromRecalculation(playerId, currentGametype, map, currentStats);
+            }
+        }
+    }
 
     /*async getPlayersCurrentData(players, gametypes, maps){
 
@@ -1061,11 +1132,7 @@ class WinRate{
         }
     }
 
-    async changeGametypeId(oldId, newId){
-
-        await mysql.simpleUpdate("UPDATE nstats_winrates SET gametype=? WHERE gametype=?", [newId, oldId]);
-        await mysql.simpleUpdate("UPDATE nstats_winrates_latest SET gametype=? WHERE gametype=?", [newId, oldId]);
-    }
+    
 
     async getGametypeData(id){
 

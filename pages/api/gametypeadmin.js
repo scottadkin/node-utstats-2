@@ -72,7 +72,7 @@ export default async function handler(req, res){
                     res.status(200).json({"message": "Selected gametype ids must be a positive integer."});
                     return;
                 }
-                
+         
 
                 const rankingManager = new Rankings();
                 await rankingManager.init();
