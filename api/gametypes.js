@@ -364,22 +364,17 @@ class Gametypes{
             WHERE player_id=? AND gametype=?`;
 
             
-
-
-            //if statments for division by zero
-            let vars = [];
-
             for(let i = 0; i < data.length; i++){
 
                 const d = data[i];
 
-                vars = [
+                const vars = [
                     d.matches,
                     d.wins,
                     d.losses,
                     d.draws,
                     d.playtime,
-                    data.first_bloods,
+                    d.first_bloods,
                     d.frags,
                     d.score,
                     d.kills,
