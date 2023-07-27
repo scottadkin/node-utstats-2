@@ -307,6 +307,8 @@ class Admin{
             "items_player",
             "kills",
             "logs",
+            "map_items",
+            "map_items_locations",
             "maps",
             "maps_flags",
             "map_combogib",
