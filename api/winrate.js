@@ -259,7 +259,17 @@ class WinRate{
         return await mysql.simpleQuery(query, [playerId, gametypeId, mapId]);
     }
 
-    async bulkInsertPlayerHistory(data, playerId, gametypeId, mapId){
+    /**
+     * 
+     * @param {*} data 
+     * @param {*} playerId 
+     * @param {*} gametypeId 
+     * @param {*} mapId 
+     * @param {*} bSkipAllTime Set to true if you want to only effect gametype and gametype + map totals
+     */
+    async bulkInsertPlayerHistory(data, playerId, gametypeId, mapId, bSkipAllTime){
+
+        if(bSkipAllTime === undefined) bSkipAllTime = false;
 
         const query = `INSERT INTO nstats_winrates (
         date, match_id, player, gametype, map, 
@@ -302,12 +312,16 @@ class WinRate{
             }  
         }
 
-        //all time
-        await this.deletePlayerHistory(playerId, 0, 0);
+        if(!bSkipAllTime){
+            //all time
+            await this.deletePlayerHistory(playerId, 0, 0);
+            //map total
+            await this.deletePlayerHistory(playerId, 0, mapId);
+        }
+
         //gametype total
         await this.deletePlayerHistory(playerId, gametypeId, 0);
-        //map total
-        await this.deletePlayerHistory(playerId, 0, mapId);
+        
         //map + gametype
         await this.deletePlayerHistory(playerId, gametypeId, mapId);
 
@@ -502,7 +516,7 @@ class WinRate{
                // const history = playerData[i].history;
                 const currentStats = playerData[i].data;
 
-                await this.bulkInsertPlayerHistory(playerData[i], playerId, currentGametype, map);
+                await this.bulkInsertPlayerHistory(playerData[i], playerId, currentGametype, map, true);
 
                 await this.createPlayerLatestFromRecalculation(playerId, currentGametype, map, currentStats);
             }
