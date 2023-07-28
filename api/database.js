@@ -131,9 +131,7 @@ Database.bulkInsert = (query, vars, maxPerInsert) =>{
         resolve();
 
     });
-    
-
-
 }
+
 
 module.exports = Database;

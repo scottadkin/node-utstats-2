@@ -368,6 +368,7 @@ class Gametypes{
 
                 const d = data[i];
 
+                console.log(d.gametype, d.player_id, d.matches, d.playtime);
                 const vars = [
                     d.matches,
                     d.wins,
@@ -555,21 +556,136 @@ class Gametypes{
 
     }
 
+    async getGametypeTotalsFromMatchData(gametypeId){
+
+
+        const query = `
+        SELECT
+        map_id,
+        player_id,
+        COUNT(*) as total_matches,
+        SUM(winner) as wins,
+        SUM(draw) as draws,
+        MIN(match_date) as first_match,
+        MAX(match_date) as last_match,
+        SUM(playtime) as playtime,
+        SUM(team_0_playtime) as team_0_playtime,
+        SUM(team_1_playtime) as team_1_playtime,
+        SUM(team_2_playtime) as team_2_playtime,
+        SUM(team_3_playtime) as team_3_playtime,
+        SUM(spec_playtime) as spec_playtime,
+        SUM(first_blood) as first_bloods,
+        SUM(frags) as frags,
+        SUM(score) as score,
+        SUM(kills) as kills,
+        SUM(deaths) as deaths,
+        SUM(suicides) as suicides,
+        SUM(team_kills) as team_kills,
+        SUM(spawn_kills) as spawn_kills,
+        AVG(efficiency) as efficiency,
+        SUM(multi_1) as multi_1,
+        SUM(multi_2) as multi_2,
+        SUM(multi_3) as multi_3,
+        SUM(multi_4) as multi_4,
+        SUM(multi_5) as multi_5,
+        SUM(multi_6) as multi_6,
+        SUM(multi_7) as multi_7,
+        MAX(multi_best) as multi_best,
+        SUM(spree_1) as spree_1,
+        SUM(spree_2) as spree_2,
+        SUM(spree_3) as spree_3,
+        SUM(spree_4) as spree_4,
+        SUM(spree_5) as spree_5,
+        SUM(spree_6) as spree_6,
+        SUM(spree_7) as spree_7,
+        MAX(spree_best) as spree_best,
+        MAX(best_spawn_kill_spree) as best_spawn_kill_spree,
+        SUM(assault_objectives) as assault_objectives,
+        SUM(dom_caps) as dom_caps,
+        MAX(dom_caps) as dom_caps_best,
+        MAX(dom_caps_best_life) as dom_caps_best_life,
+        MIN(ping_min) as ping_min,
+        AVG(ping_average) as ping_average,
+        MAX(ping_max) as ping_max,
+        AVG(accuracy) as accuracy,
+        MIN(shortest_kill_distance) as shortest_kill_distance,
+        AVG(average_kill_distance) as average_kill_distance,
+        MAX(longest_kill_distance) as longest_kill_distance,
+        SUM(k_distance_normal) as k_distance_normal,
+        SUM(k_distance_long) as k_distance_long,
+        SUM(k_distance_uber) as k_distance_uber,
+        SUM(headshots) as headshots,
+        SUM(shield_belt) as shield_belt,
+        SUM(amp) as amp,
+        SUM(amp_time) as amp_time,
+        SUM(invisibility) as invisibility,
+        SUM(invisibility_time) as invisibility_time,
+        SUM(pads) as pads,
+        SUM(armor) as armor,
+        SUM(boots) as boots,
+        SUM(super_health) as super_health,
+        SUM(mh_kills) as mh_kills,
+        MAX(mh_kills) as mh_kills_best,
+        MAX(mh_kills_best_life) as mh_kills_best_life,
+        SUM(views) as views,
+        SUM(mh_deaths) as mh_deaths,
+        SUM(telefrag_kills) as telefrag_kills,
+        SUM(telefrag_deaths) as telefrag_deaths,
+        MAX(telefrag_best_spree) as telefrag_best_spree,
+        MAX(telefrag_best_multi) as telefrag_best_multi,
+        SUM(tele_disc_kills) as tele_disc_kills,
+        SUM(tele_disc_deaths) as tele_disc_deaths,
+        MAX(tele_disc_best_spree) as tele_disc_best_spree,
+        MAX(tele_disc_best_multi) as tele_disc_best_multi
+        FROM nstats_player_matches
+        WHERE gametype=?
+        GROUP BY player_id,gametype,map_id`;
+
+        return await mysql.simpleQuery(query, [gametypeId]);  
+    }
+
+
+    async deleteGametypeTotals(gametypeId){
+
+        const query = `DELETE FROM nstats_player_totals WHERE gametype=?`;
+
+        return await mysql.simpleQuery(query, [gametypeId]);
+    }
+
+    
+
+    async recalculateGametypeTotals(gametypeId, playerManager){
+
+
+        await this.deleteGametypeTotals(gametypeId);
+        const data = await this.getGametypeTotalsFromMatchData(gametypeId);
+
+        for(let i = 0; i < data.length; i++){
+
+            await playerManager.insertNewPlayerTotalFromData(gametypeId, data[i]);
+
+            //TODO do all time total for gametype, above only does map + gametype
+        }
+    }
+
     async merge(oldId, newId, rankingManager, winrateManager, ctfManager, weaponsManager){
 
         try{
+
+            //const oldGametypePlayerTotals = await this.getOldIdPlayerGametypeTotals(oldId);
 
             await this.changeMatchGametypes(oldId, newId);
             await this.changePlayerMatchGametypes(oldId, newId);
            // await this.changePlayerTotalsGametype(oldId, newId);
 
-            const oldGametypePlayerTotals = await this.getOldIdPlayerGametypeTotals(oldId);
+            
 
            // console.log(oldGametypePlayerTotals);
 
             //merge player gametype totals here
 
-            await this.mergePlayerGametypeTotals(oldGametypePlayerTotals, newId);
+            await this.recalculateGametypeTotals(newId);
+            //await this.mergePlayerGametypeTotals(oldGametypePlayerTotals, newId);
             await this.deleteGametypePlayerTotals(oldId);
 
             //TODO add ctf stuff here

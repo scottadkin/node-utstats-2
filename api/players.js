@@ -23,6 +23,7 @@ const MonsterHunt = require("./monsterhunt");
 const Combogib = require("./combogib");
 const PowerUps = require("./powerups");
 const Telefrags = require("./telefrags");
+const Message = require("./message");
 
 class Players{
 
@@ -3136,6 +3137,79 @@ class Players{
         FROM nstats_player_totals WHERE map!=0 AND gametype=0 AND player_id=?`;
 
         return await mysql.simpleQuery(query, [playerId]);
+    }
+
+    async insertNewPlayerTotalFromData(gametypeId, data){
+
+
+        const playerInfo = await this.getBasicInfo([data.player_id]);
+
+        if(playerInfo[data.player_id] === undefined){
+            new Message(`Players.insertNewPlayerTotalFromData(${gametypeId}) playerInfo is undefined`,"error");
+            return;
+        }
+
+        const player = playerInfo[data.player_id];
+
+        const query = `INSERT INTO nstats_player_totals VALUES(
+            NULL,"",?,?,?,?,
+            "",?,0,0,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?
+        )`;
+
+        const d = data;
+
+        const losses = d.total_matches - d.wins - d.draws;
+
+        let winrate = 0;
+        
+        if(d.wins > 0 && d.total_matches > 0){
+            winrate = (d.wins / d.total_matches) * 100;
+        }
+
+        let eff = 0;
+
+        if(d.kills > 0){
+
+            if(d.deaths === 0){
+                eff = 100;
+            }else{
+                eff = (d.kills / (d.kills + d.deaths)) * 100;
+            }
+        }
+
+        const vars = [
+            player.name, d.player_id, d.first_match, d.last_match,
+            player.country, gametypeId,
+            d.map_id, d.total_matches, d.wins, losses, d.draws,
+            winrate, d.playtime, d.team_0_playtime, d.team_1_playtime, d.team_2_playtime,
+            d.team_3_playtime, d.spec_playtime, d.first_bloods, d.frags,
+            d.score, d.kills, d.deaths, d.suicides, d.team_kills,
+            d.spawn_kills, eff, d.multi_1, d.multi_2, d.multi_3,
+            d.multi_4, d.multi_5, d.multi_6, d.multi_7, d.multi_best,
+            d.spree_1, d.spree_2, d.spree_3, d.spree_4, d.spree_5,
+            d.spree_6, d.spree_7, d.spree_best, 0, 0,
+            d.best_spawn_kill_spree, d.assault_objectives, d.dom_caps, d.dom_caps_best, d.dom_caps_best_life,
+            d.accuracy, d.k_distance_normal, d.k_distance_long, d.k_distance_uber, d.headshots,
+            d.shield_belt, d.amp, d.amp_time, d.invisibility, d.invisibility_time,
+            d.pads, d.armor, d.boots, d.super_health, d.mh_kills,
+            d.mh_kills_best_life, d.mh_kills_best, 0, 0, 0
+        ];
+
+        await mysql.simpleQuery(query, vars);
+
     }
     
 }

@@ -13,10 +13,10 @@ Unreal Tournament stats tracking website using node.js and mysql.
 - Maps system
 - Cap records for ctf maps
 - User Accounts (in future builds you will be able to save matches, players to your favourites for easy tracking)
-- Admin management system, change what the site displays and how it's displayed. You can also give a user permission to upload map images.
-- ACE support.
-- SFTP Support.
-- Automatic player merging by ACE HWID, if enabled players with the same HWID will take the latest name using said HWID.
+- Admin management system, change what the site displays and how it's displayed. You can also give a user permission to upload map images
+- ACE support
+- SFTP Support
+- Basic ACE HWID
 
 # Current Supported Gametypes
 - Deathmatch
