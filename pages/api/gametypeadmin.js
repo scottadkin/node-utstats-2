@@ -81,8 +81,9 @@ export default async function handler(req, res){
                 const ctfManager = new CTF();
 
                 const weaponsManager = new Weapons();
+                const playersManager = new Players();
 
-                await gametypeManager.merge(oldId, newId, rankingManager, winrateManager, ctfManager, weaponsManager);
+                await gametypeManager.merge(oldId, newId, rankingManager, winrateManager, ctfManager, weaponsManager, playersManager);
 
                 
             }else if(mode === "delete"){

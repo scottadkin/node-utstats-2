@@ -556,12 +556,14 @@ class Gametypes{
 
     }
 
-    async getGametypeTotalsFromMatchData(gametypeId){
+    async getGametypeTotalsFromMatchData(gametypeId, bSeparateByMap){
 
+
+        if(bSeparateByMap === undefined) bSeparateByMap = true;
 
         const query = `
         SELECT
-        map_id,
+        ${(bSeparateByMap) ? "map_id," : ""}
         player_id,
         COUNT(*) as total_matches,
         SUM(winner) as wins,
@@ -639,9 +641,14 @@ class Gametypes{
         MAX(tele_disc_best_multi) as tele_disc_best_multi
         FROM nstats_player_matches
         WHERE gametype=?
-        GROUP BY player_id,gametype,map_id`;
+        GROUP BY player_id${(bSeparateByMap) ? ",map_id" : ""}`;
 
-        return await mysql.simpleQuery(query, [gametypeId]);  
+        const result = await mysql.simpleQuery(query, [gametypeId]);  
+
+        if(bSeparateByMap) return result;
+        
+        if(result.length > 0) result[0].map_id = 0;
+        return result;
     }
 
 
@@ -658,17 +665,25 @@ class Gametypes{
 
 
         await this.deleteGametypeTotals(gametypeId);
-        const data = await this.getGametypeTotalsFromMatchData(gametypeId);
+        const mapData = await this.getGametypeTotalsFromMatchData(gametypeId, true);
 
-        for(let i = 0; i < data.length; i++){
+        for(let i = 0; i < mapData.length; i++){
 
-            await playerManager.insertNewPlayerTotalFromData(gametypeId, data[i]);
-
-            //TODO do all time total for gametype, above only does map + gametype
+            await playerManager.insertNewPlayerTotalFromData(gametypeId, mapData[i]);
         }
+
+        const allTimeData = await this.getGametypeTotalsFromMatchData(gametypeId, false);
+
+        if(allTimeData.length > 0){
+            
+            await playerManager.insertNewPlayerTotalFromData(gametypeId, allTimeData[0]);
+            //console.log(allTimeData);
+        }
+        
+        
     }
 
-    async merge(oldId, newId, rankingManager, winrateManager, ctfManager, weaponsManager){
+    async merge(oldId, newId, rankingManager, winrateManager, ctfManager, weaponsManager, playersManager){
 
         try{
 
@@ -684,7 +699,7 @@ class Gametypes{
 
             //merge player gametype totals here
 
-            await this.recalculateGametypeTotals(newId);
+            await this.recalculateGametypeTotals(newId, playersManager);
             //await this.mergePlayerGametypeTotals(oldGametypePlayerTotals, newId);
             await this.deleteGametypePlayerTotals(oldId);
 
