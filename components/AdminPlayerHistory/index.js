@@ -13,14 +13,18 @@ const reducer = (state, action) =>{
             return {
                 ...state,
                 "bLoading": true,
-                "ipUsage": []
+                "ipUsage": [],
+                "aliases": [],
+                "hwids": []
             }
         }
         case "loaded": {
             return {
                 ...state,
                 "bLoading": false,
-                "ipUsage": action.ips
+                "ipUsage": action.ips,
+                "aliases": action.aliases,
+                "hwids": action.hwids
             }
         }
     }
@@ -53,7 +57,35 @@ const renderIpHistory = (state) =>{
         }
     });
 
-    return <InteractiveTable width={1} headers={headers} data={data} />
+    return <>
+        <div className="default-header">IP Usage</div>
+        <InteractiveTable width={1} headers={headers} data={data} />
+    </>
+}
+
+const renderHWIDs = (state) =>{
+
+    const headers = {
+        "hwid": "HWID",
+        "first": "First Used",
+        "last": "Last Used",
+        "total": "Total Uses"
+    };
+
+    const data = state.hwids.map((d) =>{
+
+        return {
+            "hwid": {"value": (d.hwid === "") ? "None" : d.hwid},
+            "first": {"value": d.first_match, "displayValue": convertTimestamp(d.first_match, true)},
+            "last": {"value": d.last_match, "displayValue": convertTimestamp(d.last_match, true)},
+            "total": {"value": d.total_uses},
+        }
+    });
+
+    return <>
+        <div className="default-header">HWID Usage</div>
+        <InteractiveTable width={1} headers={headers} data={data}/>
+    </>;
 }
 
 
@@ -65,7 +97,7 @@ const loadData = async (playerId, dispatch, controller) =>{
     try{
 
         if(playerId === -1){
-            dispatch({"type": "loaded", "ips": []});
+            dispatch({"type": "loaded", "ips": [], "aliases": [], "hwids": []});
             return;
         }
 
@@ -78,15 +110,18 @@ const loadData = async (playerId, dispatch, controller) =>{
 
         const res = await req.json();
 
+        console.log(res);
+
         if(res.error === undefined){
 
-            dispatch({"type": "loaded", "ips": res.usedIps.data});
+            dispatch({
+                "type": "loaded", 
+                "ips": res.usedIps.data,
+                "aliases": res.aliases,
+                "hwids": res.usedHWIDs
+            });
 
         }
-
-        
-
-        console.log(res);
 
     }catch(err){
 
@@ -100,7 +135,9 @@ const AdminPlayerHistory = ({playerNames, selectedPlayerProfile}) =>{
 
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
-        "ipUsage":  []
+        "ipUsage":  [],
+        "aliases": [],
+        "hwids": []
     });
 
     useEffect(() =>{
@@ -139,6 +176,7 @@ const AdminPlayerHistory = ({playerNames, selectedPlayerProfile}) =>{
         </div>
         <Loading value={!state.bLoading}/>
         {renderIpHistory(state)}
+        {renderHWIDs(state)}
     </div>
 }
 

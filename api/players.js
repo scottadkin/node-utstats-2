@@ -2445,12 +2445,22 @@ class Players{
         return result;
     }
 
+    async getUsedHWIDs(playerId){
+
+        const query = `SELECT hwid,MIN(match_date) as first_match, MAX(match_date) as last_match, COUNT(*) as total_uses 
+        FROM nstats_player_matches WHERE player_id=? GROUP BY hwid`;
+
+        return await mysql.simpleQuery(query, [playerId]);
+    }
+
     async getFullHistory(playerId){
 
         const usedIps = await this.getUsedIps(playerId);
         const aliases = await this.getAliasesByIPs(usedIps.ips);
+        const usedHWIDs = await this.getUsedHWIDs(playerId);
 
-        return {"usedIps": usedIps, "aliases": aliases};
+
+        return {"usedIps": usedIps, "aliases": aliases, "usedHWIDs": usedHWIDs};
         
     }
 
