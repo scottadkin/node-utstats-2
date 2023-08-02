@@ -127,9 +127,7 @@ class MatchManager{
                 return null;
             }
 
-            const logId = await Logs.insert(this.fileName);
-
-            new Message(`Log file id is ${logId}`,"note");
+            
 
     
             if(this.mapInfo.mapPrefix === "mh"){
@@ -469,7 +467,13 @@ class MatchManager{
             new Message("Updating player rankings.","note");
             await this.playerManager.updateRankings(this.rankingsManager, this.gametype.currentMatchGametype, this.matchId);
 
+            const logId = await Logs.insert(this.fileName);
+
+            new Message(`Log file id is ${logId}`,"note");
+
             await Logs.setMatchId(logId, this.matchId);
+
+            
 
             new Message(`Finished import of log file ${this.fileName}.`, 'Progress');
 

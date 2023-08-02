@@ -262,7 +262,6 @@ class CTF{
         totalSuicides, redKills, blueKills, greenKills, yellowKills, redSuicides, blueSuicides, 
         greenSuicides, yellowSuicides){
 
-
         let carryTimePercent = 0;
         let dropTimePercent = 0;
 
@@ -291,7 +290,7 @@ class CTF{
             returnTime, 
             returnPlayer, 
             returnString,
-            distanceToCap,
+            distanceToCap ?? -1,
             returnLocation.x,
             returnLocation.y,
             returnLocation.z,
