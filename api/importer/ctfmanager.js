@@ -875,7 +875,10 @@ class CTFManager{
 
     getDistanceToCapping(playerTeam, targetLocation){
 
-        if(this.flags[playerTeam] === undefined) return -1;
+        if(this.flags[playerTeam] === undefined){
+            new Message(`CTFManager.getDistanceToCapping() flag with team of ${playerTeam} is undefined.`,"warning");
+            return -1;
+        }
 
         const flag = this.flags[playerTeam];
 
