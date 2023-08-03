@@ -81,7 +81,6 @@ class AdminMatchesManager extends React.Component{
 
             const res = await req.json();
 
-
             if(res.error === undefined){
 
                 //const old = this.state.actionProgress;

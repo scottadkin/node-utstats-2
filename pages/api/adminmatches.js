@@ -1,11 +1,12 @@
-import Session from '../../api/session';
-import Matches from '../../api/matches';
-import SiteSettings from '../../api/sitesettings';
-import Maps from '../../api/maps';
-import Servers from '../../api/servers';
-import Gametypes from '../../api/gametypes';
-import Logs from '../../api/logs';
-import Players from '../../api/players';
+import Session from "../../api/session";
+import Matches from "../../api/matches";
+import SiteSettings from "../../api/sitesettings";
+import Maps from "../../api/maps";
+import Servers from "../../api/servers";
+import Gametypes from "../../api/gametypes";
+import Logs from "../../api/logs";
+import Players from "../../api/players";
+import Message from "../../api/message";
 
 async function setMatchValues(matches, mapManager, serverManager, gametypeManager){
 
@@ -129,15 +130,27 @@ export default async function handler(req, res){
 
                 }else if(mode === "deleteduplicate"){
 
+                    console.log(req.body);
+                    
+
                     let latestId = (req.body.latest) ? parseInt(req.body.latest) : -1;
                     if(latestId !== latestId) latestId = -1;
 
-                    let fileName = (req.body.file) ? req.body.file : -1;
+                    const fileName = (req.body.file) ? req.body.file : -1;
+
+                    console.log(`fileName = ${fileName}`);
+
+                    if(fileName === -1){
+                        new Message(`Delete Duplicate match, fileName is -1`,"error");
+                    }
 
                     if(latestId !== -1 && fileName !== -1){
 
                         const matchesToDelete = await matches.getPreviousDuplicates(fileName, latestId);
 
+                        console.log(`matchesToDelete`);
+                        console.log(matchesToDelete);
+                     
                         for(let i = 0; i < matchesToDelete.length; i++){
 
                             const m = matchesToDelete[i];

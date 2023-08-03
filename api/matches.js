@@ -615,19 +615,11 @@ class Matches{
     }
 
 
-    deleteMatchQuery(id){
+    async deleteMatchQuery(id){
 
-        return new Promise((resolve, reject) =>{
+        const query = "DELETE FROM nstats_matches WHERE id=?";
 
-            const query = "DELETE FROM nstats_matches WHERE id=?";
-
-            mysql.query(query, [id], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await mysql.simpleQuery(query, [id]);
     }
 
     async deleteMatch(id, playerManager){
@@ -639,6 +631,7 @@ class Matches{
             const match = new Match();
 
             const matchData = await match.get(id);
+       
             
             if(matchData === undefined) return;
 
@@ -670,7 +663,6 @@ class Matches{
 
             await gametypeManager.reduceMatchStats(matchData.gametype, matchData.playtime);
 
-            
             const headshotsManager = new Headshots();
 
             await headshotsManager.deleteMatchData(id);
@@ -709,6 +701,8 @@ class Matches{
 
             const serverManager = new Servers();
 
+            
+
             await serverManager.reduceServerTotals(matchData.server, matchData.playtime);
 
             await this.removeVoiceData(playersData);
@@ -726,7 +720,7 @@ class Matches{
 
             Functions.setIdNames(playersData, playerNames, "player_id", "name");
 
-            
+         
             await playerManager.deleteMatchData(id);
 
             await playerManager.reduceTotals(playerIds, matchData.gametype, matchData.map);
@@ -743,6 +737,8 @@ class Matches{
            // for(let i = 0; i < playersData.length; i++){
                // await winrateManager.deletePlayerFromMatch(playersData[i].player_id, id, matchData.gametype);
             //}
+
+            
 
            // return matchData.gametype;
            return true;
