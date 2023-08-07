@@ -2399,7 +2399,7 @@ class Players{
 
         if(ips.length === 0) return [];
 
-        const query = `SELECT player_id, MIN(match_date) as first_match, MAX(match_date) as last_match, 
+        const query = `SELECT player_id,ip, MIN(match_date) as first_match, MAX(match_date) as last_match, 
         COUNT(*) as total_matches, SUM(playtime) as total_playtime
         FROM nstats_player_matches WHERE ip IN(?) GROUP BY(player_id)`;
 
@@ -2453,14 +2453,40 @@ class Players{
         return await mysql.simpleQuery(query, [playerId]);
     }
 
+    async getAliasesByHWIDs(hwids){
+        
+        const cleanHWIDS = hwids.filter((h) => h !== "");
+
+        if(cleanHWIDS.length === 0) return [];
+
+        const query = `SELECT player_id, hwid, COUNT(*) as total_matches, 
+        MIN(match_date) as first_match, MAX(match_date) as last_match, 
+        SUM(playtime) as total_playtime FROM nstats_player_matches WHERE hwid IN (?) GROUP BY player_id,hwid`;
+
+        return await mysql.simpleQuery(query, [cleanHWIDS]);
+        
+    }
+
     async getFullHistory(playerId){
 
         const usedIps = await this.getUsedIps(playerId);
         const aliasesByIp = await this.getAliasesByIPs(usedIps.ips);
         const usedHWIDs = await this.getUsedHWIDs(playerId);
+        const aliasesByHWID = await this.getAliasesByHWIDs(usedHWIDs.map((h) =>{
+            return h.hwid;
+        }));
 
+        const uniquePlayerIds = [...new Set(aliasesByHWID.map(m => m.player_id))];
 
-        return {"usedIps": usedIps, "aliasesByIp": aliasesByIp, "usedHWIDs": usedHWIDs};
+        const names = await this.getBasicInfo(uniquePlayerIds, true);
+
+        for(let i = 0; i < aliasesByHWID.length; i++){
+
+            const a = aliasesByHWID[i];
+            a.playerInfo = names[a.player_id] ?? {"name": "Not Found", "country": "xx"};
+        }
+
+        return {"usedIps": usedIps, "aliasesByIp": aliasesByIp, "usedHWIDs": usedHWIDs, "aliasesByHWID": aliasesByHWID};
         
     }
 

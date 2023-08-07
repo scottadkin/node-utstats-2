@@ -24,6 +24,7 @@ const reducer = (state, action) =>{
                 "bLoading": false,
                 "ipUsage": action.ips,
                 "aliasesByIp": action.aliasesByIp,
+                "aliasesByHWID": action.aliasesByHWID,
                 "hwids": action.hwids
             }
         }
@@ -89,10 +90,11 @@ const renderHWIDs = (state) =>{
 }
 
 
-const renderAliases = (state) =>{
+const renderAliasesByIp = (state) =>{
 
     const headers = {
         "name": "Name",
+        "ip": "IP",
         "first": "First",
         "last": "Last",
         "matches": "Matches",
@@ -100,12 +102,14 @@ const renderAliases = (state) =>{
     };
 
     const data = state.aliasesByIp.map((d) =>{
+        console.log(d);
         return {
             "name": {
                 "value": d.name.toLowerCase(), 
                 "displayValue": <><CountryFlag country={d.country}/>{d.name}</>,
                 "className": "text-left"
             },
+            "ip": {"value": d.ip},
             "first": {"value": d.first_match, "displayValue": convertTimestamp(d.first_match, true)},
             "last": {"value": d.last_match, "displayValue": convertTimestamp(d.last_match, true)},
             "matches": {"value": d.total_matches},
@@ -119,6 +123,38 @@ const renderAliases = (state) =>{
     </>
 }
 
+const renderAliasesByHWID = (state) =>{
+
+    const headers = {
+        "name": "Name",
+        "hwid": "HWID",
+        "first": "First",
+        "last": "Last",
+        "matches": "Matches",
+        "playtime": "Playtime"
+    };
+
+    const data = state.aliasesByHWID.map((d) =>{
+        return {
+            "name": {
+                "value": d.playerInfo.name.toLowerCase(), 
+                "displayValue": <><CountryFlag country={d.playerInfo.country}/>{d.playerInfo.name}</>,
+                "className": "text-left"
+            },
+            "hwid": {"value": d.hwid.toUpperCase()},
+            "first": {"value": d.first_match, "displayValue": convertTimestamp(d.first_match, true)},
+            "last": {"value": d.last_match, "displayValue": convertTimestamp(d.last_match, true)},
+            "matches": {"value": d.total_matches},
+            "playtime": {"value": d.total_playtime, "displayValue": toPlaytime(d.total_playtime)},
+        }
+    });
+
+    return <>
+        <div className="default-header">Possible aliases by HWID</div>
+        <InteractiveTable width={1} headers={headers} data={data}/>
+    </>
+}
+
 const loadData = async (playerId, dispatch, controller) =>{
 
 
@@ -127,7 +163,7 @@ const loadData = async (playerId, dispatch, controller) =>{
     try{
 
         if(playerId === -1){
-            dispatch({"type": "loaded", "ips": [], "aliases": [], "hwids": []});
+            dispatch({"type": "loaded", "ips": [], "aliasesByIp": [], "hwids": [], "aliasesByHWID": []});
             return;
         }
 
@@ -148,6 +184,7 @@ const loadData = async (playerId, dispatch, controller) =>{
                 "type": "loaded", 
                 "ips": res.usedIps.data,
                 "aliasesByIp": res.aliasesByIp,
+                "aliasesByHWID": res.aliasesByHWID,
                 "hwids": res.usedHWIDs
             });
 
@@ -167,6 +204,7 @@ const AdminPlayerHistory = ({playerNames, selectedPlayerProfile}) =>{
         "bLoading": true,
         "ipUsage":  [],
         "aliasesByIp": [],
+        "aliasesByHWID": [],
         "hwids": []
     });
 
@@ -207,7 +245,8 @@ const AdminPlayerHistory = ({playerNames, selectedPlayerProfile}) =>{
         <Loading value={!state.bLoading}/>
         {renderIpHistory(state)}
         {renderHWIDs(state)}
-        {renderAliases(state)}
+        {renderAliasesByHWID(state)}
+        {renderAliasesByIp(state)}   
     </div>
 }
 
