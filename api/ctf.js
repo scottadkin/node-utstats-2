@@ -276,6 +276,9 @@ class CTF{
             }
         }
 
+        if(distanceToCap == undefined){
+            new Message(`CTF.insertReturn() distanceToCap is ${distanceToCap}`,"warning");
+        }
 
         const query = `INSERT INTO nstats_ctf_returns VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
             ,?,?,?,?,?,?,?,?,?,?)`;

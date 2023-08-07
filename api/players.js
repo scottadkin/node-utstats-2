@@ -2456,11 +2456,11 @@ class Players{
     async getFullHistory(playerId){
 
         const usedIps = await this.getUsedIps(playerId);
-        const aliases = await this.getAliasesByIPs(usedIps.ips);
+        const aliasesByIp = await this.getAliasesByIPs(usedIps.ips);
         const usedHWIDs = await this.getUsedHWIDs(playerId);
 
 
-        return {"usedIps": usedIps, "aliases": aliases, "usedHWIDs": usedHWIDs};
+        return {"usedIps": usedIps, "aliasesByIp": aliasesByIp, "usedHWIDs": usedHWIDs};
         
     }
 

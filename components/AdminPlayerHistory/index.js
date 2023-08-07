@@ -14,7 +14,7 @@ const reducer = (state, action) =>{
                 ...state,
                 "bLoading": true,
                 "ipUsage": [],
-                "aliases": [],
+                "aliasesByIp": [],
                 "hwids": []
             }
         }
@@ -23,7 +23,7 @@ const reducer = (state, action) =>{
                 ...state,
                 "bLoading": false,
                 "ipUsage": action.ips,
-                "aliases": action.aliases,
+                "aliasesByIp": action.aliasesByIp,
                 "hwids": action.hwids
             }
         }
@@ -89,6 +89,36 @@ const renderHWIDs = (state) =>{
 }
 
 
+const renderAliases = (state) =>{
+
+    const headers = {
+        "name": "Name",
+        "first": "First",
+        "last": "Last",
+        "matches": "Matches",
+        "playtime": "Playtime"
+    };
+
+    const data = state.aliasesByIp.map((d) =>{
+        return {
+            "name": {
+                "value": d.name.toLowerCase(), 
+                "displayValue": <><CountryFlag country={d.country}/>{d.name}</>,
+                "className": "text-left"
+            },
+            "first": {"value": d.first_match, "displayValue": convertTimestamp(d.first_match, true)},
+            "last": {"value": d.last_match, "displayValue": convertTimestamp(d.last_match, true)},
+            "matches": {"value": d.total_matches},
+            "playtime": {"value": d.total_playtime, "displayValue": toPlaytime(d.total_playtime)},
+        }
+    });
+
+    return <>
+        <div className="default-header">Possible aliases by IP</div>
+        <InteractiveTable width={1} headers={headers} data={data}/>
+    </>
+}
+
 const loadData = async (playerId, dispatch, controller) =>{
 
 
@@ -117,7 +147,7 @@ const loadData = async (playerId, dispatch, controller) =>{
             dispatch({
                 "type": "loaded", 
                 "ips": res.usedIps.data,
-                "aliases": res.aliases,
+                "aliasesByIp": res.aliasesByIp,
                 "hwids": res.usedHWIDs
             });
 
@@ -136,7 +166,7 @@ const AdminPlayerHistory = ({playerNames, selectedPlayerProfile}) =>{
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
         "ipUsage":  [],
-        "aliases": [],
+        "aliasesByIp": [],
         "hwids": []
     });
 
@@ -177,6 +207,7 @@ const AdminPlayerHistory = ({playerNames, selectedPlayerProfile}) =>{
         <Loading value={!state.bLoading}/>
         {renderIpHistory(state)}
         {renderHWIDs(state)}
+        {renderAliases(state)}
     </div>
 }
 
