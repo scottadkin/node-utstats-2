@@ -1750,6 +1750,14 @@ class Matches{
         return data;
     }
 
+    async adminGetTotalMatches(){
+
+        const query = `SELECT COUNT(*) as total_matches FROM nstats_matches`;
+
+        const result = await mysql.simpleQuery(query);
+
+        return result[0].total_matches;
+    }
 
     /**
      * Ordered by match date in descending order
@@ -1779,7 +1787,12 @@ class Matches{
         const gametypeInfo = await gametypeManager.getNames([...uniqueGametypes]);
         const mapInfo = await mapManager.getNames([...uniqueMaps]);
 
-        return {"matchInfo": basicInfo, "serverInfo": serverInfo, "gametypeInfo": gametypeInfo, "mapInfo": mapInfo}
+        return {
+            "matchInfo": basicInfo, 
+            "serverInfo": serverInfo, 
+            "gametypeInfo": gametypeInfo, 
+            "mapInfo": mapInfo
+        }
 
     }
 

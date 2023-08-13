@@ -802,3 +802,7 @@ input[type="range"]{
 .admin-selected{
 	background-color:yellow;
 }
+
+.basic-buttons div{
+	margin:5px;
+}

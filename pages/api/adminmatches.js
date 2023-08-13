@@ -203,17 +203,24 @@ export default async function handler(req, res){
                     res.status(200).json({"data": basicData});
                     return;
 
-                }else if(mode === "admin-search"){
+                }
+                if(mode === "admin-search"){
 
 
                     const data = await matches.adminGet(page, perPage, serverManager, gametypeManager, mapManager);
+                    const totalMatches = await matches.adminGetTotalMatches();
+                    data.totalMatches = totalMatches;
 
                     console.log(data);
-
-                    
-
                     res.status(200).json(data);
                     return;
+                }
+                
+                if(mode === "admin-get-total-matches"){
+
+                    const totalMatches = await matches.adminGetTotalMatches();
+
+                    res.status(200).json({"totalMatches": totalMatches});
                 }
             }
 

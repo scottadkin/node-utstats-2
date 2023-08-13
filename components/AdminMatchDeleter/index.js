@@ -3,15 +3,25 @@ import NotificationsCluster from "../NotificationsCluster";
 import useNotificationCluster from "../useNotificationCluster";
 import Loading from "../Loading";
 import DropDown from "../DropDown";
+import BasicButton from "../BasicButton";
 
 const reducer = (state, action) =>{
 
     switch(action.type){
+
         case "loaded": {
+
+            let totalPages = 0;
+
+            if(action.data.totalMatches > 0){
+                totalPages = Math.ceil(action.data.totalMatches / state.perPage);
+            }
+
             return {
                 ...state,
                 "bLoading": false,
-                "data": action.data
+                "data": action.data,
+                "totalPages": totalPages
             }
         }
         case "changePerPage": {
@@ -21,6 +31,7 @@ const reducer = (state, action) =>{
             }
         }
         case "changePage": {
+            
             return {
                 ...state,
                 "page": action.value
@@ -31,6 +42,28 @@ const reducer = (state, action) =>{
                 ...state,
                 "data": [],
                 "bLoading": false
+            }
+        }
+        case "previous": {
+
+            let newPage = state.page;
+            if(newPage - 1 >= 1) newPage--;
+
+            return {
+                ...state,
+                "page": newPage
+            }
+        }
+        case "next": {
+
+            let newPage = state.page + 1;
+
+            if(newPage > state.totalPages){
+                newPage = state.totalPages;
+            }
+            return {
+                ...state,
+                "page": newPage
             }
         }
     }
@@ -53,7 +86,7 @@ const loadData = async (state, dispatch, signal, addNotification) =>{
 
         if(res.error !== undefined) throw new Error(res.error);
 
-        dispatch({"type": "loaded"});
+        dispatch({"type": "loaded", "data": res});
         console.log(res);
 
     }catch(err){
@@ -69,7 +102,14 @@ const loadData = async (state, dispatch, signal, addNotification) =>{
 
 const AdminMatchDeleter = () =>{
 
-    const [state, dispatch] = useReducer(reducer, {"page": 1, "perPage": 25, "bLoading": true});
+    const [state, dispatch] = useReducer(reducer, {
+        "page": 1, 
+        "perPage": 25, 
+        "totalPages": 0,
+        "bLoading": true,
+        "data": {"totalMatches": 0, "mapInfo": {}, "gametypeInfo": {}, "serverInfo": {}, "matchInfo": []}
+    });
+
     const [notifications, addNotification, hideNotification, clearAllNotifications] = useNotificationCluster();
 
     useEffect(() =>{
@@ -82,7 +122,7 @@ const AdminMatchDeleter = () =>{
             controller.abort();
         }
 
-    }, []);
+    }, [state.perPage, state.page]);
 
     
     const perPageOptions = [
@@ -93,6 +133,8 @@ const AdminMatchDeleter = () =>{
         {"value": 100, "displayValue": 100},
     ];
 
+    const start = 1 + (state.page - 1) * state.perPage;
+    const end = (start + state.perPage > state.data.totalMatches) ? state.data.totalMatches : start + state.perPage - 1;
     return <>
         <div className="default-header">Bulk Match Delete</div>
         <div className="form">
@@ -103,7 +145,19 @@ const AdminMatchDeleter = () =>{
             <DropDown dName={"Results Per Page"} data={perPageOptions} originalValue={25} changeSelected={(name, value) => {
                 dispatch({"type": "changePerPage", "value": value});
             }}/>
+            <div className="basic-buttons">
+                <BasicButton action={() =>{
+                    dispatch({"type": "previous"});
+                }}>Previous Page</BasicButton>
+                <BasicButton action={() =>{
+                    dispatch({"type": "next"});
+                }}>Next Page</BasicButton>
+            </div>
             <Loading value={!state.bLoading}/>
+            <div className="small-font grey m-top-10">
+                Displaying page {state.page} of {state.totalPages}<br/>
+                Results {start} to {end} out of a possible {state.data.totalMatches}
+            </div>
             <NotificationsCluster notifications={notifications} hide={hideNotification}/>
         </div>
     </>
