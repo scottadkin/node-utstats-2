@@ -1750,5 +1750,38 @@ class Matches{
         return data;
     }
 
+
+    /**
+     * Ordered by match date in descending order
+    */
+    async adminGet(page, perPage, serverManager, gametypeManager, mapManager){
+
+        const start = page * perPage;
+
+        const query = `SELECT id,date,server,gametype,map,playtime FROM nstats_matches ORDER BY date DESC LIMIT ?,?`;
+
+        const basicInfo = await mysql.simpleQuery(query, [start, perPage]);
+
+        const uniqueMaps = new Set();
+        const uniqueServers = new Set();
+        const uniqueGametypes = new Set();
+
+        for(let i = 0; i < basicInfo.length; i++){
+
+            const {server, map, gametype} = basicInfo[i];
+
+            uniqueGametypes.add(gametype);
+            uniqueServers.add(server);
+            uniqueMaps.add(map);
+        }
+
+        const serverInfo = await serverManager.getNames([...uniqueServers]);
+        const gametypeInfo = await gametypeManager.getNames([...uniqueGametypes]);
+        const mapInfo = await mapManager.getNames([...uniqueMaps]);
+
+        return {"matchInfo": basicInfo, "serverInfo": serverInfo, "gametypeInfo": gametypeInfo, "mapInfo": mapInfo}
+
+    }
+
 }
 module.exports = Matches;

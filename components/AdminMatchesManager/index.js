@@ -1,9 +1,11 @@
-import React from 'react';
-import Functions from '../../api/functions';
-import Link from 'next/link';
-import Table2 from '../Table2';
-import AdminOrphanedData from '../AdminOrphanedData';
-import ProgressBarAdvanced from '../ProgressBarAdvanced';
+import React from "react";
+import Functions from "../../api/functions";
+import Link from "next/link";
+import Table2 from "../Table2";
+import AdminOrphanedData from "../AdminOrphanedData";
+import ProgressBarAdvanced from "../ProgressBarAdvanced";
+import Tabs from "../Tabs";
+import AdminMatchDeleter from "../AdminMatchDeleter";
 
 class AdminMatchesManager extends React.Component{
 
@@ -12,7 +14,7 @@ class AdminMatchesManager extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 0, 
+            "mode": 3, 
             "duplicateMatches": [], 
             "invalidMatches": [], 
             "errors": [], 
@@ -467,24 +469,30 @@ class AdminMatchesManager extends React.Component{
 
         return <AdminOrphanedData />;
     }
+
+
+    renderBulkDeleteMatches(){
+
+        if(this.state.mode !== 3) return null;
+
+        return <AdminMatchDeleter />;
+    }
     render(){
+
+        const tabs = [
+            {"name": "Duplicates", "value": 0},
+            {"name": "Under Minimum Players/Playtime", "value": 1},
+            {"name": "Delete Failed Imports", "value": 2},
+            {"name": "Bulk Delete Matches", "value": 3},
+        ];
 
         return <div>
             <div className="default-header">Manage Matches</div>
-            <div className="tabs">
-                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : "null"}`} onClick={(() =>{
-                    this.changeMode(0);
-                })}>Duplicates</div>
-                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : "null"}`} onClick={(() =>{
-                    this.changeMode(1);
-                })}>Under Minimum Players/Playtime</div>
-                <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : "null"}`} onClick={(() =>{
-                    this.changeMode(2);
-                })}>Delete Failed Imports</div>
-            </div>
+            <Tabs options={tabs} selectedValue={this.state.mode} changeSelected={id => this.changeMode(id)}/>
             {this.renderInvalidMatches()}
             {this.renderDuplicateMatches()}
             {this.renderOrphanedData()}
+            {this.renderBulkDeleteMatches()}
             
         </div>
     }

@@ -71,6 +71,19 @@ export default async function handler(req, res){
             const serverManager = new Servers();
             const gametypeManager = new Gametypes();
 
+            let perPage = req.body.perPage ?? 25;
+            let page = req.body.page ?? 1;
+
+            page = parseInt(page);
+            if(page !== page) page = 1;
+            if(page < 1) page = 1;
+            page--;
+
+            const defaultPerPage = 25;
+            perPage = parseInt(perPage);
+            if(perPage !== perPage) perPage = defaultPerPage;
+            if(perPage < 5 || perPage > 100) perPage = defaultPerPage;
+
             if(req.body.mode === undefined){
 
                 res.status(200).json({"error": "No mode specified"});
@@ -190,9 +203,22 @@ export default async function handler(req, res){
                     res.status(200).json({"data": basicData});
                     return;
 
-                }
+                }else if(mode === "admin-search"){
 
+
+                    const data = await matches.adminGet(page, perPage, serverManager, gametypeManager, mapManager);
+
+                    console.log(data);
+
+                    
+
+                    res.status(200).json(data);
+                    return;
+                }
             }
+
+            res.status(200).json({"error": "Unknown command"});
+            return;
 
         }else{
 

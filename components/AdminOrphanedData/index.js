@@ -170,8 +170,8 @@ class AdminOrphanedData extends React.Component{
         return <div>
             <div className="default-header">Delete Failed Imports</div>
             <div className="form m-bottom-25">
-                <div className="default-sub-header-alt">Information</div>
                 <div className="form-info">
+                    <div className="default-sub-header-alt">Information</div>
                     Below you will see matches that failed to import properly at some point during the import process.<br/>
                     The main reason to use this tool is if you still find duplicate matches on your site even after 
                     you used the delete duplicate matches tool.
