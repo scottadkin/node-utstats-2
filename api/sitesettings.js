@@ -165,6 +165,12 @@ class SiteSettings{
         }
     }
 
+    getServersPageValidSettings(){
+
+        return {
+            "Default Display Type": this.defaultDiplayTypes
+        }
+    }
 
     async getValidSettings(category){
 
@@ -188,6 +194,8 @@ class SiteSettings{
             return this.getRankingsValidSettings();
         }else if(category === "Records Page"){
             return this.getRecordsPageValidSettings();
+        }else if(category === "Servers Page"){
+            return this.getServersPageValidSettings();
         }
 
         return {};

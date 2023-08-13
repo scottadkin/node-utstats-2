@@ -17,8 +17,13 @@ class ServersPage extends React.Component{
 
     constructor(props){
 
+
         super(props);
-        this.state = {"bLoading": true, "displayMode": 0};
+
+        this.state = {
+            "bLoading": true, 
+            "displayMode": props.defaultDisplay ?? 0
+        };
     }
 
     changeMode(id){
@@ -172,8 +177,8 @@ export async function getServerSideProps({req, query}){
 
     const siteSettings = new SiteSettings();
 
-	const pageSettings = await siteSettings.getCategorySettings("Servers");
-	const pageOrder = await siteSettings.getCategoryOrder("Servers");
+	const pageSettings = await siteSettings.getCategorySettings("Servers Page");
+	const pageOrder = await siteSettings.getCategoryOrder("Servers Page");
 	const navSettings = await siteSettings.getCategorySettings("Navigation");
 
     await Analytics.insertHit(session.userIp, req.headers.host, req.headers["user-agent"]);
@@ -205,7 +210,7 @@ export async function getServerSideProps({req, query}){
     return {
         "props": {
             "navSettings": JSON.stringify(navSettings),
-            "pageSettings": JSON.stringify(pageSettings),
+            "defaultDisplay": parseInt(pageSettings["Default Display Type"]) ?? 0,
             "pageOrder": pageOrder,
             "session": JSON.stringify(session.settings),
             "host": req.headers.host,

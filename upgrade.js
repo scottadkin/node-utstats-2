@@ -257,6 +257,12 @@ async function updateSiteSettings(){
     if(!await bSettingExist("Player Pages", "Display Win Rates")){
         await mysql.simpleQuery(query6);
     }
+
+    const query7 = `INSERT INTO nstats_site_settings VALUES(NULL,"Servers Page","Default Display Type",0,0)`;
+
+    if(!await bSettingExist("Servers Pages", "Default Display Type")){
+        await mysql.simpleQuery(query7);
+    }
 }
 
 

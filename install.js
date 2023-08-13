@@ -1221,8 +1221,10 @@ const queries = [
     "INSERT INTO nstats_ranking_values VALUES(NULL,'spree_6','Too Easy','Player killed 30 to 34 players in one life',2400)",
     "INSERT INTO nstats_ranking_values VALUES(NULL,'spree_7','Brutalizing the competition','Player killed 35 or more players in one life',3600)",
     "INSERT INTO nstats_ranking_values VALUES(NULL,'mh_kills','Monster Kills(MonsterHunt)','Player killed a monster',360)",
-
-
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'sub_hour_multiplier','Sub 1 Hour Playtime Penalty Multiplier','Reduce the player\\'s score to a percentage of it\\'s original value', 0.2)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'sub_2hour_multiplier','Sub 2 Hour Playtime Penalty Multiplier','Reduce the player\\'s score to a percentage of it\\'s original value', 0.5)",
+    "INSERT INTO nstats_ranking_values VALUES(NULL,'sub_3hour_multiplier','Sub 3 Hour Playtime Penalty Multiplier','Reduce the player\\'s score to a percentage of it\\'s original value', 0.75)",
+    
     `INSERT INTO nstats_ranking_values
      VALUES(
          NULL,
@@ -1235,9 +1237,6 @@ const queries = [
     `INSERT INTO nstats_logs_folder VALUES(NULL, 'Logs Folder',0,0,0,0,0,0,0,0,0,0,0,0,0)`,
     
     
-    "INSERT INTO nstats_ranking_values VALUES(NULL,'sub_hour_multiplier','Sub 1 Hour Playtime Penalty Multiplier','Reduce the player\\'s score to a percentage of it\\'s original value', 0.2)",
-    "INSERT INTO nstats_ranking_values VALUES(NULL,'sub_2hour_multiplier','Sub 2 Hour Playtime Penalty Multiplier','Reduce the player\\'s score to a percentage of it\\'s original value', 0.5)",
-    "INSERT INTO nstats_ranking_values VALUES(NULL,'sub_3hour_multiplier','Sub 3 Hour Playtime Penalty Multiplier','Reduce the player\\'s score to a percentage of it\\'s original value', 0.75)",
     `INSERT INTO nstats_items VALUES(NULL,"AntiGrav Boots","Jump Boots",0,0,0,0,4)`,
     `INSERT INTO nstats_items VALUES(NULL,"Body Armor","Body Armor",0,0,0,0,3)`,
     `INSERT INTO nstats_items VALUES(NULL,"Chainsaw","Chainsaw",0,0,0,0,1)`,
@@ -1407,6 +1406,7 @@ const queries = [
     `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Display Combogib Records","true","0")`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","Default Per Page","25",0)`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Navigation","Display Servers","true",0)`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Servers Page","Default Display Type",0,0)`,
 
     
 
