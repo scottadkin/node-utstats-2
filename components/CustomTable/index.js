@@ -9,7 +9,9 @@ const createRow = (data, index) =>{
 
     for(const key of Object.keys(data)){
 
-        const {value, displayValue, className, url} = data[key];
+        const {value, displayValue, className, url, bNoTD} = data[key];
+
+        const onClick = data[key].onClick || null;
 
         const currentStyleClass = (className !== undefined) ? className : null;
 
@@ -18,10 +20,17 @@ const createRow = (data, index) =>{
         if(url !== undefined){
             inner = <Link href={url}>{inner}</Link>
         }
-        
-        elems.push(<td className={currentStyleClass} key={key}>
-            {inner}
-        </td>);
+
+        if(bNoTD === undefined || !bNoTD){
+
+            elems.push(<td className={currentStyleClass} key={key} onClick={onClick}>
+                {inner}
+            </td>);
+
+            continue;
+        }
+
+        elems.push(inner);   
     }
 
     return <tr key={index}>

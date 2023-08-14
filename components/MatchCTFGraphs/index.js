@@ -22,6 +22,8 @@ class MatchCTFGraphs extends React.Component{
 
             const res = await req.json();
 
+            console.log(res.data);
+
             if(res.error === undefined){
                 this.setState({"finishedLoading": true, "data": res.data});
             }

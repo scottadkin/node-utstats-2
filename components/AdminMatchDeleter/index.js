@@ -6,6 +6,7 @@ import DropDown from "../DropDown";
 import BasicButton from "../BasicButton";
 import CustomTable from "../CustomTable";
 import {convertTimestamp, toPlaytime } from "../../api/generic.mjs";
+import Link from "next/link";
 
 const reducer = (state, action) =>{
 
@@ -24,7 +25,8 @@ const reducer = (state, action) =>{
                 "bLoading": false,
                 "data": action.data,
                 "totalPages": totalPages,
-                "selectedMatches": []
+                "selectedMatches": [],
+                "error": null
             }
         }
         case "changePerPage": {
@@ -41,10 +43,18 @@ const reducer = (state, action) =>{
             }
         }
         case "error": {
+
             return {
                 ...state,
-                "data": [],
-                "bLoading": false
+                "data": {"totalMatches": 0, "mapInfo": {}, "gametypeInfo": {}, "serverInfo": {}, "matchInfo": []},
+                "bLoading": false,
+                "error": action.message
+            }
+        }
+        case "removeError": {
+            return {
+                ...state,
+                "error": null
             }
         }
         case "previous": {
@@ -69,12 +79,30 @@ const reducer = (state, action) =>{
                 "page": newPage
             }
         }
+        case "toggleMatch": {
+
+            const selectedMatches = [...state.selectedMatches];
+            const id = parseInt(action.value);
+
+            const index = selectedMatches.indexOf(id);
+  
+            if(index === -1){
+                selectedMatches.push(id);
+            }else{
+                selectedMatches.splice(index, 1);
+            }
+
+            return {
+                ...state,
+                "selectedMatches": selectedMatches
+            }
+        }
     }
 
     return state;
 }
 
-const loadData = async (state, dispatch, signal, addNotification) =>{
+const loadData = async (dispatch, signal, page, perPage) =>{
 
     try{
 
@@ -82,7 +110,7 @@ const loadData = async (state, dispatch, signal, addNotification) =>{
             "signal": signal,
             "headers": {"Content-type": "application/json"},
             "method": "POST",
-            "body": JSON.stringify({"mode": "admin-search", "page": state.page, "perPage": state.perPage})
+            "body": JSON.stringify({"mode": "admin-search", "page": page, "perPage": perPage})
         });
 
         const res = await req.json();
@@ -90,15 +118,16 @@ const loadData = async (state, dispatch, signal, addNotification) =>{
         if(res.error !== undefined) throw new Error(res.error);
 
         dispatch({"type": "loaded", "data": res});
-        console.log(res);
+        //dispatch({"type": "error", "message": "err.toString()"});
+   
+        //return -1;
 
     }catch(err){
         
 
-        if(err.name === "AbortError") return;
-        console.trace(err);
-        dispatch({"type": "error"});
-        addNotification("error", err.toString());
+        if(err.name === "AbortError") return -1;
+        dispatch({"type": "error", "message": err.toString()});
+        //return err.toString();
     }
 }
 
@@ -114,9 +143,11 @@ const renderTable = (state, dispatch) =>{
     };
 
     const data = state.data.matchInfo.map((d) =>{
+
+        const bSelected = state.selectedMatches.indexOf(d.id) !== -1;
         
         return {
-            "id": {"value": d.id},
+            "id": {"value": d.id, "displayValue": <Link href={`/match/${d.id}`} target="_blank">{d.id}</Link>},
             "date": {
                 "value": d.date, 
                 "displayValue": convertTimestamp(d.date, true),
@@ -138,7 +169,12 @@ const renderTable = (state, dispatch) =>{
                 "displayValue": d.players
              },
              "actions": {
-                "displayValue": <b>test</b>
+           
+                "bNoTD": true,
+                "displayValue": <td key={d.id} onClick={() => {dispatch({"type": "toggleMatch", "value": d.id})}} className={`hover ${(bSelected) ? "team-green" : "team-red"}`}>
+                    {(bSelected) ? "Yes" : "No"}
+                </td>
+               
              }
         };
     });
@@ -157,7 +193,8 @@ const AdminMatchDeleter = () =>{
         "totalPages": 0,
         "bLoading": true,
         "data": {"totalMatches": 0, "mapInfo": {}, "gametypeInfo": {}, "serverInfo": {}, "matchInfo": []},
-        "selectedMatches": []
+        "selectedMatches": [],
+        "error": null
     });
 
     const [notifications, addNotification, hideNotification, clearAllNotifications] = useNotificationCluster();
@@ -166,7 +203,7 @@ const AdminMatchDeleter = () =>{
 
         const controller = new AbortController();
 
-        loadData(state, dispatch, controller.signal, addNotification);
+        loadData(dispatch, controller.signal, state.page, state.perPage);
 
         return () =>{
             controller.abort();
@@ -174,6 +211,10 @@ const AdminMatchDeleter = () =>{
 
     }, [state.perPage, state.page]);
 
+    if(state.error !== null){
+        addNotification("error", state.error);
+        dispatch({"type": "removeError"});
+    }
     
     const perPageOptions = [
         {"value": 5, "displayValue": 5},
