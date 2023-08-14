@@ -11,6 +11,7 @@ import Link from "next/link";
 const reducer = (state, action) =>{
 
     switch(action.type){
+        
 
         case "loaded": {
 
@@ -86,15 +87,23 @@ const reducer = (state, action) =>{
 
             const index = selectedMatches.indexOf(id);
   
-            if(index === -1){
-                selectedMatches.push(id);
-            }else{
-                selectedMatches.splice(index, 1);
+            if(!state.bDeleting){
+                if(index === -1){
+                    selectedMatches.push(id);
+                }else{
+                    selectedMatches.splice(index, 1);
+                }
             }
 
             return {
                 ...state,
                 "selectedMatches": selectedMatches
+            }
+        }
+        case "toggleDeleting": {
+            return {
+                ...state,
+                "bDeleting": !state.bDeleting
             }
         }
     }
@@ -184,6 +193,86 @@ const renderTable = (state, dispatch) =>{
     </div>;
 }
 
+const deleteMatch = async (id, addNotification) =>{
+
+    try{
+
+        const req = await fetch("/api/adminmatches", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "delete", "id": id})
+        });
+     
+        const res = await req.json();
+
+        if(res.error !== undefined){
+            addNotification("error", res.error);
+            return;
+        }
+
+        addNotification("pass", `Deleted match ${id}`);
+
+    }catch(err){
+        console.trace(err);
+        addNotification("error", err.toString())
+    }
+}
+
+const deleteSelected = async (dispatch, selectedMatches, addNotification, clearAllNotifications, page, perPage) =>{
+
+    clearAllNotifications();
+    dispatch({"type": "toggleDeleting"});
+
+    if(selectedMatches.length === 0){
+
+        addNotification("error", "You have not selected any matches to delete.");
+        dispatch({"type": "toggleDeleting"});
+        return;
+    }
+
+    for(let i = 0; i < selectedMatches.length; i++){
+
+        const id = selectedMatches[i];
+        await deleteMatch(id, addNotification);
+    }
+
+    addNotification("pass", "Finished deleting selected matches.");
+
+    dispatch({"type": "toggleDeleting"});
+
+    const controller = new AbortController();
+
+    await loadData(dispatch, controller.signal, page, perPage);
+}
+
+const renderFormBits = (dispatch, bDeleting) =>{
+
+    if(bDeleting) return null;
+
+    const perPageOptions = [
+        {"value": 5, "displayValue": 5},
+        {"value": 10, "displayValue": 10},
+        {"value": 25, "displayValue": 25},
+        {"value": 50, "displayValue": 50},
+        {"value": 100, "displayValue": 100},
+        {"value": 250, "displayValue": 250},
+        {"value": 500, "displayValue": 500},
+    ];
+
+    return <>
+        <DropDown dName={"Results Per Page"} data={perPageOptions} originalValue={25} changeSelected={(name, value) => {
+            dispatch({"type": "changePerPage", "value": value});
+        }}/>
+        <div className="basic-buttons">
+            <BasicButton action={() =>{
+                dispatch({"type": "previous"});
+            }}>Previous Page</BasicButton>
+            <BasicButton action={() =>{
+                dispatch({"type": "next"});
+            }}>Next Page</BasicButton>
+        </div>
+    </>
+}
 
 const AdminMatchDeleter = () =>{
 
@@ -194,7 +283,8 @@ const AdminMatchDeleter = () =>{
         "bLoading": true,
         "data": {"totalMatches": 0, "mapInfo": {}, "gametypeInfo": {}, "serverInfo": {}, "matchInfo": []},
         "selectedMatches": [],
-        "error": null
+        "error": null,
+        "bDeleting": false
     });
 
     const [notifications, addNotification, hideNotification, clearAllNotifications] = useNotificationCluster();
@@ -216,15 +306,6 @@ const AdminMatchDeleter = () =>{
         dispatch({"type": "removeError"});
     }
     
-    const perPageOptions = [
-        {"value": 5, "displayValue": 5},
-        {"value": 10, "displayValue": 10},
-        {"value": 25, "displayValue": 25},
-        {"value": 50, "displayValue": 50},
-        {"value": 100, "displayValue": 100},
-        {"value": 250, "displayValue": 250},
-        {"value": 500, "displayValue": 500},
-    ];
 
     const start = 1 + (state.page - 1) * state.perPage;
     const end = (start + state.perPage > state.data.totalMatches) ? state.data.totalMatches : start + state.perPage - 1;
@@ -236,23 +317,24 @@ const AdminMatchDeleter = () =>{
                 <div className="default-sub-header-alt">Information</div>
                 Select which matches you would like to delete then click the process button.
             </div>
-            <DropDown dName={"Results Per Page"} data={perPageOptions} originalValue={25} changeSelected={(name, value) => {
-                dispatch({"type": "changePerPage", "value": value});
-            }}/>
-            <div className="basic-buttons">
-                <BasicButton action={() =>{
-                    dispatch({"type": "previous"});
-                }}>Previous Page</BasicButton>
-                <BasicButton action={() =>{
-                    dispatch({"type": "next"});
-                }}>Next Page</BasicButton>
-            </div>
+            {renderFormBits(dispatch, state.bDeleting)}
             <Loading value={!state.bLoading}/>
-            <div className="small-font grey m-top-10">
+            <div className="small-font grey m-top-10 m-bottom-10">
                 Displaying page {state.page} of {state.totalPages}<br/>
                 Results {start} to {end} out of a possible {state.data.totalMatches}
             </div>
-            <NotificationsCluster notifications={notifications} hide={hideNotification}/>        
+            <Loading value={!state.bDeleting}/>
+            {(!state.bDeleting) ? <BasicButton action={() =>{
+                deleteSelected(
+                    dispatch, 
+                        state.selectedMatches, 
+                        addNotification, 
+                        clearAllNotifications, 
+                        state.page, 
+                        state.perPage
+                    );
+            }}>Delete Selected</BasicButton> : null}
+            <NotificationsCluster notifications={notifications} hide={hideNotification} clearAll={clearAllNotifications}/>        
         </div>
         {renderTable(state, dispatch)}
     </>

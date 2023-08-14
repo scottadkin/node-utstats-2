@@ -1,6 +1,6 @@
 import styles from "./NotificationsCluster.module.css";
 
-const NotificationsCluster = ({notifications, hide}) =>{
+const NotificationsCluster = ({notifications, hide, clearAll}) =>{
 
     const elems = [];
 
@@ -38,6 +38,7 @@ const NotificationsCluster = ({notifications, hide}) =>{
 
     return <>  
         <div className={styles.wrapper}>
+            {(elems.length === 0) ? null :<div className={`${styles["clear-all"]} hover`} onClick={clearAll}>Clear All Notifications</div>}
             {elems}
         </div>
     </>

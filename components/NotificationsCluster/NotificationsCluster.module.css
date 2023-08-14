@@ -29,3 +29,17 @@
 .close:hover{
     cursor:pointer;
 }
+
+.clear-all{
+    padding:5px;
+    display:inline-block;
+    background-color:var(--red-2);
+    font-size:12px;
+    margin-bottom:10px;
+    margin-top:10px;
+    transition: all 0.5s;
+}
+
+.clear-all:hover{
+    background-color:var(--red-3);
+}

@@ -39,6 +39,7 @@
     overflow-y: auto;
     max-height:50vh;
     user-select: none;
+    z-index: 999999;
 }
 
 .entries div{
