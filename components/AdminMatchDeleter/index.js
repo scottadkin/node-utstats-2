@@ -4,6 +4,8 @@ import useNotificationCluster from "../useNotificationCluster";
 import Loading from "../Loading";
 import DropDown from "../DropDown";
 import BasicButton from "../BasicButton";
+import CustomTable from "../CustomTable";
+import {convertTimestamp, toPlaytime } from "../../api/generic.mjs";
 
 const reducer = (state, action) =>{
 
@@ -21,7 +23,8 @@ const reducer = (state, action) =>{
                 ...state,
                 "bLoading": false,
                 "data": action.data,
-                "totalPages": totalPages
+                "totalPages": totalPages,
+                "selectedMatches": []
             }
         }
         case "changePerPage": {
@@ -99,6 +102,52 @@ const loadData = async (state, dispatch, signal, addNotification) =>{
     }
 }
 
+const renderTable = (state, dispatch) =>{
+
+    const headers = {
+        "id": {"display": "Match ID"},
+        "date": {"display": "Match Date"},
+        "info": {"display": "Info"},
+        "playtime": {"display": "Playtime"},
+        "players": {"display": "Players"},
+        "actions": {"display": "Selected"},
+    };
+
+    const data = state.data.matchInfo.map((d) =>{
+        
+        return {
+            "id": {"value": d.id},
+            "date": {
+                "value": d.date, 
+                "displayValue": convertTimestamp(d.date, true),
+                "className": "playtime"
+            },
+            "info": {
+                "value": <>
+                    {state.data.serverInfo[d.server] ?? "Not Found"}<br/>
+                    {state.data.gametypeInfo[d.gametype] ?? "Not Found"}<br/>
+                    {state.data.mapInfo[d.map] ?? "Not Found"}
+                </>, 
+                "className": "small-font"},
+            "playtime": {
+                "value": d.playtime, 
+                "displayValue": toPlaytime(d.playtime),
+                "className": "playtime"
+             },
+             "players": {
+                "displayValue": d.players
+             },
+             "actions": {
+                "displayValue": <b>test</b>
+             }
+        };
+    });
+
+    return <div className="m-top-10">
+        <CustomTable headers={headers} data={data}/>
+    </div>;
+}
+
 
 const AdminMatchDeleter = () =>{
 
@@ -107,7 +156,8 @@ const AdminMatchDeleter = () =>{
         "perPage": 25, 
         "totalPages": 0,
         "bLoading": true,
-        "data": {"totalMatches": 0, "mapInfo": {}, "gametypeInfo": {}, "serverInfo": {}, "matchInfo": []}
+        "data": {"totalMatches": 0, "mapInfo": {}, "gametypeInfo": {}, "serverInfo": {}, "matchInfo": []},
+        "selectedMatches": []
     });
 
     const [notifications, addNotification, hideNotification, clearAllNotifications] = useNotificationCluster();
@@ -131,10 +181,13 @@ const AdminMatchDeleter = () =>{
         {"value": 25, "displayValue": 25},
         {"value": 50, "displayValue": 50},
         {"value": 100, "displayValue": 100},
+        {"value": 250, "displayValue": 250},
+        {"value": 500, "displayValue": 500},
     ];
 
     const start = 1 + (state.page - 1) * state.perPage;
     const end = (start + state.perPage > state.data.totalMatches) ? state.data.totalMatches : start + state.perPage - 1;
+
     return <>
         <div className="default-header">Bulk Match Delete</div>
         <div className="form">
@@ -158,8 +211,9 @@ const AdminMatchDeleter = () =>{
                 Displaying page {state.page} of {state.totalPages}<br/>
                 Results {start} to {end} out of a possible {state.data.totalMatches}
             </div>
-            <NotificationsCluster notifications={notifications} hide={hideNotification}/>
+            <NotificationsCluster notifications={notifications} hide={hideNotification}/>        
         </div>
+        {renderTable(state, dispatch)}
     </>
 }
 

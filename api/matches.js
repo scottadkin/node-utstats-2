@@ -1766,7 +1766,7 @@ class Matches{
 
         const start = page * perPage;
 
-        const query = `SELECT id,date,server,gametype,map,playtime FROM nstats_matches ORDER BY date DESC LIMIT ?,?`;
+        const query = `SELECT id,date,server,gametype,map,playtime,players FROM nstats_matches ORDER BY date DESC, id DESC LIMIT ?,?`;
 
         const basicInfo = await mysql.simpleQuery(query, [start, perPage]);
 

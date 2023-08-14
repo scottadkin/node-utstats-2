@@ -82,7 +82,7 @@ export default async function handler(req, res){
             const defaultPerPage = 25;
             perPage = parseInt(perPage);
             if(perPage !== perPage) perPage = defaultPerPage;
-            if(perPage < 5 || perPage > 100) perPage = defaultPerPage;
+            if(perPage < 5 || perPage > 500) perPage = defaultPerPage;
 
             if(req.body.mode === undefined){
 
