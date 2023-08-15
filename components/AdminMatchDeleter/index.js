@@ -303,6 +303,15 @@ const renderFormBits = (state, dispatch, bDeleting) =>{
     gametypeDropDownValues.unshift({"value": 0, "displayValue": "Any Gametype"});
     mapDropDownValues.unshift({"value": 0, "displayValue": "Any Map"});
 
+    const pagination = (state.data.totalMatches === 0) ? null : <div className="basic-buttons">
+        <BasicButton action={() =>{
+            dispatch({"type": "previous"});
+        }}>Previous Page</BasicButton>
+        <BasicButton action={() =>{
+            dispatch({"type": "next"});
+        }}>Next Page</BasicButton>
+    </div>;
+
     return <>
         <DropDown dName={"Results Per Page"} data={perPageOptions} originalValue={25} changeSelected={(name, value) => {
             dispatch({"type": "changePerPage", "value": value});
@@ -317,14 +326,7 @@ const renderFormBits = (state, dispatch, bDeleting) =>{
         <DropDown dName={"Filter By Map"} originalValue={state.selectedMap} data={mapDropDownValues} changeSelected={(name, value) =>{
             dispatch({"type": "setSelectedMap", "value": value});
         }}/>
-        <div className="basic-buttons">
-            <BasicButton action={() =>{
-                dispatch({"type": "previous"});
-            }}>Previous Page</BasicButton>
-            <BasicButton action={() =>{
-                dispatch({"type": "next"});
-            }}>Next Page</BasicButton>
-        </div>
+        {pagination}
     </>
 }
 
@@ -363,6 +365,20 @@ const loadAllNames = async (dispatch, signal) =>{
         console.trace(err);
         dispatch({"type": "error", "message": err.toString()});
     }
+}
+
+const displayResultsInfo = (page, totalPages, perPage, totalMatches) =>{
+
+    if(totalMatches === 0) return null;
+
+    const start = 1 + (page - 1) * perPage;
+    const end = (start + perPage > totalMatches) ? totalMatches : start + perPage - 1;
+
+
+    return <div className="small-font grey m-top-10 m-bottom-10">
+        Displaying page {page} of {totalPages}<br/>
+        Results {start} to {end} out of a possible {totalMatches}
+    </div>
 }
 
 const AdminMatchDeleter = () =>{
@@ -418,10 +434,6 @@ const AdminMatchDeleter = () =>{
 
     if(!state.bLoadedNames) return <Loading />;
     
-
-    const start = 1 + (state.page - 1) * state.perPage;
-    const end = (start + state.perPage > state.data.totalMatches) ? state.data.totalMatches : start + state.perPage - 1;
-
     return <>
         <div className="default-header">Bulk Match Delete</div>
         <div className="form">
@@ -431,12 +443,9 @@ const AdminMatchDeleter = () =>{
             </div>
             {renderFormBits(state, dispatch, state.bDeleting)}
             <Loading value={!state.bLoading}/>
-            <div className="small-font grey m-top-10 m-bottom-10">
-                Displaying page {state.page} of {state.totalPages}<br/>
-                Results {start} to {end} out of a possible {state.data.totalMatches}
-            </div>
+            {displayResultsInfo(state.page, state.totalPages, state.perPage, state.data.totalMatches)}
             <Loading value={!state.bDeleting}/>
-            {(!state.bDeleting) ? <BasicButton action={() =>{
+            {(!state.bDeleting && state.data.totalMatches > 0) ? <BasicButton action={() =>{
                 deleteSelected(
                     dispatch, 
                         state.selectedMatches, 
