@@ -362,3 +362,35 @@ export function cleanMapName(name){
 
     return name;
 }
+
+export function idNameObjToDropDownArray(obj, bSortByDisplayValue){
+
+    if(bSortByDisplayValue === undefined) bSortByDisplayValue = false;
+
+    const entries = [];
+
+    for(const [key, value] of Object.entries(obj)){
+
+        entries.push({
+            "value": key,
+            "displayValue": value
+        });
+    }
+
+    if(bSortByDisplayValue){
+
+        entries.sort((a, b) =>{
+
+            a = a.displayValue;
+            b = b.displayValue;
+
+            if(a < b) return -1;
+            if(a > b) return 1;
+            return 0;
+        });
+    }
+
+
+
+    return entries;
+}

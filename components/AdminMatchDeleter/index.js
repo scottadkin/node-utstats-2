@@ -5,13 +5,22 @@ import Loading from "../Loading";
 import DropDown from "../DropDown";
 import BasicButton from "../BasicButton";
 import CustomTable from "../CustomTable";
-import {convertTimestamp, toPlaytime } from "../../api/generic.mjs";
+import {convertTimestamp, toPlaytime, idNameObjToDropDownArray } from "../../api/generic.mjs";
 import Link from "next/link";
 
 const reducer = (state, action) =>{
 
     switch(action.type){
         
+        case "loadedNames": {
+            return {
+                ...state,
+                "bLoadedNames": true,
+                "serverNames": action.serverNames,
+                "gametypeNames": action.gametypeNames,
+                "mapNames": action.mapNames
+            }
+        }
 
         case "loaded": {
 
@@ -33,7 +42,7 @@ const reducer = (state, action) =>{
         case "changePerPage": {
             return {
                 ...state,
-                "perPage": action.value
+                "perPage": action.value,
             }
         }
         case "changePage": {
@@ -47,8 +56,9 @@ const reducer = (state, action) =>{
 
             return {
                 ...state,
-                "data": {"totalMatches": 0, "mapInfo": {}, "gametypeInfo": {}, "serverInfo": {}, "matchInfo": []},
+                "data": {"totalMatches": 0, "matchInfo": []},
                 "bLoading": false,
+                "bLoadedNames": true,
                 "error": action.message
             }
         }
@@ -106,12 +116,30 @@ const reducer = (state, action) =>{
                 "bDeleting": !state.bDeleting
             }
         }
+        case "setSelectedServer": {
+            return {
+                ...state,
+                "selectedServer": action.value
+            }
+        }
+        case "setSelectedGametype": {
+            return {
+                ...state,
+                "selectedGametype": action.value
+            }
+        }
+        case "setSelectedMap": {
+            return {
+                ...state,
+                "selectedMap": action.value
+            }
+        }
     }
 
     return state;
 }
 
-const loadData = async (dispatch, signal, page, perPage) =>{
+const loadData = async (dispatch, signal, page, perPage, serverId, gametypeId, mapId) =>{
 
     try{
 
@@ -119,7 +147,14 @@ const loadData = async (dispatch, signal, page, perPage) =>{
             "signal": signal,
             "headers": {"Content-type": "application/json"},
             "method": "POST",
-            "body": JSON.stringify({"mode": "admin-search", "page": page, "perPage": perPage})
+            "body": JSON.stringify({
+                "mode": "admin-search", 
+                "page": page, 
+                "perPage": perPage,
+                "serverId": serverId,
+                "gametypeId": gametypeId,
+                "mapId": mapId
+            })
         });
 
         const res = await req.json();
@@ -141,6 +176,7 @@ const loadData = async (dispatch, signal, page, perPage) =>{
 }
 
 const renderTable = (state, dispatch) =>{
+
 
     const headers = {
         "id": {"display": "Match ID"},
@@ -164,9 +200,9 @@ const renderTable = (state, dispatch) =>{
             },
             "info": {
                 "value": <>
-                    {state.data.serverInfo[d.server] ?? "Not Found"}<br/>
-                    {state.data.gametypeInfo[d.gametype] ?? "Not Found"}<br/>
-                    {state.data.mapInfo[d.map] ?? "Not Found"}
+                    {state.serverNames[d.server] ?? "Not Found"}<br/>
+                    {state.gametypeNames[d.gametype] ?? "Not Found"}<br/>
+                    {state.mapNames[d.map] ?? "Not Found"}
                 </>, 
                 "className": "small-font"},
             "playtime": {
@@ -218,7 +254,7 @@ const deleteMatch = async (id, addNotification) =>{
     }
 }
 
-const deleteSelected = async (dispatch, selectedMatches, addNotification, clearAllNotifications, page, perPage) =>{
+const deleteSelected = async (dispatch, selectedMatches, addNotification, clearAllNotifications, page, perPage, serverId, gametypeId, mapId) =>{
 
     clearAllNotifications();
     dispatch({"type": "toggleDeleting"});
@@ -242,10 +278,10 @@ const deleteSelected = async (dispatch, selectedMatches, addNotification, clearA
 
     const controller = new AbortController();
 
-    await loadData(dispatch, controller.signal, page, perPage);
+    await loadData(dispatch, controller.signal, page, perPage, serverId, gametypeId, mapId);
 }
 
-const renderFormBits = (dispatch, bDeleting) =>{
+const renderFormBits = (state, dispatch, bDeleting) =>{
 
     if(bDeleting) return null;
 
@@ -259,9 +295,27 @@ const renderFormBits = (dispatch, bDeleting) =>{
         {"value": 500, "displayValue": 500},
     ];
 
+    const serverDropDownValues = idNameObjToDropDownArray(state.serverNames, true);
+    const gametypeDropDownValues = idNameObjToDropDownArray(state.gametypeNames, true);
+    const mapDropDownValues = idNameObjToDropDownArray(state.mapNames, true);
+
+    serverDropDownValues.unshift({"value": 0, "displayValue": "Any Server"});
+    gametypeDropDownValues.unshift({"value": 0, "displayValue": "Any Gametype"});
+    mapDropDownValues.unshift({"value": 0, "displayValue": "Any Map"});
+
     return <>
         <DropDown dName={"Results Per Page"} data={perPageOptions} originalValue={25} changeSelected={(name, value) => {
             dispatch({"type": "changePerPage", "value": value});
+        }}/>
+        <DropDown dName={"Filter By Server"} originalValue={state.selectedServer} data={serverDropDownValues} changeSelected={(name, value) =>{
+            
+            dispatch({"type": "setSelectedServer", "value": value});
+        }}/>
+        <DropDown dName={"Filter By Gametype"} originalValue={state.selectedGametype} data={gametypeDropDownValues} changeSelected={(name, value) =>{
+            dispatch({"type": "setSelectedGametype", "value": value});
+        }}/>
+        <DropDown dName={"Filter By Map"} originalValue={state.selectedMap} data={mapDropDownValues} changeSelected={(name, value) =>{
+            dispatch({"type": "setSelectedMap", "value": value});
         }}/>
         <div className="basic-buttons">
             <BasicButton action={() =>{
@@ -274,17 +328,61 @@ const renderFormBits = (dispatch, bDeleting) =>{
     </>
 }
 
+const loadAllNames = async (dispatch, signal) =>{
+
+    try{
+
+        const req = await fetch("/api/adminmatches", {
+            "singal": signal,
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "get-all-names"})
+        });
+
+        const res = await req.json();
+        
+
+        if(res.error !== undefined){
+            throw new Error(res.error);
+        }
+      
+
+        const {serverNames, gametypeNames, mapNames } = res;
+
+        dispatch({
+            "type": "loadedNames",
+            "serverNames": serverNames,
+            "gametypeNames": gametypeNames,
+            "mapNames": mapNames
+        });
+        
+
+    }catch(err){
+
+        if(err.name === "AbortError") return -1;
+        console.trace(err);
+        dispatch({"type": "error", "message": err.toString()});
+    }
+}
+
 const AdminMatchDeleter = () =>{
 
     const [state, dispatch] = useReducer(reducer, {
         "page": 1, 
         "perPage": 25, 
         "totalPages": 0,
+        "bLoadedNames": false,
         "bLoading": true,
-        "data": {"totalMatches": 0, "mapInfo": {}, "gametypeInfo": {}, "serverInfo": {}, "matchInfo": []},
+        "data": {"totalMatches": 0, "matchInfo": []},
         "selectedMatches": [],
         "error": null,
-        "bDeleting": false
+        "serverNames": {},
+        "gametypeNames": {},
+        "mapNames": {},
+        "bDeleting": false,
+        "selectedServer": 0,
+        "selectedGametype": 0,
+        "selectedMap": 0
     });
 
     const [notifications, addNotification, hideNotification, clearAllNotifications] = useNotificationCluster();
@@ -293,18 +391,32 @@ const AdminMatchDeleter = () =>{
 
         const controller = new AbortController();
 
-        loadData(dispatch, controller.signal, state.page, state.perPage);
+        loadAllNames(dispatch, controller.signal);
 
         return () =>{
             controller.abort();
         }
 
-    }, [state.perPage, state.page]);
+    }, []);
+
+    useEffect(() =>{
+
+        const controller = new AbortController();
+
+        loadData(dispatch, controller.signal, state.page, state.perPage, state.selectedServer, state.selectedGametype, state.selectedMap);
+
+        return () =>{
+            controller.abort();
+        }
+
+    }, [state.perPage, state.page,state.selectedServer, state.selectedGametype, state.selectedMap]);
 
     if(state.error !== null){
         addNotification("error", state.error);
         dispatch({"type": "removeError"});
     }
+
+    if(!state.bLoadedNames) return <Loading />;
     
 
     const start = 1 + (state.page - 1) * state.perPage;
@@ -317,7 +429,7 @@ const AdminMatchDeleter = () =>{
                 <div className="default-sub-header-alt">Information</div>
                 Select which matches you would like to delete then click the process button.
             </div>
-            {renderFormBits(dispatch, state.bDeleting)}
+            {renderFormBits(state, dispatch, state.bDeleting)}
             <Loading value={!state.bLoading}/>
             <div className="small-font grey m-top-10 m-bottom-10">
                 Displaying page {state.page} of {state.totalPages}<br/>
@@ -331,7 +443,10 @@ const AdminMatchDeleter = () =>{
                         addNotification, 
                         clearAllNotifications, 
                         state.page, 
-                        state.perPage
+                        state.perPage,
+                        state.selectedServer, 
+                        state.selectedGametype, 
+                        state.selectedMap
                     );
             }}>Delete Selected</BasicButton> : null}
             <NotificationsCluster notifications={notifications} hide={hideNotification} clearAll={clearAllNotifications}/>        

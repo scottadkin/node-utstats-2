@@ -1750,11 +1750,38 @@ class Matches{
         return data;
     }
 
-    async adminGetTotalMatches(){
+    createAdminSearchWhereStatement(serverId, gametypeId, mapId){
 
-        const query = `SELECT COUNT(*) as total_matches FROM nstats_matches`;
+        let where = "";
+        const vars = [];
 
-        const result = await mysql.simpleQuery(query);
+        if(serverId !== 0){
+            where += `server=?`;
+            vars.push(serverId);
+        }
+
+        if(gametypeId !== 0){
+            if(where !== "") where += ` AND`
+            where += ` gametype=? `;
+            vars.push(gametypeId);
+        }
+
+        if(mapId !== 0){
+            if(where !== "") where += ` AND`
+            where += ` map=? `;
+            vars.push(mapId);
+        }
+
+        return {"where": where, "vars": vars};
+    }
+
+    async adminGetTotalMatches(serverId, gametypeId, mapId){
+
+        const {where, vars} = this.createAdminSearchWhereStatement(serverId, gametypeId, mapId);
+
+        const query = `SELECT COUNT(*) as total_matches FROM nstats_matches ${(where !== "") ? `WHERE ${where}` : ""}`;
+
+        const result = await mysql.simpleQuery(query, vars);
 
         return result[0].total_matches;
     }
@@ -1762,38 +1789,21 @@ class Matches{
     /**
      * Ordered by match date in descending order
     */
-    async adminGet(page, perPage, serverManager, gametypeManager, mapManager){
+    async adminGet(page, perPage, serverId, gametypeId, mapId){
 
         const start = page * perPage;
 
-        const query = `SELECT id,date,server,gametype,map,playtime,players FROM nstats_matches ORDER BY date DESC, id DESC LIMIT ?,?`;
+        const {where, vars} = this.createAdminSearchWhereStatement(serverId, gametypeId, mapId);
 
-        const basicInfo = await mysql.simpleQuery(query, [start, perPage]);
+        const query = `SELECT id,date,server,gametype,map,playtime,players 
+        FROM nstats_matches ${(where !== "") ? `WHERE ${where}` : ""} 
+        ORDER BY date DESC, id DESC LIMIT ?,?`;
 
-        const uniqueMaps = new Set();
-        const uniqueServers = new Set();
-        const uniqueGametypes = new Set();
-
-        for(let i = 0; i < basicInfo.length; i++){
-
-            const {server, map, gametype} = basicInfo[i];
-
-            uniqueGametypes.add(gametype);
-            uniqueServers.add(server);
-            uniqueMaps.add(map);
-        }
-
-        const serverInfo = await serverManager.getNames([...uniqueServers]);
-        const gametypeInfo = await gametypeManager.getNames([...uniqueGametypes]);
-        const mapInfo = await mapManager.getNames([...uniqueMaps]);
+        const basicInfo = await mysql.simpleQuery(query, [...vars, start, perPage]);
 
         return {
-            "matchInfo": basicInfo, 
-            "serverInfo": serverInfo, 
-            "gametypeInfo": gametypeInfo, 
-            "mapInfo": mapInfo
+            "matchInfo": basicInfo
         }
-
     }
 
 }

@@ -474,9 +474,9 @@ class AdminMatchesManager extends React.Component{
     renderBulkDeleteMatches(){
 
         if(this.state.mode !== 3) return null;
-
         return <AdminMatchDeleter />;
     }
+    
     render(){
 
         const tabs = [

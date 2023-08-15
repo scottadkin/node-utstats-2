@@ -10,9 +10,8 @@ import Faces from '../api/faces';
 import AdminFaces from '../components/AdminFaces/';
 import AdminMatchesManager from '../components/AdminMatchesManager/';
 import AdminPlayersManager from '../components/AdminPlayersManager/';
-import Players from '../api/players';
 import AdminGametypeManager from '../components/AdminGametypeManager/';
-import Gametypes from '../api/gametypes'
+import Gametypes from '../api/gametypes';
 import AdminRankingManager from '../components/AdminRankingManager/';
 import AdminPickupsManager from '../components/AdminPickupsManager/';
 import Items from '../api/items';
@@ -90,14 +89,11 @@ class Admin extends React.Component{
 
     updateWeaponData(file){
 
-
         const newFiles = [file];
-
-        let w = 0;
 
         for(let i = 0; i < this.state.weaponData.files.length; i++){
 
-            w = this.state.weaponData.files[i];
+            const w = this.state.weaponData.files[i];
 
             newFiles.push(w);
         }
@@ -162,7 +158,7 @@ class Admin extends React.Component{
 
         if(this.state.mode !== 4) return null;
 
-        return <AdminMatchesManager />;
+        return <AdminMatchesManager gametypeNames={this.state.gametypeNames}/>;
     }
 
 
@@ -397,9 +393,6 @@ export async function getServerSideProps({req, query}){
         faceData = await faceManager.getAll();
         
         faceFiles = faceManager.getAllFiles();
-
-        const playerManager = new Players();
-
         const gametypeManager = new Gametypes();
 
         gametypeNames = await gametypeManager.getAll();

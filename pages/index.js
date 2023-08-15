@@ -31,6 +31,8 @@ function Home({navSettings, pageSettings, pageOrder, session, host, matchesData,
 	pageSettings = JSON.parse(pageSettings);
 	pageOrder = JSON.parse(pageOrder);
 
+
+
 	const imageHost = Functions.getImageHostAndPort(host);
 
 	let message = [];
