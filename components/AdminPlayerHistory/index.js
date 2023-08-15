@@ -33,7 +33,7 @@ const reducer = (state, action) =>{
     return state;
 }
 
-const renderIpHistory = (state) =>{
+const renderIpHistory = (state, setIpSearch) =>{
 
     if(state.bLoading) return null;
 
@@ -52,7 +52,7 @@ const renderIpHistory = (state) =>{
         return {
             "first": {"value": d.first_match, "displayValue": convertTimestamp(d.first_match, true)},
             "last": {"value": d.last_match, "displayValue": convertTimestamp(d.last_match, true)},
-            "ip": {"value": d.ip},
+            "ip": {"value": d.ip, "displayValue": <b onClick={() => setIpSearch(d.ip)}>{d.ip}</b>},
             "matches": {"value": d.total_matches},
             "playtime": {"value": d.playtime, "displayValue": toPlaytime(d.total_playtime), "className": "playtime"}
         }
@@ -198,7 +198,7 @@ const loadData = async (playerId, dispatch, controller) =>{
 
 }
 
-const AdminPlayerHistory = ({playerNames, selectedPlayerProfile}) =>{
+const AdminPlayerHistory = ({playerNames, selectedPlayerProfile, setIpSearch}) =>{
 
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
@@ -243,7 +243,7 @@ const AdminPlayerHistory = ({playerNames, selectedPlayerProfile}) =>{
             {elems} {selectedPlayerProfile}
         </div>
         <Loading value={!state.bLoading}/>
-        {renderIpHistory(state)}
+        {renderIpHistory(state, setIpSearch)}
         {renderHWIDs(state)}
         {renderAliasesByHWID(state)}
         {renderAliasesByIp(state)}   

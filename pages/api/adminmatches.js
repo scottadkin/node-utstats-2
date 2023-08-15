@@ -84,6 +84,18 @@ export default async function handler(req, res){
             if(perPage !== perPage) perPage = defaultPerPage;
             if(perPage < 5 || perPage > 500) perPage = defaultPerPage;
 
+            let serverId = req.body.serverId ?? 0;
+            let gametypeId = req.body.gametypeId ?? 0;
+            let mapId = req.body.mapId ?? 0;
+
+            serverId = parseInt(serverId);
+            gametypeId = parseInt(gametypeId);
+            mapId = parseInt(mapId);
+
+            if(serverId !== serverId) serverId = 0;
+            if(gametypeId !== gametypeId) gametypeId = 0;
+            if(mapId !== mapId) mapId = 0;
+
             if(req.body.mode === undefined){
 
                 res.status(200).json({"error": "No mode specified"});
@@ -207,20 +219,35 @@ export default async function handler(req, res){
                 if(mode === "admin-search"){
 
 
-                    const data = await matches.adminGet(page, perPage, serverManager, gametypeManager, mapManager);
-                    const totalMatches = await matches.adminGetTotalMatches();
+                    const data = await matches.adminGet(page, perPage, serverId, gametypeId, mapId);
+                    const totalMatches = await matches.adminGetTotalMatches(serverId, gametypeId, mapId);
                     data.totalMatches = totalMatches;
 
-                    console.log(data);
                     res.status(200).json(data);
                     return;
                 }
                 
                 if(mode === "admin-get-total-matches"){
 
-                    const totalMatches = await matches.adminGetTotalMatches();
+                    const totalMatches = await matches.adminGetTotalMatches(serverId, gametypeId, mapId);
 
                     res.status(200).json({"totalMatches": totalMatches});
+                    return;
+                }
+
+                if(mode === "get-all-names"){
+
+                    const serverNames = await serverManager.getAllNames();
+                    const gametypeNames = await gametypeManager.getAllNames();
+                    const mapNames = await mapManager.getAllNameAndIds();
+
+                    res.status(200).json({
+                        "serverNames": serverNames,
+                        "gametypeNames": gametypeNames, 
+                        "mapNames": mapNames
+                    });
+
+                    return;
                 }
             }
 

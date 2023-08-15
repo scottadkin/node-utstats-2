@@ -241,7 +241,7 @@ export default async function handler (req, res){
                 res.status(200).json({"ips": ipResult, "names": nameResult});
                 return;
 
-            }else if(mode === "iphistory"){
+            }else if(mode === "ipSearch"){
 
                 const ip = req.body.ip ?? null;
 

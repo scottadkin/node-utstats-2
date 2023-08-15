@@ -8,6 +8,7 @@ import InteractiveTable from "../InteractiveTable";
 import CountryFlag from "../CountryFlag";
 import { convertTimestamp, toPlaytime } from "../../api/generic.mjs";
 import AdminPlayerHistory from "../AdminPlayerHistory";
+import Link from "next/link";
 
 const reducer = (state, action) =>{
 
@@ -54,6 +55,18 @@ const reducer = (state, action) =>{
                 ...state,
                 "selectedPlayerProfile": action.playerId,
                 "selectedTab": 3
+            }
+        }
+        case "setIpSearch": {
+            return {
+                ...state,
+                "ipSearch": action.value
+            }
+        }
+        case "setIpSearchResult": {
+            return {
+                ...state,
+                "ipSearchResult": action.data
             }
         }
     }
@@ -124,8 +137,57 @@ const renderNameSearch = (state, dispatch, addNotification) =>{
         <div className="search-button" onClick={() =>{
             nameSearch(state, dispatch, addNotification);
         }}>Search</div>
-    </div>
-    
+    </div>   
+}
+
+
+const ipSearch = async (state, dispatch, addNotification) =>{
+
+    try{
+        const req = await fetch("/api/adminplayers",{
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "ipSearch", "ip": state.ipSearch})
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined){
+            throw new Error(res.error);
+        }
+        
+
+        dispatch({"type": "setIpSearchResult", "data": res});
+
+        console.log(res);
+    }catch(err){
+        console.log(err);
+        addNotification("error", <>{err.toString()}</>);
+    }
+}
+
+
+const renderIPSearch = (state, dispatch, addNotification) =>{
+
+    if((state.selectedTab !== 1) || state.bLoading) return null;
+
+    console.log(state.playerNames);
+    return <div className="form">
+        <div className="form-info">
+            Search for a player by ip.
+        </div>
+        <div className="form-row">
+            <div className="form-label">Player IP</div>
+            <input type="text" 
+                className="default-textbox" 
+                value={state.ipSearch} 
+                onChange={(e) =>{ console.log(e.target.value);dispatch({"type": "setIpSearch", "value": e.target.value})}}
+            />
+        </div>
+        <div className="search-button" onClick={() =>{
+            ipSearch(state, dispatch, addNotification);
+        }}>Search</div>
+    </div>   
 }
 //data, maxDisplay, searchValue, selectedPlayers, togglePlayer, setSearchValue, bAutoSet
 
@@ -171,8 +233,6 @@ const renderSearchResult = (state, dispatch) =>{
         "action": "Actions"
     };
 
-    console.log(state.searchResult);
-
     const data = state.searchResult.map((d) =>{
 
         return {
@@ -205,11 +265,65 @@ const renderSearchResult = (state, dispatch) =>{
     </>
 }
 
-const renderHistory = (state) =>{
+const renderHistory = (state, dispatch) =>{
 
     if(state.selectedTab !== 3) return null;
 
-    return <AdminPlayerHistory playerNames={state.playerNames} selectedPlayerProfile={state.selectedPlayerProfile}/>;
+    return <AdminPlayerHistory 
+        playerNames={state.playerNames} 
+        selectedPlayerProfile={state.selectedPlayerProfile}
+        setIpSearch={((value) =>{
+            dispatch({"type": "setIpSearch", "value": value});
+        })}
+    />;
+}
+
+const renderIPSearchResult = (state, dispatch) =>{
+
+    if(state.selectedTab !== 1) return null;
+
+    const headers = {
+        "player": "Player",
+        "date": "Date",
+        "match": "Match Link"
+    };
+
+    const data = state.ipSearchResult.matchData.map((d) =>{
+
+        const playerName = state.ipSearchResult.playerNames[d.player_id] ?? "Not Found";
+
+        return {
+            "player": {
+                "value": playerName.toLowerCase(), 
+                "displayValue": <Link href={`/player/${d.player_id}`} target="_blank"><CountryFlag country={d.country}/>{playerName}</Link>
+            },
+            "date": {
+                "value": d.match_date, 
+                "displayValue": convertTimestamp(d.match_date, true), "className": "playtime"
+            },
+            "match": {
+                "value": d.match_id, 
+                "displayValue": <>
+                    <Link href={`/match/${d.match_id}`} target="_blank">Match Report</Link><br/>
+                    <Link href={`/pmatch/${d.match_id}/?player=${d.player_id}`} target="_blank">Player Match Report</Link>
+                </>
+            }
+        }
+    });
+
+    const uniqueNames = [];
+
+    for(const [id, name] of Object.entries(state.ipSearchResult.playerNames)){
+
+        uniqueNames.push(<Link href={`/player/${id}`} target="_blank">{name}</Link>);
+    }
+
+    return <>
+        <div className="default-header">Unique Names</div>
+        {uniqueNames}
+        <div className="default-header">IP Usage</div>
+        <InteractiveTable width={4} headers={headers} data={data}/>
+    </>
 }
 
 const AdminPlayerSearch = () =>{
@@ -220,7 +334,9 @@ const AdminPlayerSearch = () =>{
         "selectedTab": 0,
         "nameSearch": "",
         "searchResult": [],
-        "selectedPlayerProfile": -1
+        "selectedPlayerProfile": -1,
+        "ipSearch": "",
+        "ipSearchResult": {"matchData": [], "playerNames": {}}
     });
 
     const [notifications, addNotification, hideNotification, clearAllNotifications] = useNotificationCluster();
@@ -253,8 +369,10 @@ const AdminPlayerSearch = () =>{
         <Loading value={!state.bLoading}/>
         <NotificationsCluster notifications={notifications} hide={hideNotification}/>
         {renderNameSearch(state, dispatch, addNotification)}
+        {renderIPSearch(state, dispatch, addNotification)}
         {renderSearchResult(state, dispatch)}
-        {renderHistory(state)}
+        {renderIPSearchResult(state, dispatch)}
+        {renderHistory(state, dispatch)}
     </div>
 }
 
