@@ -38,7 +38,9 @@ const NotificationsCluster = ({notifications, hide, clearAll}) =>{
 
     return <>  
         <div className={styles.wrapper}>
-            {(elems.length === 0) ? null :<div className={`${styles["clear-all"]} hover`} onClick={clearAll}>Clear All Notifications</div>}
+            {(elems.length === 0 || clearAll == undefined) ? null :
+                <div className={`${styles["clear-all"]} hover`} onClick={clearAll}>Clear All Notifications</div>
+            }
             {elems}
         </div>
     </>

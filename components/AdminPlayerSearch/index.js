@@ -69,21 +69,29 @@ const reducer = (state, action) =>{
                 "ipSearchResult": action.data
             }
         }
+        case "setHWIDSearch": {
+            return {
+                ...state,
+                "hwidSearch": action.value
+            }
+        }
     }
     return state;
 }
 
-const nameSearch = async (state, dispatch, addNotification) =>{
+const nameSearch = async (state, dispatch, addNotification, overrideValue) =>{
 
     try{
 
         const controller = new AbortController();
 
+        const nameSearch = (overrideValue !== undefined) ? overrideValue : state.nameSearch;
+
         const req = await fetch("/api/adminplayers", {
             "headers": {"Content-type": "application/json"},
             "signal": controller.signal,
             "method": "POST",
-            "body": JSON.stringify({"mode": "namesearch", "name": state.nameSearch})
+            "body": JSON.stringify({"mode": "namesearch", "name": nameSearch})
         });
 
         const res = await req.json();
@@ -108,9 +116,8 @@ const nameSearch = async (state, dispatch, addNotification) =>{
 
 const renderNameSearch = (state, dispatch, addNotification) =>{
 
-    if((state.selectedTab !== 0 && state.selectedTab !== 3) || state.bLoading) return null;
+    if((state.selectedTab !== 0) || state.bLoading) return null;
 
-    console.log(state.playerNames);
     return <div className="form">
         <div className="form-info">
             Search for a player by name.
@@ -120,7 +127,6 @@ const renderNameSearch = (state, dispatch, addNotification) =>{
             <InteractivePlayerSearchBox 
                 searchValue={state.nameSearch} 
                 setSearchValue={(value) =>{
-                    console.log(value);
                     dispatch({"type": "updateSearchName", "value": value})
                     
                 }}
@@ -141,13 +147,16 @@ const renderNameSearch = (state, dispatch, addNotification) =>{
 }
 
 
-const ipSearch = async (state, dispatch, addNotification) =>{
+const ipSearch = async (state, dispatch, addNotification, overrideValue) =>{
 
     try{
+
+        const ipSearch = (overrideValue !== undefined) ? overrideValue : state.ipSearch;
+
         const req = await fetch("/api/adminplayers",{
             "headers": {"Content-type": "application/json"},
             "method": "POST",
-            "body": JSON.stringify({"mode": "ipSearch", "ip": state.ipSearch})
+            "body": JSON.stringify({"mode": "ipSearch", "ip": ipSearch})
         });
 
         const res = await req.json();
@@ -171,7 +180,6 @@ const renderIPSearch = (state, dispatch, addNotification) =>{
 
     if((state.selectedTab !== 1) || state.bLoading) return null;
 
-    console.log(state.playerNames);
     return <div className="form">
         <div className="form-info">
             Search for a player by ip.
@@ -219,7 +227,7 @@ const loadData = async (controller, dispatch) =>{
     }
 }
 
-const renderSearchResult = (state, dispatch) =>{
+const renderSearchResult = (state, dispatch, addNotification) =>{
 
     if(state.selectedTab !== 0) return null;
 
@@ -238,11 +246,35 @@ const renderSearchResult = (state, dispatch) =>{
         return {
             "name": {
                 "value": d.name.toLowerCase(), 
-                "displayValue": <><CountryFlag country={d.country}/>{d.name}</>,
-                "className": "text-left"
+                "displayValue": <>
+                    <CountryFlag country={d.country}/>
+                    <span onClick={() =>{
+                        dispatch({"type": "updateSearchName", "value": d.name});
+                        dispatch({"type": "changeTab", "tab": 0});
+                        console.log(d.name);
+                        nameSearch(state, dispatch, addNotification, d.name);
+                    }}>
+                        {d.name}
+                    </span>
+                </>,
+                "className": "text-left hover"
             },
-            "ip": {"value": d.ip},
-            "hwid": {"value": d.hwid},
+            "ip": {
+                "value": d.ip, 
+                "displayValue": <span onClick={() => {
+                    dispatch({"type": "setIpSearch", "value": d.ip});
+                    dispatch({"type": "changeTab", "tab": 1});
+                    ipSearch(state, dispatch, addNotification, d.ip);
+                }}>{d.ip}</span>,
+                "className": "hover"
+            },
+            "hwid": {
+                "value": d.hwid, 
+                "displayValue": <span onClick={() =>{
+                    dispatch({"type": "setHWIDSearch", "value": d.hwid});
+                    dispatch({"type": "changeTab", "tab": 2});
+                }}>{d.hwid}</span>,
+            "className": "hover"},
             "first": {"value": d.first, "displayValue": convertTimestamp(d.first, true)},
             "last": {"value": d.last, "displayValue": convertTimestamp(d.last, true)},
             "playtime": {
@@ -278,7 +310,7 @@ const renderHistory = (state, dispatch) =>{
     />;
 }
 
-const renderIPSearchResult = (state, dispatch) =>{
+const renderIPSearchResult = (state, dispatch, addNotification) =>{
 
     if(state.selectedTab !== 1) return null;
 
@@ -311,16 +343,36 @@ const renderIPSearchResult = (state, dispatch) =>{
         }
     });
 
-    const uniqueNames = [];
+   // const uniqueNames = [];
+
+   const namesHeader = {
+        "name": "Name",
+        "profile": "Profile Link"
+    };
+
+    const namesData = [];
 
     for(const [id, name] of Object.entries(state.ipSearchResult.playerNames)){
-
-        uniqueNames.push(<Link href={`/player/${id}`} target="_blank">{name}</Link>);
+        namesData.push(
+                {
+                    "name":{ 
+                        "value": name.toLowerCase(), 
+                        "displayValue": <span onClick={() =>{
+                            dispatch({"type": "updateNameSearch", "value": name});
+                            dispatch({"type": "changeTab", "tab": 0});
+                            nameSearch(state, dispatch, addNotification, name)
+                        }}>{name}</span> 
+                    }, "profile": {
+                        "displayValue": <Link href={`/player/${id}`} target="_blank" key={id}>View Profile</Link>
+                    }
+                }
+        );
     }
+
 
     return <>
         <div className="default-header">Unique Names</div>
-        {uniqueNames}
+        <InteractiveTable width={4} headers={namesHeader} data={namesData}/>
         <div className="default-header">IP Usage</div>
         <InteractiveTable width={4} headers={headers} data={data}/>
     </>
@@ -336,7 +388,8 @@ const AdminPlayerSearch = () =>{
         "searchResult": [],
         "selectedPlayerProfile": -1,
         "ipSearch": "",
-        "ipSearchResult": {"matchData": [], "playerNames": {}}
+        "ipSearchResult": {"matchData": [], "playerNames": {}},
+        "hwidSearch": ""
     });
 
     const [notifications, addNotification, hideNotification, clearAllNotifications] = useNotificationCluster();
@@ -370,9 +423,9 @@ const AdminPlayerSearch = () =>{
         <NotificationsCluster notifications={notifications} hide={hideNotification}/>
         {renderNameSearch(state, dispatch, addNotification)}
         {renderIPSearch(state, dispatch, addNotification)}
-        {renderSearchResult(state, dispatch)}
+        {renderSearchResult(state, dispatch, addNotification)}
         {renderIPSearchResult(state, dispatch)}
-        {renderHistory(state, dispatch)}
+        {renderHistory(state, dispatch, addNotification)}
     </div>
 }
 

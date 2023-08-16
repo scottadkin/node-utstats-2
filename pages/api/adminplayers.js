@@ -250,6 +250,8 @@ export default async function handler (req, res){
                     return;
                 }
 
+                console.log(`search for ${ip}`);
+
                 const result = await playerManager.getFullIPHistory(ip);
                 
                 res.status(200).json({"matchData": result.matchData, "playerNames": result.playerNames});
