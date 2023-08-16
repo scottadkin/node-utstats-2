@@ -75,6 +75,12 @@ const reducer = (state, action) =>{
                 "hwidSearch": action.value
             }
         }
+        case "setHWIDSearchResult": {
+            return {
+                ...state,
+                "hwidSearchResult": action.data
+            }
+        }
     }
     return state;
 }
@@ -127,8 +133,7 @@ const renderNameSearch = (state, dispatch, addNotification) =>{
             <InteractivePlayerSearchBox 
                 searchValue={state.nameSearch} 
                 setSearchValue={(value) =>{
-                    dispatch({"type": "updateSearchName", "value": value})
-                    
+                    dispatch({"type": "updateSearchName", "value": value})         
                 }}
                 data={state.playerNames} 
                 maxDisplay={50} 
@@ -175,6 +180,32 @@ const ipSearch = async (state, dispatch, addNotification, overrideValue) =>{
     }
 }
 
+const hwidSearch = async (state, dispatch, addNotification, overrideValue) =>{
+
+    try{
+
+        const hwidSearch = (overrideValue !== undefined) ? overrideValue : state.hwidSearch;
+
+        const req = await fetch("/api/adminplayers",{
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "hwidSearch", "hwid": hwidSearch})
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined){
+            throw new Error(res.error);
+        }
+        
+        dispatch({"type": "setHWIDSearchResult", "data": res});
+
+        console.log(res);
+    }catch(err){
+        console.log(err);
+        addNotification("error", <>{err.toString()}</>);
+    }
+}
 
 const renderIPSearch = (state, dispatch, addNotification) =>{
 
@@ -189,6 +220,7 @@ const renderIPSearch = (state, dispatch, addNotification) =>{
             <input type="text" 
                 className="default-textbox" 
                 value={state.ipSearch} 
+                placeholder="Player IP..."
                 onChange={(e) =>{ console.log(e.target.value);dispatch({"type": "setIpSearch", "value": e.target.value})}}
             />
         </div>
@@ -197,7 +229,29 @@ const renderIPSearch = (state, dispatch, addNotification) =>{
         }}>Search</div>
     </div>   
 }
-//data, maxDisplay, searchValue, selectedPlayers, togglePlayer, setSearchValue, bAutoSet
+
+const renderHWIDSearch = (state, dispatch, addNotification) =>{
+
+    if((state.selectedTab !== 2) || state.bLoading) return null;
+
+    return <div className="form">
+        <div className="form-info">
+            Search for a player by HWID.
+        </div>
+        <div className="form-row">
+            <div className="form-label">Player HWID</div>
+            <input type="text" 
+                className="default-textbox" 
+                value={state.hwidSearch} 
+                placeholder="Player HWID..."
+                onChange={(e) =>{ console.log(e.target.value);dispatch({"type": "setHWIDSearch", "value": e.target.value})}}
+            />
+        </div>
+        <div className="search-button" onClick={() =>{
+            hwidSearch(state, dispatch, addNotification);
+        }}>Search</div>
+    </div>   
+}
 
 const loadData = async (controller, dispatch) =>{
 
@@ -273,6 +327,7 @@ const renderSearchResult = (state, dispatch, addNotification) =>{
                 "displayValue": <span onClick={() =>{
                     dispatch({"type": "setHWIDSearch", "value": d.hwid});
                     dispatch({"type": "changeTab", "tab": 2});
+                    hwidSearch(state, dispatch, addNotification, d.hwid);
                 }}>{d.hwid}</span>,
             "className": "hover"},
             "first": {"value": d.first, "displayValue": convertTimestamp(d.first, true)},
@@ -362,7 +417,8 @@ const renderIPSearchResult = (state, dispatch, addNotification) =>{
                             dispatch({"type": "changeTab", "tab": 0});
                             nameSearch(state, dispatch, addNotification, name)
                         }}>{name}</span> 
-                    }, "profile": {
+                    }, 
+                    "profile": {
                         "displayValue": <Link href={`/player/${id}`} target="_blank" key={id}>View Profile</Link>
                     }
                 }
@@ -378,6 +434,75 @@ const renderIPSearchResult = (state, dispatch, addNotification) =>{
     </>
 }
 
+
+const renderHWIDSearchResult = (state, dispatch, addNotification) =>{
+
+    if(state.selectedTab !== 2) return null;
+
+    const headers = {
+        "name": "Name",
+        "ip": "IP",
+        "first": "First Seen",
+        "last": "Last Seen",
+        "matches": "Total Matches"
+    };
+
+    const playerNames = state.hwidSearchResult.playerNames;
+
+    const data = state.hwidSearchResult.data.map((d) =>{
+
+        const playerName = (playerNames[d.player_id] !== undefined) ? playerNames[d.player_id] : "Not Found";
+
+        return {
+            "name": {
+                "value": playerName.toLowerCase(), 
+                "displayValue": <>
+                    <CountryFlag country={d.country}/>
+                    <span onClick={() =>{
+                            dispatch({"type": "updateNameSearch", "value": playerName});
+                            dispatch({"type": "changeTab", "tab": 0});
+                            nameSearch(state, dispatch, addNotification, playerName)
+                        }}>{playerName}
+                    </span>
+                </>,
+                "className": "hover"
+                
+            },
+            "ip": {"value": d.ip, "displayValue": <span onClick={() =>{
+                    dispatch({"type": "setIpSearch", "value": d.ip});
+                    dispatch({"type": "changeTab", "tab": 1});
+                    ipSearch(state, dispatch, addNotification, d.ip)
+                }}>
+                    {d.ip}
+                </span>,
+                "className": "hover"}
+            ,
+            "first": {"value": d.first_match, "displayValue": convertTimestamp(d.first_match, true)},
+            "last": {"value": d.last_match, "displayValue": convertTimestamp(d.last_match, true)},
+            "matches": {"value": d.total_matches},
+        };
+    });
+
+    const namesData = [];
+
+    for(const [id, name] of Object.entries(playerNames)){
+        namesData.push({
+            "name": {"value": name.toLowerCase(), "displayValue": name},
+            "profile": {"value": id, "displayValue": <Link href={`/player/${id}`} target="_blank">View Profile</Link>}
+        });
+    }
+
+    return <>
+        <div className="default-header">Unique Names</div>
+        <InteractiveTable width={4} headers={{
+            "name": "Name",
+            "profile": "Profile Link"
+        }} data={namesData}/>
+        <div className="default-header">HWID Usage</div>
+        <InteractiveTable width={1} headers={headers} data={data}/>
+    </>;
+}
+
 const AdminPlayerSearch = () =>{
 
     const [state, dispatch] = useReducer(reducer, {
@@ -389,7 +514,8 @@ const AdminPlayerSearch = () =>{
         "selectedPlayerProfile": -1,
         "ipSearch": "",
         "ipSearchResult": {"matchData": [], "playerNames": {}},
-        "hwidSearch": ""
+        "hwidSearch": "",
+        "hwidSearchResult": {"data": [], "playerNames": {}}
     });
 
     const [notifications, addNotification, hideNotification, clearAllNotifications] = useNotificationCluster();
@@ -423,8 +549,10 @@ const AdminPlayerSearch = () =>{
         <NotificationsCluster notifications={notifications} hide={hideNotification}/>
         {renderNameSearch(state, dispatch, addNotification)}
         {renderIPSearch(state, dispatch, addNotification)}
+        {renderHWIDSearch(state, dispatch, addNotification)}
         {renderSearchResult(state, dispatch, addNotification)}
         {renderIPSearchResult(state, dispatch)}
+        {renderHWIDSearchResult(state, dispatch, addNotification)}
         {renderHistory(state, dispatch, addNotification)}
     </div>
 }

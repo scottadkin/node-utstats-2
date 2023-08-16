@@ -257,6 +257,17 @@ export default async function handler (req, res){
                 res.status(200).json({"matchData": result.matchData, "playerNames": result.playerNames});
                 return;
 
+            }else if(mode === "hwidSearch"){
+
+                const hwid = req.body.hwid ?? null;
+
+                console.log(`search for ${hwid}`);
+                
+                const result = await playerManager.adminHWIDSearch(hwid);
+
+                res.status(200).json(result);
+                return;
+                
             }else if(mode === "playerhistory"){
 
                 const playerId = req.body.playerId ?? -1;

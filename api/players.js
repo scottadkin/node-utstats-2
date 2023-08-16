@@ -3245,9 +3245,28 @@ class Players{
         ];
 
         await mysql.simpleQuery(query, vars);
-
     }
     
+    async adminHWIDSearch(hwid){
+
+        const query = `SELECT COUNT(*) as total_matches, player_id, 
+        MIN(match_date) as first_match,
+        MAX(match_date) as last_match,
+        ip,
+        country
+        FROM nstats_player_matches WHERE hwid=? 
+        GROUP BY player_id, hwid, ip, country`;
+
+        const result = await mysql.simpleQuery(query, [hwid]);
+
+        const uniqueIds = [...new Set(result.map((r) =>{
+            return r.player_id;
+        }))];
+
+        const names = await this.getJustNamesByIds(uniqueIds);
+
+        return {"data": result, "playerNames": names};
+    }
 }
 
 
