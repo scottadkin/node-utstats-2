@@ -487,7 +487,15 @@ const renderHWIDSearchResult = (state, dispatch, addNotification) =>{
 
     for(const [id, name] of Object.entries(playerNames)){
         namesData.push({
-            "name": {"value": name.toLowerCase(), "displayValue": name},
+            "name": {
+                "value": name.toLowerCase(), 
+                "displayValue": <span onClick={() =>{
+                    dispatch({"type": "updateNameSearch", "value": name});
+                    dispatch({"type": "changeTab", "tab": 0});
+                    nameSearch(state, dispatch, addNotification, name)
+                }}>{name}</span>,
+                "className": "hover"
+            },
             "profile": {"value": id, "displayValue": <Link href={`/player/${id}`} target="_blank">View Profile</Link>}
         });
     }
