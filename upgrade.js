@@ -354,6 +354,9 @@ async function updateKillsTable(){
         await alterTable("nstats_matches", "match_hash", "varchar(32) NOT NULL", "AFTER id");
 
 
+        await alterTable("nstats_gametypes", "auto_merge_id", "int(11) NOT NULL", "AFTER playtime");
+
+
         await createMapItemTables();
 
         await updateKillsTable();

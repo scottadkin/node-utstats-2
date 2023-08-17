@@ -31,7 +31,7 @@ class Gametypes{
 
             if(name !== undefined){
             
-                const query = "INSERT INTO nstats_gametypes VALUES(NULL,?,0,0,0,0)";
+                const query = "INSERT INTO nstats_gametypes VALUES(NULL,?,0,0,0,0,0)";
 
                 mysql.query(query, [name], (err, result) =>{
 
@@ -100,7 +100,16 @@ class Gametypes{
 
         try{
 
-            const id = await this.getGametypeId(name, true);
+            let id = await this.getGametypeId(name, true);
+
+            const autoMergeId = await this.getGametypeAutoMergeId(id);
+
+            if(autoMergeId !== null){
+                new Message(`Gametype has an auto merge id of ${autoMergeId}.`,"note");
+                id = autoMergeId;
+                this.currentMatchGametype = id;
+            }
+
 
             const bPassed = await this.updateQuery(id, date, playtime);
 
@@ -985,6 +994,19 @@ class Gametypes{
         }
 
         return options;
+    }
+
+    async getGametypeAutoMergeId(gametypeId){
+
+        const query = `SELECT auto_merge_id FROM nstats_gametypes WHERE id=?`;
+
+        const result = await mysql.simpleQuery(query, [gametypeId]);
+
+        if(result.length > 0 && result[0].auto_merge_id !== 0){
+            return result[0].auto_merge_id;
+        }
+
+        return null;
     }
 }
 

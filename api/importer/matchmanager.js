@@ -95,7 +95,6 @@ class MatchManager{
             this.gametype = new Gametypes(this.gameInfo.gamename);
 
             await this.gametype.updateStats(this.gameInfo.gamename, this.serverInfo.date, this.gameInfo.getMatchLength().length);      
-            this.gametype.currentMatchGametype = await this.gametype.getGametypeId(this.gameInfo.gamename, true);
 
             if(this.gametype.currentMatchGametype === undefined){
                 new Message(`Incomplete log skipping...`,'error');
