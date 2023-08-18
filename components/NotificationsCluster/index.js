@@ -6,9 +6,9 @@ const NotificationsCluster = ({notifications, hide, clearAll}) =>{
 
     for(let i = 0; i < notifications.length; i++){
 
-        const {id, type, content, bDisplay} = notifications[i];
+        const {id, type, content} = notifications[i];
 
-        if(!bDisplay) continue;
+        //if(!bDisplay) continue;
 
         let className = "";
         let title = "";

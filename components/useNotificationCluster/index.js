@@ -32,6 +32,8 @@ const reducer = (state, action) =>{
 
 const useNotificationCluster = () =>{
 
+    console.log("Don't use useNotificationCluster, use notificationReducer instead!");
+
     const [state, dispatch] = useReducer(reducer, {
         "notifications": []
     });

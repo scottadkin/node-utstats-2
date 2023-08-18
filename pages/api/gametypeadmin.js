@@ -23,7 +23,15 @@ export default async function handler(req, res){
 
             console.log(req.body);
 
-            const mode = req.body.mode;
+            const mode = req.body.mode ?? "";
+
+            if(mode === "all-details"){
+
+                const data = await gametypeManager.getAll();
+
+                res.status(200).json(data);
+                return;
+            }
 
             if(mode === "rename"){
 
@@ -106,20 +114,19 @@ export default async function handler(req, res){
                 const playerManager = new Players();
                 const countriesManager = new CountriesManager();
 
-   
-                
-
                 await gametypeManager.deleteAllData(gametypeId, matchManager, playerManager, countriesManager);
             }
 
-            res.status(200).json({"message": "passed"});
         }else{
-            res.status(200).json({"message": "Only admins can perform this action."});
+            res.status(200).json({"error": "Only admins can perform this action."});
         }
+
+        res.status(200).json({"error": "Unknown Command"});
+        return;
 
     }catch(err){
         console.trace(err);
-        res.status(200).json({"message": err});
+        res.status(200).json({"error": err});
     }
 
     

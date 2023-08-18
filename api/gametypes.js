@@ -249,7 +249,6 @@ class Gametypes{
     }
 
     async getAll(){
-
         return await mysql.simpleFetch("SELECT * FROM nstats_gametypes ORDER BY name ASC");
     }
 

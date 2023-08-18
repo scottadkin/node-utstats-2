@@ -2,6 +2,8 @@ import React from 'react';
 import Image from 'next/image';
 import styles from './AdminGametypeManager.module.css';
 import Table2 from '../Table2';
+import Tabs from '../Tabs';
+import AdminCreateGametype from '../AdminCreateGametype';
 
 class AdminGametypeManager extends React.Component{
 
@@ -10,7 +12,7 @@ class AdminGametypeManager extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 3, 
+            "mode": -1, 
             "data": this.props.data, 
             "bFailedRename": null, 
             "renameErrors": [],
@@ -895,34 +897,31 @@ class AdminGametypeManager extends React.Component{
         </div>  
     }
 
+
+    renderCreate(){
+
+        if(this.state.mode !== -1) return null;
+
+        return <AdminCreateGametype />;
+    }
+
     render(){
 
         return <div>
             <div className="default-header">Manage Gametypes</div>
 
-            <div className="tabs">
-                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
-                    this.changeMode(0);
-                })}>
-                    Rename Gametypes
-                </div>
-                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
-                    this.changeMode(1);
-                })}>
-                    Merge Gametypes
-                </div>
-                <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : ""}`} onClick={(() =>{
-                    this.changeMode(2);
-                })}>
-                    Delete Gametypes
-                </div>
-                <div className={`tab ${(this.state.mode === 3) ? "tab-selected" : ""}`} onClick={(() =>{
-                    this.changeMode(3);
-                })}>
-                    Upload Gametype Images
-                </div>
-            </div>
-
+            <Tabs options={[              
+                    {"name": "Create Gametype", "value": -1},
+                    {"name": "Rename Gametypes", "value": 0},
+                    {"name": "Merge Gametypes", "value": 1},
+                    {"name": "Delete Gametypes", "value": 2},
+                    {"name": "Upload Gametype Images", "value": 3}             
+                ]} 
+                changeSelected={(id) => this.changeMode(id)}
+                selectedValue={this.state.mode}
+                
+            />
+            {this.renderCreate()}
             {this.renderRename()}
             {this.renderMerge()}
             {this.renderDelete()}
