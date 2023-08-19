@@ -19,6 +19,21 @@ const reducer = (state, action) =>{
                 "gametypes": action.gametypes
             }
         }
+        case "setNewName": {
+            return {
+                ...state,
+                "newName": action.value
+            }
+        }
+        case "addGametype": {
+            return {
+                ...state,
+                "newName": "",
+                "gametypes": [...state.gametypes, {
+                    "id": action.id, "name": action.name
+                }]
+            }
+        }
         
     }
     return state;
@@ -69,9 +84,81 @@ const loadData = async (dispatch, signal, nDispatch) =>{
     }
 }
 
-const renderForm = (state, dispatch) =>{
+const bGametypeAlreadyExists = (gametypes, name) =>{
+
+    name = name.toLowerCase();
+
+    for(let i = 0; i < gametypes.length; i++){
+
+        const g = gametypes[i];
+
+        const currentName = g.name.toLowerCase();
+
+        if(currentName === name) return true;
+        console.log(g);
+    }
+
+    return false;
+}
+
+const createGametype = async (dispatch, nDispatch, name) =>{
+
+    try{
+
+
+        const req = await fetch("/api/gametypeadmin", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "create", "name": name})
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined){
+            nDispatch({"type": "add", "notification": {"type": "error", "content": res.error}});
+            return;
+        }
+
+        if(res.message === "passed"){
+
+            dispatch({"type": "addGametype", "id": res.id, "name": name});
+
+            nDispatch({
+                "type": "add", 
+                "notification": {
+                    "type": "pass", 
+                    "content": <>Created gametype <b>{name}</b> successfully.</>
+                }
+            });
+        }
+
+
+        
+
+    }catch(err){
+
+        console.trace(err);
+    }
+}
+
+const renderForm = (state, dispatch, nDispatch) =>{
 
     if(state.bLoading) return null;
+
+    const bExists = bGametypeAlreadyExists(state.gametypes, state.newName);
+
+    let elems = null;
+
+    if(bExists){
+        elems = <div className="grey p-10">
+            There is already a gametype called {state.newName}, you can not create the same gametype again(gametype names are case insensitive)
+        </div>
+    }else if(state.newName.length > 0){
+        elems = <div className="search-button" onClick={() =>{
+            createGametype(dispatch, nDispatch, state.newName);
+        }}>Create Gametype</div>
+    }
+
 
     return <div className="form">
         <div className="form-info">
@@ -81,8 +168,15 @@ const renderForm = (state, dispatch) =>{
             <div className="form-label">
                 Name
             </div>
-            <input type="text" className="default-textbox" placeholder="gametype name..."/>
+            <input 
+                type="text" 
+                className="default-textbox" 
+                placeholder="gametype name..." 
+                value={state.newName}
+                onChange={(e) => dispatch({"type": "setNewName", "value": e.target.value})}
+            />
         </div>
+        {elems}
     </div>
 }
 
@@ -91,8 +185,10 @@ const AdminCreateGametype = () =>{
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
         "gametypes": [],
-        "pendingNotifications": []
+        "pendingNotifications": [],
+        "newName": ""
     });
+
 
     //const [notifications, addNotification, hideNotification, clearAll] = useNotificationCluster();
 
@@ -119,7 +215,7 @@ const AdminCreateGametype = () =>{
             notifications={nState.notifications} 
             hide={(id) =>{ nDispatch({"type": "delete", "id": id})}} 
             clearAll={() => nDispatch({"type": "clearAll"}) }/>
-        {renderForm(state, dispatch)}
+        {renderForm(state, dispatch, nDispatch)}
     </>
 }
 

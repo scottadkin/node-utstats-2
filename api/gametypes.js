@@ -25,27 +25,25 @@ class Gametypes{
 
     }
 
-    create(name){
-        
-        return new Promise((resolve, reject) =>{
+    async bExists(name){
 
-            if(name !== undefined){
-            
-                const query = "INSERT INTO nstats_gametypes VALUES(NULL,?,0,0,0,0,0)";
+        const query = `SELECT COUNT(*) as total_matches FROM nstats_gametypes WHERE name=?`;
+        const result = await mysql.simpleQuery(query, [name]);
 
-                mysql.query(query, [name], (err, result) =>{
+        if(result[0].total_matches > 0) return true;
+        return false;
+    }
 
-                    if(err){
-                        reject(err);
-                    }
+    async create(name){
 
-                    resolve(result.insertId);
-                });
+        if(name === undefined) throw new Error("Gametype name is undefined");
 
-            }else{
-                reject("gametype name is undefined");
-            }
-        });
+        if(await this.bExists(name)) throw new Error("Gametype already exists");
+
+        const query = "INSERT INTO nstats_gametypes VALUES(NULL,?,0,0,0,0,0)";
+        const result = await mysql.simpleQuery(query, [name]);
+
+        return result.insertId;
     }
 
     getIdByName(name){

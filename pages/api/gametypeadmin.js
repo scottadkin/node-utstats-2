@@ -33,6 +33,20 @@ export default async function handler(req, res){
                 return;
             }
 
+            if(mode === "create"){
+
+
+                const name = req.body.name ?? "";
+
+                if(name === "") throw new Error("Gametype name can not be a blank string."); 
+
+                const id = await gametypeManager.create(name);
+
+               
+                res.status(200).json({"message": "passed", "id": id});
+                return;
+            }
+
             if(mode === "rename"){
 
                 const newName = req.body.newName;
@@ -126,7 +140,7 @@ export default async function handler(req, res){
 
     }catch(err){
         console.trace(err);
-        res.status(200).json({"error": err});
+        res.status(200).json({"error": err.toString()});
     }
 
     
