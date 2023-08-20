@@ -35,6 +35,8 @@
 	--yellow-1:"yellow";
 	--yellow-2:rgba(95,95,0, 0.75);
 	--margin-1:25px;
+	--textbox-max-width-1:290px;
+	--textbox-width-1:90%;
 }
 
 .color3{
@@ -455,8 +457,8 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 }
 
 .default-textbox{
-	max-width:290px;
-	width:90%;
+	max-width:var(--textbox-max-width-1);
+	width:var(--textbox-width-1);
 	background-color:var(--color-3a);
 	font-size:18px;
 	font-weight:300;

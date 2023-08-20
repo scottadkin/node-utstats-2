@@ -21,7 +21,7 @@ export const notificationsReducer = (state, action) =>{
 
             return {
                 ...state,
-                "notifications": [...state.notifications, action.notification],
+                "notifications": [action.notification, ...state.notifications],
                 "currentId": state.currentId + 1
             }
         }

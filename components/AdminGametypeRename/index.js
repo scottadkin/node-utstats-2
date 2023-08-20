@@ -2,11 +2,10 @@ import DropDown from "../DropDown";
 import { useState } from "react";
 import Loading from "../Loading";
 
-const renameGametype = async (targetGametypeId, newName) =>{
+const renameGametype = async (targetGametypeId, newName, dispatch, nDispatch, setNewName) =>{
 
     try{
 
-        console.log(arguments);
         const req = await fetch("/api/gametypeadmin", {
             "headers": {"Content-type": "application/json"},
             "method": "POST",
@@ -15,14 +14,25 @@ const renameGametype = async (targetGametypeId, newName) =>{
 
         const res = await req.json();
 
-        console.log(res);
+        if(res.error !== undefined){
+            nDispatch({"type": "add", "notification": {"type": "error", "content": res.error}});
+            return;
+        }
+
+        dispatch({"type": "rename", "targetId": targetGametypeId, "newName": newName});
+        setNewName("");
+
+        nDispatch({"type": "add", "notification": {
+            "type": "pass", 
+            "content": `Gametype successfully renamed to ${newName}`
+        }});
 
     }catch(err){
 
     }
 }
 
-const AdminGametypeRename = ({gametypes, nDispatch, bGametypeAlreadyExists}) =>{
+const AdminGametypeRename = ({gametypes, dispatch, nDispatch, bGametypeAlreadyExists}) =>{
 
     const [selectedGametype, setSelectedGametype] = useState(null);
     const [newName, setNewName] = useState("");
@@ -30,28 +40,27 @@ const AdminGametypeRename = ({gametypes, nDispatch, bGametypeAlreadyExists}) =>{
 
     const bExists = bGametypeAlreadyExists(gametypes, newName);
 
-    let elems = null;
+    let elems = [];
 
     if(newName !== ""){
 
         if(!bExists && selectedGametype !== null){
 
             if(!bLoading){
-                console.log(selectedGametype, newName);
-                elems = <div className="search-button" onClick={async () => {
+                elems.push(<div className="search-button" key="button" onClick={async () => {
 
                     setBLoading(true);
-                    await renameGametype(selectedGametype, newName);
+                    await renameGametype(selectedGametype, newName, dispatch, nDispatch, setNewName);
                     setBLoading(false);
                     
-                }}>Rename Gametype</div>;
+                }}>Rename Gametype</div>);
             }
 
         }else if(selectedGametype !== null){
 
-            elems = <div className="grey p-10">
+            elems.push(<div key="warning" className="grey p-10">
                 There is already a gametype called <b>{newName}</b>, you can not use the same gametype name(gametype names are case insensitive)
-            </div>
+            </div>);
         }
     }
 
@@ -63,8 +72,7 @@ const AdminGametypeRename = ({gametypes, nDispatch, bGametypeAlreadyExists}) =>{
         <div className="default-header">Rename Gametype</div>
         <div className="form">
             <div className="form-info">Rename an existing gametype</div>
-            <DropDown dName="Target Gametype" data={gametypesDropDown} changeSelected={(name, value) =>{
-
+            <DropDown bForceSmall={true} dName="Target Gametype" data={gametypesDropDown} changeSelected={(name, value) =>{
                 setSelectedGametype(value);
             }} />
             <div className="form-row">

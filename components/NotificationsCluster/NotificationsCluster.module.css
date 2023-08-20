@@ -1,5 +1,8 @@
 .wrapper{
     position:relative;
+    max-height:300px;
+    overflow: auto;
+    background-color:var(--color-9);
 }
 
 .notification{

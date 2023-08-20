@@ -1,5 +1,6 @@
 export const adminGametypeInitial = {
     "gametypes": [],
+    "idsToNames": {},
     "newName": "",
     "bLoading": false
 };
@@ -15,27 +16,71 @@ export const adminGametypeReducer = (state, action) =>{
             }
         }
         case "loadedGametypes": {
+
+            const idsToNames = {};
+
+            for(let i = 0; i < action.gametypes.length; i++){
+
+                const {id, name} = action.gametypes[i];
+                idsToNames[id] = name;
+            }
+
             return {
                 ...state,
-                "gametypes": action.gametypes
+                "gametypes": action.gametypes,
+                "idsToNames": idsToNames
             }
         }
         case "setNewName": {
+
             return {
                 ...state,
                 "newName": action.value
             }
         }
         case "addGametype": {
+
+            const idsToNames = state.idsToNames;
+
+            idsToNames[action.id] = action.name;
+
             return {
                 ...state,
                 "newName": "",
+                "idsToNames": idsToNames,
                 "gametypes": [...state.gametypes, {
                     "id": action.id, "name": action.name
                 }]
             }
         }
-        
+        case "rename": {
+
+            const gametypes = state.gametypes;
+
+            for(let i = 0; i < gametypes.length; i++){
+
+                const {id} = gametypes[i];
+
+                if(id === action.targetId){
+                    gametypes[i].name = action.newName;
+                }
+            }
+
+            const idsToNames = state.idsToNames;
+
+            for(const [id, key] of Object.entries(idsToNames)){
+
+                if(parseInt(id) === action.targetId) {
+                    idsToNames[id] = action.newName;
+                }
+            }
+
+            return {
+                ...state,
+                "gametypes": gametypes
+
+            }
+        }  
     }
 
     return state;

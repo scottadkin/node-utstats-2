@@ -121,11 +121,19 @@ class DropDown extends React.Component{
             return <ErrorMessage title={`DropDown (${this.props.dName})`} text="Data is null."/>
         }
 
+        const style = {};
+
+        if(this.props.bForceSmall !== undefined){
+
+            style.width = "var(--textbox-width-1)";
+            style.maxWidth = "var(--textbox-max-width-1)";
+        }
+
         return <div className={styles.wrapper} onClick={this.hide}>  
             <div className={styles.label}>
                 {this.props.dName}
             </div>
-            <div className={styles.dd}>
+            <div className={styles.dd} style={style}>
                 {this.renderEntries()}
             </div>
         </div>

@@ -19,8 +19,6 @@ const loadData = async (dispatch, signal, nDispatch) =>{
 
         const res = await req.json();
 
-        console.log(res);
-
         dispatch({"type": "loaded"});
 
         if(res.error !== undefined){
@@ -41,6 +39,7 @@ const loadData = async (dispatch, signal, nDispatch) =>{
     }catch(err){
 
         if(err.name === "AbortError") return;
+
         nDispatch({
             "type": "add", 
             "notification": {
@@ -125,8 +124,7 @@ const AdminGametypeManager = ({}) =>{
             notifications={nState.notifications} 
             hide={(id) =>{ nDispatch({"type": "delete", "id": id})}} 
             clearAll={() => nDispatch({"type": "clearAll"}) }
-        />
-        
+        /> 
         {elems}
     </>
 }
