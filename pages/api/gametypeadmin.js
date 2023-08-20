@@ -115,15 +115,15 @@ export default async function handler(req, res){
 
                 console.log(`delete gametype`);
 
-                let gametypeId = parseInt(req.body.gametypeDelete);
+                const gametypeId = parseInt(req.body.gametypeId);
 
                 if(gametypeId !== gametypeId){
-                    res.status(200).json({"message": "Gametype id must be a valid integer."});
+                    res.status(200).json({"error": "Gametype id must be a valid integer."});
                     return;
                 }
 
                 if(gametypeId < 1){
-                    res.status(200).json({"message": "Gametype id must be a positive integer."});
+                    res.status(200).json({"error": "Gametype id must be a positive integer."});
                     return;
                 }
 
@@ -132,6 +132,8 @@ export default async function handler(req, res){
                 const countriesManager = new CountriesManager();
 
                 await gametypeManager.deleteAllData(gametypeId, matchManager, playerManager, countriesManager);
+                res.status(200).json({"message": "passed"});
+                return;
             }
 
         }else{

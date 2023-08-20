@@ -81,6 +81,27 @@ export const adminGametypeReducer = (state, action) =>{
 
             }
         }  
+        case "delete": {
+
+            const gametypes = [];
+            const idsToNames = {};
+
+            for(let i = 0; i < gametypes.length; i++){
+
+                const g = gametypes[i];
+
+                if(g.id !== action.targetId){
+                    gametypes.push(g);
+                    idsToNames[g.id] = g.name;
+                }
+            }
+
+            return {
+                ...state,
+                "gametypes": gametypes,
+                "idsToNames": idsToNames
+            }
+        }
     }
 
     return state;

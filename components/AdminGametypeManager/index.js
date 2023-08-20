@@ -4,6 +4,7 @@ import NotificationsCluster from "../NotificationsCluster";
 import { adminGametypeInitial, adminGametypeReducer } from "../../reducers/adminGametypeReducer";
 import AdminCreateGametype from "../AdminCreateGametype";
 import AdminGametypeRename from "../AdminGametypeRename";
+import AdminGametypeDelete from "../AdminGametypeDelete";
 import Tabs from "../Tabs";
 
 const loadData = async (dispatch, signal, nDispatch) =>{
@@ -70,7 +71,7 @@ const bGametypeAlreadyExists = (gametypes, name) =>{
 const AdminGametypeManager = ({}) =>{
 
 
-    const [selectedTab, setSelectedTab] = useState(0);
+    const [selectedTab, setSelectedTab] = useState(2);
     const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
     const [state, dispatch] = useReducer(adminGametypeReducer, adminGametypeInitial);
     
@@ -98,8 +99,10 @@ const AdminGametypeManager = ({}) =>{
             nDispatch={nDispatch}
             bGametypeAlreadyExists={bGametypeAlreadyExists}
         />);
+    }
+    
+    if(selectedTab === 0){
 
-    }else if(selectedTab === 0){
         elems.push(<AdminGametypeRename 
             key="rename" 
             gametypes={state.gametypes} 
@@ -107,6 +110,10 @@ const AdminGametypeManager = ({}) =>{
             nDispatch={nDispatch}
             bGametypeAlreadyExists={bGametypeAlreadyExists}
         />);
+    }
+
+    if(selectedTab === 2){
+        elems.push(<AdminGametypeDelete gametypes={state.gametypes} dispatch={dispatch} nDispatch={nDispatch}/>);
     }
 
     const tabOptions = [              

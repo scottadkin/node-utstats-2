@@ -742,159 +742,151 @@ class Gametypes{
 
     async deleteAllData(gametypeId, matchManager, playerManager, countriesManager){
 
-        try{
+    
 
-            const matches = await matchManager.getAll(gametypeId);
-            const playersData = await playerManager.getAllGametypeMatchData(gametypeId);
+        const matches = await matchManager.getAll(gametypeId);
+        const playersData = await playerManager.getAllGametypeMatchData(gametypeId);
 
 
-            const matchIds = [];
-            const mapMatches = {};
-            const mapStats = {};
-            const serverStats = {};
+        const matchIds = [];
+        const mapMatches = {};
+        const mapStats = {};
+        const serverStats = {};
 
-            const playerIds = [];
+        const playerIds = [];
 
-            let m = 0;
-            
-            for(let i = 0; i < matches.length; i++){
+        for(let i = 0; i < matches.length; i++){
 
-                m = matches[i];
+            const m = matches[i];
 
-                matchIds.push(m.id);
+            matchIds.push(m.id);
 
-                if(mapMatches[m.map] === undefined){
-                    mapMatches[m.map] = 0;
-                }
-
-                mapMatches[m.map]++;
-
-                if(mapStats[m.map] === undefined){
-                    mapStats[m.map] = {
-                        "matches": 0,
-                        "playtime": 0
-                    };
-                }
-
-                mapStats[m.map].matches++;
-                mapStats[m.map].playtime += m.playtime;
-
-                if(serverStats[m.server] === undefined){
-
-                    serverStats[m.server] = {
-                        "matches": 0,
-                        "playtime": 0
-                    };
-                }
-
-                serverStats[m.server].matches++;
-                serverStats[m.server].playtime+=m.playtime;
+            if(mapMatches[m.map] === undefined){
+                mapMatches[m.map] = 0;
             }
 
+            mapMatches[m.map]++;
 
-
-            let p = 0;
-
-            for(let i = 0; i < playersData.length; i++){
-
-                p = playersData[i];
-
-                if(playerIds.indexOf(p.player_id) === -1){
-                    playerIds.push(p.player_id);
-                }
-            }
-            
-
-            const countryUses = countriesManager.countCountriesUses(playersData);
-
-            for(const [key, value] of Object.entries(countryUses)){
-                await countriesManager.reduceUses(key, value);
+            if(mapStats[m.map] === undefined){
+                mapStats[m.map] = {
+                    "matches": 0,
+                    "playtime": 0
+                };
             }
 
-            
-           // console.log(matchIds);
-            //console.log(mapMatches);
+            mapStats[m.map].matches++;
+            mapStats[m.map].playtime += m.playtime;
 
-            //console.log(`Trying to delete gametype ${gametypeId}`);
-            //console.log(`Found ${matches.length} matches to delete.`);
-            //console.log(`Found ${playersData.length} player data to delete.`);
+            if(serverStats[m.server] === undefined){
 
+                serverStats[m.server] = {
+                    "matches": 0,
+                    "playtime": 0
+                };
+            }
 
-
-            const assaultManager = new Assault();
-            await assaultManager.deleteMatches(matchIds, mapMatches);
-
-            const ctfManager = new CTF();
-            await ctfManager.deleteMatches(matchIds);
-
-
-            const domManager = new Domination();
-            await domManager.deleteMatches(matchIds);
-
-            const faceManager = new Faces();
-
-            await faceManager.deleteViaPlayerMatchesData(playersData);
-
-            const headshotsManager = new Headshots();  
-            await headshotsManager.deleteMatches(matchIds);
-
-
-            const itemsManager = new Items();
-
-            await itemsManager.deleteMatches(matchIds);
-
-
-            const killManager = new Kills();
-
-            await killManager.deleteMatches(matchIds);
-
-            await Logs.deleteMatches(matchIds);
-
-            const mapsManager = new Maps();
-
-            await mapsManager.reduceTotals(mapStats);
-            await mapsManager.reducePlayersTotals(playersData);
-
-
-            const connectionsManager = new Connections();
-
-            await connectionsManager.deleteMatches(matchIds);
-
-            const pingManager = new Pings();
-
-            await pingManager.deleteMatches(matchIds);
-
-            await playerManager.deleteMatches(matchIds, playersData, gametypeId);
-
-
-            const weaponsManager = new Weapons();
-
-            await weaponsManager.deleteMatches(gametypeId, matchIds);
-
-            const rankingsManager = new Rankings();
-
-            await rankingsManager.deleteGametype(gametypeId);
-
-            const serverManager = new Servers();
-
-            await serverManager.reduceMultipleTotals(serverStats);
-
-            const voiceManager = new Voices();
-            
-            await voiceManager.reduceViaPlayerMatchData(playersData);
-
-            const winrateManager = new Winrate();
-
-            await winrateManager.deleteMatches(matchIds, gametypeId, playerIds);
-
-
-            await matchManager.deleteMatches(matchIds);
-
-            await this.delete(gametypeId);
-
-        }catch(err){
-            console.trace(err);
+            serverStats[m.server].matches++;
+            serverStats[m.server].playtime+=m.playtime;
         }
+
+
+        for(let i = 0; i < playersData.length; i++){
+
+            const p = playersData[i];
+
+            if(playerIds.indexOf(p.player_id) === -1){
+                playerIds.push(p.player_id);
+            }
+        }
+        
+
+        const countryUses = countriesManager.countCountriesUses(playersData);
+
+        for(const [key, value] of Object.entries(countryUses)){
+            await countriesManager.reduceUses(key, value);
+        }
+
+        
+        // console.log(matchIds);
+        //console.log(mapMatches);
+
+        //console.log(`Trying to delete gametype ${gametypeId}`);
+        //console.log(`Found ${matches.length} matches to delete.`);
+        //console.log(`Found ${playersData.length} player data to delete.`);
+
+
+
+        const assaultManager = new Assault();
+        await assaultManager.deleteMatches(matchIds, mapMatches);
+
+        const ctfManager = new CTF();
+        await ctfManager.deleteMatches(matchIds);
+
+
+        const domManager = new Domination();
+        await domManager.deleteMatches(matchIds);
+
+        const faceManager = new Faces();
+
+        await faceManager.deleteViaPlayerMatchesData(playersData);
+
+        const headshotsManager = new Headshots();  
+        await headshotsManager.deleteMatches(matchIds);
+
+
+        const itemsManager = new Items();
+
+        await itemsManager.deleteMatches(matchIds);
+
+
+        const killManager = new Kills();
+
+        await killManager.deleteMatches(matchIds);
+
+        await Logs.deleteMatches(matchIds);
+
+        const mapsManager = new Maps();
+
+        await mapsManager.reduceTotals(mapStats);
+        await mapsManager.reducePlayersTotals(playersData);
+
+
+        const connectionsManager = new Connections();
+
+        await connectionsManager.deleteMatches(matchIds);
+
+        const pingManager = new Pings();
+
+        await pingManager.deleteMatches(matchIds);
+
+        await playerManager.deleteMatches(matchIds, playersData, gametypeId);
+
+
+        const weaponsManager = new Weapons();
+
+        await weaponsManager.deleteMatches(gametypeId, matchIds);
+
+        const rankingsManager = new Rankings();
+
+        await rankingsManager.deleteGametype(gametypeId);
+
+        const serverManager = new Servers();
+
+        await serverManager.reduceMultipleTotals(serverStats);
+
+        const voiceManager = new Voices();
+        
+        await voiceManager.reduceViaPlayerMatchData(playersData);
+
+        const winrateManager = new Winrate();
+
+        await winrateManager.deleteMatches(matchIds, gametypeId, playerIds);
+
+
+        await matchManager.deleteMatches(matchIds);
+
+        await this.delete(gametypeId);
+
     }
 
 

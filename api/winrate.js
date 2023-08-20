@@ -520,6 +520,32 @@ class WinRate{
 
                 await this.createPlayerLatestFromRecalculation(playerId, currentGametype, map, currentStats);
             }
+        }     
+    }
+
+    async deleteGametypeLatest(id){
+
+        await mysql.simpleDelete("DELETE FROM nstats_winrates_latest WHERE gametype=?", [id]);
+    }
+
+    async deleteMatchesQuery(ids){
+
+        if(ids.length === 0) return;
+
+        await mysql.simpleDelete("DELETE FROM nstats_winrates WHERE match_id IN (?)", [ids]);
+    }
+
+    async deleteMatches(matchIds, gametypeId){
+
+        try{
+
+            await this.deleteGametypeLatest(gametypeId);
+            await this.deleteMatchesQuery(matchIds);
+
+            await this.recalculateGametype(0);
+            
+        }catch(err){
+            console.trace(err);
         }
     }
 
@@ -1277,31 +1303,7 @@ class WinRate{
 
     }
 
-    async deleteGametypeLatest(id){
-
-        await mysql.simpleDelete("DELETE FROM nstats_winrates_latest WHERE gametype=?", [id]);
-    }
-
-    async deleteMatchesQuery(ids){
-
-        if(ids.length === 0) return;
-
-        await mysql.simpleDelete("DELETE FROM nstats_winrates WHERE match_id IN (?)", [ids]);
-    }
-
-    async deleteMatches(matchIds, gametypeId, playerIds){
-
-        try{
-
-            await this.deleteGametypeLatest(gametypeId);
-            await this.deleteMatchesQuery(matchIds);
-
-            await this.recalculateGametype(0);
-            
-        }catch(err){
-            console.trace(err);
-        }
-    }*/
+    */
 }
 
 module.exports = WinRate;
