@@ -53,8 +53,12 @@
     border:1px solid var(--border-color-3);
     font-size:14px;
     line-height:28px;
+    height:28px;
+    max-height:28px;
     width:100%;
     overflow:hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .selected{
