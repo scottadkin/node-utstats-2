@@ -1,0 +1,10 @@
+.image{
+    display:inline-block;
+    background-color:var(--color-1);
+    border:1px solid var(--border-color-1);
+}
+
+.name{
+    padding:5px 0px;
+    color:yellow;
+}

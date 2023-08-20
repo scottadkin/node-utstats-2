@@ -10,7 +10,7 @@ import Faces from '../api/faces';
 import AdminFaces from '../components/AdminFaces/';
 import AdminMatchesManager from '../components/AdminMatchesManager/';
 import AdminPlayersManager from '../components/AdminPlayersManager/';
-import AdminGametypeManager from '../components/AdminGametypeManager/';
+import AdminGametypeManager from '../components/AdminGametypeManager';
 import Gametypes from '../api/gametypes';
 import AdminRankingManager from '../components/AdminRankingManager/';
 import AdminPickupsManager from '../components/AdminPickupsManager/';
@@ -179,9 +179,7 @@ class Admin extends React.Component{
 
         if(this.state.mode !== 6) return null;
 
-        return <AdminGametypeManager data={this.state.gametypeNames} updateParentGametypeNames={this.setGametypeNames} images={this.state.gametypeImages}
-            updateImages={this.updateGametypeImages}
-        />
+        return <AdminGametypeManager />
     }
 
     displayPickupsManager(){
