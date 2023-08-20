@@ -1,19 +1,3 @@
-const bGametypeAlreadyExists = (gametypes, name) =>{
-
-    name = name.toLowerCase();
-
-    for(let i = 0; i < gametypes.length; i++){
-
-        const g = gametypes[i];
-
-        const currentName = g.name.toLowerCase();
-
-        if(currentName === name) return true;
-    }
-
-    return false;
-}
-
 const createGametype = async (dispatch, nDispatch, name) =>{
 
     try{
@@ -50,7 +34,7 @@ const createGametype = async (dispatch, nDispatch, name) =>{
     }
 }
 
-const renderForm = (state, dispatch, nDispatch) =>{
+const renderForm = (state, dispatch, nDispatch, bGametypeAlreadyExists) =>{
 
     if(state.bLoading) return null;
 
@@ -60,7 +44,7 @@ const renderForm = (state, dispatch, nDispatch) =>{
 
     if(bExists){
         elems = <div className="grey p-10">
-            There is already a gametype called {state.newName}, you can not create the same gametype again(gametype names are case insensitive)
+            There is already a gametype called <b>{state.newName}</b>, you can not create the same gametype again(gametype names are case insensitive)
         </div>
     }else if(state.newName.length > 0){
         elems = <div className="search-button" onClick={() =>{
@@ -89,11 +73,11 @@ const renderForm = (state, dispatch, nDispatch) =>{
     </div>
 }
 
-const AdminCreateGametype = ({state, dispatch, nDispatch}) =>{
+const AdminCreateGametype = ({state, dispatch, nDispatch, bGametypeAlreadyExists}) =>{
 
     return <>
         <div className="default-header">Create Gametype</div>        
-        {renderForm(state, dispatch, nDispatch)}
+        {renderForm(state, dispatch, nDispatch, bGametypeAlreadyExists)}
     </>
 }
 

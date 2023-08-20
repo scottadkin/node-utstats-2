@@ -54,22 +54,25 @@ export default async function handler(req, res){
 
 
                 if(newName.length < 1){
-                    res.status(200).json({"message": "Gametype name must be at least 1 characters long."});
+                    res.status(200).json({"error": "Gametype name must be at least 1 characters long."});
                     return;
                 }
 
                 if(gametypeId !== gametypeId){
-                    res.status(200).json({"message": "Gametype Id must be an integer."});
+                    res.status(200).json({"error": "Gametype Id must be an integer."});
                     return;
                 }
 
                 if(gametypeId < 1){
-                    res.status(200).json({"message": "GamtypeId must be a positve integer."});
+                    res.status(200).json({"error": "GamtypeId must be a positve integer."});
                     return;
                 }
 
 
                 await gametypeManager.rename(gametypeId, newName);
+
+                res.status(200).json({"message": "passed"});
+                return;
 
             }else if(mode === "merge"){
 
