@@ -86,9 +86,9 @@ export const adminGametypeReducer = (state, action) =>{
             const gametypes = [];
             const idsToNames = {};
 
-            for(let i = 0; i < gametypes.length; i++){
+            for(let i = 0; i < state.gametypes.length; i++){
 
-                const g = gametypes[i];
+                const g = state.gametypes[i];
 
                 if(g.id !== action.targetId){
                     gametypes.push(g);
