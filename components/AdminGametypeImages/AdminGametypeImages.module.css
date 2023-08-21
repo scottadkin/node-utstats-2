@@ -1,0 +1,15 @@
+.wrapper{
+    padding:5px;
+    margin:5px;
+    display:inline-block;
+    background-color:var(--color-9);
+}
+
+.image{
+    max-width:240px;
+}
+
+.name{
+    font-size:12px;
+    color:var(--color-6);
+}

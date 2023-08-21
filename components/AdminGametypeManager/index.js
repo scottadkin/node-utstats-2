@@ -6,6 +6,7 @@ import AdminCreateGametype from "../AdminCreateGametype";
 import AdminGametypeRename from "../AdminGametypeRename";
 import AdminGametypeDelete from "../AdminGametypeDelete";
 import AdminGametypeMerge from "../AdminGametypeMerge";
+import AdminGametypeImages from "../AdminGametypeImages";
 import Tabs from "../Tabs";
 
 const loadData = async (dispatch, signal, nDispatch) =>{
@@ -36,7 +37,9 @@ const loadData = async (dispatch, signal, nDispatch) =>{
             return;
         }
 
-        dispatch({"type": "loadedGametypes", "gametypes": res});
+        console.log(res);
+
+        dispatch({"type": "loadedGametypes", "gametypes": res.data, "images": res.images});
 
     }catch(err){
 
@@ -72,7 +75,7 @@ const bGametypeAlreadyExists = (gametypes, name) =>{
 const AdminGametypeManager = ({}) =>{
 
 
-    const [selectedTab, setSelectedTab] = useState(1);
+    const [selectedTab, setSelectedTab] = useState(3);
     const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
     const [state, dispatch] = useReducer(adminGametypeReducer, adminGametypeInitial);
     
@@ -125,7 +128,24 @@ const AdminGametypeManager = ({}) =>{
     }
 
     if(selectedTab === 2){
-        elems.push(<AdminGametypeDelete key="delete" gametypes={state.gametypes} dispatch={dispatch} nDispatch={nDispatch}/>);
+
+        elems.push(<AdminGametypeDelete 
+            key="delete" 
+            gametypes={state.gametypes} 
+            dispatch={dispatch} 
+            nDispatch={nDispatch}
+        />);
+    }
+
+    if(selectedTab === 3){
+        
+        elems.push(<AdminGametypeImages 
+            key="images" 
+            images={state.images}
+            gametypes={state.gametypes} 
+            dispatch={dispatch} 
+            nDispatch={nDispatch}
+        />);
     }
 
     const tabOptions = [              

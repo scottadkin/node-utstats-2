@@ -28,8 +28,10 @@ export default async function handler(req, res){
             if(mode === "all-details"){
 
                 const data = await gametypeManager.getAll();
+                const images = gametypeManager.getImages();
 
-                res.status(200).json(data);
+
+                res.status(200).json({"data": data, "images": images});
                 return;
             }
 

@@ -2,7 +2,8 @@ export const adminGametypeInitial = {
     "gametypes": [],
     "idsToNames": {},
     "newName": "",
-    "bLoading": false
+    "bLoading": false,
+    "images": []
 };
 
 export const adminGametypeReducer = (state, action) =>{
@@ -28,6 +29,7 @@ export const adminGametypeReducer = (state, action) =>{
             return {
                 ...state,
                 "gametypes": action.gametypes,
+                "images": action.images,
                 "idsToNames": idsToNames
             }
         }

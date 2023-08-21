@@ -11,104 +11,62 @@ export const config = {
 
 export default async function handler(req, res){
 
-    try{
+    const session = new Session(req);
 
+    await session.load();
 
-        const session = new Session(req);
+    if(!await session.bUserAdmin()){
+        res.status(200).json({"error": "Only admins can perform this action"});
+        return;
+    }
 
-        await session.load();
+    return new Promise((resolve, reject) =>{
 
-        if(await session.bUserAdmin()){
+    
+        const VALID_MIMES = ["image/jpeg", "image/jpg"];
 
+        const form = formidable({
+            "filter": ({name, originalFilename, mimetype}) =>{
+    
+                if(VALID_MIMES.indexOf(mimetype) === -1) return false;
 
-            const reg = /^.+\.(.+)$/i;
+                return true;
+            }
+        });
 
-            const form = new formidable.IncomingForm();
-            form.uploadDir = "./uploads";
-            form.keepExtensions = false;
+        form.parse(req, (err, fields, files) => {
 
-            let fileSingleName = null;
-            let filePath = "";
+            let fileName = fields["fileName"] ?? "";
+            fileName = fileName.toLowerCase();
 
-            const filePaths = [];
-            const fileNames = [];
-
-            form.parse(req, (err, fields, files) =>{
-
-                if(err) console.trace(err);
-               // console.log(fields, files);
-
-                if(fields.mode !== undefined){
-
-                    if(fields.mode === "single"){
-                        
-                        if(fields.fileName !== undefined){
-                            fileSingleName = fields.fileName;
-                        }
-                    }
-                }
-            });
-
-            form.onPart = function (part){
-
-                if(part.filename){
-
-                    const result = reg.exec(part.filename);
-
-                    if(result !== null){
-
-                        if(result[1].toLowerCase() === "jpg" || result[1].toLowerCase() === "jpeg"){
-
-                            if(part.mime === "image/jpeg"){
-                                form.handlePart(part);
-                            }else{
-                                console.log(`Wrong file mime type`);
-                            }
-
-                        }else{
-                            console.log(`Invalid file extension`);
-                        }
-
-                    }else{
-
-                        console.log(`reg expression failed to match`);
-                    }
-
-                }else{
-                    form.handlePart(part);
-                }
+            if(Object.keys(files).length === 0){
+                resolve();
+                return res.status(200).json({"error": "No Files Selected"});
             }
 
-            form.on("file", (name, file) =>{
+            try{
 
-                filePath = file.path;
+                for(const file of Object.values(files)){
 
-                filePaths.push(file.path);
-                fileNames.push(file.name);
-            });
-
-            form.once("end", () =>{
-
-                if(fileSingleName !== null){
-                    fs.renameSync(filePath, `./public/images/gametypes/${fileSingleName}.jpg`);
-                }else{
-
-                    for(let i = 0; i < filePaths.length; i++){
-
-                        fs.renameSync(filePaths[i],`./public/images/gametypes/${fileNames[i].replace(/ /ig, "").toLowerCase()}` );
+                    if(fileName === ""){
+                        fileName = file.newFilename;
                     }
+
+                    fileName = fileName.replaceAll(" ", "");
+
+                    fs.renameSync(file.filepath, `./public/images/gametypes/${fileName}.jpg`);
                 }
-            });
 
+            }catch(fileError){
+                console.trace(fileError);
+                reject(fileError.toString());
+                return;
+            }
             res.status(200).json({"message": "passed"});
+            resolve();
+            
+        });
 
-        }else{
-
-            res.status(200).json({"message": "Only admins can perform this action."});
-        }
-
-    }catch(err){
-        console.trace(err);
-        res.status(200).json({"message": err});
-    }
+    });
+    
 }
