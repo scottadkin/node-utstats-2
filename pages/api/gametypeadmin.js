@@ -78,6 +78,9 @@ export default async function handler(req, res){
 
                 const oldId = req.body.oldGametypeId;
                 const newId = req.body.newGametypeId;
+                const bAutoMergeAfter = req.body.bAutoMergeAfter ?? false;
+
+                console.log(bAutoMergeAfter);
 
                 console.log(`oldgametypeId = ${oldId}`);
                 console.log(`newGametypeId = ${newId}`);
@@ -108,7 +111,19 @@ export default async function handler(req, res){
                 const weaponsManager = new Weapons();
                 const playersManager = new Players();
 
-                await gametypeManager.merge(oldId, newId, rankingManager, winrateManager, ctfManager, weaponsManager, playersManager);
+                await gametypeManager.merge(
+                    oldId, 
+                    newId, 
+                    rankingManager, 
+                    winrateManager, 
+                    ctfManager, 
+                    weaponsManager, 
+                    playersManager,
+                    bAutoMergeAfter
+                );
+
+                res.status(200).json({"message": "passed"});
+                return;
 
                 
             }else if(mode === "delete"){

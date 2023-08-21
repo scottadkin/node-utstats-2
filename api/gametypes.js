@@ -689,7 +689,7 @@ class Gametypes{
         
     }
 
-    async merge(oldId, newId, rankingManager, winrateManager, ctfManager, weaponsManager, playersManager){
+    async merge(oldId, newId, rankingManager, winrateManager, ctfManager, weaponsManager, playersManager, bAutoMergeAfter){
 
         try{
 
@@ -722,11 +722,21 @@ class Gametypes{
 
             await rankingManager.changeGametypeId(this, oldId, newId);
 
-            await this.deleteGametype(oldId);
-
             await winrateManager.changeGametypeId(oldId, newId);
 
             await winrateManager.recalculateGametype(newId);
+
+            if(!bAutoMergeAfter){
+                await this.deleteGametype(oldId);
+            }else{
+                const autoMergeResult = await this.setAutoMergeId(oldId, newId);
+
+                if(!autoMergeResult){
+                    throw new Error(`Failed to set auto merge id.`);
+                }
+            }
+
+            
 
         }catch(err){
             console.trace(err);
@@ -996,6 +1006,21 @@ class Gametypes{
         }
 
         return null;
+    }
+
+    /**
+     * 
+     * @param {*} targetGametype the gametype that the auto merge id will be
+     * @param {*} masterGametype the auto merge id
+     */
+    async setAutoMergeId(targetGametype, masterGametype){
+
+        const query = `UPDATE nstats_gametypes SET auto_merge_id=? WHERE id=?`;
+
+        const result = await mysql.simpleQuery(query, [masterGametype, targetGametype]);
+
+        if(result.affectedRows > 0) return true;
+        return false;
     }
 }
 
