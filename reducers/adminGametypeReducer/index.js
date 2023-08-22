@@ -109,11 +109,28 @@ export const adminGametypeReducer = (state, action) =>{
             const images = [...state.images];
 
             const newImage = action.newImage.toLowerCase().replaceAll(" ", "");
-            
+
             if(images.indexOf(newImage) === -1){
                 images.push(newImage);
             }
 
+            return {
+                ...state,
+                "images": images
+            }
+        }
+        case "removeImage": {
+
+            const images = [];
+
+            for(let i = 0; i < state.images.length; i++){
+
+                const currentImage = state.images[i];
+
+                if(currentImage !== action.targetImage){
+                    images.push(currentImage);
+                }
+            }
             return {
                 ...state,
                 "images": images

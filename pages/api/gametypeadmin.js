@@ -35,6 +35,21 @@ export default async function handler(req, res){
                 return;
             }
 
+            if(mode === "delete-image"){
+
+                const image = req.body.image ?? null;
+
+                if(image === null){
+                    res.status(200).json({"error": "image is null."});
+                    return;
+                }
+
+                gametypeManager.deleteImage(image);
+
+                res.status(200).json({"message": "passed"});
+                return;
+            }
+
             if(mode === "create"){
 
 

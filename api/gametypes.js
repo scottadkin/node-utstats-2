@@ -1022,6 +1022,23 @@ class Gametypes{
         if(result.affectedRows > 0) return true;
         return false;
     }
+
+    deleteImage(image){
+
+        const imageDir = "./public/images/gametypes/";
+
+        try{
+
+            fs.accessSync(`${imageDir}${image}`, fs.constants.R_OK | fs.constants.W_OK);
+            fs.unlinkSync(`${imageDir}${image}`);
+            return true;
+
+        }catch(err){
+            console.trace(err);
+            throw new Error(err.toString());
+        }
+
+    }
 }
 
 module.exports = Gametypes;

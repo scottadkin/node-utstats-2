@@ -2,6 +2,8 @@ import CustomTable from "../CustomTable";
 import styles from "./AdminGametypeImages.module.css";
 import Link from "next/link";
 import { getSimilarImage } from "../../api/generic.mjs";
+import { useState } from "react";
+import Loading from "../Loading";
 
 const uploadSingle = async (e, dispatch, nDispatch) =>{
 
@@ -43,6 +45,35 @@ const uploadSingle = async (e, dispatch, nDispatch) =>{
     }
 }
 
+const deleteImage = async (dispatch, nDispatch, image) =>{
+
+    try{
+
+        image = image.toLowerCase().replaceAll(" ", "");
+
+        image = `${image}.jpg`;
+
+        const req = await fetch("/api/gametypeadmin", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "delete-image", "image": image})
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined){
+            nDispatch({"type": "add", "notification": {"type": "error", "content": res.error}});
+            return;
+        }
+
+        nDispatch({"type": "add", "notification": {"type": "pass", "content": `Deleted ${image} successfully.`}});
+        dispatch({"type": "removeImage", "targetImage": image});
+        console.log(res);
+    }catch(err){
+        console.trace(err);
+    }
+}
+
 const bImageExists = (images, name) =>{
 
     name = name.toLowerCase();
@@ -52,6 +83,8 @@ const bImageExists = (images, name) =>{
 }
 
 const AdminGametypesImages = ({dispatch, nDispatch, images, gametypes}) =>{
+
+    const [bLoading, setBLoading] = useState(false);
 
     const IMAGE_DIR = "/images/gametypes/";
 
@@ -73,6 +106,7 @@ const AdminGametypesImages = ({dispatch, nDispatch, images, gametypes}) =>{
         "name": {"display": "Name"},
         "status": {"display": "Image Status"},
         "upload": {"display": "Upload"},
+        "delete": {"display": "Delete"}
     };
 
     const data = gametypes.map((g) =>{
@@ -99,6 +133,15 @@ const AdminGametypesImages = ({dispatch, nDispatch, images, gametypes}) =>{
         }
 
 
+        let deleteElem = <td key={`${g.id}_delete`}>N/A</td>;
+
+        if(imageExists){
+            deleteElem = <td key={`${g.id}_delete`} className="team-red hover" onClick={async () =>{
+                setBLoading(true);
+                await deleteImage(dispatch, nDispatch, g.name);
+                setBLoading(false);
+            }}>Delete Image</td>;
+        }
 
         return {
             "name": {
@@ -115,12 +158,22 @@ const AdminGametypesImages = ({dispatch, nDispatch, images, gametypes}) =>{
             "upload": {
                 "value": "",
                 "displayValue": <td key={g.id}>
-                    <form action="/" method="POST" encType="multipart/form-data" onSubmit={(e) => uploadSingle(e, dispatch, nDispatch)}>
+                    <form action="/" method="POST" encType="multipart/form-data" onSubmit={async (e) =>{
+                        setBLoading(true);
+                        await uploadSingle(e, dispatch, nDispatch)
+                        setBLoading(false);
+                    }
+                    }>
                         <input type="hidden" value={g.name}/>
                         <input type="file" accept=".jpg,.jpeg" />
                         <input type="submit" value="Upload" />
                     </form>
                 </td>,
+                "bNoTD": true
+            },
+            "delete": {
+                "value": "",
+                "displayValue": deleteElem,
                 "bNoTD": true
             }
             
@@ -136,6 +189,7 @@ const AdminGametypesImages = ({dispatch, nDispatch, images, gametypes}) =>{
                 If there is not an exact match a similar image name is used instead, for example <b>New Capture The Flag</b> will use <b>capturetheflag.jpg</b>.
             </div>
         </div>
+        <Loading value={!bLoading}/>
         <CustomTable width={1} headers={headers} data={data}/>
         <div className="default-header">Current Images</div>
         {currentImages}
