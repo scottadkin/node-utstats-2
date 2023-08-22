@@ -1,6 +1,7 @@
 import CustomTable from "../CustomTable";
 import styles from "./AdminGametypeImages.module.css";
 import Link from "next/link";
+import { getSimilarImage } from "../../api/generic.mjs";
 
 const uploadSingle = async (e, dispatch, nDispatch) =>{
 
@@ -77,6 +78,28 @@ const AdminGametypesImages = ({dispatch, nDispatch, images, gametypes}) =>{
     const data = gametypes.map((g) =>{
 
         const imageExists = bImageExists(images, g.name);
+
+        let partialMatch = null;
+
+        if(!imageExists){
+            partialMatch = getSimilarImage(images, g.name);
+        }
+
+        let statusElem = null;
+
+        if(partialMatch === null){
+            statusElem = <td key={`${g.id}_image`} className={(imageExists) ? "team-green" : "team-red"}>
+                {(imageExists) ? "Found" : "Missing"}
+            </td>;
+        }else{
+            statusElem = <td key={`${g.id}_image`} className="team-yellow">
+                Partial Match<br/>
+                ({partialMatch})
+            </td>
+        }
+
+
+
         return {
             "name": {
                 "value": g.name.toLowerCase(), 
@@ -85,9 +108,7 @@ const AdminGametypesImages = ({dispatch, nDispatch, images, gametypes}) =>{
             },
             "status": {
                 "value": "",
-                "displayValue": <td key={`${g.id}_image`} className={(imageExists) ? "team-green" : "team-red"}>
-                    {(imageExists) ? "Found" : "Missing"}
-                </td>,
+                "displayValue": statusElem,
                 "bNoTD": true
                 
             },
@@ -109,8 +130,11 @@ const AdminGametypesImages = ({dispatch, nDispatch, images, gametypes}) =>{
     return <>
         <div className="default-header">Gametype Images</div>
         <div className="form">
-            <div className="form-info">For best results make sure images have an aspect ratio of 16:9, file type must be <b>.jpg</b>.<br/>
-            File names are automatically set to the gametype name in all lowercase with no spaces.</div>
+            <div className="form-info">
+                For best results make sure images have an aspect ratio of 16:9, file type must be <b>.jpg</b>.<br/>
+                File names are automatically set to the gametype name in all lowercase with no spaces.<br/>
+                If there is not an exact match a similar image name is used instead, for example <b>New Capture The Flag</b> will use <b>capturetheflag.jpg</b>.
+            </div>
         </div>
         <CustomTable width={1} headers={headers} data={data}/>
         <div className="default-header">Current Images</div>

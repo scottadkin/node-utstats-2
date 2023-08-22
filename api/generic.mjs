@@ -389,8 +389,35 @@ export function idNameObjToDropDownArray(obj, bSortByDisplayValue){
             return 0;
         });
     }
-
-
-
     return entries;
+}
+
+/**
+ * Find a partially matching image by name
+ * @param {*} imagesList list of image files
+ * @param {*} targetName target file name
+ */
+export function getSimilarImage(imagesList, targetName){
+
+    if(imagesList === undefined) throw new Error("You must supply an array of images as the second argument.");
+    if(targetName === undefined) throw new Error("You have not specified a target name to find.");
+
+    const cleanTargetName = targetName.toLowerCase().replaceAll(" ", "");
+
+    for(let i = 0; i < imagesList.length; i++){
+
+        const image = imagesList[i];
+        const cleanImageName = image.toLowerCase().replaceAll(" ", "");
+
+        const regResult = /^(.+)\..+?$/i.exec(cleanImageName);
+
+        if(regResult === null) continue;
+
+        if(cleanTargetName.includes(regResult[1])){
+            return image;
+        }
+    }
+
+    return null;
+
 }
