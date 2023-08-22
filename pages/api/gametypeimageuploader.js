@@ -69,8 +69,6 @@ export default async function handler(req, res){
                 return;
             }
 
-            let fileName = fields["fileName"] ?? "";
-            fileName = fileName.toLowerCase();
 
             if(Object.keys(files).length === 0){
                 resolve();
@@ -81,16 +79,12 @@ export default async function handler(req, res){
 
             try{
 
-                for(const file of Object.values(files)){
+                for(const [currentFileName, file] of Object.entries(files)){
 
-                    if(fileName === ""){
-                        fileName = file.newFilename;
-                    }
+                    const cleanFileName = currentFileName.toLowerCase().replaceAll(" ", "");
 
-                    fileName = fileName.replaceAll(" ", "");
-
-                    fs.renameSync(file.filepath, `./public/images/gametypes/${fileName}.jpg`);
-                    messages.push(`Uploaded ${fileName}.jpg successfully.`);
+                    fs.renameSync(file.filepath, `./public/images/gametypes/${cleanFileName}`);
+                    messages.push(`Uploaded ${currentFileName} successfully`);
                 }
 
             }catch(fileError){
@@ -100,7 +94,14 @@ export default async function handler(req, res){
                 return;
             }
 
-            res.status(200).json({"message": messages.toString()});
+            let finalMessage = "";
+
+            if(messages.length === 1){
+                finalMessage = messages.toString();
+            }else{
+                finalMessage = messages.join(", ");
+            }
+            res.status(200).json({"message": `${finalMessage}.`});
             resolve();
             
         });

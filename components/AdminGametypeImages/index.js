@@ -4,23 +4,35 @@ import Link from "next/link";
 import { getSimilarImage } from "../../api/generic.mjs";
 import { useState } from "react";
 import Loading from "../Loading";
+import Tabs from "../Tabs";
 
-const uploadSingle = async (e, dispatch, nDispatch) =>{
+const uploadImages = async (e, dispatch, nDispatch) =>{
 
     try{
 
         e.preventDefault();
-
-        if(e.target[1].files.length === 0){
-            //errors.push("You have not selected a file to upload.");
-            //return;
-        }
-
+     
         const formData = new FormData();
 
-        //formData.append("mode", "single");
-        formData.append("fileName", e.target[0].value);
-        formData.append("file", e.target[1].files[0]);
+
+        const imageNames = [];
+
+
+        if(e.target[1].files.length === 1){
+
+            imageNames.push(e.target[0].value);
+
+            formData.append(e.target[0].value, e.target[1].files[0]);
+
+        }else{
+
+            for(let i = 0; i < e.target[1].files.length; i++){
+
+                formData.append(e.target[1].files[i].name, e.target[1].files[i]);
+                imageNames.push(e.target[1].files[i].name);
+            }
+        }
+        //formData.append("file", e.target[1].files[0]);
         
 
         const req = await fetch("/api/gametypeimageuploader",{
@@ -35,7 +47,9 @@ const uploadSingle = async (e, dispatch, nDispatch) =>{
             return;
         }
 
-        dispatch({"type": "addImage", "newImage": `${e.target[0].value}.jpg`});
+        for(let i = 0; i < imageNames.length; i++){
+            dispatch({"type": "addImage", "newImage": `${imageNames[i]}`});
+        }
         nDispatch({"type": "add", "notification": {"type": "pass", "content": res.message}});   
         e.target.reset();
         
@@ -82,25 +96,11 @@ const bImageExists = (images, name) =>{
     return images.indexOf(`${name}.jpg`) !== -1;
 }
 
-const AdminGametypesImages = ({dispatch, nDispatch, images, gametypes}) =>{
 
-    const [bLoading, setBLoading] = useState(false);
+const renderSingleUploader = (gametypes, images, nDispatch, dispatch, selectedTab, setBLoading) =>{
 
-    const IMAGE_DIR = "/images/gametypes/";
 
-    const currentImages = images.map((i) =>{
-
-        const url = `${IMAGE_DIR}${i}`;
-
-        return <div className={styles.wrapper} key={i}>
-            <Link href={url} target="_blank">
-                <img className={`${styles.image} hover`} src={url} alt="image"/>
-            </Link>
-            <div className={styles.name}>
-                {i}
-            </div>
-        </div>
-    });
+    if(selectedTab !== 0) return null;
 
     const headers = {
         "name": {"display": "Name"},
@@ -160,11 +160,11 @@ const AdminGametypesImages = ({dispatch, nDispatch, images, gametypes}) =>{
                 "displayValue": <td key={g.id}>
                     <form action="/" method="POST" encType="multipart/form-data" onSubmit={async (e) =>{
                         setBLoading(true);
-                        await uploadSingle(e, dispatch, nDispatch)
+                        await uploadImages(e, dispatch, nDispatch)
                         setBLoading(false);
                     }
                     }>
-                        <input type="hidden" value={g.name}/>
+                        <input type="hidden" value={`${g.name}.jpg`}/>
                         <input type="file" accept=".jpg,.jpeg" />
                         <input type="submit" value="Upload" />
                     </form>
@@ -180,17 +180,69 @@ const AdminGametypesImages = ({dispatch, nDispatch, images, gametypes}) =>{
         }
     });
 
+
+    return <CustomTable width={1} headers={headers} data={data}/>;
+}
+
+const renderBulkUploader = (dispatch, nDispatch, selectedTab, setBLoading) =>{
+
+    if(selectedTab !== 1) return null;
+
+    return <form action="/" className="form" method="POST" encType="multipart/form-data" onSubmit={async (e) =>{
+        setBLoading(true);
+        await uploadImages(e, dispatch, nDispatch)
+        setBLoading(false);
+    }
+    }>
+        <input type="hidden" value={""}/>
+        <input type="file" multiple={true} accept=".jpg,.jpeg" />
+        <input type="submit" value="Upload" />
+    </form>
+}
+
+const AdminGametypesImages = ({dispatch, nDispatch, images, gametypes}) =>{
+
+    const [bLoading, setBLoading] = useState(false);
+    const [selectedTab, setSelectedTab] = useState(0);
+
+    const IMAGE_DIR = "/images/gametypes/";
+
+    const currentImages = images.map((i) =>{
+
+        const url = `${IMAGE_DIR}${i}`;
+
+        return <div className={styles.wrapper} key={i}>
+            <Link href={url} target="_blank">
+                <img className={`${styles.image} hover`} src={url} alt="image"/>
+            </Link>
+            <div className={styles.name}>
+                {i}
+            </div>
+        </div>
+    });
+
+   
+
     return <>
         <div className="default-header">Gametype Images</div>
+        <Tabs 
+            options={[
+                {"name": "Single Uploader", "value": 0},
+                {"name": "Bulk Uploader", "value": 1},
+            ]} 
+            changeSelected={setSelectedTab}
+            selectedValue={selectedTab}
+        />
         <div className="form">
             <div className="form-info">
                 For best results make sure images have an aspect ratio of 16:9, file type must be <b>.jpg</b>.<br/>
-                File names are automatically set to the gametype name in all lowercase with no spaces.<br/>
+                File names are automatically &#40;while using single uploader&#41; to the gametype name in all lowercase with no spaces.<br/>
                 If there is not an exact match a similar image name is used instead, for example <b>New Capture The Flag</b> will use <b>capturetheflag.jpg</b>.
             </div>
         </div>
         <Loading value={!bLoading}/>
-        <CustomTable width={1} headers={headers} data={data}/>
+        {renderSingleUploader(gametypes, images, nDispatch, dispatch, selectedTab, setBLoading)}
+        {renderBulkUploader(dispatch, nDispatch, selectedTab, setBLoading)}
         <div className="default-header">Current Images</div>
         {currentImages}
     </>;
