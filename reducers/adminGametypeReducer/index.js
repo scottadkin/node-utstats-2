@@ -105,9 +105,18 @@ export const adminGametypeReducer = (state, action) =>{
             }
         }
         case "addImage": {
+
+            const images = [...state.images];
+
+            const newImage = action.newImage.toLowerCase().replaceAll(" ", "");
+            
+            if(images.indexOf(newImage) === -1){
+                images.push(newImage);
+            }
+
             return {
                 ...state,
-                "images": [...state.images, action.newImage]
+                "images": images
             }
         }
     }

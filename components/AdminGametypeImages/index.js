@@ -34,6 +34,8 @@ const uploadSingle = async (e, dispatch, nDispatch) =>{
 
         dispatch({"type": "addImage", "newImage": `${e.target[0].value}.jpg`});
         nDispatch({"type": "add", "notification": {"type": "pass", "content": res.message}});   
+        e.target.reset();
+        
 
     }catch(err){
         console.trace(err.toString());
