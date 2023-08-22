@@ -22,19 +22,52 @@ export default async function handler(req, res){
 
     return new Promise((resolve, reject) =>{
 
+        let cancelUploads = false;
     
         const VALID_MIMES = ["image/jpeg", "image/jpg"];
 
         const form = formidable({
+
             "filter": ({name, originalFilename, mimetype}) =>{
-    
-                if(VALID_MIMES.indexOf(mimetype) === -1) return false;
+
+                const reg = /^.+\.(.+)$/i;
+
+                const regResult = reg.exec(originalFilename);
+
+                if(regResult === null) return false;
+
+                if(regResult[1].toLowerCase() !== "jpg"){
+                    form.emit("error", `File extension must be .jpg, .${regResult[1]} was found instead.`);
+                    return false;
+                }
+
+                if(VALID_MIMES.indexOf(mimetype) === -1){
+                    form.emit("error", `File mimetype must be ${[...VALID_MIMES]}, .${mimetype} was found instead.`);
+                    return false;
+                }
 
                 return true;
             }
         });
 
+        form.once("error", (err) =>{
+
+            cancelUploads = true;
+            res.status(200).json({"error": err});
+            resolve();
+
+        });
+
         form.parse(req, (err, fields, files) => {
+
+            if(cancelUploads) return;
+            
+
+            if(err){
+                res.status(200).json({"error": err.toString()});
+                resolve();
+                return;
+            }
 
             let fileName = fields["fileName"] ?? "";
             fileName = fileName.toLowerCase();
@@ -43,6 +76,8 @@ export default async function handler(req, res){
                 resolve();
                 return res.status(200).json({"error": "No Files Selected"});
             }
+
+            const messages = [];
 
             try{
 
@@ -55,14 +90,17 @@ export default async function handler(req, res){
                     fileName = fileName.replaceAll(" ", "");
 
                     fs.renameSync(file.filepath, `./public/images/gametypes/${fileName}.jpg`);
+                    messages.push(`Uploaded ${fileName}.jpg successfully.`);
                 }
 
             }catch(fileError){
+
                 console.trace(fileError);
                 reject(fileError.toString());
                 return;
             }
-            res.status(200).json({"message": "passed"});
+
+            res.status(200).json({"message": messages.toString()});
             resolve();
             
         });

@@ -104,6 +104,12 @@ export const adminGametypeReducer = (state, action) =>{
                 "idsToNames": idsToNames
             }
         }
+        case "addImage": {
+            return {
+                ...state,
+                "images": [...state.images, action.newImage]
+            }
+        }
     }
 
     return state;
