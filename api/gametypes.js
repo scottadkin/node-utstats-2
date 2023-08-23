@@ -94,22 +94,41 @@ class Gametypes{
     }
 
 
+    async bGametypeExists(id){
+
+        const query = `SELECT COUNT(*) as total_matches FROM nstats_gametypes WHERE id=?`;
+
+        const result = await mysql.simpleQuery(query, [id]);
+
+        return result[0].total_matches !== 0;
+    }
+
     async updateStats(name, date, playtime){
 
         try{
 
-            let id = await this.getGametypeId(name, true);
+            const originalId = await this.getGametypeId(name, true);
 
-            const autoMergeId = await this.getGametypeAutoMergeId(id);
+            let currentGametype = originalId;
 
-            if(autoMergeId !== null){
-                new Message(`Gametype has an auto merge id of ${autoMergeId}.`,"note");
-                id = autoMergeId;
-                this.currentMatchGametype = id;
+            const autoMergeId = await this.getGametypeAutoMergeId(originalId);
+
+            if(autoMergeId !== 0){
+
+                const bExists = await this.bGametypeExists(autoMergeId);
+
+                if(bExists){
+                    currentGametype = autoMergeId; 
+                    new Message(`Gametype has an auto merge id of ${autoMergeId}.`, "note");
+                }else{
+                    new Message(`There are no gametypes with the id of ${autoMergeId}, using the gametype's original id instead.`,"warning");
+                }
             }
 
+            this.currentMatchGametype = currentGametype;
+            console.log(`currentGametype = ${currentGametype}`);
 
-            const bPassed = await this.updateQuery(id, date, playtime);
+            const bPassed = await this.updateQuery(currentGametype, date, playtime);
 
             if(bPassed){
                 new Message(`Inserted gametype info into database.`,'pass');
@@ -997,15 +1016,35 @@ class Gametypes{
 
     async getGametypeAutoMergeId(gametypeId){
 
-        const query = `SELECT auto_merge_id FROM nstats_gametypes WHERE id=?`;
+        const MAX_DEPTH = 10;
+        let depth = 0;
 
-        const result = await mysql.simpleQuery(query, [gametypeId]);
+        let currentGametype = gametypeId;
 
-        if(result.length > 0 && result[0].auto_merge_id !== 0){
-            return result[0].auto_merge_id;
+        while(depth < MAX_DEPTH){
+
+            depth++;
+            
+            const query = `SELECT auto_merge_id FROM nstats_gametypes WHERE id=?`;
+
+            const result = await mysql.simpleQuery(query, [currentGametype]);
+
+            if(result.length > 0 && result[0].auto_merge_id !== 0){
+
+                currentGametype = result[0].auto_merge_id;
+
+                if(currentGametype === 0) return currentGametype;
+            }
+        }   
+
+        if(depth >= MAX_DEPTH){
+            new Message(`Gametypes.getGametypeAutoMergeId() Reached maximum depth of ${MAX_DEPTH}.`,"warning");
+            new Message(`Gametypes.getGametypeAutoMergeId() Forcing original gametype id of ${gametypeId}.`,"warning");
+            new Message(`Gametypes.getGametypeAutoMergeId() This is to prevent infinite loop if a gametype merges into itself.`,"warning");
+            currentGametype = gametypeId;
         }
 
-        return null;
+        return currentGametype;
     }
 
     /**
