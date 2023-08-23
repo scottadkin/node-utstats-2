@@ -64,6 +64,36 @@ export default async function handler(req, res){
                 return;
             }
 
+            if(mode === "set-auto-merges"){
+
+                const changes = req.body.changes ?? null;
+
+                if(changes === null){
+                    res.status(200).json({"error": "There are no changes to make."})
+                    return;
+                }
+
+
+                let passes = 0;
+                let fails = 0;
+
+                for(const [id, autoMergeId] of Object.entries(changes)){
+
+                    console.log(id, autoMergeId);
+
+                    if(await gametypeManager.setAutoMergeId(parseInt(id), autoMergeId)){
+                        passes++;
+                        //message += `Setting gametype ${id} with the auto merge id of ${autoMergeId} completed.`;
+                    }else{
+                        fails++;
+                        //message += `Setting gametype ${id} with the auto merge id of ${autoMergeId} failed.`;
+                    }
+                }
+
+                res.status(200).json({"message": `Finished setting auto merge ids, ${passes} passed, and ${fails} failed.`});
+                return;
+            }
+
             if(mode === "rename"){
 
                 const newName = req.body.newName;

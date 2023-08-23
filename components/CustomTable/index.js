@@ -38,9 +38,10 @@ const createRow = (data, index) =>{
     </tr>
 }
 
-const CustomTable = ({width, headers, data}) =>{
+const CustomTable = ({width, headers, data, bNoMarginBottom}) =>{
 
     if(width === undefined) width = 1;
+    if(bNoMarginBottom === undefined) bNoMarginBottom = false;
 
     let tableClassName = `t-width-${width}`;
 
@@ -79,7 +80,13 @@ const CustomTable = ({width, headers, data}) =>{
         dataRows.push(<tr key="none"><td colSpan={Object.keys(headers).length}>No Data</td></tr>);
     }
 
-    return <table className={`${styles.wrapper} ${tableClassName}`}>
+    let style = {};
+
+    if(!bNoMarginBottom){
+        style = {"marginBottom": "var(--margin-1)"};
+    }
+
+    return <table style={style} className={`${styles.wrapper} ${tableClassName}`}>
             <tbody>
                 {headerRow}
                 {dataRows}

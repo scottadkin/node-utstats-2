@@ -136,6 +136,24 @@ export const adminGametypeReducer = (state, action) =>{
                 "images": images
             }
         }
+        case "setAutoMergeIds": {
+
+            const gametypes = [...state.gametypes];
+
+            for(let i = 0; i < gametypes.length; i++){
+
+                const g = gametypes[i];
+
+                if(action.changes[g.id] !== undefined){
+                    g.auto_merge_id = action.changes[g.id];
+                }
+            }
+
+            return {
+                ...state,
+                "gametypes": gametypes
+            }
+        }
     }
 
     return state;

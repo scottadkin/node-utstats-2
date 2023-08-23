@@ -225,22 +225,27 @@ const AdminPlayerHistory = ({playerNames, selectedPlayerProfile, setIpSearch}) =
     const elems = [];
 
     if(selectedPlayerProfile === -1){
-        elems.push(<div key="none">No Player Selected</div>);
-    }else{
 
-        const player = getPlayer(playerNames, selectedPlayerProfile);
-
-        elems.push(<div key="pinfo">
-            Selected player is <CountryFlag country={player.country}/><b>{player.name}</b>
-        </div>);
+        return <div>
+            <div className="default-header">Player History</div>
+            <div className="form">
+                <div className="form-info">You have to select a player first.</div>
+            </div>
+        </div>;
     }
+
+    const player = getPlayer(playerNames, selectedPlayerProfile);
+
+    elems.push(<div key="pinfo" className="p-5">
+        Selected player is <CountryFlag country={player.country}/><b>{player.name}</b>
+    </div>);
 
     
 
     return <div>
         <div className="default-header">Player History</div>
         <div className="default-box">
-            {elems} {selectedPlayerProfile}
+            {elems}
         </div>
         <Loading value={!state.bLoading}/>
         {renderIpHistory(state, setIpSearch)}

@@ -341,7 +341,8 @@ const renderSearchResult = (state, dispatch, addNotification) =>{
                 "value": "",
                 "displayValue": <div onClick={() =>{
                     dispatch({"type": "toPlayerReport", "playerId": d.id});
-                }}>View History</div>
+                }}>View History</div>,
+                "className": "hover"
             }
         }
     });
@@ -372,7 +373,8 @@ const renderIPSearchResult = (state, dispatch, addNotification) =>{
     const headers = {
         "player": "Player",
         "date": "Date",
-        "match": "Match Link"
+        "match": "Match Link",
+        "actions": "Actions"
     };
 
     const data = state.ipSearchResult.matchData.map((d) =>{
@@ -394,11 +396,18 @@ const renderIPSearchResult = (state, dispatch, addNotification) =>{
                     <Link href={`/match/${d.match_id}`} target="_blank">Match Report</Link><br/>
                     <Link href={`/pmatch/${d.match_id}/?player=${d.player_id}`} target="_blank">Player Match Report</Link>
                 </>
+            },
+            "actions": {
+                "displayValue": <>
+                    <span onClick={() =>{
+                            dispatch({"type": "toPlayerReport", "playerId": d.player_id});
+                        }}><a href={`#test`}>View History</a>
+                    </span>
+                </>,
+                "className": "hover"
             }
         }
     });
-
-   // const uniqueNames = [];
 
    const namesHeader = {
         "name": "Name",
