@@ -126,7 +126,6 @@ class Gametypes{
             }
 
             this.currentMatchGametype = currentGametype;
-            console.log(`currentGametype = ${currentGametype}`);
 
             const bPassed = await this.updateQuery(currentGametype, date, playtime);
 
@@ -1024,16 +1023,17 @@ class Gametypes{
         while(depth < MAX_DEPTH){
 
             depth++;
-            
+
             const query = `SELECT auto_merge_id FROM nstats_gametypes WHERE id=?`;
 
             const result = await mysql.simpleQuery(query, [currentGametype]);
 
+            //if auto merge id is 0 it means there is no further auto merging
+            if(result[0].auto_merge_id === 0) return currentGametype;
+
             if(result.length > 0 && result[0].auto_merge_id !== 0){
 
                 currentGametype = result[0].auto_merge_id;
-
-                if(currentGametype === 0) return currentGametype;
             }
         }   
 
