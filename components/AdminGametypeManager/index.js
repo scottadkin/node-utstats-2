@@ -7,6 +7,7 @@ import AdminGametypeRename from "../AdminGametypeRename";
 import AdminGametypeDelete from "../AdminGametypeDelete";
 import AdminGametypeMerge from "../AdminGametypeMerge";
 import AdminGametypeImages from "../AdminGametypeImages";
+import AdminGametypeAutoMerger from "../AdminGametypeAutoMerger";
 import Tabs from "../Tabs";
 
 const loadData = async (dispatch, signal, nDispatch) =>{
@@ -75,7 +76,7 @@ const bGametypeAlreadyExists = (gametypes, name) =>{
 const AdminGametypeManager = ({}) =>{
 
 
-    const [selectedTab, setSelectedTab] = useState(3);
+    const [selectedTab, setSelectedTab] = useState(4);
     const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
     const [state, dispatch] = useReducer(adminGametypeReducer, adminGametypeInitial);
     
@@ -148,12 +149,24 @@ const AdminGametypeManager = ({}) =>{
         />);
     }
 
+    if(selectedTab === 4){
+
+        elems.push(<AdminGametypeAutoMerger 
+            key="auto" 
+            idsToNames={state.idsToNames}
+            gametypes={state.gametypes} 
+            dispatch={dispatch} 
+            nDispatch={nDispatch}
+        />);
+    }
+
     const tabOptions = [              
         {"name": "Create Gametype", "value": -1},
         {"name": "Rename Gametypes", "value": 0},
         {"name": "Merge Gametypes", "value": 1},
         {"name": "Delete Gametypes", "value": 2},
-        {"name": "Upload Gametype Images", "value": 3}             
+        {"name": "Upload Gametype Images", "value": 3} ,            
+        {"name": "Auto Merger", "value": 4} ,            
     ];
 
     return <>

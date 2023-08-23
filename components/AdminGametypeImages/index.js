@@ -50,7 +50,9 @@ const uploadImages = async (e, dispatch, nDispatch) =>{
         for(let i = 0; i < imageNames.length; i++){
             dispatch({"type": "addImage", "newImage": `${imageNames[i]}`});
         }
+
         nDispatch({"type": "add", "notification": {"type": "pass", "content": res.message}});   
+        
         e.target.reset();
         
 
