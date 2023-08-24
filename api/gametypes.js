@@ -215,8 +215,10 @@ class Gametypes{
 
     async getAllNames(){
 
-
+  
         const query = "SELECT id,name FROM nstats_gametypes ORDER BY name ASC";
+     
+        
         const result = await mysql.simpleQuery(query);
         
         const data = {};
@@ -265,7 +267,10 @@ class Gametypes{
     }
 
     async getAll(){
-        return await mysql.simpleFetch("SELECT * FROM nstats_gametypes ORDER BY name ASC");
+    
+        const query = `SELECT * FROM nstats_gametypes ORDER BY name ASC`;
+        
+        return await mysql.simpleQuery(query);
     }
 
 
@@ -1027,6 +1032,8 @@ class Gametypes{
             const query = `SELECT auto_merge_id FROM nstats_gametypes WHERE id=?`;
 
             const result = await mysql.simpleQuery(query, [currentGametype]);
+
+            if(result.length === 0) return currentGametype;
 
             //if auto merge id is 0 it means there is no further auto merging
             if(result[0].auto_merge_id === 0) return currentGametype;

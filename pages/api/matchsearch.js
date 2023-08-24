@@ -23,7 +23,7 @@ export default async function handler(req, res){
         mode = mode.toLowerCase();
 
         const serverId = req.body.serverId ?? 0;
-        const gametypeId = req.body.gametypeId ?? 0;
+        let gametypeId = req.body.gametypeId ?? 0;
         const mapId = req.body.mapId ?? 0;
 
         let perPage = req.body.perPage ?? 0;
@@ -44,6 +44,15 @@ export default async function handler(req, res){
         const gametypeManager = new Gametypes();
         const matchManager = new Matches();
         const playerManager = new Players();
+
+        /*if(mode !== ""){
+
+            console.log("CHECK");
+            const autoMergeId = await gametypeManager.getGametypeAutoMergeId(gametypeId);
+
+            if(autoMergeId !== 0) gametypeId = autoMergeId;
+            console.log(`autoMergeId = ${autoMergeId}`);
+        }*/
 
         if(mode === "full-list"){
             

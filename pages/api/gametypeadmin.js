@@ -27,7 +27,7 @@ export default async function handler(req, res){
 
             if(mode === "all-details"){
 
-                const data = await gametypeManager.getAll();
+                const data = await gametypeManager.getAll(true);
                 const images = gametypeManager.getImages();
 
 
