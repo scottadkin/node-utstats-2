@@ -135,7 +135,6 @@ const PopularCountries = ({totalPlayers, settings}) =>{
 
     const [state, dispatch] = useReducer(reducer, {"bLoading": true, "error": null, "data": []});
 
-
     useEffect(() =>{
 
         const controller = new AbortController();
