@@ -73,6 +73,8 @@ class Rankings extends React.Component{
         for(let i = 0; i < data.length; i++){
 
             const d = data[i];
+            
+            if(d.data.length === 0) continue;
 
             elems.push(<RankingTable host={Functions.getImageHostAndPort(this.props.host)} gametypeId={d.id} page={this.props.page-1} perPage={this.props.perPage} 
                 key={i} mode={this.props.gametypeId}
