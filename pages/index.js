@@ -169,18 +169,18 @@ function Home({navSettings, pageSettings, pageOrder, session, host, matchesData,
 		elems[pageOrder["Display Most Popular Countries"]] = <PopularCountries key={"countries"} totalPlayers={totalPlayers} settings={pageSettings}/>;
 	}
 	
-
 	return (
 		<div>
 		<DefaultHead host={host} title={"Home"} description="Welcome to Node UTStats 2, view various stats for players,matches,maps,records and more!" keywords="home,welcome"/>	
 		<main>
 			<Nav settings={navSettings} session={session}/>
+			
 			<div id="content">
 				<div className="default">	
 				{message}
 				{elems}
 				
-			</div>
+				</div>
 			</div>
 			<Footer session={session}/>
 		</main>   

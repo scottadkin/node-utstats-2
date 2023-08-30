@@ -419,5 +419,75 @@ export function getSimilarImage(imagesList, targetName){
     }
 
     return null;
+}
 
+
+export function reduceGraphDataPoints(inputData, maxDataPoints, inputLabels, colors){
+
+    const outputData = [];
+    const outputLabels = [];
+
+    let mostDataPoints = 0;
+
+    for(let i = 0; i < inputData.length; i++){
+
+        const d = inputData[i];
+
+        outputData.push({
+            "name": d.name,
+            "color": colors[i % colors.length] ?? "red",
+            "values": []
+        });
+
+        if(d.data.length > mostDataPoints) mostDataPoints = d.data.length;
+    }
+
+    let increment = 1;
+
+    if(maxDataPoints !== 0){
+
+        if(mostDataPoints > maxDataPoints){
+
+            if(mostDataPoints !== 0 && maxDataPoints !== 0){
+                increment = Math.ceil(mostDataPoints / maxDataPoints);
+            }
+        }
+        
+    }
+
+
+    for(let i = 0; i < mostDataPoints; i += increment){
+
+        outputLabels.push(inputLabels[i]);
+    }
+
+    let bUsedFinalData = false;
+
+    for(let x = 0; x < inputData.length; x++){
+
+        for(let i = 0; i < mostDataPoints; i += increment){
+
+            outputData[x].values.push(inputData[x].data[i]);
+            if(i === mostDataPoints - 1) bUsedFinalData = true;
+        }
+    }
+
+
+    //set all final data points here if not been set already
+    if(!bUsedFinalData){
+
+        
+        outputLabels.push(inputLabels[inputLabels.length - 1]);
+
+        for(let x = 0; x < inputData.length; x++){
+
+            const lastIndex = mostDataPoints - 1;
+
+            outputData[x].values.push(inputData[x].data[lastIndex]);      
+        }
+    }
+
+    console.log(inputLabels[inputLabels.length - 1]);
+
+    return {"data": outputData, "labels": outputLabels};
 }

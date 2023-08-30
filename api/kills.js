@@ -1,6 +1,6 @@
 const mysql = require('./database');
-const Promise = require('promise');
 const Functions = require('./functions');
+const Generic = require("./generic");
 
 class Kills{
 
@@ -241,6 +241,8 @@ class Kills{
         const teams = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
         const teamIndexes = [0,1,2,3];
 
+        console.log(data);
+
         const kills = this.createGraphDataType(playerIndexes, players);
         const deaths = this.createGraphDataType(playerIndexes, players);
         const suicides = this.createGraphDataType(playerIndexes, players);
@@ -254,6 +256,8 @@ class Kills{
         const teamEfficiency = this.createGraphDataType(teamIndexes, teams);
 
 
+        const timestamps = [];
+
         for(let i = 0; i < data.length; i++){
 
             const d = data[i];
@@ -264,6 +268,7 @@ class Kills{
             const killerTeam = d.killer_team;
             const victimTeam = d.victim_team;
 
+            timestamps.push(d.timestamp);
           
             if(killer === victim){
                 
@@ -339,19 +344,23 @@ class Kills{
             }
         }
 
-        const maxDataPoints = 50;
+        console.log(timestamps);
+        const maxDataPoints = 0;
+
+        const testColors = ["red", "blue", "green", "yellow"];
+        const test = Generic.reduceGraphDataPoints(kills, maxDataPoints, timestamps, testColors);
 
         return {
-            "deaths": Functions.reduceGraphDataPoints(deaths, maxDataPoints), 
-            "suicides": Functions.reduceGraphDataPoints(suicides, maxDataPoints),
-            "kills": Functions.reduceGraphDataPoints(kills, maxDataPoints),
-            "teamDeaths": Functions.reduceGraphDataPoints(teamTotalDeaths, maxDataPoints),
-            "teamKills": Functions.reduceGraphDataPoints(teamTotalKills, maxDataPoints),
-            "teamSuicides": Functions.reduceGraphDataPoints(teamTotalSuicides,maxDataPoints),
-            "teammateKills": Functions.reduceGraphDataPoints(teamKills,maxDataPoints),
-            "teamsTeammateKills": Functions.reduceGraphDataPoints(teamTotalTeamKills,maxDataPoints),
-            "efficiency": Functions.reduceGraphDataPoints(efficiency, maxDataPoints),
-            "teamEfficiency": Functions.reduceGraphDataPoints(teamEfficiency, maxDataPoints)
+            "deaths": Generic.reduceGraphDataPoints(deaths, maxDataPoints, timestamps, testColors), 
+            "suicides": Generic.reduceGraphDataPoints(suicides, maxDataPoints, timestamps, testColors),
+            "kills": Generic.reduceGraphDataPoints(kills, maxDataPoints, timestamps, testColors),
+            "teamDeaths": Generic.reduceGraphDataPoints(teamTotalDeaths, maxDataPoints, timestamps, testColors),
+            "teamKills": Generic.reduceGraphDataPoints(teamTotalKills, maxDataPoints, timestamps, testColors),
+            "teamSuicides": Generic.reduceGraphDataPoints(teamTotalSuicides, maxDataPoints, timestamps, testColors),
+            "teammateKills": Generic.reduceGraphDataPoints(teamKills, maxDataPoints, timestamps, testColors),
+            "teamsTeammateKills": Generic.reduceGraphDataPoints(teamTotalTeamKills, maxDataPoints, timestamps, testColors),
+            "efficiency": Generic.reduceGraphDataPoints(efficiency, maxDataPoints, timestamps, testColors),
+            "teamEfficiency": Generic.reduceGraphDataPoints(teamEfficiency, maxDataPoints, timestamps, testColors),
         };
     }
 

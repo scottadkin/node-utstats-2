@@ -1,5 +1,7 @@
-import React from 'react';
-import Graph from '../Graph';
+import React from "react";
+import Graph from "../Graph";
+import CustomGraph from "../CustomGraph";
+import { MMSS } from "../../api/generic.mjs";
 
 class MatchFragsGraph extends React.Component{
 
@@ -55,40 +57,74 @@ class MatchFragsGraph extends React.Component{
 
         if(this.state.data === null) return null;
 
-        const graphTitles = ["Kills", "Deaths", "Suicides", "TeamKills", "Efficiency"];
+        const tabs = [
+            {"name": "Kills", "title": "Kills"},
+            {"name": "Deaths", "title": "Deaths"},
+            {"name": "Suicides", "title": "Suicides"},
+            {"name": "Team Kills", "title": "Team Kills"},
+            {"name": "Efficiency", "title": "Efficiency"},
+        ];
+
+        const labels = [
+            this.state.data.kills.labels, 
+            this.state.data.deaths.labels, 
+            this.state.data.suicides.labels, 
+            this.state.data.teammateKills.labels, 
+            this.state.data.efficiency.labels
+        ];
 
         const graphData = [
-            this.state.data.kills, 
-            this.state.data.deaths, 
-            this.state.data.suicides, 
-            this.state.data.teammateKills, 
-            this.state.data.efficiency
+            this.state.data.kills.data, 
+            this.state.data.deaths.data, 
+            this.state.data.suicides.data, 
+            this.state.data.teammateKills.data, 
+            this.state.data.efficiency.data
         ];
 
         if(this.props.teams > 1){
 
             const teamsTitles = ["Team Total Kills", "Team Total Deaths", "Team Total Suicides", "Team Total TeamKills", "Team Efficiency"];
+
+            for(let i = 0; i < this.props.teams; i++){
+                tabs.push({"name": teamsTitles[i], "title": teamsTitles[i]});
+            }
+
             const teamsData = [
-                this.state.data.teamKills, 
-                this.state.data.teamDeaths, 
-                this.state.data.teamSuicides, 
-                this.state.data.teamsTeammateKills,
-                this.state.data.teamEfficiency
+                this.state.data.teamKills.data, 
+                this.state.data.teamDeaths.data, 
+                this.state.data.teamSuicides.data, 
+                this.state.data.teamsTeammateKills.data,
+                this.state.data.teamEfficiency.data
             ];
 
-        
+            const teamsLabels = [
+                this.state.data.teamKills.labels, 
+                this.state.data.teamDeaths.labels, 
+                this.state.data.teamSuicides.labels, 
+                this.state.data.teamsTeammateKills.labels,
+                this.state.data.teamEfficiency.labels
+            ];
 
-            graphTitles.push(...teamsTitles);
             graphData.push(...teamsData);
-
+            labels.push(...teamsLabels);
         }
+
+        const testData = {
+            "data": graphData,
+            "labels": labels,
+            "labelsPrefix": [
+                "Player Kills @ ",
+                "Cat Noise"
+            ]
+        };
+
+
 
         return <div>
             <div className="default-header">Frags Graph</div>
-            <Graph 
-                title={graphTitles} 
-                data={JSON.stringify(graphData)}
-            />
+
+            <CustomGraph data={testData.data} tabs={tabs} labels={testData.labels} labelsPrefix={testData.labelsPrefix}/>
+           
         </div>
     }
 }
