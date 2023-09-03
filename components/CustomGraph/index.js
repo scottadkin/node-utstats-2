@@ -7,9 +7,6 @@ const CustomGraph = ({children, data, tabs, labels, labelsPrefix}) =>{
 
     const canvasRef = useRef(null);
 
-    
-    
-
     useEffect(() =>{
 
         const controller = new AbortController();
@@ -20,13 +17,19 @@ const CustomGraph = ({children, data, tabs, labels, labelsPrefix}) =>{
             "labelsPrefix": labelsPrefix
         };
 
-        const g = new Graph(
+        console.log(graphData);
+
+        new Graph(
             canvasRef.current, 
             controller, 
             1920, 
             1080, 
             tabs,
-            graphData
+            true,
+            graphData,
+            0,
+            null,
+            true
         );
         
 
@@ -34,11 +37,11 @@ const CustomGraph = ({children, data, tabs, labels, labelsPrefix}) =>{
             controller.abort();
         }
 
-    }, [data, tabs, labels, labelsPrefix]);
+    }, [/*data, tabs, labels, labelsPrefix, maxDataPoints*/]);
 
-    return <div className={styles.wrapper}>
+    return <div className={`${styles.wrapper} t-width-1 center`}>
         {children}
-        <canvas ref={canvasRef} width={640} height={480} style={{"maxWidth": "90%"}}></canvas>
+        <canvas ref={canvasRef} width={640} height={480}></canvas>
     </div>
 }
 

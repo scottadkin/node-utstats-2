@@ -422,7 +422,20 @@ export function getSimilarImage(imagesList, targetName){
 }
 
 
-export function reduceGraphDataPoints(inputData, maxDataPoints, inputLabels, colors){
+/**
+ * 
+ * @param {*} inputData 
+ * @param {*} maxDataPoints 
+ * @param {*} inputLabels 
+ * @param {*} bIgnoreSingleDataPoints Return empty array if there is only one data point
+ * @param {*} colors 
+ * @returns 
+ */
+export function reduceGraphDataPoints(inputData, maxDataPoints, inputLabels, bIgnoreSingleDataPoints, colors){
+    
+    if(bIgnoreSingleDataPoints === undefined){
+        bIgnoreSingleDataPoints = false;
+    }
 
     const outputData = [];
     const outputLabels = [];
@@ -433,30 +446,42 @@ export function reduceGraphDataPoints(inputData, maxDataPoints, inputLabels, col
 
         const d = inputData[i];
 
-        outputData.push({
+        const current = {
             "name": d.name,
-            "color": colors[i % colors.length] ?? "red",
+           // "color": colors[i % colors.length] ?? "red",
             "values": []
-        });
+        }
+
+        if(colors !== undefined){
+            current.color = colors[i % colors.length] ?? "red";
+        }
+
+        outputData.push(current);
 
         if(d.data.length > mostDataPoints) mostDataPoints = d.data.length;
     }
 
+    if(maxDataPoints === 0) maxDataPoints = mostDataPoints;
+
     let increment = 1;
 
-    if(maxDataPoints !== 0){
+    //if(maxDataPoints !== 0){
 
-        if(mostDataPoints > maxDataPoints){
+        //if(mostDataPoints > maxDataPoints){
 
-            if(mostDataPoints !== 0 && maxDataPoints !== 0){
-                increment = Math.ceil(mostDataPoints / maxDataPoints);
-            }
-        }
-        
-    }
+          //  if(mostDataPoints !== 0 && maxDataPoints !== 0){
+
+                increment = maxDataPoints / mostDataPoints;
+
+                if(increment === 0) increment = 1;
+          //  }
+       // }
+    //}
+
+   // console.log(`increment = ${increment}`);
 
 
-    for(let i = 0; i < mostDataPoints; i += increment){
+    for(let i = 0; i < mostDataPoints; i += Math.ceil(increment)){
 
         outputLabels.push(inputLabels[i]);
     }
@@ -472,7 +497,6 @@ export function reduceGraphDataPoints(inputData, maxDataPoints, inputLabels, col
         }
     }
 
-
     //set all final data points here if not been set already
     if(!bUsedFinalData){
 
@@ -487,7 +511,49 @@ export function reduceGraphDataPoints(inputData, maxDataPoints, inputLabels, col
         }
     }
 
-    console.log(inputLabels[inputLabels.length - 1]);
+    if(bIgnoreSingleDataPoints){
 
-    return {"data": outputData, "labels": outputLabels};
+        for(let i = 0; i < outputData.length; i++){
+
+            if(outputData[i].values.length === 1){
+                outputData[i].values = [];
+            }
+        }
+    }
+    
+
+    return {
+        "data":  outputData, "labels": outputLabels};
+}
+
+export function scalePlaytime(playtime, bHardcore){
+
+    if(bHardcore && playtime !== 0){
+        return playtime / 1.1;      
+    }
+
+    return playtime;
+}
+
+export function getTeamName(team, bIgnoreTeam){
+
+    let teamName = '';
+
+    switch(team){
+
+        case 0: { teamName = "Red"; } break;
+        case 1: { teamName = "Blue"; } break;
+        case 2: { teamName = "Green"; } break;
+        case 3: { teamName = "Yellow"; } break;
+        default: { teamName = "None"; } break;
+    }
+
+
+    if(bIgnoreTeam === undefined){
+
+        if(teamName === "None") return "None";
+        return `${teamName} Team`;
+    }else{
+        return teamName;
+    }
 }

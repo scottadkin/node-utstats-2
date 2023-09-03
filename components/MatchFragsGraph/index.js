@@ -1,7 +1,7 @@
 import React from "react";
 import Graph from "../Graph";
 import CustomGraph from "../CustomGraph";
-import { MMSS } from "../../api/generic.mjs";
+import { scalePlaytime, MMSS } from "../../api/generic.mjs";
 
 class MatchFragsGraph extends React.Component{
 
@@ -51,6 +51,13 @@ class MatchFragsGraph extends React.Component{
         this.setState({"finishedLoading": true});
     }
 
+    createLabels(labels){
+
+        return labels.map((d) =>{
+            return MMSS(scalePlaytime(d - this.props.startTimestamp, this.props.bHardcore));
+        });
+    }
+
     render(){
 
         if(!this.state.finishedLoading) return null;
@@ -66,12 +73,20 @@ class MatchFragsGraph extends React.Component{
         ];
 
         const labels = [
-            this.state.data.kills.labels, 
-            this.state.data.deaths.labels, 
-            this.state.data.suicides.labels, 
-            this.state.data.teammateKills.labels, 
-            this.state.data.efficiency.labels
+            this.createLabels(this.state.data.kills.labels), 
+            this.createLabels(this.state.data.deaths.labels), 
+            this.createLabels(this.state.data.suicides.labels), 
+            this.createLabels(this.state.data.teammateKills.labels), 
+            this.createLabels(this.state.data.efficiency.labels), 
         ];
+
+        const labelsPrefix = [
+            "Kills at ",
+            "Deaths at ",
+            "Suicides at ",
+            "Teammate Kills at ",
+            "Efficiency at ",
+        ]
 
         const graphData = [
             this.state.data.kills.data, 
@@ -81,13 +96,14 @@ class MatchFragsGraph extends React.Component{
             this.state.data.efficiency.data
         ];
 
+
         if(this.props.teams > 1){
 
-            const teamsTitles = ["Team Total Kills", "Team Total Deaths", "Team Total Suicides", "Team Total TeamKills", "Team Efficiency"];
-
-            for(let i = 0; i < this.props.teams; i++){
-                tabs.push({"name": teamsTitles[i], "title": teamsTitles[i]});
-            }
+            tabs.push({"name": "Team Kills", "title": "Team Total Kills"},
+            {"name": "Team Deaths", "title": "Team Total Deaths"},
+            {"name": "Team Suicides", "title": "Team Total Suicides"},
+            {"name": "Teammate Kills", "title": "Total Teammate Kills"},
+            {"name": "Team Efficiency", "title": "Team Efficiency"});
 
             const teamsData = [
                 this.state.data.teamKills.data, 
@@ -98,12 +114,17 @@ class MatchFragsGraph extends React.Component{
             ];
 
             const teamsLabels = [
-                this.state.data.teamKills.labels, 
-                this.state.data.teamDeaths.labels, 
-                this.state.data.teamSuicides.labels, 
-                this.state.data.teamsTeammateKills.labels,
-                this.state.data.teamEfficiency.labels
+                this.createLabels(this.state.data.teamKills.labels),
+                this.createLabels(this.state.data.teamDeaths.labels),
+                this.createLabels(this.state.data.teamSuicides.labels),
+                this.createLabels(this.state.data.teamsTeammateKills.labels),
+                this.createLabels(this.state.data.teamEfficiency.labels),
             ];
+
+            labelsPrefix.push("Team Total Kills ");
+            labelsPrefix.push("Team Total Deaths ");
+            labelsPrefix.push("Team Total Suicides ");
+            labelsPrefix.push("Team Total TeamKills ");
 
             graphData.push(...teamsData);
             labels.push(...teamsLabels);
@@ -112,19 +133,13 @@ class MatchFragsGraph extends React.Component{
         const testData = {
             "data": graphData,
             "labels": labels,
-            "labelsPrefix": [
-                "Player Kills @ ",
-                "Cat Noise"
-            ]
+            "labelsPrefix": labelsPrefix
         };
-
 
 
         return <div>
             <div className="default-header">Frags Graph</div>
-
-            <CustomGraph data={testData.data} tabs={tabs} labels={testData.labels} labelsPrefix={testData.labelsPrefix}/>
-           
+            <CustomGraph data={testData.data} tabs={tabs} labels={testData.labels} labelsPrefix={testData.labelsPrefix}/>     
         </div>
     }
 }

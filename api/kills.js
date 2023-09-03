@@ -1,5 +1,4 @@
 const mysql = require('./database');
-const Functions = require('./functions');
 const Generic = require("./generic");
 
 class Kills{
@@ -238,10 +237,17 @@ class Kills{
     createGraphData(data, players, totalTeams){
 
         const playerIndexes = Object.keys(players).map((playerId) => parseInt(playerId));
-        const teams = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
-        const teamIndexes = [0,1,2,3];
+        //const teams = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
+        const teamIndexes = [];
 
-        console.log(data);
+        const teams = [];
+
+
+        for(let i = 0; i < totalTeams; i++){
+
+            teams.push(Generic.getTeamName(i));
+            teamIndexes.push(i);
+        }
 
         const kills = this.createGraphDataType(playerIndexes, players);
         const deaths = this.createGraphDataType(playerIndexes, players);
@@ -256,28 +262,46 @@ class Kills{
         const teamEfficiency = this.createGraphDataType(teamIndexes, teams);
 
 
-        const timestamps = [];
+        const timestamps = {
+            "all": [],
+            "kills": [],
+            "deaths": [],
+            "suicides": [],
+            "teamKills": [],
+            "teamTotalSuicides": [],
+            "teamTotalTeamKills": [],
+        };
 
         for(let i = 0; i < data.length; i++){
 
+
+
             const d = data[i];
 
-            const {killer, victim} = d;
+            const {killer, victim, timestamp} = d;
             const killerIndex = playerIndexes.indexOf(d.killer);
             const victimIndex = playerIndexes.indexOf(d.victim);
             const killerTeam = d.killer_team;
             const victimTeam = d.victim_team;
 
-            timestamps.push(d.timestamp);
+            if(killer !== victim && killerTeam !== victimTeam){
+                timestamps.all.push(timestamp);
+            }
+
+            timestamps.deaths.push(timestamp);
           
             if(killer === victim){
                 
                 this.updateGraphData(suicides, killerIndex, "++");
                 this.updateGraphData(deaths, killerIndex, "++");
 
+                timestamps.suicides.push(timestamp);
+                
+
                 if(totalTeams > 1){
                     this.updateGraphData(teamTotalSuicides, killerTeam, "++");
                     this.updateGraphData(teamTotalDeaths, killerTeam, "++");
+                    timestamps.teamTotalSuicides.push(timestamp);
                 }
 
             }else if(killerTeam !== victimTeam || totalTeams < 2){
@@ -290,7 +314,9 @@ class Kills{
                     this.updateGraphData(teamTotalDeaths, victimTeam, "++");
                 }
 
-            }else if(killerTeam === victimTeam && totalTeams > 1){
+            }else if(killerTeam === victimTeam /*&& totalTeams > 1*/){
+
+                timestamps.teamKills.push(timestamp);
 
                 this.updateGraphData(teamKills, killerIndex, "++");
                 this.updateGraphData(deaths, victimIndex, "++");
@@ -298,6 +324,7 @@ class Kills{
                 if(totalTeams > 1){
                     this.updateGraphData(teamTotalTeamKills, killerTeam, "++");
                     this.updateGraphData(teamTotalDeaths, victimTeam, "++");
+                    timestamps.teamTotalTeamKills.push(timestamp);
                 }
             }
 
@@ -344,23 +371,24 @@ class Kills{
             }
         }
 
-        console.log(timestamps);
         const maxDataPoints = 0;
 
-        const testColors = ["red", "blue", "green", "yellow"];
-        const test = Generic.reduceGraphDataPoints(kills, maxDataPoints, timestamps, testColors);
+       // const testColors = ["red", "blue", "green", "yellow"];
+        //const test = Generic.reduceGraphDataPoints(kills, maxDataPoints, timestamps, testColors);
+
+        const bIgnoreSingle = true;
 
         return {
-            "deaths": Generic.reduceGraphDataPoints(deaths, maxDataPoints, timestamps, testColors), 
-            "suicides": Generic.reduceGraphDataPoints(suicides, maxDataPoints, timestamps, testColors),
-            "kills": Generic.reduceGraphDataPoints(kills, maxDataPoints, timestamps, testColors),
-            "teamDeaths": Generic.reduceGraphDataPoints(teamTotalDeaths, maxDataPoints, timestamps, testColors),
-            "teamKills": Generic.reduceGraphDataPoints(teamTotalKills, maxDataPoints, timestamps, testColors),
-            "teamSuicides": Generic.reduceGraphDataPoints(teamTotalSuicides, maxDataPoints, timestamps, testColors),
-            "teammateKills": Generic.reduceGraphDataPoints(teamKills, maxDataPoints, timestamps, testColors),
-            "teamsTeammateKills": Generic.reduceGraphDataPoints(teamTotalTeamKills, maxDataPoints, timestamps, testColors),
-            "efficiency": Generic.reduceGraphDataPoints(efficiency, maxDataPoints, timestamps, testColors),
-            "teamEfficiency": Generic.reduceGraphDataPoints(teamEfficiency, maxDataPoints, timestamps, testColors),
+            "deaths": Generic.reduceGraphDataPoints(deaths, maxDataPoints, timestamps.deaths, bIgnoreSingle), 
+            "suicides": Generic.reduceGraphDataPoints(suicides, maxDataPoints, timestamps.suicides, bIgnoreSingle),
+            "kills": Generic.reduceGraphDataPoints(kills, maxDataPoints, timestamps.all, bIgnoreSingle),
+            "teamDeaths": Generic.reduceGraphDataPoints(teamTotalDeaths, maxDataPoints, timestamps.deaths, bIgnoreSingle),
+            "teamKills": Generic.reduceGraphDataPoints(teamTotalKills, maxDataPoints, timestamps.all, bIgnoreSingle),
+            "teamSuicides": Generic.reduceGraphDataPoints(teamTotalSuicides, maxDataPoints, timestamps.teamTotalSuicides, bIgnoreSingle),
+            "teammateKills": Generic.reduceGraphDataPoints(teamKills, maxDataPoints, timestamps.teamKills, bIgnoreSingle),
+            "teamsTeammateKills": Generic.reduceGraphDataPoints(teamTotalTeamKills, maxDataPoints, timestamps.teamTotalTeamKills, bIgnoreSingle),
+            "efficiency": Generic.reduceGraphDataPoints(efficiency, maxDataPoints, timestamps.deaths, bIgnoreSingle),
+            "teamEfficiency": Generic.reduceGraphDataPoints(teamEfficiency, maxDataPoints, timestamps.deaths, bIgnoreSingle),
         };
     }
 

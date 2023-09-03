@@ -101,7 +101,6 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
     //faces = JSON.parse(faces);
     const imageHost = Functions.getImageHostAndPort(host);
 
-    
 
 
     const bAnyDominationData = () =>{
@@ -255,6 +254,8 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                     matchId={matchId} 
                     players={players.nonSpectators} 
                     teams={info.total_teams}
+                    bHardcore={info.hardcore}
+                    startTimestamp={info.start}
                 />;
             }
         }
@@ -564,7 +565,6 @@ export async function getServerSideProps({req, query}){
             "description": descriptionString,
             "keywords": keywords
         };
-
 
 
         return {
