@@ -125,6 +125,7 @@ class MatchFragsGraph extends React.Component{
             labelsPrefix.push("Team Total Deaths ");
             labelsPrefix.push("Team Total Suicides ");
             labelsPrefix.push("Team Total TeamKills ");
+            labelsPrefix.push("Team Total Efficiency ");
 
             graphData.push(...teamsData);
             labels.push(...teamsLabels);
