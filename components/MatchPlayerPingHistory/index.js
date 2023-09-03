@@ -1,45 +1,92 @@
-import {React, useEffect, useReducer} from 'react';
-import Graph from '../Graph';
-import Loading from '../Loading';
-import ErrorMessage from '../ErrorMessage';
-import InteractiveTable from '../InteractiveTable';
-import Functions from '../../api/functions';
-import Link from 'next/link';
-import CountryFlag from '../CountryFlag';
+import {React, useEffect, useReducer} from "react";
+import CustomGraph from "../CustomGraph";
+import Loading from "../Loading";
+import ErrorMessage from "../ErrorMessage";
+import InteractiveTable from "../InteractiveTable";
+import Functions from "../../api/functions";
+import Link from "next/link";
+import CountryFlag from "../CountryFlag";
+import {MMSS, scalePlaytime} from "../../api/generic.mjs";
 
-const MatchPlayerPingHistory = ({matchId, players, playerIds, playerData}) =>{
 
-    const reducer = (state, action) =>{
+const createGraphData = (inputData, bHardcore, matchStart, matchEnd) =>{
 
-        switch(action.type){
-            case "error": {
-                return {
-                    "bLoading": false,
-                    "error": action.errorMessage,
-                    "graphData": []
-                }
-            }
-            case "loaded": {
-                return {
-                    "bLoading": false,
-                    "error": null,
-                    "graphData": action.data
-                }
-            }
-            default: return {...state}
+    const {timestamps, data} = inputData;
+
+    const labels = [];
+
+    for(let i = 0; i < timestamps.length; i++){
+
+        labels.push(`${MMSS(scalePlaytime(timestamps[i] - matchStart, bHardcore))}`);
+    }
+
+    labels.push(`${MMSS(scalePlaytime(matchEnd - matchStart, bHardcore))}`);
+    
+
+    const graphData = [];
+
+    for(let i = 0; i < data.length; i++){
+
+        graphData.push({
+            "name": data[i].name,
+            "values": [],
+        });
+    }
+
+    for(let i = 0; i < data.length; i++){
+
+        for(let x = 0; x < data[i].data.length; x++){
+
+            graphData[i].values.push(data[i].data[x]);
         }
     }
+
+    return {"labels": labels, "data": graphData};
+}
+
+const reducer = (state, action) =>{
+
+    switch(action.type){
+        case "error": {
+            return {
+                "bLoading": false,
+                "error": action.errorMessage,
+                "data": [],
+                "graphData": [],
+                "graphLabels": [],
+                "graphLabelsPrefix": [],
+            }
+        }
+        case "loaded": {
+            return {
+                "bLoading": false,
+                "error": null,
+                "data": action.data,
+                "graphData": action.graphData.data,
+                "graphLabels": action.graphData.labels,
+                "graphLabelsPrefix": action.labelsPrefix
+            }
+        }
+        default: return {...state}
+    }
+}
+
+const MatchPlayerPingHistory = ({matchId, players, playerIds, playerData, bHardcore, matchStart, matchEnd}) =>{
+
+    
 
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
         "error": null,
-        "graphData": []
+        "data": [],
+        "graphData": [],
+        "graphLabels": [],
+        "graphLabelsPrefix": [],
     });
 
     useEffect(() =>{
 
         const controller = new AbortController();
-
 
         const loadData = async () =>{
 
@@ -55,8 +102,12 @@ const MatchPlayerPingHistory = ({matchId, players, playerIds, playerData}) =>{
                 const res = await req.json();
 
                 if(res.error === undefined){
-
-                    dispatch({"type": "loaded", "data": res.data});
+                    
+                    dispatch({
+                        "type": "loaded", 
+                        "data": res.data, 
+                        "graphData": createGraphData(res.data, bHardcore, matchStart, matchEnd)
+                    });
                 }else{
                     dispatch({"type": "error", "errorMessage": res.error});
                 }
@@ -114,13 +165,23 @@ const MatchPlayerPingHistory = ({matchId, players, playerIds, playerData}) =>{
         return <InteractiveTable width={2} headers={headers} data={data}/>;
     }
 
-    if(state.bLoading) return <Loading />;
+    if(state.bLoading) return <Loading/>;
+
     if(state.error !== null) return <ErrorMessage title="Player Ping History" text={state.error}/>
 
     return <div>
         <div className="default-header">Player Ping History</div>
         {renderTable()}
-        <Graph title="Player Ping History" data={state.graphData}/>
+        <CustomGraph 
+            tabs={[
+                {"name": "Ping", "title": "Player Ping"}
+            ]} 
+            data={[state.graphData]} 
+            labels={[state.graphLabels]} 
+            labelsPrefix={[
+                "Player Ping @ "
+            ]}
+        />
     </div>
 
 }

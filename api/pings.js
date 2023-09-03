@@ -59,6 +59,10 @@ class Pings{
         let ignore = [];
         let lastTimestamp = -1;
 
+        const uniqueTimestamps = [...new Set(inputData.map((d) =>{
+            return d.timestamp;
+        }))]
+
         for(let i = 0; i < inputData.length; i++){
 
             const d = inputData[i];
@@ -110,7 +114,7 @@ class Pings{
             return 0;
         });
 
-        return Functions.reduceGraphDataPoints(data, 50);
+        return {"timestamps": uniqueTimestamps, "data": data};
         
     }
 

@@ -344,6 +344,9 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                 playerIds={players.nonSpectators} 
                 players={players.basicPlayers}
                 matchId={matchId}
+                matchStart={info.start}
+                matchEnd={info.end}
+                bHardcore={info.hardcore}
                 playerData={players.playedPlayersData.map((player) =>{
                     return {"playerId": player.player_id, "min": player.ping_min, "average": player.ping_average, "max": player.ping_max}
                 })}
