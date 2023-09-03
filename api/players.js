@@ -1923,7 +1923,7 @@ class Players{
             const index = ignoredPlayers.indexOf(parseInt(playerId));
 
             if(index === -1){
-                playerData.data.push(playerData.lastScore);
+                playerData.values.push(playerData.lastScore);
             }
         }
 
@@ -1937,7 +1937,7 @@ class Players{
 
             playerScores[parseInt(playerId)] = {
                 "name": playerName, 
-                "data": [0], 
+                "values": [0], 
                 "lastScore": 0
             };
         }
@@ -1968,11 +1968,11 @@ class Players{
 
             //reconnected players scores can have duplicated data
             if(currentIgnoreList.indexOf(player) !== -1){
-                currentPlayer.data[currentPlayer.data.length - 1] = score;
+                currentPlayer.values[currentPlayer.values.length - 1] = score;
                 continue;
             }
 
-            currentPlayer.data.push(score);
+            currentPlayer.values.push(score);
             currentPlayer.lastScore = score;
 
             currentIgnoreList.push(player);
@@ -1992,6 +1992,10 @@ class Players{
 
         const data = await mysql.simpleQuery(query, [matchId]);
 
+        const timestamps = [...new Set(data.map((d) =>{
+            return d.timestamp;
+        }))];
+
         const graphData = this.createPlayerScoreHistory(data, players);
 
         graphData.sort((a, b) =>{
@@ -2001,9 +2005,8 @@ class Players{
 
             return b-a;
         });
-       
-        return Functions.reduceGraphDataPoints(graphData, 50);
 
+        return {"data": graphData, "labels": timestamps};
     }
 
     async getTeamMatePlayedMatchIds(players){

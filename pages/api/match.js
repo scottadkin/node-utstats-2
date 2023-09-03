@@ -235,7 +235,7 @@ export default async function handler(req, res){
             const playerManager = new Players();
             const data = await playerManager.getScoreHistory(matchId, players);
 
-            res.status(200).json({"data": data});
+            res.status(200).json(data);
             return;
 
         }

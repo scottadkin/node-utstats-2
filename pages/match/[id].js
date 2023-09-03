@@ -310,6 +310,9 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                 key="score history" 
                 players={players.nonSpectators} 
                 matchId={matchId}
+                matchStart={info.start}
+                matchEnd={info.end}
+                bHardcore={info.hardcore}
             />;
         }
 
