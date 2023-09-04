@@ -272,6 +272,9 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                     totalTeams={info.total_teams} 
                     playerData={players.basicPlayers} 
                     mapId={info.map}
+                    matchStart={info.start}
+                    matchEnd={info.end}
+                    bHardcore={info.hardcore}
                 />;
             }
         }

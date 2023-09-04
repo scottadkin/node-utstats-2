@@ -282,6 +282,7 @@ export default async function handler(req, res){
             const pointNames = await domManager.getControlPointNames(mapId);
             const playerPointTotals = await domManager.getMatchPlayerCapTotals(matchId);
             const pointsGraphData = await domManager.getPointsGraphData(matchId, pointNames);
+            pointsGraphData.data.splice(0,1);
 
             const playerCaps = await domManager.getPlayerCapsGraphData(matchId, pointNames);
 

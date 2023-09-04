@@ -505,14 +505,18 @@ class Domination{
 
         const pointIndexes = [];
         const points = [];
+        const timestamps = inputData.map((d) =>{
+            return d.time;
+        });
+
 
         for(let i = 0; i < pointNames.length; i++){
 
             const p = pointNames[i];
-
+            
             pointIndexes.push(p.id);
 
-            points.push({"name": p.name, "data": [0], "lastValue": 0});
+            points.push({"name": p.name, "values": [0], "lastValue": 0});
         }
 
         const updateOthers = (ignore) =>{
@@ -523,7 +527,7 @@ class Domination{
 
                 if(pointIndexes[i] !== ignore){
 
-                    p.data.push(p.lastValue);
+                    p.values.push(p.lastValue);
                 }
             }
         }
@@ -537,13 +541,13 @@ class Domination{
             if(index !== -1){
 
                 points[index].lastValue++;
-                points[index].data.push(points[index].lastValue);
+                points[index].values.push(points[index].lastValue);
 
                 updateOthers(d.point);
             }
         }
 
-        return Functions.reduceGraphDataPoints(points, 50);
+        return {"data": points, "timestamps": timestamps};
     }
 
 
@@ -627,7 +631,7 @@ class Domination{
 
     async getPointsGraphData(matchId, pointNames){
 
-        const query = "SELECT player, point FROM nstats_dom_match_caps WHERE match_id=? ORDER BY time ASC";
+        const query = "SELECT player,point,time FROM nstats_dom_match_caps WHERE match_id=? ORDER BY time ASC";
 
         const result = await mysql.simpleQuery(query, [matchId]);
 

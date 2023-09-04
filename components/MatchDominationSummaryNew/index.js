@@ -1,12 +1,52 @@
-import {React, useReducer, useEffect, useState} from 'react';
-import Graph from '../Graph';
-import Functions from '../../api/functions';
-import CountryFlag from '../CountryFlag';
-import Link from 'next/link';
-import Loading from '../Loading';
-import InteractiveTable from '../InteractiveTable';
+import {React, useReducer, useEffect, useState} from "react";
+import Graph from "../Graph";
+import CustomGraph from "../CustomGraph";
+import Functions from "../../api/functions";
+import CountryFlag from "../CountryFlag";
+import Link from "next/link";
+import Loading from "../Loading";
+import InteractiveTable from "../InteractiveTable";
+import {MMSS, scalePlaytime} from "../../api/generic.mjs";
 
-const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData}) =>{
+
+const renderTestGraph = (bLoading, graphData, matchStart, matchEnd, bHardcore) =>{
+
+    if(bLoading) return null;
+
+    const tabs = [];
+    const data = [];
+
+    tabs.push({
+        "name": "",
+        "title": `Control Point Caps`
+    });
+
+    for(let i = 0; i < graphData.data.length; i++){
+
+        const d = graphData.data[i];
+
+        
+        data.push({"name": d.name, "values": d.values});
+        
+    }
+
+    const labels = graphData.timestamps.map((r) =>{
+        return MMSS(scalePlaytime(r - matchStart, bHardcore));
+    });
+
+    labels.unshift(MMSS(0));
+
+    console.log(data);
+
+    return <CustomGraph 
+        tabs={tabs}  
+        labels={[labels]}
+        labelsPrefix={["Total Captures at "]}
+        data={[data]}
+    />
+}
+
+const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData, matchStart, matchEnd, bHardcore}) =>{
 
     const reducer = (state, action) =>{
 
@@ -16,7 +56,7 @@ const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData}) =>{
                 "playerCaps": action.payload.playerCaps,
                 "playerTotals": action.payload.playerTotals,
                 "pointNames": action.payload.pointNames,
-                "pointGraph": action.payload.pointGraph,
+                "pointsGraph": action.payload.pointsGraph,
                 "bLoading": false
             }
         }
@@ -26,7 +66,7 @@ const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData}) =>{
         "playerCaps": {},
         "playerTotals": [],
         "pointNames": [],
-        "pointGraph": [],
+        "pointsGraph": {"data": [], "labels": []},
         "bLoading": true
     });
 
@@ -47,13 +87,15 @@ const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData}) =>{
 
             const res = await req.json();
 
+            console.log(res);
+
             dispatch({
                 "type": "load",
                 "payload": {
                     "playerTotals": res.playerTotals,
                     "playerCaps": res.playerCaps,
                     "pointNames": res.pointNames,
-                    "pointsGraph": res.pointGraph
+                    "pointsGraph": res.pointsGraph
                 }
             });
         }
@@ -211,6 +253,7 @@ const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData}) =>{
         </div>
         {renderTables()}
         {renderGraph()}
+        {renderTestGraph(state.bLoading, state.pointsGraph, matchStart, matchEnd, bHardcore)}
     </div>
 }
 
