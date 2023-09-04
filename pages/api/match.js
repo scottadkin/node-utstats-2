@@ -12,6 +12,7 @@ import Teams from "../../api/teams";
 import Items from "../../api/items";
 import PowerUps from "../../api/powerups";
 import Telefrags from "../../api/telefrags";
+import { getTeamName, reduceGraphDataPoints } from "../../api/generic.mjs";
 
 export default async function handler(req, res){
 
@@ -162,7 +163,7 @@ export default async function handler(req, res){
 
             const teams = req.body.teams || 0;
 
-            const data = await killManager.getGraphData(matchId, players, teams);
+            const data = await killManager.getGraphData(matchId, players, teams, getTeamName, reduceGraphDataPoints);
 
             res.status(200).json({"data": data});
             return;

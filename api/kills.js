@@ -1,5 +1,4 @@
 const mysql = require('./database');
-const Generic = require("./generic");
 
 class Kills{
 
@@ -234,7 +233,7 @@ class Kills{
         return 0;
     }
 
-    createGraphData(data, players, totalTeams){
+    createGraphData(data, players, totalTeams, getTeamName, reduceGraphDataPoints){
 
         const playerIndexes = Object.keys(players).map((playerId) => parseInt(playerId));
         //const teams = ["Red Team", "Blue Team", "Green Team", "Yellow Team"];
@@ -245,7 +244,7 @@ class Kills{
 
         for(let i = 0; i < totalTeams; i++){
 
-            teams.push(Generic.getTeamName(i));
+            teams.push(getTeamName(i));
             teamIndexes.push(i);
         }
 
@@ -379,26 +378,26 @@ class Kills{
         const bIgnoreSingle = true;
 
         return {
-            "deaths": Generic.reduceGraphDataPoints(deaths, maxDataPoints, timestamps.deaths, bIgnoreSingle), 
-            "suicides": Generic.reduceGraphDataPoints(suicides, maxDataPoints, timestamps.suicides, bIgnoreSingle),
-            "kills": Generic.reduceGraphDataPoints(kills, maxDataPoints, timestamps.all, bIgnoreSingle),
-            "teamDeaths": Generic.reduceGraphDataPoints(teamTotalDeaths, maxDataPoints, timestamps.deaths, bIgnoreSingle),
-            "teamKills": Generic.reduceGraphDataPoints(teamTotalKills, maxDataPoints, timestamps.all, bIgnoreSingle),
-            "teamSuicides": Generic.reduceGraphDataPoints(teamTotalSuicides, maxDataPoints, timestamps.teamTotalSuicides, bIgnoreSingle),
-            "teammateKills": Generic.reduceGraphDataPoints(teamKills, maxDataPoints, timestamps.teamKills, bIgnoreSingle),
-            "teamsTeammateKills": Generic.reduceGraphDataPoints(teamTotalTeamKills, maxDataPoints, timestamps.teamTotalTeamKills, bIgnoreSingle),
-            "efficiency": Generic.reduceGraphDataPoints(efficiency, maxDataPoints, timestamps.deaths, bIgnoreSingle),
-            "teamEfficiency": Generic.reduceGraphDataPoints(teamEfficiency, maxDataPoints, timestamps.deaths, bIgnoreSingle),
+            "deaths": reduceGraphDataPoints(deaths, maxDataPoints, timestamps.deaths, bIgnoreSingle), 
+            "suicides": reduceGraphDataPoints(suicides, maxDataPoints, timestamps.suicides, bIgnoreSingle),
+            "kills": reduceGraphDataPoints(kills, maxDataPoints, timestamps.all, bIgnoreSingle),
+            "teamDeaths": reduceGraphDataPoints(teamTotalDeaths, maxDataPoints, timestamps.deaths, bIgnoreSingle),
+            "teamKills": reduceGraphDataPoints(teamTotalKills, maxDataPoints, timestamps.all, bIgnoreSingle),
+            "teamSuicides": reduceGraphDataPoints(teamTotalSuicides, maxDataPoints, timestamps.teamTotalSuicides, bIgnoreSingle),
+            "teammateKills": reduceGraphDataPoints(teamKills, maxDataPoints, timestamps.teamKills, bIgnoreSingle),
+            "teamsTeammateKills": reduceGraphDataPoints(teamTotalTeamKills, maxDataPoints, timestamps.teamTotalTeamKills, bIgnoreSingle),
+            "efficiency": reduceGraphDataPoints(efficiency, maxDataPoints, timestamps.deaths, bIgnoreSingle),
+            "teamEfficiency": reduceGraphDataPoints(teamEfficiency, maxDataPoints, timestamps.deaths, bIgnoreSingle),
         };
     }
 
-    async getGraphData(matchId, players, totalTeams){
+    async getGraphData(matchId, players, totalTeams, getTeamName, createGraphData){
 
         const query = "SELECT timestamp,killer,victim,killer_team,victim_team FROM nstats_kills WHERE match_id=? ORDER BY timestamp ASC";
         
         const result =  await mysql.simpleQuery(query, [matchId]);
 
-        return this.createGraphData(result, players, totalTeams);
+        return this.createGraphData(result, players, totalTeams, getTeamName, createGraphData);
     }
 
 
