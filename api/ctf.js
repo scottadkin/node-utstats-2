@@ -836,7 +836,7 @@ class CTF{
 
     async getMatchEvents(id){
 
-        const query = "SELECT id,player,event,team FROM nstats_ctf_events WHERE match_id=? ORDER BY timestamp ASC";
+        const query = "SELECT player,event,team,timestamp FROM nstats_ctf_events WHERE match_id=? ORDER BY timestamp ASC";
         return await mysql.simpleQuery(query, [id]);
 
     }
@@ -845,6 +845,8 @@ class CTF{
 
 
         const data = await this.getMatchEvents(id);
+
+        console.log(data);
 
         const playerIndexes = [];
 
@@ -870,20 +872,33 @@ class CTF{
         let teamsSaveData = [];
         let teamsSealData = [];
 
+        const labels = {
+            "caps": [],
+            "grabs": [],
+            "pickups": [],
+            "drops": [],
+            "kills": [],
+            "assists": [],
+            "covers": [],
+            "returns": [],
+            "saves": [],
+            "seals": [],
+        };
+
         for(const [key, value] of Object.entries(players)){
 
             playerIndexes.push(parseInt(key));
 
-            capData.push({"name": value, "data": [], "lastValue": 0});
-            grabData.push({"name": value, "data": [], "lastValue": 0});
-            pickupData.push({"name": value, "data": [], "lastValue": 0});
-            dropData.push({"name": value, "data": [], "lastValue": 0});
-            killData.push({"name": value, "data": [], "lastValue": 0});
-            assistData.push({"name": value, "data": [], "lastValue": 0});
-            coverData.push({"name": value, "data": [], "lastValue": 0});
-            returnData.push({"name": value, "data": [], "lastValue": 0});
-            saveData.push({"name": value, "data": [], "lastValue": 0});
-            sealData.push({"name": value, "data": [], "lastValue": 0});
+            capData.push({"name": value, "values": [0], "lastValue": 0});
+            grabData.push({"name": value, "values": [0], "lastValue": 0});
+            pickupData.push({"name": value, "values": [0], "lastValue": 0});
+            dropData.push({"name": value, "values": [0], "lastValue": 0});
+            killData.push({"name": value, "values": [0], "lastValue": 0});
+            assistData.push({"name": value, "values": [0], "lastValue": 0});
+            coverData.push({"name": value, "values": [0], "lastValue": 0});
+            returnData.push({"name": value, "values": [0], "lastValue": 0});
+            saveData.push({"name": value, "values": [0], "lastValue": 0});
+            sealData.push({"name": value, "values": [0], "lastValue": 0});
 
         }
 
@@ -891,16 +906,16 @@ class CTF{
 
             const teamName = Functions.getTeamName(i);
 
-            teamsCapData.push({"name": teamName, "data": [], "lastValue": 0});
-            teamsGrabData.push({"name": teamName, "data": [], "lastValue": 0});
-            teamsPickupData.push({"name": teamName, "data": [], "lastValue": 0});
-            teamsDropData.push({"name": teamName, "data": [], "lastValue": 0});
-            teamsKillData.push({"name": teamName, "data": [], "lastValue": 0});
-            teamsAssistData.push({"name": teamName, "data": [], "lastValue": 0});
-            teamsCoverData.push({"name": teamName, "data": [], "lastValue": 0});
-            teamsReturnData.push({"name": teamName, "data": [], "lastValue": 0});
-            teamsSaveData.push({"name": teamName, "data": [], "lastValue": 0});
-            teamsSealData.push({"name": teamName, "data": [], "lastValue": 0});
+            teamsCapData.push({"name": teamName, "values": [0], "lastValue": 0});
+            teamsGrabData.push({"name": teamName, "values": [0], "lastValue": 0});
+            teamsPickupData.push({"name": teamName, "values": [0], "lastValue": 0});
+            teamsDropData.push({"name": teamName, "values": [0], "lastValue": 0});
+            teamsKillData.push({"name": teamName, "values": [0], "lastValue": 0});
+            teamsAssistData.push({"name": teamName, "values": [0], "lastValue": 0});
+            teamsCoverData.push({"name": teamName, "values": [0], "lastValue": 0});
+            teamsReturnData.push({"name": teamName, "values": [0], "lastValue": 0});
+            teamsSaveData.push({"name": teamName, "values": [0], "lastValue": 0});
+            teamsSealData.push({"name": teamName, "values": [0], "lastValue": 0});
         }
 
         for(let i = 0; i < data.length; i++){
@@ -909,7 +924,7 @@ class CTF{
 
             const playerIndex = playerIndexes.indexOf(d.player);
 
-            const event = d.event;
+            const {event, timestamp} = d;
 
             let current = null;
             let currentTeam = null;
@@ -920,50 +935,62 @@ class CTF{
                 current = capData;
                 currentTeam = teamsCapData;
 
+                labels.caps.push(timestamp);
+
             }else if(event === "taken"){
 
                 current = grabData;
                 currentTeam = teamsGrabData;
 
+                labels.grabs.push(timestamp);
+
             }else if(event === "pickedup"){
 
                 current = pickupData;
                 currentTeam = teamsPickupData;
+                labels.pickups.push(timestamp);
 
             }else if(event === "dropped"){
 
                 current = dropData;
                 currentTeam = teamsDropData;
+                labels.drops.push(timestamp);
 
             }else if(event === "kill"){
 
                 current = killData;
                 currentTeam = teamsKillData;
+                labels.kills.push(timestamp);
 
             }else if(event === "assist"){
 
                 current = assistData;
                 currentTeam = teamsAssistData;
+                labels.assists.push(timestamp);
 
             }else if(event === "cover"){
 
                 current = coverData;
                 currentTeam = teamsCoverData;
+                labels.covers.push(timestamp);
 
             }else if(event === "returned"){
 
                 current = returnData;
                 currentTeam = teamsReturnData;
+                labels.returns.push(timestamp);
 
             }else if(event === "save"){
 
                 current = saveData;
                 currentTeam = teamsSaveData;
+                labels.saves.push(timestamp);
 
             }else if(event === "seal"){
                 
                 current = sealData;
                 currentTeam = teamsSealData;
+                labels.seals.push(timestamp);
             }
 
             if(current !== null){
@@ -971,7 +998,7 @@ class CTF{
                 current[playerIndex].lastValue++;
 
                 for(let x = 0; x < playerIndexes.length; x++){
-                    current[x].data.push(current[x].lastValue);
+                    current[x].values.push(current[x].lastValue);
                 }
             }
 
@@ -981,12 +1008,12 @@ class CTF{
 
                 for(let x = 0; x < teams; x++){
 
-                    currentTeam[x].data.push(currentTeam[x].lastValue);
+                    currentTeam[x].values.push(currentTeam[x].lastValue);
                 }
             }
         }
 
-        const max = 50;
+        /*const max = 50;
 
         capData = Functions.reduceGraphDataPoints(capData, max);
         grabData = Functions.reduceGraphDataPoints(grabData, max);
@@ -1007,7 +1034,7 @@ class CTF{
         teamsCoverData = Functions.reduceGraphDataPoints(teamsCoverData, max);
         teamsReturnData = Functions.reduceGraphDataPoints(teamsReturnData, max);
         teamsSaveData = Functions.reduceGraphDataPoints(teamsSaveData, max);
-        teamsSealData = Functions.reduceGraphDataPoints(teamsSealData, max);
+        teamsSealData = Functions.reduceGraphDataPoints(teamsSealData, max);*/
 
 
         const sortByLastValue = (a, b) =>{
@@ -1028,7 +1055,9 @@ class CTF{
         saveData.sort(sortByLastValue);
         sealData.sort(sortByLastValue);
 
+
         return {
+            "labels": labels,
             "caps": capData,
             "grabs": grabData,
             "pickups": pickupData,

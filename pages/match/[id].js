@@ -228,6 +228,9 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                     matchId={matchId} 
                     totalTeams={info.total_teams} 
                     players={players.nonSpectators}
+                    matchStart={info.start}
+                    matchEnd={info.end}
+                    bHardcore={info.hardcore}
                 />;
             
             }

@@ -125,7 +125,7 @@ const MatchPlayerPingHistory = ({matchId, players, playerIds, playerData, bHardc
         return () =>{
             controller.abort();
         }
-    }, [matchId, playerIds]);
+    }, [matchId, playerIds, matchStart, matchEnd, bHardcore]);
 
 
     const renderTable = () =>{

@@ -1,5 +1,4 @@
 import React from "react";
-import Graph from "../Graph";
 import CustomGraph from "../CustomGraph";
 import { scalePlaytime, MMSS } from "../../api/generic.mjs";
 

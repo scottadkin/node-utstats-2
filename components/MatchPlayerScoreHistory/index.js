@@ -60,7 +60,7 @@ const MatchPlayerScoreHistory = ({matchId, players, bHardcore, matchStart, match
         return () =>{
             controller.abort();
         }
-    }, [matchId, players]);
+    }, [matchId, players, matchStart, matchEnd, bHardcore]);
 
     if(bLoading) return <Loading />;
     if(error !== null) return <ErrorMessage title="Player Score Graph" text={error}/>

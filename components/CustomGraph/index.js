@@ -3,9 +3,10 @@ import styles from "./CustomGraph.module.css";
 import Graph from "../../lib/Graph";
 
 
-const CustomGraph = ({children, data, tabs, labels, labelsPrefix}) =>{
+const CustomGraph = ({children, data, tabs, labels, labelsPrefix, minDataPoints}) =>{
 
     const canvasRef = useRef(null);
+    if(minDataPoints === undefined) minDataPoints = 2;
 
     useEffect(() =>{
 
@@ -29,7 +30,8 @@ const CustomGraph = ({children, data, tabs, labels, labelsPrefix}) =>{
             graphData,
             0,
             null,
-            true
+            true, 
+            minDataPoints
         );
         
 
@@ -37,7 +39,7 @@ const CustomGraph = ({children, data, tabs, labels, labelsPrefix}) =>{
             controller.abort();
         }
 
-    }, [/*data, tabs, labels, labelsPrefix, maxDataPoints*/]);
+    }, [data, tabs, labels, labelsPrefix, minDataPoints]);
 
     return <div className={`${styles.wrapper} t-width-1 center`}>
         {children}
