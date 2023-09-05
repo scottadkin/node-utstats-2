@@ -9,7 +9,7 @@ import InteractiveTable from "../InteractiveTable";
 import {MMSS, scalePlaytime} from "../../api/generic.mjs";
 
 
-const renderTestGraph = (bLoading, graphData, matchStart, matchEnd, bHardcore) =>{
+const renderTestGraph = (bLoading, graphData, matchStart, matchEnd, bHardcore, newPlayerCaps, pointNames) =>{
 
     if(bLoading) return null;
 
@@ -17,18 +17,53 @@ const renderTestGraph = (bLoading, graphData, matchStart, matchEnd, bHardcore) =
     const data = [];
 
     tabs.push({
-        "name": "",
+        "name": "Control Point Captures",
         "title": `Control Point Caps`
     });
+
+    for(let i = 0; i < pointNames.length; i++){
+
+        let {id,name} = pointNames[i];
+
+        let title = `Control Point ${name}`;
+
+        if(id === 0){
+            console.log("kdgjnsgkdsjhnkpoghjnsdfkhgslkghsd");
+            name = "Combined";
+            title = `All Control Points Combined`;
+            
+        }
+        tabs.push({
+            "name": name,
+            "title": title
+        });
+    }
 
     for(let i = 0; i < graphData.data.length; i++){
 
         const d = graphData.data[i];
-
-        
-        data.push({"name": d.name, "values": d.values});
-        
+        data.push({"name": d.name, "values": d.values});      
     }
+
+    const labelsPrefix = [
+        "Total Captures at "
+    ];
+
+    const pointLabels = [];
+
+    for(const [key, value] of Object.entries(newPlayerCaps.labels)){
+
+        labelsPrefix.push(`Control Point Caps at `);
+
+        const current = value.map((r) =>{
+            return MMSS(scalePlaytime(r - matchStart, bHardcore));
+        });
+
+        current.unshift(MMSS(0));
+        pointLabels.push(current);
+    }
+
+
 
     const labels = graphData.timestamps.map((r) =>{
         return MMSS(scalePlaytime(r - matchStart, bHardcore));
@@ -36,15 +71,14 @@ const renderTestGraph = (bLoading, graphData, matchStart, matchEnd, bHardcore) =
 
     labels.unshift(MMSS(0));
 
-    console.log(data);
-
     return <CustomGraph 
         tabs={tabs}  
-        labels={[labels]}
-        labelsPrefix={["Total Captures at "]}
-        data={[data]}
+        labels={[labels, ...pointLabels]}
+        labelsPrefix={labelsPrefix}
+        data={[data, ...newPlayerCaps.data]}
     />
 }
+
 
 const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData, matchStart, matchEnd, bHardcore}) =>{
 
@@ -57,6 +91,7 @@ const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData, matc
                 "playerTotals": action.payload.playerTotals,
                 "pointNames": action.payload.pointNames,
                 "pointsGraph": action.payload.pointsGraph,
+                "newPlayerCaps": action.payload.newPlayerCaps,
                 "bLoading": false
             }
         }
@@ -67,6 +102,7 @@ const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData, matc
         "playerTotals": [],
         "pointNames": [],
         "pointsGraph": {"data": [], "labels": []},
+        "newPlayerCaps": [],
         "bLoading": true
     });
 
@@ -87,7 +123,6 @@ const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData, matc
 
             const res = await req.json();
 
-            console.log(res);
 
             dispatch({
                 "type": "load",
@@ -95,7 +130,8 @@ const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData, matc
                     "playerTotals": res.playerTotals,
                     "playerCaps": res.playerCaps,
                     "pointNames": res.pointNames,
-                    "pointsGraph": res.pointsGraph
+                    "pointsGraph": res.pointsGraph,
+                    "newPlayerCaps": res.newPlayerCaps
                 }
             });
         }
@@ -104,35 +140,6 @@ const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData, matc
 
     }, [matchId, mapId]);
 
-
-    const renderGraph = () =>{
-        
-        if(state.bLoading) return null;
-
-        const data = [];
-        const titles = [];
-
-        for(const values of Object.values(state.pointNames)){
-
-            titles.push(values.name);
-        }
-
-        for(const [point, pointInfo] of Object.entries(state.pointNames)){
-
-            const current = [];
-
-            for(const [player, capData] of Object.entries(state.playerCaps)){
-
-                const currentPlayer = Functions.getPlayer(playerData, player, true);
-
-                current.push({"name": currentPlayer.name, "data": [...capData[pointInfo.id]]});
-            }
-
-            data.push(current);
-        }
-        
-        return <Graph title={titles} data={data}/>
-    }
 
     const getPlayerPointCapCount = (playerId, pointId) =>{
 
@@ -252,9 +259,8 @@ const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData, matc
             <div className={`tab ${(!separateTeams) ? "tab-selected" : ""}`} onClick={() => setSeparateTeams(false)}>Display All</div>
         </div>
         {renderTables()}
-        {renderGraph()}
-        {renderTestGraph(state.bLoading, state.pointsGraph, matchStart, matchEnd, bHardcore)}
+        {renderTestGraph(state.bLoading, state.pointsGraph, matchStart, matchEnd, bHardcore, state.newPlayerCaps, state.pointNames)}
+        
     </div>
 }
-
 export default MatchDominationSummaryNew;

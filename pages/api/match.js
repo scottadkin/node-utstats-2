@@ -286,11 +286,38 @@ export default async function handler(req, res){
 
             const playerCaps = await domManager.getPlayerCapsGraphData(matchId, pointNames);
 
+            //console.log(Object.keys(playerCaps));
+            const playerIds = Object.keys(playerCaps.data);
+  
+            const playerManager = new Players();
+            const playerNames = await playerManager.getJustNamesByIds(playerIds);
+
+            const altTest = [];
+
+            for(let i = 0; i < pointNames.length; i++){
+
+                const {id, name} = pointNames[i];
+
+                const current = [];//{"name": name, "values": []};
+                //altTest.push({"name": name, "values": []});
+
+                for(const [playerId, playerData] of Object.entries(playerCaps.data)){
+
+      
+                    current.push({"name": playerNames[playerId] ?? "Not Found", "values": playerData[id]});
+                }
+
+                altTest.push(current);
+               // console.log(current);
+
+            }   
+
             res.status(200).json({
                 "pointsGraph": pointsGraphData, 
                 "playerTotals": playerPointTotals, 
                 "playerCaps": playerCaps,
-                "pointNames": pointNames
+                "pointNames": pointNames,
+                "newPlayerCaps": {"data": altTest, "labels": playerCaps.labels}//[]//test
             });
             return;
 

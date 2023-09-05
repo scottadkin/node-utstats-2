@@ -594,12 +594,20 @@ class Domination{
 
             playerData[playerList[i]] = current;    
         }
-
-        
+  
+        const labels = {
+            "0": []
+        };
 
         for(let i = 0; i < inputData.length; i++){
 
-            const {player, point} = inputData[i];
+            const {player, point, time} = inputData[i];
+
+            labels[0].push(time);
+
+            if(labels[point] === undefined) labels[point] = [];
+
+            labels[point].push(time);
 
             const currentPlayer = playerData[player];
             const currentValue = currentPlayer[point][currentPlayer[point].length - 1];
@@ -613,14 +621,14 @@ class Domination{
             this.updateOtherGraphData(playerData, 0, player);  
         }
 
-        return playerData;
+        return {"data": playerData, "labels": labels};
    
     }
 
     async getPlayerCapsGraphData(matchId, pointNames){
 
 
-        const query = "SELECT player, point FROM nstats_dom_match_caps WHERE match_id=? ORDER BY time ASC";
+        const query = "SELECT player,point,time FROM nstats_dom_match_caps WHERE match_id=? ORDER BY time ASC";
 
         const result = await mysql.simpleQuery(query, [matchId]);
 
