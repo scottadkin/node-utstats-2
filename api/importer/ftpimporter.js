@@ -52,10 +52,10 @@ class FTPImporter{
 
             new Message(`Attempting to connect to ftp://${this.host}:${this.port}`,'note');
 
-            this.client.on('ready', async () =>{
+            this.client.on("ready", async () =>{
 
                 new Message(`Connected to ftp://${this.host}:${this.port}.`, 'pass');
-
+                
                 await this.checkForLogFiles();
 
                 if(this.bImportAce){
@@ -70,23 +70,28 @@ class FTPImporter{
                 this.client.end();
             });
 
-            this.client.on('error', (err) =>{
+            this.client.on("error", (err) =>{
 
                 new Message(`FTP ERROR: Server = ${this.host}:${this.port}`,"error");
-                new Message(err, 'error');
+                new Message(err.toString(), 'error');
                 console.trace(err);
                 new Message(`Closing connection to ftp://${this.host}:${this.port} due to an error.`, "error");
-                this.client.end();
+                this.client.destroy();
+                resolve();
             });
 
-            this.client.on('close', () =>{
+            this.client.on("close", () =>{
                 new Message(`Connection to ${this.host}:${this.port} has closed.`, 'pass');
                 //this.events.emit('finished');
                 resolve();
             });
 
-            this.client.connect({
+            this.client.on("end", () =>{
+                //console.log("FTP: END");
+                resolve();
+            });
 
+            this.client.connect({
                 "host": this.host,
                 "port": this.port,
                 "user": this.user,

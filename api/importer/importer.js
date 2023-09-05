@@ -239,9 +239,9 @@ class Importer{
             await this.importACENonFTPScreenshots();
             await this.importLogs();
             
-            }catch(err){
-                console.trace(err);
-            }
+        }catch(err){
+            console.trace(err);
+        }
     }
 
 

@@ -123,12 +123,17 @@ async function main(){
 
             while(currentServerIndex < ftpServers.length){
 
-                await startNewImport(ftpServers[currentServerIndex]);
+                try{
+
+                    await startNewImport(ftpServers[currentServerIndex]);
+
+                }catch(err){
+                    new Message(err.toString(),"error");
+                }
 
                 currentServerIndex++;
 
             }
-
         }
 
         new Message(`Checking for leftover logs in/Logs folder.`,'note');
@@ -148,7 +153,9 @@ async function main(){
 
     }catch(err){
         console.trace(err);
+        new Message(`There was a problem connecting to the mysql server.`,"error");
         new Message(err, "error");
+        bCurrentImportFinished = true;
     }
 
 }
