@@ -56,12 +56,12 @@ class DOMManager{
                 }
 
                 this.pointCaptured(result[2], result[3]);
-
+                
                 this.capData.push({
                     "timestamp": parseFloat(result[1]),
                     "point": result[2],
                     "player": currentPlayer.masterId,
-                    "team": this.playerManager.getPlayerTeamAt(result[3], result[1])
+                    "team": this.playerManager.getPlayerTeamAt(currentPlayer.masterId, result[1])
 
                 });
 
