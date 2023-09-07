@@ -9,9 +9,11 @@ import InteractiveTable from "../InteractiveTable";
 import {MMSS, scalePlaytime} from "../../api/generic.mjs";
 
 
-const renderTestGraph = (bLoading, graphData, matchStart, matchEnd, bHardcore, newPlayerCaps, pointNames) =>{
+const renderTestGraph = (bLoading, graphData, matchStart, matchEnd, bHardcore, newPlayerCaps, teamCaps, pointNames) =>{
 
     if(bLoading) return null;
+
+    console.log(teamCaps);
 
     const tabs = [];
     const data = [];
@@ -20,6 +22,8 @@ const renderTestGraph = (bLoading, graphData, matchStart, matchEnd, bHardcore, n
         "name": "Control Point Captures",
         "title": `Control Point Caps`
     });
+
+    const tempTabs = [];
 
     for(let i = 0; i < pointNames.length; i++){
 
@@ -32,11 +36,19 @@ const renderTestGraph = (bLoading, graphData, matchStart, matchEnd, bHardcore, n
             title = `All Control Points Combined`;
             
         }
+
         tabs.push({
             "name": name,
             "title": title
         });
+
+        tempTabs.push({
+            "name": `Team ${name}`,
+            "title": `Team Totals For ${title}`
+        });
     }
+
+    tabs.push(...tempTabs);
 
     for(let i = 0; i < graphData.data.length; i++){
 
@@ -62,41 +74,50 @@ const renderTestGraph = (bLoading, graphData, matchStart, matchEnd, bHardcore, n
         pointLabels.push(current);
     }
 
+
+
     const labels = graphData.timestamps.map((r) =>{
         return MMSS(scalePlaytime(r - matchStart, bHardcore));
     });
+
+    const teamLables = [[],[],[],[]];
+
+
 
     labels.unshift(MMSS(0));
 
 
     return <CustomGraph 
         tabs={tabs}  
-        labels={[labels, ...pointLabels]}
+        labels={[labels, ...pointLabels, ...teamLables]}
         labelsPrefix={labelsPrefix}
-        data={[data, ...newPlayerCaps.data]}
+        data={[data, ...newPlayerCaps.data, ...teamCaps.data]}
     />
 }
 
 
-const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData, matchStart, matchEnd, bHardcore}) =>{
+const reducer = (state, action) =>{
 
-    const reducer = (state, action) =>{
+    switch(action.type){
 
-        switch(action.type){
-
-            case "load": return {
-                "playerCaps": action.payload.playerCaps,
-                "playerTotals": action.payload.playerTotals,
-                "pointNames": action.payload.pointNames,
-                "pointsGraph": action.payload.pointsGraph,
-                "newPlayerCaps": action.payload.newPlayerCaps,
-                "bLoading": false
-            }
+        case "load": return {
+            "playerCaps": action.payload.playerCaps,
+            "teamCaps": action.payload.teamCaps,
+            "playerTotals": action.payload.playerTotals,
+            "pointNames": action.payload.pointNames,
+            "pointsGraph": action.payload.pointsGraph,
+            "newPlayerCaps": action.payload.newPlayerCaps,
+            "bLoading": false
         }
     }
+}
+
+const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData, matchStart, matchEnd, bHardcore}) =>{
+
 
     const [state, dispatch] = useReducer(reducer, {
         "playerCaps": {},
+        "teamCaps": {},
         "playerTotals": [],
         "pointNames": [],
         "pointsGraph": {"data": [], "labels": []},
@@ -121,6 +142,7 @@ const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData, matc
 
             const res = await req.json();
 
+            console.log(res);
 
             dispatch({
                 "type": "load",
@@ -129,7 +151,8 @@ const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData, matc
                     "playerCaps": res.playerCaps,
                     "pointNames": res.pointNames,
                     "pointsGraph": res.pointsGraph,
-                    "newPlayerCaps": res.newPlayerCaps
+                    "newPlayerCaps": res.newPlayerCaps,
+                    "teamCaps": res.teamCaps
                 }
             });
         }
@@ -257,7 +280,7 @@ const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData, matc
             <div className={`tab ${(!separateTeams) ? "tab-selected" : ""}`} onClick={() => setSeparateTeams(false)}>Display All</div>
         </div>
         {renderTables()}
-        {renderTestGraph(state.bLoading, state.pointsGraph, matchStart, matchEnd, bHardcore, state.newPlayerCaps, state.pointNames)}
+        {renderTestGraph(state.bLoading, state.pointsGraph, matchStart, matchEnd, bHardcore, state.newPlayerCaps, state.teamCaps, state.pointNames)}
         
     </div>
 }

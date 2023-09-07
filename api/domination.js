@@ -581,6 +581,10 @@ class Domination{
         const pointData = data[pointId];
         const combined = data[0];
 
+        console.log(data);
+        //need to update for each team not just the team involved
+        //need to update for each team not just the team involved
+
         for(const [currentTeamId, teamData] of Object.entries(pointData)){
 
             const lastValueIndex = combined[currentTeamId].length - 1;
@@ -611,7 +615,7 @@ class Domination{
 
             const currentPoint = pointNames[i].id;
 
-            teamTotals[currentPoint] = [];
+            teamTotals[currentPoint] = {};
             
             for(let x = 0; x < uniqueTeams.length; x++){
 
@@ -635,7 +639,7 @@ class Domination{
             this.updateTeamTotals(teamTotals, point, team);
         }
 
-        return {"timestamps": timestamps, "data": teamTotals};
+        return {"labels": timestamps, "data": teamTotals};
     }
 
     createPlayerGraphData(inputData, pointNames){
@@ -691,9 +695,11 @@ class Domination{
 
         const teamData = this.createTeamGraphData(result, pointNames);
 
-        return this.createPlayerGraphData(result, pointNames);
+        return {
+            "playerCaps": this.createPlayerGraphData(result, pointNames), 
+            "teamCaps": teamData
+        };
         
-
     }
 
     async getPointsGraphData(matchId, pointNames){

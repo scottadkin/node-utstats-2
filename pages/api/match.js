@@ -284,7 +284,7 @@ export default async function handler(req, res){
             const pointsGraphData = await domManager.getPointsGraphData(matchId, pointNames);
             pointsGraphData.data.splice(0,1);
 
-            const playerCaps = await domManager.getPlayerCapsGraphData(matchId, pointNames);
+            const {playerCaps, teamCaps} = await domManager.getPlayerCapsGraphData(matchId, pointNames);
 
             //console.log(Object.keys(playerCaps));
             const playerIds = Object.keys(playerCaps.data);
@@ -293,31 +293,51 @@ export default async function handler(req, res){
             const playerNames = await playerManager.getJustNamesByIds(playerIds);
 
             const altTest = [];
+            const teamTestData = [];
 
             for(let i = 0; i < pointNames.length; i++){
 
-                const {id, name} = pointNames[i];
+                const {id} = pointNames[i];
 
-                const current = [];//{"name": name, "values": []};
-                //altTest.push({"name": name, "values": []});
+                const current = [];
+                const teamCurrent = [];
 
                 for(const [playerId, playerData] of Object.entries(playerCaps.data)){
-
-      
                     current.push({"name": playerNames[playerId] ?? "Not Found", "values": playerData[id]});
                 }
 
-                altTest.push(current);
-               // console.log(current);
+                for(const [teamId, teamData] of Object.entries(teamCaps.data)){
+                    teamCurrent.push({"name": getTeamName(teamId), "values": teamData[id]});
+                }
 
+                altTest.push(current);
+                teamTestData.push(teamCurrent);
             }   
+
+
+            
+
+            /*for(const [teamId, data] of Object.entries(teamCaps.data)){
+
+                console.log(data);
+                const current = {
+                    "name": getTeamName(teamId),
+                    "values": data
+                };
+
+                teamTestData.push(current);
+
+            }*/
+
+            
 
             res.status(200).json({
                 "pointsGraph": pointsGraphData, 
                 "playerTotals": playerPointTotals, 
                 "playerCaps": playerCaps,
                 "pointNames": pointNames,
-                "newPlayerCaps": {"data": altTest, "labels": playerCaps.labels}//[]//test
+                "newPlayerCaps": {"data": altTest, "labels": playerCaps.labels},//[]//test
+                "teamCaps": {"data": teamTestData, "labels": teamCaps.labels}
             });
             return;
 

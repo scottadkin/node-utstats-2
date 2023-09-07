@@ -537,6 +537,9 @@ export function scalePlaytime(playtime, bHardcore){
 
 export function getTeamName(team, bIgnoreTeam){
 
+    team = parseInt(team);
+    if(bIgnoreTeam === undefined) bIgnoreTeam = false;
+
     let teamName = '';
 
     switch(team){
@@ -549,7 +552,7 @@ export function getTeamName(team, bIgnoreTeam){
     }
 
 
-    if(bIgnoreTeam === undefined){
+    if(!bIgnoreTeam){
 
         if(teamName === "None") return "None";
         return `${teamName} Team`;
