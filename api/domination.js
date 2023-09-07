@@ -553,33 +553,98 @@ class Domination{
 
 
 
-    updateOtherGraphData(data, pointId, ignore){
+    updatePlayerGraphData(data, pointId, targetPlayerId){
 
-        ignore = parseInt(ignore);
+        targetPlayerId = parseInt(targetPlayerId);
 
-        for(const [playerId, pointData] of Object.entries(data)){
+        for(const [playerId, playerData] of Object.entries(data)){
 
-            if(parseInt(playerId) === ignore) continue;
+            const pointData = playerData[pointId];
+            const combinedData = playerData[0];
 
-            const currentValue = pointData[pointId][pointData[pointId].length - 1];
+            const previousValue = pointData[pointData.length - 1];
+            const previousCombinedValue = combinedData[combinedData.length - 1];
 
-            pointData[pointId].push(currentValue);
 
+            if(parseInt(playerId) === targetPlayerId){
+                pointData.push(previousValue + 1);     
+                combinedData.push(previousCombinedValue + 1);       
+            }else{
+                pointData.push(previousValue);   
+                combinedData.push(previousCombinedValue);      
+            }
         }
     }
 
-    createPlayerGraphData(inputData, pointNames/*, playerNames*/){
+    updateTeamTotals(data, pointId, teamId){
 
+        const pointData = data[pointId];
+        const combined = data[0];
+
+        for(const [currentTeamId, teamData] of Object.entries(pointData)){
+
+            const lastValueIndex = combined[currentTeamId].length - 1;
+            const previousTotalValue = combined[currentTeamId][lastValueIndex];
+            const previousValue = teamData[teamData.length - 1];
+
+            if(parseInt(currentTeamId) === teamId){
+
+                teamData.push(previousValue + 1);
+                combined[currentTeamId].push(previousTotalValue + 1);
+            }else{
+                teamData.push(previousValue);
+                combined[currentTeamId].push(previousTotalValue);
+            }
+        }
+    }
+
+    createTeamGraphData(inputData, pointNames){
+
+        const uniqueTeams = [...new Set(inputData.map((d) =>{
+            return d.team;
+        }))]
+
+        uniqueTeams.sort();
+        const teamTotals = {};
+
+        for(let i = 0; i < pointNames.length; i++){
+
+            const currentPoint = pointNames[i].id;
+
+            teamTotals[currentPoint] = [];
+            
+            for(let x = 0; x < uniqueTeams.length; x++){
+
+                teamTotals[currentPoint][uniqueTeams[x]] = [0];
+            }
+        }
+
+        const timestamps = {
+            "0": []
+        };
+
+        for(let i = 0; i < inputData.length; i++){
+
+            const {team, point, time} = inputData[i];
+
+            if(timestamps[point] === undefined) timestamps[point] = [];
+
+            timestamps[0].push(time);
+            timestamps[point].push(time);
+
+            this.updateTeamTotals(teamTotals, point, team);
+        }
+
+        return {"timestamps": timestamps, "data": teamTotals};
+    }
+
+    createPlayerGraphData(inputData, pointNames){
 
         const playerData = {};
 
-        const uniquePlayers = new Set();
-
-        for(let i = 0; i < inputData.length; i++){
-            uniquePlayers.add(inputData[i].player);
-        }
-        
-        const playerList = [...uniquePlayers];
+        const playerList = [...new Set(inputData.map((p) =>{
+            return p.player;
+        }))];
 
         for(let i = 0; i < playerList.length; i++){
 
@@ -609,16 +674,8 @@ class Domination{
 
             labels[point].push(time);
 
-            const currentPlayer = playerData[player];
-            const currentValue = currentPlayer[point][currentPlayer[point].length - 1];
-
-            const currentValueAll = currentPlayer[0][currentPlayer[0].length - 1];
-
-            currentPlayer[point].push(currentValue + 1);
-            currentPlayer[0].push(currentValueAll + 1);
-
-            this.updateOtherGraphData(playerData, point, player);  
-            this.updateOtherGraphData(playerData, 0, player);  
+            this.updatePlayerGraphData(playerData, point, player);  
+           // this.updateOtherGraphData(playerData, 0, player);  
         }
 
         return {"data": playerData, "labels": labels};
@@ -628,9 +685,11 @@ class Domination{
     async getPlayerCapsGraphData(matchId, pointNames){
 
 
-        const query = "SELECT player,point,time FROM nstats_dom_match_caps WHERE match_id=? ORDER BY time ASC";
+        const query = "SELECT player,point,time,team FROM nstats_dom_match_caps WHERE match_id=? ORDER BY time ASC";
 
         const result = await mysql.simpleQuery(query, [matchId]);
+
+        const teamData = this.createTeamGraphData(result, pointNames);
 
         return this.createPlayerGraphData(result, pointNames);
         

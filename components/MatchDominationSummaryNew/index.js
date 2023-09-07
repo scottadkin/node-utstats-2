@@ -28,7 +28,6 @@ const renderTestGraph = (bLoading, graphData, matchStart, matchEnd, bHardcore, n
         let title = `Control Point ${name}`;
 
         if(id === 0){
-            console.log("kdgjnsgkdsjhnkpoghjnsdfkhgslkghsd");
             name = "Combined";
             title = `All Control Points Combined`;
             
@@ -63,13 +62,12 @@ const renderTestGraph = (bLoading, graphData, matchStart, matchEnd, bHardcore, n
         pointLabels.push(current);
     }
 
-
-
     const labels = graphData.timestamps.map((r) =>{
         return MMSS(scalePlaytime(r - matchStart, bHardcore));
     });
 
     labels.unshift(MMSS(0));
+
 
     return <CustomGraph 
         tabs={tabs}  
