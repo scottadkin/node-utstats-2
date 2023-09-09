@@ -212,7 +212,13 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
 
     if(pageSettings["Display Player Ping Graph"] === "true"){
 
-        elems[pageOrder["Display Player Ping Graph"]] = <PlayerMatchPing key="pmp-g" playerId={playerId} matchId={matchId}/>;
+        elems[pageOrder["Display Player Ping Graph"]] = <PlayerMatchPing
+            matchStart={info.start}
+            bHardcode={info.hardcode}
+            key="pmp-g" 
+            playerId={playerId} 
+            matchId={matchId}
+        />;
     }
 
     if(pageSettings["Display Team Changes"] === "true"){

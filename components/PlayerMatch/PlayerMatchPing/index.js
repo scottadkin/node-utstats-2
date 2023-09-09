@@ -1,9 +1,9 @@
-import Graph from '../../Graph';
-import { useEffect, useReducer } from 'react';
-import Loading from '../../Loading';
-import ErrorMessage from '../../ErrorMessage';
-import InteractiveTable from '../../InteractiveTable';
-
+import CustomGraph from "../../CustomGraph";
+import { useEffect, useReducer } from "react";
+import Loading from "../../Loading";
+import ErrorMessage from "../../ErrorMessage";
+import InteractiveTable from "../../InteractiveTable";
+import {MMSS, scalePlaytime} from "../../../api/generic.mjs";
 
 const reducer = (state, action) =>{
 
@@ -12,7 +12,7 @@ const reducer = (state, action) =>{
             return {
                 "bLoading": false,
                 "graphData": action.graphData,
-                "graphText": action.graphText,
+                "graphLabels": action.graphLabels,
                 "basicInfo": action.basicInfo,
                 "error": null
             }
@@ -40,14 +40,13 @@ const renderTable = (basicInfo) =>{
     return <InteractiveTable width={2} headers={headers} data={[data]}/>;
 }
 
-const PlayerMatchPing = ({matchId, playerId}) =>{
-
+const PlayerMatchPing = ({matchId, playerId, matchStart, bHardcode}) =>{
 
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
         "error": null,
         "graphData": [],
-        "graphText": [],
+        "graphLabels": [],
         "basicInfo": {"min": 0, "average": 0, "max": 0}
     });
 
@@ -68,16 +67,25 @@ const PlayerMatchPing = ({matchId, playerId}) =>{
 
                 const res = await req.json();
 
+
+                const newGraphData = [
+                    {"name": "Ping", "values": res.graphData[0].data}
+                ];
+
+
+                const graphLabels = res.graphText.map((d) =>{
+                    return MMSS(scalePlaytime(d - matchStart, bHardcode));
+                });
+
                 if(res.error !== undefined){
                     dispatch({"type": "error", "errorMessage": res.error});
                 }else{
-                    dispatch({"type": "loaded", "graphData": res.graphData, "graphText": res.graphText, "basicInfo": res.basicInfo})
+                    dispatch({"type": "loaded", "graphData": newGraphData, "graphLabels": graphLabels, "basicInfo": res.basicInfo})
                 }
 
             }catch(err){
 
                 if(err.name !== "AbortError"){
-
                     console.trace(err);
                 }
             }
@@ -89,16 +97,24 @@ const PlayerMatchPing = ({matchId, playerId}) =>{
         return () =>{
             controller.abort();
         }
-    },[matchId, playerId]);
+
+    },[matchId, playerId, matchStart, bHardcode]);
 
 
+
+    //<Graph title="Ping Over Time" data={state.graphData} text={state.graphText} minValue={0} />
     if(state.bLoading) return <Loading/>;
     if(state.error !== null) return <ErrorMessage title="Ping Summary" text={state.error}/>
 
     return <div>
         <div className="default-header">Ping Summary</div>
         {renderTable(state.basicInfo)}
-        <Graph title="Ping Over Time" data={state.graphData} text={state.graphText} minValue={0} />
+        <CustomGraph 
+            tabs={[{"name": "Ping", "title": "Player Ping Over Time"}]}
+            labels={[state.graphLabels]}
+            labelsPrefix={[]}
+            data={[state.graphData]}
+        />
     </div>
 }
 

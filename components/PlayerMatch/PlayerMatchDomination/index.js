@@ -62,24 +62,31 @@ const PlayerMatchDomination = ({matchId, playerId, playerData, mapId}) =>{
 
         const loadData = async () =>{
 
-            const req = await fetch("/api/match", {
-                "signal": controller.signal,
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({
-                    "mode": "single-player-dom", 
-                    "matchId": matchId, 
-                    "playerId": playerId,
-                    "mapId": mapId
-                })
-            });
+            try{
+                const req = await fetch("/api/match", {
+                    "signal": controller.signal,
+                    "headers": {"Content-type": "application/json"},
+                    "method": "POST",
+                    "body": JSON.stringify({
+                        "mode": "single-player-dom", 
+                        "matchId": matchId, 
+                        "playerId": playerId,
+                        "mapId": mapId
+                    })
+                });
 
-            const res = await req.json();
+                const res = await req.json();
 
-            if(res.error !== undefined){
-                dispatch({"type": "error", "errorMessage": res.error})
-            }else{
-                dispatch({"type": "loaded", "capsData": res.caps, "pointNames": res.pointNames});
+                if(res.error !== undefined){
+                    dispatch({"type": "error", "errorMessage": res.error})
+                }else{
+                    dispatch({"type": "loaded", "capsData": res.caps, "pointNames": res.pointNames});
+                }
+            }catch(err){
+
+                if(err.name !== "AbortError"){
+                    console.trace(err);
+                }
             }
         }
 

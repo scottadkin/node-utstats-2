@@ -205,7 +205,7 @@ class Pings{
             const d = data[i];
 
             pingData.push(d.ping);
-            pingText.push(Functions.MMSS(d.timestamp));
+            pingText.push(d.timestamp);
         }
 
         return {"graphData": [{"name": "Ping", "data": pingData}], "graphText": pingText};
