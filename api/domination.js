@@ -576,30 +576,22 @@ class Domination{
         }
     }
 
-    updateTeamTotals(data, pointId, teamId){
+    updateTeamTotals(data, targetPointId, targetTeamId){
 
-        const pointData = data[pointId];
-        const combined = data[0];
+        const pId = parseInt(targetPointId);
 
-        console.log(data);
-        //need to update for each team not just the team involved
-        //need to update for each team not just the team involved
+        const pointData = data[pId];    
 
-        for(const [currentTeamId, teamData] of Object.entries(pointData)){
+        for(const [teamId, teamData] of Object.entries(pointData)){
 
-            const lastValueIndex = combined[currentTeamId].length - 1;
-            const previousTotalValue = combined[currentTeamId][lastValueIndex];
             const previousValue = teamData[teamData.length - 1];
 
-            if(parseInt(currentTeamId) === teamId){
-
+            if(teamId == targetTeamId){
                 teamData.push(previousValue + 1);
-                combined[currentTeamId].push(previousTotalValue + 1);
             }else{
                 teamData.push(previousValue);
-                combined[currentTeamId].push(previousTotalValue);
             }
-        }
+        }    
     }
 
     createTeamGraphData(inputData, pointNames){
@@ -624,19 +616,20 @@ class Domination{
         }
 
         const timestamps = {
-            "0": []
+            "0": [0]
         };
 
         for(let i = 0; i < inputData.length; i++){
 
             const {team, point, time} = inputData[i];
 
-            if(timestamps[point] === undefined) timestamps[point] = [];
+            if(timestamps[point] === undefined) timestamps[point] = [0];
 
             timestamps[0].push(time);
             timestamps[point].push(time);
 
-            this.updateTeamTotals(teamTotals, point, team);
+            this.updateTeamTotals(teamTotals, parseInt(point), parseInt(team));
+            this.updateTeamTotals(teamTotals, 0, parseInt(team));
         }
 
         return {"labels": timestamps, "data": teamTotals};

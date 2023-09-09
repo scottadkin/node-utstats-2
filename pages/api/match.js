@@ -300,34 +300,24 @@ export default async function handler(req, res){
                 const {id} = pointNames[i];
 
                 const current = [];
-                const teamCurrent = [];
 
                 for(const [playerId, playerData] of Object.entries(playerCaps.data)){
                     current.push({"name": playerNames[playerId] ?? "Not Found", "values": playerData[id]});
                 }
 
-                for(const [teamId, teamData] of Object.entries(teamCaps.data)){
-                    teamCurrent.push({"name": getTeamName(teamId), "values": teamData[id]});
-                }
-
                 altTest.push(current);
-                teamTestData.push(teamCurrent);
             }   
 
+            for(const pointData of Object.values(teamCaps.data)){
 
-            
+                const currentData = [];
 
-            /*for(const [teamId, data] of Object.entries(teamCaps.data)){
+                for(const [teamId, teamData] of Object.entries(pointData)){
+                    currentData.push({"name": getTeamName(teamId), "values": teamData});
+                }
 
-                console.log(data);
-                const current = {
-                    "name": getTeamName(teamId),
-                    "values": data
-                };
-
-                teamTestData.push(current);
-
-            }*/
+                teamTestData.push(currentData);
+            }
 
             
 

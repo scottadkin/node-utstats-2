@@ -18,7 +18,6 @@ const CustomGraph = ({children, data, tabs, labels, labelsPrefix, minDataPoints}
             "labelsPrefix": labelsPrefix
         };
 
-        console.log(graphData);
 
         new Graph(
             canvasRef.current, 

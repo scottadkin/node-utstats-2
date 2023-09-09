@@ -13,8 +13,6 @@ const renderTestGraph = (bLoading, graphData, matchStart, matchEnd, bHardcore, n
 
     if(bLoading) return null;
 
-    console.log(teamCaps);
-
     const tabs = [];
     const data = [];
 
@@ -80,16 +78,21 @@ const renderTestGraph = (bLoading, graphData, matchStart, matchEnd, bHardcore, n
         return MMSS(scalePlaytime(r - matchStart, bHardcore));
     });
 
-    const teamLables = [[],[],[],[]];
+    const teamCapLabels = [];
 
-
+    for(const [pointId, pointData] of Object.entries(teamCaps.labels)){
+        labelsPrefix.push(`Control Point Caps at `);
+        teamCapLabels.push(pointData.map((d) =>{
+            return MMSS(scalePlaytime(d - matchStart, bHardcore))
+        }));
+    }
 
     labels.unshift(MMSS(0));
 
 
     return <CustomGraph 
         tabs={tabs}  
-        labels={[labels, ...pointLabels, ...teamLables]}
+        labels={[labels, ...pointLabels, ...teamCapLabels]}
         labelsPrefix={labelsPrefix}
         data={[data, ...newPlayerCaps.data, ...teamCaps.data]}
     />
@@ -117,7 +120,7 @@ const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData, matc
 
     const [state, dispatch] = useReducer(reducer, {
         "playerCaps": {},
-        "teamCaps": {},
+        "teamCaps": {"data": [], "labels": []},
         "playerTotals": [],
         "pointNames": [],
         "pointsGraph": {"data": [], "labels": []},
@@ -141,8 +144,6 @@ const MatchDominationSummaryNew = ({matchId, mapId, totalTeams, playerData, matc
             });
 
             const res = await req.json();
-
-            console.log(res);
 
             dispatch({
                 "type": "load",
