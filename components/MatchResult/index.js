@@ -1,11 +1,16 @@
 import styles from './MatchResult.module.css';
 import CountryFlag from '../CountryFlag';
+import { getTeamColor } from '../../api/generic.mjs';
 
-const MatchResult = ({dmWinner, dmScore, totalTeams, redScore, blueScore, greenScore, yellowScore, bMonsterHunt, endReason}) =>{
+const MatchResult = ({dmWinner, dmScore, totalTeams, redScore, blueScore, greenScore, yellowScore, bMonsterHunt, endReason, bIncludeImages}) =>{
 
+    if(bIncludeImages === undefined) bIncludeImages = true;
     const elems = [];
 
     const teamScores = [redScore, blueScore, greenScore, yellowScore];
+
+    const defaultImage = "controlpoint.png";
+    const images = ["red.png","blue.png","green.png","yellow.png"];
 
     let className = "solo";
 
@@ -37,11 +42,23 @@ const MatchResult = ({dmWinner, dmScore, totalTeams, redScore, blueScore, greenS
 
             for(let i = 0; i < totalTeams; i++){
 
-                elems.push(
-                    <div key={`match_result_${i}`}>
-                        {teamScores[i]}
-                    </div>
-                );
+                if(bIncludeImages){
+
+                    elems.push(
+                        <div key={`match_result_${i}`} className={getTeamColor(i)}>
+                            <img src={`/images/${images[i]}`} alt="image"/>
+                            <div className={styles.score}>{teamScores[i]}</div>
+                        </div>
+                    );
+
+                }else{
+
+                    elems.push(
+                        <div key={`match_result_${i}`} className={getTeamColor(i)}>
+                            <div className={styles.score}>{teamScores[i]}</div>
+                        </div>
+                    );
+                }
             }
         }
 

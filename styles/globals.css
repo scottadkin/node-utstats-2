@@ -279,23 +279,20 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 }
 
 
-.duo div:nth-child(1), .trio div:nth-child(1), .quad div:nth-child(1), .team-red{
+.team-red{
 	background-color:var(--red-2);
 }
 
 
-
-.duo div:nth-child(2), .trio div:nth-child(2), .quad div:nth-child(2), .team-blue{
+.team-blue{
 	background-color:rgba(20,61,116,0.75);
 }
 
-
-.duo div:nth-child(3), .trio div:nth-child(3), .quad div:nth-child(3), .team-green{
+.team-green{
 	background-color:rgba(0,66,0,0.75);
 }
 
-
-.duo div:nth-child(4), .trio div:nth-child(4), .quad div:nth-child(4), .team-yellow{
+.team-yellow{
 	background-color:var(--yellow-2)
 }
 
@@ -315,7 +312,6 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 }
 
 .solo div, .duo div, .trio div, .quad div{
-	font-size:14px;
 	height:100%;
 }
 

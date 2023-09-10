@@ -560,3 +560,16 @@ export function getTeamName(team, bIgnoreTeam){
         return teamName;
     }
 }
+
+export function getTeamColor(team){
+
+    team = parseInt(team);
+    
+    switch(team){
+        case 0: {  return "team-red"; } 
+        case 1: {  return "team-blue"; } 
+        case 2: {  return "team-green"; } 
+        case 3: {  return "team-yellow"; }
+        default: { return "team-none";} 
+    }
+}

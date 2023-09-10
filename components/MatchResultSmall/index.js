@@ -1,4 +1,5 @@
-import styles from './MatchResultSmall.module.css'
+import styles from "./MatchResultSmall.module.css";
+import { getTeamColor } from "../../api/generic.mjs";
 
 const MatchResultSmall = ({totalTeams, dmWinner, dmScore, redScore, blueScore, greenScore, yellowScore, bMonsterHunt, endReason}) =>{
 
@@ -23,13 +24,13 @@ const MatchResultSmall = ({totalTeams, dmWinner, dmScore, redScore, blueScore, g
 
         const elems = [];
 
-        elems.push(<div key={"red"}>{redScore}</div>);
-        elems.push(<div key={"blue"}>{blueScore}</div>);
+        elems.push(<div key={"red"} className="team-red">{redScore}</div>);
+        elems.push(<div key={"blue"} className="team-blue">{blueScore}</div>);
 
         if(totalTeams > 2){
-            elems.push(<div key={"green"}>{greenScore}</div>);
+            elems.push(<div key={"green"} className="team-green">{greenScore}</div>);
             if(totalTeams > 3){
-                elems.push(<div key={"yellow"}>{yellowScore}</div>);
+                elems.push(<div key={"yellow"} className="team-yellow">{yellowScore}</div>);
             }
         }
         return (<div className={`${styles.wrapper} ${wrapperClass}`}>{elems}</div>);

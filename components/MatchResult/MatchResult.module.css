@@ -1,7 +1,15 @@
 
 
-.wrapper div{
-    font-size:18px;
-    height:42px;
-    line-height:42px;
+
+.wrapper img{
+    width:32px;
+    height:32px;
+    margin-top:10px;
+}
+
+.score{
+    line-height:20px;
+    font-size:20px;
+    font-weight:400;
+    padding:10px 5px;
 }
