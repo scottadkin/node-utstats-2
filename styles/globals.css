@@ -311,10 +311,6 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	grid-template-columns: 25% 25% 25% 25%;
 }
 
-.solo div, .duo div, .trio div, .quad div{
-	height:100%;
-}
-
 .weapon-image{
 	width:150px;
 }

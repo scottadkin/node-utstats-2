@@ -28,12 +28,14 @@ const MatchResult = ({dmWinner, dmScore, totalTeams, redScore, blueScore, greenS
             
             if(dmScore === null){
 
-                elems.push(<div key="dm">
-                    <span className="yellow"><CountryFlag bNoHover={true} country={dmWinner.country}/>{dmWinner.name}</span> Won the Match
+                elems.push(<div key="dm" className={`${styles.wrapper} ${styles.dm}`}>
+                    <img src={`/images/${defaultImage}`} alt="image"/><br/>
+                    {dmWinner.name} Won the Match
                 </div>);
             }else{
-                elems.push(<div key="dm">
-                    <span className="yellow"><CountryFlag bNoHover={true} country={dmWinner.country}/>{dmWinner.name}</span> won with <span className="yellow">{dmScore}</span> Points
+                elems.push(<div key="dm" className={`${styles.wrapper} ${styles.dm}`}>
+                    <img src={`/images/${defaultImage}`} alt="image"/><br/>
+                    {dmWinner.name} won with <span className="yellow">{dmScore}</span> Points
                 </div>);
             }
 

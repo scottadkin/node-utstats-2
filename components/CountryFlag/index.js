@@ -32,13 +32,21 @@ const CountryFlag = ({country, bNoHover, small}) =>{
 
     const url = `/images/flags/${flag.code.toLowerCase()}.svg`;
 
+    const inner = <>
+        {renderHoverElem(bDisplay, flag, url)}
+        <img className="country-flag" src={url} alt="flag"/>
+    </>;
+
+    if(bNoHover){
+        return <div className={styles.wrapper}>{inner}</div>
+    }
+
     return <div className={styles.wrapper} onMouseOver={(() =>{
         setBDisplay(true);
     })} onMouseLeave={(() =>{
         setBDisplay(false);
     })}>
-        {renderHoverElem(bDisplay, flag, url)}
-        <img className="country-flag" src={url} alt="flag"/>
+        {inner}
     </div>
 }
 
