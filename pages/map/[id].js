@@ -1,56 +1,29 @@
-import DefaultHead from '../../components/defaulthead';
-import Nav from '../../components/Nav/';
-import Footer from '../../components/Footer/';
-import Maps from '../../api/maps';
-import Functions from '../../api/functions';
-import MatchesTableView from '../../components/MatchesTableView/';
-import Servers from '../../api/servers';
-import Gametypes from '../../api/gametypes';
-import React from 'react';
-import Pagination from '../../components/Pagination/';
-import Graph from '../../components/Graph/';
-import Players from '../../api/players';
-import CTF from '../../api/ctf';
-import Domination from '../../api/domination';
-import MapControlPoints from '../../components/MapControlPoints/';
-import MapSpawns from '../../components/MapSpawns/';
-import Assault from '../../api/assault';
-import MapAssaultObjectives from '../../components/MapAssaultObjectives/';
-import MapAddictedPlayers from '../../components/MapAddictedPlayers/';
-import Session from '../../api/session';
-import SiteSettings from '../../api/sitesettings';
-import Analytics from '../../api/analytics';
-import MapCTFCaps from '../../components/MapCTFCaps';
-import MapSummary from '../../components/MapSummary';
-import CombogibMapRecords from '../../components/CombogibMapRecords';
+import DefaultHead from "../../components/defaulthead";
+import Nav from "../../components/Nav/";
+import Footer from "../../components/Footer/";
+import Maps from "../../api/maps";
+import Functions from "../../api/functions";
+import MatchesTableView from "../../components/MatchesTableView/";
+import Servers from "../../api/servers";
+import Gametypes from "../../api/gametypes";
+import React from "react";
+import Pagination from "../../components/Pagination/";
+import Players from "../../api/players";
+import CTF from "../../api/ctf";
+import Domination from "../../api/domination";
+import MapControlPoints from "../../components/MapControlPoints/";
+import MapSpawns from "../../components/MapSpawns/";
+import Assault from "../../api/assault";
+import MapAssaultObjectives from "../../components/MapAssaultObjectives/";
+import MapAddictedPlayers from "../../components/MapAddictedPlayers/";
+import Session from "../../api/session";
+import SiteSettings from "../../api/sitesettings";
+import Analytics from "../../api/analytics";
+import MapCTFCaps from "../../components/MapCTFCaps";
+import MapSummary from "../../components/MapSummary";
+import CombogibMapRecords from "../../components/CombogibMapRecords";
 import CombogibMapTotals from "../../components/CombogibMapTotals";
-
-
-const PlayedGraph = ({dates}) =>{
-
-    return <div>
-        <div className="default-header">
-            Games Played
-        </div>
-        <Graph title={["Last 24 Hours", "Last 7 Days", "Last 28 Days", "Last 365 Days"]} data={JSON.stringify(
-            [
-                [{"name": "Matches", "data": dates.day.data}],
-                [{"name": "Matches", "data": dates.week.data}],
-                [{"name": "Matches", "data": dates.month.data}],
-                [{"name": "Matches", "data": dates.year.data}],
-            ])}
-            
-            text={
-                JSON.stringify([
-                    dates.day.text,
-                    dates.week.text,
-                    dates.month.text,
-                    dates.year.text,
-                ])
-            }
-        />
-    </div>;
-}
+import MapHistoryGraph from "../../components/MapHistoryGraph";
 
 class Map extends React.Component{
 
@@ -95,7 +68,7 @@ class Map extends React.Component{
         }
 
         if(pageSettings["Display Games Played"] === "true"){
-            elems[pageOrder["Display Games Played"]] = <PlayedGraph key={pageOrder["Display Games Played"]} dates={this.props.dates}/>
+            elems[pageOrder["Display Games Played"]] = <MapHistoryGraph key="mhg" id={basic.id}/>;
         }
 
         if(pageSettings["Display Spawn Points"] === "true"){
@@ -280,7 +253,7 @@ function getNamePrefix(name){
         return result[1];
     }
 
-    return 'dm';
+    return "dm";
 }
 
 
@@ -420,15 +393,6 @@ export async function getServerSideProps({req, query}){
         Functions.setIdNames(longestMatches, gametypeNames, "gametype", "gametypeName");
 
 
-        let matchDates = [];
-        let matchDatesData = [];
-
-
-        if(pageSettings["Display Games Played"] === "true"){
-            matchDates = await mapManager.getMatchDates(mapId);
-            matchDatesData = createDatesData(matchDates);
-        }
-
         let addictedPlayers = [];
 
         if(pageSettings["Display Addicted Players"] === "true"){
@@ -457,13 +421,13 @@ export async function getServerSideProps({req, query}){
         let assaultObjectives = [];
         let assaultImages = [];
 
-        if(mapPrefix === 'ctf'){
+        if(mapPrefix === "ctf"){
 
             const CTFManager = new CTF();
 
             flagLocations = await CTFManager.getFlagLocations(mapId);
 
-        }else if(mapPrefix === 'dom'){
+        }else if(mapPrefix === "dom"){
 
             if(pageSettings["Display Control Points (Domination)"] === "true"){
                 const domManager = new Domination();
@@ -471,7 +435,7 @@ export async function getServerSideProps({req, query}){
                 domControlPointLocations = await domManager.getMapFullControlPoints(mapId);
             }
 
-        }else if(mapPrefix === 'as'){
+        }else if(mapPrefix === "as"){
 
             if(pageSettings["Display Map Objectives (Assault)"] === "true"){
                 const assaultManager = new Assault();
@@ -501,7 +465,7 @@ export async function getServerSideProps({req, query}){
             ogImage = `maps/${ogImageResult[1]}`;
         }
         
-        await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
+        await Analytics.insertHit(session.userIp, req.headers.host, req.headers["user-agent"]);
         return {
             props: {
                 "host": req.headers.host,
@@ -511,7 +475,6 @@ export async function getServerSideProps({req, query}){
                 "perPage": perPage,
                 "pages": pages,
                 "page": page,
-                "dates": matchDatesData,
                 "addictedPlayers": JSON.stringify(addictedPlayers),
                 "playerNames": JSON.stringify(playerNames),
                 "longestMatches": JSON.stringify(longestMatches),
