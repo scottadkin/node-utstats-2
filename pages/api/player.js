@@ -5,6 +5,7 @@ const Gametypes = require("../../api/gametypes");
 const Telefrags = require("../../api/telefrags");
 const Maps = require("../../api/maps");
 const Winrate = require("../../api/winrate");
+const Pings = require("../../api/pings");
 
 export default async function handler(req, res){
 
@@ -167,6 +168,17 @@ export default async function handler(req, res){
             res.status(200).json({"data": data});
             return;
 
+        }
+
+
+        if(mode === "ping"){
+
+            const pingManager = new Pings();
+
+            const {labels, data} = await pingManager.getPlayerHistoryGraphData(playerId, 100);
+
+            res.status(200).json({"data": data, "labels": labels});
+            return;
         }
 
         res.status(200).json({"error": "Unknown Command"});

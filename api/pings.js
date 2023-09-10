@@ -1,7 +1,4 @@
 const mysql = require('./database');
-const Promise = require('promise');
-const Message = require('./message');
-const Functions = require('./functions');
 
 
 class Pings{
@@ -241,6 +238,44 @@ class Pings{
         }
 
         return {"min": min, "average": average, "max": max};
+    }
+
+    async getPlayerHistory(playerId, limit){
+
+        const query = `SELECT match_date,ping_min,ping_average,ping_max FROM nstats_player_matches 
+        WHERE player_id=? ORDER BY match_date DESC LIMIT ?`;
+
+        return await mysql.simpleQuery(query, [playerId, limit]);
+    }
+
+    async getPlayerHistoryGraphData(playerId, limit){
+
+        const result = await this.getPlayerHistory(playerId, limit);
+
+
+        const data = [
+            {"name": "Min", "values": []},
+            {"name": "Average", "values": []},
+            {"name": "Max", "values": []}
+        ];
+        
+        const labels = [];
+
+        
+        const MAX_PING_LIMIT = 1000;
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            data[0].values.push((r.ping_min < MAX_PING_LIMIT) ? r.ping_min : MAX_PING_LIMIT);
+            data[1].values.push((r.ping_average < MAX_PING_LIMIT) ? r.ping_average : MAX_PING_LIMIT);
+            data[2].values.push((r.ping_max < MAX_PING_LIMIT) ? r.ping_max : MAX_PING_LIMIT);
+
+            labels.push(r.match_date);
+        }
+
+        return {"data": data, "labels": labels};
     }
 }
 

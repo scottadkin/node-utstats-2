@@ -1,45 +1,44 @@
-import DefaultHead from '../../components/defaulthead';
-import Nav from '../../components/Nav/';
-import Footer from '../../components/Footer/';
-import Player from '../../api/player';
-import Players from '../../api/players';
-import Countires from '../../api/countries';
-import Gametypes from '../../api/gametypes';
-import Maps from '../../api/maps';
-import PlayerRecentMatches from '../../components/PlayerRecentMatches/';
-import Matches from '../../api/matches';
-import PlayerWeapons from '../../components/PlayerWeapons/';
-import Functions from '../../api/functions';
-import Servers from '../../api/servers';
-import Faces from '../../api/faces';
-import Pings from '../../api/pings';
-import Graph from '../../components/Graph/';
-import PlayerAliases from '../../components/PlayerAliases/';
-import Items from '../../api/items';
-import PlayerItemsSummary from '../../components/PlayerItemsSummary/';
-import Session from '../../api/session';
-import SiteSettings from '../../api/sitesettings';
-import Rankings from '../../api/rankings';
-import PlayerRankings from '../../components/PlayerRankings/';
-import Analytics from '../../api/analytics';
-import PlayerGeneral from '../../components/PlayerGeneral';
-import PlayerGametypeStats from '../../components/PlayerGametypeStats';
-import PlayerCTFSummary from '../../components/PlayerCTFSummary';
-import PlayerCapRecords from '../../components/PlayerCapRecords';
-import PlayerADSummary from '../../components/PlayerADSummary';
-import PlayerFragSummary from '../../components/PlayerFragSummary';
-import PlayerSpecialEvents from '../../components/PlayerSpecialEvents';
-import Image from 'next/image';
-import PlayerMonsterHuntStats from '../../components/PlayerMonsterHuntStats';
-import PlayerMonsters from '../../components/PlayerMonsters';
-import PlayerCombogibStats from '../../components/PlayerCombogibStats';
-import PlayerTeleFrags from '../../components/PlayerTeleFrags';
-import PlayerMapStats from '../../components/PlayerMapStats';
-import PlayerWinRates from '../../components/PlayerWinRates';
+import DefaultHead from "../../components/defaulthead";
+import Nav from "../../components/Nav/";
+import Footer from "../../components/Footer/";
+import Player from "../../api/player";
+import Players from "../../api/players";
+import Countires from "../../api/countries";
+import Gametypes from "../../api/gametypes";
+import Maps from "../../api/maps";
+import PlayerRecentMatches from "../../components/PlayerRecentMatches/";
+import Matches from "../../api/matches";
+import PlayerWeapons from "../../components/PlayerWeapons/";
+import Functions from "../../api/functions";
+import Servers from "../../api/servers";
+import Faces from "../../api/faces";
+import PlayerAliases from "../../components/PlayerAliases/";
+import Items from "../../api/items";
+import PlayerItemsSummary from "../../components/PlayerItemsSummary/";
+import Session from "../../api/session";
+import SiteSettings from "../../api/sitesettings";
+import Rankings from "../../api/rankings";
+import PlayerRankings from "../../components/PlayerRankings/";
+import Analytics from "../../api/analytics";
+import PlayerGeneral from "../../components/PlayerGeneral";
+import PlayerGametypeStats from "../../components/PlayerGametypeStats";
+import PlayerCTFSummary from "../../components/PlayerCTFSummary";
+import PlayerCapRecords from "../../components/PlayerCapRecords";
+import PlayerADSummary from "../../components/PlayerADSummary";
+import PlayerFragSummary from "../../components/PlayerFragSummary";
+import PlayerSpecialEvents from "../../components/PlayerSpecialEvents";
+import Image from "next/image";
+import PlayerMonsterHuntStats from "../../components/PlayerMonsterHuntStats";
+import PlayerMonsters from "../../components/PlayerMonsters";
+import PlayerCombogibStats from "../../components/PlayerCombogibStats";
+import PlayerTeleFrags from "../../components/PlayerTeleFrags";
+import PlayerMapStats from "../../components/PlayerMapStats";
+import PlayerWinRates from "../../components/PlayerWinRates";
+import PlayerPingHistory from "../../components/PlayerPingHistory";
 
 
 function Home({navSettings, pageSettings, pageOrder, session, host, playerId, summary, gametypeNames, recentMatches, matchScores, totalMatches, 
-	matchPages, matchPage, matchesPerPage, mapImages, serverNames, matchDates, pingGraphData, aliases, faces, itemData, itemNames, ogImage, 
+	matchPages, matchPage, matchesPerPage, mapImages, serverNames, matchDates, aliases, faces, itemData, itemNames, ogImage, 
 	rankingsData, rankingPositions, capRecordsMode}) {
 
 
@@ -85,13 +84,11 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 
 	let titleName = name;
 
-	if(titleName[titleName.length - 1].toLowerCase() !== 's'){
-		titleName = `${name}'s`;
+	if(titleName[titleName.length - 1].toLowerCase() !== "s"){
+		titleName = `${name}"s`;
 	}else{
-		titleName = `${name}'`;
+		titleName = `${name}"`;
 	}
-
-	pingGraphData = JSON.parse(pingGraphData);
 
 	pageSettings = JSON.parse(pageSettings);
 	pageOrder = JSON.parse(pageOrder);
@@ -205,10 +202,7 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 
 	if(pageSettings["Display Ping History Graph"] === "true"){
 
-		elems[pageOrder["Display Ping History Graph"]] = <div key={"ppg"}>
-			<div className="default-header">Ping History</div>
-			<Graph title="Recent Ping History" data={JSON.stringify(pingGraphData.data)} text={JSON.stringify(pingGraphData.text)}/>
-		</div>
+		elems[pageOrder["Display Ping History Graph"]] = <PlayerPingHistory key="pp" playerId={playerId}/>;
 	}
 
 	if(pageSettings["Display Recent Matches"] === "true"){
@@ -282,35 +276,6 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 				</main>   
 			</div>
 	)
-}
-
-function createPingGraphData(history){
-
-	const data = [
-		{"name": "Min", "data": [0]},
-		{"name": "Average", "data": [0]},
-		{"name": "Max", "data": [0]}
-	];
-
-	const text = [];
-
-	for(let i = 0; i < history.length; i++){
-
-		const h = history[i];
-
-		data[0].data.push(h.min);
-		data[1].data.push(h.average);
-		data[2].data.push(h.max);
-
-		if(i !== 1){
-			text.push(`${i + 1} Matches ago`);
-		}else{
-			text.push(`${i + 1} Match ago`);
-		}
-
-	}
-
-	return {"data": data, "text": text};
 }
 
 
@@ -388,8 +353,8 @@ export async function getServerSideProps({req, query}) {
 
 	const matchPages = Math.ceil(totalMatches / matchesPerPage);
 
-	const uniqueMaps = Functions.getUniqueValues(recentMatches, 'map_id');
-	const matchIds = Functions.getUniqueValues(recentMatches, 'match_id');
+	const uniqueMaps = Functions.getUniqueValues(recentMatches, "map_id");
+	const matchIds = Functions.getUniqueValues(recentMatches, "match_id");
 
 	let mapData = await maps.getNames(uniqueMaps);
 	let matchScores = await matchManager.getWinners(matchIds);
@@ -407,13 +372,13 @@ export async function getServerSideProps({req, query}) {
 
 	let mapImages = await maps.getImages(justMapNames);
 
-	Functions.setIdNames(recentMatches, mapData, 'map_id', 'mapName');
+	Functions.setIdNames(recentMatches, mapData, "map_id", "mapName");
 
 	const serverNames = await serverManager.getAllNames();
 	const serverIds = await matchManager.getServerNames(matchIds);
 
-	Functions.setIdNames(recentMatches, serverIds, 'match_id', 'server');
-	Functions.setIdNames(recentMatches, matchPlayerCount, 'match_id', 'players');
+	Functions.setIdNames(recentMatches, serverIds, "match_id", "server");
+	Functions.setIdNames(recentMatches, matchPlayerCount, "match_id", "players");
 
 
 	const faceManager = new Faces();
@@ -424,18 +389,6 @@ export async function getServerSideProps({req, query}) {
 	const month = ((60 * 60) * 24) * 28;
 
 	const matchDates = await playerManager.getMatchDatesAfter(now - month, playerId);
-
-	let pingHistory = [];
-	let pingGraphData = [];
-
-	if(pageSettings["Display Ping History Graph"] === "true"){
-
-		const pingManager = new Pings();
-
-		pingHistory = await pingManager.getPlayerHistoryAfter(playerId, 100);
-
-		pingGraphData = createPingGraphData(pingHistory);
-	}
 
 	
 	const aliases = await playerManager.getPossibleAliases(playerId);
@@ -466,7 +419,7 @@ export async function getServerSideProps({req, query}) {
 
 	if(pageSettings["Display Pickup History"] === "true"){
 		playerItemData = await itemManager.getPlayerTotalData(playerId);
-		uniqueItemIds = Functions.getUniqueValues(playerItemData, 'item');
+		uniqueItemIds = Functions.getUniqueValues(playerItemData, "item");
 		itemNames = await itemManager.getNamesByIds(uniqueItemIds);
 	}
 
@@ -490,7 +443,7 @@ export async function getServerSideProps({req, query}) {
 	}
 
 
-	await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
+	await Analytics.insertHit(session.userIp, req.headers.host, req.headers["user-agent"]);
 	
 
 	return { 
@@ -514,7 +467,6 @@ export async function getServerSideProps({req, query}) {
 			//"latestWinRate": JSON.stringify(latestWinRate),
 			//"winRateHistory": JSON.stringify(winRateHistory),
 			"matchDates": JSON.stringify(matchDates),
-			"pingGraphData": JSON.stringify(pingGraphData),
 			"aliases": JSON.stringify(aliases),
 			"faces": JSON.stringify(faceFiles),
 			"itemData": JSON.stringify(playerItemData),
