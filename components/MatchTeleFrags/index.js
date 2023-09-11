@@ -71,12 +71,8 @@ const renderKills = (state, matchId, matchStart, players) =>{
     if(state.selectedTab !== 1) return null;
 
     if(state.error !== null){
-        return <ErrorMessage type="error" text={`Failed to display telefrag kills: ${state.error}`}/>
-        
-        
+        return <ErrorMessage type="error" text={`Failed to display telefrag kills: ${state.error}`}/>         
     }
-
-
 
     if(state.bLoading) return <Loading />;
 
@@ -203,6 +199,7 @@ const MatchTeleFrags = ({data, matchId, matchStart, players}) =>{
     },[matchId]);
 
 
+    if(state.data == null || state.data.length === 0) return null;
 
     return <div>
         <div className="default-header">Telefrags Summary</div>
