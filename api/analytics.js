@@ -5,16 +5,14 @@ const countries = require('./countries');
 
 class Analytics{
 
-    constructor(){
-
-    }
+    constructor(){}
 
 
     static async insertNewVisitor(ip, date){
 
         const query = "INSERT INTO nstats_visitors VALUES(NULL,?,?,?,1)";
 
-        await mysql.simpleInsert(query, [ip, date, date]);
+        await mysql.simpleQuery(query, [ip, date, date]);
     }
 
     static async updateVisitorHistory(ip, date){
@@ -47,7 +45,7 @@ class Analytics{
 
         const query = "INSERT INTO nstats_visitors_countries VALUES(NULL,?,?,?,?,1)";
 
-        await mysql.simpleInsert(query, [code, country, date, date]);
+        await mysql.simpleQuery(query, [code, country, date, date]);
     }
 
     static async updateVisitorCountryHistory(countryData, date){
@@ -74,7 +72,7 @@ class Analytics{
 
         const query = "INSERT INTO nstats_user_agents VALUES(NULL,?,?,?,?,1)";
 
-        await mysql.simpleInsert(query, [system, platform, date, date]);
+        await mysql.simpleQuery(query, [system, platform, date, date]);
     }
 
     static findBrowserName(agent){
@@ -179,7 +177,7 @@ class Analytics{
 
         const now = Math.floor(Date.now() * 0.001);
 
-        await mysql.simpleInsert(query, [ip, now]);
+        await mysql.simpleQuery(query, [ip, now]);
 
         await this.updateVisitorHistory(ip, now);
         
@@ -203,14 +201,14 @@ class Analytics{
 
         const query = "SELECT * FROM nstats_visitors_countries ORDER BY total DESC";
 
-        return await mysql.simpleFetch(query);
+        return await mysql.simpleQuery(query);
     }
 
     async getIpsByHits(limit){
 
         const query = "SELECT * FROM nstats_visitors ORDER BY total DESC LIMIT ?";
 
-        return await mysql.simpleFetch(query, [limit]);
+        return await mysql.simpleQuery(query, [limit]);
     }
 
     daysToSeconds(days){
@@ -235,7 +233,7 @@ class Analytics{
 
         const query = "SELECT COUNT(*) as total_hits FROM nstats_hits WHERE date >= ? AND date <= ?";
 
-        const total = await mysql.simpleFetch(query, [start, end]);
+        const total = await mysql.simpleQuery(query, [start, end]);
 
         return total[0].total_hits;
     }
@@ -246,7 +244,7 @@ class Analytics{
 
         const query = "SELECT COUNT(*) as hits FROM nstats_hits WHERE date >= ? AND date <= ? GROUP BY (ip)";
 
-        const data = await mysql.simpleFetch(query, [start, end]);
+        const data = await mysql.simpleQuery(query, [start, end]);
 
         let returning = 0;
 
@@ -279,10 +277,85 @@ class Analytics{
     async getUserAgents(){
 
         const query = "SELECT * FROM nstats_user_agents ORDER BY total DESC";
+        return await mysql.simpleQuery(query);
+    }
 
 
-        return await mysql.simpleFetch(query);
+    async adminGetHits(){
 
+        const range = 60 * 60 * 24 * 365;
+        const now = Math.floor(Date.now() * 0.001);
+
+        const query = `SELECT ip,date FROM nstats_hits WHERE date>=? AND date<=? ORDER BY date ASC`;
+
+        const result = await mysql.simpleQuery(query, [now - range, now]);
+
+
+        //TODO: do unique hits per time frame instead of just any, store unique ips
+        const hits = {
+            "unique": {
+                "day": [],
+                "week": [],
+                "month": [],
+                "year": [],
+            },
+            "any": {
+                "day": [],
+                "week": [],
+                "month": [],
+                "year": [],
+            }
+        };
+
+        for(let i = 0; i < 365; i++){
+
+            if(i < 7){
+                hits.any.week.push(0);
+                hits.unique.week.push([]);
+            }
+            if(i < 24){
+                hits.any.day.push(0);
+                hits.unique.day.push([]);
+            }
+            if(i < 28){
+                hits.any.month.push(0);
+                hits.unique.month.push([]);
+            }
+            hits.any.year.push(0);
+            hits.unique.year.push([]);
+            
+        }
+
+        console.log(hits.unique.day);
+
+        const hour = 60 * 60;
+        const day = hour * 24;
+
+        for(let i = 0; i < result.length; i++){
+
+            const {ip, date} = result[i];
+
+            let offset = Math.floor(now - date);
+            //:eyes: An offset of 1 second makes no difference to the data we display
+            if(offset === 0) offset = 1;
+            const hourOffset = Math.floor(offset / hour);
+            const dayOffset = Math.floor(offset / day);
+
+            if(hourOffset < 24) hits.any.day[hourOffset]++;
+            if(dayOffset < 7) hits.any.week[dayOffset]++;
+            if(dayOffset < 28) hits.any.month[dayOffset]++;
+
+            hits.any.year[dayOffset]++;
+        }
+
+        const graphData = [
+            [{"name": "Page Views", "values": hits.any.day}],
+            [{"name": "Page Views", "values": hits.any.week}],
+            [{"name": "Page Views", "values": hits.any.month}],
+            [{"name": "Page Views", "values": hits.any.year}]
+        ];
+
+        return graphData;
     }
 }
 

@@ -21,7 +21,6 @@ import AdminFTPManager from '../components/AdminFTPManager/';
 import AdminNexgenStatsViewer from '../components/AdminNexgenStatsViewer';
 import MonsterHunt from '../api/monsterhunt';
 import AdminMonsterHunt from '../components/AdminMonsterHunt';
-import Analytics from '../api/analytics';
 import SiteAnalytics from '../components/SiteAnalytics';
 import AdminMapManager from '../components/AdminMapManager';
 import AdminSiteSettings from '../components/AdminSiteSettings';
@@ -36,7 +35,7 @@ class Admin extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 6, 
+            "mode": 13, 
             "files": [],
             "gametypeNames": JSON.parse(this.props.gametypeNames),
             "itemList": JSON.parse(this.props.itemList),
@@ -222,9 +221,7 @@ class Admin extends React.Component{
 
         if(this.state.mode !== 13) return null;
 
-        return <SiteAnalytics countriesByHits={JSON.parse(this.props.countriesByHits)} ipsByHits={JSON.parse(this.props.ipsByHits)}
-            generalHits={JSON.parse(this.props.hits)} visitors={JSON.parse(this.props.visitors)} userAgents={JSON.parse(this.props.userAgents)}
-        />;
+        return <SiteAnalytics />;
     }
 
     displayMapManager(){
@@ -416,29 +413,6 @@ export async function getServerSideProps({req, query}){
     const navSettings = await settings.getCategorySettings("Navigation");
 
 
-
-    const analytics = new Analytics();
-
-    const countriesByHits = await analytics.getCountriesByHits();
-    const ipsByHits = await analytics.getIpsByHits(50);
-
-    const hitsPast24Hours = await analytics.getTotalHitsPastXDays(1);
-    const visitorsPast24Hours = await analytics.getVisitorsCountPastXDays(1);
-
-    const hitsPast7Days = await analytics.getTotalHitsPastXDays(7);
-    const visitorsPast7Days = await analytics.getVisitorsCountPastXDays(7);
-
-    const hitsPast28Days = await analytics.getTotalHitsPastXDays(28);
-    const visitorsPast28Days = await analytics.getVisitorsCountPastXDays(28);
-
-    const hitsPastYear = await analytics.getTotalHitsPastXDays(365);
-    const visitorsPast365Days = await analytics.getVisitorsCountPastXDays(365);
-
-    const hitsAllTime = await analytics.getTotalHitsPastXDays();
-    const visitorsAllTime = await analytics.getVisitorsCountPastXDays();
-
-    const userAgents = await analytics.getUserAgents();
-
     return {
         props: {
             "navSettings": JSON.stringify(navSettings),
@@ -453,25 +427,6 @@ export async function getServerSideProps({req, query}){
             "monsterImages": JSON.stringify(monsterImages),
             "monsters": JSON.stringify(monsters),
             "gametypeImages": JSON.stringify(gametypeImages),
-            "countriesByHits": JSON.stringify(countriesByHits),
-            "ipsByHits": JSON.stringify(ipsByHits),
-            "hits": JSON.stringify({
-                "day": hitsPast24Hours,
-                "week": hitsPast7Days,
-                "month": hitsPast28Days,
-                "year": hitsPastYear,
-                "allTime": hitsAllTime
-            }),
-            "visitors": JSON.stringify(
-                {
-                    "day": visitorsPast24Hours,
-                    "week": visitorsPast7Days,
-                    "month": visitorsPast28Days,
-                    "year": visitorsPast365Days,
-                    "allTime": visitorsAllTime
-                }
-            ),
-            "userAgents": JSON.stringify(userAgents)
         }
     };
 }
