@@ -165,6 +165,8 @@ const PlayerTeleFrags = ({playerId}) =>{
         return <ErrorMessage title="Telefrag Summary" text={state.error}/>
     }
 
+    if(state.data !== null && state.data.length === 0) return null;
+    
     return <div>
         <div className="default-header">Telefrag Summary</div>
         <Loading value={!state.bLoading}/>

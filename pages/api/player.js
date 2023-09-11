@@ -61,7 +61,7 @@ export default async function handler(req, res){
 
             const teleFragManager = new Telefrags();
 
-            const data = await teleFragManager.getPlayerTotals(playerId);
+            const data = await teleFragManager.getPlayerTotals(playerId, true);
 
             const gametypeIds = [...new Set(data.map((d) =>{
                 return d.gametype_id;

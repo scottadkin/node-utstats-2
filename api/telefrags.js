@@ -269,11 +269,39 @@ class Telefrags{
         await this.recalculatePlayerTotals(newId);
     }
 
-    async getPlayerTotals(playerId){
+    async getPlayerTotals(playerId, bIgnore0Events){
+
+        if(bIgnore0Events === undefined) bIgnore0Events = false;
 
         const query = `SELECT * FROM nstats_player_telefrags WHERE player_id=?`;
 
-        return await mysql.simpleQuery(query, [playerId]);
+        const result = await mysql.simpleQuery(query, [playerId]);
+
+        const targetKeys = [
+            "tele_kills", 
+            "tele_deaths",
+            "disc_kills",
+            "disc_deaths"
+        ];
+
+        if(!bIgnore0Events) return result;
+
+        const finalResult = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            for(let x = 0; x < targetKeys.length; x++){
+
+                if(r[targetKeys[x]] !== 0){
+                    finalResult.push(r);
+                    break;
+                }
+            }
+        }
+
+        return finalResult;
     }
 }
 
