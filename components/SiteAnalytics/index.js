@@ -57,6 +57,16 @@ const testGraph = (state) =>{
 
     if(state.bLoading) return null;
 
+    const labels = [[],[],[],[]];
+
+    for(let i = 0; i < 365; i++){
+
+        if(i < 24) labels[0].push(`${i}-${i+1} Hours Ago`);
+        if(i < 7) labels[1].push(`${i}-${i+1} Days Ago`);
+        if(i < 28) labels[2].push(`${i}-${i+1} Days Ago`);
+        labels[3].push(`${i}-${i+1} Days Ago`);
+    }
+
     return <CustomGraph 
         tabs={[
             {"name": "24 Hours", "title": "Page Views Last 24 Hours"},
@@ -64,9 +74,7 @@ const testGraph = (state) =>{
             {"name": "28 Days", "title": "Page Views Last 28 Days"},
             {"name": "365 Days", "title": "Page Views Last 365 Days"},
         ]}
-        labels={[
-            [],[],[],[]
-        ]}
+        labels={labels}
         labelsPrefix={["","","",""]}
         data={state.graphData}
     />

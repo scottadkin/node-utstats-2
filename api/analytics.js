@@ -311,22 +311,21 @@ class Analytics{
 
             if(i < 7){
                 hits.any.week.push(0);
-                hits.unique.week.push([]);
+                hits.unique.week.push(new Set());
             }
             if(i < 24){
                 hits.any.day.push(0);
-                hits.unique.day.push([]);
+                hits.unique.day.push(new Set());
             }
             if(i < 28){
                 hits.any.month.push(0);
-                hits.unique.month.push([]);
+                hits.unique.month.push(new Set());
             }
             hits.any.year.push(0);
-            hits.unique.year.push([]);
+            hits.unique.year.push(new Set());
             
         }
 
-        console.log(hits.unique.day);
 
         const hour = 60 * 60;
         const day = hour * 24;
@@ -341,18 +340,73 @@ class Analytics{
             const hourOffset = Math.floor(offset / hour);
             const dayOffset = Math.floor(offset / day);
 
-            if(hourOffset < 24) hits.any.day[hourOffset]++;
-            if(dayOffset < 7) hits.any.week[dayOffset]++;
-            if(dayOffset < 28) hits.any.month[dayOffset]++;
+            if(hourOffset < 24){
+                hits.any.day[hourOffset]++;
+                hits.unique.day[hourOffset].add(ip);
+            }
+
+            if(dayOffset < 7){
+                hits.any.week[dayOffset]++;
+                hits.unique.week[dayOffset].add(ip);
+            }
+            if(dayOffset < 28){
+                hits.any.month[dayOffset]++;
+                hits.unique.month[dayOffset].add(ip);
+            }
 
             hits.any.year[dayOffset]++;
+            hits.unique.year[dayOffset].add(ip);
         }
 
         const graphData = [
-            [{"name": "Page Views", "values": hits.any.day}],
-            [{"name": "Page Views", "values": hits.any.week}],
-            [{"name": "Page Views", "values": hits.any.month}],
-            [{"name": "Page Views", "values": hits.any.year}]
+            [
+                {
+                    "name": "Page Views", 
+                    "values": hits.any.day
+                },
+                {
+                    "name": "Unique Views", 
+                    "values": hits.unique.day.map((d) =>{
+                        return d.size;
+                    })
+                },
+            ],
+            [
+                {
+                    "name": "Page Views", 
+                    "values": hits.any.week
+                },
+                {
+                    "name": "Unique Views",
+                    "values": hits.unique.week.map((d) =>{
+                        return d.size;
+                    })
+                }
+            ],
+            [
+                {
+                    "name": "Page Views", 
+                    "values": hits.any.month
+                },
+                {
+                    "name": "Unique Views",
+                    "values": hits.unique.month.map((d) =>{
+                        return d.size;
+                    })
+                }
+            ],
+            [
+                {
+                    "name": "Page Views", 
+                    "values": hits.any.year 
+                },
+                {
+                    "name": "Unique Views",
+                    "values": hits.unique.year.map((d) =>{
+                        return d.size;
+                    })
+                }
+            ]
         ];
 
         return graphData;
