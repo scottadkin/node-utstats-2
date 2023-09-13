@@ -3,10 +3,11 @@ import styles from "./CustomGraph.module.css";
 import Graph from "../../lib/Graph";
 
 
-const CustomGraph = ({children, data, tabs, labels, labelsPrefix, minDataPoints}) =>{
+const CustomGraph = ({children, data, tabs, labels, labelsPrefix, minDataPoints, bEnableAdvanced}) =>{
 
     const canvasRef = useRef(null);
     if(minDataPoints === undefined) minDataPoints = 2;
+    if(bEnableAdvanced === undefined) bEnableAdvanced = true;
 
     useEffect(() =>{
 
@@ -29,7 +30,7 @@ const CustomGraph = ({children, data, tabs, labels, labelsPrefix, minDataPoints}
             graphData,
             0,
             null,
-            true, 
+            bEnableAdvanced, 
             minDataPoints
         );
         

@@ -28,12 +28,14 @@ export default async function handler(req, res){
 
             const aManager = new Analytics();
 
-            const data = await aManager.adminGetHits();
+            const graphData = await aManager.adminGetHits();
+            const countriesData = await aManager.getCountriesByHits();
+
+            res.status(200).json({
+                "graphData": graphData,
+                "countriesData": countriesData
+            });
             
-
-            //console.log(JSON.stringify(rawHitsData).length);
-
-            res.status(200).json({"graphData": data});
             return;
         }
 

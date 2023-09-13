@@ -199,7 +199,7 @@ class Analytics{
 
     async getCountriesByHits(){
 
-        const query = "SELECT * FROM nstats_visitors_countries ORDER BY total DESC";
+        const query = "SELECT code,country,first,last,total FROM nstats_visitors_countries ORDER BY total DESC";
 
         return await mysql.simpleQuery(query);
     }

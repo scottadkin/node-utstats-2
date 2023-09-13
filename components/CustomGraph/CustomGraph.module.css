@@ -3,6 +3,6 @@
 }
 
 .wrapper canvas{
-    width:75%;
+    width:50%;
     max-width:var(--max-width-1);
 }

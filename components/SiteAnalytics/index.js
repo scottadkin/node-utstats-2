@@ -2,12 +2,16 @@ import {useEffect, useReducer} from "react";
 import { notificationsInitial, notificationsReducer } from "../../reducers/notificationsReducer";
 import NotificationsCluster from "../NotificationsCluster";
 import Loading from "../Loading";
+import Tabs from "../Tabs";
 import CustomGraph from "../CustomGraph";
+import InteractiveTable from "../InteractiveTable";
+import { convertTimestamp } from "../../api/generic.mjs";
 
 import AnalyticsGeneral from "../AnalyticsHitsGeneral";
 import AnalyticsHitsByCountry from "../AnalyticsHitsByCountry";
 import AnalyticsHitsByIp from "../AnalyticsHitsByIp";
 import AnalyticsUserAgents from "../AnalyticsUserAgents";
+import CountryFlag from "../CountryFlag";
 
 
 const reducer = (state, action) =>{
@@ -17,7 +21,14 @@ const reducer = (state, action) =>{
             return {
                 ...state,
                 "bLoading": false,
-                "graphData": action.graphData
+                "graphData": action.graphData,
+                "countriesData": action.countriesData
+            }
+        }
+        case "changeTab": {
+            return {
+                ...state,
+                "selectedTab": action.tab
             }
         }
     }
@@ -42,9 +53,11 @@ const loadData = async (nDispatch, dispatch, signal) =>{
             return;
         }
 
-        console.log(res);
-
-        dispatch({"type": "loaded", "graphData": res.graphData});
+        dispatch({
+            "type": "loaded", 
+            "graphData": res.graphData,
+            "countriesData": res.countriesData
+        });
 
     }catch(err){
 
@@ -53,9 +66,9 @@ const loadData = async (nDispatch, dispatch, signal) =>{
     }
 }
 
-const testGraph = (state) =>{
+const renderGeneralGraph = (state) =>{
 
-    if(state.bLoading) return null;
+    if(state.bLoading || state.selectedTab !== 0) return null;
 
     const labels = [[],[],[],[]];
 
@@ -77,8 +90,33 @@ const testGraph = (state) =>{
         labels={labels}
         labelsPrefix={["","","",""]}
         data={state.graphData}
+        bEnableAdvanced={false}
     />
+}
 
+const renderCountriesTable = (state) =>{
+
+    if(state.bLoading || state.selectedTab !== 1) return null;
+
+    const headers = {
+        "country": "Country",
+        "first": "First Seen",
+        "last": "Last Seen",
+        "hits": "Total Hits"
+    };
+    const data = state.countriesData.map((d) =>{
+        return {
+            "country": {
+                "value": d.country.toLowerCase(), 
+                "displayValue": <><CountryFlag country={d.code}/>{d.country}</>
+            },
+            "first": {"value": d.first, "displayValue": <>{convertTimestamp(d.first, true)}</>},
+            "last": {"value": d.last, "displayValue": <>{convertTimestamp(d.last, true)}</>},
+            "hits": {"value": d.total},
+        }
+    });
+
+    return <InteractiveTable width={1} headers={headers} data={data}/>
 }
 
 const SiteAnalytics = ({}) =>{
@@ -86,14 +124,14 @@ const SiteAnalytics = ({}) =>{
     const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
-        "graphData": []
+        "graphData": [],
+        "countriesData": [],
+        "selectedTab": 0
     });
 
     useEffect(() =>{
 
         const controller = new AbortController();
-
-        nDispatch({"type": "add", "notification": {"type": "error", "content": <b>Test</b>}});
 
         loadData(nDispatch, dispatch, controller.signal);
 
@@ -103,15 +141,28 @@ const SiteAnalytics = ({}) =>{
 
     },[]);
 
+    const tabs = [
+        {"name": "General Stats", "value": 0},
+        {"name": "Hits By Country", "value": 1},
+        {"name": "Hits By IP", "value": 2},
+        {"name": "User Agents", "value": 3},
+    ];
+
     return <>
         <div className="default-header">Site Analytics</div>
+        <Tabs 
+            options={tabs} 
+            selectedValue={state.selectedTab} 
+            changeSelected={(name, value) => { dispatch({"type": "changeTab", "tab": name})}}
+        />
         <NotificationsCluster 
             notifications={nState.notifications}
             hide={(id) => nDispatch({"type": "hide", "id": id})}
             clearAll={() => nDispatch({"type": "clearAll"})}
         />
         <Loading value={!state.bLoading} />
-        {testGraph(state)}
+        {renderGeneralGraph(state)}
+        {renderCountriesTable(state)}
     </>
 }
 /*
