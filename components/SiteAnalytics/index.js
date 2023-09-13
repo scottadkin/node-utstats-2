@@ -22,7 +22,8 @@ const reducer = (state, action) =>{
                 ...state,
                 "bLoading": false,
                 "graphData": action.graphData,
-                "countriesData": action.countriesData
+                "countriesData": action.countriesData,
+                "totalHits": action.totalHits
             }
         }
         case "changeTab": {
@@ -56,7 +57,8 @@ const loadData = async (nDispatch, dispatch, signal) =>{
         dispatch({
             "type": "loaded", 
             "graphData": res.graphData,
-            "countriesData": res.countriesData
+            "countriesData": res.countriesData,
+            "totalHits": res.totalHits
         });
 
     }catch(err){
@@ -119,6 +121,50 @@ const renderCountriesTable = (state) =>{
     return <InteractiveTable width={1} headers={headers} data={data}/>
 }
 
+const renderGeneralTable = (state) =>{
+
+    if(state.bLoading || state.selectedTab !== 0) return null;
+
+    const headers = {
+        "frame": "Time Range",
+        "hits": "Total Page Views"
+    };
+
+    const data = [];
+
+    data.push({
+        "frame": {"value": "", "displayValue": "Past 1 Hour"},
+        "hits": {"value": state.totalHits.hour}
+    });
+
+    data.push({
+        "frame": {"value": "", "displayValue": "Past 24 Hours"},
+        "hits": {"value": state.totalHits.day}
+    });
+
+    data.push({
+        "frame": {"value": "", "displayValue": "Past 7 Days"},
+        "hits": {"value": state.totalHits.week}
+    });
+
+    data.push({
+        "frame": {"value": "", "displayValue": "Past 28 Days"},
+        "hits": {"value": state.totalHits.month}
+    });
+
+    data.push({
+        "frame": {"value": "", "displayValue": "Past Year"},
+        "hits": {"value": state.totalHits.year}
+    });
+
+    data.push({
+        "frame": {"value": "", "displayValue": "All Time"},
+        "hits": {"value": state.totalHits.all}
+    });
+
+    return <InteractiveTable width={2} headers={headers} data={data}/>
+}
+
 const SiteAnalytics = ({}) =>{
 
     const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
@@ -126,7 +172,8 @@ const SiteAnalytics = ({}) =>{
         "bLoading": true,
         "graphData": [],
         "countriesData": [],
-        "selectedTab": 0
+        "selectedTab": 0,
+        "totalHits": {"hour": 0, "day": 0, "week": 0, "month": 0, "year": 0, "all": 0}
     });
 
     useEffect(() =>{
@@ -161,6 +208,7 @@ const SiteAnalytics = ({}) =>{
             clearAll={() => nDispatch({"type": "clearAll"})}
         />
         <Loading value={!state.bLoading} />
+        {renderGeneralTable(state)}
         {renderGeneralGraph(state)}
         {renderCountriesTable(state)}
     </>

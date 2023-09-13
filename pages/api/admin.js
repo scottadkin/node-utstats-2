@@ -28,14 +28,15 @@ export default async function handler(req, res){
 
             const aManager = new Analytics();
 
-            const graphData = await aManager.adminGetHits();
+            const {graphData, totalHits} = await aManager.adminGetHits();
             const countriesData = await aManager.getCountriesByHits();
 
             res.status(200).json({
                 "graphData": graphData,
+                "totalHits": totalHits,
                 "countriesData": countriesData
             });
-            
+
             return;
         }
 

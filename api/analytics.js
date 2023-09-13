@@ -281,6 +281,15 @@ class Analytics{
     }
 
 
+    async getTotalHits(){
+
+        const query = `SELECT SUM(total) as total_hits FROM nstats_visitors_countries`;
+
+        const result = await mysql.simpleQuery(query);
+
+        return result[0].total_hits;
+    }
+
     async adminGetHits(){
 
         const range = 60 * 60 * 24 * 365;
@@ -290,8 +299,15 @@ class Analytics{
 
         const result = await mysql.simpleQuery(query, [now - range, now]);
 
+        const totalHits = {
+            "hour": 0,
+            "day": 0,
+            "week": 0,
+            "month": 0,
+            "year": 0,
+            "all": await this.getTotalHits()
+        };
 
-        //TODO: do unique hits per time frame instead of just any, store unique ips
         const hits = {
             "unique": {
                 "day": [],
@@ -340,22 +356,29 @@ class Analytics{
             const hourOffset = Math.floor(offset / hour);
             const dayOffset = Math.floor(offset / day);
 
+            if(hourOffset < 1)  totalHits.hour++;
+            
+
             if(hourOffset < 24){
                 hits.any.day[hourOffset]++;
                 hits.unique.day[hourOffset].add(ip);
+                totalHits.day++;
             }
 
             if(dayOffset < 7){
                 hits.any.week[dayOffset]++;
                 hits.unique.week[dayOffset].add(ip);
+                totalHits.week++;
             }
             if(dayOffset < 28){
                 hits.any.month[dayOffset]++;
                 hits.unique.month[dayOffset].add(ip);
+                totalHits.month++;
             }
 
             hits.any.year[dayOffset]++;
             hits.unique.year[dayOffset].add(ip);
+            totalHits.year++;
         }
 
         const graphData = [
@@ -409,7 +432,7 @@ class Analytics{
             ]
         ];
 
-        return graphData;
+        return {"graphData": graphData, "totalHits": totalHits};
     }
 }
 
