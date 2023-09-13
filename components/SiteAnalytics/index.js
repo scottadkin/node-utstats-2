@@ -23,7 +23,8 @@ const reducer = (state, action) =>{
                 "bLoading": false,
                 "graphData": action.graphData,
                 "countriesData": action.countriesData,
-                "totalHits": action.totalHits
+                "totalHits": action.totalHits,
+                "userAgents": action.userAgents
             }
         }
         case "changeTab": {
@@ -58,7 +59,8 @@ const loadData = async (nDispatch, dispatch, signal) =>{
             "type": "loaded", 
             "graphData": res.graphData,
             "countriesData": res.countriesData,
-            "totalHits": res.totalHits
+            "totalHits": res.totalHits,
+            "userAgents": res.userAgents
         });
 
     }catch(err){
@@ -165,6 +167,32 @@ const renderGeneralTable = (state) =>{
     return <InteractiveTable width={2} headers={headers} data={data}/>
 }
 
+const renderUserAgents = (state) =>{
+
+    if(state.bLoading || state.selectedTab !== 3) return null;
+
+    const headers = {
+        "system": "System Name",
+        "browser": "Web Browser",
+        "first": "First Seen",
+        "last": "Last Seen",
+        "total": "Times Seen"
+    };
+
+    const data = state.userAgents.map((d) =>{
+
+        return {
+            "system": {"value": d.system_name.toLowerCase(), "displayValue": d.system_name},
+            "browser": {"value": d.browser.toLowerCase(), "displayValue": d.browser},
+            "first": {"value": d.first, "displayValue": convertTimestamp(d.first, true)},
+            "last": {"value": d.last, "displayValue": convertTimestamp(d.last, true)},
+            "total": {"value": d.total},
+        }
+    });
+
+    return <InteractiveTable width={1} headers={headers} data={data}/>
+}
+
 const SiteAnalytics = ({}) =>{
 
     const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
@@ -173,7 +201,8 @@ const SiteAnalytics = ({}) =>{
         "graphData": [],
         "countriesData": [],
         "selectedTab": 0,
-        "totalHits": {"hour": 0, "day": 0, "week": 0, "month": 0, "year": 0, "all": 0}
+        "totalHits": {"hour": 0, "day": 0, "week": 0, "month": 0, "year": 0, "all": 0},
+        "userAgents": []
     });
 
     useEffect(() =>{
@@ -211,6 +240,7 @@ const SiteAnalytics = ({}) =>{
         {renderGeneralTable(state)}
         {renderGeneralGraph(state)}
         {renderCountriesTable(state)}
+        {renderUserAgents(state)}
     </>
 }
 /*

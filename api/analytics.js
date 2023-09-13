@@ -276,7 +276,7 @@ class Analytics{
 
     async getUserAgents(){
 
-        const query = "SELECT * FROM nstats_user_agents ORDER BY total DESC";
+        const query = "SELECT system_name,browser,first,last,total FROM nstats_user_agents ORDER BY total DESC";
         return await mysql.simpleQuery(query);
     }
 
