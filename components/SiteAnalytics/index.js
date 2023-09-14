@@ -24,7 +24,8 @@ const reducer = (state, action) =>{
                 "graphData": action.graphData,
                 "countriesData": action.countriesData,
                 "totalHits": action.totalHits,
-                "userAgents": action.userAgents
+                "userAgents": action.userAgents,
+                "hitsByIp": action.hitsByIp
             }
         }
         case "changeTab": {
@@ -60,7 +61,8 @@ const loadData = async (nDispatch, dispatch, signal) =>{
             "graphData": res.graphData,
             "countriesData": res.countriesData,
             "totalHits": res.totalHits,
-            "userAgents": res.userAgents
+            "userAgents": res.userAgents,
+            "hitsByIp": res.hitsByIp
         });
 
     }catch(err){
@@ -120,7 +122,10 @@ const renderCountriesTable = (state) =>{
         }
     });
 
-    return <InteractiveTable width={1} headers={headers} data={data}/>
+    return <>
+        <div className="default-header">Hits By Countries</div>
+        <InteractiveTable width={1} headers={headers} data={data}/>
+    </>
 }
 
 const renderGeneralTable = (state) =>{
@@ -164,7 +169,10 @@ const renderGeneralTable = (state) =>{
         "hits": {"value": state.totalHits.all}
     });
 
-    return <InteractiveTable width={2} headers={headers} data={data}/>
+    return <>
+        <div className="default-header">General Stats</div>
+        <InteractiveTable width={2} headers={headers} data={data}/>
+    </>
 }
 
 const renderUserAgents = (state) =>{
@@ -190,7 +198,36 @@ const renderUserAgents = (state) =>{
         }
     });
 
-    return <InteractiveTable width={1} headers={headers} data={data}/>
+    return <>
+        <div className="default-header">Vistor User Agents</div>
+        <InteractiveTable width={1} headers={headers} data={data}/>
+    </>
+}
+
+const renderHitsByIp = (state) =>{
+
+    if(state.bLoading || state.selectedTab !== 2) return null;
+
+    const headers = {
+        "ip": "IP",
+        "first": "First Seen",
+        "last": "Last Seen",
+        "total": "Total Page Views"
+    };
+    const data = state.hitsByIp.map((h) =>{
+
+        return {
+            "ip": {"value": h.ip.toLowerCase(), "displayValue": h.ip},
+            "first": {"value": h.first, "displayValue": convertTimestamp(h.first, true)},
+            "last": {"value": h.last, "displayValue": convertTimestamp(h.last, true)},
+            "total": {"value": h.total}
+        };
+    });
+
+    return <>
+        <div className="default-header">Hits By IP</div>
+        <InteractiveTable width={1} headers={headers} data={data}/>
+    </>
 }
 
 const SiteAnalytics = ({}) =>{
@@ -202,7 +239,8 @@ const SiteAnalytics = ({}) =>{
         "countriesData": [],
         "selectedTab": 0,
         "totalHits": {"hour": 0, "day": 0, "week": 0, "month": 0, "year": 0, "all": 0},
-        "userAgents": []
+        "userAgents": [],
+        "hitsByIp": []
     });
 
     useEffect(() =>{
@@ -239,6 +277,7 @@ const SiteAnalytics = ({}) =>{
         <Loading value={!state.bLoading} />
         {renderGeneralTable(state)}
         {renderGeneralGraph(state)}
+        {renderHitsByIp(state)}
         {renderCountriesTable(state)}
         {renderUserAgents(state)}
     </>

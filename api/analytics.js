@@ -204,11 +204,25 @@ class Analytics{
         return await mysql.simpleQuery(query);
     }
 
-    async getIpsByHits(limit){
+    async getIpsByHits(limit, bIgnoreLocalHost){
 
-        const query = "SELECT * FROM nstats_visitors ORDER BY total DESC LIMIT ?";
+        if(bIgnoreLocalHost === undefined) bIgnoreLocalHost = false;
 
-        return await mysql.simpleQuery(query, [limit]);
+        const query = "SELECT ip,first,last,total FROM nstats_visitors ORDER BY total DESC LIMIT ?";
+
+        const result = await mysql.simpleQuery(query, [limit]);
+
+        if(!bIgnoreLocalHost) return result;
+
+        const reg = /127\.(\d+?)\.(\d+?)\.(\d+)$/i;
+        const reg2 = /192\.168\.(\d+?)\.(\d+)$/i;
+
+        return result.filter((r) =>{
+
+            if(r.ip === "::1") return false;
+            if(reg.exec(r.ip) === null && reg2.exec(r.ip) === null) return true;
+            return false;
+        });
     }
 
     daysToSeconds(days){

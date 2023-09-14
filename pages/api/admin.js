@@ -32,11 +32,16 @@ export default async function handler(req, res){
             const countriesData = await aManager.getCountriesByHits();
             const userAgents = await aManager.getUserAgents();
 
+            const hitsByIps = await aManager.getIpsByHits(100, true);
+
+            //console.log(hitsByIps);
+
             res.status(200).json({
                 "graphData": graphData,
                 "totalHits": totalHits,
                 "countriesData": countriesData,
-                "userAgents": userAgents
+                "userAgents": userAgents,
+                "hitsByIp": hitsByIps
             });
 
             return;
