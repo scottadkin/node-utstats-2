@@ -222,9 +222,6 @@ const CalendarThing = () =>{
     
 
     return <>
-        
-        <div className="default-header">Recent Matches &amp; Player Stats</div>
-
             <div className={styles.wrapper}>
             <div className={styles.date}>
                 {Functions.getMonthName(currentMonth.getMonth(), true)} {currentMonth.getFullYear()}
@@ -241,8 +238,7 @@ const CalendarThing = () =>{
             {renderHeatMap(state, year, month, currentMonth, "matches")}
             <div className={styles.title}>Unique Players</div>
             {renderHeatMap(state, year, month, currentMonth, "players")}
-        </div>
-        
+        </div>     
     </>
 }
 

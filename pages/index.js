@@ -21,7 +21,7 @@ import MatchesTableView from "../components/MatchesTableView/";
 import Screenshot from "../components/Screenshot";
 import Analytics from "../api/analytics";
 import NotificationSmall from "../components/NotificationSmall";
-import CalendarThing from "../components/CalendarThing";
+import HomeGeneralStats from "../components/HomeGeneralStats";
 
 
 function Home({navSettings, pageSettings, pageOrder, session, host, matchesData, mapImages,
@@ -103,7 +103,8 @@ function Home({navSettings, pageSettings, pageOrder, session, host, matchesData,
 
 
 	if(pageSettings["Display Recent Matches & Player Stats"] === "true"){
-		elems[pageOrder["Display Recent Matches & Player Stats"]] = <CalendarThing key="player-match-heatmap"/>	
+		//elems[pageOrder["Display Recent Matches & Player Stats"]] = <CalendarThing key="player-match-heatmap"/>
+		elems[pageOrder["Display Recent Matches & Player Stats"]] = <HomeGeneralStats key="general-stats" />;	
 	}
 	
 
