@@ -8,10 +8,20 @@ import { useReducer, useEffect } from "react";
 import { useRouter } from "next/router";
 import CountriesListDropDown from "../components/CountriesListDropDown";
 import DropDown from "../components/DropDown";
+import NotificationsCluster from "../components/NotificationsCluster";
+import {notificationsInitial, notificationsReducer} from "../reducers/notificationsReducer";
+import Loading from "../components/Loading";
 
 const reducer = (state, action) =>{
 
     switch(action.type){
+
+        case "changeLoading": {
+            return {
+                ...state,
+                "bLoading": action.value
+            }
+        }
 
         case "changeName": {
             return {
@@ -54,10 +64,42 @@ const setURL = (router, state, forceKeyName, forceKeyValue) => {
         pathname: "/players",
         query
       }, 
-      undefined, { shallow: true }
-    );
+      undefined, { shallow: true });
 }
 
+
+const loadData = async (signal, dispatch, nDispatch, state) =>{
+
+
+    dispatch({"type": "changeLoading", "value": true});
+
+    try{
+
+        const req = await fetch("/api/playersearch", {
+            "signal": signal,
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({
+                "mode": "search",
+                "name": state.nameSearch,
+                "action": state.activeRange,
+                "country": state.selectedCountry
+            })
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined){
+            nDispatch({"type": "add", "notification": {"type": "error", "content": res.error}});
+            return;
+        }
+
+    }catch(err){
+        console.trace(err);
+    }
+
+    
+}
 
 const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, selectedCountry, activeRange, displayType}) =>{
 
@@ -71,14 +113,28 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
         "playerList": [],
         "selectedCountry": selectedCountry,
         "activeRange": activeRange,
-        "displayType": displayType
+        "displayType": displayType,
+        "bLoading": true
     });
+
+    const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
 
     let title = "Player Search";
 
     if(state.nameSearch !== ""){
-        title = `Search results for "${state.nameSearch}"`;
+        title = `Player Search Results for "${state.nameSearch}"`;
     }
+
+    useEffect(() =>{
+
+        const controller = new AbortController();
+
+        loadData(controller.signal, dispatch, nDispatch, state);
+
+        return () =>{
+            controller.abort();
+        }
+    }, []);
 
     return <>
         <DefaultHead 
@@ -154,6 +210,12 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
                     />
                     <div className="search-button">Search</div>
                 </div>
+                <NotificationsCluster 
+                    notifications={nState.notifications} 
+                    hide={(id) => nDispatch({"type": "hide", "id": id})}
+                    clearAll={() => nDispatch({"type": "clearAll"})}
+                />
+                <Loading value={!state.bLoading}/>
             </div>
         </div>
         <Footer session={session}/>
