@@ -54,20 +54,27 @@ class FTPImporter{
 
             this.client.on("ready", async () =>{
 
-                new Message(`Connected to ftp://${this.host}:${this.port}.`, 'pass');
-                
-                await this.checkForLogFiles();
+                try{
+                    new Message(`Connected to ftp://${this.host}:${this.port}.`, 'pass');
+                    
+                    await this.checkForLogFiles();
 
-                if(this.bImportAce){
-                    await this.checkForAceScreenshots();
-                    await this.checkForACELogs();
-                    await this.downloadACEFiles();
-                }else{
-                    new Message(`ACE importing is disabled, skipping.`, "note");
+                    if(this.bImportAce){
+                        await this.checkForAceScreenshots();
+                        await this.checkForACELogs();
+                        await this.downloadACEFiles();
+                    }else{
+                        new Message(`ACE importing is disabled, skipping.`, "note");
+                    }
+                    
+
+                }catch(err){
+            
+                    new Message(err.toString(), "error");
+          
+                }finally{
+                    this.client.end();
                 }
-                
-
-                this.client.end();
             });
 
             this.client.on("error", (err) =>{
@@ -110,15 +117,15 @@ class FTPImporter{
 
                 try{
 
-                    new Message(`Found ${files.length} files in "${this.targetDir}Logs/" (ftp://${this.host}:${this.port})`,`note`);
-    
                     if(err){
                         reject(err);
                         return;
-                    }else{
-                        await this.sortFiles(files);
-                        await this.downloadLogFiles();
                     }
+
+                    new Message(`Found ${files.length} files in "${this.targetDir}Logs/" (ftp://${this.host}:${this.port})`,`note`);
+                    await this.sortFiles(files);
+                    await this.downloadLogFiles();
+                
 
                     resolve();
     
