@@ -7,6 +7,7 @@ import Nav from "../components/Nav";
 import { useReducer, useEffect } from "react";
 import { useRouter } from "next/router";
 import CountriesListDropDown from "../components/CountriesListDropDown";
+import PerPageDropDown from "../components/PerPageDropDown";
 import DropDown from "../components/DropDown";
 import NotificationsCluster from "../components/NotificationsCluster";
 import {notificationsInitial, notificationsReducer} from "../reducers/notificationsReducer";
@@ -43,6 +44,13 @@ const reducer = (state, action) =>{
                 "activeRange": action.value
             }
         }
+
+        case "changePerPage": {
+            return {
+                ...state,
+                "perPage": action.value
+            }
+        }
     }
 
     return state;
@@ -53,7 +61,8 @@ const setURL = (router, state, forceKeyName, forceKeyValue) => {
     const query = {
         "name": state.nameSearch,
         "country": state.selectedCountry,
-        "active": state.activeRange
+        "active": state.activeRange,
+        "pp": state.perPage
     };
 
     if(forceKeyName !== undefined){
@@ -101,7 +110,7 @@ const loadData = async (signal, dispatch, nDispatch, state) =>{
     
 }
 
-const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, selectedCountry, activeRange, displayType}) =>{
+const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, selectedCountry, activeRange, displayType, perPage}) =>{
 
     const router = useRouter();
     session = JSON.parse(session);
@@ -114,7 +123,8 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
         "selectedCountry": selectedCountry,
         "activeRange": activeRange,
         "displayType": displayType,
-        "bLoading": true
+        "bLoading": true,
+        "perPage": perPage
     });
 
     const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
@@ -208,6 +218,28 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
                             setURL(router, state, "display", value);
                         }}
                     />
+
+                    <DropDown 
+                        dName="Sort By"
+                        data={[
+                            {"displayValue": "a", "value": ""},
+                            {"displayValue": "a ", "value": ""},
+                        ]}
+                        originalValue={state.displayType}
+                        changeSelected={(name, value) => {
+                            dispatch({"type": "changeDisplay", "value": value});
+                            setURL(router, state, "display", value);
+                        }}
+                    />
+
+                    <PerPageDropDown 
+                        changeSelected={(name, value) => {
+                            dispatch({"type": "changePerPage", "value": value});
+                            setURL(router, state, "pp", value);
+                        }}
+                        originalValue={state.perPage}
+                    />
+
                     <div className="search-button">Search</div>
                 </div>
                 <NotificationsCluster 
@@ -239,6 +271,7 @@ export async function getServerSideProps({req, query}){
     const selectedCountry = (query.country !== undefined) ? query.country : "";
     const activeRange = (query.active !== undefined) ? query.active : "";
     const displayType = (query.display !== undefined) ? query.display : "";
+    const perPage = (query.pp !== undefined) ? query.pp : 25;
 
 
     await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
@@ -252,7 +285,8 @@ export async function getServerSideProps({req, query}){
             nameSearch,
             selectedCountry,
             activeRange,
-            displayType
+            displayType,
+            perPage
         }
     }
 }

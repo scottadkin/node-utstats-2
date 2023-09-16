@@ -573,3 +573,97 @@ export function getTeamColor(team){
         default: { return "team-none";} 
     }
 }
+
+
+/**
+ * 
+ * @param {*} input 
+ * @param {*} min The minimum possible value
+ * @param {*} max the maximum possible value, pass null for no limit
+ * @param {*} defaultMin If min is not specified or a valid integer use this value instead
+ * @param {*} defaultMax If max is not specified or a valid integer use this value instead
+ * @returns 
+ */
+export function cleanInt(input, min, max, defaultMin, defaultMax){;
+
+    if(input === undefined && min === undefined && max === undefined && defaultMin === undefined && defaultMax === undefined){
+        throw new Error("No arguments parsed to cleanInt");
+    }
+
+    if(input === undefined) return 0;
+
+    const pMin = parseInt(min);
+    const pMax = parseInt(max);
+
+    //just in case min is greater than max swap them around
+    if(pMin === pMin && pMax === pMax){
+        if(pMin > pMax){
+            min = pMax;
+            max = pMin;
+        }
+    }
+    
+    const pDMin = parseInt(defaultMin);
+    const pDMax = parseInt(defaultMax);
+
+    //same as above but with default values if specified
+    if(pDMin === pDMin && pDMax === pDMax){
+
+        if(pDMin > pDMax){
+            defaultMin = pDMax;
+            defaultMax = pDMin;
+        }
+    }
+
+    input = parseInt(input);
+    min = parseInt(min);
+
+    if(min !== min){
+
+        if(defaultMin === undefined){
+            throw new Error("Minimum value has not been specified and defaultMin value has also not been specified.");
+        }
+        
+        defaultMin = parseInt(defaultMin);
+
+        if(defaultMin !== defaultMin){
+            throw new Error("DefaultMin must be a valid integer.");
+        }
+
+        min = defaultMin;
+    }
+
+    if(input !== input){
+        input = min;
+    }
+
+    if(input < min) input = min;
+
+    if(max === null && defaultMax == undefined) return input;
+    
+    max = parseInt(max);
+
+    if(max !== max){
+
+        if(defaultMax === undefined){
+            throw new Error("Maximum value has not been specified and defaultMax value has also not been specified.");
+        }
+        
+        if(defaultMax !== null){
+
+            defaultMax = parseInt(defaultMax);
+
+            if(defaultMax !== defaultMax){
+                throw new Error("defaultMax must be a valid integer.");
+            }
+
+            max = defaultMax;
+        }
+    }
+
+    if(input > max){
+        input = max;
+    }
+
+    return input;
+}
