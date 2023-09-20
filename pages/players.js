@@ -12,6 +12,10 @@ import DropDown from "../components/DropDown";
 import NotificationsCluster from "../components/NotificationsCluster";
 import {notificationsInitial, notificationsReducer} from "../reducers/notificationsReducer";
 import Loading from "../components/Loading";
+import { cleanInt, convertTimestamp, toPlaytime } from "../api/generic.mjs";
+import CustomTable from "../components/CustomTable";
+import CountryFlag from "../components/CountryFlag";
+import Link from "next/link";
 
 const reducer = (state, action) =>{
 
@@ -21,6 +25,15 @@ const reducer = (state, action) =>{
             return {
                 ...state,
                 "bLoading": action.value
+            }
+        }
+
+        case "setSearchResult": {
+
+            return {
+                ...state,
+                "totalMatches": action.totalMatches,
+                "searchResult": action.searchResult
             }
         }
 
@@ -77,7 +90,7 @@ const setURL = (router, state, forceKeyName, forceKeyValue) => {
 }
 
 
-const loadData = async (signal, dispatch, nDispatch, state) =>{
+const loadData = async (signal, dispatch, nDispatch, nameSearch, page, perPage, activeRange, selectedCountry) =>{
 
 
     dispatch({"type": "changeLoading", "value": true});
@@ -90,9 +103,11 @@ const loadData = async (signal, dispatch, nDispatch, state) =>{
             "method": "POST",
             "body": JSON.stringify({
                 "mode": "search",
-                "name": state.nameSearch,
-                "action": state.activeRange,
-                "country": state.selectedCountry
+                "name": nameSearch,
+                "action": activeRange,
+                "country": selectedCountry,
+                "page": page,
+                "perPage": perPage
             })
         });
 
@@ -100,17 +115,50 @@ const loadData = async (signal, dispatch, nDispatch, state) =>{
 
         if(res.error !== undefined){
             nDispatch({"type": "add", "notification": {"type": "error", "content": res.error}});
+            dispatch({"type": "changeLoading", "value": false});
             return;
         }
 
+        dispatch({"type": "setSearchResult", "totalMatches": res.totalMatches, "searchResult": res.data});
+        dispatch({"type": "changeLoading", "value": false});
+        console.log(res);
+
     }catch(err){
+        if(err.name === "AbortError") return;
         console.trace(err);
     }
-
-    
 }
 
-const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, selectedCountry, activeRange, displayType, perPage}) =>{
+const renderTable = (state) =>{
+
+
+    const headers = [
+        {"title": "name", "display": "Name"},
+        {"title": "last", "display": "Last Active"},
+        {"title": "playtime", "display": "Playtime", "mouseOver": {
+            "title": "Total Playtime",
+            "content": "This does not include spectator time."
+        }},
+    ];
+
+
+    return <CustomTable width={1} 
+        headers={headers}
+        data={state.searchResult.map((d) =>{
+            return {
+                "name": {
+                    "value": "", 
+                    "displayValue": <Link href={`/player/${d.id}`}><CountryFlag country={d.country}/>{d.name}</Link>,
+                     "className": "text-left"
+                },
+                "last": {"value": d.last, "displayValue": convertTimestamp(d.last, true), "className": "playtime"},
+                "playtime": {"value": d.playtime, "displayValue": toPlaytime(d.playtime), "className": "playtime"},
+            };
+        })}
+    />
+}
+
+const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, selectedCountry, activeRange, displayType, page, perPage}) =>{
 
     const router = useRouter();
     session = JSON.parse(session);
@@ -124,7 +172,10 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
         "activeRange": activeRange,
         "displayType": displayType,
         "bLoading": true,
-        "perPage": perPage
+        "perPage": perPage,
+        "page": page,
+        "totalMatches": 0,
+        "searchResult": []
     });
 
     const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
@@ -139,12 +190,28 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
 
         const controller = new AbortController();
 
-        loadData(controller.signal, dispatch, nDispatch, state);
+        loadData(
+            controller.signal, 
+            dispatch, 
+            nDispatch, 
+            state.nameSearch, 
+            state.page, 
+            state.perPage,
+            state.activeRnage,
+            state.selectedCountry
+        );
 
         return () =>{
             controller.abort();
         }
-    }, []);
+
+    }, [nameSearch, selectedCountry, activeRange, page, perPage, state.nameSearch, 
+        state.page, 
+        state.perPage,
+        state.activeRnage,
+        state.selectedCountry]);
+
+    let searchURL = `/players?name=${state.nameSearch}&pp=${state.perPage}`;
 
     return <>
         <DefaultHead 
@@ -222,8 +289,12 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
                     <DropDown 
                         dName="Sort By"
                         data={[
-                            {"displayValue": "a", "value": ""},
-                            {"displayValue": "a ", "value": ""},
+                            {"displayValue": "Name", "value": "name"},
+                            {"displayValue": "Playtime ", "value": "playtime"},
+                            {"displayValue": "Matches ", "value": "matches"},
+                            {"displayValue": "Score ", "value": "score"},
+                            {"displayValue": "Kills ", "value": "kills"},
+                            {"displayValue": "Last Active ", "value": "last"},
                         ]}
                         originalValue={state.displayType}
                         changeSelected={(name, value) => {
@@ -240,13 +311,18 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
                         originalValue={state.perPage}
                     />
 
-                    <div className="search-button">Search</div>
+                    <Link href={searchURL}>
+                        <div className="search-button">Search</div>
+                    </Link>
+
+                    Target page = {page}
                 </div>
                 <NotificationsCluster 
                     notifications={nState.notifications} 
-                    hide={(id) => nDispatch({"type": "hide", "id": id})}
+                    hide={(id) => nDispatch({"type": "delete", "id": id})}
                     clearAll={() => nDispatch({"type": "clearAll"})}
                 />
+                {renderTable(state)}
                 <Loading value={!state.bLoading}/>
             </div>
         </div>
@@ -272,6 +348,7 @@ export async function getServerSideProps({req, query}){
     const activeRange = (query.active !== undefined) ? query.active : "";
     const displayType = (query.display !== undefined) ? query.display : "";
     const perPage = (query.pp !== undefined) ? query.pp : 25;
+    const page = (query.page !== undefined) ? cleanInt(query.page, 1, null) : 1;
 
 
     await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
@@ -286,7 +363,8 @@ export async function getServerSideProps({req, query}){
             selectedCountry,
             activeRange,
             displayType,
-            perPage
+            perPage,
+            page
         }
     }
 }

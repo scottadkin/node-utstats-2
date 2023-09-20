@@ -8,21 +8,50 @@ class PlayerSearch{
 
     async defaultSearch(name, page, perPage, country){
 
-        //console.log(`---------------------------`);
-        //console.log(cleanInt(1444, 4440, 2111, 999999999, 442422));
-        //console.log(cleanInt(-99, 111, 447, 0, 9));
-        //console.log(cleanInt(22, 0, null));
 
+        console.log(`name = ${name}`);
+        const vars = [];
 
-        page = cleanInt(page, 1, null);
-        console.log("|||||||||||||||||||||||");
-        perPage = cleanInt(perPage, 5, 100);
+        let where = "WHERE playtime>0 AND player_id=0 AND gametype=0";
 
-        console.log(`page = ${page}`);
-        console.log(`perPage = ${perPage}`);
+        if(name !== ""){
+            where += ` AND name LIKE ?`;
+            vars.push(`%${name}%`);
+        }
 
-        page--;
+        if(country !== ""){
+            where += ` AND country=?`;
+            vars.push(country);
+        }
 
+        const totalQuery = `SELECT COUNT(*) as total_matches FROM nstats_player_totals ${where}`;     
+        const query = `SELECT id,name,last,country,face,playtime FROM nstats_player_totals ${where} LIMIT ?, ?`;     
+       
+        
+        if(perPage < 5) perPage = 5;
+
+        let start = page * perPage;
+        if(start !== start) start = 0;
+        if(start < 0) start = 0;
+
+        console.log(start, perPage);
+
+        console.log(query);
+
+        vars.push(start, perPage);
+        console.log("vars");
+        console.log(vars);
+
+        const totalResult = await mysql.simpleQuery(totalQuery, vars);
+        const result = await mysql.simpleQuery(query, vars);
+
+        console.log(totalResult);
+        console.table(result);
+
+        return {
+            "totalMatches": totalResult[0].total_matches,
+            "data": result
+        };
 
     }
 }
