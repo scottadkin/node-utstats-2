@@ -28,6 +28,13 @@ const reducer = (state, action) =>{
             }
         }
 
+        case "changeOrder": {
+            return {
+                ...state,
+                "order": action.order
+            }
+        }
+
         case "setSearchResult": {
 
             return {
@@ -158,7 +165,8 @@ const renderTable = (state) =>{
     />
 }
 
-const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, selectedCountry, activeRange, displayType, page, perPage}) =>{
+const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, selectedCountry, 
+    activeRange, displayType, page, perPage, sortBy, order}) =>{
 
     const router = useRouter();
     session = JSON.parse(session);
@@ -175,7 +183,9 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
         "perPage": perPage,
         "page": page,
         "totalMatches": 0,
-        "searchResult": []
+        "searchResult": [],
+        "sortBy": sortBy,
+        "order": order
     });
 
     const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
@@ -205,13 +215,22 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
             controller.abort();
         }
 
-    }, [nameSearch, selectedCountry, activeRange, page, perPage, state.nameSearch, 
+    }, [
+        nameSearch, 
+        selectedCountry, 
+        activeRange, 
+        page, 
+        perPage, 
+        state.nameSearch, 
         state.page, 
         state.perPage,
         state.activeRnage,
-        state.selectedCountry]);
+        state.selectedCountry,
+        state.sortBy,
+        state.order
+    ]);
 
-    let searchURL = `/players?name=${state.nameSearch}&pp=${state.perPage}`;
+    let searchURL = `/players?name=${state.nameSearch}&pp=${state.perPage}&sb=${state.sortBy}&o=${state.order}`;
 
     return <>
         <DefaultHead 
@@ -303,6 +322,20 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
                         }}
                     />
 
+                    <DropDown 
+                        dName="Order"
+                        data={[
+                            {"displayValue": "ASC", "value": "asc"},
+                            {"displayValue": "DESC ", "value": "desc"},
+             
+                        ]}
+                        originalValue={state.displayType}
+                        changeSelected={(name, value) => {
+                            dispatch({"type": "changeOrder", "order": value});
+                            setURL(router, state, "o", value);
+                        }}
+                    />
+
                     <PerPageDropDown 
                         changeSelected={(name, value) => {
                             dispatch({"type": "changePerPage", "value": value});
@@ -349,6 +382,10 @@ export async function getServerSideProps({req, query}){
     const displayType = (query.display !== undefined) ? query.display : "";
     const perPage = (query.pp !== undefined) ? query.pp : 25;
     const page = (query.page !== undefined) ? cleanInt(query.page, 1, null) : 1;
+    const sortBy = (query.sb !== undefined) ? query.sb : "name";
+    let order = (query.o !== undefined) ? query.o.toLowerCase() : "asc";
+
+    if(order !== "asc" && order !== "desc") order = "asc";
 
 
     await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
@@ -364,7 +401,9 @@ export async function getServerSideProps({req, query}){
             activeRange,
             displayType,
             perPage,
-            page
+            page,
+            sortBy,
+            order
         }
     }
 }

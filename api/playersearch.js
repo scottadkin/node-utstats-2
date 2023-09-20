@@ -34,19 +34,12 @@ class PlayerSearch{
         if(start !== start) start = 0;
         if(start < 0) start = 0;
 
-        console.log(start, perPage);
-
-        console.log(query);
 
         vars.push(start, perPage);
-        console.log("vars");
-        console.log(vars);
 
         const totalResult = await mysql.simpleQuery(totalQuery, vars);
         const result = await mysql.simpleQuery(query, vars);
 
-        console.log(totalResult);
-        console.table(result);
 
         return {
             "totalMatches": totalResult[0].total_matches,
