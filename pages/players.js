@@ -97,7 +97,7 @@ const setURL = (router, state, forceKeyName, forceKeyValue) => {
 }
 
 
-const loadData = async (signal, dispatch, nDispatch, nameSearch, page, perPage, activeRange, selectedCountry) =>{
+const loadData = async (signal, dispatch, nDispatch, nameSearch, page, perPage, activeRange, selectedCountry, order) =>{
 
 
     dispatch({"type": "changeLoading", "value": true});
@@ -111,10 +111,11 @@ const loadData = async (signal, dispatch, nDispatch, nameSearch, page, perPage, 
             "body": JSON.stringify({
                 "mode": "search",
                 "name": nameSearch,
-                "action": activeRange,
+                "activeRange": activeRange,
                 "country": selectedCountry,
                 "page": page,
-                "perPage": perPage
+                "perPage": perPage,
+                "order": order
             })
         });
 
@@ -207,8 +208,9 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
             state.nameSearch, 
             state.page, 
             state.perPage,
-            state.activeRnage,
-            state.selectedCountry
+            state.activeRange,
+            state.selectedCountry,
+            state.order
         );
 
         return () =>{
@@ -230,7 +232,7 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
         state.order
     ]);
 
-    let searchURL = `/players?name=${state.nameSearch}&pp=${state.perPage}&sb=${state.sortBy}&o=${state.order}`;
+    let searchURL = `/players?name=${state.nameSearch}&pp=${state.perPage}&sb=${state.sortBy}&o=${state.order}&active=${state.activeRange}`;
 
     return <>
         <DefaultHead 
@@ -378,7 +380,7 @@ export async function getServerSideProps({req, query}){
 
     const nameSearch = (query.name !== undefined) ? query.name : "";
     const selectedCountry = (query.country !== undefined) ? query.country : "";
-    const activeRange = (query.active !== undefined) ? query.active : "";
+    const activeRange = (query.active !== undefined) ? query.active : 0;
     const displayType = (query.display !== undefined) ? query.display : "";
     const perPage = (query.pp !== undefined) ? query.pp : 25;
     const page = (query.page !== undefined) ? cleanInt(query.page, 1, null) : 1;

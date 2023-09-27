@@ -6,10 +6,21 @@ class PlayerSearch{
     constructor(){}
 
 
-    async defaultSearch(name, page, perPage, country){
+    async defaultSearch(name, page, perPage, country, activeRange){
 
+        const now = Math.ceil(Date.now() * 0.001);
 
-        console.log(`name = ${name}`);
+        activeRange = cleanInt(activeRange, 0, 4);
+
+        const startRanges = {
+            "0": 0,
+            "1": now - 60 * 60 * 24,
+            "2": now - 60 * 60 * 24 * 7,
+            "3": now - 60 * 60 * 24 * 28,
+            "4": now - 60 * 60 * 24 * 365
+        };
+
+        console.log(`name = ${name}, activeRange = ${activeRange}`);
         const vars = [];
 
         let where = "WHERE playtime>0 AND player_id=0 AND gametype=0";
@@ -23,6 +34,9 @@ class PlayerSearch{
             where += ` AND country=?`;
             vars.push(country);
         }
+
+        where += ` AND last>=? AND last<=?`;
+        vars.push(startRanges[activeRange], now);
 
         const totalQuery = `SELECT COUNT(*) as total_matches FROM nstats_player_totals ${where}`;     
         const query = `SELECT id,name,last,country,face,playtime FROM nstats_player_totals ${where} LIMIT ?, ?`;     
