@@ -344,13 +344,13 @@ class PlayerInfo{
 
     }
 
-    bDuplicateTeamData(timestamp, id){
+    bDuplicateTeamData(timestamp/*, id*/){
 
         for(let i = 0; i < this.teams.length; i++){
 
             const t = this.teams[i];
 
-            if(t.time === timestamp && t.id === id){
+            if(t.time === timestamp /*&& t.id === id*/){
                 return true;
             }
         }
@@ -363,13 +363,24 @@ class PlayerInfo{
         timestamp = parseFloat(timestamp);
         id = parseInt(id);
 
-        this.teamChangeEvents.push({"timestamp": timestamp, "type": "change", "newTeam": id});
+        //if(id === -1){
+           // new Message(`PlayerInfo.setTeam() team id is -1`,"error");
+        //}
 
-        if(!this.bDuplicateTeamData(timestamp, id)){
+
+        if(!this.bDuplicateTeamData(timestamp)){
+
             this.teams.push({
                 "time": timestamp,
                 "id": id
             });
+
+            this.teamChangeEvents.push({"timestamp": timestamp, "type": "change", "newTeam": id});
+
+        }else{
+            //CHANGE TEAM WITH SAME TIMESTAMP USE THE LAST ONE FOR EACH TIMESTAP
+            this.teams[this.teams.length -1].id = id;  
+            this.teamChangeEvents[this.teamChangeEvents.length - 1].newTeam = id;
         }
     }
 

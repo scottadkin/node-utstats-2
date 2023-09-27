@@ -416,9 +416,6 @@ class MatchManager{
                 await this.CTFManager.bulkInsertFlagPickups();
                 await this.CTFManager.bulkInsertSelfCovers();
                 await this.CTFManager.insertCapReturnKills();
-
-
-
                 
                 /*if(this.CTFManager.bHasData()){
                     new Message(`Found ${this.CTFManager.data.length} Capture The Flag Data to parse`,'note');
