@@ -27,7 +27,7 @@ export default async function handler(req, res){
         }
 
         page--;
-        
+
         if(page < 0) page = 0;
 
         let perPage = (req.body.perPage !== undefined) ? cleanInt(req.body.perPage, 5, 100) : 25;
@@ -36,8 +36,6 @@ export default async function handler(req, res){
         const p = new PlayerSearch();
 
         const searchResult = await p.defaultSearch(name, page, perPage, country, active, sortBy, order);
-
-        console.log(req.body);
 
         res.status(200).json(searchResult);
         return;

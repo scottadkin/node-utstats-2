@@ -52,8 +52,10 @@ class PlayerSearch{
         const query = `SELECT id,name,last,country,face,playtime,score,kills,matches FROM nstats_player_totals ${where} ORDER BY ${validSortBy[sortIndex]} ${order.toUpperCase()} LIMIT ?, ?`;     
        
         if(perPage < 5) perPage = 5;
+        if(perPage > 100) perPage = 100;
 
         let start = page * perPage;
+
         if(start !== start) start = 0;
         if(start < 0) start = 0;
 

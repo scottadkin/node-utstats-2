@@ -16,6 +16,7 @@ import { cleanInt, convertTimestamp, toPlaytime } from "../api/generic.mjs";
 import CustomTable from "../components/CustomTable";
 import CountryFlag from "../components/CountryFlag";
 import Link from "next/link";
+import Pagination from "../components/Pagination";
 
 const setOrder = (newSortBy, oldSortBy, currentOrder) =>{
 
@@ -270,8 +271,6 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
     const router = useRouter();
     session = JSON.parse(session);
 
-    console.log(`selectedCountry = ${selectedCountry}`);
-
     const [state, dispatch] = useReducer(reducer, {
         "nameSearch": nameSearch,
         "playerList": [],
@@ -280,7 +279,6 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
         "displayType": displayType,
         "bLoading": true,
         "perPage": perPage,
-        "page": page,
         "totalMatches": 0,
         "searchResult": [],
         "sortBy": sortBy,
@@ -304,7 +302,7 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
             dispatch, 
             nDispatch, 
             state.nameSearch, 
-            state.page, 
+            page, 
             state.perPage,
             state.activeRange,
             state.selectedCountry,
@@ -318,13 +316,8 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
         }
 
     }, [
-        nameSearch, 
-        selectedCountry, 
-        activeRange, 
-        page, 
-        perPage, 
         state.nameSearch, 
-        state.page, 
+        page, 
         state.perPage,
         state.activeRange,
         state.selectedCountry,
@@ -332,7 +325,7 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
         state.order
     ]);
 
-    let searchURL = `/players?name=${state.nameSearch}&pp=${state.perPage}&sb=${state.sortBy}&o=${state.order}&active=${state.activeRange}`;
+    let searchURL = `/players?name=${state.nameSearch}&pp=${state.perPage}&sb=${state.sortBy}&o=${state.order}&active=${state.activeRange}&page=`;
 
     return <>
         <DefaultHead 
@@ -452,7 +445,9 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
                     hide={(id) => nDispatch({"type": "delete", "id": id})}
                     clearAll={() => nDispatch({"type": "clearAll"})}
                 />
+                <Pagination url={searchURL} perPage={state.perPage} currentPage={page} results={state.totalMatches}/>
                 {renderTable(state, dispatch, router)}
+                <Pagination url={searchURL} perPage={state.perPage} currentPage={page} results={state.totalMatches}/>
                 <Loading value={!state.bLoading}/>
             </div>
         </div>
@@ -470,8 +465,6 @@ export async function getServerSideProps({req, query}){
 
     const navSettings = await settings.getCategorySettings("Navigation");
     const pageSettings = await settings.getCategorySettings("Players Page");
-
-    console.log(query);
 
     const nameSearch = (query.name !== undefined) ? query.name : "";
     const selectedCountry = (query.country !== undefined) ? query.country : "";
