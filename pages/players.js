@@ -17,6 +17,17 @@ import CustomTable from "../components/CustomTable";
 import CountryFlag from "../components/CountryFlag";
 import Link from "next/link";
 
+const setOrder = (newSortBy, oldSortBy, currentOrder) =>{
+
+    let newOrder = "asc";
+
+    if(newSortBy === oldSortBy){
+        newOrder = (currentOrder === "asc") ? "desc" : "asc";
+    }
+
+    return newOrder;
+}
+
 const reducer = (state, action) =>{
 
     switch(action.type){
@@ -71,6 +82,17 @@ const reducer = (state, action) =>{
             }
         }
 
+        case "changeSortByAlt": {
+
+            const newOrder = setOrder(action.value, state.sortBy, state.order);
+
+            return {
+                ...state,
+                "sortBy": action.value,
+                "order": newOrder
+            }
+        }
+
         case "changePerPage": {
             return {
                 ...state,
@@ -82,6 +104,8 @@ const reducer = (state, action) =>{
     return state;
 }
 
+
+
 const setURL = (router, state, forceKeyName, forceKeyValue) => {
 
     const query = {
@@ -89,7 +113,8 @@ const setURL = (router, state, forceKeyName, forceKeyValue) => {
         "country": state.selectedCountry,
         "active": state.activeRange,
         "pp": state.perPage,
-        "sb": state.sortBy
+        "sb": state.sortBy,
+        "o": state.order
     };
 
     if(forceKeyName !== undefined){
@@ -145,19 +170,74 @@ const loadData = async (signal, dispatch, nDispatch, nameSearch, page, perPage, 
     }
 }
 
-const renderTable = (state) =>{
+const renderTable = (state, dispatch, router) =>{
 
 
     const headers = [
-        {"title": "name", "display": "Name"},
-        {"title": "last", "display": "Last Active"},
-        {"title": "playtime", "display": "Playtime", "mouseOver": {
-            "title": "Total Playtime",
-            "content": "This does not include spectator time."
-        }},
-        {"title": "matches", "display": "Matches"},
-        {"title": "kills", "display": "Kills"},
-        {"title": "score", "display": "Score"},
+        {
+            "title": "name", 
+            "display": "Name", 
+            "onClick": () => { 
+                const newOrder = setOrder("name", state.sortBy, state.order);
+                dispatch({"type": "changeSortByAlt", "value": "name"});
+                setURL(router, state, "o", newOrder);
+                setURL(router, state, "sb", "name");
+            }
+        },
+        {
+            "title": "last", 
+            "display": "Last Active", 
+            "onClick": () => { 
+                const newOrder = setOrder("last", state.sortBy, state.order);
+                dispatch({"type": "changeSortByAlt", "value": "last"});
+                setURL(router, state, "o", newOrder);
+                setURL(router, state, "sb", "last");
+            }
+        },
+        {
+            "title": "playtime", 
+            "display": "Playtime", 
+            "mouseOver": {
+                "title": "Total Playtime",
+                "content": "This does not include spectator time."
+            },
+            "onClick": () => { 
+                const newOrder = setOrder("playtime", state.sortBy, state.order);
+                dispatch({"type": "changeSortByAlt", "value": "playtime"});
+                setURL(router, state, "o", newOrder);
+                setURL(router, state, "sb", "playtime");
+            }
+        },
+        {
+            "title": "matches", 
+            "display": "Matches",
+            "onClick": () => { 
+                const newOrder = setOrder("matches", state.sortBy, state.order);
+                dispatch({"type": "changeSortByAlt", "value": "matches"});
+                setURL(router, state, "o", newOrder);
+                setURL(router, state, "sb", "matches");
+            }
+        },
+        {
+            "title": "kills", 
+            "display": "Kills",
+            "onClick": () => { 
+                const newOrder = setOrder("kills", state.sortBy, state.order);
+                dispatch({"type": "changeSortByAlt", "value": "kills"});
+                setURL(router, state, "o", newOrder);
+                setURL(router, state, "sb", "kills");
+            }
+        },
+        {
+            "title": "score", 
+            "display": "Score", 
+            "onClick": () => { 
+                const newOrder = setOrder("score", state.sortBy, state.order);
+                dispatch({"type": "changeSortByAlt", "value": "score"});
+                setURL(router, state, "o", newOrder);
+                setURL(router, state, "sb", "score");
+            }
+        },
         
     ];
 
@@ -337,7 +417,7 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
                             {"displayValue": "Kills ", "value": "kills"},
                             {"displayValue": "Last Active ", "value": "last"},
                         ]}
-                        originalValue={state.displayType}
+                        originalValue={state.sortBy}
                         changeSelected={(name, value) => {
                             dispatch({"type": "changeSortBy", "value": value});
                             setURL(router, state, "sb", value);
@@ -351,7 +431,7 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
                             {"displayValue": "DESC ", "value": "desc"},
              
                         ]}
-                        originalValue={state.displayType}
+                        originalValue={state.order}
                         changeSelected={(name, value) => {
                             dispatch({"type": "changeOrder", "order": value});
                             setURL(router, state, "o", value);
@@ -372,7 +452,7 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
                     hide={(id) => nDispatch({"type": "delete", "id": id})}
                     clearAll={() => nDispatch({"type": "clearAll"})}
                 />
-                {renderTable(state)}
+                {renderTable(state, dispatch, router)}
                 <Loading value={!state.bLoading}/>
             </div>
         </div>
