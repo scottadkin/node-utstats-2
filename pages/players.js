@@ -64,6 +64,12 @@ const reducer = (state, action) =>{
                 "activeRange": action.value
             }
         }
+        case "changeSortBy": {
+            return {
+                ...state,
+                "sortBy": action.value
+            }
+        }
 
         case "changePerPage": {
             return {
@@ -82,7 +88,8 @@ const setURL = (router, state, forceKeyName, forceKeyValue) => {
         "name": state.nameSearch,
         "country": state.selectedCountry,
         "active": state.activeRange,
-        "pp": state.perPage
+        "pp": state.perPage,
+        "sb": state.sortBy
     };
 
     if(forceKeyName !== undefined){
@@ -97,7 +104,7 @@ const setURL = (router, state, forceKeyName, forceKeyValue) => {
 }
 
 
-const loadData = async (signal, dispatch, nDispatch, nameSearch, page, perPage, activeRange, selectedCountry, order) =>{
+const loadData = async (signal, dispatch, nDispatch, nameSearch, page, perPage, activeRange, selectedCountry, sortBy, order) =>{
 
 
     dispatch({"type": "changeLoading", "value": true});
@@ -115,7 +122,8 @@ const loadData = async (signal, dispatch, nDispatch, nameSearch, page, perPage, 
                 "country": selectedCountry,
                 "page": page,
                 "perPage": perPage,
-                "order": order
+                "order": order,
+                "sortBy": sortBy
             })
         });
 
@@ -147,23 +155,33 @@ const renderTable = (state) =>{
             "title": "Total Playtime",
             "content": "This does not include spectator time."
         }},
+        {"title": "matches", "display": "Matches"},
+        {"title": "kills", "display": "Kills"},
+        {"title": "score", "display": "Score"},
+        
     ];
 
 
-    return <CustomTable width={1} 
-        headers={headers}
-        data={state.searchResult.map((d) =>{
-            return {
-                "name": {
-                    "value": "", 
-                    "displayValue": <Link href={`/player/${d.id}`}><CountryFlag country={d.country}/>{d.name}</Link>,
-                     "className": "text-left"
-                },
-                "last": {"value": d.last, "displayValue": convertTimestamp(d.last, true), "className": "playtime"},
-                "playtime": {"value": d.playtime, "displayValue": toPlaytime(d.playtime), "className": "playtime"},
-            };
-        })}
-    />
+    return <div className="m-top-25">
+        <CustomTable width={1} 
+            headers={headers}
+            data={state.searchResult.map((d) =>{
+                return {
+                    "name": {
+                        "value": "", 
+                        "displayValue": <Link href={`/player/${d.id}`}><CountryFlag country={d.country}/>{d.name}</Link>,
+                        "className": "text-left"
+                    },
+                    "last": {"value": d.last, "displayValue": convertTimestamp(d.last, true), "className": "playtime"},
+                    "playtime": {"value": d.playtime, "displayValue": toPlaytime(d.playtime), "className": "playtime"},
+                    "matches": {"value": d.matches, "displayValue": d.matches},
+                    "kills": {"value": d.kills, "displayValue": d.kills},
+                    "score": {"value": d.score, "displayValue": d.score},
+                    
+                };
+            })}
+        />
+    </div>
 }
 
 const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, selectedCountry, 
@@ -210,7 +228,9 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
             state.perPage,
             state.activeRange,
             state.selectedCountry,
-            state.order
+            state.sortBy,
+            state.order,
+            
         );
 
         return () =>{
@@ -226,7 +246,7 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
         state.nameSearch, 
         state.page, 
         state.perPage,
-        state.activeRnage,
+        state.activeRange,
         state.selectedCountry,
         state.sortBy,
         state.order
@@ -319,8 +339,8 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
                         ]}
                         originalValue={state.displayType}
                         changeSelected={(name, value) => {
-                            dispatch({"type": "changeDisplay", "value": value});
-                            setURL(router, state, "display", value);
+                            dispatch({"type": "changeSortBy", "value": value});
+                            setURL(router, state, "sb", value);
                         }}
                     />
 
@@ -345,14 +365,9 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
                         }}
                         originalValue={state.perPage}
                     />
-
-                    <Link href={searchURL}>
-                        <div className="search-button">Search</div>
-                    </Link>
-
-                    Target page = {page}
                 </div>
                 <NotificationsCluster 
+                    width={1}
                     notifications={nState.notifications} 
                     hide={(id) => nDispatch({"type": "delete", "id": id})}
                     clearAll={() => nDispatch({"type": "clearAll"})}

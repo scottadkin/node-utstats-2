@@ -6,7 +6,7 @@ class PlayerSearch{
     constructor(){}
 
 
-    async defaultSearch(name, page, perPage, country, activeRange){
+    async defaultSearch(name, page, perPage, country, activeRange, sortBy, order){
 
         const now = Math.ceil(Date.now() * 0.001);
 
@@ -20,7 +20,14 @@ class PlayerSearch{
             "4": now - 60 * 60 * 24 * 365
         };
 
-        console.log(`name = ${name}, activeRange = ${activeRange}`);
+        const validSortBy = ["kills", "name","playtime","matches","last","score"];
+
+        const sortIndex = validSortBy.indexOf(sortBy.toLowerCase());
+
+        if(sortIndex === -1){
+            throw new Error(`${sortBy} is not a valid sort by option.`);
+        }
+
         const vars = [];
 
         let where = "WHERE playtime>0 AND player_id=0 AND gametype=0";
@@ -38,10 +45,12 @@ class PlayerSearch{
         where += ` AND last>=? AND last<=?`;
         vars.push(startRanges[activeRange], now);
 
-        const totalQuery = `SELECT COUNT(*) as total_matches FROM nstats_player_totals ${where}`;     
-        const query = `SELECT id,name,last,country,face,playtime FROM nstats_player_totals ${where} LIMIT ?, ?`;     
+        if(order !== "asc" && order !== "desc") order = "asc";
        
-        
+
+        const totalQuery = `SELECT COUNT(*) as total_matches FROM nstats_player_totals ${where}`;     
+        const query = `SELECT id,name,last,country,face,playtime,score,kills,matches FROM nstats_player_totals ${where} ORDER BY ${validSortBy[sortIndex]} ${order.toUpperCase()} LIMIT ?, ?`;     
+       
         if(perPage < 5) perPage = 5;
 
         let start = page * perPage;

@@ -16,6 +16,7 @@ export default async function handler(req, res){
         const country = (req.body.country !== undefined) ? req.body.country.toLowerCase() : "";
         const active = (req.body.activeRange !== undefined) ? cleanInt(req.body.activeRange, 0, 4) : 0;
         let order = (req.body.order !== undefined) ? req.body.order.toLowerCase() : "asc";
+        const sortBy = (req.body.sortBy !== undefined) ? req.body.sortBy.toLowerCase() : "name";
 
         if(order !== "asc" && order !== "desc") order = "asc";
 
@@ -26,6 +27,7 @@ export default async function handler(req, res){
         }
 
         page--;
+        
         if(page < 0) page = 0;
 
         let perPage = (req.body.perPage !== undefined) ? cleanInt(req.body.perPage, 5, 100) : 25;
@@ -33,19 +35,15 @@ export default async function handler(req, res){
 
         const p = new PlayerSearch();
 
-        const searchResult = await p.defaultSearch(name, page, perPage, country, active);
+        const searchResult = await p.defaultSearch(name, page, perPage, country, active, sortBy, order);
 
         console.log(req.body);
-        console.log(`active = ${active}`);
 
         res.status(200).json(searchResult);
         return;
 
-        console.log(req.body);
-        console.log(mode, name, country, active);
+        //res.status(200).json({"error": "Unknown Command"});
 
-        res.status(200).json({"error": "Unknown Command"});
-        return;
     }catch(err){
         res.status(200).json({"error": err.toString()});
     }
