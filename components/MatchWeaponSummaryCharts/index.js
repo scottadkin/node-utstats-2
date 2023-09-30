@@ -6,6 +6,8 @@ import Link from "next/link";
 import Functions from "../../api/functions";
 import ErrorMessage from "../ErrorMessage";
 import Loading from "../Loading";
+import MatchWeaponBest from "../MatchWeaponBest";
+import Tabs from "../Tabs";
 
 const getMaxStats = (weaponStats, weaponId, type) =>{
 
@@ -29,8 +31,9 @@ const getMaxStats = (weaponStats, weaponId, type) =>{
     return best;
 }
 
-const renderBest = (weaponStats, players) =>{
+const renderBest = (mode, matchId, weaponStats, players) =>{
 
+    if(mode !== -1) return null;
     console.log(weaponStats);
 
     const headers = {
@@ -40,6 +43,8 @@ const renderBest = (weaponStats, players) =>{
     };
 
     const data = [];
+
+    const elems = [];
 
     for(let i = 0; i < weaponStats.names.length; i++){
 
@@ -51,14 +56,28 @@ const renderBest = (weaponStats, players) =>{
         const bestDamage = getMaxStats(weaponStats.playerData, id, "damage");
         const bestDamagePlayer = Functions.getPlayer(players, bestDamage.player_id, true);
 
-        data.push({
-            "weapon": {"value": name.toLowerCase(), "displayValue": name},
-            "kills": {"value": bestKills.kills, "displayValue": <><b>{bestKills.kills}</b> by <CountryFlag country={bestKillsPlayer.country}/>{bestKillsPlayer.name}</>},
-            "damage": {"value": bestDamage.damage, "displayValue": <><b>{bestDamage.damage}</b> by <CountryFlag country={bestDamagePlayer.country}/>{bestDamagePlayer.name}</>},
-        });
+        elems.push(<MatchWeaponBest 
+            matchId={matchId}
+            key={id}
+            name={name} 
+            bestKills={
+                {
+                    "data": bestKills,
+                    "player": bestKillsPlayer
+                }
+            }
+            bestDamage={
+                {
+                    "data": bestDamage,
+                    "player": bestDamagePlayer 
+                }
+            }
+        />);
+
     }
     return <div>
-        <InteractiveTable width={1} headers={headers} data={data}/>
+        {elems}
+        
     </div>
 }
 
@@ -118,14 +137,14 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
 
     const renderTabs = () =>{
 
-        return <div className="tabs">
-            <div className={`tab ${(displayMode === 0) ? "tab-selected" : ""}`} onClick={(() =>
-                setDisplayMode(0)
-            )}>Table View</div>
-            <div className={`tab ${(displayMode === 1) ? "tab-selected" : ""}`}  onClick={(() =>
-                setDisplayMode(1)
-            )}>Bar Charts</div>
-        </div>
+        return <Tabs options={[
+            {"name": "Best Stats", "value": -1},
+            {"name": "Table View", "value": 0},
+            {"name": "Bar Charts", "value": 1},
+        ]} 
+            selectedValue={displayMode}
+            changeSelected={setDisplayMode}
+        />
     }
 
     const renderWeaponTabs = () =>{
@@ -307,9 +326,9 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
 
     return <div>
         <div className="default-header">Weapon Statistics</div>
-        {renderBest(weaponStats, playerData)}
         {renderTabs()}
         {renderWeaponTabs()}
+        {renderBest(displayMode, matchId, weaponStats, playerData)}
         {renderBarChart()}
         {renderSingleTable()}
     </div>
