@@ -7,6 +7,61 @@ import Functions from "../../api/functions";
 import ErrorMessage from "../ErrorMessage";
 import Loading from "../Loading";
 
+const getMaxStats = (weaponStats, weaponId, type) =>{
+
+    let best = null;
+
+    for(let i = 0; i < weaponStats.length; i++){
+
+        const w = weaponStats[i];
+
+        if(w.weapon_id !== weaponId) continue;
+
+        if(best === null){
+            best = w;
+            continue;
+        }
+
+        if(best[type] < w[type]) best = w;
+
+    }
+
+    return best;
+}
+
+const renderBest = (weaponStats, players) =>{
+
+    console.log(weaponStats);
+
+    const headers = {
+        "weapon": "Weapon",
+        "kills": "Most Kills",
+        "damage": "Most Damage"
+    };
+
+    const data = [];
+
+    for(let i = 0; i < weaponStats.names.length; i++){
+
+        const {id, name} = weaponStats.names[i];
+
+        const bestKills = getMaxStats(weaponStats.playerData, id, "kills");
+        const bestKillsPlayer = Functions.getPlayer(players, bestKills.player_id, true);
+
+        const bestDamage = getMaxStats(weaponStats.playerData, id, "damage");
+        const bestDamagePlayer = Functions.getPlayer(players, bestDamage.player_id, true);
+
+        data.push({
+            "weapon": {"value": name.toLowerCase(), "displayValue": name},
+            "kills": {"value": bestKills.kills, "displayValue": <><b>{bestKills.kills}</b> by <CountryFlag country={bestKillsPlayer.country}/>{bestKillsPlayer.name}</>},
+            "damage": {"value": bestDamage.damage, "displayValue": <><b>{bestDamage.damage}</b> by <CountryFlag country={bestDamagePlayer.country}/>{bestDamagePlayer.name}</>},
+        });
+    }
+    return <div>
+        <InteractiveTable width={1} headers={headers} data={data}/>
+    </div>
+}
+
 const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
 
     const [bLoading, setbLoading] = useState(true);
@@ -252,6 +307,7 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
 
     return <div>
         <div className="default-header">Weapon Statistics</div>
+        {renderBest(weaponStats, playerData)}
         {renderTabs()}
         {renderWeaponTabs()}
         {renderBarChart()}
