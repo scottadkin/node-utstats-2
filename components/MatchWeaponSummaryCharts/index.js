@@ -34,17 +34,18 @@ const getMaxStats = (weaponStats, weaponId, type) =>{
 const renderBest = (mode, matchId, weaponStats, players) =>{
 
     if(mode !== -1) return null;
-    console.log(weaponStats);
-
-    const headers = {
-        "weapon": "Weapon",
-        "kills": "Most Kills",
-        "damage": "Most Damage"
-    };
-
-    const data = [];
 
     const elems = [];
+
+    weaponStats.names.sort((a, b) =>{
+
+        a = a.name.toLowerCase();
+        b = b.name.toLowerCase();
+
+        if(a < b) return -1;
+        if(a > b) return 1;
+        return 0;
+    });
 
     for(let i = 0; i < weaponStats.names.length; i++){
 
@@ -76,9 +77,26 @@ const renderBest = (mode, matchId, weaponStats, players) =>{
 
     }
     return <div>
-        {elems}
-        
+        {elems}  
     </div>
+}
+
+const renderIndividualTabs = (mode, individualDisplayMode, setIndividualDisplayMode) =>{
+   
+    if(mode !== 0) return null;
+
+    const options = [
+        {
+            "name": "Tables",
+            "value": 0
+        },
+        {
+            "name": "Bar Charts",
+            "value": 1
+        }
+    ];
+
+    return <Tabs options={options} selectedValue={individualDisplayMode} changeSelected={setIndividualDisplayMode}/>
 }
 
 const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
@@ -89,6 +107,7 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
     const [displayMode, setDisplayMode] = useState(0);
     const [selectedWeaponId, setSelectedWeaponId] = useState(null);
     const [selectedStatType, setSelectedStatType] = useState("kills");
+    const [individualDisplayMode, setIndividualDisplayMode] = useState(0);
 
 
     useEffect(() =>{
@@ -139,8 +158,8 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
 
         return <Tabs options={[
             {"name": "Best Stats", "value": -1},
-            {"name": "Table View", "value": 0},
-            {"name": "Bar Charts", "value": 1},
+            {"name": "Individual Weapons", "value": 0},
+           // {"name": "Bar Charts", "value": 1},
         ]} 
             selectedValue={displayMode}
             changeSelected={setDisplayMode}
@@ -149,6 +168,7 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
 
     const renderWeaponTabs = () =>{
 
+        if(displayMode === -1) return null;
         const tabs = [];
 
         const names = [...weaponStats.names];
@@ -205,7 +225,7 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
 
     const renderSingleTable = () =>{
 
-        if(displayMode !== 0) return null;
+        if(displayMode !== 0 || individualDisplayMode !== 0) return null;
         
         const headers = {
             "name": "Player",
@@ -292,7 +312,7 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
 
     const renderBarChart = () =>{
 
-        if(displayMode !== 1) return null;
+        if(displayMode !== 0 || individualDisplayMode !== 1) return null;
 
         const weaponName = getWeaponName(selectedWeaponId);
 
@@ -327,6 +347,7 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
     return <div>
         <div className="default-header">Weapon Statistics</div>
         {renderTabs()}
+        {renderIndividualTabs(displayMode, individualDisplayMode, setIndividualDisplayMode)}
         {renderWeaponTabs()}
         {renderBest(displayMode, matchId, weaponStats, playerData)}
         {renderBarChart()}
