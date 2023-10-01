@@ -8,6 +8,7 @@ import ErrorMessage from "../ErrorMessage";
 import Loading from "../Loading";
 import MatchWeaponBest from "../MatchWeaponBest";
 import Tabs from "../Tabs";
+import { getPlayer, getTeamColor } from "../../api/generic.mjs";
 
 const getMaxStats = (weaponStats, weaponId, type) =>{
 
@@ -99,6 +100,100 @@ const renderIndividualTabs = (mode, individualDisplayMode, setIndividualDisplayM
     return <Tabs options={options} selectedValue={individualDisplayMode} changeSelected={setIndividualDisplayMode}/>
 }
 
+const createPlayerTotalStats = (data, players) =>{
+
+    const totals = {};
+
+    let totalDamage = {};
+    let totalKills = 0;
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        if(totals[d.player_id] === undefined){
+
+            totals[d.player_id] = {"kills": 0, "damage": 0};
+        }
+
+        totals[d.player_id].kills += d.kills;
+        totals[d.player_id].damage += d.damage;
+
+        totalKills = d.kills;
+
+        const currentPlayer = getPlayer(players, d.player_id, true);
+
+        if(totalDamage[currentPlayer.team] === undefined) totalDamage[currentPlayer.team] = 0;
+        totalDamage[currentPlayer.team] += d.damage;
+    }
+
+
+    const finalData = [];
+
+    for(const [playerId, playerData] of Object.entries(totals)){
+
+        const currentPlayer = getPlayer(players, playerId, true);
+
+
+        finalData.push({
+            "playerId": parseInt(playerId),
+            "kills": playerData.kills,
+            "damage": playerData.damage,
+            "percent": (playerData.damage > 0 && totalDamage[currentPlayer.team] > 0) 
+                ? 
+                playerData.damage / totalDamage[currentPlayer.team] * 100
+                : 
+                0
+        });
+    }
+
+    finalData.sort((a, b) =>{
+
+        a = a.damage;
+        b = b.damage;
+        if(a < b) return 1;
+        if(a > b) return -1;
+        return 0;
+    });
+
+
+    return finalData;
+}
+
+const renderTotalDamage = (displayMode, matchId, totalData, players) =>{
+
+    if(displayMode !== -2) return null;
+
+    const headers = {
+        "name": "Player",
+        "kills": "Kills",
+        "damage": "Damage",
+        "percent": "% Of Team Damage"
+    };
+
+    const data = totalData.map((d) =>{
+
+        const {playerId, kills, damage, percent} = d;
+
+        const player = getPlayer(players, playerId, true);
+
+        return {
+            "name": {
+                "value": "", 
+                "displayValue": <Link href={`/pmatch/${matchId}?player=${player.id}`}><CountryFlag country={player.country}/>{player.name}</Link>,
+                "className": `text-left ${getTeamColor(player.team)}`
+            },
+            "kills": {"value": kills},
+            "damage": {"value": damage},
+            "percent": {"value": percent, "displayValue": <>{percent.toFixed(2)}&#37;</>}
+        };
+    });
+
+    return <>
+        <InteractiveTable width={2} headers={headers} data={data}/>
+    </>
+}
+
 const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
 
     const [bLoading, setbLoading] = useState(true);
@@ -108,6 +203,7 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
     const [selectedWeaponId, setSelectedWeaponId] = useState(null);
     const [selectedStatType, setSelectedStatType] = useState("kills");
     const [individualDisplayMode, setIndividualDisplayMode] = useState(0);
+    const [totalStats, setTotalStats] = useState([]);
 
 
     useEffect(() =>{
@@ -126,6 +222,8 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
 
                 const res = await req.json();
 
+                
+
                 if(res.error !== undefined){
                     setError(res.error.toString());
                 }else{
@@ -135,8 +233,12 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
                     if(res.names.length > 0){
                         setSelectedWeaponId(res.names[0].id)
                     }
+
                     setWeaponStats(res);
+
+                    setTotalStats(createPlayerTotalStats(res.playerData, playerData));
                 }
+
 
             }catch(err){
                 setError(err.toString());
@@ -157,6 +259,7 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
     const renderTabs = () =>{
 
         return <Tabs options={[
+            {"name": "Total Damage", "value": -2},
             {"name": "Best Stats", "value": -1},
             {"name": "Individual Weapons", "value": 0},
            // {"name": "Bar Charts", "value": 1},
@@ -168,7 +271,7 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
 
     const renderWeaponTabs = () =>{
 
-        if(displayMode === -1) return null;
+        if(displayMode < 0) return null;
         const tabs = [];
 
         const names = [...weaponStats.names];
@@ -349,6 +452,7 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
         {renderTabs()}
         {renderIndividualTabs(displayMode, individualDisplayMode, setIndividualDisplayMode)}
         {renderWeaponTabs()}
+        {renderTotalDamage(displayMode, matchId, totalStats, playerData)}
         {renderBest(displayMode, matchId, weaponStats, playerData)}
         {renderBarChart()}
         {renderSingleTable()}
