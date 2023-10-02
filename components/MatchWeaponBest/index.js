@@ -19,7 +19,7 @@ const BestPlayerElem = ({matchId, data, type, player}) =>{
     return elem;
 }
 
-const MatchWeaponBest = ({matchId, name, bestKills, bestDamage}) =>{
+const MatchWeaponBest = ({matchId, name, bestKills, bestDamage, totalTeams}) =>{
 
     if(bestKills.data.kills === 0 && bestDamage.data.damage === 0) return null;
 
@@ -37,14 +37,14 @@ const MatchWeaponBest = ({matchId, name, bestKills, bestDamage}) =>{
                 <tr>
                         <td>Most Kills</td>
                         <td>{bestKills.data.kills}</td>
-                        <td className={getTeamColor((bestKills.data.kills > 0) ? bestKills.player.team : 255)}>
+                        <td className={getTeamColor((bestKills.data.kills > 0) ? bestKills.player.team : 255, totalTeams)}>
                             {killPlayerElem}
                         </td>
                     </tr>
                     <tr>
                         <td>Most Damage</td>
                         <td>{bestDamage.data.damage}</td>
-                        <td className={getTeamColor((bestDamage.data.damage > 0) ? bestDamage.player.team : 255)}>
+                        <td className={getTeamColor((bestDamage.data.damage > 0) ? bestDamage.player.team : 255, totalTeams)}>
                             {damagePlayerElem}
                         </td>
                     </tr>

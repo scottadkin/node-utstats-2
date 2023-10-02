@@ -561,7 +561,9 @@ export function getTeamName(team, bIgnoreTeam){
     }
 }
 
-export function getTeamColor(team){
+export function getTeamColor(team, totalTeams){
+
+    if(totalTeams !== undefined && totalTeams < 2) return "team-none";
 
     team = parseInt(team);
     
