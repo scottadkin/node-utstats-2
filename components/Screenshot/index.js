@@ -473,7 +473,11 @@ class MatchScreenshot{
             return 0;
         });
 
-        return `${scores[0].name} Wins the match!`
+        if(scores[0].score === scores[1].score){
+            return "Draw!";
+        }
+
+        return `${scores[0].name} Wins the match!`;
     }
 
     getSoloWinner(){
