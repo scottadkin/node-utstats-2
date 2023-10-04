@@ -6,7 +6,7 @@ class PlayerSearch{
     constructor(){}
 
 
-    async defaultSearch(name, page, perPage, country, activeRange, sortBy, order){
+    getSearchStartTimestampRange(activeRange){
 
         const now = Math.ceil(Date.now() * 0.001);
 
@@ -20,6 +20,18 @@ class PlayerSearch{
             "4": now - 60 * 60 * 24 * 365
         };
 
+        if(startRanges[activeRange] !== undefined){
+            return {"minTimestamp": startRanges[activeRange], "maxTimestamp": now};
+        }
+
+        return {"minTimestamp": startRanges[0], "maxTimestamp": now};
+    }
+
+    createSearchQuery(name, page, perPage, country, activeRange, sortBy, order, bOnlyCount){
+
+
+        if(bOnlyCount === undefined) bOnlyCount = false;
+
         const validSortBy = ["kills", "name","playtime","matches","last","score"];
 
         const sortIndex = validSortBy.indexOf(sortBy.toLowerCase());
@@ -27,6 +39,8 @@ class PlayerSearch{
         if(sortIndex === -1){
             throw new Error(`${sortBy} is not a valid sort by option.`);
         }
+
+        const {minTimestamp, maxTimestamp} = this.getSearchStartTimestampRange(activeRange);
 
         const vars = [];
 
@@ -43,34 +57,58 @@ class PlayerSearch{
         }
 
         where += ` AND last>=? AND last<=?`;
-        vars.push(startRanges[activeRange], now);
+        vars.push(minTimestamp, maxTimestamp);
 
         if(order !== "asc" && order !== "desc") order = "asc";
-       
 
-        const totalQuery = `SELECT COUNT(*) as total_matches FROM nstats_player_totals ${where}`;     
-        const query = `SELECT id,name,last,country,face,playtime,score,kills,matches FROM nstats_player_totals ${where} ORDER BY ${validSortBy[sortIndex]} ${order.toUpperCase()} LIMIT ?, ?`;     
-       
-        if(perPage < 5) perPage = 5;
-        if(perPage > 100) perPage = 100;
+        const normalSelect = `SELECT id,name,last,country,face,playtime,score,kills,matches `;
+        const countSelect = `SELECT COUNT(*) as total_matches `;
 
-        let start = page * perPage;
-
-        if(start !== start) start = 0;
-        if(start < 0) start = 0;
+        const limit = (!bOnlyCount) ? `LIMIT ?, ?` : "";
 
 
-        vars.push(start, perPage);
+        const query = `${(bOnlyCount) ? countSelect : normalSelect} 
+        FROM nstats_player_totals ${where} ORDER BY ${validSortBy[sortIndex]} ${order.toUpperCase()} ${limit}`; 
 
-        const totalResult = await mysql.simpleQuery(totalQuery, vars);
-        const result = await mysql.simpleQuery(query, vars);
+        if(!bOnlyCount){
+            perPage = cleanInt(perPage, 1, 100);
 
+            let start = page * perPage;
+
+            if(start !== start) start = 0;
+            if(start < 0) start = 0;
+
+            vars.push(start, perPage);
+        }
+        
+
+        return {
+            "query": query,
+            vars
+        };
+    }
+
+    async defaultSearch(name, page, perPage, country, activeRange, sortBy, order){
+
+        const normalQuery = this.createSearchQuery(name, page, perPage, country, activeRange, sortBy, order, false);
+        const totalQuery = this.createSearchQuery(name, page, perPage, country, activeRange, sortBy, order, true);
+
+        const normalResult = await mysql.simpleQuery(normalQuery.query, normalQuery.vars);
+        const totalResult = await mysql.simpleQuery(totalQuery.query, totalQuery.vars);
 
         return {
             "totalMatches": totalResult[0].total_matches,
-            "data": result
+            "data": normalResult
         };
+    }
 
+    async getTotalMatches(name, page, perPage, country, activeRange, sortBy, order){
+
+        const totalQuery = this.createSearchQuery(name, page, perPage, country, activeRange, sortBy, order, true);
+
+        const totalResult = await mysql.simpleQuery(totalQuery.query, totalQuery.vars);
+
+        return totalResult[0].total_matches;
     }
 }
 

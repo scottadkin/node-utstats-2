@@ -17,6 +17,8 @@ import CustomTable from "../components/CustomTable";
 import CountryFlag from "../components/CountryFlag";
 import Link from "next/link";
 import Pagination from "../components/Pagination";
+import PlayerSearch from "../api/playersearch";
+import Countires from "../api/countries";
 
 const setOrder = (newSortBy, oldSortBy, currentOrder) =>{
 
@@ -129,6 +131,51 @@ const setURL = (router, state, forceKeyName, forceKeyValue) => {
       undefined, { shallow: true });
 }
 
+
+const createDescription = (state, page) =>{
+
+    let totalPages = 1;
+
+    if(state.totalMatches > 0 && state.perPage > 0){
+        totalPages = Math.ceil(state.totalMatches / state.perPage);
+    }
+
+    let description = `Search for a player here, viewing page ${page} of ${totalPages} from a total of ${state.totalMatches} players.`;
+    console.log(state.activeRange);
+    if(state.nameSearch === "" && state.selectedCountry === "" && state.activeRange === 0) return description;
+
+
+    description = `Player search result for `;
+    
+    let bNeedComma = false;
+
+    if(state.nameSearch !== ""){
+        description += `name matching "${state.nameSearch}"`;
+        bNeedComma = true;
+    }
+
+    if(state.selectedCountry !== ""){
+        const cInfo = Countires(state.selectedCountry);
+        description += `${(bNeedComma) ? ", " : "" }country matching ${cInfo.country}`;
+        bNeedComma = true;
+    }
+
+    if(state.activeRange != 0){
+
+        let subString = "";
+
+        if(state.activeRange == 1) subString = "past 24 hours";
+        if(state.activeRange == 2) subString = "past 7 days";
+        if(state.activeRange == 3) subString = "past 28 days";
+        if(state.activeRange == 4) subString = "past 365 days";
+
+        description += `${(bNeedComma) ? ", " : "" }active in the last ${subString}`;
+        bNeedComma = true;
+        
+    }
+
+    return `${description}, viewing page ${page} of ${totalPages} from a total of ${state.totalMatches} matching players.`;
+}
 
 const loadData = async (signal, dispatch, nDispatch, nameSearch, page, perPage, activeRange, selectedCountry, sortBy, order) =>{
 
@@ -266,7 +313,7 @@ const renderTable = (state, dispatch, router) =>{
 }
 
 const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, selectedCountry, 
-    activeRange, displayType, page, perPage, sortBy, order}) =>{
+    activeRange, displayType, page, perPage, sortBy, order, totalMatches}) =>{
 
     const router = useRouter();
     session = JSON.parse(session);
@@ -279,7 +326,7 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
         "displayType": displayType,
         "bLoading": true,
         "perPage": perPage,
-        "totalMatches": 0,
+        "totalMatches": totalMatches,
         "searchResult": [],
         "sortBy": sortBy,
         "order": order
@@ -327,11 +374,14 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
 
     let searchURL = `/players?name=${state.nameSearch}&pp=${state.perPage}&sb=${state.sortBy}&o=${state.order}&active=${state.activeRange}&page=`;
 
+    const description = createDescription(state, page);
+    
+
     return <>
         <DefaultHead 
             host={host} 
             title={title} 
-            description={`Viewing players  page  of , players  to  out of a possible  players.`} 
+            description={description} 
             keywords={`search,players,player`}
         />
         
@@ -477,6 +527,9 @@ export async function getServerSideProps({req, query}){
 
     if(order !== "asc" && order !== "desc") order = "asc";
 
+    const horseNoise = new PlayerSearch();
+
+    const totalMatches = await horseNoise.getTotalMatches(nameSearch, page, perPage, selectedCountry, activeRange, sortBy, order);
 
     await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
 
@@ -493,7 +546,8 @@ export async function getServerSideProps({req, query}){
             perPage,
             page,
             sortBy,
-            order
+            order,
+            totalMatches
         }
     }
 }
