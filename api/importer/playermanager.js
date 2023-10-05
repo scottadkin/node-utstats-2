@@ -357,9 +357,9 @@ class PlayerManager{
                 result = reg.exec(d);
                 type = result[2].toLowerCase();
 
-                if(type === 'team'){
+                /*if(type === 'team'){
                     //this.setTeam(result[3], result[1]);
-                }else if(type == 'isabot'){
+                }else*/ if(type == 'isabot'){
                     this.setBotStatus(result[3]);
                 }else if(type == 'ip'){
                     this.setIp(result[3]);
@@ -556,7 +556,6 @@ class PlayerManager{
     
 
     setTeam(subString, timestamp, bDisconnect){
-
 
         if(bDisconnect){
 

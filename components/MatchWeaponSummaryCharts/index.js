@@ -3,9 +3,203 @@ import BarChart from "../BarChart";
 import InteractiveTable from "../InteractiveTable";
 import CountryFlag from "../CountryFlag";
 import Link from "next/link";
-import Functions from "../../api/functions";
 import ErrorMessage from "../ErrorMessage";
 import Loading from "../Loading";
+import MatchWeaponBest from "../MatchWeaponBest";
+import Tabs from "../Tabs";
+import { ignore0, getPlayer, getTeamColor } from "../../api/generic.mjs";
+
+const getMaxStats = (weaponStats, weaponId, type) =>{
+
+    let best = null;
+
+    for(let i = 0; i < weaponStats.length; i++){
+
+        const w = weaponStats[i];
+
+        if(w.weapon_id !== weaponId) continue;
+
+        if(best === null){
+            best = w;
+            continue;
+        }
+
+        if(best[type] < w[type]) best = w;
+
+    }
+
+    return best;
+}
+
+const renderBest = (mode, matchId, weaponStats, players, totalTeams) =>{
+
+    if(mode !== -1) return null;
+
+    const elems = [];
+
+    weaponStats.names.sort((a, b) =>{
+
+        a = a.name.toLowerCase();
+        b = b.name.toLowerCase();
+
+        if(a < b) return -1;
+        if(a > b) return 1;
+        return 0;
+    });
+
+    for(let i = 0; i < weaponStats.names.length; i++){
+
+        const {id, name} = weaponStats.names[i];
+
+        const bestKills = getMaxStats(weaponStats.playerData, id, "kills");
+        const bestKillsPlayer = getPlayer(players, bestKills.player_id, true);
+
+        const bestDamage = getMaxStats(weaponStats.playerData, id, "damage");
+        const bestDamagePlayer = getPlayer(players, bestDamage.player_id, true);
+
+        elems.push(<MatchWeaponBest 
+            matchId={matchId}
+            key={id}
+            name={name} 
+            bestKills={
+                {
+                    "data": bestKills,
+                    "player": bestKillsPlayer
+                }
+            }
+            bestDamage={
+                {
+                    "data": bestDamage,
+                    "player": bestDamagePlayer 
+                }
+            }
+            totalTeams={totalTeams}
+        />);
+
+    }
+    return <div>
+        {elems}  
+    </div>
+}
+
+const renderIndividualTabs = (mode, individualDisplayMode, setIndividualDisplayMode) =>{
+   
+    if(mode !== 0) return null;
+
+    const options = [
+        {
+            "name": "Tables",
+            "value": 0
+        },
+        {
+            "name": "Bar Charts",
+            "value": 1
+        }
+    ];
+
+    return <Tabs options={options} selectedValue={individualDisplayMode} changeSelected={setIndividualDisplayMode}/>
+}
+
+const createPlayerTotalStats = (data, players) =>{
+
+    const totals = {};
+
+    let totalDamage = {};
+    let totalKills = 0;
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        if(totals[d.player_id] === undefined){
+
+            totals[d.player_id] = {"kills": 0, "damage": 0};
+        }
+
+        totals[d.player_id].kills += d.kills;
+        totals[d.player_id].damage += d.damage;
+
+        totalKills = d.kills;
+
+        const currentPlayer = getPlayer(players, d.player_id, true);
+
+        if(totalDamage[currentPlayer.team] === undefined) totalDamage[currentPlayer.team] = 0;
+        totalDamage[currentPlayer.team] += d.damage;
+    }
+
+
+    const finalData = [];
+
+    for(const [playerId, playerData] of Object.entries(totals)){
+
+        const currentPlayer = getPlayer(players, playerId, true);
+
+
+        finalData.push({
+            "playerId": parseInt(playerId),
+            "kills": playerData.kills,
+            "damage": playerData.damage,
+            "percent": (playerData.damage > 0 && totalDamage[currentPlayer.team] > 0) 
+                ? 
+                playerData.damage / totalDamage[currentPlayer.team] * 100
+                : 
+                0
+        });
+    }
+
+    finalData.sort((a, b) =>{
+
+        a = a.damage;
+        b = b.damage;
+        if(a < b) return 1;
+        if(a > b) return -1;
+        return 0;
+    });
+
+
+    return finalData;
+}
+
+const renderTotalDamage = (displayMode, matchId, totalData, players, totalTeams) =>{
+
+    if(displayMode !== -2) return null;
+
+    const headers = {
+        "name": "Player",
+        "kills": "Kills",
+        "damage": "Damage",
+        
+    };
+
+    if(totalTeams >= 2){
+        headers.percent ="% Of Team Damage";
+    }
+
+    const data = totalData.map((d) =>{
+
+        const {playerId, kills, damage, percent} = d;
+
+        const player = getPlayer(players, playerId, true);
+
+        const current = {
+            "name": {
+                "value": "", 
+                "displayValue": <Link href={`/pmatch/${matchId}?player=${player.id}`}><CountryFlag country={player.country}/>{player.name}</Link>,
+                "className": `text-left ${getTeamColor(player.team, totalTeams)}`
+            },
+            "kills": {"value": kills},
+            "damage": {"value": damage}
+        };
+
+        current.percent = {"value": percent, "displayValue": <>{percent.toFixed(2)}&#37;</>}
+
+        return current;
+    });
+
+    return <>
+        <InteractiveTable width={2} headers={headers} data={data}/>
+    </>
+}
 
 const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
 
@@ -15,6 +209,8 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
     const [displayMode, setDisplayMode] = useState(0);
     const [selectedWeaponId, setSelectedWeaponId] = useState(null);
     const [selectedStatType, setSelectedStatType] = useState("kills");
+    const [individualDisplayMode, setIndividualDisplayMode] = useState(0);
+    const [totalStats, setTotalStats] = useState([]);
 
 
     useEffect(() =>{
@@ -33,6 +229,8 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
 
                 const res = await req.json();
 
+                
+
                 if(res.error !== undefined){
                     setError(res.error.toString());
                 }else{
@@ -42,8 +240,12 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
                     if(res.names.length > 0){
                         setSelectedWeaponId(res.names[0].id)
                     }
+
                     setWeaponStats(res);
+
+                    setTotalStats(createPlayerTotalStats(res.playerData, playerData));
                 }
+
 
             }catch(err){
                 setError(err.toString());
@@ -59,22 +261,24 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
             controller.abort();
         }
 
-    }, [matchId]);
+    }, [matchId, playerData]);
 
     const renderTabs = () =>{
 
-        return <div className="tabs">
-            <div className={`tab ${(displayMode === 0) ? "tab-selected" : ""}`} onClick={(() =>
-                setDisplayMode(0)
-            )}>Table View</div>
-            <div className={`tab ${(displayMode === 1) ? "tab-selected" : ""}`}  onClick={(() =>
-                setDisplayMode(1)
-            )}>Bar Charts</div>
-        </div>
+        return <Tabs options={[
+            {"name": "Total Damage", "value": -2},
+            {"name": "Best Stats", "value": -1},
+            {"name": "Individual Weapons", "value": 0},
+           // {"name": "Bar Charts", "value": 1},
+        ]} 
+            selectedValue={displayMode}
+            changeSelected={setDisplayMode}
+        />
     }
 
     const renderWeaponTabs = () =>{
 
+        if(displayMode < 0) return null;
         const tabs = [];
 
         const names = [...weaponStats.names];
@@ -131,7 +335,7 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
 
     const renderSingleTable = () =>{
 
-        if(displayMode !== 0) return null;
+        if(displayMode !== 0 || individualDisplayMode !== 0) return null;
         
         const headers = {
             "name": "Player",
@@ -157,12 +361,12 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
 
             if(d.weapon_id !== selectedWeaponId) continue;
 
-            const player = Functions.getPlayer(playerData, d.player_id, true);
+            const player = getPlayer(playerData, d.player_id, true);
 
             data.push({
                 "name": {
                     "value": player.name.toLowerCase(), 
-                    "className": `text-left ${Functions.getTeamColor(player.team)}`,
+                    "className": `text-left ${getTeamColor(player.team, totalTeams)}`,
                     "displayValue": <Link href={`/pmatch/${matchId}/?player=${d.player_id}`}>
                         
                         <CountryFlag country={player.country}/>
@@ -170,15 +374,15 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
                         
                     </Link>
                 },
-                "shots": {"value": d.shots, "displayValue": Functions.ignore0(d.shots)},
-                "hits": {"value": d.hits, "displayValue": Functions.ignore0(d.hits)},
+                "shots": {"value": d.shots, "displayValue": ignore0(d.shots)},
+                "hits": {"value": d.hits, "displayValue": ignore0(d.hits)},
                 "accuracy": {"value": d.accuracy, "displayValue": `${d.accuracy.toFixed(2)}%`},
-                "deaths": {"value": d.deaths, "displayValue": Functions.ignore0(d.deaths)},
-                "suicides": {"value": d.suicides, "displayValue": Functions.ignore0(d.suicides)},
-                "kills": {"value": d.kills, "displayValue": Functions.ignore0(d.kills)},
-                "bestKills": {"value": d.best_kills, "displayValue": Functions.ignore0(d.best_kills)},
-                "teamKills": {"value": d.team_kills, "displayValue": Functions.ignore0(d.team_kills)},
-                "damage": {"value": d.damage, "displayValue": Functions.ignore0(d.damage)},
+                "deaths": {"value": d.deaths, "displayValue": ignore0(d.deaths)},
+                "suicides": {"value": d.suicides, "displayValue": ignore0(d.suicides)},
+                "kills": {"value": d.kills, "displayValue": ignore0(d.kills)},
+                "bestKills": {"value": d.best_kills, "displayValue": ignore0(d.best_kills)},
+                "teamKills": {"value": d.team_kills, "displayValue": ignore0(d.team_kills)},
+                "damage": {"value": d.damage, "displayValue": ignore0(d.damage)},
                 "eff": {"value": d.efficiency, "displayValue": `${d.efficiency.toFixed(2)}%`}
             });
         }
@@ -218,7 +422,7 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
 
     const renderBarChart = () =>{
 
-        if(displayMode !== 1) return null;
+        if(displayMode !== 0 || individualDisplayMode !== 1) return null;
 
         const weaponName = getWeaponName(selectedWeaponId);
 
@@ -253,7 +457,10 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
     return <div>
         <div className="default-header">Weapon Statistics</div>
         {renderTabs()}
+        {renderIndividualTabs(displayMode, individualDisplayMode, setIndividualDisplayMode)}
         {renderWeaponTabs()}
+        {renderTotalDamage(displayMode, matchId, totalStats, playerData, totalTeams)}
+        {renderBest(displayMode, matchId, weaponStats, playerData, totalTeams)}
         {renderBarChart()}
         {renderSingleTable()}
     </div>

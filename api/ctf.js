@@ -846,8 +846,6 @@ class CTF{
 
         const data = await this.getMatchEvents(id);
 
-        console.log(data);
-
         const playerIndexes = [];
 
         let capData = [];

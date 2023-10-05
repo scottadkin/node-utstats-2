@@ -97,7 +97,6 @@ const Pagination = ({currentPage, results, perPage, url, anchor, event}) =>{
     }
 
     return <div className={styles.wrapper}>
-
         <div className={styles.header}>
             Displaying Page {currentPage} of {pages}
         </div>

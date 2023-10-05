@@ -1,432 +1,556 @@
-import Link from 'next/link';
-import DefaultHead from '../components/defaulthead'
-import Nav from '../components/Nav/'
-import Footer from '../components/Footer/'
-import PlayersList from '../components/PlayerList/'
-import PlayerManager from '../api/players';
-import Faces from '../api/faces';
-import Pagination from '../components/Pagination/';
-import Option2 from '../components/Option2';
-import React from 'react';
-import Session from '../api/session';
-import SiteSettings from '../api/sitesettings';
-import Analytics from '../api/analytics';
-import Functions from '../api/functions';
+import Session from "../api/session";
+import Analytics from "../api/analytics";
+import SiteSettings from "../api/sitesettings";
+import DefaultHead from "../components/defaulthead";
+import Footer from "../components/Footer";
+import Nav from "../components/Nav";
+import { useReducer, useEffect } from "react";
+import { useRouter } from "next/router";
+import CountriesListDropDown from "../components/CountriesListDropDown";
+import PerPageDropDown from "../components/PerPageDropDown";
+import DropDown from "../components/DropDown";
+import NotificationsCluster from "../components/NotificationsCluster";
+import {notificationsInitial, notificationsReducer} from "../reducers/notificationsReducer";
+import Loading from "../components/Loading";
+import { cleanInt, convertTimestamp, toPlaytime } from "../api/generic.mjs";
+import CustomTable from "../components/CustomTable";
+import CountryFlag from "../components/CountryFlag";
+import Link from "next/link";
+import Pagination from "../components/Pagination";
+import PlayerSearch from "../api/playersearch";
+import Countires from "../api/countries";
 
+const setOrder = (newSortBy, oldSortBy, currentOrder) =>{
 
-class Players extends React.Component{
+    let newOrder = "asc";
 
-    constructor(props){
-
-        super(props);
-
-        this.state = {
-            "value": this.props.sortType, 
-            "order": this.props.order, 
-            "name": this.props.name, 
-            "perPage": this.props.perPage,
-            "displayType": this.props.displayType
-        }
-
-        this.handleSortChange = this.handleSortChange.bind(this);
-        this.handleOrderChange = this.handleOrderChange.bind(this);
-        this.handleNameChange = this.handleNameChange.bind(this);
-        this.handlePerPageChange = this.handlePerPageChange.bind(this);
-        this.handleDisplayTypeChange = this.handleDisplayTypeChange.bind(this);
-        this.changeDisplay = this.changeDisplay.bind(this);
-
-        this.changeSortAlt = this.changeSortAlt.bind(this);
+    if(newSortBy === oldSortBy){
+        newOrder = (currentOrder === "asc") ? "desc" : "asc";
     }
 
+    return newOrder;
+}
 
-    setCookie(key, value){
+const reducer = (state, action) =>{
 
-        const maxAge = ((60 * 60) * 24) * 365;
+    switch(action.type){
 
-        document.cookie = `${key}=${value}; max-age=${maxAge}; path=/;`;
-    }
-
-    componentDidMount(){
-
-        const settings = JSON.parse(this.props.pageSettings);
-
-        const session = JSON.parse(this.props.session);
-
-
-        if(settings["Default Display Per Page"] !== undefined){
-
-            if(session["playersPerPage"] === undefined){
-                this.setState({"perPage": parseInt(settings["Default Display Per Page"])});
-            }else{
-                this.setState({"perPage": parseInt(session["playersPerPage"])});
+        case "changeLoading": {
+            return {
+                ...state,
+                "bLoading": action.value
             }
         }
 
-        if(settings["Default Order"] !== undefined){
-
-            if(session["playersOrderBy"] === undefined){
-                this.setState({"order": settings["Default Order"]});
-            }else{
-                this.setState({"order": session["playersOrderBy"]});
+        case "changeOrder": {
+            return {
+                ...state,
+                "order": action.order
             }
         }
 
-        if(settings["Default Display Type"] !== undefined){
+        case "setSearchResult": {
 
-            if(session["playersDisplayType"] === undefined){
-                this.setState({"displayType": parseInt(settings["Default Display Type"])});
-            }else{
-                this.setState({"displayType": parseInt(session["playersDisplayType"])});
+            return {
+                ...state,
+                "totalMatches": action.totalMatches,
+                "searchResult": action.searchResult
             }
         }
 
-        if(settings["Default Sort Type"] !== undefined){
-
-            if(session["playersSortBy"] === undefined){
-                this.setState({"value": settings["Default Sort Type"]});
-            }else{
-                this.setState({"value": session["playersSortBy"]});
+        case "changeName": {
+            return {
+                ...state,
+                "nameSearch": action.name
             }
         }
 
+        case "changeCountry": {
+            return {
+                ...state,
+                "selectedCountry": action.name
+            }
+        }
+
+        case "changeActiveRange": {
+            return {
+                ...state,
+                "activeRange": action.value
+            }
+        }
+        case "changeSortBy": {
+            return {
+                ...state,
+                "sortBy": action.value
+            }
+        }
+
+        case "changeSortByAlt": {
+
+            const newOrder = setOrder(action.value, state.sortBy, state.order);
+
+            return {
+                ...state,
+                "sortBy": action.value,
+                "order": newOrder
+            }
+        }
+
+        case "changePerPage": {
+            return {
+                ...state,
+                "perPage": action.value
+            }
+        }
     }
 
-    handleSortChange(event){
+    return state;
+}
 
-        //event.preventDefault;
-        this.setState({"value": event.target.value});
 
-        this.setCookie("playersSortBy", event.target.value);
+
+const setURL = (router, state, forceKeyName, forceKeyValue) => {
+
+    const query = {
+        "name": state.nameSearch,
+        "country": state.selectedCountry,
+        "active": state.activeRange,
+        "pp": state.perPage,
+        "sb": state.sortBy,
+        "o": state.order
+    };
+
+    if(forceKeyName !== undefined){
+        query[forceKeyName] = forceKeyValue;
     }
 
-    changeSortAlt(value){
+    router.push({
+        pathname: "/players",
+        query
+      }, 
+      undefined, { shallow: true });
+}
 
-        this.setState({"value": value});
-        this.setCookie("playersSortBy", value);
+
+const createDescription = (state, page) =>{
+
+    let totalPages = 1;
+
+    if(state.totalMatches > 0 && state.perPage > 0){
+        totalPages = Math.ceil(state.totalMatches / state.perPage);
     }
 
-    handleOrderChange(event){
-        this.setState({"order": event.target.value});
-        this.setCookie("playersOrderBy", event.target.value);
+    let description = `Search for a player here, viewing page ${page} of ${totalPages} from a total of ${state.totalMatches} players.`;
+    console.log(state.activeRange);
+    if(state.nameSearch === "" && state.selectedCountry === "" && state.activeRange === 0) return description;
+
+
+    description = `Player search result for `;
+    
+    let bNeedComma = false;
+
+    if(state.nameSearch !== ""){
+        description += `name matching "${state.nameSearch}"`;
+        bNeedComma = true;
     }
 
-    handleNameChange(event){
-        this.setState({"name": event.target.value});  
-        this.setCookie("playersName", event.target.value);  
+    if(state.selectedCountry !== ""){
+        const cInfo = Countires(state.selectedCountry);
+        description += `${(bNeedComma) ? ", " : "" }country matching ${cInfo.country}`;
+        bNeedComma = true;
     }
 
-    handlePerPageChange(event){
+    if(state.activeRange != 0){
+
+        let subString = "";
+
+        if(state.activeRange == 1) subString = "past 24 hours";
+        if(state.activeRange == 2) subString = "past 7 days";
+        if(state.activeRange == 3) subString = "past 28 days";
+        if(state.activeRange == 4) subString = "past 365 days";
+
+        description += `${(bNeedComma) ? ", " : "" }active in the last ${subString}`;
+        bNeedComma = true;
         
-        this.setState({"perPage": parseInt(event.target.value)});
-
-        let value = parseInt(event.target.value);
-
-        if(value !== value) value = 25;
-
-        this.setCookie("playersPerPage", value);
     }
 
-    handleDisplayTypeChange(event){
+    return `${description}, viewing page ${page} of ${totalPages} from a total of ${state.totalMatches} matching players.`;
+}
 
-        let value = parseInt(event.target.value);
-        if(value !== value) value = 0;
+const loadData = async (signal, dispatch, nDispatch, nameSearch, page, perPage, activeRange, selectedCountry, sortBy, order) =>{
 
-        this.setState({"displayType": value});
-        this.setCookie("playersDisplayType", value);
+
+    dispatch({"type": "changeLoading", "value": true});
+
+    try{
+
+        const req = await fetch("/api/playersearch", {
+            "signal": signal,
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({
+                "mode": "search",
+                "name": nameSearch,
+                "activeRange": activeRange,
+                "country": selectedCountry,
+                "page": page,
+                "perPage": perPage,
+                "order": order,
+                "sortBy": sortBy
+            })
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined){
+            nDispatch({"type": "add", "notification": {"type": "error", "content": res.error}});
+            dispatch({"type": "changeLoading", "value": false});
+            return;
+        }
+
+        dispatch({"type": "setSearchResult", "totalMatches": res.totalMatches, "searchResult": res.data});
+        dispatch({"type": "changeLoading", "value": false});
+        console.log(res);
+
+    }catch(err){
+        if(err.name === "AbortError") return;
+        console.trace(err);
     }
+}
 
-    changeDisplay(id){
-
-        id = parseInt(id);
-
-        if(id !== id) id = 0;
-
-        this.setState({"displayType": id});
-        this.setCookie("playersDisplayType", id);
-    }
-
-    render(){
-
-        const imageHost = Functions.getImageHostAndPort(this.props.host);
-
-        let pages = Math.ceil(this.props.totalPlayers / this.props.perPage);
-        if(pages === 0) pages = 1;
-
-        let url = `/players?sortType=${this.state.value}&order=${this.state.order}&name=${this.state.name}&perPage=${this.state.perPage}&displayType=${this.state.displayType}&page=`;
+const renderTable = (state, dispatch, router) =>{
 
 
-        let radio1 = <input type="radio" name="displayType" value="0"/>;
+    const headers = [
+        {
+            "title": "name", 
+            "display": "Name", 
+            "onClick": () => { 
+                const newOrder = setOrder("name", state.sortBy, state.order);
+                dispatch({"type": "changeSortByAlt", "value": "name"});
+                setURL(router, state, "o", newOrder);
+                setURL(router, state, "sb", "name");
+            }
+        },
+        {
+            "title": "last", 
+            "display": "Last Active", 
+            "onClick": () => { 
+                const newOrder = setOrder("last", state.sortBy, state.order);
+                dispatch({"type": "changeSortByAlt", "value": "last"});
+                setURL(router, state, "o", newOrder);
+                setURL(router, state, "sb", "last");
+            }
+        },
+        {
+            "title": "playtime", 
+            "display": "Playtime", 
+            "mouseOver": {
+                "title": "Total Playtime",
+                "content": "This does not include spectator time."
+            },
+            "onClick": () => { 
+                const newOrder = setOrder("playtime", state.sortBy, state.order);
+                dispatch({"type": "changeSortByAlt", "value": "playtime"});
+                setURL(router, state, "o", newOrder);
+                setURL(router, state, "sb", "playtime");
+            }
+        },
+        {
+            "title": "matches", 
+            "display": "Matches",
+            "onClick": () => { 
+                const newOrder = setOrder("matches", state.sortBy, state.order);
+                dispatch({"type": "changeSortByAlt", "value": "matches"});
+                setURL(router, state, "o", newOrder);
+                setURL(router, state, "sb", "matches");
+            }
+        },
+        {
+            "title": "kills", 
+            "display": "Kills",
+            "onClick": () => { 
+                const newOrder = setOrder("kills", state.sortBy, state.order);
+                dispatch({"type": "changeSortByAlt", "value": "kills"});
+                setURL(router, state, "o", newOrder);
+                setURL(router, state, "sb", "kills");
+            }
+        },
+        {
+            "title": "score", 
+            "display": "Score", 
+            "onClick": () => { 
+                const newOrder = setOrder("score", state.sortBy, state.order);
+                dispatch({"type": "changeSortByAlt", "value": "score"});
+                setURL(router, state, "o", newOrder);
+                setURL(router, state, "sb", "score");
+            }
+        },
+        
+    ];
 
-        if(this.state.displayType === 0){
-            radio1 = <input type="radio" name="displayType" defaultChecked value="0"/>
-        }
 
-        let radio2 = <input type="radio" name="displayType" value="1"/>
-        if(this.state.displayType === 1){
-            radio2 = <input type="radio" name="displayType" defaultChecked value="0"/>
-        }
-
-        let pList = '';
-        let paginationElem = '';
-
-        const parsedPlayers = JSON.parse(this.props.players);
-
-        if(parsedPlayers.length > 0){
-
-            pList = <PlayersList players={this.props.players} faces={this.props.faces} records={this.props.records} displayType={this.state.displayType}
-                        searchTerms={JSON.stringify(this.state)} changeSort={this.changeSortAlt} host={imageHost}/>
-            paginationElem = <Pagination url={url}  currentPage={this.props.page} pages={pages} perPage={this.props.perPage} results={this.props.totalPlayers}/>;
-        }else{
-
-            pList = null
-            paginationElem = null;
-        }
-
-
-        const start = (this.props.page - 1 < 1) ? 1 : (this.props.page - 1) * this.props.perPage;
-        const end = (this.props.page * this.props.perPage <= this.props.totalPlayers) ? this.props.page * this.props.perPage : this.props.totalPlayers;
-
-        const nameString = (this.props.name !== "") ? `Search for ${this.props.name} ` : "";
-
-        return (
-            <div>
-                <DefaultHead host={this.props.host} 
-                title={`Players ${nameString} Page ${this.props.page} of ${pages}`} 
-                description={`Viewing players ${nameString} page ${this.props.page} of ${pages}, players ${start} to ${end} out of a possible ${this.props.totalPlayers} players.`} 
-                keywords={`search,players,player,page ${this.props.page}`}/>
-                
-                <main>
-                <Nav settings={this.props.navSettings} session={this.props.session}/>
-                <div id="content">
-                    <div className="default">
-                    <div className="default-header">
-                        Players
-                    </div>
-                    <div className="default-sub-header">Search for a player</div>
-                    <form className="form">
-                        <input type="text" name="name" id="name" autoComplete="off" className="default-textbox m-bottom-10" placeholder="Player Name..." value={this.state.name} 
-                        onChange={this.handleNameChange}/>
-                        <div className="select-row">
-                            <div className="select-label">Sort Type</div>
-                            <select id="sortType" className="default-select" name="sortType" value={this.state.value} onChange={this.handleSortChange}>
-                                <option value="name">Name</option>
-                                <option value="matches">Matches</option>
-                                <option value="score">Score</option>
-                                <option value="kills">Kills</option>
-                                <option value="deaths">Deaths</option>
-                                <option value="playtime">Playtime</option>
-                                <option value="last">Last</option>
-                            </select>
-                        </div>
-                        <div className="select-row">
-                            <div className="select-label">Order</div>
-                            <select id="orderType" className="default-select"  value={this.state.order} name="orderType" onChange={this.handleOrderChange}>
-                                <option value="ASC">Ascending</option>
-                                <option value="DESC">Descending</option>
-                            </select>
-                        </div>
-                        <div className="select-row">
-                            <div className="select-label">Display Per Page</div>
-                            <select id="perPage" value={this.state.perPage} name="perPage" className="default-select" onChange={this.handlePerPageChange}>
-                                <option value="5">5</option>
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="75">75</option>
-                                <option value="100">100</option>
-                            </select>
-                        </div>
-
-                        <div className="select-row">
-                            <div className="select-label">Display</div>
-                            <Option2 title1="Default" title2="Table" value={this.state.displayType} changeEvent={this.changeDisplay}/>
-                            <input type="hidden" name="displayType" value={this.state.displayType}/>
-                        </div>
+    return <div className="m-top-25">
+        <CustomTable width={1} 
+            headers={headers}
+            data={state.searchResult.map((d) =>{
+                return {
+                    "name": {
+                        "value": "", 
+                        "displayValue": <Link href={`/player/${d.id}`}><CountryFlag country={d.country}/>{d.name}</Link>,
+                        "className": "text-left"
+                    },
+                    "last": {"value": d.last, "displayValue": convertTimestamp(d.last, true), "className": "playtime"},
+                    "playtime": {"value": d.playtime, "displayValue": toPlaytime(d.playtime), "className": "playtime"},
+                    "matches": {"value": d.matches, "displayValue": d.matches},
+                    "kills": {"value": d.kills, "displayValue": d.kills},
+                    "score": {"value": d.score, "displayValue": d.score},
                     
-                        <Link href={`${url}${this.props.page}`}><span className="search-button">Search</span></Link>
-                    </form>
-                    
-                    {paginationElem}
-                    {pList}
-                    {paginationElem}
-                    </div>
-                </div>
-                <Footer session={this.props.session}/>
-                </main>   
-            </div>
+                };
+            })}
+        />
+    </div>
+}
+
+const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, selectedCountry, 
+    activeRange, displayType, page, perPage, sortBy, order, totalMatches}) =>{
+
+    const router = useRouter();
+    session = JSON.parse(session);
+
+    const [state, dispatch] = useReducer(reducer, {
+        "nameSearch": nameSearch,
+        "playerList": [],
+        "selectedCountry": selectedCountry,
+        "activeRange": activeRange,
+        "displayType": displayType,
+        "bLoading": true,
+        "perPage": perPage,
+        "totalMatches": totalMatches,
+        "searchResult": [],
+        "sortBy": sortBy,
+        "order": order
+    });
+
+    const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
+
+    let title = "Player Search";
+
+    if(state.nameSearch !== ""){
+        title = `Player Search Results for "${state.nameSearch}"`;
+    }
+
+    useEffect(() =>{
+
+        const controller = new AbortController();
+
+        loadData(
+            controller.signal, 
+            dispatch, 
+            nDispatch, 
+            state.nameSearch, 
+            page, 
+            state.perPage,
+            state.activeRange,
+            state.selectedCountry,
+            state.sortBy,
+            state.order,
+            
         );
-    }
+
+        return () =>{
+            controller.abort();
+        }
+
+    }, [
+        state.nameSearch, 
+        page, 
+        state.perPage,
+        state.activeRange,
+        state.selectedCountry,
+        state.sortBy,
+        state.order
+    ]);
+
+    let searchURL = `/players?name=${state.nameSearch}&pp=${state.perPage}&sb=${state.sortBy}&o=${state.order}&active=${state.activeRange}&page=`;
+
+    const description = createDescription(state, page);
+    
+
+    return <>
+        <DefaultHead 
+            host={host} 
+            title={title} 
+            description={description} 
+            keywords={`search,players,player`}
+        />
+        
+        <main>
+        <Nav settings={navSettings} session={session}/>
+        <div id="content">
+            <div className="default">
+                <div className="default-header">
+                    Players
+                </div>
+                <div className="form">
+                    <div className="form-row">
+                        <div className="form-label">Player Name</div>
+                        <input 
+                            type="text" 
+                            className="default-textbox" 
+                            placeholder="Player name..." 
+                            value={state.nameSearch}
+                            onChange={(e) =>{
+                         
+                                dispatch({"type": "changeName", "name": e.target.value});
+                                
+                                setURL(router, state, "name", e.target.value);
+                            }}
+                        />
+                    </div>
+                    <CountriesListDropDown 
+                        dName="Country" 
+                        data={[
+                            {"displayValue": "test", "value": 0}
+                        ]}
+                        originalValue={state.selectedCountry}
+                        changeSelected={(name,value) =>{
+                            
+                            dispatch({"type": "changeCountry", "name": value});
+                                
+                            setURL(router, state, "country", value);
+                        }}
+                    />
+   
+                    <DropDown
+                        dName="Active In"
+                        data={[
+                            {"displayValue": "All Time", "value": "0"},
+                            {"displayValue": "Past 24 Hours", "value": "1"},
+                            {"displayValue": "Past 7 Days", "value": "2"},
+                            {"displayValue": "Past 28 Days", "value": "3"},
+                            {"displayValue": "Past Year", "value": "4"},
+                        ]}
+                        originalValue={state.activeRange}
+                        changeSelected={(name, value) => {
+                            dispatch({"type": "changeActiveRange", "value": value});
+                            setURL(router, state, "active", value);
+                        }}
+                    />
+                    <DropDown 
+                        dName="Display Type"
+                        data={[
+                            {"displayValue": "Default View", "value": "0"},
+                            {"displayValue": "Table View", "value": "1"},
+                        ]}
+                        originalValue={state.displayType}
+                        changeSelected={(name, value) => {
+                            dispatch({"type": "changeDisplay", "value": value});
+                            setURL(router, state, "display", value);
+                        }}
+                    />
+
+                    <DropDown 
+                        dName="Sort By"
+                        data={[
+                            {"displayValue": "Name", "value": "name"},
+                            {"displayValue": "Playtime ", "value": "playtime"},
+                            {"displayValue": "Matches ", "value": "matches"},
+                            {"displayValue": "Score ", "value": "score"},
+                            {"displayValue": "Kills ", "value": "kills"},
+                            {"displayValue": "Last Active ", "value": "last"},
+                        ]}
+                        originalValue={state.sortBy}
+                        changeSelected={(name, value) => {
+                            dispatch({"type": "changeSortBy", "value": value});
+                            setURL(router, state, "sb", value);
+                        }}
+                    />
+
+                    <DropDown 
+                        dName="Order"
+                        data={[
+                            {"displayValue": "ASC", "value": "asc"},
+                            {"displayValue": "DESC ", "value": "desc"},
+             
+                        ]}
+                        originalValue={state.order}
+                        changeSelected={(name, value) => {
+                            dispatch({"type": "changeOrder", "order": value});
+                            setURL(router, state, "o", value);
+                        }}
+                    />
+
+                    <PerPageDropDown 
+                        changeSelected={(name, value) => {
+                            dispatch({"type": "changePerPage", "value": value});
+                            setURL(router, state, "pp", value);
+                        }}
+                        originalValue={state.perPage}
+                    />
+                </div>
+                <NotificationsCluster 
+                    width={1}
+                    notifications={nState.notifications} 
+                    hide={(id) => nDispatch({"type": "delete", "id": id})}
+                    clearAll={() => nDispatch({"type": "clearAll"})}
+                />
+                <Pagination url={searchURL} perPage={state.perPage} currentPage={page} results={state.totalMatches}/>
+                {renderTable(state, dispatch, router)}
+                <Pagination url={searchURL} perPage={state.perPage} currentPage={page} results={state.totalMatches}/>
+                <Loading value={!state.bLoading}/>
+            </div>
+        </div>
+        <Footer session={session}/>
+        </main>   
+    </>
 }
 
 export async function getServerSideProps({req, query}){
 
-    const Manager = new PlayerManager();
-    const FaceManager = new Faces();
+    const session = new Session(req);
+    await session.load();
 
     const settings = new SiteSettings();
 
     const navSettings = await settings.getCategorySettings("Navigation");
     const pageSettings = await settings.getCategorySettings("Players Page");
 
-    const session = new Session(req);
+    const nameSearch = (query.name !== undefined) ? query.name : "";
+    const selectedCountry = (query.country !== undefined) ? query.country : "";
+    const activeRange = (query.active !== undefined) ? query.active : 0;
+    const displayType = (query.display !== undefined) ? query.display : "";
+    const perPage = (query.pp !== undefined) ? query.pp : 25;
+    const page = (query.page !== undefined) ? cleanInt(query.page, 1, null) : 1;
+    const sortBy = (query.sb !== undefined) ? query.sb : "name";
+    let order = (query.o !== undefined) ? query.o.toLowerCase() : "asc";
 
-	await session.load();
+    if(order !== "asc" && order !== "desc") order = "asc";
 
-    let page = 1;
+    const horseNoise = new PlayerSearch();
 
-    if(query.page !== undefined){
-        page = parseInt(query.page);
-
-        if(page !== page){
-            page = 1;
-        }
-    }
-
-    const defaultPerPage = parseInt(pageSettings["Default Display Per Page"]);
-    let perPage = defaultPerPage;
-
-    if(perPage !== perPage) perPage = 25;
-
-    const defaultDisplayType = parseInt(pageSettings["Default Display Type"]);
-    let displayType = defaultDisplayType;
-
-    if(displayType !== displayType) displayType = 0;
-
-    const defaultSortType = pageSettings["Default Sort Type"];
-    let sortType = 'name';
-
-    
-    const defaultOrderType = pageSettings["Default Order"];
-    let order = defaultOrderType;
-
-    if(query.perPage !== undefined){
-
-        perPage = parseInt(query.perPage);
-
-        if(perPage !== perPage){
-            perPage = defaultPerPage;
-        }
-
-        if(perPage > 100 || perPage < 1){
-            perPage = defaultPerPage;
-        }
-    }
-
-    if(session.settings.playersPerPage !== undefined){
-
-        perPage = parseInt(session.settings.playersPerPage);
-
-        if(perPage !== perPage) perPage = defaultPerPage;
-
-        if(perPage > 100 || perPage < 1){
-            perPage = defaultPerPage;
-        }
-    }
-
-    
-
-    if(query.displayType !== undefined){
-
-        displayType = parseInt(query.displayType);
-
-    }else{
-
-        if(session.settings.playersDisplayType !== undefined){
-
-            displayType = parseInt(session.settings.playersDisplayType);
-
-        }else{
-            displayType = defaultDisplayType;
-        }
-    }
-
-    if(displayType !== 0 && displayType !== 1){
-        displayType = 0;
-    }
-
-
-    if(query.sortType !== undefined){
-
-        sortType = query.sortType;
-
-    }else{
-
-        if(session.settings.playersSortBy === undefined){
-            sortType = defaultSortType;
-        }else{
-            sortType = session.settings.playersSortBy;
-        }
-    }
-
-
-    if(query.order !== undefined){
-
-        order = query.order.toUpperCase();
-
-    }else{
-
-        if(session.settings.playersOrderBy === undefined){
-            order = defaultOrderType;
-        }else{
-            order = session.settings.playersOrderBy;
-        }
-    }
-
-    if(order !== 'ASC' && order !== 'DESC'){
-        order = 'ASC';
-    }
-
-    let name = '';
-
-    if(query.name !== undefined){
-        name = query.name;
-    }
-
-
-    let players = await Manager.getPlayers(page, perPage, sortType, order, name);
-    //let players = await Manager.debugGetAll();
-    let totalPlayers = await Manager.getTotalPlayers(name);
-
-    const facesToGet = [];
-
-    for(let i = 0; i < players.length; i++){
-
-        if(facesToGet.indexOf(players[i].face) === -1){
-            facesToGet.push(players[i].face);
-        }
-    }
-
-    let faces = await FaceManager.getFacesWithFileStatuses(facesToGet);
-
-    let records = await Manager.getMaxValues(['matches','efficiency','score','kills','deaths','accuracy','first','last','wins','playtime']);
-
-    players = JSON.stringify(players);
-   // console.log(players);
-    faces = JSON.stringify(faces);
-
-    records = JSON.stringify(records);
+    const totalMatches = await horseNoise.getTotalMatches(nameSearch, page, perPage, selectedCountry, activeRange, sortBy, order);
 
     await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
 
     return {
-        props: {
-            "host": req.headers.host,
-            "page": page,
-            "players": players,
-            "totalPlayers": totalPlayers,
-            "faces": faces,
-            "records": records,
-            "sortType": sortType,
-            "order": order, 
-            "name": name,
-            "perPage": perPage,
-            "displayType": displayType,
+        "props": {
             "session": JSON.stringify(session.settings),
-            "navSettings": JSON.stringify(navSettings),
-            "pageSettings": JSON.stringify(pageSettings)
+            navSettings,
+            pageSettings,
+            "host": req.headers.host,
+            nameSearch,
+            selectedCountry,
+            activeRange,
+            displayType,
+            perPage,
+            page,
+            sortBy,
+            order,
+            totalMatches
         }
     }
 }
 
 
-export default Players;
+export default PlayersPage;

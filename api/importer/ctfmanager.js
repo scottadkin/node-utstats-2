@@ -478,11 +478,12 @@ class CTFManager{
         const victimTeam = this.playerManager.getPlayerTeamAt(victim.masterId, timestamp);
 
         if(this.flags[victimTeam] === undefined){
+       
             new Message(`CTFManager.createFlagCover() this.flags[${victimTeam}] is undefined`,"error");
+            return;
         }
 
         await this.flags[victimTeam].cover(timestamp, killer.masterId, victim.masterId);
-
     }
 
     async createFlagPickedUp(timestamp, line){
