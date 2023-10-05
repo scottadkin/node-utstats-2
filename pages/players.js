@@ -382,7 +382,7 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
             host={host} 
             title={title} 
             description={description} 
-            keywords={`search,players,player`}
+            keywords={`search,players,player,ut,stats`}
         />
         
         <main>
