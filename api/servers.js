@@ -391,6 +391,57 @@ class Servers{
         const now = Math.floor(Date.now() * 0.001);
         return await mysql.simpleQuery(query, [now, name, gametype, map, currentPlayers, maxPlayers, ip, port]);
     }
+
+    async getQueryId(ip, port){
+
+        const query = `SELECT id FROM nstats_server_query WHERE ip=? AND port=?`;
+
+        const result = await mysql.simpleQuery(query, [ip, port]);
+
+        if(result.length > 0) return result[0].id;
+
+        return null;
+    }
+
+    async createQueryMapId(mapName){
+
+        const query = `INSERT INTO nstats_server_query_maps VALUES(NULL,?)`;
+
+        const result = await mysql.simpleQuery(query, [mapName]);
+
+        return result.insertId;
+    }
+
+    async getQueryMapId(mapName){
+
+        const query = `SELECT id FROM nstats_server_query_maps WHERE name=?`;
+
+        const result = await mysql.simpleQuery(query, [mapName]);
+
+        if(result.length === 0){
+            return this.createQueryMapId(mapName);
+        }
+
+        return result[0].id;
+    }
+
+    async insertQueryHistory(ip, port, timestamp, currentPlayers, mapName){
+
+        const id = await this.getQueryId(ip, port);
+
+        if(id === null){
+            console.trace(`There is no server with the address of ${ip}:${port}`);
+            return;
+        }
+
+        const mapId = await this.getQueryMapId(mapName);
+
+        console.log(`mapId = ${mapId}`);
+        const query = `INSERT INTO nstats_server_query_history VALUES(NULL,?,?,?,?)`;
+
+        return await mysql.simpleQuery(query, [id, timestamp, currentPlayers, mapId]);
+
+    }
 }
 
 module.exports = Servers;

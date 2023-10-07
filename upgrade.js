@@ -323,6 +323,42 @@ async function updateKillsTable(){
 }
 
 
+async function createQueryTables(){
+
+    const queries = [
+        `CREATE TABLE IF NOT EXISTS nstats_server_query(
+            id int(11) NOT NULL AUTO_INCREMENT,
+            ip varchar(100) NOT NULL,
+            port int(11) NOT NULL,
+            last_response int(11) NOT NULL,
+            server_name varchar(100) NOT NULL,
+            gametype_name varchar(100) NOT NULL,
+            map_name varchar(100) NOT NULL,
+            current_players int(3) NOT NULL,
+            max_players int(3) NOT NULL,
+            PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+    
+            `CREATE TABLE IF NOT EXISTS nstats_server_query_history(
+            id int(11) NOT NULL AUTO_INCREMENT,
+            server int(11) NOT NULL,
+            timestamp int(11) NOT NULL,
+            player_count int(3) NOT NULL,
+            map_id int(11) NOT NULL,
+            PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+      
+            `CREATE TABLE IF NOT EXISTS nstats_server_query_maps(
+            id int(11) NOT NULL AUTO_INCREMENT,
+            name varchar(100) NOT NULL,
+            PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+    ];
+
+    for(let i = 0; i < queries.length; i++){
+
+        const q = queries[i];
+        await mysql.simpleQuery(q);
+    }
+}
+
 (async () =>{
 
     try{
@@ -360,6 +396,8 @@ async function updateKillsTable(){
         await createMapItemTables();
 
         await updateKillsTable();
+
+        await createQueryTables();
 
         process.exit(0);
 

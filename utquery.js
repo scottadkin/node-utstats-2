@@ -34,6 +34,17 @@ const pingAllServers = async (servers, utQuery) =>{
             result.currentPlayers ?? 0,
             result.maxPlayers ?? 0
         );
+
+
+        const mapName = (result.mapName !== undefined) ? `${result.mapName}` : "not found";
+
+        await servers.insertQueryHistory(
+            result.ip, 
+            result.hostPort, 
+            Math.floor(Date.now() * 0.001), 
+            result.currentPlayers ?? 0, 
+            mapName
+        )
     });
 
 
@@ -41,6 +52,11 @@ const pingAllServers = async (servers, utQuery) =>{
 
         await pingAllServers(servers, utQuery);
    // }, 2500);
+
+    setInterval(async () =>{
+
+        await pingAllServers(servers, utQuery);
+    }, 60000);
 
     
 })();
