@@ -94,7 +94,7 @@ class Servers{
                 if(err) reject(err);
 
                 if(result !== undefined){
-                    if(result !== []) resolve(result[0]);     
+                    if(result.length > 0) resolve(result[0]);     
                 }
 
                 resolve(null);
@@ -368,6 +368,28 @@ class Servers{
         const query = `DELETE FROM nstats_servers WHERE id=?`;
 
         return await mysql.simpleQuery(query, [serverId]);
+    }
+
+    async getQueryList(){
+
+        const query = `SELECT * FROM nstats_server_query`;
+
+        return await mysql.simpleQuery(query);
+    }
+
+    async setQueryStats(ip, port, name, gametype, map, currentPlayers, maxPlayers){
+
+        const query = `UPDATE nstats_server_query SET 
+        last_response=?,
+        server_name=?,
+        gametype_name=?,
+        map_name=?,
+        current_players=?,
+        max_players=? 
+        WHERE ip=? AND port=?`;
+
+        const now = Math.floor(Date.now() * 0.001);
+        return await mysql.simpleQuery(query, [now, name, gametype, map, currentPlayers, maxPlayers, ip, port]);
     }
 }
 

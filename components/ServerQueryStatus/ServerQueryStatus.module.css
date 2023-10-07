@@ -1,0 +1,39 @@
+.wrapper{
+    background-color:var(--color-8);
+    width:var(--t-width-2);
+    min-width:460px;
+    max-width:460px;
+    width:460px;
+    border:1px solid var(--border-color-2);
+    margin-bottom:10px;
+    display:inline-block;
+    margin-right:10px;
+}
+
+.title{
+    padding:10px;
+    font-size:16px;
+    word-wrap: break-word;
+    overflow:hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    
+}
+
+.address{
+    font-size:14px;
+    color:var(--color-6);
+}
+
+.map{
+    padding:5px;
+    font-size:14px;
+}
+
+.pcount{
+    padding:5px;
+}
+
+.mimage img{
+    width:256px;
+}
