@@ -12,7 +12,8 @@ const reducer = (state, action) =>{
             return {
                 ...state,
                 "bLoading": false,
-                "data": action.data
+                "data": action.data,
+                "playerHistory": action.playerHistory
             }
         }
     }
@@ -40,7 +41,7 @@ const loadData = async (signal, nDispatch, dispatch) =>{
             return;
         }
 
-        dispatch({"type": "loaded", "data": res.data});
+        dispatch({"type": "loaded", "data": res.data, "playerHistory": res.playerHistory});
         console.log(res);
 
     }catch(err){
@@ -50,6 +51,46 @@ const loadData = async (signal, nDispatch, dispatch) =>{
         
         nDispatch({"type": "add", "notification": {"type": "error", "content": err.toString()}});
     }
+}
+
+const getServerPlayerHistory = (data, targetServerId) =>{
+
+    const test = [];
+
+    for(let i = 0; i < 60 * 24; i++){
+        test.push(0);
+    }
+
+    const history = {
+        //"minPlayers": null,
+        "maxPlayers": null,
+        "data": test
+    };
+
+
+    const now = Math.floor(Date.now() * 0.001);
+    const minute = 60;
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        if(d.server !== targetServerId) continue;
+
+        if(history.maxPlayers === null || d.player_count > history.maxPlayers) history.maxPlayers = d.player_count;
+
+        const offset = now - d.timestamp;
+        let minuteOffset = Math.floor(offset / minute);
+        if(minuteOffset !== minuteOffset) minuteOffset = 0;
+
+        history.data[minuteOffset] = d.player_count;
+     
+    }
+
+
+    if(history.maxPlayers === null) history.maxPlayers = 0;
+
+    return history;
 }
 
 const renderList = (state) =>{
@@ -62,7 +103,9 @@ const renderList = (state) =>{
 
         const d = state.data[i];
 
-        elems.push(<ServerQueryStatus key={d.id} server={d}/>);
+        const history = getServerPlayerHistory(state.playerHistory, d.id);
+
+        elems.push(<ServerQueryStatus key={d.id} server={d} history={history}/>);
     }
 
     return <>
@@ -72,7 +115,7 @@ const renderList = (state) =>{
 
 const ServerQueryList = ({}) =>{
 
-    const [state, dispatch] = useReducer(reducer, {"bLoading": true, "data": null});
+    const [state, dispatch] = useReducer(reducer, {"bLoading": true, "data": null, "playerHistory": []});
     const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
 
     useEffect(() =>{

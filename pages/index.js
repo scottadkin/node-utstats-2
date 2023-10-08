@@ -22,7 +22,6 @@ import Screenshot from "../components/Screenshot";
 import Analytics from "../api/analytics";
 import NotificationSmall from "../components/NotificationSmall";
 import HomeGeneralStats from "../components/HomeGeneralStats";
-import ServerQueryList from "../components/ServerQueryList";
 
 
 function Home({navSettings, pageSettings, pageOrder, session, host, matchesData, mapImages,
@@ -180,7 +179,6 @@ function Home({navSettings, pageSettings, pageOrder, session, host, matchesData,
 			<div id="content">
 				<div className="default">	
 				{message}
-				<ServerQueryList />
 				{elems}
 				
 				</div>

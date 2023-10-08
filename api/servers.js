@@ -436,11 +436,23 @@ class Servers{
 
         const mapId = await this.getQueryMapId(mapName);
 
-        console.log(`mapId = ${mapId}`);
         const query = `INSERT INTO nstats_server_query_history VALUES(NULL,?,?,?,?)`;
 
         return await mysql.simpleQuery(query, [id, timestamp, currentPlayers, mapId]);
+    }
 
+
+    /**
+     * Get the previous 24 hours data for all servers in the database
+     */
+    async getQueryPlayerCountHistory(){
+
+        const query = `SELECT server,timestamp,player_count FROM nstats_server_query_history WHERE timestamp>? ORDER BY timestamp DESC`;
+
+        const now = Math.floor(Date.now() * 0.001);
+        const limit = now - 60 * 60 * 24;
+
+        return await mysql.simpleQuery(query, [limit]);
     }
 }
 

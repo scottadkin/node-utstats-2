@@ -20,6 +20,8 @@ export default async function handler(req, res){
 
             const data = await servers.getQueryList();
 
+            const playerHistory = await servers.getQueryPlayerCountHistory();
+
             const mapNames = data.map((d) =>{
                 return d.map_name;
             });
@@ -35,10 +37,8 @@ export default async function handler(req, res){
                 d.image = mapImages[currentName] ?? "default";
             }
 
-            console.log(mapNames);
-            console.log(mapImages);
-            console.log(data);
-            res.status(200).json({"data": data});
+            console.table(data);
+            res.status(200).json({"data": data, "playerHistory": playerHistory});
             return;
         }
 
