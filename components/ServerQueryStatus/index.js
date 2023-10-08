@@ -16,6 +16,13 @@ const ServerQueryStatus = ({server, history}) =>{
         labels.push(`${toPlaytime(start)} - ${toPlaytime(end)} ago`);
     }
 
+    const hourData = [];
+
+    for(let i = 0; i < 60; i++){
+
+        hourData.push(history.data[i]);
+    }
+
     return <>
         <div className={styles.wrapper}>
             <div className={styles.title}>{server.server_name}</div>
@@ -31,13 +38,18 @@ const ServerQueryStatus = ({server, history}) =>{
             
         </div>
         <CustomGraph 
-            tabs={[{"name": "fart", "title": `${server.server_name}`}]} 
+            tabs={[
+                {"name": "Past Hour", "title": `${server.server_name}`},
+                {"name": "Past 24 Hours", "title": `${server.server_name}`},
+                
+            ]} 
             data={[
-                    [{"name": "Player Count", "values": history.data}]
+                    [{"name": "Player Count", "values": hourData}],
+                    [{"name": "Player Count", "values": history.data}],   
                 ]} 
             bEnableAdvanced={false}
             labelsPrefix={[""]}
-            labels={[labels,[]]}        
+            labels={[labels,labels]}        
         />
     </>
 }
