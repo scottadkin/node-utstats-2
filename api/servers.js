@@ -425,6 +425,25 @@ class Servers{
         return result[0].id;
     }
 
+    async getQueryMapNames(mapIds){
+
+        if(mapIds.length === 0) return {};
+
+        const query = `SELECT id,name FROM nstats_server_query_maps WHERE id IN(?)`;
+
+        const result = await mysql.simpleQuery(query, [mapIds]);
+
+        const data = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+            data[r.id] = r.name;
+        }
+        
+        return data;
+    }
+
     async insertQueryHistory(ip, port, timestamp, currentPlayers, mapName){
 
         const id = await this.getQueryId(ip, port);
@@ -447,7 +466,7 @@ class Servers{
      */
     async getQueryPlayerCountHistory(){
 
-        const query = `SELECT server,timestamp,player_count FROM nstats_server_query_history WHERE timestamp>? ORDER BY timestamp DESC`;
+        const query = `SELECT server,timestamp,player_count,map_id FROM nstats_server_query_history WHERE timestamp>? ORDER BY timestamp DESC`;
 
         const now = Math.floor(Date.now() * 0.001);
         const limit = now - 60 * 60 * 24;

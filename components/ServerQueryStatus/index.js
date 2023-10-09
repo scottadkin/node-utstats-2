@@ -6,6 +6,7 @@ import { toPlaytime } from "../../api/generic.mjs";
 const ServerQueryStatus = ({server, history}) =>{
 
     const labels = [];
+    const info = [];
 
     for(let i = 0; i < 60 * 24; i++){
 
@@ -14,13 +15,18 @@ const ServerQueryStatus = ({server, history}) =>{
         if(start === 0) start = 1;
         const end = (i + 1) * 60;
         labels.push(`${toPlaytime(start)} - ${toPlaytime(end)} ago`);
+        info.push(history.info[i]);
     }
 
     const hourData = [];
+    const hourInfo = [];
+
+    const test = {};
 
     for(let i = 0; i < 60; i++){
 
         hourData.push(history.data[i]);
+        hourInfo.push(history.info[i]);
     }
 
     return <>
@@ -43,6 +49,9 @@ const ServerQueryStatus = ({server, history}) =>{
                 {"name": "Past 24 Hours", "title": `${server.server_name}`},
                 
             ]} 
+            info={[hourInfo,
+                history.info
+            ]}
             data={[
                     [{"name": "Player Count", "values": hourData}],
                     [{"name": "Player Count", "values": history.data}],   
@@ -50,6 +59,7 @@ const ServerQueryStatus = ({server, history}) =>{
             bEnableAdvanced={false}
             labelsPrefix={[""]}
             labels={[labels,labels]}        
+            bSkipForceWholeYNumbers={true}
         />
     </>
 }

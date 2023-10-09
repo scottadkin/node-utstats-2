@@ -26,6 +26,12 @@ export default async function handler(req, res){
                 return d.map_name;
             });
 
+            const mapIds = [...new Set(playerHistory.map((p) =>{
+                return p.map_id;
+            }))];
+
+            const otherMapNames = await servers.getQueryMapNames([...mapIds]);
+
             const mapImages = await maps.getImages(mapNames);
 
             for(let i = 0; i < data.length; i++){
@@ -38,7 +44,7 @@ export default async function handler(req, res){
             }
 
             console.table(data);
-            res.status(200).json({"data": data, "playerHistory": playerHistory});
+            res.status(200).json({"data": data, "playerHistory": playerHistory, "mapIds": otherMapNames});
             return;
         }
 

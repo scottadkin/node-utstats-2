@@ -3,11 +3,12 @@ import styles from "./CustomGraph.module.css";
 import Graph from "../../lib/Graph";
 
 
-const CustomGraph = ({children, data, tabs, labels, labelsPrefix, minDataPoints, bEnableAdvanced}) =>{
+const CustomGraph = ({children, data, tabs, labels, info, labelsPrefix, minDataPoints, bEnableAdvanced, bSkipForceWholeYNumbers}) =>{
 
     const canvasRef = useRef(null);
     if(minDataPoints === undefined) minDataPoints = 2;
     if(bEnableAdvanced === undefined) bEnableAdvanced = true;
+    if(bSkipForceWholeYNumbers === undefined) bSkipForceWholeYNumbers = false;
 
     useEffect(() =>{
 
@@ -16,7 +17,8 @@ const CustomGraph = ({children, data, tabs, labels, labelsPrefix, minDataPoints,
         const graphData = {
             "data": data,
             "labels": labels,
-            "labelsPrefix": labelsPrefix
+            "labelsPrefix": labelsPrefix,
+            "info": info
         };
 
 
@@ -31,7 +33,8 @@ const CustomGraph = ({children, data, tabs, labels, labelsPrefix, minDataPoints,
             0,
             null,
             bEnableAdvanced, 
-            minDataPoints
+            minDataPoints,
+            bSkipForceWholeYNumbers
         );
         
 

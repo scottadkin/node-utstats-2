@@ -13,7 +13,8 @@ const reducer = (state, action) =>{
                 ...state,
                 "bLoading": false,
                 "data": action.data,
-                "playerHistory": action.playerHistory
+                "playerHistory": action.playerHistory,
+                "mapIds": action.mapIds
             }
         }
     }
@@ -41,7 +42,7 @@ const loadData = async (signal, nDispatch, dispatch) =>{
             return;
         }
 
-        dispatch({"type": "loaded", "data": res.data, "playerHistory": res.playerHistory});
+        dispatch({"type": "loaded", "data": res.data, "playerHistory": res.playerHistory, "mapIds": res.mapIds});
         console.log(res);
 
     }catch(err){
@@ -53,18 +54,21 @@ const loadData = async (signal, nDispatch, dispatch) =>{
     }
 }
 
-const getServerPlayerHistory = (data, targetServerId) =>{
+const getServerPlayerHistory = (data, targetServerId, mapIds) =>{
 
     const test = [];
+    const testInfo = [];
 
     for(let i = 0; i < 60 * 24; i++){
         test.push(0);
+        testInfo.push("N/A");
     }
 
     const history = {
         //"minPlayers": null,
         "maxPlayers": null,
-        "data": test
+        "data": test,
+        "info": testInfo
     };
 
 
@@ -84,6 +88,7 @@ const getServerPlayerHistory = (data, targetServerId) =>{
         if(minuteOffset !== minuteOffset) minuteOffset = 0;
 
         history.data[minuteOffset] = d.player_count;
+        history.info[minuteOffset] = mapIds[d.map_id] ?? "Not Found";
      
     }
 
@@ -103,7 +108,8 @@ const renderList = (state) =>{
 
         const d = state.data[i];
 
-        const history = getServerPlayerHistory(state.playerHistory, d.id);
+        const history = getServerPlayerHistory(state.playerHistory, d.id, state.mapIds);
+  
 
         elems.push(<ServerQueryStatus key={d.id} server={d} history={history}/>);
     }
@@ -115,7 +121,7 @@ const renderList = (state) =>{
 
 const ServerQueryList = ({}) =>{
 
-    const [state, dispatch] = useReducer(reducer, {"bLoading": true, "data": null, "playerHistory": []});
+    const [state, dispatch] = useReducer(reducer, {"bLoading": true, "data": null, "playerHistory": [], "mapIds": {}});
     const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
 
     useEffect(() =>{
