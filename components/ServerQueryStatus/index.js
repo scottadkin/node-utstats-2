@@ -59,7 +59,7 @@ const ServerQueryStatus = ({server, history}) =>{
             bEnableAdvanced={false}
             labelsPrefix={[""]}
             labels={[labels,labels]}        
-            bSkipForceWholeYNumbers={true}
+            
         />
     </>
 }

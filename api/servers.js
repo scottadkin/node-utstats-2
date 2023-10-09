@@ -440,7 +440,7 @@ class Servers{
             const r = result[i];
             data[r.id] = r.name;
         }
-        
+
         return data;
     }
 
@@ -472,6 +472,46 @@ class Servers{
         const limit = now - 60 * 60 * 24;
 
         return await mysql.simpleQuery(query, [limit]);
+    }
+
+    async deletePreviousQueryPlayers(serverId){
+
+        const query = `DELETE FROM nstats_server_query_players WHERE server=?`;
+
+        return await mysql.simpleQuery(query, [serverId]);
+
+    }
+
+    async insertQueryPlayers(serverId, players){
+
+        const timestamp = Math.floor(Date.now() * 0.001);
+
+        console.log(`serverId = ${serverId}`);
+        console.log(players);
+
+        await this.deletePreviousQueryPlayers(serverId);
+
+        const vars = [];
+
+        for(const [playerId, player] of Object.entries(players)){
+
+            vars.push([
+                serverId, 
+                timestamp, 
+                player.name ?? "Not Found",
+                player.face ?? "N/A", 
+                player.countryc ?? "xx", 
+                player.team ?? 0,
+                player.ping ?? 0,
+                player.time ?? 0,
+                player.frags ?? 0,
+                player.deaths ?? 0,
+                player.spree ?? 0
+            ]);
+        }
+
+        const query = `INSERT INTO nstats_server_query_players (server,timestamp,name,face,country,team,ping,time,frags,deaths,spree) VALUES ?`;
+        await mysql.bulkInsert(query, vars);
     }
 }
 

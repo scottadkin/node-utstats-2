@@ -1735,6 +1735,21 @@ const queries = [
         id int(11) NOT NULL AUTO_INCREMENT,
         name varchar(100) NOT NULL,
         PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+
+        `CREATE TABLE IF NOT EXISTS nstats_server_query_players(
+          id int(11) NOT NULL AUTO_INCREMENT,
+          server int(11) NOT NULL,
+          timestamp int(11) NOT NULL,
+          name varchar(30) NOT NULL,
+          face varchar(100) NOT NULL,
+          country varchar(2) NOT NULL,
+          team int(3) NOT NULL,
+          ping int(11) NOT NULL,
+          time int(11) NOT NULL,
+          frags int(11) NOT NULL,
+          deaths int(11) NOT NULL,
+          spree int(11) NOT NULL, 
+          PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
   
 
 ];

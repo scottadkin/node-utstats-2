@@ -44,7 +44,10 @@ const pingAllServers = async (servers, utQuery) =>{
             Math.floor(Date.now() * 0.001), 
             result.currentPlayers ?? 0, 
             mapName
-        )
+        );
+
+        const serverId = await servers.getQueryId(result.ip, result.hostPort);
+        await servers.insertQueryPlayers(serverId, result.players);
     });
 
 

@@ -1944,7 +1944,7 @@ class Players{
 
         //console.log(playerScores);
 
-        if(playerScores === {}) return [];
+        if(Object.keys(playerScores).length === 0) return [];
 
         let previousTimestamp = -1;
         let currentIgnoreList = [];
