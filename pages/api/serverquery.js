@@ -43,8 +43,14 @@ export default async function handler(req, res){
                 d.image = mapImages[currentName] ?? "default";
             }
 
-            console.table(data);
-            res.status(200).json({"data": data, "playerHistory": playerHistory, "mapIds": otherMapNames});
+            const currentPlayers = await servers.getCurrentQueryPlayers();
+
+            res.status(200).json({
+                "data": data, 
+                "playerHistory": playerHistory,
+                "mapIds": otherMapNames,
+                "currentPlayers": currentPlayers
+            });
             return;
         }
 

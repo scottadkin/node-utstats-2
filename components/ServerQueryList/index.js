@@ -3,6 +3,7 @@ import { useEffect, useReducer } from "react";
 import {notificationsInitial, notificationsReducer} from "../../reducers/notificationsReducer";
 import NotificationsCluster from "../NotificationsCluster";
 import Loading from "../Loading";
+import ServerQueryAllOnlinePlayers from "../ServerQueryAllOnlinePlayers";
 
 const reducer = (state, action) =>{
 
@@ -14,7 +15,9 @@ const reducer = (state, action) =>{
                 "bLoading": false,
                 "data": action.data,
                 "playerHistory": action.playerHistory,
-                "mapIds": action.mapIds
+                "mapIds": action.mapIds,
+                "currentPlayers": action.currentPlayers,
+                "serverNames": action.serverNames
             }
         }
     }
@@ -42,7 +45,23 @@ const loadData = async (signal, nDispatch, dispatch) =>{
             return;
         }
 
-        dispatch({"type": "loaded", "data": res.data, "playerHistory": res.playerHistory, "mapIds": res.mapIds});
+        const serverNames = {};
+
+        for(let i = 0; i < res.data.length; i++){
+
+            const d = res.data[i];
+
+            serverNames[d.id] = d.server_name;
+        }
+
+        dispatch({
+            "type": "loaded", 
+            "data": res.data, 
+            "playerHistory": res.playerHistory, 
+            "mapIds": res.mapIds,
+            "currentPlayers": res.currentPlayers,
+            "serverNames": serverNames
+        });
         console.log(res);
 
     }catch(err){
@@ -119,9 +138,18 @@ const renderList = (state) =>{
     </>
 }
 
+
 const ServerQueryList = ({}) =>{
 
-    const [state, dispatch] = useReducer(reducer, {"bLoading": true, "data": null, "playerHistory": [], "mapIds": {}});
+    const [state, dispatch] = useReducer(reducer, {
+        "bLoading": true, 
+        "data": null, 
+        "playerHistory": [], 
+        "mapIds": {},
+        "currentPlayers": [],
+        "serverNames": {}
+    });
+
     const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
 
     useEffect(() =>{
@@ -146,6 +174,7 @@ const ServerQueryList = ({}) =>{
         }}/>
         <Loading value={!state.bLoading} />
         {renderList(state)}
+        <ServerQueryAllOnlinePlayers state={state}/>
     </>
 }
 

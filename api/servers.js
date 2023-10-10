@@ -493,7 +493,7 @@ class Servers{
 
         const vars = [];
 
-        for(const [playerId, player] of Object.entries(players)){
+        for(const player of Object.values(players)){
 
             vars.push([
                 serverId, 
@@ -512,6 +512,13 @@ class Servers{
 
         const query = `INSERT INTO nstats_server_query_players (server,timestamp,name,face,country,team,ping,time,frags,deaths,spree) VALUES ?`;
         await mysql.bulkInsert(query, vars);
+    }
+
+    async getCurrentQueryPlayers(){
+
+        const query = `SELECT server,timestamp,name,face,team,ping,frags FROM nstats_server_query_players ORDER BY frags DESC`;
+
+        return await mysql.simpleQuery(query);
     }
 }
 
