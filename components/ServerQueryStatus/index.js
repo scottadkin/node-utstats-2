@@ -1,9 +1,22 @@
 import styles from "./ServerQueryStatus.module.css";
 import CustomGraph from "../CustomGraph";
-import { toPlaytime } from "../../api/generic.mjs";
+import { toPlaytime, getTeamColor } from "../../api/generic.mjs";
+import Tabs from "../Tabs";
+import { useState } from "react";
+import InteractiveTable from "../InteractiveTable";
 
+const renderGraph = (selectedTab, history) =>{
 
-const ServerQueryStatus = ({server, history}) =>{
+    if(selectedTab !== 1) return null;
+
+    const hourData = [];
+    const hourInfo = [];
+
+    for(let i = 0; i < 60; i++){
+
+        hourData.push(history.data[i]);
+        hourInfo.push(history.info[i]);
+    }
 
     const labels = [];
     const info = [];
@@ -18,35 +31,11 @@ const ServerQueryStatus = ({server, history}) =>{
         info.push(history.info[i]);
     }
 
-    const hourData = [];
-    const hourInfo = [];
-
-    const test = {};
-
-    for(let i = 0; i < 60; i++){
-
-        hourData.push(history.data[i]);
-        hourInfo.push(history.info[i]);
-    }
-
     return <>
-        <div className={styles.wrapper}>
-            <div className={styles.title}>{server.server_name}</div>
-            <div className={styles.address}>
-                <a href={`unreal://${server.ip}:${server.port}`}>{server.ip}:{server.port}</a>
-            </div>
-            <div className={styles.pcount}>Players {server.current_players}/{server.max_players}</div>
-            <div className={styles.map}>{server.map_name}</div>
-            <div className={styles.mimage}>
-                <img src={`/images/maps/thumbs/${server.image}.jpg`} alt="image" />
-            </div>
-            
-            
-        </div>
         <CustomGraph 
             tabs={[
-                {"name": "Past Hour", "title": `${server.server_name}`},
-                {"name": "Past 24 Hours", "title": `${server.server_name}`},
+                {"name": "Past Hour", "title": `Player History Past Hour`},
+                {"name": "Past 24 Hours", "title": `Player History Past 24 Hours`},
                 
             ]} 
             info={[hourInfo,
@@ -58,9 +47,78 @@ const ServerQueryStatus = ({server, history}) =>{
                 ]} 
             bEnableAdvanced={false}
             labelsPrefix={[""]}
-            labels={[labels,labels]}        
-            
+            labels={[labels,labels]}            
         />
+    </>
+}
+
+const renderMapImage = (selectedTab, image) =>{
+
+    if(selectedTab !== 2) return null;
+
+    return <div className={styles.mimage}>
+        <img src={`/images/maps/thumbs/${image}.jpg`} alt="image" />
+    </div>;
+}
+
+const renderPlayers = (selectedTab, players) =>{
+
+    if(selectedTab !== 0) return null;
+
+    const headers = {
+        "name": "Player",
+        "frags": "Frags"
+    };
+
+    const data = players.map((p) =>{
+
+        return {
+            "name": {
+                "value": p.name.toLowerCase(), 
+                "displayValue": p.name,
+                "className": getTeamColor(p.team)
+            },
+            "frags": {
+                "value": p.frags,
+                "className": getTeamColor(p.team)
+            }
+        }
+    });
+    return <InteractiveTable headers={headers} data={data}/>
+}
+
+const ServerQueryStatus = ({server, history, players}) =>{
+
+    const [selectedTab, setSelectedTab] = useState(0);
+
+
+    console.log(server);
+    return <>
+        
+        <div className={styles.wrapper}>
+            <div className={styles.title}>{server.server_name}</div>
+            <div className={styles.map}>Playing {server.map_name} </div>
+            <div className={styles.pcount}>Players {server.current_players}/{server.max_players}</div>
+            <div className={styles.address}>
+                <a href={`unreal://${server.ip}:${server.port}`}>unreal://{server.ip}:{server.port}</a>
+            </div>
+           
+            <Tabs 
+                options={[
+                    {"name": "Current Players", "value": 0},
+                    {"name": "Player History", "value": 1},
+                    {"name": "Map Image", "value": 2},
+                    
+                ]}
+                selectedValue={selectedTab}
+                changeSelected={setSelectedTab}
+            />
+            {renderPlayers(selectedTab, players)}
+            {renderMapImage(selectedTab, server.image)}
+            {renderGraph(selectedTab, history)}
+            
+        </div>
+        
     </>
 }
 

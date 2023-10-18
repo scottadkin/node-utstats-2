@@ -123,14 +123,26 @@ const renderList = (state) =>{
     
     const elems = [];
 
+    console.log(state);
+
     for(let i = 0; i < state.data.length; i++){
 
         const d = state.data[i];
 
         const history = getServerPlayerHistory(state.playerHistory, d.id, state.mapIds);
-  
 
-        elems.push(<ServerQueryStatus key={d.id} server={d} history={history}/>);
+  
+        const onlinePlayers = state.currentPlayers.filter((p) =>{
+
+            if(p.server === d.id){
+                return true;
+            }
+
+            return false;
+        });
+
+
+        elems.push(<ServerQueryStatus key={d.id} server={d} history={history} players={onlinePlayers}/>);
     }
 
     return <>
