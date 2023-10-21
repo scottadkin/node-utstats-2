@@ -20,7 +20,7 @@ export default async function handler(req, res){
 
     const uniqueMapNames = [...new Set(data.map((d) =>{
         
-        return cleanMapName(d.name).toLowerCase();
+        return d.name;
 
     }))];
 

@@ -120,6 +120,7 @@ export default async function handler(req, res){
             const dmWinnerPlayers = await playerManager.getNamesByIds([...dmWinners], true);
 
 
+
             const mapNames = await mapManager.getNames(Array.from(uniqueMaps));
             const gametypeNames = await gametypeManager.getNames(Array.from(uniqueGametypes));
             const mapImages = await mapManager.getImages(Object.values(mapNames));
