@@ -17,11 +17,12 @@ export default async function handler(req, res){
 
     const data = await manager.defaultSearch(page, perPage, name, order, sortBy);
 
-    const uniqueMapNames = [...new Set([...data.map((d) =>{
+
+    const uniqueMapNames = [...new Set(data.map((d) =>{
         
         return cleanMapName(d.name).toLowerCase();
 
-    })])];
+    }))];
 
     const mapImages = await manager.getImages(uniqueMapNames);
  

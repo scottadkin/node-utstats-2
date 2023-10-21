@@ -329,7 +329,7 @@ class Maps{
 
         for(let i = 0; i < names.length; i++){
             
-            const currentName = Functions.cleanMapName(names[i]).toLowerCase();
+            const currentName = /*Functions.cleanMapName(*/names[i]/*).toLowerCase()*/;
 
             if(files.indexOf(`${currentName}.jpg`) !== -1){
 
