@@ -169,7 +169,7 @@ class AdminPickupsManager extends React.Component{
             case 0: {   return "Unsorted"; } break;
             case 1: {   return "Weapons"; } break;
             case 2: {   return "Ammo"; } break;
-            case 3: {   return "Health"; } break;
+            case 3: {   return "Health &amp; Armour"; } break;
             case 4: {   return "Powerups"; } break;
             case 5: {   return "Special"; } break;
             default: {  return "Unknown"; } break;
@@ -183,7 +183,7 @@ class AdminPickupsManager extends React.Component{
             <option value="0">Unsorted</option>
             <option value="1">Weapons</option>
             <option value="2">Ammo</option>
-            <option value="3">Health</option>
+            <option value="3">Health &amp; Armour</option>
             <option value="4">Powerups</option>
             <option value="5">Special</option>
         </select>

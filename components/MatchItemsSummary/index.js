@@ -237,7 +237,7 @@ const MatchItemsSummary = ({matchId, players, totalTeams}) =>{
         
             <div className={`tab ${(state.mode === 3) ? "tab-selected" : ""}`} 
                 onClick={() => dispatch({"type": "modeChange", "mode": 3})}>
-                    Armour
+                    Health &amp; Armour
             </div>
             <div className={`tab ${(state.mode === 4) ? "tab-selected" : ""}`} 
                 onClick={() => dispatch({"type": "modeChange", "mode": 4})}>
