@@ -8,6 +8,7 @@ import Link from "next/link";
 import styles from "./MatchCTFReturns.module.css";
 import MouseOver from "../MouseOver";
 import MatchCTFReturnDetailed from "../MatchCTFReturnDetailed";
+import { getPlayer, MMSS, toPlaytime, plural, getTeamColor, scalePlaytime, ignore0, getTeamName } from "../../api/generic.mjs";
 
 const MatchCTFReturns = (props) =>{
 
@@ -103,7 +104,7 @@ const MatchCTFReturns = (props) =>{
 
             const t = totals[i];
 
-            const player = Functions.getPlayer(props.playerData, t[0], true);
+            const player = getPlayer(props.playerData, t[0], true);
 
             elems.push(<div key={t[0]} className={styles.player}>
                 <CountryFlag country={player.country}/>{player.name} <b>{t[1]}</b>
@@ -139,8 +140,8 @@ const MatchCTFReturns = (props) =>{
 
             const r = returnData[i];
 
-            const grabPlayer = Functions.getPlayer(props.playerData, r.grab_player, true);
-            const returnPlayer = Functions.getPlayer(props.playerData, r.return_player, true);
+            const grabPlayer = getPlayer(props.playerData, r.grab_player, true);
+            const returnPlayer = getPlayer(props.playerData, r.return_player, true);
 
             let returnPlayerElem = <div>Timed Out Return</div>
 
@@ -158,18 +159,24 @@ const MatchCTFReturns = (props) =>{
 
             if(r.total_suicides > 0){
                 suicideElem = <span className={styles["smart-ctf-string"]}>
-                    ({r.total_suicides} {Functions.plural(r.total_suicides,"Suicide")})
+                    ({r.total_suicides} {plural(r.total_suicides,"Suicide")})
                 </span>;
             }
 
+            //scalePlaytime(playtime, bHardcore)
+            const grabTime = scalePlaytime(r.grab_time - props.matchStart, props.bHardcore);
+            const returnTime = scalePlaytime(r.return_time - props.matchStart, props.bHardcore);
+            const travelTime = scalePlaytime(r.travel_time, props.bHardcore);
+            const dropTime = scalePlaytime(r.drop_time, props.bHardcore);
+
             data.push({
                 "grab_time": {
-                    "value": r.grab_time, 
-                    "displayValue": Functions.MMSS(r.grab_time - props.matchStart)
+                    "value": grabTime, 
+                    "displayValue": MMSS(grabTime)
                 },
-                "return_time": {"value": r.return_time, "displayValue": Functions.MMSS(r.return_time - props.matchStart)},
-                "travel_time": {"value": r.travel_time, "displayValue": Functions.toPlaytime(r.travel_time), "className": "playtime"},
-                "time_dropped": {"value": r.drop_time, "displayValue": Functions.toPlaytime(r.drop_time), "className": "playtime"},
+                "return_time": {"value": returnTime, "displayValue": MMSS(returnTime)},
+                "travel_time": {"value": travelTime, "displayValue": toPlaytime(travelTime), "className": "playtime"},
+                "time_dropped": {"value": dropTime, "displayValue": toPlaytime(dropTime), "className": "playtime"},
                 "total_drops": {
                     "value": r.total_drops, 
                     "displayValue": <MouseOver title="Flag Drops" display={createHoverData(r.flagDrops, "player_id")}>{r.total_drops}</MouseOver>},
@@ -180,12 +187,12 @@ const MatchCTFReturns = (props) =>{
                             <CountryFlag country={grabPlayer.country}/>{grabPlayer.name}
                         
                     </Link>,
-                    "className": Functions.getTeamColor(grabPlayer.team)
+                    "className": getTeamColor(grabPlayer.team)
                 },
                 "return_player": {
                     "value": returnPlayer.name.toLowerCase(), 
                     "displayValue": returnPlayerElem,
-                    "className": (r.return_player === -1) ? "black" : Functions.getTeamColor(returnPlayer.team)
+                    "className": (r.return_player === -1) ? "black" : getTeamColor(returnPlayer.team)
                 },
                 "distance_to_cap": {
                     "value": r.distance_to_cap,
@@ -194,26 +201,26 @@ const MatchCTFReturns = (props) =>{
                 "total_deaths": {
                     "value": r.total_deaths,
                     "displayValue": <MouseOver title="Deaths With Flag" display={createHoverData(r.deathsData, "victim_id")}>
-                        {Functions.ignore0(r.total_deaths)} {suicideElem}
+                        {ignore0(r.total_deaths)} {suicideElem}
                     </MouseOver>
                  
                 },
                 "total_pickups": {
                     "value": r.total_pickups, 
                     "displayValue": <MouseOver title="Flag Pickups" display={createHoverData(r.flagPickups, "player_id")}>
-                        {Functions.ignore0(r.total_pickups)}
+                        {ignore0(r.total_pickups)}
                     </MouseOver>
                 },
                 "total_covers": {
                     "value": r.total_covers, 
                     "displayValue": <MouseOver title="Flag Covers" display={createHoverData(r.coverData, "killer_id")}>
-                    <>{Functions.ignore0(r.total_covers)}</>
+                    <>{ignore0(r.total_covers)}</>
                 </MouseOver>
                 },
                 "total_self_covers": {
                     "value": r.total_self_covers, 
                     "displayValue": <MouseOver title="Self Covers (Kills carrying flag)" display={createHoverData(r.selfCoverData, "killer_id")}>
-                    <>{Functions.ignore0(r.total_self_covers)}</>
+                    <>{ignore0(r.total_self_covers)}</>
                 </MouseOver>
                 },
 
@@ -244,7 +251,7 @@ const MatchCTFReturns = (props) =>{
         for(let i = 0; i < cleanData.length; i++){
 
             const d = cleanData[i];
-            const player = Functions.getPlayer(props.playerData, d.player_id, true);
+            const player = getPlayer(props.playerData, d.player_id, true);
 
             elems.push(<span key={i}>
                 <CountryFlag country={player.country}/>{player.name} <b>{d.total_events}</b>{(i < cleanData.length - 1) ? ", " : null}
@@ -268,29 +275,29 @@ const MatchCTFReturns = (props) =>{
 
         for(let i = 0; i < props.totalTeams; i++){
 
-            headers[`team_${i}_kills`] = `${Functions.getTeamName(i, true)} Kills`;
-            headers[`team_${i}_suicides`] = `${Functions.getTeamName(i, true)} Suicides`;
+            headers[`team_${i}_kills`] = `${getTeamName(i, true)} Kills`;
+            headers[`team_${i}_suicides`] = `${getTeamName(i, true)} Suicides`;
         }
 
         const data = returnData.map((currentReturn) =>{
 
-            const grabTime = currentReturn.grab_time - props.matchStart;
-            const returnTime = currentReturn.return_time - props.matchStart;
+            const grabTime = scalePlaytime(currentReturn.grab_time - props.matchStart, props.bHardcore);
+            const returnTime = scalePlaytime(currentReturn.return_time - props.matchStart, props.bHardcore);
             const flagTeam = currentReturn.flag_team;
 
             const returnObject = {
                 "info": {
                     "value": flagTeam,
-                    "displayValue": `${Functions.getTeamName(flagTeam, true)} Flag`,
-                    "className": Functions.getTeamColor(flagTeam) 
+                    "displayValue": `${getTeamName(flagTeam, true)} Flag`,
+                    "className": getTeamColor(flagTeam) 
                 },
                 "grab": {
                     "value": grabTime, 
-                    "displayValue": Functions.MMSS(grabTime)
+                    "displayValue": MMSS(grabTime)
                 },
                 "returned": {
                     "value": returnTime, 
-                    "displayValue": Functions.MMSS(returnTime)
+                    "displayValue": MMSS(returnTime)
                 },
             };
 
@@ -299,14 +306,14 @@ const MatchCTFReturns = (props) =>{
                 returnObject[`team_${i}_kills`] = {
                     "value": currentReturn[`team_${i}_kills`],
                     "displayValue": <MouseOver title="Kills" display={createFragHoverData(returnTime, i, currentReturn.returnKills)}>
-                        {Functions.ignore0(currentReturn[`team_${i}_kills`])}
+                        {ignore0(currentReturn[`team_${i}_kills`])}
                     </MouseOver>
                 };
 
                 returnObject[`team_${i}_suicides`] = {
                     "value": currentReturn[`team_${i}_suicides`],
                     "displayValue": <MouseOver title="Suicides" display={createFragHoverData(returnTime, i, currentReturn.returnSuicides)}>
-                        {Functions.ignore0(currentReturn[`team_${i}_suicides`])}
+                        {ignore0(currentReturn[`team_${i}_suicides`])}
                     </MouseOver>
                 };
             }

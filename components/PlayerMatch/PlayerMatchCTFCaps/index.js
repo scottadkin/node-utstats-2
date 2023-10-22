@@ -2,8 +2,8 @@ import {useReducer, useEffect} from "react";
 import Loading from "../../Loading";
 import ErrorMessage from "../../ErrorMessage";
 import InteractiveTable from "../../InteractiveTable";
-import Functions from "../../../api/functions";
 import CountryFlag from "../../CountryFlag";
+import { scalePlaytime, MMSS, toPlaytime, getTeamColor, getTeamName, getPlayer } from "../../../api/generic.mjs";
 
 const reducer = (state, action) =>{
 
@@ -25,7 +25,7 @@ const reducer = (state, action) =>{
     }
 }
 
-const renderData = (capData, matchStart, playerId, players) =>{
+const renderData = (capData, matchStart, playerId, players, bHardcode) =>{
 
     const headers = {
         "info": "Info",
@@ -35,30 +35,30 @@ const renderData = (capData, matchStart, playerId, players) =>{
         "carry_time": "Time Carrying Flag"
     };
 
-    const player = Functions.getPlayer(players, playerId, true);
+    const player = getPlayer(players, playerId, true);
 
     const data = capData.map((cap) =>{
 
-        const grabTime = cap.grab_time - matchStart;
-        const capTime = cap.cap_time - matchStart;
+        const grabTime = scalePlaytime(cap.grab_time - matchStart, bHardcode);
+        const capTime = scalePlaytime(cap.cap_time - matchStart, bHardcode);
 
-        const info = <><CountryFlag country={player.country}/>{player.name} Capped the {Functions.getTeamName(cap.flag_team, true)} Flag</>
+        const info = <><CountryFlag country={player.country}/>{player.name} Capped the {getTeamName(cap.flag_team, true)} Flag</>
 
         const type = (cap.total_assists === 0) ? "Solo Cap" : "Assisted Cap";
 
         return {
-            "info": {"value": "", "displayValue": info, "className": Functions.getTeamColor(cap.cap_team)},
+            "info": {"value": "", "displayValue": info, "className": getTeamColor(cap.cap_team)},
             "type": {"value": cap.total_assists, "displayValue": type},
-            "taken": {"value": grabTime, "displayValue": Functions.MMSS(grabTime)},
-            "cap": {"value": capTime, "displayValue": Functions.MMSS(capTime)},
-            "carry_time": {"value": cap.times.carry_time, "displayValue": <div><span className="playtime">{Functions.toPlaytime(cap.times.carryTime)}</span> ({cap.times.carryPercent.toFixed(2)}%)</div>}
+            "taken": {"value": grabTime, "displayValue": MMSS(grabTime)},
+            "cap": {"value": capTime, "displayValue": MMSS(capTime)},
+            "carry_time": {"value": cap.times.carry_time, "displayValue": <div><span className="playtime">{toPlaytime(scalePlaytime(cap.times.carryTime, bHardcode))}</span> ({cap.times.carryPercent.toFixed(2)}%)</div>}
         }
     });
 
     return <InteractiveTable width={1} headers={headers} data={data}/>;
 }
 
-const PlayerMatchCTFCaps = ({matchId, playerId, playerData, matchStart}) =>{
+const PlayerMatchCTFCaps = ({matchId, playerId, playerData, matchStart, bHardcore}) =>{
 
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
@@ -115,7 +115,7 @@ const PlayerMatchCTFCaps = ({matchId, playerId, playerData, matchStart}) =>{
 
     return <div>
         <div className="default-header">Player Caps</div>
-        {renderData(state.capData, matchStart, playerId, playerData)}
+        {renderData(state.capData, matchStart, playerId, playerData, bHardcore)}
     </div>
 }
 

@@ -3,8 +3,9 @@ import ErrorMessage from "../../ErrorMessage";
 import Loading from "../../Loading";
 import InteractiveTable from "../../InteractiveTable";
 import Functions from "../../../api/functions";
+import {MMSS, toPlaytime, scalePlaytime} from "../../../api/generic.mjs";
 
-const renderData = (returnData, matchStart) =>{
+const renderData = (returnData, matchStart, bHardcore) =>{
 
     const headers = {
         "grabbed": "Taken Timestamp",
@@ -17,26 +18,26 @@ const renderData = (returnData, matchStart) =>{
 
     const data = returnData.map((currentReturn) =>{
 
-        const returnTime = currentReturn.return_time - matchStart;
-        const takenTime = currentReturn.grab_time - matchStart;
+        const returnTime = scalePlaytime(currentReturn.return_time - matchStart, bHardcore);
+        const takenTime = scalePlaytime(currentReturn.grab_time - matchStart, bHardcore);
         const distance = currentReturn.distance_to_cap;
 
         return {
-            "grabbed": {"value": takenTime, "displayValue": Functions.MMSS(takenTime)},
-            "returnTime": {"value": returnTime, "displayValue": Functions.MMSS(returnTime)},
+            "grabbed": {"value": takenTime, "displayValue": MMSS(takenTime)},
+            "returnTime": {"value": returnTime, "displayValue": MMSS(returnTime)},
             "carry": {
                 "value": currentReturn.carry_time, 
-                "displayValue": Functions.toPlaytime(currentReturn.carry_time),
+                "displayValue": toPlaytime(scalePlaytime(currentReturn.carry_time, bHardcore)),
                 "className": "playtime"
             },
             "travel": {
                 "value": currentReturn.travel_time,
-                "displayValue": Functions.toPlaytime(currentReturn.travel_time),
+                "displayValue": toPlaytime(scalePlaytime(currentReturn.travel_time, bHardcore)),
                 "className": "playtime"
             },
             "dropped": {
                 "value": currentReturn.drop_time,
-                "displayValue": Functions.toPlaytime(currentReturn.drop_time),
+                "displayValue": toPlaytime(scalePlaytime(currentReturn.drop_time, bHardcore)),
                 "className": "playtime"
             },
             "distance": {
@@ -95,7 +96,7 @@ const reducer = (state, action) =>{
     }
 }
 
-const PlayerMatchCTFReturns = ({matchId, playerId, playerData, matchStart}) =>{
+const PlayerMatchCTFReturns = ({matchId, playerId, playerData, matchStart, bHardcore}) =>{
 
     //const [displayMode, setDisplayMode] = useState(0);
 
@@ -154,7 +155,7 @@ const PlayerMatchCTFReturns = ({matchId, playerId, playerData, matchStart}) =>{
     return <div>
         <div className="default-header">Capture The Flag Returns</div>
 
-        {renderData(state.returnData, matchStart)}
+        {renderData(state.returnData, matchStart, bHardcore)}
         
     </div>
 }

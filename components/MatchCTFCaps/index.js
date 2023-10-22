@@ -1,5 +1,5 @@
 import {React, useState, useEffect} from 'react';
-import Functions from '../../api/functions';
+import { getPlayer, MMSS, toPlaytime, ignore0, getTeamColor, scalePlaytime, getTeamName } from '../../api/generic.mjs';
 import Loading from '../Loading';
 import ErrorMessage from '../ErrorMessage';
 import InteractiveTable from '../InteractiveTable';
@@ -8,7 +8,7 @@ import CountryFlag from '../CountryFlag';
 import MouseOver from "../MouseOver";
 
 
-const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
+const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart, bHardcore}) =>{
 
     const [data, setData] = useState({});
     const [bLoading, setbLoading] = useState(true);
@@ -116,7 +116,7 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
 
         const elems = found.map((kill, index) =>{
 
-            const player = Functions.getPlayer(playerData, kill.player_id, true);
+            const player = getPlayer(playerData, kill.player_id, true);
 
             let end = null;
 
@@ -180,7 +180,7 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
 
             const d = finalData[i];
 
-            const player = Functions.getPlayer(playerData, d[0], true);
+            const player = getPlayer(playerData, d[0], true);
 
             let end = "";
 
@@ -206,7 +206,7 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
             if(index < assists.length - 1){
                 end = `, `;
             }
-            const player = Functions.getPlayer(playerData, assist.player_id, true);
+            const player = getPlayer(playerData, assist.player_id, true);
             return <span key={assist.id}><CountryFlag country={player.country}/>{player.name} <b>{assist.carry_time} Secs</b>{end}</span>
         });
 
@@ -227,27 +227,29 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
             updateTeamScores(d.cap_team);
 
             //const grabPlayer = Functions.getPlayer(playerData, d.grab_player);
-            const capPlayer = Functions.getPlayer(playerData, d.cap_player, true);
+            const capPlayer = getPlayer(playerData, d.cap_player, true);
 
             const suicideElem = (d.total_suicides === 0) ? null : 
             <span className="grey small-font">
-                &nbsp;({d.total_suicides} {Functions.plural(d.total_suicides, "Suicide")})
+                &nbsp;({d.total_suicides} {plural(d.total_suicides, "Suicide")})
             </span>
 
             const deathsElem = <>
-                {Functions.ignore0(d.total_deaths)}
+                {ignore0(d.total_deaths)}
                 {suicideElem}
             </>
+
+            const capTime = scalePlaytime(d.cap_time - matchStart, bHardcore);
 
             const currentRow = {
                 "score": {
                     "value": i, 
                     "displayValue": createTeamScoresString(),
-                    "className": Functions.getTeamColor(d.cap_team)
+                    "className": getTeamColor(d.cap_team)
                 },
                 "cap": {
-                    "value": d.cap_time,
-                    "displayValue": Functions.MMSS(d.cap_time - matchStart)
+                    "value": capTime,
+                    "displayValue": MMSS(capTime)
                 }
                 
             };
@@ -263,45 +265,45 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
                             
                         </Link>
                     </>,
-                    "className": Functions.getTeamColor(d.cap_team)
+                    "className": getTeamColor(d.cap_team)
                 };
 
                 currentRow["travel_time"] = {
                     "value": d.travel_time,
-                    "displayValue": Functions.toPlaytime(d.travel_time),
+                    "displayValue": toPlaytime(scalePlaytime(d.travel_time, bHardcore)),
                     "className": "playtime"
                 };
 
                 currentRow["carry_time"] = {
                     "value": d.carry_time,
-                    "displayValue": Functions.toPlaytime(d.carry_time),
+                    "displayValue": toPlaytime(scalePlaytime(d.carry_time, bHardcore)),
                     "className": "playtime"
                 };
 
                 currentRow["time_dropped"] = {
                     "value": d.drop_time,
-                    "displayValue": Functions.toPlaytime(d.drop_time),
+                    "displayValue": toPlaytime(scalePlaytime(d.drop_time, bHardcore)),
                     "className": "playtime"
                 };
 
                 currentRow["drops"] = {
                     "value": d.total_drops,
                     "displayValue": <MouseOver title="Flag Drops" display={createTotalsHoverData(d.flagDrops, "player_id", null, "")}>
-                        {Functions.ignore0(d.total_drops)}
+                        {ignore0(d.total_drops)}
                     </MouseOver>
                 };
 
                 currentRow["covers"] = {
                     "value": d.total_covers,
                     "displayValue": <MouseOver title="Covers" display={createTotalsHoverData(d.coverData, "killer_id", null, "")}>
-                        {Functions.ignore0(d.total_covers)}
+                        {ignore0(d.total_covers)}
                     </MouseOver>
                 };
 
                 currentRow["self_covers"] = {
                     "value": d.total_self_covers,
                     "displayValue": <MouseOver title="Self Covers" display={createTotalsHoverData(d.selfCoverData, "killer_id", null, "")}>
-                        {Functions.ignore0(d.total_self_covers)}
+                        {ignore0(d.total_self_covers)}
                     </MouseOver>
                 };
 
@@ -309,14 +311,14 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
                     "value": d.total_seals,
                     "displayValue": <MouseOver 
                         title="Seals" 
-                        display={createTotalsHoverData(d.flagSeals, "killer_id", null, "")}>{Functions.ignore0(d.total_seals)}
+                        display={createTotalsHoverData(d.flagSeals, "killer_id", null, "")}>{ignore0(d.total_seals)}
                     </MouseOver>
                 };
 
                 currentRow["assists"] = {
                     "value": d.total_assists,
                     "displayValue": <MouseOver title="Flag Assists" display={createAssistHoverData(d.flagAssists)}>
-                        {Functions.ignore0(d.total_assists)}
+                        {ignore0(d.total_assists)}
                     </MouseOver>
                 };
 
@@ -337,14 +339,14 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
                         "value": d[`team_${x}_kills`],
                         "displayValue": 
                         <MouseOver title="Kills" display={createKillHoverData(d.capKills, x)}>
-                            {Functions.ignore0(d[`team_${x}_kills`])}
+                            {ignore0(d[`team_${x}_kills`])}
                         </MouseOver>
                     };
 
                     currentRow[`team_${x}_suicides`] = {
                         "value": d[`team_${x}_suicides`],
                         "displayValue": <MouseOver title="Suicides" display={createKillHoverData(d.capSuicides, x)}>
-                        {Functions.ignore0(d[`team_${x}_suicides`])}
+                        {ignore0(d[`team_${x}_suicides`])}
                     </MouseOver>
                     };
                 }
@@ -386,8 +388,8 @@ const MatchCTFCaps = ({matchId, playerData, totalTeams, matchStart}) =>{
 
         for(let i = 0; i < totalTeams; i++){
 
-            headers[`team_${i}_kills`] = `${Functions.getTeamName(i, true)} Kills`;
-            headers[`team_${i}_suicides`] = `${Functions.getTeamName(i, true)} Suicides`;
+            headers[`team_${i}_kills`] = `${getTeamName(i, true)} Kills`;
+            headers[`team_${i}_suicides`] = `${getTeamName(i, true)} Suicides`;
         }
 
         tableWidth = 2;

@@ -196,6 +196,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                     totalTeams={info.total_teams}
                     matchStart={info.start}
                     single={false}
+                    bHardcore={info.hardcore}
                 />
             }
         
@@ -208,6 +209,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                     playerData={players.basicPlayers} 
                     totalTeams={info.total_teams}
                     matchStart={info.start}
+                    bHardcore={info.hardcore}
                 />
                     
             }

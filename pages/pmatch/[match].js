@@ -154,6 +154,7 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
                 playerData={players.basicPlayers} 
                 matchStart={info.start}
                 playerId={playerId}
+                bHardcore={info.hardcore}
             />
         }
     
@@ -165,6 +166,7 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
                 playerData={players.basicPlayers} 
                 matchStart={info.start}
                 playerId={playerId}
+                bHardcore={info.hardcore}
             />             
         }
     }

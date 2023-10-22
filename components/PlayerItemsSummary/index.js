@@ -135,7 +135,7 @@ class PlayerItemsSummary extends React.Component{
         const titles = {
             "Weapons": 1,
             "Ammo": 2,
-            "Health": 3,
+            "Health & Armour": 3,
             "Powerups": 4,
             "Special": 5,
             "Unsorted": 0
