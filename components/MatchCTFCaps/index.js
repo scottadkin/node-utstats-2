@@ -1,5 +1,5 @@
 import {React, useState, useEffect} from 'react';
-import { getPlayer, MMSS, toPlaytime, ignore0, getTeamColor, scalePlaytime, getTeamName } from '../../api/generic.mjs';
+import { getPlayer, MMSS, toPlaytime, ignore0, getTeamColor, scalePlaytime, getTeamName, plural } from '../../api/generic.mjs';
 import Loading from '../Loading';
 import ErrorMessage from '../ErrorMessage';
 import InteractiveTable from '../InteractiveTable';

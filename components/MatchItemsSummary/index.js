@@ -1,8 +1,9 @@
-import {React, useReducer, useEffect} from 'react';
-import Functions from '../../api/functions';
-import BarChart from '../BarChart';
-import Loading from '../Loading';
-import ErrorMessage from '../ErrorMessage';
+import {React, useReducer, useEffect} from "react";
+import Functions from "../../api/functions";
+import BarChart from "../BarChart";
+import Loading from "../Loading";
+import ErrorMessage from "../ErrorMessage";
+import Tabs from "../Tabs";
 
 const renderTeamTabs = (totalTeams, dispatch, state) =>{
 
@@ -18,6 +19,56 @@ const renderTeamTabs = (totalTeams, dispatch, state) =>{
                 Teams
         </div>
     </div>
+}
+
+const bAnyDataOfType = (data, targetType) =>{
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+        if(d.type === targetType) return true;
+    }
+
+    return false;
+}
+
+const renderTypeTabs = (state, dispatch) =>{
+
+    const tabs = [];
+
+    const dummyTabs = [
+        {"name": "Weapons", "value": 1},
+        {"name": "Ammo", "value": 2},
+        {"name": "Health & Armour", "value": 3},
+        {"name": "Powerups", "value": 4},
+        {"name": "Unsorted", "value": 0},
+    ];
+
+    const foundTypes = [];
+
+
+    for(let i = 0; i < dummyTabs.length; i++){
+
+        const {value} = dummyTabs[i];
+
+        if(bAnyDataOfType(state.itemNames, value)){
+            foundTypes.push(value);
+            tabs.push(dummyTabs[i]);
+        }
+    }
+
+    console.log(state.itemTotals);
+    console.log(state.itemNames);
+
+    // TODO:
+    //check if selected tab has any data if it doesn't change the selected tabs to one that does exist
+
+    return <Tabs options={tabs} selectedValue={state.mode} changeSelected={
+        (a) =>{
+            console.log(a);
+            dispatch({"type": "modeChange", "mode": a})
+        }
+    }/>
 }
 
 const MatchItemsSummary = ({matchId, players, totalTeams}) =>{
@@ -38,17 +89,17 @@ const MatchItemsSummary = ({matchId, players, totalTeams}) =>{
                     "bTeamsView": action.mode
                 }
             }
-            case "displayModeChange": {
-                return {
-                    ...state,
-                    "displayMode": action.mode
-                }
-            }
             case "modeChange": {
                 return {
                     ...state,
                     "mode": action.mode
                 };
+            }
+            case "changeDisplayMode": {
+                return {
+                    ...state,
+                    "displayMode": action.displayMode
+                }
             }
             case "loaded": {
                 return {
@@ -68,7 +119,7 @@ const MatchItemsSummary = ({matchId, players, totalTeams}) =>{
         "mode": 1,
         "error": null,
         "displayMode": 0,
-        "bTeamsView": false
+        "bTeamsView": false,
         
     });
 
@@ -129,7 +180,7 @@ const MatchItemsSummary = ({matchId, players, totalTeams}) =>{
 
     const renderTeamBarCharts = () =>{
 
-        if(state.displayMode !== 0 || !state.bTeamsView) return null;
+        if(state.displayMode !== 1 || !state.bTeamsView) return null;
         
         const barCharts = [];
 
@@ -180,7 +231,7 @@ const MatchItemsSummary = ({matchId, players, totalTeams}) =>{
 
     const renderPlayerBarCharts = () =>{
 
-        if(state.bTeamsView || state.displayMode !== 0) return null;
+        if(state.bTeamsView || state.displayMode !== 1) return null;
 
         const barCharts = [];
 
@@ -225,29 +276,17 @@ const MatchItemsSummary = ({matchId, players, totalTeams}) =>{
 
         {renderTeamTabs(totalTeams, dispatch, state)}
 
-        <div className="tabs">
-            <div className={`tab ${(state.mode === 1) ? "tab-selected" : ""}`} 
-                onClick={() => dispatch({"type": "modeChange", "mode": 1})}>
-                    Weapons
-            </div>
-            <div className={`tab ${(state.mode === 2) ? "tab-selected" : ""}`} 
-                onClick={() => dispatch({"type": "modeChange", "mode": 2})}>
-                    Ammo
-            </div>
-        
-            <div className={`tab ${(state.mode === 3) ? "tab-selected" : ""}`} 
-                onClick={() => dispatch({"type": "modeChange", "mode": 3})}>
-                    Health &amp; Armour
-            </div>
-            <div className={`tab ${(state.mode === 4) ? "tab-selected" : ""}`} 
-                onClick={() => dispatch({"type": "modeChange", "mode": 4})}>
-                    Powerups
-            </div>
-            <div className={`tab ${(state.mode === 0) ? "tab-selected" : ""}`} 
-                onClick={() => dispatch({"type": "modeChange", "mode": 0})}>
-                    Unsorted
-            </div>
-        </div>
+        {renderTypeTabs(state, dispatch)}
+        <Tabs 
+            options={[
+                {"name": "Tables", "value": 0},
+                {"name": "Bar Charts", "value": 1},
+            ]}
+            selectedValue={state.displayMode}
+            changeSelected={(a) =>{
+                dispatch({"type": "changeDisplayMode", "displayMode": a});
+            }}
+        />
         {renderTeamBarCharts()}
         {renderPlayerBarCharts()}
     </div>
