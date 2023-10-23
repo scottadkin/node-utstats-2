@@ -4,6 +4,10 @@ import BarChart from "../BarChart";
 import Loading from "../Loading";
 import ErrorMessage from "../ErrorMessage";
 import Tabs from "../Tabs";
+import InteractiveTable from "../InteractiveTable";
+import {getPlayer, getTeamColor} from "../../api/generic.mjs";
+import CountryFlag from "../CountryFlag";
+import Link from "next/link";
 
 const renderTeamTabs = (totalTeams, dispatch, state) =>{
 
@@ -45,6 +49,7 @@ const renderTypeTabs = (state, dispatch) =>{
     ];
 
     const foundTypes = [];
+    let bFoundSelectedType = false;
 
 
     for(let i = 0; i < dummyTabs.length; i++){
@@ -54,21 +59,69 @@ const renderTypeTabs = (state, dispatch) =>{
         if(bAnyDataOfType(state.itemNames, value)){
             foundTypes.push(value);
             tabs.push(dummyTabs[i]);
+
+            if(state.mode === value) bFoundSelectedType = true;
         }
     }
 
-    console.log(state.itemTotals);
-    console.log(state.itemNames);
+    if(!bFoundSelectedType){
+   
+        if(foundTypes.length === 0) return null;
 
-    // TODO:
-    //check if selected tab has any data if it doesn't change the selected tabs to one that does exist
+        dispatch({"type": "modeChange", "mode": foundTypes[0]});
+        return;
+    }
 
     return <Tabs options={tabs} selectedValue={state.mode} changeSelected={
         (a) =>{
-            console.log(a);
             dispatch({"type": "modeChange", "mode": a})
         }
     }/>
+}
+
+const renderPlayerTables = (state, players, matchId) =>{
+    
+    if(state.bLoading || state.displayMode !== 0) return null;
+
+    const tables = [];
+
+    const headers = {
+        "name": "Player",
+        "uses": "Times Used"
+    };
+
+    for(let i = 0; i < state.itemNames.length; i++){
+
+        const item = state.itemNames[i];
+
+        if(item.type !== state.mode) continue;
+
+        const itemId = item.id;
+        const data = [];
+
+        for(const [playerId, playerData] of Object.entries(state.playerUses)){
+
+            if(playerData[itemId] !== undefined){
+
+                const player = getPlayer(players, playerId, true);
+
+                data.push({
+                    "name": {
+                        "value": 0, 
+                        "displayValue": <Link href={`/pmatch/${matchId}?player=${player.id}`}><CountryFlag country={player.country}/>{player.name}</Link>,
+                        "className": `text-left ${getTeamColor(player.team)}`
+                    },
+                    "uses": {
+                        "value": playerData[itemId]
+                    }
+                });
+            }
+        }
+
+        tables.push(<InteractiveTable key={item.id} title={item.name} width={2} headers={headers} data={data} defaultOrder="uses" bAsc={false}/>);
+    }
+
+    return tables;
 }
 
 const MatchItemsSummary = ({matchId, players, totalTeams}) =>{
@@ -165,7 +218,7 @@ const MatchItemsSummary = ({matchId, players, totalTeams}) =>{
 
         for(const [playerId, playerUses] of Object.entries(state.playerUses)){
 
-            const player = Functions.getPlayer(players, playerId, true);
+            const player = getPlayer(players, playerId, true);
 
             if(player.team === targetTeam){
 
@@ -289,6 +342,7 @@ const MatchItemsSummary = ({matchId, players, totalTeams}) =>{
         />
         {renderTeamBarCharts()}
         {renderPlayerBarCharts()}
+        {renderPlayerTables(state, players, matchId)}
     </div>
 }
 
