@@ -1095,11 +1095,24 @@ class Matches{
             rowsToDelete.push(r.id);
 
             if(r.bot) totals.bot = 1;
-            if(r.spectator) totals.spectator = 1;
+
+            if(totals.spectator === undefined) totals.spectator = r.spectator;
+            if(r.spectator !== 1) totals.spectator = 0;
+
+            if(totals.played === undefined) totals.played = r.played;
+
+            if(r.played !== 0) totals.played = 1;
+
+            //if(r.spectator) totals.spectator = 1;
             if(r.winner) totals.winner = 1;
             if(r.draw) totals.draw = 1;
-            totals.team = r.team;
+            //totals.team = r.team;
             if(r.first_blood) totals.first_blood = 1;
+
+            
+            if(totals.team === undefined) totals.team = r.team;
+
+            if(r.team !== 255) totals.team = r.team;
 
             for(let x = 1; x < 8; x++){
                 totals[`spree_${x}`] += r[`spree_${x}`] ;
@@ -1144,6 +1157,7 @@ class Matches{
         if(totalAverageKillDistance > 0){
             totals.average_kill_distance = totalAverageKillDistance / result.length;
         }
+
 
         await this.updatePlayerMatchDataFromMerge(totals);
         //delete other ids
@@ -1303,6 +1317,7 @@ class Matches{
     async mergePlayerMatches(oldId, newId){
 
         await this.changePlayerIds(oldId, newId);
+
         const duplicateMatchData = await this.getDuplicatePlayerEntries(newId);
 
         for(let i = 0; i < duplicateMatchData.length; i++){

@@ -869,10 +869,10 @@ class Players{
             if(first === second) return false;
 
             const names = await this.getNamesByIds([second]);
-
             
 
             await matchManager.mergePlayerMatches(first, second);
+   
 
             const assaultManager = new Assault();
             await assaultManager.changeCapDataPlayerId(first, second);
