@@ -1071,6 +1071,7 @@ class Matches{
             "super_health",
             "mh_kills",
             "mh_deaths",
+            "playtime", // || You complete twat, how did you forget playtime!
             "team_0_playtime",
             "team_1_playtime",
             "team_2_playtime",
@@ -1087,6 +1088,10 @@ class Matches{
 
 
         const rowsToDelete = [];
+
+        if(result.length > 0){
+            rowsToDelete.push(result[0].id);
+        }
 
         for(let i = 1; i < result.length; i++){
 
@@ -1122,6 +1127,7 @@ class Matches{
             for(let x = 0; x < mergeTypes.length; x++){
                 totals[mergeTypes[x]] += r[mergeTypes[x]];
             }
+
 
             for(let x = 0; x < higherBetter.length; x++){
 
@@ -1159,11 +1165,67 @@ class Matches{
         }
 
 
-        await this.updatePlayerMatchDataFromMerge(totals);
+        //test fix
+        if(totals.playtime > 0){
+            totals.spectator = 0;
+            totals.played = 1;
+        }
+
+   
+        await this.insertMergedPlayerMatchData(totals, matchId, playerId);
+        //await this.updatePlayerMatchDataFromMerge(totals);
         //delete other ids
 
-        return rowsToDelete;
+       return rowsToDelete;
 
+    }
+
+
+    async insertMergedPlayerMatchData(data, matchId, playerId){
+
+        const query = `INSERT INTO nstats_player_matches VALUES(
+            NULL,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?
+        )`;
+
+        const d = data;
+
+        const vars = [
+            matchId, d.match_date, d.map_id, playerId,
+            d.hwid, d.bot, d.spectator, d.played, d.ip,//x
+            d.country, d.face, d.voice, d.gametype, d.winner,//x
+            d.draw, d.playtime, d.team_0_playtime, d.team_1_playtime, d.team_2_playtime,//x
+            d.team_3_playtime, d.spec_playtime, d.team, d.first_blood, d.frags,//x
+            d.score, d.kills, d.deaths, d.suicides, d.team_kills,//x
+            d.spawn_kills, d.efficiency, d.multi_1, d.multi_2, d.multi_3,//x
+            d.multi_4, d.multi_5, d.multi_6, d.multi_7, d.multi_best,//x
+            d.spree_1, d.spree_2, d.spree_3, d.spree_4, d.spree_5,//x
+            d.spree_6, d.spree_7, d.spree_best, d.best_spawn_kill_spree, d.assault_objectives,//x
+            d.dom_caps, d.dom_caps_best_life, d.ping_min, d.ping_average, d.ping_max,//x
+            d.accuracy, d.shortest_kill_distance, d.average_kill_distance, d.longest_kill_distance, d.k_distance_normal,//
+            d.k_distance_long, d.k_distance_uber, d.headshots, d.shield_belt,//
+            d.amp, d.amp_time, d.invisibility, d.invisibility_time, d.pads, //
+            d.armor, d.boots, d.super_health, d.mh_kills, d.mh_kills_best_life,//
+            d.views, d.mh_deaths, d.telefrag_kills, d.telefrag_deaths, d.telefrag_best_spree,//
+            d.telefrag_best_multi, d.tele_disc_kills, d.tele_disc_deaths, d.tele_disc_best_spree, d.tele_disc_best_multi
+        ];
+
+        return await mysql.simpleQuery(query, vars);
     }
 
     async updatePlayerMatchDataFromMerge(data){
@@ -1319,6 +1381,7 @@ class Matches{
         await this.changePlayerIds(oldId, newId);
 
         const duplicateMatchData = await this.getDuplicatePlayerEntries(newId);
+
 
         for(let i = 0; i < duplicateMatchData.length; i++){
 
