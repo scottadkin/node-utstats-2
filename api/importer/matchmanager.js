@@ -41,6 +41,8 @@ class MatchManager{
 
         this.bFoundMatchStart = false;
         this.bFoundRealMatchStart = false;
+        this.bUnderMinPlaytime = false;
+        this.bUnderMinPlayerLimit = false;
 
         this.bUsePlayerACEHWID = bUsePlayerACEHWID;
 
@@ -79,7 +81,9 @@ class MatchManager{
             
 
             if(this.gameInfo.matchLength < this.minPlaytime){
+
                 new Message(`Match length is less then the minimum specified, skipping.`, "note");
+                this.bUnderMinPlaytime = true;
                 return null;
             }
 
@@ -123,6 +127,8 @@ class MatchManager{
 
             if(playersWithPlaytime < this.minPlayers){
                 new Message(`Total players is less then the minimum specified, skipping.`, "note");
+
+                this.bUnderMinPlayerLimit = true;
                 return null;
             }
 

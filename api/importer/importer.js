@@ -157,11 +157,27 @@ class Importer{
 
                 const log = new MatchManager(logData, f, this.bIgnoreBots, this.minPlayers, this.minPlaytime, this.bUseACEPlayerHWID);
 
+                
                 if(!log.bLinesNull){
 
                     const currentData = await log.import();
 
-                    fs.renameSync(`${config.importedLogsFolder}/${f}`,`Logs/imported/${f}`);
+                    if(!log.bFoundRealMatchStart){
+
+                        fs.renameSync(`${config.importedLogsFolder}/${f}`,`Logs/rejected/missing-start/${f}`);
+    
+                    }else if(log.bUnderMinPlaytime){
+                        
+                        fs.renameSync(`${config.importedLogsFolder}/${f}`,`Logs/rejected/under-playtime/${f}`);
+                        
+                    }else if(log.bUnderMinPlayerLimit){
+
+                        fs.renameSync(`${config.importedLogsFolder}/${f}`,`Logs/rejected/under-player-limit/${f}`);
+                        
+                    }else{
+
+                        fs.renameSync(`${config.importedLogsFolder}/${f}`,`Logs/imported/${f}`);
+                    }
                     
                     this.updateCurrentUpdatedStats(currentData);
 
@@ -169,10 +185,9 @@ class Importer{
                     
                 
                 }else{
-                    fs.renameSync(`${config.importedLogsFolder}/${f}`,`Logs/imported/${f}`);
+                    fs.renameSync(`${config.importedLogsFolder}/${f}`,`Logs/rejected/null-lines/${f}`);
                     new Message("log.bLinesNull = true, skipping log import. File moved to Log/imported/","error");
                 }
-
             }
 
             for(let i = 0; i < this.aceLogsToImport.length; i++){
