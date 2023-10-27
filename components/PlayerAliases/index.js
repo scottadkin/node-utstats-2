@@ -1,7 +1,7 @@
-import styles from './PlayerAliases.module.css';
-import CountryFlag from '../CountryFlag/';
-import Link from 'next/link';
-import Image from 'next/image';
+import CountryFlag from "../CountryFlag/";
+import Link from "next/link";
+import InteractiveTable from "../InteractiveTable";
+import { convertTimestamp, toPlaytime } from "../../api/generic.mjs";
 
 
 const PlayerAliases = ({host, data, faces, masterName}) =>{
@@ -9,39 +9,46 @@ const PlayerAliases = ({host, data, faces, masterName}) =>{
     data = JSON.parse(data);
     faces = JSON.parse(faces);
 
+    const headers = {
+        "name": "Name",
+        "first": "First Active",
+        "last": "Last Active",
+        "playtime": "Playtime",
+        "spectime": "Spectime",
+    };
 
-    const elems = [];
 
+    const rows = data.map((d) =>{
 
-    for(let i = 0; i < data.length; i++){
+        return {
+            "name": {
+                "value": d.name.toLowerCase(),
+                "displayValue": <Link key={d.id} href={`/player/${d.id}`}><CountryFlag country={d.country} host={host}/>{d.name}</Link>,
+                "className": "text-left"
+            },
+            "first": {
+                "value": d.first,
+                "displayValue": convertTimestamp(d.first,true)
+            },
+            "last": {
+                "value": d.last,
+                "displayValue": convertTimestamp(d.last,true)
+            },
+            "playtime": {
+                "value": d.playtime,
+                "displayValue": toPlaytime(d.playtime)
+            },
+            "spectime": {
+                "value": d.spec_playtime,
+                "displayValue": toPlaytime(d.spec_playtime)
+            }
+        };
+    });
 
-        const d = data[i];
-
-        if(d.name.toLowerCase() === masterName.toLowerCase()){
-            continue;
-        }
-
-        elems.push(<Link key={i} href={`/player/${d.id}`}><div className={styles.player}>
-            <Image className={styles.face} src={`/images/faces/${faces[d.face].name}.png`} alt="Image" width={64} height={64}/><br/>
-            <div className={styles.name}><CountryFlag country={d.country} host={host}/>{d.name}</div>
-        </div>
-        </Link>);
-    }
-
-    if(elems.length === 0) return null;
-
-    return <div> 
-        <div className="default-header">
-            Possible Aliases
-        </div>
-
-        <div className={`${styles.wrapper} m-bottom-10`}>
-            
-            <div className={styles.players}>
-                {elems}
-            </div>
-        </div>
-    </div>
+    return <>
+        <div className="default-header">Possible Aliases</div>
+        <InteractiveTable headers={headers} data={rows} width={1}/>
+    </>
 
 }
 

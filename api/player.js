@@ -674,60 +674,36 @@ class Player{
         });
     }
 
-    getIdsWithThisIp(ips){
+    async getIdsWithTheseIps(ips){
 
-        return new Promise((resolve, reject) =>{
+        if(ips.length === 0) return [];
 
-            if(ips.length === 0) resolve([]);
+        const query = "SELECT DISTINCT player_id FROM nstats_player_matches WHERE ip IN(?)";
 
-            const query = "SELECT DISTINCT player_id FROM nstats_player_matches WHERE ip IN(?)";
+        const result = await mysql.simpleQuery(query, [ips]);
 
-            mysql.query(query, [ips], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-
-                    const data = [];
-
-                    for(let i = 0; i < result.length; i++){
-
-                        data.push(result[i].player_id);
-                    }
-                    resolve(data);
-                }
-
-                resolve([]);
-            });
-        
-
+        return result.map((r) =>{
+            return r.player_id;
         });
     }
     
 
 
-    getPlayerNames(ids){
+    async getPlayerNames(ids, bIgnorePlayer){
 
-        return new Promise((resolve, reject) =>{
+        if(ids === undefined) return [];
 
-            if(ids === undefined) resolve([]);
+        if(ids.length === 0) return [];
 
-            if(ids.length === 0) resolve([]);
+        if(bIgnorePlayer === undefined) bIgnorePlayer = false;
 
-            const query = "SELECT id,name,country,face FROM nstats_player_totals WHERE id IN(?)";
+        const query = `SELECT id,name,country,face,first,last,playtime,spec_playtime FROM nstats_player_totals WHERE id IN(?)`;
 
-            mysql.query(query, [ids], (err, result) =>{
+        const altQuery = `SELECT id,name,country,face,first,last,playtime,spec_playtime FROM nstats_player_totals WHERE id IN(?) AND REGEXP_LIKE(name, '^player[:digit:]{0,2}$','i') = 0;`;
+        const vars = [ids];
 
-                if(err) reject(err);
+        return await mysql.simpleQuery((bIgnorePlayer) ? altQuery : query, vars);
 
-                if(result !== undefined){
-                    
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
     }
 
     async getPossibleAliases(id){
@@ -738,8 +714,8 @@ class Player{
 
             if(ips.length > 0){
 
-                const ids = await this.getIdsWithThisIp(ips);
-                return await this.getPlayerNames(ids);
+                const ids = await this.getIdsWithTheseIps(ips);
+                return await this.getPlayerNames(ids, true);
             }
 
             return [];
