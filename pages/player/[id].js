@@ -43,10 +43,6 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 
 
 
-	gametypeNames = JSON.parse(gametypeNames);
-
-	const imageHost = Functions.getImageHostAndPort(host);
-
 	//console.log(`servers`);
 	if(summary === undefined){
 
@@ -71,6 +67,10 @@ function Home({navSettings, pageSettings, pageOrder, session, host, playerId, su
 				</main>   
 			</div>;
 	}
+
+	gametypeNames = JSON.parse(gametypeNames);
+
+	const imageHost = Functions.getImageHostAndPort(host);
 
 	summary = JSON.parse(summary);
 	
@@ -321,7 +321,8 @@ export async function getServerSideProps({req, query}) {
 	if(summary === undefined){
 		return {
 			props: {
-				"session": JSON.stringify(session.settings)
+				"session": JSON.stringify(session.settings),
+				"error": "Player does not exist."
 			}
 		};
 	}
