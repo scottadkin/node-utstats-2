@@ -69,6 +69,8 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
     info, server, gametype, map, cleanMapImage, playerInfo, playerId,
       mapImage}) =>{
 
+
+    if(pageError !== undefined) return renderError(host, navSettings, session, pageError);
     info = JSON.parse(info);
     const matchId = info.id;
 
@@ -76,10 +78,6 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
 
     const players = useMatchPlayersLoader(matchId, playerId);
 
-    console.log(players.targetPlayer);
-
-
-    if(pageError !== undefined) return renderError(host, navSettings, session, pageError);
 
     const titleName = `${playerInfo.name}${Functions.apostrophe(playerInfo.name)}`;
     const compactDate = Functions.DDMMYY(info.date, true);
