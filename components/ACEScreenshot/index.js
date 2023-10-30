@@ -39,7 +39,7 @@ class ACEScreenshot extends React.Component{
 
         const reg = /^.*\/(.+)$/i;
         const result = reg.exec(file);
-        let image = `${this.props.host}/temp.jpg`;
+        let image = `./${this.props.host}/images/temp2.jpg`;
 
         if(result !== null) image = `${this.props.host}/ace/${result[1]}`;
 
@@ -57,7 +57,7 @@ class ACEScreenshot extends React.Component{
 
             if(l.toLowerCase().startsWith("[ace")){
                 
-                elems.push(<div className={styles.line}><div>{elems.length + 1}</div><div>{l}</div></div>);
+                elems.push(<div key={i} className={styles.line}><div>{elems.length + 1}</div><div>{l}</div></div>);
             }
         }
 
