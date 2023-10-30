@@ -375,6 +375,16 @@ async function createQueryTables(){
     }
 }
 
+
+async function fixACETables(){
+
+    const table = "nstats_ace_kicks";
+
+    await changeColumnType(table, "game_version", "varchar(100) NOT NULL");
+    //nstats_ace_sshot_requests
+    await changeColumnType("nstats_ace_sshot_requests", "game_version", "varchar(100) NOT NULL");
+}
+
 (async () =>{
 
     try{
@@ -413,7 +423,9 @@ async function createQueryTables(){
 
         await updateKillsTable();
 
-        await createQueryTables();
+        //await createQueryTables();
+
+        await fixACETables();
 
         process.exit(0);
 
