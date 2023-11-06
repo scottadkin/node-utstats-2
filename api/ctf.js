@@ -77,6 +77,8 @@ class CTF{
         flag_solo_capture=flag_solo_capture+?
         WHERE player_id=? AND gametype_id=?`;
 
+
+        //29th?
         const vars = [
             playtime,
             stats.assist.total,
@@ -105,8 +107,8 @@ class CTF{
             stats.selfCover.total,
             stats.selfCoverPass.total,
             stats.selfCoverFail.total,
-            stats.soloCapture.total,
             stats.bestSingleSelfCover, stats.bestSingleSelfCover,
+            stats.soloCapture.total,
 
             playerId, gametypeId
         ];
