@@ -397,7 +397,6 @@ class Gametypes{
 
                 const d = data[i];
 
-                console.log(d.gametype, d.player_id, d.matches, d.playtime);
                 const vars = [
                     d.matches,
                     d.wins,

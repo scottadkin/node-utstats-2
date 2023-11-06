@@ -698,8 +698,8 @@ class Player{
         if(bIgnorePlayer === undefined) bIgnorePlayer = false;
 
         const query = `SELECT id,name,country,face,first,last,playtime,spec_playtime FROM nstats_player_totals WHERE id IN(?)`;
-
-        const altQuery = `SELECT id,name,country,face,first,last,playtime,spec_playtime FROM nstats_player_totals WHERE id IN(?) AND REGEXP_LIKE(name, '^player[:digit:]{0,2}$','i') = 0;`;
+        //SELECT * FROM `nstats_player_totals` WHERE `name` NOT REGEXP '^player[0-9]{1,2}$';
+        const altQuery = `SELECT id,name,country,face,first,last,playtime,spec_playtime FROM nstats_player_totals WHERE id IN(?) AND name NOT REGEXP '^player[0-9]{1,2}$'`;
         const vars = [ids];
 
         return await mysql.simpleQuery((bIgnorePlayer) ? altQuery : query, vars);
