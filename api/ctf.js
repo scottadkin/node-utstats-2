@@ -2576,7 +2576,7 @@ class CTF{
         const result = await mysql.simpleQuery(query, [playerId]);
 
         for(let i = 0; i < result.length; i++){
-            console.log(`isnert new best for player ${playerId} for gametype ${result[i].gametype_id}`);
+            console.log(`Insert new best for player ${playerId} for gametype ${result[i].gametype_id}`);
             await this.insertNewPlayerBest(playerId, result[i]);
         }
 
@@ -2833,7 +2833,7 @@ class CTF{
 
         for(let i = 0; i < result.length; i++){
 
-            console.log(`Inserting new playe rtotal for player ${newId} for gametype ${result[i].gametype_id}`);
+            console.log(`Inserting new player total for player ${newId} for gametype ${result[i].gametype_id}`);
             await this.insertNewPlayerTotal(newId, result[i], result[i].gametype_id);
         }
 
@@ -3335,6 +3335,13 @@ class CTF{
         const query = `DELETE FROM nstats_player_ctf_totals WHERE player_id=? AND gametype_id=?`;
 
         return await mysql.simpleQuery(query, [playerId, gametypeId]);
+    }
+
+    async deletePlayerTotalDataAllGametypes(playerId){
+
+        const query = `DELETE FROM nstats_player_ctf_totals WHERE player_id=?`;
+
+        return await mysql.simpleQuery(query, [playerId]);
     }
 
     async mergeTotals(gametypeId){
