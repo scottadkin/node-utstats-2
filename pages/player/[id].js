@@ -393,6 +393,8 @@ export async function getServerSideProps({req, query}) {
 
 	
 	const aliases = await playerManager.getPossibleAliases(playerId);
+
+	console.log(aliases);
 	const usedFaces = [summary.face];
 
 	for(let i = 0; i < aliases.length; i++){

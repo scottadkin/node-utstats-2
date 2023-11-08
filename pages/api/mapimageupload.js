@@ -81,8 +81,8 @@ export default async function handler(req, res){
 
     return new Promise(async (resolve, reject) =>{
 
-        const VALID_FILE_TYPES = ["jpg", "jpeg", "png"];
-        const VALID_MIME_TYPES = ["image/jpg", "image/jpeg", "image/png"];
+        const VALID_FILE_TYPES = ["jpg", "jpeg", "png", "bmp"];
+        const VALID_MIME_TYPES = ["image/jpg", "image/jpeg", "image/png", "image/bmp"];
 
         const session = new Session(req);
 
@@ -115,10 +115,8 @@ export default async function handler(req, res){
 
                         if(VALID_FILE_TYPES.indexOf(ext) !== -1){
 
-                         
                             await uploadImage(`./uploads/`, file.newFilename, `${formName}`);
                          
-             
                             res.status(200).json({"message": "upload complete."});
                             resolve();
                             return;
@@ -132,7 +130,7 @@ export default async function handler(req, res){
                     }
 
                 }else{
-                    errors.push(`${mimetype} is not a valid mimeType`);
+                    errors.push(`${file.mimetype} is not a valid mimeType`);
                 }
 
               
@@ -142,16 +140,14 @@ export default async function handler(req, res){
                     console.log(errors);
                     res.status(200).json({"errors": errors});
                     resolve()
+                    return;
                 }
             });
-           
 
         }else{
             res.status(200).json({"errors": ["Access Denied"]});
             resolve();
+            return;
         }
-
-    });
-    
-    
+    }); 
 }

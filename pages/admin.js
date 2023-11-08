@@ -35,7 +35,7 @@ class Admin extends React.Component{
         super(props);
 
         this.state = {
-            "mode": 13, 
+            "mode": 1, 
             "files": [],
             "gametypeNames": JSON.parse(this.props.gametypeNames),
             "itemList": JSON.parse(this.props.itemList),
@@ -302,7 +302,7 @@ class Admin extends React.Component{
                             })}>Pickups</div>
                             <div className={`big-tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(1);
-                            })}>Map Manager</div>
+                            })}>Maps</div>
                             <div className={`big-tab ${(this.state.mode === 3) ? "tab-selected" : ""}`} onClick={(() =>{
                                 this.changeMode(3);
                             })}>Face Image Uploader</div>

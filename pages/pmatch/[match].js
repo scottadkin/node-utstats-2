@@ -69,14 +69,15 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
     info, server, gametype, map, cleanMapImage, playerInfo, playerId,
       mapImage}) =>{
 
+    info = JSON.parse(info ?? "{}");
+    const matchId = info.id ?? -1;
+
+    playerInfo = JSON.parse(playerInfo ?? "{}");
+
+    const players = useMatchPlayersLoader(matchId, playerId ?? -1);
 
     if(pageError !== undefined) return renderError(host, navSettings, session, pageError);
-    info = JSON.parse(info);
-    const matchId = info.id;
-
-    playerInfo = JSON.parse(playerInfo);
-
-    const players = useMatchPlayersLoader(matchId, playerId);
+    
 
 
     const titleName = `${playerInfo.name}${Functions.apostrophe(playerInfo.name)}`;

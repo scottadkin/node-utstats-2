@@ -1,7 +1,344 @@
-import React from 'react';
-import Functions from '../../api/functions';
-import TrueFalse from '../TrueFalse';
+import React from "react";
+import { cleanMapName, getSimilarImage } from "../../api/generic.mjs";
+import Tabs from "../Tabs";
+import Loading from "../Loading";
+import { useReducer, useEffect, useRef } from "react";
+import { notificationsInitial, notificationsReducer } from "../../reducers/notificationsReducer";
+import NotificationsCluster from "../NotificationsCluster";
+import InteractiveTable from "../InteractiveTable";
 
+const reducer = (state, action) =>{
+
+    switch(action.type){
+
+
+        case "set-list": {
+            return {
+                ...state,
+                "fullSize": action.fullSize,
+                "thumbs": action.thumbs
+            }
+        }
+        case "add-to-list": {
+            return {
+                ...state,
+                "fullSize": [...state.fullSize, action.name],
+                "thumbs": [...state.thumbs, action.name],
+            }
+        }
+        case "set-names": {
+            return {
+                ...state,
+                "mapNames": action.names
+            }
+        }
+
+        case "change-mode": {
+            return {
+                ...state,
+                "mode": action.mode
+            }
+        }
+
+        case "set-pending": {
+
+            const target = action.target;
+            state.pending[target] = true;
+            
+            return {
+                ...state,
+                "pending": {...state.pending},
+            }
+        }
+
+        case "unset-pending": {
+
+            const target = action.target;
+
+            if(state.pending[target] === undefined) return {...state};
+
+            state.pending[target] = false;
+
+            return {
+                ...state,
+                "pending": {...state.pending}
+            }
+        }
+    }
+
+    return state;
+}
+
+
+const loadMapNames = async (dispatch, nDispatch) =>{
+
+    try{
+
+        const req = await fetch("/api/mapmanager",{
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "allnames"})
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined){
+
+            nDispatch({"type": "add", "notification": {"type": "error", "content": res.error}});
+            return;
+        }
+
+        dispatch({"type": "set-names", "names": res.data});
+
+    }catch(err){
+
+        console.trace(err);
+    }
+}
+
+const loadFileList = async (dispatch, nDispatch) =>{
+
+    try{
+
+        const req = await fetch("/api/mapmanager", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "allimages"})
+        });
+
+        const res = await req.json();
+
+        console.log(res);
+
+        if(res.error === undefined){
+
+            dispatch({"type": "set-list", "fullSize": res.data.fullsize, "thumbs": res.data.thumbs});
+        }else{
+
+            throw new Error(res.error);
+        }
+
+    }catch(err){
+        console.trace(err);
+
+        nDispatch({"type": "add", "notification": {"type": "error", "content": err.toString()}});
+    }
+}
+
+const uploadSingle = async (name, formData, dispatch, nDispatch) =>{
+
+    try{
+
+
+        dispatch({"type": "set-pending", "target": name});
+
+        const req = await fetch("/api/mapimageupload", {
+            "method": "POST",
+            "body": formData
+        });
+
+        const res = await req.json();
+
+        if(res.errors !== undefined){
+
+            for(let i = 0; i < res.errors.length; i++){
+
+                const e = res.errors[i];
+
+                nDispatch({"type": "add", "notification": {
+                    "type": "error", "content": `Failed to upload ${name}: ${e.toString()}`
+                }});
+            }
+
+            return;
+        }
+
+        nDispatch({"type": "add", "notification": {"type": "pass", "content": `Uploaded ${name} successfully.`}});
+
+        dispatch({"type": "unset-pending", "target": name});
+        console.log(name);
+        dispatch({"type": "add-to-list", "name": `${name}.jpg`});
+    }catch(err){
+        console.trace(err);
+    }
+}
+
+const bulkUpload = async (e, dispatch, nDispatch, bulkRef) =>{
+
+    e.preventDefault();
+
+
+    const files = bulkRef.current.files;
+
+    if(files.length === 0) return;
+
+    const pending = [];
+
+    for(let i = 0; i < files.length; i++){
+
+        const f = files[i];
+
+        const test = new FormData();
+        test.append(f.name, f);
+
+
+        uploadSingle(f.name, test, dispatch, nDispatch);
+ 
+    }
+
+    await Promise.all(pending);
+}
+
+const renderBulkUploader = (state, dispatch, nDispatch, bulkRef) =>{
+
+    if(state.mode !== 0) return null;
+
+    return <div className="m-bottom-25">
+        <div className="default-sub-header">Bulk Image Uploader</div>
+        <div className="form">
+            <div className="form-info m-bottom-25">
+                File names must be set before hand for bulk uploading.<br/>Valid map names are in all lowercase,
+                without the gametype prefix, and without .unr.<br/>
+                File types are converted to .jpg, you can upload .jpg, .png, and .bmp files.<br/>
+                If there is not a complete match the site fill get an image with a similar name if one exists.<br/>
+                For example <b>ctf-face-le100</b> will match <b>face.jpg</b> if <b>face-le100.jpg</b> does not exist gametype prefixes are not required.
+                
+            </div>
+            <form action="/" method="POST" encType="multipart/form-data" onSubmit={(e) => { bulkUpload(e, dispatch, nDispatch, bulkRef)} }>
+                <input type="file" ref={bulkRef} className="m-bottom-25" multiple accept=".jpg,.png,.bmp"/>
+                <input type="submit" className="search-button" value="Upload Images"/>
+            </form>
+        </div>
+    </div>
+    
+}
+
+const renderList = (state, dispatch, nDispatch) =>{
+
+
+    const headers = {
+        "name": "Name",
+        "file": "Required File",
+        "thumb": "Thumbnail",
+        "fullsize": "Fullsize",
+        "action": "Action"
+    };
+
+    const data = state.mapNames.map((m) =>{
+
+        const name = cleanMapName(m.name);
+
+        const bThumbs = state.thumbs.indexOf(`${name.toLowerCase()}.jpg`) !== -1;
+        const bFullsize = state.fullSize.indexOf(`${name.toLowerCase()}.jpg`) !== -1;
+
+        const bParialThumbs = getSimilarImage(state.thumbs, name);
+        const bParialFullsize = getSimilarImage(state.fullSize, name);
+
+        let formElem = <>
+            <form action="/" method="POST" encType="multipart/form-data" onSubmit={async (e) =>{
+
+                e.preventDefault();
+
+                const formData = new FormData();
+
+                formData.append(name.toLowerCase(), e.target[0].files[0]);
+
+                await uploadSingle(name.toLowerCase(), formData, dispatch, nDispatch);
+    
+            }}>
+                <input type="file" name={name.toLowerCase()} accept=".jpg,.png,.bmp"/>
+                <input type="submit" value="Upload" name={name.toLowerCase()}/>
+            </form>
+        </>;
+
+        if(state.pending[name.toLowerCase()] !== undefined){
+
+            if(state.pending[name.toLowerCase()]) formElem = "Uploading...";
+        }
+
+        return {
+            "name": {
+                "value": name.toLowerCase(), 
+                "displayValue": name,
+                "className": "text-left"
+            },
+            "file": {
+                "value": name.toLowerCase(),
+                "displayValue": `${name.toLowerCase()}.jpg`
+            },
+            "thumb": {
+                "value": bThumbs, 
+                "displayValue": (bThumbs) ? "Found" : (bParialThumbs) ? `Partial Match (${bParialThumbs})` : "Missing",
+                "className": (bThumbs) ? "team-green" : (bParialThumbs) ? "team-yellow" : "team-red",
+            },
+            "fullsize": {
+                "value": bFullsize, 
+                "displayValue": (bFullsize) ? "Found" : (bParialFullsize) ? `Partial Match (${bParialFullsize})` : "Missing",
+                "className": (bFullsize) ? "team-green" : (bParialFullsize) ? "team-yellow" : "team-red",
+            },
+            "action": {"value": "", "displayValue": formElem},
+        }
+    });
+
+
+    return <InteractiveTable width={1} headers={headers} data={data}/>
+}
+
+const AdminMapManager = () =>{
+
+
+    const [state, dispatch] = useReducer(reducer, {
+        "bLoading": true,
+        "mode": 0,
+        "mapNames": [],
+        "fullSize": [],
+        "thumbs": [],
+        "pending": {},
+        "uploaded": []
+    });
+
+    const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
+
+    const bulkRef = useRef(null);
+
+    useEffect(() =>{
+
+        const controller = new AbortController();
+
+
+        loadMapNames(dispatch, nDispatch);
+        loadFileList(dispatch, nDispatch);
+
+        return () =>{
+            controller.abort();
+        }
+        
+    },[]);
+
+    const tabs = [
+        {"name": "Image Uploader", "value": 0},
+        //{"name": "Thumbnail Creator", "value": 1},
+    ];
+
+    return <>
+        <div className="default-header">Map Manager</div>
+        <Tabs options={tabs} selectedValue={state.mode} changeSelected={(mode) => dispatch({"type": "change-mode", "mode": mode})} />
+        <NotificationsCluster 
+            width={1}
+            notifications={nState.notifications} 
+            hide={(id) => {
+                    nDispatch({"type": "delete", "id": id})
+                }
+            }
+            clearAll={() => nDispatch({"type": "clearAll"})}
+        />
+        {renderBulkUploader(state, dispatch, nDispatch, bulkRef)}
+        {renderList(state, dispatch, nDispatch)}
+        
+    </>
+}
+
+/*
 class AdminMapManager extends React.Component{
 
     constructor(props){
@@ -25,206 +362,6 @@ class AdminMapManager extends React.Component{
         this.bulkUploader = this.bulkUploader.bind(this);
         this.changeMode = this.changeMode.bind(this);
         this.createMissingThumbnails = this.createMissingThumbnails.bind(this);
-    }
-
-
-    changeMode(id){
-
-        this.setState({"mode": id});
-    }
-
-    async uploadSingle(fileName, formData){
-
-        try{
-
-
-            const req = await fetch("/api/mapimageupload", {
-                "method": "POST",
-                "body": formData
-            });
-
-            const res = await req.json();
-
-            const currentUploads = Object.assign({}, this.state.uploads);
-
-
-            if(res.errors === undefined){
-
-                currentUploads[fileName] = {"finished": true, "errors": []}
-
-                const fullsize = [fileName, ...this.state.fullsize];
-                const thumbsize = [fileName, ...this.state.thumbs];
-
-                this.setState({"fullsize": fullsize, "thumbs": thumbsize});
-
-            }else{
-                currentUploads[fileName] = {"finished": true, "errors": res.errors}
-            }
-            
-            this.setState({"uploads": currentUploads});
-           
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-    async bulkUploader(e){
-
-        try{
-
-            e.preventDefault();
-
-            const files = e.target[0].files;
-
-            if(files.length === 0) return;
-
-            const currentUploads = Object.assign({}, this.state.uploads);
-
-            for(let i = 0; i < files.length; i++){
-
-                const f = files[i];
-                currentUploads[f.name] = {"finished": false, "errors": []}
-            }
-            
-            this.setState({"uploads": currentUploads});
-            
-
-            for(let i = 0; i < files.length; i++){
-
-                const f = files[i];
-
-                const formData = new FormData();
-
-                formData.append(f.name, files[i]);
-
-                this.uploadSingle(f.name, formData);
-
-            }
-
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-    async uploadImage(e){
-
-        try{
-
-            e.preventDefault();
-
-            const name = e.target[0].name;
-            const fullName = e.target[1].name;
-
-            const formData = new FormData();
-
-            if(e.target[0].files.length === 0){
-
-                alert("No File selected");
-                return;
-            }
-
-            const currentUploads = Object.assign({}, this.state.uploads);
-
-            currentUploads[fullName] = {"finished": false, "errors": []}
-
-            this.setState({"uploads": currentUploads});
-
-            formData.append(name, e.target[0].files[0]);
-
-            const req = await fetch("/api/mapimageupload",{
-                "method": "POST",
-                "body": formData
-            });
-
-            const res = await req.json();
-
-            const newUploads = Object.assign({}, this.state.uploads);
-
-            if(res.errors === undefined){
-    
-                newUploads[fullName] = {"finished": true, "errors": []};
-
-                const fullsize = [name, ...this.state.fullsize];
-                const thumbsize = [name, ...this.state.thumbs];
-
-                this.setState({"fullsize": fullsize, "thumbs": thumbsize});
-
-            }else{
-                
-                newUploads[fullName] = {"finished": true, "errors": res.errors};
-            }
-
-            this.setState({"uploads": newUploads});
-
-        }catch(err){
-            console.trace(err);
-        }
-
-    }
-
-    async loadFileList(){
-
-        try{
-
-            const req = await fetch("/api/mapmanager", {
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({"mode": "allimages"})
-            });
-
-            const res = await req.json();
-
-            console.log(res);
-
-            if(res.error === undefined){
-
-                this.setState({"fullsize": res.data.fullsize, "thumbs": res.data.thumbs});
-            }else{
-
-                throw new Error(res.error);
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-    async loadMapNames(){
-
-        try{
-
-            const req = await fetch("/api/mapmanager",{
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({"mode": "allnames"})
-            });
-
-            const res = await req.json();
-
-            if(res.error === undefined){
-
-                const names = [];
-                const expectedFileNames = [];
-
-                for(let i = 0; i < res.data.length; i++){
-
-                    expectedFileNames.push(Functions.cleanMapName(res.data[i].name).toLowerCase());
-                    names.push(Functions.removeUnr(res.data[i].name));
-    
-                }
-
-
-                this.setState({"names": names, "expectedFileNames": expectedFileNames});
-
-            }else{
-                throw new Error(res.error);
-            }
-
-        }catch(err){
-            console.trace(err);
-        }   
     }
 
     async loadMissingThumbnails(){
@@ -327,157 +464,6 @@ class AdminMapManager extends React.Component{
         }
     }
 
-    async componentDidMount(){
-
-        await this.loadFileList();
-        await this.loadMapNames();
-        await this.loadMissingThumbnails();
-        this.setState({"finishedLoading": true});
-    }
-
-
-    renderFileTable(){
-
-        if(this.state.mode !== 0) return null;
-
-        if(!this.state.finishedLoading) return null;
-
-        const rows = [];
-
-        for(let i = 0; i < this.state.names.length; i++){
-
-            const n = this.state.names[i];
-            const expectedFile = `${this.state.expectedFileNames[i]}.jpg`;
-
-            const fullsizeIndex = this.state.fullsize.indexOf(expectedFile);
-            const thumbIndex = this.state.thumbs.indexOf(expectedFile);
-
-            rows.push(<tr key={i}>
-                <td>{n}</td>
-                <td>{expectedFile}</td>
-                <TrueFalse bTable={true} value={fullsizeIndex !== -1} fDisplay="Missing" tDisplay="Found"/>
-                <TrueFalse bTable={true} value={thumbIndex !== -1} fDisplay="Missing" tDisplay="Found"/>
-                <td>
-
-                    <form action="/" method="POST" encType="multipart/form-data" onSubmit={this.uploadImage}>
-                        <input type="file" name={expectedFile} accept=".jpg,.png,.bmp"/>
-                        <input type="submit" value="Upload" name={n}/>
-                    </form>
-                </td>
-            </tr>);
-        }
-
-        return <div>
-            <div className="default-sub-header">Single Image Uploader</div>
-            <div className="form">
-                <div className="form-info">
-                    Image names are automatically set for single image uploads, thumbnails are generated on upload.
-                </div>
-  
-            </div>
-            <table className="t-width-1 td-1-left">
-                <tbody>
-                    <tr>
-                        <th>Map</th>
-                        <th>Required Image</th>
-                        <th>Fullsize Image</th>
-                        <th>Thumb Image</th>
-                        <th>Actions</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
-        </div>
-    }
-
-    renderBulkUploader(){
-
-        if(this.state.mode !== 0) return null;
-
-        return <div className="m-bottom-25">
-            <div className="default-sub-header">Bulk Image Uploader</div>
-            <div className="form">
-                <div className="form-info m-bottom-25">
-                    File names must be set before hand for bulk uploading.<br/>Valid map names are in all lowercase,
-                    without the gametype prefix, and without .unr.<br/>
-                    File types are converted to .jpg, you can upload .jpg, .png, and .bmp files.
-                </div>
-                <form action="/" method="POST" encType="multipart/form-data" onSubmit={this.bulkUploader}>
-                    <input type="file" className="m-bottom-25" multiple accept=".jpg,.png,.bmp"/>
-                    <input type="submit" className="search-button" value="Upload Images"/>
-                </form>
-            </div>
-        </div>
-    }
-
-    renderUploadProgress(){
-
-        if(this.state.mode !== 0) return null;
-
-        const rows = [];
-
-        for(const [key, value] of Object.entries(this.state.uploads)){
-
-            let colorClass = "";
-            let displayText = "";
-            const errors = [];
-           // const colorClass = (value.finished) ? (value.errors.length === 0) ? "team-green" : "team-red" : "team-yellow";
-
-            if(value.finished){
-
-                if(value.errors.length === 0){
-                    colorClass = "team-green";
-                    displayText = "Upload Successful";
-                }else{
-                    colorClass = "team-red";
-
-                    for(let i = 0; i < value.errors.length; i++){
-
-                        errors.push(<div key={i}><b>Error:</b> {value.errors[i]}</div>);
-                    }
-
-                    displayText = errors;
-                }
-            }else{
-
-                colorClass = "team-yellow";
-                displayText = "Uploading, please wait...";
-            }
-
-            rows.push(<tr key={rows.length}>
-                <td>{key}</td>
-                <td className={colorClass}>{displayText}</td>
-            </tr>);
-        }
-
-
-        if(rows.length === 0) return null;
-
-        return <div className="m-bottom-25">
-            <div className="default-sub-header">Uploads In Progress</div>
-            <table className={`t-width-1`}>
-                <tbody>
-                    <tr>
-                        <th>File</th>
-                        <th>Status</th>
-                    </tr>
-                    {rows}
-                </tbody>
-            </table>
-        </div>
-    }
-
-    renderThumbnailProgress(){
-
-        if(!this.state.thumbsInProgress) return null;
-
-        return <div>
-            <div className="m-bottom-25">
-                In progress...<br/> {this.state.thumbsCompleted} / {this.state.missingThumbs.length} Complete<br/><br/>
-                <div className="red">{this.state.thumbsErrors} Errors</div>
-            </div>
-        </div>
-    }
 
     renderCreateMissing(){
 
@@ -498,29 +484,6 @@ class AdminMapManager extends React.Component{
             </div>
         </div>
     }
-
-    render(){
-
-        return <div>
-            <div className="default-header">Map Manager</div>
-            <div className="tabs">
-                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
-                    this.changeMode(0);
-                })}>
-                    Image Uploader
-                </div>
-                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`}onClick={(() =>{
-                    this.changeMode(1);
-                })}>
-                    Thumbnail Creator
-                </div>
-            </div>
-            {this.renderUploadProgress()}
-            {this.renderBulkUploader()}
-            {this.renderFileTable()}
-            {this.renderCreateMissing()}
-        </div>
-    }
-}
+}*/
 
 export default AdminMapManager;
