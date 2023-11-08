@@ -16,14 +16,24 @@ const reducer = (state, action) =>{
             return {
                 ...state,
                 "fullSize": action.fullSize,
-                "thumbs": action.thumbs
+                "thumbs": action.thumbs,
+                "missingThumbs": action.missingThumbs
             }
         }
         case "add-to-list": {
+
+
+            const index = state.missingThumbs.indexOf(action.name);
+     
+            if(index !== -1){
+                state.missingThumbs.splice(index, 1);
+            }
+
             return {
                 ...state,
                 "fullSize": [...state.fullSize, action.name],
                 "thumbs": [...state.thumbs, action.name],
+                "missingThumbs": [...state.missingThumbs]
             }
         }
         case "set-names": {
@@ -108,11 +118,29 @@ const loadFileList = async (dispatch, nDispatch) =>{
 
         const res = await req.json();
 
-        console.log(res);
-
         if(res.error === undefined){
 
-            dispatch({"type": "set-list", "fullSize": res.data.fullsize, "thumbs": res.data.thumbs});
+            const missing = [];
+
+            for(let i = 0; i < res.data.fullsize.length; i++){
+
+                const f = res.data.fullsize[i];
+
+                if(!/^.+?\.jpg$/i.test(f)) continue;
+
+                if(res.data.thumbs.indexOf(f) === -1){
+                    missing.push(f);
+                }
+            }
+
+            console.log(`missing thumbs`, missing);
+
+            dispatch({
+                "type": "set-list", 
+                "fullSize": res.data.fullsize, 
+                "thumbs": res.data.thumbs,
+                "missingThumbs": missing
+            });
         }else{
 
             throw new Error(res.error);
@@ -215,6 +243,7 @@ const renderBulkUploader = (state, dispatch, nDispatch, bulkRef) =>{
 
 const renderList = (state, dispatch, nDispatch) =>{
 
+    if(state.mode !== 0) return null;
 
     const headers = {
         "name": "Name",
@@ -284,6 +313,27 @@ const renderList = (state, dispatch, nDispatch) =>{
     return <InteractiveTable width={1} headers={headers} data={data}/>
 }
 
+
+const renderCreateMissing = (state) =>{
+
+    if(state.mode !== 1) return null;
+    return <>
+        <div className="default-sub-header">Create Missing Thumbnails</div>
+        <div className="form">
+            <div className="form-info m-bottom-25">
+                Create all missing thumbnails where there is a fullsize image.<br/><br/>
+                Found <b>{state.missingThumbs.length}</b> missing thumbnails.<br/>
+                <span className="red">{state.missingThumbs.join(", ")}</span>
+            </div>
+            
+            <form action="/" method="POST" onSubmit={(e) =>{ e.preventDefault(); console.log("create missing thumbnails");}}>
+                <input type="submit" className="search-button" value="Create Missing Thumbnails"/>
+            </form>
+        </div>
+    </>
+}
+
+
 const AdminMapManager = () =>{
 
 
@@ -294,7 +344,8 @@ const AdminMapManager = () =>{
         "fullSize": [],
         "thumbs": [],
         "pending": {},
-        "uploaded": []
+        "uploaded": [],
+        "missingThumbs": []
     });
 
     const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
@@ -304,7 +355,6 @@ const AdminMapManager = () =>{
     useEffect(() =>{
 
         const controller = new AbortController();
-
 
         loadMapNames(dispatch, nDispatch);
         loadFileList(dispatch, nDispatch);
@@ -317,7 +367,7 @@ const AdminMapManager = () =>{
 
     const tabs = [
         {"name": "Image Uploader", "value": 0},
-        //{"name": "Thumbnail Creator", "value": 1},
+        {"name": "Thumbnail Creator", "value": 1},
     ];
 
     return <>
@@ -334,6 +384,7 @@ const AdminMapManager = () =>{
         />
         {renderBulkUploader(state, dispatch, nDispatch, bulkRef)}
         {renderList(state, dispatch, nDispatch)}
+        {renderCreateMissing(state)}
         
     </>
 }
