@@ -3414,6 +3414,83 @@ class CTF{
         await this.mergeTotals(newId);
 
     }
+
+    async getMapCapRecord(mapId, gametypeId, capType){
+
+        const query = `SELECT * FROM nstats_ctf_cap_records WHERE map_id=? AND gametype_id=? AND cap_type=? ORDER BY travel_time DESC LIMIT 1`;
+
+        const result = await mysql.simpleQuery(query, [mapId, gametypeId, capType]);
+
+        if(result.length === 0) return null;
+
+        return result[0];
+    }
+
+    /**
+     * 
+     * @param {*} rowId the row that must not be deleted
+     * @param {*} mapId target map
+     * @param {*} gametypeId target gametype
+     * @param {*} capType assist or solo cap(1,0)
+     */
+    async deleteAllOtherMapCapRecords(rowId, mapId, gametypeId, capType){
+
+        const query = `DELETE FROM nstats_ctf_cap_records WHERE map_id=? AND gametype_id=? AND cap_type=? AND id!=?`;
+
+        return await mysql.simpleQuery(query, [mapId, gametypeId, capType, rowId]);
+
+    }
+
+    async mapMergeDeleteDuplicateMapCapRecords(mapId){
+
+        const query = `SELECT COUNT(*) as total_entries,cap_type,gametype_id FROM nstats_ctf_cap_records WHERE map_id=? GROUP BY cap_type,gametype_id`;
+
+        const result = await mysql.simpleQuery(query, [mapId]);
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            const capRecord = await this.getMapCapRecord(mapId, r.gametype_id, r.cap_type);
+
+            if(capRecord === null) continue;
+
+            await this.deleteAllOtherMapCapRecords(capRecord.id, mapId, r.gametype_id, r.cap_type);
+        }
+    }
+
+    async changeMapId(oldId, newId){
+
+
+        const tables = [
+            "ctf_assists",
+            "ctf_caps",
+            "ctf_cap_records",
+            "ctf_carry_times",
+            "ctf_covers",
+            "ctf_cr_kills",
+            "ctf_flag_deaths",
+            "ctf_flag_drops",
+            "ctf_flag_pickups",
+            "ctf_returns",
+            "ctf_seals",
+            "ctf_self_covers",
+        ];
+
+        //need to check for duplicate map records and delete the slowest time
+
+        
+
+        for(let i = 0; i < tables.length; i++){
+
+            const t = tables[i];
+
+            const query = `UPDATE nstats_${t} SET map_id=? WHERE map_id=?`;
+            await mysql.simpleQuery(query, [newId, oldId]);
+        }
+
+        await this.mapMergeDeleteDuplicateMapCapRecords(newId);
+    }
 }
 
 

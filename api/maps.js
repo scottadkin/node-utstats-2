@@ -1246,8 +1246,10 @@ class Maps{
 
 
 
-    async merge(oldId, newId){
+    async merge(oldId, newId, assaultManager, ctfManager){
 
+        await assaultManager.changeMapId(oldId, newId);
+        await ctfManager.changeMapId(oldId, newId);
     }
 }
 
