@@ -704,6 +704,62 @@ class Domination{
         return this.createPointGraphData(result, pointNames);
       
     }
+
+
+    async getDuplicateControlPoints(mapId){
+
+        const query = `SELECT MIN(id) as id,name,COUNT(*) as total_entries,SUM(captured) as captured,SUM(matches) as matches
+        FROM nstats_dom_control_points WHERE map=? GROUP BY name`;
+
+        const result = await mysql.simpleQuery(query, [mapId]);
+
+
+        return result.filter((r) =>{
+            return r.total_entries > 1;
+        });
+    }
+
+
+    async setControlPointValues(rowId, captured, matches){
+
+        const query = `UPDATE nstats_dom_control_points SET captured=?, matches=? WHERE id=?`;
+
+        return await mysql.simpleQuery(query, [captured, matches, rowId]);
+    }
+
+    async deleteControlPointDuplicates(ignoreId, pointName, mapId){
+
+        const query = `DELETE FROM nstats_dom_control_points WHERE map=? AND name=? AND id!=?`;
+
+        return await mysql.simpleQuery(query, [mapId, pointName, ignoreId]);
+    }
+
+    async changeMapId(oldId, newId){
+
+        const tables = [
+            "dom_control_points",
+            "dom_match_control_points",
+        ];
+
+        for(let i = 0; i < tables.length; i++){
+
+            const t = tables[i];
+
+            const query = `UPDATE nstats_${t} SET map=? WHERE map=?`;
+
+            await mysql.simpleQuery(query, [newId, oldId]);
+        }
+
+        const duplicates = await this.getDuplicateControlPoints(newId);
+
+        for(let i = 0; i < duplicates.length; i++){
+
+            const d = duplicates[i];
+
+            await this.setControlPointValues(d.id, d.captured, d.matches);
+            await this.deleteControlPointDuplicates(d.id, d.name, newId);
+        }
+    }
 }
 
 
