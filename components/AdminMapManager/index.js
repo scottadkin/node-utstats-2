@@ -1,11 +1,12 @@
 import React from "react";
-import { cleanMapName, getSimilarImage } from "../../api/generic.mjs";
+import { cleanMapName, getSimilarImage, removeUnr } from "../../api/generic.mjs";
 import Tabs from "../Tabs";
 import Loading from "../Loading";
 import { useReducer, useEffect, useRef } from "react";
 import { notificationsInitial, notificationsReducer } from "../../reducers/notificationsReducer";
 import NotificationsCluster from "../NotificationsCluster";
 import InteractiveTable from "../InteractiveTable";
+import AdminMapMerger from "../AdminMapMerger";
 
 const reducer = (state, action) =>{
 
@@ -69,7 +70,8 @@ const reducer = (state, action) =>{
         case "set-names": {
             return {
                 ...state,
-                "mapNames": action.names
+                "mapNames": action.names,
+                "mapData": action.data
             }
         }
 
@@ -117,7 +119,7 @@ const loadMapNames = async (dispatch, nDispatch) =>{
         const req = await fetch("/api/mapmanager",{
             "headers": {"Content-type": "application/json"},
             "method": "POST",
-            "body": JSON.stringify({"mode": "allnames"})
+            "body": JSON.stringify({"mode": "alldetails"})
         });
 
         const res = await req.json();
@@ -128,7 +130,7 @@ const loadMapNames = async (dispatch, nDispatch) =>{
             return;
         }
 
-        dispatch({"type": "set-names", "names": res.data});
+        dispatch({"type": "set-names", "names": res.names, "data": res.data});
 
     }catch(err){
 
@@ -284,7 +286,7 @@ const renderList = (state, dispatch, nDispatch) =>{
 
     const data = state.mapNames.map((m) =>{
 
-        const name = cleanMapName(m.name);
+        const name = cleanMapName(m);
 
         const bThumbs = state.thumbs.indexOf(`${name.toLowerCase()}.jpg`) !== -1;
         const bFullsize = state.fullSize.indexOf(`${name.toLowerCase()}.jpg`) !== -1;
@@ -435,19 +437,22 @@ const renderCreateMissing = (state, dispatch, nDispatch) =>{
 }
 
 
+
+
 const AdminMapManager = () =>{
 
 
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
-        "mode": 0,
+        "mode": 2,
         "mapNames": [],
         "fullSize": [],
         "thumbs": [],
         "pending": {},
         "uploaded": [],
         "missingThumbs": [],
-        "bMakingThumbs": false
+        "bMakingThumbs": false,
+        "mapData": []
     });
 
     const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
@@ -470,6 +475,7 @@ const AdminMapManager = () =>{
     const tabs = [
         {"name": "Image Uploader", "value": 0},
         {"name": "Thumbnail Creator", "value": 1},
+        {"name": "Merge Maps", "value": 2},
     ];
 
     return <>
@@ -487,6 +493,7 @@ const AdminMapManager = () =>{
         {renderBulkUploader(state, dispatch, nDispatch, bulkRef)}
         {renderList(state, dispatch, nDispatch)}
         {renderCreateMissing(state, dispatch, nDispatch)}
+        <AdminMapMerger mode={state.mode} maps={state.mapData} nDispatch={nDispatch}/>
         
     </>
 }

@@ -22,11 +22,27 @@ export default async function handler(req, res){
                     res.status(200).json({"data": data});
                     return;
 
-                }else if(mode === "allnames"){
+                }
+                
+                if(mode === "allnames"){
 
                     const data = await mapManager.getAllNames();
 
                     res.status(200).json({"data": data});
+                    return;
+                }
+
+                if(mode === "alldetails"){
+
+                    const data = await mapManager.getAll();
+
+                    const names = data.map((d) =>{
+                        return d.name;
+                    });
+
+                    names.sort();
+
+                    res.status(200).json({"names": names, "data": data});
                     return;
                 }
                 

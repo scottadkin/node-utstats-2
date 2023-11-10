@@ -194,26 +194,12 @@ class Maps{
     }
 
 
-    getAll(){
+    async getAll(){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT * FROM nstats_maps ORDER BY name ASC";
 
-            const query = "SELECT * FROM nstats_maps ORDER BY name ASC";
+        return await mysql.simpleQuery(query);
 
-            const data = [];
-
-            mysql.query(query, (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                   
-                    resolve(result);
-                }
-
-                resolve(data);
-            });
-        });
     }
 
 
