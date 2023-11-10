@@ -15,7 +15,7 @@ const Domination = require("./api/domination");
     //await a.mergeDuplicateObjectives(21);
 
 
-    await m.merge(22, 23, a, c, d);
+    await m.merge(1, 2, a, c, d);
 
     process.exit();
 

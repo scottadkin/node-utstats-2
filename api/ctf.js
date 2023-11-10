@@ -3459,6 +3459,29 @@ class CTF{
         }
     }
 
+
+    async deleteDuplicateMapFlags(mapId){
+
+        const getQuery = `SELECT MIN(id) as id, team, COUNT(*) as total_entries FROM nstats_maps_flags WHERE map=? GROUP BY team`;
+
+        const getResult = await mysql.simpleQuery(getQuery, [mapId]);
+
+        const cleanResult = getResult.filter((r) =>{
+            return r.total_entries > 1;
+        });
+
+        if(cleanResult.length === 0) return;
+
+        const deleteQuery = `DELETE FROM nstats_maps_flags WHERE map=? AND team=? AND id!=?`;
+
+        for(let i = 0; i < cleanResult.length; i++){
+
+            const r = cleanResult[i];
+
+            await mysql.simpleQuery(deleteQuery, [mapId, r.team, r.id]);
+        }
+    }
+
     async changeMapId(oldId, newId){
 
 
@@ -3490,6 +3513,16 @@ class CTF{
         }
 
         await this.mapMergeDeleteDuplicateMapCapRecords(newId);
+
+
+        //missed flag table
+
+        const flagQuery = `UPDATE nstats_maps_flags SET map=? WHERE map=?`;
+
+        await mysql.simpleQuery(flagQuery, [newId, oldId]);
+
+        await this.deleteDuplicateMapFlags(newId);
+
     }
 }
 
