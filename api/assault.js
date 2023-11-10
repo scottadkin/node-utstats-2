@@ -410,6 +410,97 @@ class Assault{
 
         return await mysql.simpleFetch(query, [matchId, playerId]);
     }
+
+    async changeMatchObjectivesMapId(oldId, newId){
+
+        const query = `UPDATE nstats_assault_match_objectives SET map=? WHERE map=?`;
+
+        return await mysql.simpleQuery(query, [newId, oldId]);
+    }
+
+    async changeObjectivesMapId(oldId, newId){
+
+        const query = `UPDATE nstats_assault_objects SET map=? WHERE map=?`;
+
+        return await mysql.simpleQuery(query, [newId, oldId]);
+    }
+
+
+    async updateMapObjectiveRow(rowId, objOrder, matches, taken){
+
+
+        const query = `UPDATE nstats_assault_objects SET obj_order=?, matches=?, taken=? WHERE id=?`;
+
+        const vars = [
+            objOrder, 
+            matches, 
+            taken,
+            rowId
+        ];
+
+        await mysql.simpleQuery(query, vars);
+    }
+
+    async deleteMapObjectivesByRowId(rowIds){
+
+        if(rowIds.length === 0) return;
+
+        const query = `DELETE FROM nstats_assault_objects WHERE id IN (?)`;
+
+        return await mysql.simpleQuery(query, [rowIds]);
+    }
+
+    async mergeDuplicateObjectives(mapId){
+
+
+        const query = `SELECT * FROM nstats_assault_objects WHERE map=?`;
+        const result = await mysql.simpleQuery(query, [mapId]);
+
+        
+        const objs = {};
+
+        const rowsToDelete = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            if(objs[r.obj_id] === undefined){
+
+                objs[r.obj_id] = {
+                    "id": r.id,//row id
+                    "obj_order": r.obj_order,
+                    "name": r.name,
+                    "matches": 0,
+                    "taken": 0
+                };
+
+            }else{
+                rowsToDelete.push(r.id);
+            }
+
+            objs[r.obj_id].matches += r.matches;
+            objs[r.obj_id].taken += r.taken;
+            objs[r.obj_id].obj_order = r.obj_order;
+        }
+
+        for(const value of Object.values(objs)){
+
+            const rowId = parseInt(value.id);  
+
+            await this.updateMapObjectiveRow(rowId, value.obj_order, value.matches, value.taken);
+
+        }
+
+        await this.deleteMapObjectivesByRowId(rowsToDelete)
+        
+    }
+
+    async changeMapId(oldId, newId){
+
+        await this.changeMatchObjectivesMapId(oldId, newId);
+        await this.changeObjectivesMapId(oldId, newId);
+    }
 }
 
 module.exports = Assault;

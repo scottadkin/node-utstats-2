@@ -1243,6 +1243,12 @@ class Maps{
             [{"name": "Matches Played", "values": yearData}]
         ];
     }
+
+
+
+    async merge(oldId, newId){
+
+    }
 }
 
 
