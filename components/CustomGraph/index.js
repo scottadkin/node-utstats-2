@@ -42,7 +42,7 @@ const CustomGraph = ({children, data, tabs, labels, info, labelsPrefix, minDataP
             controller.abort();
         }
 
-    }, [data, tabs, labels, labelsPrefix, minDataPoints, bEnableAdvanced]);
+    }, [data, tabs, labels, labelsPrefix, minDataPoints, bEnableAdvanced, bSkipForceWholeYNumbers, info]);
 
     return <div className={`${styles.wrapper} t-width-1 center`}>
         {children}

@@ -13,6 +13,7 @@ const reducer = (state, action) =>{
 
 
         case "set-list": {
+
             return {
                 ...state,
                 "fullSize": action.fullSize,
@@ -34,6 +35,35 @@ const reducer = (state, action) =>{
                 "fullSize": [...state.fullSize, action.name],
                 "thumbs": [...state.thumbs, action.name],
                 "missingThumbs": [...state.missingThumbs]
+            }
+        }
+        case "toggle-thumbs":{
+            return {
+                ...state,
+                "bMakingThumbs": !state.bMakingThumbs
+                
+            }
+        }
+        case "update-missing": {
+
+            const current = [...state.missingThumbs];
+            const thumbs = [...state.thumbs];
+
+            const index = state.missingThumbs.indexOf(action.thumb);
+            thumbs.push(action.thumb);
+
+            if(index === -1){
+                current.push(action.thumb); 
+                
+            }else{
+                current.splice(index, 1);
+            }
+
+            return {
+                ...state,
+                "missingThumbs": [...current],
+                "thumbs": [...thumbs]
+                
             }
         }
         case "set-names": {
@@ -184,7 +214,6 @@ const uploadSingle = async (name, formData, dispatch, nDispatch) =>{
         nDispatch({"type": "add", "notification": {"type": "pass", "content": `Uploaded ${name} successfully.`}});
 
         dispatch({"type": "unset-pending", "target": name});
-        console.log(name);
         dispatch({"type": "add-to-list", "name": `${name}.jpg`});
     }catch(err){
         console.trace(err);
@@ -314,7 +343,79 @@ const renderList = (state, dispatch, nDispatch) =>{
 }
 
 
-const renderCreateMissing = (state) =>{
+const createMissingThumbnail = async (fileName, nDispatch) =>{
+
+    try{
+
+        const req = await fetch("/api/thumbnailcreator", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "createmissingthumbnail", "file": fileName})
+        });
+
+        const res = await req.json();
+
+        if(res.error === undefined){
+
+            nDispatch({
+                "type": "add", 
+                "notification": 
+                {"type": "pass", "content": `Created thumbnail ${fileName}`}
+            });
+            return true;
+
+        }else{
+
+            throw new Error(res.error);
+        }
+
+    }catch(err){
+
+        console.trace(err);
+        nDispatch({"type": "add", "notification": {"type": "error", "content": err.toString()}});
+        return false;
+    }
+}
+
+const createMissingThumbnails = async (e, state, dispatch, nDispatch) =>{
+
+    try{
+
+        e.preventDefault();
+        dispatch({"type": "toggle-thumbs"});
+
+        const missing = [...state.missingThumbs];
+
+        let passed = 0;
+        let failed = 0;
+
+        for(let i = 0; i < missing.length; i++){
+
+            const t = missing[i];
+
+            if(await createMissingThumbnail(t, nDispatch)){
+
+                dispatch({
+                    "type": "update-missing",
+                    "thumb": t
+                });
+
+                passed++;
+
+            }else{
+                failed++;
+            }
+        }
+
+        console.log("passed",passed,"failed",failed);
+        dispatch({"type": "toggle-thumbs"});
+    
+    }catch(err){
+        console.trace(err);
+    }
+}
+
+const renderCreateMissing = (state, dispatch, nDispatch) =>{
 
     if(state.mode !== 1) return null;
     return <>
@@ -325,8 +426,8 @@ const renderCreateMissing = (state) =>{
                 Found <b>{state.missingThumbs.length}</b> missing thumbnails.<br/>
                 <span className="red">{state.missingThumbs.join(", ")}</span>
             </div>
-            
-            <form action="/" method="POST" onSubmit={(e) =>{ e.preventDefault(); console.log("create missing thumbnails");}}>
+            <Loading value={!state.bMakingThumbs}/>
+            <form action="/" method="POST" onSubmit={(e) => createMissingThumbnails(e, state, dispatch, nDispatch)}>
                 <input type="submit" className="search-button" value="Create Missing Thumbnails"/>
             </form>
         </div>
@@ -345,7 +446,8 @@ const AdminMapManager = () =>{
         "thumbs": [],
         "pending": {},
         "uploaded": [],
-        "missingThumbs": []
+        "missingThumbs": [],
+        "bMakingThumbs": false
     });
 
     const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
@@ -384,157 +486,9 @@ const AdminMapManager = () =>{
         />
         {renderBulkUploader(state, dispatch, nDispatch, bulkRef)}
         {renderList(state, dispatch, nDispatch)}
-        {renderCreateMissing(state)}
+        {renderCreateMissing(state, dispatch, nDispatch)}
         
     </>
 }
-
-/*
-class AdminMapManager extends React.Component{
-
-    constructor(props){
-
-        super(props);
-        this.state = {
-            "mode": 1,
-            "fullsize": [], 
-            "thumbs": [], 
-            "names": [], 
-            "expectedFileNames": [], 
-            "finishedLoading": false,
-            "uploads": {},
-            "thumbsCompleted": 0,
-            "thumbsErrors": 0,
-            "missingThumbs": [],
-            "thumbsInProgress": false
-        };
-
-        this.uploadImage = this.uploadImage.bind(this);
-        this.bulkUploader = this.bulkUploader.bind(this);
-        this.changeMode = this.changeMode.bind(this);
-        this.createMissingThumbnails = this.createMissingThumbnails.bind(this);
-    }
-
-    async loadMissingThumbnails(){
-
-        try{
-
-            this.setState({"thumbsInProgress": false});
-
-            this.setState({
-                "thumbsCompleted": 0,
-                "thumbsErrors": 0,
-                "thumbsInProgress": false
-            });
-
-            const req = await fetch("/api/thumbnailcreator", {
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({"mode": "missingthumbnails"})
-            });
-
-            const res = await req.json();
-
-            if(res.error === undefined){
-
-                this.setState({"missingThumbs": res.data});
-
-            }else{
-                throw new Error(res.error);
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-    async createMissingThumbnails(e){
-
-        try{
-
-            this.setState({"thumbsInProgress": true});
-
-            e.preventDefault();
-
-            for(let i = 0; i < this.state.missingThumbs.length; i++){
-
-                const t = this.state.missingThumbs[i];
-
-                if(await this.createMissingThumbnail(t)){
-
-                    const previousCompleted = this.state.thumbsCompleted;
-                    this.setState({"thumbsCompleted": previousCompleted + 1});
-
-                }else{
-
-                    const previousFailed = this.state.thumbsErrors;
-                    this.setState({"thumbsErrors": previousFailed + 1});
-                }
-            }
-
-            setTimeout(() =>{
-                this.loadMissingThumbnails();
-            }, 3000);
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-    async createMissingThumbnail(file){
-
-        try{
-
-            const req = await fetch("/api/thumbnailcreator", {
-                "headers": {"Content-type": "application/json"},
-                "method": "POST",
-                "body": JSON.stringify({"mode": "createmissingthumbnail", "file": file})
-            });
-
-            const res = await req.json();
-
-            if(res.error === undefined){
-
-                const previousThumbs = Object.assign({}, this.state.thumbs);
-
-                previousThumbs.push(file);
-
-                this.setState({"thumbs": previousThumbs});
-                
-                return true;
-
-            }else{
-
-                throw new Error(res.error);
-            }
-
-
-        }catch(err){
-            console.trace(err);
-            return false;
-        }
-    }
-
-
-    renderCreateMissing(){
-
-        if(this.state.mode !== 1) return null;
-
-        return <div>
-            <div className="default-sub-header">Create Missing Thumbnails</div>
-            <div className="form">
-                <div className="form-info m-bottom-25">
-                    Create all missing thumbnails where there is a fullsize image.<br/><br/>
-                    Found <b>{this.state.missingThumbs.length}</b> missing thumbnails.<br/>
-                    <span className="red">{this.state.missingThumbs.join(", ")}</span>
-                </div>
-                {this.renderThumbnailProgress()}
-                <form action="/" method="POST" onSubmit={this.createMissingThumbnails}>
-                    <input type="submit" className="search-button" value="Create Missing Thumbnails" onClick={this.createThumbnails}/>
-                </form>
-            </div>
-        </div>
-    }
-}*/
 
 export default AdminMapManager;
