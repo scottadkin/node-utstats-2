@@ -1635,6 +1635,38 @@ class Weapons{
         await this.changeMatchGametypes(oldId, newId);
         await this.changeTotalsGametypes(oldId, newId);
     }
+
+
+    async fixMapDuplicateBestData(mapId){
+
+        const query = `SELECT player_id,gametype_id,COUNT(*) as total_rows FROM nstats_player_weapon_best GROUP BY player_id, gametype_id`;
+    
+        const result = await mysql.simpleQuery(query, [mapId]);
+
+        console.log(result);
+    }
+
+
+
+    async changeMapId(oldId, newId){
+
+        const tables = [
+            //"player_weapon_best",
+            "player_weapon_match",
+           // "player_weapon_totals"
+        ];
+
+        for(let i = 0; i < tables.length; i++){
+
+            const t = tables[i];
+
+            const query = `UPDATE nstats_${t} SET map_id=? WHERE map_id=?`;
+            await mysql.simpleQuery(query, [newId, oldId]);
+        }
+
+        //await this.fixMapDuplicateBestData(newId);
+        // looks like I disabled these stats a while ago...
+    }
 }
 
 

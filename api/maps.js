@@ -1246,12 +1246,13 @@ class Maps{
 
 
 
-    async merge(oldId, newId, assaultManager, ctfManager, domManager, combogibManager){
+    async merge(oldId, newId, assaultManager, ctfManager, domManager, combogibManager, weaponsManager){
 
         await assaultManager.changeMapId(oldId, newId);
         await ctfManager.changeMapId(oldId, newId);
         await domManager.changeMapId(oldId, newId);
         await combogibManager.changeMapId(oldId, newId);
+        await weaponsManager.changeMapId(oldId, newId);
     }
 }
 
