@@ -5,6 +5,7 @@ const CTF = require("./api/ctf");
 const Domination = require("./api/domination");
 const Combogib = require("./api/combogib");
 const Weapons = require("./api/weapons");
+const Players = require("./api/players");
 
 (async () =>{
 
@@ -15,10 +16,11 @@ const Weapons = require("./api/weapons");
 
     const cg = new Combogib();
     const w = new Weapons();
+    const p = new Players();
 
 
 
-    await m.merge(1, 69, a, c, d, cg, w);
+    await m.merge(1, 69, a, c, d, cg, w, p);
 
     //const cg = new Combogib();
 

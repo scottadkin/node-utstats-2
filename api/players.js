@@ -3270,6 +3270,33 @@ class Players{
 
         return {"data": result, "playerNames": names};
     }
+
+
+    async changeMapId(oldId, newId){
+
+        const tables = [
+            "player_maps", //map
+            "player_matches", //map_id
+            "player_telefrags", //map_id
+            "player_totals", //map need to merge dupliactes
+
+        ];
+
+        const columns = [
+            "map", "map_id", "map_id", "map"
+        ];
+
+        //map not map_id
+        for(let i = 0; i < tables.length; i++){
+
+            const t = tables[i];
+            const c = columns[i];
+
+            const query = `UPDATE nstats_${t} SET ${c}=? WHERE ${c}=?`;
+
+            await mysql.simpleQuery(query, [newId, oldId]);
+        }
+    }
 }
 
 
