@@ -7,7 +7,7 @@ const Combogib = require("./api/combogib");
 
 (async () =>{
 
-    const a = new Assault();
+    /*const a = new Assault();
     const m = new Maps();
     const c = new CTF();
     const d = new Domination();
@@ -15,10 +15,12 @@ const Combogib = require("./api/combogib");
     const cg = new Combogib();
 
 
-    //await a.mergeDuplicateObjectives(21);
 
+    await m.merge(26, 28, a, c, d, cg);*/
 
-    await m.merge(26, 28, a, c, d, cg);
+    const cg = new Combogib();
+
+    await cg.fixDuplicatePlayerTotals();
 
     process.exit();
 

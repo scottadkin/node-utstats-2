@@ -364,6 +364,7 @@ class Combogib{
         return await mysql.simpleQuery(query, [playerId, gametypeId, mapId]);
     }
 
+
     async bPlayerTotalsExist(playerId, gametypeId, mapId){
 
         const query = "SELECT COUNT(*) as total_matches FROM nstats_player_combogib WHERE player_id=? AND gametype_id=? AND map_id=?";
@@ -1398,8 +1399,186 @@ class Combogib{
 
             await this.insertMergedMapTotals(mapId, gametypeId, t.matches, t.playtime, primary, shockball, combo, insane);
         }
-
     }
+
+    async createPlayerTotalWithData(playerId, gametypeId, mapId, data){
+
+        const query = `INSERT INTO nstats_player_combogib VALUES(NULL,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?,?,?,
+            ?,?,?)`;
+
+        const d = data;
+
+        const vars = [
+            playerId, gametypeId, mapId, d.total_matches, d.playtime,
+            d.combo_kills, d.combo_deaths, d.combo_efficiency, d.combo_kpm, d.insane_kills,
+            d.insane_deaths, d.insane_efficiency, d.insane_kpm, d.shockball_kills, d.shockball_deaths,
+            d.shockball_efficiency, d.shockball_kpm, d.primary_kills, d.primary_deaths, d.primary_efficiency,
+            d.primary_kpm, d.best_single_combo, d.best_single_combo_match_id, d.best_single_insane, d.best_single_insane_match_id,
+            d.best_single_shockball, d.best_single_shockball_match_id, d.max_combo_kills, d.max_combo_kills_match_id, d.max_insane_kills,
+            d.max_insane_kills_match_id, d.max_shockball_kills, d.max_shockball_kills_match_id, d.max_primary_kills, d.max_primary_kills_match_id,
+            d.best_combo_spree, d.best_combo_spree_match_id, d.best_insane_spree, d.best_insane_spree_match_id, d.best_shockball_spree,
+            d.best_shockball_spree_match_id, d.best_primary_spree, d.best_primary_spree_match_id
+        ];
+
+        return await mysql.simpleQuery(query, vars);
+    }
+
+    async deletePlayerTotalGametypeMapData(playerId, gametypeId, mapId){
+
+        const query = `DELETE FROM nstats_player_combogib WHERE player_id=? AND gametype_id=? AND map_id=?`;
+
+        return await mysql.simpleQuery(query, [playerId, gametypeId, mapId]);
+    }
+
+    async fixPlayerTotal(playerId, gametypeId, mapId){
+
+        const getQuery = `SELECT * FROM nstats_player_combogib WHERE player_id=? AND gametype_id=? AND map_id=?`;
+
+        const getResult = await mysql.simpleQuery(getQuery, [playerId, gametypeId, mapId]);
+
+        let totals = {};
+
+        const merge = [
+            "total_matches",
+            "playtime",
+            "combo_kills",
+            "combo_deaths",
+            "insane_kills",
+            "insane_deaths",
+            "shockball_kills",
+            "shockball_deaths",
+            "primary_kills",
+            "primary_deaths",
+        ];
+
+        const higherBetter = [
+            "best_single_combo",
+            "best_single_insane",
+            "best_single_shockball",
+            "max_combo_kills",
+            "max_insane_kills",
+            "max_shockball_kills",
+            "max_primary_kills",
+            "best_primary_spree",
+            "best_combo_spree",
+            "best_insane_spree",
+            "best_shockball_spree",
+        ];
+
+        const rowsToDelete = [];
+
+        for(let i = 0; i < getResult.length; i++){
+
+            const g = getResult[i];
+
+            rowsToDelete.push(g.id);
+
+            if(i === 0){
+                totals = g;
+                continue;
+            }
+
+            for(let x = 0; x < merge.length; x++){
+
+                totals[merge[x]] += g[merge[x]];
+            }
+
+            for(let x = 0; x < higherBetter.length; x++){
+
+                const key = higherBetter[x];
+
+                if(g[key] > totals[key]){
+
+                    const matchKey = `${key}_match_id`;
+                    totals[key] = g[key];
+                    totals[matchKey] = g[matchKey];
+
+                }
+            }
+        }
+
+        //do kpm and efficiency here
+
+        const specialTypes = [
+            "primary",
+            "shockball",
+            "combo",
+            "insane",
+        ];
+
+
+        const playtime = totals.playtime;
+
+        for(let i = 0; i < specialTypes.length; i++){
+
+            const s = specialTypes[i];
+
+            const kills = `${s}_kills`;
+            const deaths = `${s}_deaths`;
+            const eff = `${s}_efficiency`;
+            const kpm = `${s}_kpm`;
+
+            //eff
+            if(totals[kills] > 0){
+
+                if(totals[deaths] > 0){
+                    totals[eff] = totals[kills] / (totals[kills] + totals[deaths]) * 100;
+                }else{
+                    totals[eff] = 100;
+                }
+            }else{
+                totals[eff] = 0;
+            }
+
+            //kpm
+            if(playtime > 0){
+
+                if(totals[kills] > 0){
+
+                    totals[kpm] = totals[kills] / (playtime / 60);
+                }else{
+                    totals[kpm] = 0;
+                }
+            }else{
+                totals[kpm] = 0;
+            }
+
+        }
+
+        await this.deletePlayerTotalGametypeMapData(playerId, gametypeId, mapId);
+        await this.createPlayerTotalWithData(playerId, gametypeId, mapId, totals);
+    }
+
+    async fixDuplicatePlayerTotals(){
+
+        const getQuery = `SELECT MIN(id) as original_row, player_id,gametype_id,map_id,COUNT(*) as total_rows FROM nstats_player_combogib GROUP BY player_id,gametype_id,map_id`;
+
+        const getResult = await mysql.simpleQuery(getQuery);
+
+        const duplicates = getResult.filter((r) =>{
+            return r.total_rows > 1;
+        });
+        
+        console.log(duplicates);
+        console.log(`found ${duplicates.length} duplicates`);
+
+        for(let i = 0; i < duplicates.length; i++){
+
+            const d = duplicates[i];
+
+            await this.fixPlayerTotal(d.player_id, d.gametype_id, d.map_id);
+        }
+    }
+
+    
 
     async changeMapId(oldId, newId){
 
