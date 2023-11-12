@@ -303,6 +303,14 @@ class Telefrags{
 
         return finalResult;
     }
+
+
+    async changeMapId(oldId, newId){
+
+        const query = `UPDATE nstats_tele_frags SET map_id=? WHERE map_id=?`;
+
+        await mysql.simpleQuery(query, [newId, oldId]);
+    }
 }
 
 module.exports = Telefrags;
