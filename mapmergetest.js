@@ -8,6 +8,7 @@ const Weapons = require("./api/weapons");
 const Players = require("./api/players");
 const PowerUps = require("./api/powerups");
 const Telefrags = require("./api/telefrags");
+const WinRate = require("./api/winrate");
 
 (async () =>{
 
@@ -21,10 +22,11 @@ const Telefrags = require("./api/telefrags");
     const p = new Players();
     const pow = new PowerUps();
     const t = new Telefrags();
+    const win = new WinRate();
 
 
 
-    await m.merge(1, 69, a, c, d, cg, w, p, pow, t);
+    await m.merge(1, 69, a, c, d, cg, w, p, pow, t, win);
 
     //const cg = new Combogib();
 

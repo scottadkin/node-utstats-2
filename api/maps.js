@@ -1246,7 +1246,8 @@ class Maps{
 
 
 
-    async merge(oldId, newId, assaultManager, ctfManager, domManager, combogibManager, weaponsManager, playersManager, powerupsManager, teleFragsManager){
+    async merge(oldId, newId, assaultManager, ctfManager, domManager, combogibManager, weaponsManager, 
+        playersManager, powerupsManager, teleFragsManager, winrateManager){
 
         await assaultManager.changeMapId(oldId, newId);
         await ctfManager.changeMapId(oldId, newId);
@@ -1256,6 +1257,7 @@ class Maps{
         await playersManager.changeMapId(oldId, newId);
         await powerupsManager.changeMapId(oldId, newId);
         await teleFragsManager.changeMapId(oldId, newId);
+        await winrateManager.changeMapId(oldId, newId);
     }
 }
 
