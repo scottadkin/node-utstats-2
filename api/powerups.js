@@ -478,6 +478,14 @@ class PowerUps{
         await this.changeCarryTimePlayerIds(oldId, newId);
 
     }
+
+
+    async changeMapId(oldId, newId){
+
+        const query = `UPDATE nstats_powerups_player_match SET map_id=? WHERE map_id=?`;
+
+        await mysql.simpleQuery(query, [newId, oldId]);
+    }
 }
 
 

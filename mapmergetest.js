@@ -6,6 +6,7 @@ const Domination = require("./api/domination");
 const Combogib = require("./api/combogib");
 const Weapons = require("./api/weapons");
 const Players = require("./api/players");
+const PowerUps = require("./api/powerups");
 
 (async () =>{
 
@@ -17,10 +18,11 @@ const Players = require("./api/players");
     const cg = new Combogib();
     const w = new Weapons();
     const p = new Players();
+    const pow = new PowerUps();
 
 
 
-    await m.merge(1, 69, a, c, d, cg, w, p);
+    await m.merge(1, 69, a, c, d, cg, w, p, pow);
 
     //const cg = new Combogib();
 
