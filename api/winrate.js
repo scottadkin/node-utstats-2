@@ -281,7 +281,10 @@ class WinRate{
 
 
         const historyInsertVars = [];
-        
+
+        console.log("**************************************************************");
+        console.log(data);
+
         for(let i = 0; i < data.length; i++){
 
             const d = data[i];
@@ -289,9 +292,9 @@ class WinRate{
             const gametype = d.gametype;
             const map = d.map;
 
-            for(let x = 0; x < d/*.history*/.length; x++){
+            for(let x = 0; x < d.history.length; x++){
 
-                const match = d/*.history*/[x];
+                const match = d.history[x];
 
                 historyInsertVars.push([
                     match.date,
@@ -424,12 +427,12 @@ class WinRate{
             uniqueMaps.add(h.map_id);
             uniqueGametypes.add(h.gametype);
 
-            let currentMatchResult = 0;
+            const currentMatchResult = this.createMatchResult(h.winner, h.draw);
 
             //0 loss, 1 win, 2 draw
-            if(h.winner === 0 && h.draw === 0) currentMatchResult = 0;
-            if(h.winner === 0 && h.draw === 1) currentMatchResult = 2;
-            if(h.winner === 1) currentMatchResult = 1;
+            //..if(h.winner === 0 && h.draw === 0) currentMatchResult = 0;
+            //if(h.winner === 0 && h.draw === 1) currentMatchResult = 2;
+           // if(h.winner === 1) currentMatchResult = 1;
 
             //map +  gametype
             this.updateHistoryObject(data, h.gametype, h.map_id, h.match_id, h.match_date, currentMatchResult);
@@ -521,7 +524,7 @@ class WinRate{
                // const history = playerData[i].history;
                 const currentStats = playerData[i].data;
 
-                await this.bulkInsertPlayerHistory(playerData[i].history, playerId, currentGametype, map, true);
+                await this.bulkInsertPlayerHistory(playerData[i], playerId, currentGametype, map, true);
 
                 await this.createPlayerLatestFromRecalculation(playerId, currentGametype, map, currentStats);
             }
@@ -564,6 +567,128 @@ class WinRate{
         return result.map((r) =>{
             return r.gametype;
         });
+    }
+
+
+    /**
+     * 0 = loss, 1 = win, 2 = draw
+     */
+    createMatchResult(bWin, bDraw){
+
+        if(bWin) return 1;
+        if(!bWin && !bDraw) return 0;
+        if(bDraw) return 2;
+
+        return -1;
+    }
+
+    async bulkInsertPlayerMapHistory(data, playerId, mapId){
+
+
+        const query = `INSERT INTO nstats_winrates (
+        date, match_id, player, gametype, map, 
+        match_result, matches, wins, draws, losses, 
+        winrate, current_win_streak, current_draw_streak, current_lose_streak, max_win_streak, 
+        max_draw_streak, max_lose_streak) VALUES ?`;
+
+
+        const historyInsertVars = [];
+
+        console.log("**************************************************************");
+        console.log(data);
+
+        const gametypesToDelete = [];
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+           // console.log(d.history);
+            const gametype = d.gametype;
+            const map = d.map;
+
+            gametypesToDelete.push(gametype);
+
+            for(let x = 0; x < d.history.length; x++){
+
+                const match = d.history[x];
+
+                historyInsertVars.push([
+                    match.date,
+                    match.match_id,
+                    playerId,
+                    gametype,
+                    map,
+                    match.match_result,
+                    match.matches,
+                    match.wins,
+                    match.draws,
+                    match.losses,
+                    match.winrate,
+                    match.current_win_streak,
+                    match.current_draw_streak,
+                    match.current_lose_streak,
+                    match.max_win_streak,
+                    match.max_draw_streak,
+                    match.max_lose_streak
+                ]);
+            }  
+        }
+
+        for(let i = 0; i < gametypesToDelete.length; i++){
+
+            console.log("NEED TO DELETE PLAYER HISTORY FOR ");
+            //await this.deletePlayerHistory(playerId, gametypesToDelete[i], mapId);
+        }
+        //map totals 
+        await this.deletePlayerHistory(playerId, 0, mapId);
+
+        //console.log(historyInsertVars);
+
+        await mysql.bulkInsert(query, historyInsertVars);
+    }
+
+    async recalculateMapHistory(mapId){
+
+        const getQuery = `SELECT * FROM nstats_winrates WHERE map=?`;
+
+        const result = await mysql.simpleQuery(getQuery, [mapId]);
+
+        const playerHistory = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+            console.log(r);
+
+            if(playerHistory[r.player] === undefined) playerHistory[r.player] = [];
+
+            this.updateHistoryObject(playerHistory[r.player], r.gametype, r.map, r.date, r.match_result);
+        }
+
+        //console.log(playerHistory);
+
+        for(const [playerId, playerData] of Object.entries(playerHistory)){
+
+            console.log("playerData");
+            console.log(playerData);
+
+            await this.bulkInsertPlayerMapHistory(playerData, playerId, mapId);
+            //loop though gametypes
+            //for(let i = 0; i < playerData.length; i++){
+                //console.log(playerData);
+                //
+
+
+                //CANT USE THIS METHOD MUST CREATE A NEW ONE TO SKIP GAMETYPE STUFF
+              //  await this.bulkInsertPlayerHistory(playerData, playerId, playerData[i].gametype, playerData[i].map, true);
+            //}
+        }
+
+        //delete old data
+
+
+        //insert new rows
+
     }
 
     async changeMapId(oldId, newId){

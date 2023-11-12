@@ -26,7 +26,9 @@ const WinRate = require("./api/winrate");
 
 
 
-    await m.merge(1, 69, a, c, d, cg, w, p, pow, t, win);
+    //await m.merge(1, 69, a, c, d, cg, w, p, pow, t, win);
+
+    await win.recalculateMapHistory(1);
 
     //const cg = new Combogib();
 
