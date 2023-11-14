@@ -51,8 +51,8 @@ const AdminMapMerger = ({mode, maps, nDispatch}) =>{
     let name2 = (state.map2 === null) ? "map2" : idsToNames[state.map2];
 
     return <>
+        <div className="default-sub-header">Merge Maps</div>
         <div className="form">
-            <div className="default-sub-header">Merge Maps</div>
             <div className="form-info">
                 Merge one map into another.<br/>
                 <b>{name1}</b> will be merged into <b>{name2}</b> taking <b>{name2}'s</b> name.
@@ -64,7 +64,7 @@ const AdminMapMerger = ({mode, maps, nDispatch}) =>{
               
                     dispatch({"type": "select-map", "id": 1, "value": b});
                 }}
-                selectedValue={state.map1}
+                originalValue={state.map1}
             />
             <DropDown 
                 data={options} 
@@ -72,7 +72,7 @@ const AdminMapMerger = ({mode, maps, nDispatch}) =>{
                 changeSelected={(a,b) =>{
                     dispatch({"type": "select-map", "id": 2, "value": b});
                 }}
-                selectedValue={state.map2}
+                originalValue={state.map2}
             />
             {renderSubmit(state,dispatch,nDispatch)}
         </div>

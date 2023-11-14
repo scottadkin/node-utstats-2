@@ -7,6 +7,7 @@ import { notificationsInitial, notificationsReducer } from "../../reducers/notif
 import NotificationsCluster from "../NotificationsCluster";
 import InteractiveTable from "../InteractiveTable";
 import AdminMapMerger from "../AdminMapMerger";
+import AdminMapRename from "../AdminMapRename";
 
 const reducer = (state, action) =>{
 
@@ -104,6 +105,31 @@ const reducer = (state, action) =>{
             return {
                 ...state,
                 "pending": {...state.pending}
+            }
+        }
+
+        case "rename-single": {
+ 
+            const mapNames = [];
+            const mapData = [];
+
+            for(let i = 0; i < state.mapData.length; i++){
+
+                const n = state.mapData[i];
+
+                if(n.id === action.id){
+                    n.name = action.newName;
+                }
+
+                mapNames.push(n.name);
+                mapData.push(n);
+          
+            }
+
+            return {
+                ...state,
+                "mapNames": [...mapNames],
+                "mapData": [...mapData]
             }
         }
     }
@@ -444,7 +470,7 @@ const AdminMapManager = () =>{
 
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
-        "mode": 2,
+        "mode": 3,
         "mapNames": [],
         "fullSize": [],
         "thumbs": [],
@@ -476,6 +502,7 @@ const AdminMapManager = () =>{
         {"name": "Image Uploader", "value": 0},
         {"name": "Thumbnail Creator", "value": 1},
         {"name": "Merge Maps", "value": 2},
+        {"name": "Rename Map", "value": 3},
     ];
 
     return <>
@@ -494,6 +521,7 @@ const AdminMapManager = () =>{
         {renderList(state, dispatch, nDispatch)}
         {renderCreateMissing(state, dispatch, nDispatch)}
         <AdminMapMerger mode={state.mode} maps={state.mapData} nDispatch={nDispatch}/>
+        <AdminMapRename mode={state.mode} maps={state.mapData} nDispatch={nDispatch} pDispatch={dispatch}/>
         
     </>
 }

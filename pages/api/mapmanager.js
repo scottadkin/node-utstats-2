@@ -45,6 +45,28 @@ export default async function handler(req, res){
                     res.status(200).json({"names": names, "data": data});
                     return;
                 }
+
+                if(mode === "rename"){
+
+                    const id = (req.body.id !== undefined) ? parseInt(req.body.id) : NaN;
+                    const newName = req.body.newName ?? "";
+
+                    if(id !== id){
+                        res.status(200).json({"error": "Target map must be a valid integer ID"});
+                        return;
+                    }
+
+                    if(newName === ""){
+                        res.status(200).json({"error": "New name can not be an empty string."});
+                        return;
+                    }
+
+                    console.log(`rename map ${id} to ${newName}`);
+
+                    await mapManager.rename(id, newName);
+                    res.status(200).json({"message": "passed"});
+                    return;
+                }
                 
 
             }else{
@@ -62,6 +84,6 @@ export default async function handler(req, res){
     }catch(err){
         console.trace(err);
 
-        res.status(200).json({"error": err});
+        res.status(200).json({"error": err.toString()});
     }
 }

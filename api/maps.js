@@ -1259,6 +1259,14 @@ class Maps{
         await teleFragsManager.changeMapId(oldId, newId);
         await winrateManager.changeMapId(oldId, newId);
     }
+
+
+    async rename(mapId, newName){
+
+        const query = `UPDATE nstats_maps SET name=? WHERE id=?`;
+
+        return await mysql.simpleQuery(query, [newName, mapId]);
+    }
 }
 
 
