@@ -162,7 +162,11 @@ class Importer{
 
                     const currentData = await log.import();
 
-                    if(!log.bFoundRealMatchStart){
+                    if(log.mapInfo.maps.bMergeError){
+
+                        fs.renameSync(`${config.importedLogsFolder}/${f}`,`Logs/rejected/map-merge-error/${f}`);
+
+                    }else if(!log.bFoundRealMatchStart){
 
                         fs.renameSync(`${config.importedLogsFolder}/${f}`,`Logs/rejected/missing-start/${f}`);
     

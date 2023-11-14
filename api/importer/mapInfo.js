@@ -66,7 +66,10 @@ class MapInfo{
 
             await this.maps.updateStats(this.name, this.title, this.author, this.idealPlayerCount, this.levelEnterText, date, matchLength);
             
-            this.mapId = await this.maps.getId(this.name);
+            if(this.maps.bMergeError) return;
+
+            this.mapId = await this.maps.getIdSafe(this.name);
+
 
         }catch(err){
             console.trace(err);

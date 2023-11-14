@@ -116,7 +116,10 @@ class MatchManager{
             );
 
             const matchTimings = this.gameInfo.getMatchLength();
+            
             await this.mapInfo.updateStats(this.serverInfo.date, matchTimings.length);
+            if(this.mapInfo.maps.bMergeError) return;
+            
 
             await this.playerManager.createPlayers(this.gametype.currentMatchGametype, this.mapInfo.mapId);
             this.playerManager.init();

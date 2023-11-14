@@ -14,6 +14,10 @@ class Maps{
         this.validSearchOptions = [
             "name", "first", "last", "matches", "playtime"
         ];
+
+        this.mergeDepth = 0;
+        this.bMergeError = false;
+
         
     }
 
@@ -136,13 +140,20 @@ class Maps{
         }
     }
 
+    async getAutoMergeIdByName(name){
+
+        const query = `SELECT import_as_id FROM nstats_maps WHERE name=?`;
+
+        const result = await mysql.simpleQuery(query, [name]);
+
+        if(result.length > 0) return result[0].import_as_id;
+
+        return 0;
+    }
+
     async updateStats(name, title, author, idealPlayerCount, levelEnterText, date, matchLength){
 
         try{
-
-            //name = name.removeUnr();
-
-            //name = `${name}.unr`;
 
             if(!await this.bExists(name)){
 
@@ -150,46 +161,92 @@ class Maps{
 
             }else{
 
+                const autoMergeId = await this.getAutoMergeIdByName(name);
+
+                if(autoMergeId !== 0){
+
+                    const newName = await this.getName(autoMergeId);
+
+                    new Message(`${name} has been set to import as ${newName}.unr`,"note");
+
+                    this.mergeDepth++;
+                    if(this.mergeDepth > 5){
+                        this.bMergeError = true;
+                        new Message(`Infinite loop detected, map merges back into itself.`, "error");
+                        return
+                    }
+
+                    await this.updateStats(`${newName}.unr`, title, author, idealPlayerCount, levelEnterText, date, matchLength);
+
+                    return;
+                }
+
+
                 await this.updatePlaytime(name, matchLength);
                 await this.updateDates(name, date);
             }
 
         }catch(err){
             console.trace(err);
+           // throw new Error(err.toString());
         }
     }
 
 
 
-    async getId(name){
+    async getId(name, bIncludeAutoMergeId){
 
-        const query = "SELECT id FROM nstats_maps WHERE name=? LIMIT 1";
+        if(bIncludeAutoMergeId === undefined) bIncludeAutoMergeId = false;
+        const query = "SELECT id,import_as_id FROM nstats_maps WHERE name=? LIMIT 1";
 
         const result = await mysql.simpleQuery(query, [name]);
 
         if(result.length === 0) return null;
 
-        return result[0].id;
+        if(bIncludeAutoMergeId){
+
+            return result[0];
+        }
+
+        //TODO need to add check to prevent infinite loop
+        return (result[0].import_as_id === 0) ? result[0].id : result[0].import_as_id;
 
     }
 
-    getName(id){
+    async getIdSafe(name){
 
-        return new Promise((resolve, reject) =>{
+        const maxDepth = 5;
+        let currentDepth = 0;
 
-            const query = "SELECT name FROM nstats_maps WHERE id=?";
+        let lastId = -1;
+        let currentName = name;
 
-            mysql.query(query, [id], (err, result) =>{
+        while(currentDepth < maxDepth){
 
-                if(err) reject(err);
+            const result = await this.getId(currentName, true);
+            
+            if(result === null) return lastId;
+            if(result.import_as_id === 0) return result.id;
 
-                if(result !== undefined){
-                    resolve(this.removeUnr(result[0].name));
-                }
+            currentName = `${await this.getName(result.import_as_id)}.unr`;
 
-                resolve('Not Found');
-            });
-        });
+
+            lastId = result.import_as_id;
+            
+            currentDepth++;
+        }
+
+        return lastId;
+    }
+
+    async getName(id){
+
+        const query = "SELECT name FROM nstats_maps WHERE id=?";
+        const result = await mysql.simpleQuery(query, [id]);
+
+        if(result.length === 0) return "Not Found";
+
+        return this.removeUnr(result[0].name);
 
     }
 
