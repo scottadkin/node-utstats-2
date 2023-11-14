@@ -427,6 +427,9 @@ async function fixACETables(){
 
         await fixACETables();
 
+        //import_as_id int(11) NOT NULL
+        await alterTable("nstats_maps", "import_as_id", "int(11) NOT NULL", "AFTER playtime");
+
         process.exit(0);
 
     }catch(err){

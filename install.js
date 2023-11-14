@@ -396,7 +396,8 @@ const queries = [
         first int(11) NOT NULL,
         last int(11) NOT NULL,
         matches int(11) NOT NULL,
-        playtime double NOT NULL
+        playtime double NOT NULL,
+        import_as_id int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_maps_flags (
         id int(11) NOT NULL AUTO_INCREMENT,

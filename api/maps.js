@@ -43,7 +43,7 @@ class Maps{
 
     async insert(name, title, author, idealPlayerCount, levelEnterText, date, matchLength){
 
-        const query = "INSERT INTO nstats_maps VALUES(NULL,?,?,?,?,?,?,?,1,?)";
+        const query = "INSERT INTO nstats_maps VALUES(NULL,?,?,?,?,?,?,?,1,?,0)";
         return await mysql.simpleQuery(query, [name, title, author, idealPlayerCount, levelEnterText, date, date, matchLength]);
 
     }
