@@ -282,9 +282,6 @@ class WinRate{
 
         const historyInsertVars = [];
 
-        console.log("**************************************************************");
-        console.log(data);
-
         for(let i = 0; i < data.length; i++){
 
             const d = data[i];
@@ -481,6 +478,9 @@ class WinRate{
         return await mysql.simpleQuery(query, [gametypeId]);
     }
 
+
+   
+
     async recalculateGametype(gametypeId){
 
         //const history = await this.getAllGametypeHistory(gametypeId);
@@ -501,10 +501,12 @@ class WinRate{
                 playerHistory[d.player_id] = [];
             }
 
-            let matchResult = 0;
+            /*let matchResult = 0;
 
             if(d.winner) matchResult = 1;
-            if(!d.winner && d.draw) matchResult = 2;
+            if(!d.winner && d.draw) matchResult = 2;*/
+
+            const matchResult = this.createMatchResult(d.winner, d.draw);
 
             //we only want to change for this selected gametype, it won't effect all time totals, and map all time totals
 
@@ -515,20 +517,21 @@ class WinRate{
 
         }
 
+  
         for(const [playerId, playerData] of Object.entries(playerHistory)){
 
             for(let i = 0; i < playerData.length; i++){
 
                 const currentGametype = playerData[i].gametype;
                 const map = playerData[i].map;
-               // const history = playerData[i].history;
+            // const history = playerData[i].history;
                 const currentStats = playerData[i].data;
 
                 await this.bulkInsertPlayerHistory(playerData[i], playerId, currentGametype, map, true);
-
                 await this.createPlayerLatestFromRecalculation(playerId, currentGametype, map, currentStats);
             }
-        }     
+        }   
+       
     }
 
     async deleteGametypeLatest(id){
@@ -594,9 +597,6 @@ class WinRate{
 
         const historyInsertVars = [];
 
-        console.log("**************************************************************");
-        console.log(data);
-
         const gametypesToDelete = [];
 
         for(let i = 0; i < data.length; i++){
@@ -636,18 +636,21 @@ class WinRate{
 
         for(let i = 0; i < gametypesToDelete.length; i++){
 
-            console.log("NEED TO DELETE PLAYER HISTORY FOR ");
-            //await this.deletePlayerHistory(playerId, gametypesToDelete[i], mapId);
+            await this.deletePlayerHistory(playerId, gametypesToDelete[i], mapId);
         }
-        //map totals 
-        await this.deletePlayerHistory(playerId, 0, mapId);
-
-        //console.log(historyInsertVars);
 
         await mysql.bulkInsert(query, historyInsertVars);
     }
 
+    async deleteMapLatest(mapId){
+
+        const query = `DELETE FROM nstats_winrates_latest WHERE map=?`;
+
+        return await mysql.simpleQuery(query, [mapId]);
+    }
+
     async recalculateMapHistory(mapId){
+
 
         const getQuery = `SELECT * FROM nstats_winrates WHERE map=?`;
 
@@ -658,36 +661,22 @@ class WinRate{
         for(let i = 0; i < result.length; i++){
 
             const r = result[i];
-            console.log(r);
 
             if(playerHistory[r.player] === undefined) playerHistory[r.player] = [];
 
-            this.updateHistoryObject(playerHistory[r.player], r.gametype, r.map, r.date, r.match_result);
+            this.updateHistoryObject(playerHistory[r.player], r.gametype, r.map, r.match_id, r.date, r.match_result);
         }
 
-        //console.log(playerHistory);
+        
 
         for(const [playerId, playerData] of Object.entries(playerHistory)){
 
-            console.log("playerData");
-            console.log(playerData);
+            for(let i = 0; i < playerData.length; i++){
 
-            await this.bulkInsertPlayerMapHistory(playerData, playerId, mapId);
-            //loop though gametypes
-            //for(let i = 0; i < playerData.length; i++){
-                //console.log(playerData);
-                //
-
-
-                //CANT USE THIS METHOD MUST CREATE A NEW ONE TO SKIP GAMETYPE STUFF
-              //  await this.bulkInsertPlayerHistory(playerData, playerId, playerData[i].gametype, playerData[i].map, true);
-            //}
+                await this.bulkInsertPlayerMapHistory(playerData[i], playerId, mapId);
+                await this.createPlayerLatestFromRecalculation(playerId, playerData[i].gametype, mapId, playerData[i].data);
+            }
         }
-
-        //delete old data
-
-
-        //insert new rows
 
     }
 
@@ -696,6 +685,12 @@ class WinRate{
         const query = `UPDATE nstats_winrates SET map=? WHERE map=?`;
 
         await mysql.simpleQuery(query, [newId, oldId]);
+
+        //delete player latest data
+        await this.deleteMapLatest(oldId);
+        await this.deleteMapLatest(newId);
+
+        await this.recalculateMapHistory(newId);
 
         //need to recalculate map winrates for newId
         //need to recalculate map winrates for newId
