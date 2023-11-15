@@ -67,6 +67,26 @@ export default async function handler(req, res){
                     res.status(200).json({"message": "passed"});
                     return;
                 }
+
+                if(mode === "create"){
+
+                    const name = req.body.name;
+                    const title = req.body.title;
+                    const author = req.body.author;
+                    const idealPlayerCount = req.body.playerCount;
+                    const levelEnterText = req.body.levelEnter;
+
+                    let importAs = parseInt(req.body.importAs);
+                    if(importAs !== importAs) importAs = 0;
+
+                    await mapManager.adminCreateMap(name, title, author, idealPlayerCount, levelEnterText, importAs);
+
+                    res.status(200).json({});
+                    return;
+                }
+
+                res.status(200).json({"error": "Unknown mode"});
+                return;
                 
 
             }else{

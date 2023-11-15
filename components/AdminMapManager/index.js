@@ -8,6 +8,7 @@ import NotificationsCluster from "../NotificationsCluster";
 import InteractiveTable from "../InteractiveTable";
 import AdminMapMerger from "../AdminMapMerger";
 import AdminMapRename from "../AdminMapRename";
+import AdminMapCreate from "../AdminMapCreate";
 
 const reducer = (state, action) =>{
 
@@ -312,7 +313,7 @@ const renderList = (state, dispatch, nDispatch) =>{
 
     const data = state.mapNames.map((m) =>{
 
-        const name = cleanMapName(m);
+        const name = removeUnr(m);
 
         const bThumbs = state.thumbs.indexOf(`${name.toLowerCase()}.jpg`) !== -1;
         const bFullsize = state.fullSize.indexOf(`${name.toLowerCase()}.jpg`) !== -1;
@@ -470,7 +471,7 @@ const AdminMapManager = () =>{
 
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
-        "mode": 3,
+        "mode": 4,
         "mapNames": [],
         "fullSize": [],
         "thumbs": [],
@@ -503,6 +504,7 @@ const AdminMapManager = () =>{
         {"name": "Thumbnail Creator", "value": 1},
         {"name": "Merge Maps", "value": 2},
         {"name": "Rename Map", "value": 3},
+        {"name": "Create Map", "value": 4},
     ];
 
     return <>
@@ -522,6 +524,7 @@ const AdminMapManager = () =>{
         {renderCreateMissing(state, dispatch, nDispatch)}
         <AdminMapMerger mode={state.mode} maps={state.mapData} nDispatch={nDispatch}/>
         <AdminMapRename mode={state.mode} maps={state.mapData} nDispatch={nDispatch} pDispatch={dispatch}/>
+        <AdminMapCreate mode={state.mode} maps={state.mapData} nDispatch={nDispatch} pDispatch={dispatch}/>
         
     </>
 }

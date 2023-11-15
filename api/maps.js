@@ -49,7 +49,12 @@ class Maps{
 
         const query = "INSERT INTO nstats_maps VALUES(NULL,?,?,?,?,?,?,?,1,?,0)";
         return await mysql.simpleQuery(query, [name, title, author, idealPlayerCount, levelEnterText, date, date, matchLength]);
+    }
 
+    async adminCreateMap(name, title, author, idealPlayerCount, levelEnterText, importAs){
+
+        const query = "INSERT INTO nstats_maps VALUES(NULL,?,?,?,?,?,0,0,0,0,?)";
+        return await mysql.simpleQuery(query, [name, title, author, idealPlayerCount, levelEnterText, importAs]);
     }
 
     updatePlaytime(name, matchLength){
