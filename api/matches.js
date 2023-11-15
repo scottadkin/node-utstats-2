@@ -1884,5 +1884,13 @@ class Matches{
         }
     }
 
+
+    async changeMapId(oldId, newId){
+
+        const query = `UPDATE nstats_matches SET map=? WHERE map=?`;
+
+        return await mysql.simpleQuery(query, [newId, oldId]);
+    }
+
 }
 module.exports = Matches;

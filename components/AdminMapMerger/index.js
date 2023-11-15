@@ -1,6 +1,7 @@
 import DropDown from "../DropDown";
 import { removeUnr } from "../../api/generic.mjs";
 import { useReducer } from "react";
+import Loading from "../Loading";
 
 const reducer = (state, action) =>{
 
@@ -14,17 +15,53 @@ const reducer = (state, action) =>{
                 ...state
             }
         }
+        case "setLoading": {
+            return {
+                ...state,
+                "bLoading": action.value
+            }
+        }
     }
 
     return state;
 }
 
+const mergeMaps = async (state, dispatch, nDispatch) =>{
+
+
+    try{
+
+        const req = await fetch("/api/mapmanager", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({
+                "mode": "merge",
+                "map1": state.map1,
+                "map2": state.map2,
+            })
+        });
+
+        const res = await req.json();
+
+        console.log(res);
+
+        if(res.error) throw new Error(res.error);
+
+    }catch(err){
+        nDispatch({"type": "add", "notification": {"type": "error", "content": err.toString()}});
+    }
+}
+
 const renderSubmit = (state, dispatch, nDispatch) =>{
 
+    if(state.bLoading) return <Loading />;
     if(state.map1 === null || state.map2 === null) return null;
     if(state.map1 === state.map2) return null;
 
-    return <input type="submit" className="search-button" value="Merge"/>
+    return <input type="submit" className="search-button" value="Merge" onClick={async (e) => {
+        e.preventDefault();
+        await mergeMaps(state, dispatch, nDispatch);
+    }}/>
 }
 
 const AdminMapMerger = ({mode, maps, nDispatch}) =>{
@@ -33,7 +70,8 @@ const AdminMapMerger = ({mode, maps, nDispatch}) =>{
 
     const [state, dispatch] = useReducer(reducer, {
         "map1": null,
-        "map2": null
+        "map2": null,
+        "bLoading": false
     });
 
     const idsToNames = {};

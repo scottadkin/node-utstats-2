@@ -37,7 +37,7 @@
 .entries{
     text-align:left;
     overflow-y: auto;
-    max-height:50vh;
+    max-height:33vh;
     user-select: none;
     z-index: 999999;
 }

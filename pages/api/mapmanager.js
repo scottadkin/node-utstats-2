@@ -1,5 +1,16 @@
 import Session from '../../api/session';
 import Maps from '../../api/maps';
+import Matches from '../../api/matches';
+import Assault from '../../api/assault';
+import CTF from '../../api/ctf';
+import Domination from '../../api/domination';
+import Combogib from '../../api/combogib';
+import Weapons from '../../api/weapons';
+import Players from '../../api/players';
+import PowerUps from '../../api/powerups';
+import Telefrags from '../../api/telefrags';
+import WinRate from '../../api/winrate';
+
 
 export default async function handler(req, res){
 
@@ -83,6 +94,29 @@ export default async function handler(req, res){
 
                  
                     res.status(200).json({"insertId": result.insertId});
+                    return;
+                }
+
+
+                if(mode === "merge"){
+
+
+                    const matchManager = new Matches();
+                    const assaultManager = new Assault();
+                    const ctfManager = new CTF();
+                    const domManager = new Domination();
+                    const combogibManager = new Combogib();
+                    const weaponsManager = new Weapons();
+                    const playersManager = new Players();
+                    const powerupsManager = new PowerUps();
+                    const teleFragsManager = new Telefrags();
+                    const winrateManager = new WinRate();
+
+                    await mapManager.merge(req.body.map1, req.body.map2, matchManager, assaultManager, ctfManager, domManager, combogibManager, weaponsManager, 
+                        playersManager, powerupsManager, teleFragsManager, winrateManager);
+
+
+                    res.status(200).json({});
                     return;
                 }
 

@@ -51,6 +51,8 @@ const createGeneralData = (state) =>{
         
     };
 
+    console.log(state.data);
+
     const data = state.data.map((d) =>{
         return {
             "name": {

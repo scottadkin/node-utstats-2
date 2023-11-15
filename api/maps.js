@@ -1307,10 +1307,50 @@ class Maps{
     }
 
 
+    async getCombinedTotals(map1, map2){
 
-    async merge(oldId, newId, assaultManager, ctfManager, domManager, combogibManager, weaponsManager, 
+        const query = `SELECT * FROM nstats_maps WHERE id=? OR id=?`;
+
+        return await mysql.simpleQuery(query, [map1, map2]);
+    }
+
+    async deleteMap(id){
+        const query = `DELETE FROM nstats_maps WHERE id=?`;
+
+        return await mysql.simpleQuery(query, [id]);
+    }
+
+    async updateTotalsFromMergeData(mapId, first, last, matches, playtime){
+
+        const query = `UPDATE nstats_maps SET 
+        first = IF(first > ?, ?, first),
+        last = IF(last < ?, ?, last),
+        matches=matches+?,
+        playtime=playtime+?
+        WHERE id=?`;
+
+        const vars = [first, first, last, last, matches, playtime, mapId];
+
+        return await mysql.simpleQuery(query, vars);
+    }
+
+    async merge(oldId, newId, matchManager, assaultManager, ctfManager, domManager, combogibManager, weaponsManager, 
         playersManager, powerupsManager, teleFragsManager, winrateManager){
 
+        //const totalData = await this.getCombinedTotals(oldId, newId);
+        const oldMapTotals = await this.getDetails(oldId);
+
+
+        if(oldMapTotals !== null){
+
+            const t = oldMapTotals;
+
+            await this.updateTotalsFromMergeData(newId, t.first, t.last, t.matches, t.playtime);
+        }
+
+        await this.deleteMap(oldId);
+
+        await matchManager.changeMapId(oldId, newId);
         await assaultManager.changeMapId(oldId, newId);
         await ctfManager.changeMapId(oldId, newId);
         await domManager.changeMapId(oldId, newId);

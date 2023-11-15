@@ -3271,6 +3271,67 @@ class Players{
         return {"data": result, "playerNames": names};
     }
 
+    async deletePlayerMapsDataWithRowIds(rowIds){
+
+        const query = `DELETE FROM nstats_player_maps WHERE id IN(?)`;
+
+        return await mysql.simpleQuery(query, [rowIds]);
+    }
+
+    async fixDuplucateMapsData(newId){
+
+        const getQuery = `SELECT id,player,first,first_id,last,last_id,matches,playtime,longest,longest_id FROM nstats_player_maps WHERE map=?`;
+        const getResult = await mysql.simpleQuery(getQuery, [newId]);
+
+        const rowsToDelete = [];
+        const totals = {};
+
+        for(let i = 0; i < getResult.length; i++){
+
+            const r = getResult[i];
+
+            rowsToDelete.push(r.id);
+
+            if(totals[r.player] === undefined){
+                totals[r.player] = r;
+                continue;
+            }
+       
+
+            totals[r.player].matches += r.matches;
+            totals[r.player].playtime += r.playtime;
+
+            if(r.first < totals[r.player].first){
+                totals[r.player].first = r.first;
+                totals[r.player].first_id = r.first_id;
+            }
+
+            if(r.last > totals[r.player].last){
+                totals[r.player].last = r.last;
+                totals[r.player].last_id = r.last_id;
+            }
+
+            if(r.longest > totals[r.player].longest){
+                totals[r.player].longest = r.longest;
+                totals[r.player].longest_id = r.longest_id;
+            }
+        }
+
+        const insertQuery = `INSERT INTO nstats_player_maps (map,player,first,first_id,last,last_id,matches,playtime,longest,longest_id) VALUES ?`;
+
+
+        const insertVars = [];
+
+        for(const d of Object.values(totals)){
+
+            insertVars.push([newId, d.player, d.first, d.first_id, d.last, d.last_id, d.matches, d.playtime, d.longest, d.longest_id]);
+        }
+
+        await mysql.bulkInsert(insertQuery, insertVars);
+
+        await this.deletePlayerMapsDataWithRowIds(rowsToDelete);
+
+    }
 
     async changeMapId(oldId, newId){
 
@@ -3281,6 +3342,8 @@ class Players{
             "player_totals", //map need to merge dupliactes
 
         ];
+
+        //merge maps dupliactes
 
         const columns = [
             "map", "map_id", "map_id", "map"
@@ -3296,6 +3359,9 @@ class Players{
 
             await mysql.simpleQuery(query, [newId, oldId]);
         }
+
+
+        await this.fixDuplucateMapsData(newId);
     }
 }
 

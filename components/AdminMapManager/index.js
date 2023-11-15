@@ -360,7 +360,7 @@ const renderList = (state, dispatch, nDispatch) =>{
             },
             "file": {
                 "value": name.toLowerCase(),
-                "displayValue": `${name.toLowerCase()}.jpg`
+                "displayValue": `${cleanMapName(name.toLowerCase())}.jpg`
             },
             "thumb": {
                 "value": bThumbs, 
@@ -480,7 +480,7 @@ const AdminMapManager = () =>{
 
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
-        "mode": 4,
+        "mode": 2,
         "mapNames": [],
         "fullSize": [],
         "thumbs": [],
