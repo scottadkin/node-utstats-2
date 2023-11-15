@@ -1,11 +1,18 @@
 import { removeUnr } from "../../api/generic.mjs";
 import DropDown from "../DropDown";
 import { useReducer, useRef } from "react";
+import Loading from "../Loading";
 
 const reducer = (state, action) =>{
 
     switch(action.type){
 
+        case "setLoading": {
+            return {
+                ...state,
+                "bLoading": action.value
+            }
+        }
         case "changeImportAsId": {
             return {
                 ...state,
@@ -18,12 +25,19 @@ const reducer = (state, action) =>{
                 "name": action.name
             }
         }
+        case "reset": {
+            return {
+                ...state,
+                "name": "",
+                "importAsId": 0
+            }
+        }
     }
 
     return state;
 }
 
-const createMap = async (mapList, state, titleRef, authorRef, playerCountRef, levelEnterRef, nDispatch, pDispatch) =>{
+const createMap = async (mapList, state, titleRef, authorRef, playerCountRef, levelEnterRef, dispatch, nDispatch, pDispatch) =>{
 
 
     try{
@@ -41,14 +55,15 @@ const createMap = async (mapList, state, titleRef, authorRef, playerCountRef, le
         if(bMapExist) throw new Error("Map name already exists!");
 
         //DONT FORGET TO APPEND .unr
-        console.log(titleRef.current.value);
+
+        const realName = `${state.name}.unr`;
 
         const req = await fetch("/api/mapmanager", {
             "headers": {"Content-type": "application/json"},
             "method": "POST",
             "body": JSON.stringify({
                 "mode": "create",
-                "name": `${state.name}.unr`,
+                "name": realName,
                 "title": titleRef.current.value,
                 "author": authorRef.current.value,
                 "playerCount": playerCountRef.current.value,
@@ -57,16 +72,21 @@ const createMap = async (mapList, state, titleRef, authorRef, playerCountRef, le
             })
         });
 
-        console.log("CHECK");
 
         const res = await req.json();
-
-        console.log(res);
 
         if(res.error !== undefined){
             throw new Error(res.error);
         }
 
+        pDispatch({"type": "add-map", "name": realName, "id": res.insertId});
+        nDispatch({"type": "add", "notification": {"type": "pass", "content": `Inserted ${realName} as map id ${res.insertId}`}});
+        dispatch({"type": "reset"});
+
+        titleRef.current.value = "";
+        authorRef.current.value = "";
+        playerCountRef.current.value = "";
+        levelEnterRef.current.value = "";
         
 
     }catch(err){
@@ -75,13 +95,18 @@ const createMap = async (mapList, state, titleRef, authorRef, playerCountRef, le
     }
 }
 
-const renderButton = (mapList, state, titleRef, authorRef, playerCountRef, levelEnterRef, nDispatch, pDispatch) =>{
+const renderButton = (mapList, state, titleRef, authorRef, playerCountRef, levelEnterRef, dispatch, nDispatch, pDispatch) =>{
 
-    if(state.name === "") return <div className="team-red p-10">Map name can&apos;t be an empry string.</div>
+    if(state.name === "") return <div className="team-red p-10">Map name can&apos;t be an empry string.</div>;
+
+    if(state.bLoading) return <Loading />;
 
     return <input type="button" value="Create Map" className="search-button" onClick={async (e) =>{
         e.preventDefault();
-        await createMap(mapList, state, titleRef, authorRef, playerCountRef, levelEnterRef, nDispatch, pDispatch);
+        dispatch({"type": "setLoading", "value": true});
+        await createMap(mapList, state, titleRef, authorRef, playerCountRef, levelEnterRef, dispatch, nDispatch, pDispatch);
+        dispatch({"type": "setLoading", "value": false});
+        
     }}/>
 }
 
@@ -89,7 +114,8 @@ const AdminMapCreate = ({mode, maps, nDispatch, pDispatch}) =>{
 
     const [state, dispatch] = useReducer(reducer, {
         "importAsId": 0,
-        "name": ""
+        "name": "",
+        "bLoading": false
     });
 
     const titleRef = useRef(null);
@@ -140,7 +166,7 @@ const AdminMapCreate = ({mode, maps, nDispatch, pDispatch}) =>{
             <DropDown dName="Import Map As" data={mapList} originalValue={state.importAsId} changeSelected={(a,b) => {
                 dispatch({"type": "changeImportAsId", "id": b});
             }}/>
-            {renderButton(mapList, state, titleRef, authorRef, playerCountRef, levelEnterRef, nDispatch, pDispatch)}
+            {renderButton(mapList, state, titleRef, authorRef, playerCountRef, levelEnterRef, dispatch, nDispatch, pDispatch)}
         </div>
     </>
 

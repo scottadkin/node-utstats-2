@@ -79,9 +79,10 @@ export default async function handler(req, res){
                     let importAs = parseInt(req.body.importAs);
                     if(importAs !== importAs) importAs = 0;
 
-                    await mapManager.adminCreateMap(name, title, author, idealPlayerCount, levelEnterText, importAs);
+                    const result = await mapManager.adminCreateMap(name, title, author, idealPlayerCount, levelEnterText, importAs);
 
-                    res.status(200).json({});
+                 
+                    res.status(200).json({"insertId": result.insertId});
                     return;
                 }
 

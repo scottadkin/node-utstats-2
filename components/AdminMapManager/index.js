@@ -133,6 +133,15 @@ const reducer = (state, action) =>{
                 "mapData": [...mapData]
             }
         }
+
+        case "add-map": {
+
+            return {
+                ...state,
+                "mapNames": [...state.mapNames, action.name],
+                "mapData": [...state.mapData, {"id": action.id, "name": action.name}]
+            }
+        }
     }
 
     return state;
