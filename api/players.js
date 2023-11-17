@@ -3439,18 +3439,22 @@ class Players{
         for(let i = 0; i < result.length; i++){
 
             const r = result[i];
+            
 
             rowsToDelete.push(r.id);
 
             if(totals[r.gametype] === undefined) totals[r.gametype] = {};
 
             if(totals[r.gametype][r.player_id] === undefined){
-
                 totals[r.gametype][r.player_id] = r;
+                totals[r.gametype][r.player_id].total_entries = 1;
+                totals[r.gametype][r.player_id].total_accuracy = r.accuracy;
                 continue;
             }
 
             const t = totals[r.gametype][r.player_id];
+
+            t.total_entries++;
 
             for(let x = 0; x < mergeTypes.length; x++){
 
@@ -3473,8 +3477,31 @@ class Players{
 
                 if(t[low] > r[low]) t[low] = r[low];
             }
+
+            //TODO: EFF, accuracy
+
+            if(t.kills > 0){
+
+                if(t.deaths === 0){
+                    t.efficiency = 100;
+                }else{
+                    t.efficiency = t.kills / (t.kills + t.deaths) * 100;
+                }
+
+            }else{
+                t.efficiency = 0;
+            }
+
+            t.total_accuracy += r.accuracy;
+
+            if(t.total_accuracy > 0){
+
+                t.accuracy = t.total_accuracy / t.total_entries;
+            }
         }
 
+        
+        //return;
 
         await this.deletePlayerTotalsByRowIds(rowsToDelete);
         await this.insertMergedPlayerMapTotals(totals);
