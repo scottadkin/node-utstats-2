@@ -3333,6 +3333,153 @@ class Players{
 
     }
 
+    async deletePlayerTotalsByRowIds(rowIds){
+
+        if(rowIds.length === 0) return;
+
+        const query = `DELETE FROM nstats_player_totals WHERE id IN(?)`;
+
+        return await mysql.simpleQuery(query, [rowIds]);
+    }
+
+
+
+    async insertMergedPlayerMapTotals(data){
+
+        const query = `INSERT INTO nstats_player_totals (
+            hwid, name, player_id, first, last,
+            ip, country, face, voice, gametype,
+            map, matches, wins, losses, draws,
+            winrate, playtime, team_0_playtime, team_1_playtime, team_2_playtime,
+            team_3_playtime, spec_playtime, first_bloods, frags, score,
+            kills, deaths, suicides, team_kills, spawn_kills,
+            efficiency, multi_1, multi_2, multi_3,  multi_4,
+            multi_5, multi_6, multi_7, multi_best, spree_1,
+            spree_2, spree_3, spree_4, spree_5, spree_6,
+            spree_7, spree_best, fastest_kill, slowest_kill, best_spawn_kill_spree,
+            assault_objectives, dom_caps, dom_caps_best, dom_caps_best_life, accuracy,
+            k_distance_normal, k_distance_long, k_distance_uber, headshots, shield_belt,
+            amp, amp_time, invisibility, invisibility_time, pads,
+            armor, boots, super_health, mh_kills, mh_kills_best_life,
+            mh_kills_best, views, mh_deaths, mh_deaths_worst) VALUES ?`;
+
+        const insertVars = [];
+
+        const gametypesKeys = Object.keys(data);
+
+        //loop through gametypes
+        for(let i = 0; i < gametypesKeys.length; i++){
+
+            const gId = gametypesKeys[i];
+
+            const playerKeys = Object.keys(data[gId]);
+
+            //loop through player gametype data
+            for(let x = 0; x < playerKeys.length; x++){
+
+                const pId = playerKeys[x];
+
+                const d = data[gId][pId];
+
+                insertVars.push([
+                    d.hwid, d.name, d.player_id, d.first, d.last,
+                    d.ip, d.country, d.face, d.voice, d.gametype,
+                    d.map, d.matches, d.wins, d.losses, d.draws,
+                    d.winrate, d.playtime, d.team_0_playtime, d.team_1_playtime, d.team_2_playtime,
+                    d.team_3_playtime, d.spec_playtime, d.first_bloods, d.frags, d.score,
+                    d.kills, d.deaths, d.suicides, d.team_kills, d.spawn_kills,
+                    d.efficiency, d.multi_1, d.multi_2, d.multi_3,  d.multi_4,
+                    d.multi_5, d.multi_6, d.multi_7, d.multi_best, d.spree_1,
+                    d.spree_2, d.spree_3, d.spree_4, d.spree_5, d.spree_6,
+                    d.spree_7, d.spree_best, d.fastest_kill, d.slowest_kill, d.best_spawn_kill_spree,
+                    d.assault_objectives, d.dom_caps, d.dom_caps_best, d.dom_caps_best_life, d.accuracy,
+                    d.k_distance_normal, d.k_distance_long, d.k_distance_uber, d.headshots, d.shield_belt,
+                    d.amp, d.amp_time, d.invisibility, d.invisibility_time, d.pads,
+                    d.armor, d.boots, d.super_health, d.mh_kills, d.mh_kills_best_life,
+                    d.mh_kills_best, d.views, d.mh_deaths, d.mh_deaths_worst
+                ]);
+            }
+        }
+
+        await mysql.bulkInsert(query, insertVars);
+
+    }
+
+
+    async fixDuplicateMapTotals(mapId){
+
+        const query = `SELECT * FROM nstats_player_totals WHERE map=?`;
+
+        const result = await mysql.simpleQuery(query, [mapId]);
+
+        //result = [...result, ...result];
+        const totals = {};
+
+        const mergeTypes = [
+            "matches","wins","draws","playtime","team_0_playtime","team_1_playtime","team_2_playtime","team_3_playtime",
+            "spec_playtime","first_bloods","frags","score","kills","deaths","suicides","team_kills","spawn_kills",
+            "multi_1","multi_2","multi_3","multi_4","multi_5","multi_6","multi_7","spree_1","spree_2","spree_3",
+            "spree_4","spree_5","spree_6","spree_7","assault_objectives","dom_caps","k_distance_normal","k_distance_long",
+            "k_distance_uber","headshots","shield_belt","amp","amp_time","invisibility","invisibility_time","pads","armor",
+            "boots","super_health","mh_kills","mh_deaths", "views"
+        ];
+
+        const higherBetter = [
+            "multi_best","spree_best","slowest_kill","best_spawn_kill_spree","dom_caps_best","dom_caps_best_life",
+            "mh_kills_best_life","mh_kills_best","mh_deaths_worst","last"
+        ];
+
+        const lowerBetter = [
+            "fastest_kill", "first"
+        ];
+
+
+        const rowsToDelete = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            rowsToDelete.push(r.id);
+
+            if(totals[r.gametype] === undefined) totals[r.gametype] = {};
+
+            if(totals[r.gametype][r.player_id] === undefined){
+
+                totals[r.gametype][r.player_id] = r;
+                continue;
+            }
+
+            const t = totals[r.gametype][r.player_id];
+
+            for(let x = 0; x < mergeTypes.length; x++){
+
+                const m = mergeTypes[x];
+
+                t[m] += r[m];
+            }
+
+            for(let x = 0; x < higherBetter.length; x++){
+
+                const h = higherBetter[x];
+
+                if(t[h] < r[h]) t[h] = r[h];
+            }
+
+            
+            for(let x = 0; x < lowerBetter.length; x++){
+
+                const low = lowerBetter[x];
+
+                if(t[low] > r[low]) t[low] = r[low];
+            }
+        }
+
+
+        await this.deletePlayerTotalsByRowIds(rowsToDelete);
+        await this.insertMergedPlayerMapTotals(totals);
+    }
+
     async changeMapId(oldId, newId){
 
         const tables = [
@@ -3362,6 +3509,7 @@ class Players{
 
 
         await this.fixDuplucateMapsData(newId);
+        await this.fixDuplicateMapTotals(newId);
     }
 }
 

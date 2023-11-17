@@ -9,6 +9,7 @@ const Players = require("./api/players");
 const PowerUps = require("./api/powerups");
 const Telefrags = require("./api/telefrags");
 const WinRate = require("./api/winrate");
+const Matches = require("./api/matches");
 
 (async () =>{
 
@@ -25,8 +26,13 @@ const WinRate = require("./api/winrate");
     const win = new WinRate();
 
 
+   // await p.fixDuplicateMapTotals(1);
+   const mm = new Matches();
 
-    await m.merge(420, 1337, a, c, d, cg, w, p, pow, t, win);
+    await m.merge(2, 5, mm, a, c, d, cg, w, p, pow, t, win);
+
+    //merge(oldId, newId, matchManager, assaultManager, ctfManager, domManager, combogibManager, weaponsManager, 
+    //playersManager, powerupsManager, teleFragsManager, winrateManager
 
     //await win.recalculateMapHistory(1);
 
