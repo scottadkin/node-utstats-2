@@ -108,7 +108,7 @@ const AdminMapMerger = ({mode, maps, nDispatch, pDispatch}) =>{
     return <>
         <div className="default-sub-header">Merge Maps</div>
         <div className="form">
-            <div className="form-info">
+            <div className="form-info m-bottom-10">
                 Merge one map into another.<br/>
                 <b>{name1}</b> will be merged into <b>{name2}</b> taking <b>{name2}&apos;s</b> name.
             </div>

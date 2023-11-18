@@ -9,6 +9,7 @@ import InteractiveTable from "../InteractiveTable";
 import AdminMapMerger from "../AdminMapMerger";
 import AdminMapRename from "../AdminMapRename";
 import AdminMapCreate from "../AdminMapCreate";
+import AdminMapDelete from "../AdminMapDelete";
 
 const reducer = (state, action) =>{
 
@@ -504,7 +505,7 @@ const AdminMapManager = () =>{
 
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
-        "mode": 2,
+        "mode": 5,
         "mapNames": [],
         "fullSize": [],
         "thumbs": [],
@@ -538,6 +539,7 @@ const AdminMapManager = () =>{
         {"name": "Merge Maps", "value": 2},
         {"name": "Rename Map", "value": 3},
         {"name": "Create Map", "value": 4},
+        {"name": "Delete Map", "value": 5},
     ];
 
     return <>
@@ -558,6 +560,7 @@ const AdminMapManager = () =>{
         <AdminMapMerger mode={state.mode} maps={state.mapData} nDispatch={nDispatch} pDispatch={dispatch}/>
         <AdminMapRename mode={state.mode} maps={state.mapData} nDispatch={nDispatch} pDispatch={dispatch}/>
         <AdminMapCreate mode={state.mode} maps={state.mapData} nDispatch={nDispatch} pDispatch={dispatch}/>
+        <AdminMapDelete mode={state.mode} maps={state.mapData} nDispatch={nDispatch} pDispatch={dispatch}/>
         
     </>
 }

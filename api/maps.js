@@ -1383,6 +1383,7 @@ class Maps{
         await powerupsManager.changeMapId(oldId, newId);
         await teleFragsManager.changeMapId(oldId, newId);
         await winrateManager.changeMapId(oldId, newId);
+
     }
 
 
@@ -1391,6 +1392,33 @@ class Maps{
         const query = `UPDATE nstats_maps SET name=? WHERE id=?`;
 
         return await mysql.simpleQuery(query, [newName, mapId]);
+    }
+
+    async getAllPlayedMatchIds(mapId){
+
+        const query = `SELECT id FROM nstats_matches WHERE map=?`;
+
+        const result = await mysql.simpleQuery(query, [mapId]);
+
+        return result.map((r) =>{
+            return r.id;
+        });
+    }
+
+
+    async deleteAllMatches(matchManager, mapId){
+
+
+        const matchIds = await this.getAllPlayedMatchIds(mapId);
+    
+        console.log(matchIds);
+        //await w.changeMapId(1,69);
+
+        for(let i = 0; i < matchIds.length; i++){
+
+            const m = matchIds[i];
+            await matchManager.deleteMatch(m, p);
+        }
     }
 }
 

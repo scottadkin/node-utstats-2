@@ -29,7 +29,7 @@ const Matches = require("./api/matches");
    // await p.fixDuplicateMapTotals(1);
    const mm = new Matches();
 
-    await m.merge(2, 5, mm, a, c, d, cg, w, p, pow, t, win);
+    //await m.merge(2, 5, mm, a, c, d, cg, w, p, pow, t, win);
 
     //merge(oldId, newId, matchManager, assaultManager, ctfManager, domManager, combogibManager, weaponsManager, 
     //playersManager, powerupsManager, teleFragsManager, winrateManager
@@ -42,8 +42,7 @@ const Matches = require("./api/matches");
 
 
     
-
-    //await w.changeMapId(1,69);
+    await m.deleteAllMatches(5);
 
     process.exit();
 
