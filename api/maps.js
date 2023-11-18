@@ -1334,6 +1334,26 @@ class Maps{
         return await mysql.simpleQuery(query, vars);
     }
 
+    async deleteFlags(mapId){
+
+        const query = `DELETE FROM nstats_maps_flags WHERE map=?`;
+
+        return await mysql.simpleQuery(query, [mapId]);
+    }
+
+    async deleteItemSpawns(mapId){
+
+        const query = `DELETE FROM nstats_map_item_locations WHERE map_id=?`;
+        return await mysql.simpleQuery(query, [mapId]);
+    }
+
+    async deleteSpawnPoints(mapId){
+
+        const query = `DELETE FROM nstats_map_spawns WHERE map=?`;
+
+        return await mysql.simpleQuery(query, [mapId]);
+    }
+
     async merge(oldId, newId, matchManager, assaultManager, ctfManager, domManager, combogibManager, weaponsManager, 
         playersManager, powerupsManager, teleFragsManager, winrateManager){
 
@@ -1349,6 +1369,9 @@ class Maps{
         }
 
         await this.deleteMap(oldId);
+        await this.deleteFlags(oldId);
+        await this.deleteItemSpawns(oldId);
+        await this.deleteSpawnPoints(oldId);
 
         await matchManager.changeMapId(oldId, newId);
         await assaultManager.changeMapId(oldId, newId);
