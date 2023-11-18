@@ -1406,18 +1406,15 @@ class Maps{
     }
 
 
-    async deleteAllMatches(matchManager, mapId){
+    async deleteAllMatches(matchManager, playerManager, mapId){
 
 
         const matchIds = await this.getAllPlayedMatchIds(mapId);
-    
-        console.log(matchIds);
-        //await w.changeMapId(1,69);
 
         for(let i = 0; i < matchIds.length; i++){
 
             const m = matchIds[i];
-            await matchManager.deleteMatch(m, p);
+            await matchManager.deleteMatch(m, playerManager);
         }
     }
 }

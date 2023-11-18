@@ -120,6 +120,23 @@ export default async function handler(req, res){
                     return;
                 }
 
+
+                if(mode === "delete"){
+
+                    
+
+                    let id = (req.body.id !== undefined) ? parseInt(req.body.id) : NaN;
+
+                    if(id !== id) throw new Error("Map id must be a valid integer");
+
+                    const matchManager = new Matches();
+                    const playersManager = new Players();
+                    await mapManager.deleteAllMatches(matchManager, playersManager, id);
+
+                    res.status(200).json({"message": "passed"});
+                    return;
+                }
+
                 res.status(200).json({"error": "Unknown mode"});
                 return;
                 
