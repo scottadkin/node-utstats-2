@@ -142,6 +142,28 @@ const reducer = (state, action) =>{
                 "mapData": [...state.mapData, {"id": action.id, "name": action.name}]
             }
         }
+
+        case "remove-map": {
+
+            const remainingNames = [];
+            const remainingData = [];
+
+            for(let i = 0; i < state.mapData.length; i++){
+
+                const m = state.mapData[i];
+
+                if(m.id !== action.id){
+                    remainingData.push(m);
+                    remainingNames.push(m.name);
+                }
+            }
+
+            return {
+                ...state,
+                "mapNames": remainingNames,
+                "mapData": remainingData
+            }
+        }
     }
 
     return state;
@@ -159,6 +181,8 @@ const loadMapNames = async (dispatch, nDispatch) =>{
         });
 
         const res = await req.json();
+
+        console.log(res);
 
         if(res.error !== undefined){
 
@@ -531,7 +555,7 @@ const AdminMapManager = () =>{
         {renderBulkUploader(state, dispatch, nDispatch, bulkRef)}
         {renderList(state, dispatch, nDispatch)}
         {renderCreateMissing(state, dispatch, nDispatch)}
-        <AdminMapMerger mode={state.mode} maps={state.mapData} nDispatch={nDispatch}/>
+        <AdminMapMerger mode={state.mode} maps={state.mapData} nDispatch={nDispatch} pDispatch={dispatch}/>
         <AdminMapRename mode={state.mode} maps={state.mapData} nDispatch={nDispatch} pDispatch={dispatch}/>
         <AdminMapCreate mode={state.mode} maps={state.mapData} nDispatch={nDispatch} pDispatch={dispatch}/>
         

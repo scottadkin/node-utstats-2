@@ -10,7 +10,6 @@ const reducer = (state, action) =>{
         case "select-map": {
 
             state[`map${action.id}`] = action.value;
-
             return {
                 ...state
             }
@@ -21,15 +20,25 @@ const reducer = (state, action) =>{
                 "bLoading": action.value
             }
         }
+        case "reset": {
+            return {
+                ...state,
+                "bLoading": false,
+                "map1": null,
+                "map2": null
+            }
+        }
     }
 
     return state;
 }
 
-const mergeMaps = async (state, dispatch, nDispatch) =>{
+const mergeMaps = async (state, dispatch, nDispatch, pDispatch) =>{
 
 
     try{
+
+        dispatch({"type": "setLoading", "value": true});
 
         const req = await fetch("/api/mapmanager", {
             "headers": {"Content-type": "application/json"},
@@ -43,16 +52,22 @@ const mergeMaps = async (state, dispatch, nDispatch) =>{
 
         const res = await req.json();
 
-        console.log(res);
-
+        
         if(res.error) throw new Error(res.error);
+
+        nDispatch({"type": "add", "notification": {"type": "pass", "content": "Map merge complete."}});
+        pDispatch({"type": "remove-map", "id": state.map1});
+        dispatch({"type": "reset"});
+
+
 
     }catch(err){
         nDispatch({"type": "add", "notification": {"type": "error", "content": err.toString()}});
+        dispatch({"type": "setLoading", "value": false});
     }
 }
 
-const renderSubmit = (state, dispatch, nDispatch) =>{
+const renderSubmit = (state, dispatch, nDispatch, pDispatch) =>{
 
     if(state.bLoading) return <Loading />;
     if(state.map1 === null || state.map2 === null) return null;
@@ -60,13 +75,14 @@ const renderSubmit = (state, dispatch, nDispatch) =>{
 
     return <input type="submit" className="search-button" value="Merge" onClick={async (e) => {
         e.preventDefault();
-        await mergeMaps(state, dispatch, nDispatch);
+      
+        await mergeMaps(state, dispatch, nDispatch, pDispatch);
+        
+        
     }}/>
 }
 
-const AdminMapMerger = ({mode, maps, nDispatch}) =>{
-
-    if(mode !== 2) return null;
+const AdminMapMerger = ({mode, maps, nDispatch, pDispatch}) =>{
 
     const [state, dispatch] = useReducer(reducer, {
         "map1": null,
@@ -74,12 +90,13 @@ const AdminMapMerger = ({mode, maps, nDispatch}) =>{
         "bLoading": false
     });
 
+    if(mode !== 2) return null;
+
     const idsToNames = {};
 
     const options = maps.map((m) =>{
 
         idsToNames[m.id] = removeUnr(m.name);
-
         return {"value": m.id, "displayValue": removeUnr(m.name)};
     });
 
@@ -93,7 +110,7 @@ const AdminMapMerger = ({mode, maps, nDispatch}) =>{
         <div className="form">
             <div className="form-info">
                 Merge one map into another.<br/>
-                <b>{name1}</b> will be merged into <b>{name2}</b> taking <b>{name2}'s</b> name.
+                <b>{name1}</b> will be merged into <b>{name2}</b> taking <b>{name2}&apos;s</b> name.
             </div>
             <DropDown 
                 data={options} 
@@ -112,7 +129,7 @@ const AdminMapMerger = ({mode, maps, nDispatch}) =>{
                 }}
                 originalValue={state.map2}
             />
-            {renderSubmit(state,dispatch,nDispatch)}
+            {renderSubmit(state,dispatch,nDispatch,pDispatch)}
         </div>
     </>
     

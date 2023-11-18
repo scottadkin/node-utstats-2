@@ -116,7 +116,7 @@ export default async function handler(req, res){
                         playersManager, powerupsManager, teleFragsManager, winrateManager);
 
 
-                    res.status(200).json({});
+                    res.status(200).json({"message": "passed"});
                     return;
                 }
 

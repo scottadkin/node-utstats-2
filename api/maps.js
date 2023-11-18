@@ -1343,7 +1343,7 @@ class Maps{
 
     async deleteItemSpawns(mapId){
 
-        const query = `DELETE FROM nstats_map_item_locations WHERE map_id=?`;
+        const query = `DELETE FROM nstats_map_items_locations WHERE map_id=?`;
         return await mysql.simpleQuery(query, [mapId]);
     }
 
