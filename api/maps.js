@@ -1417,6 +1417,18 @@ class Maps{
             await matchManager.deleteMatch(m, playerManager);
         }
     }
+
+    async setAutoMergeId(mapId, targetId){
+
+        if(mapId === targetId) throw new Error("You can't merge a map into itself.");
+        if(mapId === 0) throw new Error("You can't merge a with id of 0.");
+
+        const query = `UPDATE nstats_maps SET import_as_id=? WHERE id=?`;
+
+        await mysql.simpleQuery(query, [targetId, mapId]);
+
+    
+    }
 }
 
 

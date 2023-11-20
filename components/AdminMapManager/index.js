@@ -166,6 +166,22 @@ const reducer = (state, action) =>{
                 "mapData": remainingData
             }
         }
+
+        case "update-import-as": {
+
+            for(let i = 0; i < state.mapData.length; i++){
+
+                const m = state.mapData[i];
+
+                if(action.data[m.id] !== undefined){
+                    m.import_as_id = parseInt(action.data[m.id]);
+                }
+            }
+
+            return {
+                ...state,
+            }
+        }
     }
 
     return state;

@@ -1,6 +1,7 @@
 import InteractiveTable from "../InteractiveTable";
 import { useReducer } from "react";
 import { removeUnr } from "../../api/generic.mjs";
+import Loading from "../Loading";
 
 const reducer = (state, action) =>{
 
@@ -10,10 +11,33 @@ const reducer = (state, action) =>{
 
             state.changes[action.id] = action.value;
 
-            console.log(action);
             return { 
                 ...state,
                 
+            }
+        }
+
+        case "setLoading": {
+            return {
+                ...state,
+                "bLoading": action.value
+            }
+        }
+
+        case "remove-changes": {
+
+            const remainingChanges = {};
+
+            for(const [key, value] of Object.entries(state.changes)){
+
+                if(action.data[key] === undefined){
+                    remainingChanges[key] = value;
+                }
+            }
+
+            return {
+                ...state,
+                "changes": remainingChanges
             }
         }
     }
@@ -64,10 +88,53 @@ const renderTable = (maps, state, dispatch) =>{
     });
     
 
-    return <InteractiveTable width={1} headers={headers} data={data}/>
+    return <InteractiveTable width={1} headers={headers} data={data} bDisableSorting={true}/>
 }
 
-const renderButton = (mapNames, state, dispatch) =>{
+const saveChanges = async (state, dispatch, nDispatch, pDispatch) =>{
+
+    
+
+    try{
+
+        dispatch({"type": "setLoading", "value": true});
+
+        const req = await fetch("/api/mapmanager", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "set-auto-merge", "data": state.changes})
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined) throw new Error(res.error);
+
+        const changed = {};
+
+        if(res.messages.length > 0){
+
+            for(let i = 0; i < res.messages.length; i++){
+
+                const m = res.messages[i];
+
+                if(m.type === "pass"){
+                    changed[m.mapId] = m.targetId;
+                }
+                nDispatch({"type": "add", "notification": {"type": m.type, "content": m.content}});
+            }
+        }
+
+        pDispatch({"type": "update-import-as", "data": changed});
+        dispatch({"type": "remove-changes", "data": changed});
+
+    }catch(err){
+        nDispatch({"type": "add", "notification": {"type": "error", "content": err.toString()}});
+    }
+
+    dispatch({"type": "setLoading", "value": false});
+}
+
+const renderButton = (mapNames, state, dispatch, nDispatch, pDispatch) =>{
 
     if(Object.keys(state.changes).length === 0) return null;
 
@@ -83,6 +150,10 @@ const renderButton = (mapNames, state, dispatch) =>{
         changes.push(<div style={{"padding": "5px"}} key={key}>Import <b>{removeUnr(original)}</b> as <b>{removeUnr(importAs)}</b></div>);
     }
 
+    if(state.bLoading){
+        return <Loading />;
+    }
+
     return <>
         <div className="team-red p-bottom-10 m-bottom-10">
             <div className="default-sub-header-alt" style={{"paddingTop": "10px"}}>
@@ -90,14 +161,17 @@ const renderButton = (mapNames, state, dispatch) =>{
             </div>
             {changes}
         </div>
-        <input type="button" className="search-button" value="Save Changes"/>
+        <input type="button" className="search-button" value="Save Changes" onClick={() =>{
+            saveChanges(state, dispatch, nDispatch, pDispatch);
+        }}/>
     </>
 }
 
 const AdminMapAutoMerger = ({mode, maps, nDispatch, pDispatch}) =>{
 
     const [state, dispatch] = useReducer(reducer, {
-        "changes": {}
+        "changes": {},
+        "bLoading": false
     });
 
     if(mode !== -1) return null;
@@ -119,7 +193,7 @@ const AdminMapAutoMerger = ({mode, maps, nDispatch, pDispatch}) =>{
                 Set up maps to be imported as another map.<br/>
                 Example: <b>CTF-MapName-LE01</b> to be imported as <b>CTF-MapName</b>
             </div>
-            {renderButton(mapNames, state, dispatch)}
+            {renderButton(mapNames, state, dispatch, nDispatch, pDispatch)}
         </div>
         {renderTable(maps, state, dispatch)}
         

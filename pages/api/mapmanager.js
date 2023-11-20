@@ -137,6 +137,36 @@ export default async function handler(req, res){
                     return;
                 }
 
+
+                if(mode === "set-auto-merge"){
+
+                    //setAutoMergeId
+                    const data = req.body.data ?? {};
+
+                    const messages = [];
+
+                    for(const [mapId, targetId] of Object.entries(data)){
+
+                        try{
+
+                            await mapManager.setAutoMergeId(parseInt(mapId), parseInt(targetId));
+
+                            messages.push({
+                                "type":"pass", 
+                                "content": `Map ${mapId} will now be imported as ${targetId}`, 
+                                "mapId": mapId, 
+                                "targetId": targetId
+                            });
+
+                        }catch(err){
+                            messages.push({"type":"error", "content": err.toString()});
+                        }
+                    }
+               
+                    res.status(200).json({"message": "passed", "messages": messages});
+                    return;
+                }
+
                 res.status(200).json({"error": "Unknown mode"});
                 return;
                 
