@@ -352,6 +352,10 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	margin-top:25px;
 }
 
+.p-bottom-10{
+	padding-bottom:10px;
+}
+
 .p-bottom-25{
 	padding-bottom:25px;
 }

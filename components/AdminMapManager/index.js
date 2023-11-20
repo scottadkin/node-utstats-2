@@ -10,6 +10,7 @@ import AdminMapMerger from "../AdminMapMerger";
 import AdminMapRename from "../AdminMapRename";
 import AdminMapCreate from "../AdminMapCreate";
 import AdminMapDelete from "../AdminMapDelete";
+import AdminMapAutoMerger from "../AdminMapAutoMerger";
 
 const reducer = (state, action) =>{
 
@@ -505,7 +506,7 @@ const AdminMapManager = () =>{
 
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
-        "mode": 5,
+        "mode": -1,
         "mapNames": [],
         "fullSize": [],
         "thumbs": [],
@@ -534,6 +535,7 @@ const AdminMapManager = () =>{
     },[]);
 
     const tabs = [
+        {"name": "Auto Merger", "value": -1},
         {"name": "Image Uploader", "value": 0},
         {"name": "Thumbnail Creator", "value": 1},
         {"name": "Merge Maps", "value": 2},
@@ -561,6 +563,7 @@ const AdminMapManager = () =>{
         <AdminMapRename mode={state.mode} maps={state.mapData} nDispatch={nDispatch} pDispatch={dispatch}/>
         <AdminMapCreate mode={state.mode} maps={state.mapData} nDispatch={nDispatch} pDispatch={dispatch}/>
         <AdminMapDelete mode={state.mode} maps={state.mapData} nDispatch={nDispatch} pDispatch={dispatch}/>
+        <AdminMapAutoMerger mode={state.mode} maps={state.mapData} nDispatch={nDispatch} pDispatch={dispatch}/>
         
     </>
 }
