@@ -109,15 +109,15 @@ const renderTable = (state, totalPlayers) =>{
 
 const renderDefault = (state, totalPlayers) =>{
 
-    const elems = state.data.map((d) =>{
+    const elems = state.data.map((d, i) =>{
 
         let percent = 0;
 
         if(totalPlayers > 0){
             percent = (d.total_uses / totalPlayers) * 100;
         }
-
-        return <div key={d.country} className={styles.country}>
+        
+        return <div key={i} className={styles.country}>
             <div className={styles.name}>{d.countryName}</div>
             <div><Image src={`/images/flags/${d.country.toLowerCase()}.svg`} alt={d.country} width={190} height={100}/></div>
             <div className={styles.info}>
@@ -128,7 +128,7 @@ const renderDefault = (state, totalPlayers) =>{
     });
 
 
-    return <div className="t-width-1 center">{elems}</div>;
+    return <div key="default" className="t-width-1 center">{elems}</div>;
 }
 
 const PopularCountries = ({totalPlayers, settings}) =>{
