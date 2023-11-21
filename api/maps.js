@@ -475,11 +475,11 @@ class Maps{
 
         if(name !== ""){
 
-            nameSearch = "WHERE name LIKE (?)";
+            nameSearch = "AND name LIKE (?)";
             vars.unshift(`%${name}%`);
         }
 
-        const query = `SELECT * FROM nstats_maps ${nameSearch} ORDER BY ${sortBy} ${bAsc} LIMIT ?, ?`;
+        const query = `SELECT * FROM nstats_maps WHERE import_as_id=0 ${nameSearch} ORDER BY ${sortBy} ${bAsc} LIMIT ?, ?`;
 
         
         return await mysql.simpleQuery(query, vars);
@@ -1111,9 +1111,15 @@ class Maps{
     }
 
 
-    async getAllNameAndIds(){
+    async getAllNameAndIds(bIncludeAutoMergeMaps){
 
-        const query = "SELECT id,name FROM nstats_maps ORDER BY name ASC";
+        if(bIncludeAutoMergeMaps === undefined) bIncludeAutoMergeMaps = false;
+
+        let query = "SELECT id,name FROM nstats_maps ORDER BY name ASC";
+
+        if(!bIncludeAutoMergeMaps){
+            query = "SELECT id,name FROM nstats_maps WHERE import_as_id=0 ORDER BY name ASC";
+        }
 
         const result = await mysql.simpleQuery(query);
 
@@ -1130,9 +1136,11 @@ class Maps{
         return data;
     }
 
-    async getAllDropDownOptions(){
+    async getAllDropDownOptions(bIncludeAutoMergeMaps){
 
-        const data = await this.getAllNameAndIds();
+        if(bIncludeAutoMergeMaps === undefined) bIncludeAutoMergeMaps = false;
+
+        const data = await this.getAllNameAndIds(bIncludeAutoMergeMaps);
 
         const options = [];
 

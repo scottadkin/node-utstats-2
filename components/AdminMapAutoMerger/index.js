@@ -191,7 +191,8 @@ const AdminMapAutoMerger = ({mode, maps, nDispatch, pDispatch}) =>{
         <div className="form m-bottom-25">
             <div className="form-info m-bottom-10">
                 Set up maps to be imported as another map.<br/>
-                Example: <b>CTF-MapName-LE01</b> to be imported as <b>CTF-MapName</b>
+                Example: <b>CTF-MapName-LE01</b> to be imported as <b>CTF-MapName</b><br/>
+                <b>Note:</b> This will not change existing data only logs imported after changes are made will be auto imported/merged as the target map.
             </div>
             {renderButton(mapNames, state, dispatch, nDispatch, pDispatch)}
         </div>

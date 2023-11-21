@@ -110,7 +110,8 @@ const AdminMapMerger = ({mode, maps, nDispatch, pDispatch}) =>{
         <div className="form">
             <div className="form-info m-bottom-10">
                 Merge one map into another.<br/>
-                <b>{name1}</b> will be merged into <b>{name2}</b> taking <b>{name2}&apos;s</b> name.
+                <b>{name1}</b> will be merged into <b>{name2}</b> taking <b>{name2}&apos;s</b> name.<br/>
+                <b>Note:</b> This will merge all existing data.
             </div>
             <DropDown 
                 data={options} 
