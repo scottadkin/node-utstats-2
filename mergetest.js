@@ -7,7 +7,7 @@ const PlayerMerger = require("./api/playerMerger");
 
     //await p.merge();
 
-    await p.recalcCTFTotals();
+    await p.recalCTFTotals();
 
     process.exit();
 })();
