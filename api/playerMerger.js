@@ -12,13 +12,14 @@ class PlayerMerger{
         this.newId = newId;
     }
 
-    async merge(oldId, newId){
+    async merge(){
 
         try{
 
 
             await this.mergeAssaultTables();
             await this.mergeCTFTables();
+            await this.mergeDomTables();
 
 
         }catch(err){
@@ -395,7 +396,22 @@ class PlayerMerger{
         }
     
         await this.recalCTFTotals();
-        
+    }
+
+
+    //doesn't change the main players table like the ctf stuff
+    async mergeDomTables(){
+
+        new Message(`Merge dom tables.`,"note");
+        const tables = ["dom_match_caps", "dom_match_player_score"];
+
+        for(let i = 0; i < tables.length; i++){
+
+            const t = tables[i];
+
+            await mysql.simpleQuery(`UPDATE nstats_${t} SET player=? WHERE player=?`, [this.newId, this.oldId]);
+        }
+        new Message(`Merge dom tables.`,"pass");
     }
 }
 
