@@ -20,6 +20,8 @@ class PlayerMerger{
             await this.mergeAssaultTables();
             await this.mergeCTFTables();
             await this.mergeDomTables();
+            await this.mergeHeadshots();
+            await this.mergeItems();
 
 
         }catch(err){
@@ -411,7 +413,51 @@ class PlayerMerger{
 
             await mysql.simpleQuery(`UPDATE nstats_${t} SET player=? WHERE player=?`, [this.newId, this.oldId]);
         }
+
         new Message(`Merge dom tables.`,"pass");
+    }
+
+    async mergeHeadshots(){
+
+        new Message(`Merge headshots table`, "note");
+        const query = `UPDATE nstats_headshots SET killer = IF(killer=?,?,killer), victim = IF(victim=?,?,victim)`;
+
+        await mysql.simpleQuery(query, [this.oldId, this.newId, this.oldId, this.newId]);
+        new Message(`Merge headshots table`, "pass");
+    }
+
+    async mergeItems(){
+
+        new Message(`Merge Item tables`,"note");
+
+        const matchQuery = `UPDATE nstats_items_match SET player_id=? WHERE player_id=?`;
+        await mysql.simpleQuery(matchQuery, [this.newId, this.oldId]);
+
+        const totalsQuery = `UPDATE nstats_items_player SET player=? WHERE player=?`;
+        await mysql.simpleQuery(totalsQuery, [this.newId, this.oldId]);
+
+        const duplicateQuery = `SELECT item,MIN(first) as first, MAX(last) as last, SUM(uses) as uses, SUM(matches) as matches 
+        FROM nstats_items_player WHERE player=? GROUP BY item`;
+        const duplicateResult = await mysql.simpleQuery(duplicateQuery, [this.newId]);
+
+        const deleteOldQuery = `DELETE FROM nstats_items_player WHERE player=?`;
+        await mysql.simpleQuery(deleteOldQuery, [this.newId]);
+
+
+        const insertQuery = `INSERT INTO nstats_items_player (player,item,first,last,uses,matches) VALUES ?`;
+
+        const insertVars = [];
+
+        for(let i = 0; i < duplicateResult.length; i++){
+
+            const d = duplicateResult[i];
+            insertVars.push([
+                this.newId, d.item, d.first, d.last, d.uses, d.matches
+            ]);
+        }
+
+        await mysql.bulkInsert(insertQuery, insertVars);
+        new Message(`Merge Item tables`,"pass");
     }
 }
 
