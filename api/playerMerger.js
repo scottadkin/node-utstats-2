@@ -23,6 +23,7 @@ class PlayerMerger{
             await this.mergeItems();
             await this.mergeKills();
             await this.mergeCombogib();
+            await this.mergeMiscPlayerMatch();
 
 
         }catch(err){
@@ -660,6 +661,28 @@ class PlayerMerger{
         await this.fixDuplicateCombogibData();
 
         new Message(`Merge Combogib Tables`,"pass");
+    }
+
+    async mergeMiscPlayerMatch(){
+
+        new Message(`Merge misc player match tables`,"note");
+        const tables = [
+            "match_connections",
+            "match_pings",
+            "match_player_score",
+            "match_team_changes",    
+        ];
+
+        for(let i = 0; i < tables.length; i++){
+
+            const t = tables[i];
+
+            const query = `UPDATE nstats_${t} SET player=? WHERE player=?`;
+
+            await mysql.simpleQuery(query, [this.newId, this.oldId]);
+        }
+
+        new Message(`Merge misc player match tables`,"pass");
     }
 }
 
