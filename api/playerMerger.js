@@ -25,6 +25,7 @@ class PlayerMerger{
             await this.mergeCombogib();
             await this.mergeMiscPlayerMatch();
             await this.mergeMonsterTables();
+            await this.mergePlayerMaps();
 
 
         }catch(err){
@@ -742,6 +743,80 @@ class PlayerMerger{
         await this.fixMonsterDuplicateData();
 
         new Message(`Merge monster tables`,"pass");
+    }
+
+
+    async mergePlayerMaps(){
+
+        new Message(`Merge player maps table`, "note");
+
+        const updateQuery = `UPDATE nstats_player_maps SET player=? WHERE player=?`;
+        await mysql.simpleQuery(updateQuery, [this.newId, this.oldId]);
+
+        const getQuery = `SELECT map,first,first_id,last,last_id,matches,playtime,longest,longest_id FROM nstats_player_maps WHERE player=?`;
+        const result = await mysql.simpleQuery(getQuery, [this.newId]);
+
+        const totals = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            if(totals[r.map] === undefined){
+                totals[r.map] = r;
+                continue;
+            }
+
+            const t = totals[r.map];
+
+            if(t.first > r.first){
+                t.first = r.first;
+                t.first_id = r.first_id;
+            }
+
+            if(t.last < r.last){
+                t.last = r.last;
+                t.last_id = r.last_id;
+            }
+
+            if(t.longest < r.longest){
+                t.longest = r.longest;
+                t.longest_id = r.longest_id;
+            }
+
+            t.matches += r.matches;
+            t.playtime += r.playtime;
+        }
+
+        const deleteQuery = `DELETE FROM nstats_player_maps WHERE player=?`;
+        await mysql.simpleQuery(deleteQuery, [this.newId]);
+
+        const insertVars = [];
+
+        for(const m of Object.values(totals)){
+
+            insertVars.push([
+                m.map,
+                this.newId,
+                m.first,
+                m.first_id,
+                m.last,
+                m.last_id,
+                m.matches,
+                m.playtime,
+                m.longest,
+                m.longest_id,
+            ]);
+        }
+
+        const insertQuery = `INSERT INTO nstats_player_maps (
+            map,player,first,first_id,last,last_id,matches,playtime,
+            longest, longest_id
+        ) VALUES ?`;
+
+        await mysql.bulkInsert(insertQuery, insertVars);
+
+        new Message(`Merge player maps table`, "pass");
     }
 }
 
