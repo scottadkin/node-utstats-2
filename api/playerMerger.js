@@ -16,12 +16,13 @@ class PlayerMerger{
 
         try{
 
-
             await this.mergeAssaultTables();
             await this.mergeCTFTables();
             await this.mergeDomTables();
             await this.mergeHeadshots();
             await this.mergeItems();
+            await this.mergeKills();
+            await this.mergeCombogib();
 
 
         }catch(err){
@@ -458,6 +459,207 @@ class PlayerMerger{
 
         await mysql.bulkInsert(insertQuery, insertVars);
         new Message(`Merge Item tables`,"pass");
+    }
+
+    async mergeKills(){
+
+        new Message(`Merge kill tables`, "note");
+
+        const query = `UPDATE nstats_kills SET killer = IF(killer = ?, ?, killer), victim = if(victim = ?, ?, victim)`;
+
+        await mysql.simpleQuery(query, [this.oldId, this.newId, this.oldId, this.newId]);
+
+        new Message(`Merge kill tables`, "pass");
+    }
+
+
+    async fixDuplicateCombogibData(){
+
+        const getQuery = `SELECT * FROM nstats_player_combogib WHERE player_id=?`;
+
+        const result = await mysql.simpleQuery(getQuery, [this.newId]);
+
+        const mergeTypes = [
+            "total_matches",
+            "playtime",
+            "combo_kills",
+            "combo_deaths",
+            "insane_kills",
+            "insane_deaths",
+            "shockball_kills",
+            "shockball_deaths",
+            "primary_kills",
+            "primary_deaths",
+        ];
+
+        const higherBetter = [
+            "best_single_combo",
+            "best_single_insane",
+            "best_single_shockball",
+            "max_combo_kills",
+            "max_insane_kills",
+            "max_shockball_kills",
+            "max_primary_kills",
+            "best_combo_spree",
+            "best_insane_spree",
+            "best_shockball_spree",
+            "best_primary_spree",
+        ];
+
+        const killTypes = [
+            "combo", "insane", "shockball", "primary"
+        ];
+
+        const totals = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            const gametypeId = r.gametype_id;
+            const mapId = r.map_id;
+
+            if(totals[gametypeId] === undefined) totals[gametypeId] = {};
+
+            if(totals[gametypeId][mapId] === undefined){
+                totals[gametypeId][mapId] = r;
+                continue
+            }
+
+            const t = totals[gametypeId][mapId];
+
+            for(let x = 0; x < mergeTypes.length; x++){
+
+                const m = mergeTypes[x];
+
+                t[m] += r[m];
+            }
+
+            for(let x = 0; x < killTypes.length; x++){
+
+                const k = killTypes[x];
+
+                if(t[`${k}_kills`] > 0){
+
+                    if(t[`${k}_deaths`] > 0){
+                        t[`${k}_efficiency`] = (t[`${k}_kills`] / (t[`${k}_kills`] + t[`${k}_deaths`])) * 100;
+                    }else{
+                        t[`${k}_efficiency`]= 100;
+                    }
+
+                    if(t.playtime > 0){
+                        t[`${k}_kpm`] = t[`${k}_kills`] / (t.playtime / 60);
+                    }else{
+                        t[`${k}_kpm`] = 0;
+                    }
+
+                }else{
+                    t[`${k}_efficiency`] = 0;
+                    t[`${k}_kpm`] = 0;
+                }
+            }
+
+
+            for(let x = 0; x < higherBetter.length; x++){
+
+                const h = higherBetter[x];
+
+                if(t[h] < r[h]){
+                    t[h] = r[h];
+                    t[`${h}_match_id`] = r[`${h}_match_id`];
+                }
+            }
+        }
+
+        const deleteQuery = `DELETE FROM nstats_player_combogib WHERE player_id=?`;
+        await mysql.simpleQuery(deleteQuery, [this.newId]);
+
+
+        const insertVars = [];
+
+        for(const gametypeData of Object.values(totals)){
+
+            for(const mapData of Object.values(gametypeData)){
+        
+                const m = mapData;
+
+                insertVars.push([
+                    m.player_id,m. gametype_id, m.map_id, m.total_matches, m.playtime,
+                    m.combo_kills, m.combo_deaths, m.combo_efficiency, m.combo_kpm, 
+                    m.insane_kills, m.insane_deaths, m.insane_efficiency, m.insane_kpm,
+                    m.shockball_kills, m.shockball_deaths, m.shockball_efficiency, m.shockball_kpm,
+                    m.primary_kills, m.primary_deaths, m.primary_efficiency, m.primary_kpm,
+                    m.best_single_combo, m.best_single_combo_match_id, m.best_single_insane,
+                    m.best_single_insane_match_id, m.best_single_shockball, m.best_single_shockball_match_id,
+                    m.max_combo_kills, m.max_combo_kills_match_id, m.max_insane_kills, m.max_insane_kills_match_id,
+                    m.max_shockball_kills, m.max_shockball_kills_match_id, m.max_primary_kills, m.max_primary_kills_match_id,
+                    m.best_combo_spree, m.best_combo_spree_match_id, m.best_insane_spree, m.best_insane_spree_match_id,
+                    m.best_shockball_spree, m.best_shockball_spree_match_id, m.best_primary_spree, m.best_primary_spree_match_id
+                ]);
+            }
+        }
+
+        const insertQuery = `INSERT INTO nstats_player_combogib (
+            player_id, gametype_id, map_id, total_matches, playtime,
+            combo_kills, combo_deaths, combo_efficiency, combo_kpm, 
+            insane_kills, insane_deaths, insane_efficiency, insane_kpm,
+            shockball_kills, shockball_deaths, shockball_efficiency, shockball_kpm,
+            primary_kills, primary_deaths, primary_efficiency, primary_kpm,
+            best_single_combo, best_single_combo_match_id, best_single_insane,
+            best_single_insane_match_id, best_single_shockball, best_single_shockball_match_id,
+            max_combo_kills, max_combo_kills_match_id, max_insane_kills, max_insane_kills_match_id,
+            max_shockball_kills, max_shockball_kills_match_id, max_primary_kills, max_primary_kills_match_id,
+            best_combo_spree, best_combo_spree_match_id, best_insane_spree, best_insane_spree_match_id,
+            best_shockball_spree, best_shockball_spree_match_id, best_primary_spree, best_primary_spree_match_id
+        ) VALUES ?`;
+
+        await mysql.bulkInsert(insertQuery, insertVars);
+    }
+
+    async mergeCombogib(){
+
+        new Message(`Merge Combogib Tables`,"note");
+
+        const mapQuery = `UPDATE nstats_map_combogib SET 
+        best_single_combo_player_id = IF(best_single_combo_player_id=?,?,best_single_combo_player_id),
+        best_single_shockball_player_id = IF(best_single_shockball_player_id=?,?,best_single_shockball_player_id),
+        best_single_insane_player_id = IF(best_single_insane_player_id=?,?,best_single_insane_player_id),
+        best_primary_spree_player_id = IF(best_primary_spree_player_id=?,?,best_primary_spree_player_id),
+        best_shockball_spree_player_id = IF(best_shockball_spree_player_id=?,?,best_shockball_spree_player_id),
+        best_combo_spree_player_id = IF(best_combo_spree_player_id=?,?,best_combo_spree_player_id),
+        best_insane_spree_player_id = IF(best_insane_spree_player_id=?,?,best_insane_spree_player_id),
+        max_combo_kills_player_id = IF(max_combo_kills_player_id=?,?,max_combo_kills_player_id),
+        max_insane_kills_player_id = IF(max_insane_kills_player_id=?,?,max_insane_kills_player_id),
+        max_shockball_kills_player_id = IF(max_shockball_kills_player_id=?,?,max_shockball_kills_player_id),
+        max_primary_kills_player_id = IF(max_primary_kills_player_id=?,?,max_primary_kills_player_id)`;
+
+        const mapVars = [
+            this.oldId, this.newId,
+            this.oldId, this.newId,
+            this.oldId, this.newId,
+            this.oldId, this.newId,
+            this.oldId, this.newId,
+            this.oldId, this.newId,
+            this.oldId, this.newId,
+            this.oldId, this.newId,
+            this.oldId, this.newId,
+            this.oldId, this.newId,
+            this.oldId, this.newId,
+        ];
+
+        await mysql.simpleQuery(mapQuery, mapVars);
+
+
+        const matchQuery = `UPDATE nstats_match_combogib SET player_id=? WHERE player_id=?`;
+        await mysql.simpleQuery(matchQuery, [this.newId, this.oldId]);
+
+
+        const playerUpdateQuery = `UPDATE nstats_player_combogib SET player_id=? WHERE player_id=?`;
+        await mysql.simpleQuery(playerUpdateQuery, [this.newId, this.oldId]);
+
+        await this.fixDuplicateCombogibData();
+
+        new Message(`Merge Combogib Tables`,"pass");
     }
 }
 
