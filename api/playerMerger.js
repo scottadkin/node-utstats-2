@@ -28,6 +28,9 @@ class PlayerMerger{
             await this.mergePlayerMaps();
 
 
+            await this.mergeTeleFrags();
+            await this.mergeSprees();
+
         }catch(err){
             console.trace(err);
         }
@@ -817,6 +820,23 @@ class PlayerMerger{
         await mysql.bulkInsert(insertQuery, insertVars);
 
         new Message(`Merge player maps table`, "pass");
+    }
+
+    async mergeTeleFrags(){
+
+        new Message("Merge telefrags table", "note");
+        const query = `UPDATE nstats_tele_frags SET killer_id = IF(killer_id=?,?,killer_id), victim_id = IF(victim_id=?,?,victim_id)`;
+
+        await mysql.simpleQuery(query, [this.oldId, this.newId, this.oldId, this.newId]);
+        new Message("Merge telefrags table", "pass");
+    }
+
+    async mergeSprees(){
+
+        new Message("Merge sprees table", "note");
+        const query = `UPDATE nstats_sprees SET player = IF(player=?,?,player), killer = IF(killer=?,?,killer)`;
+        await mysql.simpleQuery(query, [this.oldId, this.newId, this.oldId, this.newId]);
+        new Message("Merge sprees table", "pass");
     }
 }
 
