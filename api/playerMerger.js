@@ -24,6 +24,7 @@ class PlayerMerger{
             await this.mergeKills();
             await this.mergeCombogib();
             await this.mergeMiscPlayerMatch();
+            await this.mergeMonsterTables();
 
 
         }catch(err){
@@ -683,6 +684,64 @@ class PlayerMerger{
         }
 
         new Message(`Merge misc player match tables`,"pass");
+    }
+
+
+    async fixMonsterDuplicateData(){
+
+        const getQuery = `SELECT monster,SUM(matches) as matches,SUM(kills) as kills, SUM(deaths) as deaths FROM nstats_monsters_player_totals WHERE player=? GROUP BY monster`;
+        const result = await mysql.simpleQuery(getQuery, [this.newId]);
+
+        const deleteQuery = `DELETE FROM nstats_monsters_player_totals WHERE player=?`;
+        await mysql.simpleQuery(deleteQuery, [this.newId]);
+
+        const insertVars = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            insertVars.push([
+                this.newId,
+                r.monster,
+                r.matches, 
+                r.kills,
+                r.deaths
+            ]);
+        }
+
+        const insertQuery = `INSERT INTO nstats_monsters_player_totals (
+            player,
+            monster,
+            matches, 
+            kills,
+            deaths
+        ) VALUES ?`;
+
+        await mysql.bulkInsert(insertQuery, insertVars);
+    }
+
+    async mergeMonsterTables(){
+
+        new Message(`Merge monster tables`,"note");
+
+        const tables = [
+            "monster_kills",
+            "monsters_player_match",
+            "monsters_player_totals"
+        ];
+
+        for(let i = 0; i < tables.length; i++){
+
+            const t = tables[i];
+
+            const query = `UPDATE nstats_${t} SET player=? WHERE player=?`;
+            await mysql.simpleQuery(query, [this.newId, this.oldId]);
+        }
+
+        await this.fixMonsterDuplicateData();
+
+        new Message(`Merge monster tables`,"pass");
     }
 }
 
