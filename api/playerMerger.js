@@ -321,6 +321,245 @@ class PlayerMerger{
         //console.log(bestLife);
     }
 
+
+    async fixDuplicatePlayerCTFData(){
+
+        const query = `SELECT * FROM nstats_player_ctf_match WHERE player_id=?`;
+
+        const result = await mysql.simpleQuery(query, this.newId);
+
+        const mergeTypes = [
+            "playtime",
+            "flag_assist",
+            "flag_return",
+            "flag_return_base",
+            "flag_return_mid",
+            "flag_return_enemy_base",
+            "flag_return_save",
+            "flag_dropped",
+            "flag_kill",
+            "flag_suicide",
+            "flag_seal",
+            "flag_seal_pass",
+            "flag_seal_fail",
+            "flag_cover",
+            "flag_cover_pass",
+            "flag_cover_fail",
+            "flag_cover_multi",
+            "flag_cover_spree",
+            "flag_capture",
+            "flag_carry_time",
+            "flag_taken",
+            "flag_pickup",
+            "flag_self_cover",
+            "flag_self_cover_pass",
+            "flag_self_cover_fail",
+            "flag_solo_capture",
+        ];
+
+        const higherBetter = [
+            "flag_assist_best",
+            "flag_return_best",
+            "flag_return_base_best",
+            "flag_return_mid_best",
+            "flag_return_enemy_base_best",
+            "flag_return_save_best",
+            "flag_dropped_best",
+            "flag_kill_best",
+            "flag_seal_best",
+            "flag_seal_pass_best",
+            "flag_seal_fail_best",
+            "best_single_seal",
+            "flag_cover_best",
+            "flag_cover_pass_best",
+            "flag_cover_fail_best",
+            "flag_cover_multi_best",
+            "flag_cover_spree_best",
+            "best_single_cover",
+            "flag_capture_best",
+            "flag_carry_time_best",
+            "flag_taken_best",
+            "flag_pickup_best",
+            "flag_self_cover_best",
+            "flag_self_cover_pass_best",
+            "flag_self_cover_fail_best",
+            "best_single_self_cover",
+            "flag_solo_capture_best"
+        ];
+
+
+        const totals = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            if(totals[r.match_id] === undefined){
+                totals[r.match_id] = r;
+                totals[r.match_id].dataPoints = 1;
+                continue;
+            }
+
+            const t = totals[r.match_id];
+
+            t.dataPoints++;
+
+            for(let x = 0; x < mergeTypes.length; x++){
+
+                const m = mergeTypes[x];
+
+                t[m] += r[m];
+            }
+
+            for(let x = 0; x < higherBetter.length; x++){
+
+                const h = higherBetter[x];
+
+                if(r[h] > t[h]) t[h] = r[h];
+            }
+        }
+
+        const deleteQuery = `DELETE FROM nstats_player_ctf_match WHERE player_id=?`;
+        await mysql.simpleQuery(deleteQuery, [this.newId]);
+
+        const insertQuery = `INSERT INTO nstats_player_ctf_match (
+            player_id,
+            match_id,
+            gametype_id,
+            server_id,
+            map_id,
+            match_date,
+            playtime,
+            flag_assist,
+            flag_assist_best,
+            flag_return,
+            flag_return_best,
+            flag_return_base,
+            flag_return_base_best,
+            flag_return_mid,
+            flag_return_mid_best,
+            flag_return_enemy_base,
+            flag_return_enemy_base_best,
+            flag_return_save,
+            flag_return_save_best,
+            flag_dropped,
+            flag_dropped_best,
+            flag_kill,
+            flag_kill_best,
+            flag_suicide,
+            flag_seal,
+            flag_seal_best,
+            flag_seal_pass,
+            flag_seal_pass_best,
+            flag_seal_fail,
+            flag_seal_fail_best,
+            best_single_seal,
+            flag_cover,
+            flag_cover_best,
+            flag_cover_pass,
+            flag_cover_pass_best,
+            flag_cover_fail,
+            flag_cover_fail_best,
+            flag_cover_multi,
+            flag_cover_multi_best,
+            flag_cover_spree,
+            flag_cover_spree_best,
+            best_single_cover,
+            flag_capture,
+            flag_capture_best,
+            flag_carry_time,
+            flag_carry_time_best,
+            flag_taken,
+            flag_taken_best,
+            flag_pickup,
+            flag_pickup_best,
+            flag_self_cover,
+            flag_self_cover_best,
+            flag_self_cover_pass,
+            flag_self_cover_pass_best,
+            flag_self_cover_fail,
+            flag_self_cover_fail_best,
+            best_single_self_cover,
+            flag_solo_capture,
+            flag_solo_capture_best
+        ) VALUES ?`;
+
+        const insertVars = [];
+
+
+        const rows = Object.values(totals);
+
+        for(let i = 0; i < rows.length; i++){
+
+            const r = rows[i];
+
+            insertVars.push([
+                r.player_id,
+                r.match_id,
+                r.gametype_id,
+                r.server_id,
+                r.map_id,
+                r.match_date,
+                r.playtime,
+                r.flag_assist,
+                r.flag_assist_best,
+                r.flag_return,
+                r.flag_return_best,
+                r.flag_return_base,
+                r.flag_return_base_best,
+                r.flag_return_mid,
+                r.flag_return_mid_best,
+                r.flag_return_enemy_base,
+                r.flag_return_enemy_base_best,
+                r.flag_return_save,
+                r.flag_return_save_best,
+                r.flag_dropped,
+                r.flag_dropped_best,
+                r.flag_kill,
+                r.flag_kill_best,
+                r.flag_suicide,
+                r.flag_seal,
+                r.flag_seal_best,
+                r.flag_seal_pass,
+                r.flag_seal_pass_best,
+                r.flag_seal_fail,
+                r.flag_seal_fail_best,
+                r.best_single_seal,
+                r.flag_cover,
+                r.flag_cover_best,
+                r.flag_cover_pass,
+                r.flag_cover_pass_best,
+                r.flag_cover_fail,
+                r.flag_cover_fail_best,
+                r.flag_cover_multi,
+                r.flag_cover_multi_best,
+                r.flag_cover_spree,
+                r.flag_cover_spree_best,
+                r.best_single_cover,
+                r.flag_capture,
+                r.flag_capture_best,
+                r.flag_carry_time,
+                r.flag_carry_time_best,
+                r.flag_taken,
+                r.flag_taken_best,
+                r.flag_pickup,
+                r.flag_pickup_best,
+                r.flag_self_cover,
+                r.flag_self_cover_best,
+                r.flag_self_cover_pass,
+                r.flag_self_cover_pass_best,
+                r.flag_self_cover_fail,
+                r.flag_self_cover_fail_best,
+                r.best_single_self_cover,
+                r.flag_solo_capture,
+                r.flag_solo_capture_best
+            ])
+        }
+
+        await mysql.bulkInsert(insertQuery, insertVars);
+
+    }
+
     //This does not include nstats_player_match and totals table
     async mergeCTFTables(){
 
@@ -405,6 +644,7 @@ class PlayerMerger{
             await mysql.simpleQuery(`UPDATE nstats_${table} ${info.query}`, info.vars);
         }
     
+        await this.fixDuplicatePlayerCTFData();
         await this.recalCTFTotals();
     }
 
