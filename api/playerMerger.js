@@ -26,6 +26,7 @@ class PlayerMerger{
             await this.mergeMiscPlayerMatch();
             await this.mergeMonsterTables();
             await this.mergePlayerMaps();
+            await this.mergePlayerMatchData();
 
 
             await this.mergeTeleFrags();
@@ -820,6 +821,232 @@ class PlayerMerger{
         await mysql.bulkInsert(insertQuery, insertVars);
 
         new Message(`Merge player maps table`, "pass");
+    }
+
+
+    async fixDuplicatePlayerMatchData(){
+
+        const getQuery = `SELECT * FROM nstats_player_matches WHERE player_id=?`;
+
+        const data = await mysql.simpleQuery(getQuery, [this.newId]);
+
+        const mergeTypes = [
+            "playtime",              "team_0_playtime",
+            "team_1_playtime",       "team_2_playtime",       "team_3_playtime",
+            "spec_playtime",         "first_blood",
+            "frags",                 "score",                 "kills",
+            "deaths",                "suicides",              "team_kills",
+            "spawn_kills",                                     "multi_1",
+            "multi_2",               "multi_3",               "multi_4",
+            "multi_5",               "multi_6",               "multi_7",
+                                    "spree_1",               "spree_2",
+            "spree_3",               "spree_4",               "spree_5",
+            "spree_6",               "spree_7",               
+             "assault_objectives",    "dom_caps",
+            "k_distance_normal",
+            "k_distance_long",       "k_distance_uber",       "headshots",
+            "shield_belt",           "amp",                   "amp_time",
+            "invisibility",          "invisibility_time",     "pads",
+            "armor",                 "boots",                 "super_health",
+            "mh_kills",                "views",
+            "mh_deaths",             "telefrag_kills",        "telefrag_deaths",
+            "tele_disc_kills",
+            "tele_disc_deaths",
+        ];
+
+        const higherBetter = [
+                 
+            "multi_best", "spree_best",
+            "best_spawn_kill_spree", 
+            "dom_caps_best_life",    
+            "ping_max",               
+            "longest_kill_distance", "mh_kills_best_life",   
+            "telefrag_best_spree",   "telefrag_best_multi",  
+            "tele_disc_best_spree",  "tele_disc_best_multi"
+        ];
+
+        const lowerBetter = [
+            "ping_min",
+            "shortest_kill_distance"
+        ];
+
+
+        const avg = [
+            "ping_average",
+            "accuracy",
+            "average_kill_distance"
+        ];
+
+
+        const totals = {};
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            if(totals[d.match_id] === undefined){
+
+                totals[d.match_id] = d;
+                totals[d.match_id].dataPoints = 1;
+
+                for(let x = 0; x < avg.length; x++){
+
+                    totals[d.match_id][`total_${avg[x]}`] = d[avg[x]];
+                }
+
+                continue;
+            }
+
+            const t = totals[d.match_id];
+            t.dataPoints++;
+
+            for(let x = 0; x < mergeTypes.length; x++){
+
+                const m = mergeTypes[x];
+
+                t[m] += d[m];
+            }
+
+            for(let x = 0; x < higherBetter.length; x++){
+
+                const h = higherBetter[x];
+
+                if(t[h] < d[h]) t[h] = d[h];
+            }
+
+            for(let x = 0; x < lowerBetter.length; x++){
+
+                const l = lowerBetter[x];
+
+                if(t[l] > d[l]) t[l] = d[l];
+            }
+
+            for(let x = 0; x < avg.length; x++){
+
+                const a = avg[x];
+                t[`total_${a}`] += d[a];
+
+                if(t[`total_${a}`] > 0){
+                    t[a] = t[`total_${a}`] / t.dataPoints;
+                }else{
+                    t[a] = 0;
+                }
+            }
+
+            if(t.playtime > 0){
+                t.played = 1;
+                t.spectator = 0;
+            }else{
+                t.spectator = 1;
+                t.played = 0;
+            }
+
+            if(t.winner || d.winner){
+                t.winner = 1;
+                t.draw = 0;
+            }
+
+            if(t.kills > 0){
+
+                if(t.deaths > 0){
+                    t.efficiency = t.kills / (t.kills + t.deaths) * 100;
+                }else{
+                    t.efficiency = 100;
+                }
+
+            }else{
+                t.efficiency = 0;
+            }
+        }
+ 
+        const deleteQuery = `DELETE FROM nstats_player_matches WHERE player_id=?`;
+        await mysql.simpleQuery(deleteQuery, [this.newId]);
+
+        const rows = Object.values(totals);
+     
+        const insertVars = [];
+
+        const insertQuery = `INSERT INTO nstats_player_matches (
+            match_id,              match_date,
+            map_id,                player_id,             hwid,
+            bot,                   spectator,             played,
+            ip,                    country,               face,
+            voice,                 gametype,              winner,
+            draw,                  playtime,              team_0_playtime,
+            team_1_playtime,       team_2_playtime,       team_3_playtime,
+            spec_playtime,         team,                  first_blood,
+            frags,                 score,                 kills,
+            deaths,                suicides,              team_kills,
+            spawn_kills,           efficiency,            multi_1,
+            multi_2,               multi_3,               multi_4,
+            multi_5,               multi_6,               multi_7,
+            multi_best,            spree_1,               spree_2,
+            spree_3,               spree_4,               spree_5,
+            spree_6,               spree_7,               spree_best,
+            best_spawn_kill_spree, assault_objectives,    dom_caps,
+            dom_caps_best_life,    ping_min,              ping_average,
+            ping_max,              accuracy,              shortest_kill_distance,
+            average_kill_distance, longest_kill_distance, k_distance_normal,
+            k_distance_long,       k_distance_uber,       headshots,
+            shield_belt,           amp,                   amp_time,
+            invisibility,          invisibility_time,     pads,
+            armor,                 boots,                 super_health,
+            mh_kills,              mh_kills_best_life,    views,
+            mh_deaths,             telefrag_kills,        telefrag_deaths,
+            telefrag_best_spree,   telefrag_best_multi,   tele_disc_kills,
+            tele_disc_deaths,      tele_disc_best_spree,  tele_disc_best_multi
+        ) VALUES ?`;
+
+        for(let i = 0; i < rows.length; i++){
+
+            const r = rows[i];
+
+            insertVars.push([
+                r.match_id,              r.match_date,
+                r.map_id,                r.player_id,             r.hwid,
+                r.bot,                   r.spectator,             r.played,
+                r.ip,                    r.country,               r.face,
+                r.voice,                 r.gametype,              r.winner,
+                r.draw,                  r.playtime,              r.team_0_playtime,
+                r.team_1_playtime,       r.team_2_playtime,       r.team_3_playtime,
+                r.spec_playtime,         r.team,                  r.first_blood,
+                r.frags,                 r.score,                 r.kills,
+                r.deaths,                r.suicides,              r.team_kills,
+                r.spawn_kills,           r.efficiency,            r.multi_1,
+                r.multi_2,               r.multi_3,               r.multi_4,
+                r.multi_5,               r.multi_6,               r.multi_7,
+                r.multi_best,            r.spree_1,               r.spree_2,
+                r.spree_3,               r.spree_4,               r.spree_5,
+                r.spree_6,               r.spree_7,               r.spree_best,
+                r.best_spawn_kill_spree, r.assault_objectives,    r.dom_caps,
+                r.dom_caps_best_life,    r.ping_min,              r.ping_average,
+                r.ping_max,              r.accuracy,              r.shortest_kill_distance,
+                r.average_kill_distance, r.longest_kill_distance, r.k_distance_normal,
+                r.k_distance_long,       r.k_distance_uber,       r.headshots,
+                r.shield_belt,           r.amp,                   r.amp_time,
+                r.invisibility,          r.invisibility_time,     r.pads,
+                r.armor,                 r.boots,                 r.super_health,
+                r.mh_kills,              r.mh_kills_best_life,    r.views,
+                r.mh_deaths,             r.telefrag_kills,        r.telefrag_deaths,
+                r.telefrag_best_spree,   r.telefrag_best_multi,   r.tele_disc_kills,
+                r.tele_disc_deaths,      r.tele_disc_best_spree,  r.tele_disc_best_multi
+            ]);
+        }
+
+        await mysql.bulkInsert(insertQuery, insertVars);
+
+    }
+
+    async mergePlayerMatchData(){
+
+        new Message(`Merge player match data`,"note");
+        const query = `UPDATE nstats_player_matches SET player_id=? WHERE player_id=?`;
+
+        await mysql.simpleQuery(query, [this.newId, this.oldId]);
+
+        await this.fixDuplicatePlayerMatchData();
+
+        new Message(`Merge player match data`,"pass");
     }
 
     async mergeTeleFrags(){
