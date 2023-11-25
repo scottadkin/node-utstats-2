@@ -27,6 +27,7 @@ class PlayerMerger{
             await this.mergeMonsterTables();
             await this.mergePlayerMaps();
             await this.mergePlayerMatchData();
+            await this.mergePlayerTotalsData();
 
 
             await this.mergeTeleFrags();
@@ -1304,6 +1305,228 @@ class PlayerMerger{
         const query = `UPDATE nstats_sprees SET player = IF(player=?,?,player), killer = IF(killer=?,?,killer)`;
         await mysql.simpleQuery(query, [this.oldId, this.newId, this.oldId, this.newId]);
         new Message("Merge sprees table", "pass");
+    }
+
+
+    updatePlayerTotal(totals, gametypeId, mapId, data){
+
+        const t = totals;
+        const d = data;
+
+        if(t[gametypeId] === undefined) t[gametypeId] = {};
+
+        if(t[gametypeId][mapId] === undefined){
+            t[gametypeId][mapId] = d;
+
+            const c = t[gametypeId][mapId];
+            c.matches = 1;
+            c.wins = (d.winner) ? 1 : 0;
+            c.draws = (d.draw) ? 1 : 0;
+            c.losses = (!d.winner && !d.draw) ? 1 : 0;
+            c.winrate = (d.winner) ? 100 : 0 ;
+            c.multi_best = 0;
+            c.spree_best = 0;
+            c.ping_min_total = d.ping_min;
+            c.ping_average_total = d.ping_average;
+            c.ping_max_total = d.ping_max;
+            c.accuracy_total = d.accuracy;
+            c.efficiency = d.efficiency;
+            c.first_bloods = d.first_blood;
+            c.dom_caps_best = d.dom_caps;
+            c.mh_kills_best = d.mh_kills;
+            c.fastest_kill = -1;
+            c.slowest_kill = -1;
+            return;
+        }
+
+
+        const c = t[gametypeId][mapId];
+
+        /*
+        [
+        "id",                 "hwid",               "name",
+        "player_id",          "first",              "last",
+        "ip",                 "country",            "face",
+        "voice",              "gametype",           "map",
+        "matches",            "wins",               "losses",
+        "draws",              "winrate",            "playtime",
+        "team_0_playtime",    "team_1_playtime",    "team_2_playtime",
+        "team_3_playtime",    "spec_playtime",      "first_bloods",
+        "frags",              "score",              "kills",
+        "deaths",             "suicides",           "team_kills",
+        "spawn_kills",        "efficiency",         "multi_1",
+        "multi_2",            "multi_3",            "multi_4",
+        "multi_5",            "multi_6",            "multi_7",
+        "multi_best",         "spree_1",            "spree_2",
+        "spree_3",            "spree_4",            "spree_5",
+        "spree_6",            "spree_7",            "spree_best",
+        "fastest_kill",       "slowest_kill",       "best_spawn_kill_spree",
+        "assault_objectives", "dom_caps",           "dom_caps_best",
+        "dom_caps_best_life", "accuracy",           "k_distance_normal",
+        "k_distance_long",    "k_distance_uber",    "headshots",
+        "shield_belt",        "amp",                "amp_time",
+        "invisibility",       "invisibility_time",  "pads",
+        "armor",              "boots",              "super_health",
+        "mh_kills",           "mh_kills_best_life", "mh_kills_best",
+        "views",              "mh_deaths",          "mh_deaths_worst"
+        ]
+        */
+
+        const mergeTypes = [
+           
+            "playtime",
+            "team_0_playtime",    "team_1_playtime",    "team_2_playtime",
+            "team_3_playtime",    "spec_playtime",      //"first_bloods",
+            "frags",              "score",              "kills",
+            "deaths",             "suicides",           "team_kills",
+            "spawn_kills",               "multi_1",
+            "multi_2",            "multi_3",            "multi_4",
+            "multi_5",            "multi_6",            "multi_7",
+            "spree_1",            "spree_2",
+            "spree_3",            "spree_4",            "spree_5",
+            "spree_6",            "spree_7",            
+            "fastest_kill",       "slowest_kill",       
+            "assault_objectives", "dom_caps",           
+             "accuracy",           "k_distance_normal",
+            "k_distance_long",    "k_distance_uber",    "headshots",
+            "shield_belt",        "amp",                "amp_time",
+            "invisibility",       "invisibility_time",  "pads",
+            "armor",              "boots",              "super_health",
+            "mh_kills",           
+            "views",              "mh_deaths",     
+          ]
+
+
+        const higherBetter = [
+            "multi_best",
+            "spree_best",
+            "dom_caps_best_life",
+            "best_spawn_kill_spree",
+            "mh_kills_best_life"
+        ];
+
+        for(let x = 0; x < mergeTypes.length; x++){
+
+            const m = mergeTypes[x];
+            c[m] += d[m];    
+        }
+
+        for(let x = 0; x < higherBetter.length; x++){
+
+            const h = higherBetter[x];
+
+            if(d[h] > c[h]) c[h] = d[h];
+        }
+
+        c.first_bloods += d.first_blood;
+        c.ping_min_total += d.ping_min;
+        c.ping_average_total += d.ping_average;
+        c.ping_max_total += d.ping_max;
+        c.accuracy_total += d.accuracy;
+        if(c.dom_caps_best < d.dom_caps) c.dom_caps_best_life = d.dom_caps;
+        if(c.mh_kills_best < d.mh_kills) c.mh_kills_best = d.mh_kills;
+
+
+        if(c.kills > 0){
+
+            if(c.deaths > 0){
+
+                c.efficiency = c.kills / (c.kills + c.deaths) * 100;
+            }else{
+                c.efficiency = 100;
+            }
+        }else{
+            c.efficiency = 0;
+        }
+
+
+        if(d.winner) c.wins++;
+        if(d.draw) c.draws++;
+        if(!d.winner && !d.draw) c.losses++;
+
+        if(c.wins > 0){
+
+            c.winrate = (c.wins / c.matches) * 100;
+        }else{
+            c.winrate = 0;
+        }
+
+        c.matches++;
+    }
+
+    //create new data from match data
+    async createNewPlayerTotals(){
+
+
+        const query = `SELECT * FROM nstats_player_matches WHERE player_id=?`;
+
+        const result = await mysql.simpleQuery(query, [this.newId]);
+
+        console.log(result);
+
+
+
+
+
+        const totals = {};
+
+
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+
+            //map gametype totals
+            this.updatePlayerTotal(totals, r.gametype, r.map_id, r);
+            //gametype totals
+            this.updatePlayerTotal(totals, r.gametype, 0, r);
+            //map totals
+            this.updatePlayerTotal(totals, 0, r.map_id, r);
+            //all time totals
+            this.updatePlayerTotal(totals, 0, 0, r);
+        }
+
+
+        console.log(totals);
+        
+    }
+
+
+    async getNewName(){
+
+        const query = `SELECT name FROM nstats_player_totals WHERE id=?`;
+
+        const result = await mysql.simpleQuery(query, [this.newId]);
+
+        if(result.length > 0) return result[0].name;
+
+        return "Player";
+    }
+
+    async mergePlayerTotalsData(){
+
+        new Message("Merge player totals table", "note");
+
+        const newName = await this.getNewName();
+
+
+        //for everything other than master profile(id=x and player_id=0)
+        const updateQuery = `UPDATE nstats_player_totals SET player_id=?,name=? WHERE player_id=?`;
+
+        await mysql.simpleQuery(updateQuery, [this.newId, newName, this.oldId]);
+
+
+
+
+        await this.createNewPlayerTotals();
+
+
+        //now insert
+
+        //console.log(totals);
+        //console.log(result);
+        new Message("Merge player totals table", "pass");
     }
 }
 
