@@ -112,7 +112,8 @@ class MatchManager{
                 this.bIgnoreBots, 
                 this.gameInfo.getMatchLength(), 
                 geoip, 
-                this.bUsePlayerACEHWID
+                this.bUsePlayerACEHWID,
+                this.gameInfo.hardcore
             );
 
             const matchTimings = this.gameInfo.getMatchLength();
@@ -145,7 +146,7 @@ class MatchManager{
             this.playerManager.totalTeams = this.gameInfo.totalTeams;
             
 
-            this.killManager = new KillManager(this.killLines, this.playerManager, this.bIgnoreBots, matchTimings);
+            this.killManager = new KillManager(this.killLines, this.playerManager, this.bIgnoreBots, matchTimings, this.gameInfo.hardcore);
 
             this.playerManager.killManager = this.killManager;
 

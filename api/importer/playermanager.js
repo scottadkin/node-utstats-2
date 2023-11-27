@@ -14,7 +14,7 @@ const Functions = require("../functions");
 
 class PlayerManager{
 
-    constructor(data, spawnManager, bIgnoreBots, matchTimings, geoip, bUsePlayerACEHWID){
+    constructor(data, spawnManager, bIgnoreBots, matchTimings, geoip, bUsePlayerACEHWID, bHardcore){
 
         this.data = data;
 
@@ -23,6 +23,9 @@ class PlayerManager{
 
         this.geoip = geoip;
         this.bUsePlayerACEHWID = bUsePlayerACEHWID;
+
+        //to scale multi kill times
+        this.bHardcore = bHardcore;
 
 
         this.players = [];
@@ -672,17 +675,17 @@ class PlayerManager{
 
         if(killer !== null){   
 
-            killer.killedPlayer(timestamp, killerWeapon, killDistance, bTeamKill, victimWeapon, deathType);
+            killer.killedPlayer(timestamp, killerWeapon, killDistance, bTeamKill, victimWeapon, deathType, this.bHardcore);
 
             if(killerWeapon.toLowerCase() === "translocator"){
 
-                killer.teleFragKill(timestamp);
-                this.killManager.addTeleFrag(timestamp, killerId, killerTeam, victimId, victimTeam, false)
+                killer.teleFragKill(timestamp, this.bHardcore);
+                this.killManager.addTeleFrag(timestamp, killerId, killerTeam, victimId, victimTeam, false);
 
             }else if(victimWeapon.toLowerCase() === "translocator" && deathType.toLowerCase() === "gibbed"){
 
-                killer.teleDiscKill(timestamp);
-                this.killManager.addTeleFrag(timestamp, killerId, killerTeam, victimId, victimTeam, true)
+                killer.teleDiscKill(timestamp, this.bHardcore);
+                this.killManager.addTeleFrag(timestamp, killerId, killerTeam, victimId, victimTeam, true);
             }
         }
 

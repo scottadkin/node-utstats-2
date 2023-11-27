@@ -1,6 +1,7 @@
 const config = require('../../config.json');
 const WeaponStats = require('./weaponstats');
 const Message = require("../message");
+const Functions = require("../functions");
 
 class PlayerInfo{
 
@@ -547,9 +548,9 @@ class PlayerInfo{
         }
     }
 
-    teleFragKill(timestamp){
+    teleFragKill(timestamp, bHardcore){
 
-        const difference = timestamp - this.stats.teleFrags.lastKillTime;
+        const difference = Functions.scalePlaytime(timestamp, bHardcore) - Functions.scalePlaytime(this.stats.teleFrags.lastKillTime, bHardcore);
 
         if(difference <= config.multiKillTimeLimit){
 
@@ -585,9 +586,9 @@ class PlayerInfo{
         this.stats.teleFrags.discDeaths++;
     }
 
-    teleDiscKill(timestamp){
+    teleDiscKill(timestamp, bHardcore){
 
-        const diff = timestamp - this.stats.teleFrags.discLastKillTime;
+        const diff = Functions.convertTimestamp(timestamp, bHardcore) - Functions.convertTimestamp(this.stats.teleFrags.discLastKillTime, bHardcore);
 
         if(diff > config.multiKillTimeLimit) this.stats.teleFrags.discKillsBestMulti = 0;
 
@@ -608,11 +609,12 @@ class PlayerInfo{
 
     }
 
-    killedPlayer(timestamp, weapon, distance, bTeamKill, victimWeapon, deathType){
+    killedPlayer(timestamp, weapon, distance, bTeamKill, victimWeapon, deathType, bHardcore){
 
         timestamp = parseFloat(timestamp);
 
-        const timeDiff = timestamp - this.lastKill;
+        const timeDiff = Functions.scalePlaytime(timestamp, bHardcore) - Functions.scalePlaytime(this.lastKill, bHardcore);
+
 
         this.updateKillDistances(distance);
 
@@ -639,6 +641,8 @@ class PlayerInfo{
 
         }else{
             this.updateMultis();      
+            //You idiot, forgot to set multi kill to 1...
+            this.stats.currentMulti = 1;
         }
 
         if(distance <= 1536){
