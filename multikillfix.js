@@ -130,25 +130,136 @@ async function updateMatchData(matchId, playerData){
     new Message(`Updating multi kills for match ${matchId}, took ${Functions.toPlaytime(diff,true)}`, "pass");
 }
 
+
+async function updateTotals(data, gametypeId, mapId){
+
+
+    const query = `UPDATE nstats_player_totals SET multi_1=?,multi_2=?,multi_3=?,multi_4=?,multi_5=?,multi_6=?,multi_7=?,
+    multi_best=? WHERE `;
+
+    const d = data;
+
+    let where = "";
+
+    const extraVars = [];
+
+    if(gametypeId === 0 && mapId === 0){
+        where = `id=?`;
+        extraVars.push(d.player_id);
+    }else{
+        where = `player_id=? AND gametype=? AND map=?`;
+        extraVars.push(d.player_id, gametypeId, mapId);
+    }
+
+    
+    const vars = [
+        d.multi_1,
+        d.multi_2,
+        d.multi_3,
+        d.multi_4,
+        d.multi_5,
+        d.multi_6,
+        d.multi_7,
+        d.best_multi,
+        ...extraVars
+    ];
+
+    return await mysql.simpleQuery(`${query}${where}`, vars);
+}
+
+async function createTotalsFromMatchData(){
+
+    //will need to do map all time totals, and gametype all time totals separately e.g 0,1, 0,0, 1,0
+    const query = `
+    SUM(multi_1) as multi_1,
+    SUM(multi_2) as multi_2,
+    SUM(multi_3) as multi_3,
+    SUM(multi_4) as multi_4,
+    SUM(multi_5) as multi_5,
+    SUM(multi_6) as multi_6,
+    SUM(multi_7) as multi_7,
+    MAX(multi_best) as best_multi FROM nstats_player_matches `;
+
+    const groupMapGametype = `GROUP BY player_id,gametype,map_id`;
+    const selectMapGametype = `player_id,gametype,map_id,`;
+    const selectMap = `player_id,map_id,`;
+    const groupMap = `GROUP BY player_id,map_id`;
+    const selectGametype = `player_id,gametype,`;
+    const groupGametype = `GROUP BY player_id,gametype`;
+
+    const groupAllTime = `GROUP BY player_id`;
+    const selectAllTime = `player_id,`;
+
+
+    new Message(`Updating all time player total multi kills.`,"note");
+
+    const allTimeResult = await mysql.simpleQuery(`SELECT ${selectAllTime} ${query}${groupAllTime}`);
+
+    for(let i = 0; i < allTimeResult.length; i++){
+
+        const a = allTimeResult[i];
+        await updateTotals(a, 0, 0);
+    }
+
+    new Message(`Updating all time player total multi kills.`,"pass");
+
+
+    new Message(`Updating gametype player total multi kills.`,"note");
+    const gametypeResult = await mysql.simpleQuery(`SELECT ${selectGametype} ${query}${groupGametype}`);
+
+    for(let i = 0; i < gametypeResult.length; i++){
+
+        const a = gametypeResult[i];
+        await updateTotals(a, a.gametype, 0);
+    }
+    new Message(`Updating gametype player total multi kills.`,"pass");
+
+
+    new Message(`Updating map player total multi kills.`,"note");
+
+    const mapResult = await mysql.simpleQuery(`SELECT ${selectMap} ${query}${groupMap}`);
+
+    for(let i = 0; i < mapResult.length; i++){
+
+        const a = mapResult[i];
+        await updateTotals(a, 0, a.map_id);
+    }
+
+    new Message(`Updating map player total multi kills.`,"pass");
+
+
+    new Message(`Updating map & gametype player total multi kills.`,"note");
+    const mapGametypeResult = await mysql.simpleQuery(`SELECT ${selectMapGametype} ${query}${groupMapGametype}`);
+
+    for(let i = 0; i < mapGametypeResult.length; i++){
+
+        const m = mapGametypeResult[i];
+        await updateTotals(m, m.gametype, m.map_id);
+    }
+    new Message(`Updating map & gametype player total multi kills.`,"pass");
+
+
+    
+
+    //console.log(mapGametypeResult);
+}
+
 (async () =>{
 
-    const matchIds = await getHardcoreMatchIds();
 
-    console.log(matchIds);
+
+    const matchIds = await getHardcoreMatchIds();
 
     for(let i = 0; i < matchIds.length; i++){
 
         const id = matchIds[i];
 
-       // console.log(id);
-        //return;
-
         const matchData = createMatchData(await getKills(id));
 
         await updateMatchData(id, matchData);
-
-        //break;
     }
+
+    await createTotalsFromMatchData();
 
     process.exit();
 })();
