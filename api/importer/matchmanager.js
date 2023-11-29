@@ -233,7 +233,7 @@ class MatchManager{
 
             if(this.domManager !== undefined){
 
-                this.domManager.mapId =this.mapInfo.mapId;
+                this.domManager.mapId = this.mapInfo.mapId;
                 this.domManager.matchId = this.matchId;
                 this.domManager.playerManager = this.playerManager;
                 this.domManager.parseData();

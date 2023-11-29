@@ -160,16 +160,17 @@ class Importer{
                 
                 if(!log.bLinesNull){
 
+                    
                     const currentData = await log.import();
 
-                    if(log.mapInfo.maps.bMergeError){
-
-                        fs.renameSync(`${config.importedLogsFolder}/${f}`,`Logs/rejected/map-merge-error/${f}`);
-
-                    }else if(!log.bFoundRealMatchStart){
+                    if(!log.bFoundRealMatchStart){
 
                         fs.renameSync(`${config.importedLogsFolder}/${f}`,`Logs/rejected/missing-start/${f}`);
     
+                    }else if(log.mapInfo.maps.bMergeError){
+
+                        fs.renameSync(`${config.importedLogsFolder}/${f}`,`Logs/rejected/map-merge-error/${f}`);
+
                     }else if(log.bUnderMinPlaytime){
                         
                         fs.renameSync(`${config.importedLogsFolder}/${f}`,`Logs/rejected/under-playtime/${f}`);
