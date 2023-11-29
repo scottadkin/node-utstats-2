@@ -28,6 +28,7 @@ class PlayerMerger{
             await this.mergePlayerMaps();
             await this.mergePlayerMatchData();
             await this.mergePlayerTotalsData();
+            await this.mergePowerups();
 
 
             await this.mergeTeleFrags();
@@ -1319,6 +1320,8 @@ class PlayerMerger{
             t[gametypeId][mapId] = d;
 
             const c = t[gametypeId][mapId];
+            c.first = d.match_date;
+            c.last = d.match_date;
             c.matches = 1;
             c.wins = (d.winner) ? 1 : 0;
             c.draws = (d.draw) ? 1 : 0;
@@ -1418,6 +1421,9 @@ class PlayerMerger{
             if(d[h] > c[h]) c[h] = d[h];
         }
 
+        if(c.first > d.match_date) c.first = d.match_date;
+        if(c.last < d.match_date) c.last = d.match_date;
+
         c.first_bloods += d.first_blood;
         c.ping_min_total += d.ping_min;
         c.ping_average_total += d.ping_average;
@@ -1470,11 +1476,6 @@ class PlayerMerger{
 
         const result = await mysql.simpleQuery(query, [this.newId]);
 
-        console.log(result);
-
-
-
-
 
         const totals = {};
 
@@ -1496,7 +1497,7 @@ class PlayerMerger{
         }
 
 
-        console.log(totals);
+        return totals;
         
     }
 
@@ -1510,6 +1511,63 @@ class PlayerMerger{
         if(result.length > 0) return result[0].name;
 
         return "Player";
+    }
+
+
+    async updateMasterProfile(totals){
+
+       
+        if(totals[0][0] === undefined){
+            throw new Error("Could not find master profile! updateMasterProfile[0][0]");  
+        }
+
+        const d = totals[0][0];
+
+        console.log(d);
+
+
+        const query = `UPDATE nstats_player_totals SET
+        first=?,
+        last=?,
+        matches=?,
+        wins=?,
+        losses=?,
+        draws=?,    
+        winrate=?,
+        playtime=?,
+        team_0_playtime=?,
+        team_1_playtime=?,
+        team_2_playtime=?,
+        team_3_playtime=?,
+        spec_playtime=?
+        WHERE id=?`;
+
+        const vars = [
+            d.first,
+            d.last,
+            d.matches,
+            d.wins,
+            d.losses,
+            d.draws,
+            d.winrate,
+            d.playtime,
+            d.team_0_playtime,
+            d.team_1_playtime,
+            d.team_2_playtime,
+            d.team_3_playtime,
+            d.spec_playtime,
+
+            this.newId
+        ];
+
+        await mysql.simpleQuery(query, vars);
+
+        /*for(const [gametypeId, gametypeData] of Object.entries(data)){
+
+            for(const [mapId, mapData] of Object.entries(gametypeData)){
+
+            }
+        }*/
     }
 
     async mergePlayerTotalsData(){
@@ -1527,14 +1585,41 @@ class PlayerMerger{
 
 
 
-        await this.createNewPlayerTotals();
+        const newTotals = await this.createNewPlayerTotals();
 
+        //console.log(newTotals);
 
         //now insert
+
+        //update new id(master profile, gametype = 0, map = 0, player_id = 0)
+
+        await this.updateMasterProfile(newTotals);
+
+        //delete old master id this.oldId
+
+        //delete old data
 
         //console.log(totals);
         //console.log(result);
         new Message("Merge player totals table", "pass");
+    }
+
+
+    async mergePowerups(){
+
+        const tables = [
+            "powerups_player_match",
+            "powerups_carry_times"
+        ];
+        //also need to merge powerups_player_totals
+
+        for(let i = 0; i < tables.length; i++){
+
+            const t = tables[i];
+            const query = `UPDATE nstats_${t} SET player_id=? WHERE player_id=?`;
+            await mysql.simpleQuery(query, [this.newId, this.oldId]);
+        }
+
     }
 }
 
