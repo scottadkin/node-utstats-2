@@ -1385,7 +1385,7 @@ class PlayerMerger{
             "spree_1",            "spree_2",
             "spree_3",            "spree_4",            "spree_5",
             "spree_6",            "spree_7",            
-            "fastest_kill",       "slowest_kill",       
+           // "fastest_kill",       "slowest_kill",       
             "assault_objectives", "dom_caps",           
              "accuracy",           "k_distance_normal",
             "k_distance_long",    "k_distance_uber",    "headshots",
@@ -1443,6 +1443,7 @@ class PlayerMerger{
         if(d.winner) c.wins++;
         if(d.draw) c.draws++;
         if(!d.winner && !d.draw) c.losses++;
+        c.matches++;
 
         if(c.wins > 0){
 
@@ -1451,7 +1452,14 @@ class PlayerMerger{
             c.winrate = 0;
         }
 
-        c.matches++;
+        if(c.total_accuracy > 0 && d.accuracy > 0){
+
+            c.accuracy = c.accuracy_total / c.matches;
+        }else{
+            c.accuracy = 0;
+        }
+
+        
     }
 
     //create new data from match data
