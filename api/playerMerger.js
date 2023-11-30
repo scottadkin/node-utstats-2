@@ -1337,6 +1337,7 @@ class PlayerMerger{
             c.first_bloods = d.first_blood;
             c.dom_caps_best = d.dom_caps;
             c.mh_kills_best = d.mh_kills;
+            c.mh_deaths_worst = d.mh_deaths;
             c.fastest_kill = -1;
             c.slowest_kill = -1;
             return;
@@ -1344,36 +1345,6 @@ class PlayerMerger{
 
 
         const c = t[gametypeId][mapId];
-
-        /*
-        [
-        "id",                 "hwid",               "name",
-        "player_id",          "first",              "last",
-        "ip",                 "country",            "face",
-        "voice",              "gametype",           "map",
-        "matches",            "wins",               "losses",
-        "draws",              "winrate",            "playtime",
-        "team_0_playtime",    "team_1_playtime",    "team_2_playtime",
-        "team_3_playtime",    "spec_playtime",      "first_bloods",
-        "frags",              "score",              "kills",
-        "deaths",             "suicides",           "team_kills",
-        "spawn_kills",        "efficiency",         "multi_1",
-        "multi_2",            "multi_3",            "multi_4",
-        "multi_5",            "multi_6",            "multi_7",
-        "multi_best",         "spree_1",            "spree_2",
-        "spree_3",            "spree_4",            "spree_5",
-        "spree_6",            "spree_7",            "spree_best",
-        "fastest_kill",       "slowest_kill",       "best_spawn_kill_spree",
-        "assault_objectives", "dom_caps",           "dom_caps_best",
-        "dom_caps_best_life", "accuracy",           "k_distance_normal",
-        "k_distance_long",    "k_distance_uber",    "headshots",
-        "shield_belt",        "amp",                "amp_time",
-        "invisibility",       "invisibility_time",  "pads",
-        "armor",              "boots",              "super_health",
-        "mh_kills",           "mh_kills_best_life", "mh_kills_best",
-        "views",              "mh_deaths",          "mh_deaths_worst"
-        ]
-        */
 
         const mergeTypes = [
            
@@ -1405,7 +1376,8 @@ class PlayerMerger{
             "spree_best",
             "dom_caps_best_life",
             "best_spawn_kill_spree",
-            "mh_kills_best_life"
+            "mh_kills_best_life",
+            "mh_deaths_worst"
         ];
 
         for(let x = 0; x < mergeTypes.length; x++){
@@ -1516,15 +1488,13 @@ class PlayerMerger{
 
     async updateMasterProfile(totals){
 
+        new Message(`Updating master profile stats`,"note");
        
         if(totals[0][0] === undefined){
             throw new Error("Could not find master profile! updateMasterProfile[0][0]");  
         }
 
         const d = totals[0][0];
-
-        console.log(d);
-
 
         const query = `UPDATE nstats_player_totals SET
         first=?,
@@ -1539,7 +1509,57 @@ class PlayerMerger{
         team_1_playtime=?,
         team_2_playtime=?,
         team_3_playtime=?,
-        spec_playtime=?
+        spec_playtime=?,
+        first_bloods=?,
+        frags=?,
+        score=?,
+        kills=?,
+        deaths=?,
+        suicides=?,
+        team_kills=?,
+        spawn_kills=?,
+        efficiency=?,
+        multi_1=?,
+        multi_2=?,
+        multi_3=?,
+        multi_4=?,
+        multi_5=?,
+        multi_6=?,
+        multi_7=?,
+        multi_best=?,
+        spree_1=?,
+        spree_2=?,
+        spree_3=?,
+        spree_4=?,
+        spree_5=?,
+        spree_6=?,
+        spree_7=?,
+        spree_best=?,
+        best_spawn_kill_spree=?,
+        assault_objectives=?,
+        dom_caps=?,
+        dom_caps_best=?,
+        dom_caps_best_life=?,
+        accuracy=?,
+        k_distance_normal=?,
+        k_distance_long=?,
+        k_distance_uber=?,
+        headshots=?,
+        shield_belt=?,
+        amp=?,
+        amp_time=?,
+        invisibility=?,
+        invisibility_time=?,
+        pads=?,
+        armor=?,
+        boots=?,
+        super_health=?,
+        mh_kills=?,
+        mh_kills_best_life=?,
+        mh_kills_best=?,
+        views=?,
+        mh_deaths=?,
+        mh_deaths_worst=?
         WHERE id=?`;
 
         const vars = [
@@ -1556,11 +1576,64 @@ class PlayerMerger{
             d.team_2_playtime,
             d.team_3_playtime,
             d.spec_playtime,
+            d.first_bloods,
+            d.frags,
+            d.score,
+            d.kills,
+            d.deaths,
+            d.suicides,
+            d.team_kills,
+            d.spawn_kills,
+            d.efficiency,
+            d.multi_1,
+            d.multi_2,
+            d.multi_3,
+            d.multi_4,
+            d.multi_5,
+            d.multi_6,
+            d.multi_7,
+            d.multi_best,
+            d.spree_1,
+            d.spree_2,
+            d.spree_3,
+            d.spree_4,
+            d.spree_5,
+            d.spree_6,
+            d.spree_7,
+            d.spree_best,
+            d.best_spawn_kill_spree,
+            d.assault_objectives,
+            d.dom_caps,
+            d.dom_caps_best,
+            d.dom_caps_best_life,
+            d.accuracy,
+            d.k_distance_normal,
+            d.k_distance_long,
+            d.k_distance_uber,
+            d.headshots,
+            d.shield_belt,
+            d.amp,
+            d.amp_time,
+            d.invisibility,
+            d.invisibility_time,
+            d.pads,
+            d.armor,
+            d.boots,
+            d.super_health,
+            d.mh_kills,
+            d.mh_kills_best_life,
+            d.mh_kills_best,
+            d.views,
+            d.mh_deaths,
+            d.mh_deaths_worst,
+
 
             this.newId
         ];
 
         await mysql.simpleQuery(query, vars);
+
+        new Message(`Updating master profile stats`,"pass");
 
         /*for(const [gametypeId, gametypeData] of Object.entries(data)){
 
@@ -1568,6 +1641,13 @@ class PlayerMerger{
 
             }
         }*/
+    }
+
+    async deleteOldMasterPlayerData(){
+
+        const query = `DELETE FROM nstats_player_totals WHERE id=?`;
+
+        await mysql.simpleQuery(query, [this.oldId]);
     }
 
     async mergePlayerTotalsData(){
@@ -1594,6 +1674,8 @@ class PlayerMerger{
         //update new id(master profile, gametype = 0, map = 0, player_id = 0)
 
         await this.updateMasterProfile(newTotals);
+        await this.deleteOldMasterPlayerData();
+        
 
         //delete old master id this.oldId
 
