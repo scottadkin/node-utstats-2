@@ -1380,6 +1380,12 @@ class PlayerMerger{
             "mh_deaths_worst"
         ];
 
+        c.ip = d.ip;
+        c.hwid = d.hwid;
+        c.face = d.face;
+        c.country = d.country;
+        c.voice = d.voice;
+
         for(let x = 0; x < mergeTypes.length; x++){
 
             const m = mergeTypes[x];
@@ -1635,12 +1641,7 @@ class PlayerMerger{
 
         new Message(`Updating master profile stats`,"pass");
 
-        /*for(const [gametypeId, gametypeData] of Object.entries(data)){
-
-            for(const [mapId, mapData] of Object.entries(gametypeData)){
-
-            }
-        }*/
+        
     }
 
     async deleteOldMasterPlayerData(){
@@ -1650,17 +1651,80 @@ class PlayerMerger{
         await mysql.simpleQuery(query, [this.oldId]);
     }
 
+
+    //delete everything except for master profile
+    async deleteOldGametypeTotals(){
+
+        const query = `DELETE FROM nstats_player_totals WHERE player_id=?`;
+
+        return await mysql.simpleQuery(query, [this.newId]);
+    }
+
+
+    async insertNewPlayerTotals(totals){
+
+        for(const [gametypeId, gametypeData] of Object.entries(totals)){
+
+
+            for(const [mapId, d] of Object.entries(gametypeData)){
+
+                //we have already update the master profile
+                if(parseInt(gametypeId) === 0 && parseInt(mapId) === 0) continue;
+
+                const query = `INSERT INTO nstats_player_totals VALUES(NULL,
+                    ?,?,?,?,?,
+                    ?,?,?,?,?,
+                    ?,?,?,?,?,
+                    ?,?,?,?,?,
+                    ?,?,?,?,?,
+                    ?,?,?,?,?,
+                    ?,?,?,?,?,
+                    ?,?,?,?,?,
+                    ?,?,?,?,?,
+                    ?,?,?,?,?,
+                    ?,?,?,?,?,
+                    ?,?,?,?,?,
+                    ?,?,?,?,?,
+                    ?,?,?,?,?,
+                    ?,?,?,?
+
+                )`;
+
+                const vars = [
+                    d.hwid, this.newName, this.newId, d.first, d.last,
+                    d.ip, d.country, d.face, d.voice, gametypeId,
+                    mapId, d.matches, d.wins, d.losses, d.draws,
+                    d.winrate, d.playtime, d.team_0_playtime, d.team_1_playtime, d.team_2_playtime,
+                    d.team_3_playtime, d.spec_playtime, d.first_bloods, d.frags, d.score,
+                    d.kills, d.deaths, d.suicides, d.team_kills, d.spawn_kills,
+                    d.efficiency, d.multi_1, d.multi_2, d.multi_3, d.multi_4,
+                    d.multi_5, d.multi_6, d.multi_7, d.multi_best, d.spree_1,
+                    d.spree_2, d.spree_3, d.spree_4, d.spree_5, d.spree_6, 
+                    d.spree_7, d.spree_best, d.fastest_kill, d.slowest_kill, d.best_spawn_kill_spree,
+                    d.assault_objectives, d.dom_caps, d.dom_caps_best, d.dom_caps_best_life, d.accuracy,
+                    d.k_distance_normal, d.k_distance_long, d.k_distance_uber, d.headshots, d.shield_belt,
+                    d.amp, d.amp_time, d.invisibility, d.invisibility_time, d.pads,
+                    d.armor, d.boots, d.super_health, d.mh_kills, d.mh_kills_best_life,
+                    d.mh_kills_best, d.views, d.mh_deaths, d.mh_deaths_worst
+                ];
+
+
+                await mysql.simpleQuery(query, vars);
+            }
+        }
+    }
+
     async mergePlayerTotalsData(){
 
         new Message("Merge player totals table", "note");
 
-        const newName = await this.getNewName();
+        this.newName = await this.getNewName();
 
 
         //for everything other than master profile(id=x and player_id=0)
         const updateQuery = `UPDATE nstats_player_totals SET player_id=?,name=? WHERE player_id=?`;
 
-        await mysql.simpleQuery(updateQuery, [this.newId, newName, this.oldId]);
+        await mysql.simpleQuery(updateQuery, [this.newId, this.newName, this.oldId]);
 
 
 
@@ -1675,6 +1739,10 @@ class PlayerMerger{
 
         await this.updateMasterProfile(newTotals);
         await this.deleteOldMasterPlayerData();
+
+        await this.deleteOldGametypeTotals();
+        
+        await this.insertNewPlayerTotals(newTotals);
         
 
         //delete old master id this.oldId
