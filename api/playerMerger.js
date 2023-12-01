@@ -162,7 +162,8 @@ class PlayerMerger{
             const gametypeId = d.gametype_id;
 
             if(totals[gametypeId] === undefined){
-                totals[gametypeId] = d;
+
+                totals[gametypeId] = {...d};
                 continue;
             }
 
@@ -404,7 +405,7 @@ class PlayerMerger{
             const r = result[i];
 
             if(totals[r.match_id] === undefined){
-                totals[r.match_id] = r;
+                totals[r.match_id] = {...r};
                 totals[r.match_id].dataPoints = 1;
                 continue;
             }
@@ -1324,7 +1325,9 @@ class PlayerMerger{
         if(t[gametypeId] === undefined) t[gametypeId] = {};
 
         if(t[gametypeId][mapId] === undefined){
-            t[gametypeId][mapId] = d;
+
+         
+            t[gametypeId][mapId] = {...d};
 
             const c = t[gametypeId][mapId];
             c.first = d.match_date;
@@ -1434,6 +1437,7 @@ class PlayerMerger{
         if(d.winner) c.wins++;
         if(d.draw) c.draws++;
         if(!d.winner && !d.draw) c.losses++;
+
         c.matches++;
 
         if(c.wins > 0){
@@ -1464,23 +1468,24 @@ class PlayerMerger{
 
         const totals = {};
 
-
-
         for(let i = 0; i < result.length; i++){
 
             const r = result[i];
 
+            //all time totals
+            this.updatePlayerTotal(totals, 0, 0, r);
+
+            //gametype totals
+            this.updatePlayerTotal(totals, r.gametype, 0, r);
+
+            //map totals
+            this.updatePlayerTotal(totals, 0, r.map_id, r);
 
             //map gametype totals
             this.updatePlayerTotal(totals, r.gametype, r.map_id, r);
-            //gametype totals
-            this.updatePlayerTotal(totals, r.gametype, 0, r);
-            //map totals
-            this.updatePlayerTotal(totals, 0, r.map_id, r);
-            //all time totals
-            this.updatePlayerTotal(totals, 0, 0, r);
+            
+            
         }
-
 
         return totals;
         
@@ -1994,7 +1999,7 @@ class PlayerMerger{
             current_win_streak,current_draw_streak,current_lose_streak,
             max_win_streak,max_draw_streak,max_lose_streak
         ) VALUES ?`;
-        
+
         await mysql.bulkInsert(insertQuery, insertVars);
 
         new Message(`Merge player winrates`,"pass");
