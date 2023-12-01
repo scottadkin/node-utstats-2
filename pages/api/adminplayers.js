@@ -3,6 +3,7 @@ import Players from "../../api/players";
 import Matches from "../../api/matches";
 import Combogib from "../../api/combogib";
 import WinRate from "../../api/winrate";
+import PlayerMerger from "../../api/playerMerger";
 
 
 export default async function handler (req, res){
@@ -177,7 +178,13 @@ export default async function handler (req, res){
                 const player1 = req.body.player1 ?? null;
                 const player2 = req.body.player2 ?? null;
 
-                if(await playerManager.mergePlayersById(player1, player2, matchManager, combogibManager)){
+                const pm = new PlayerMerger(player1, player2);
+                await pm.merge();
+
+                res.status(200).json({"message": "passed"});
+                return;
+
+                /*if(await playerManager.mergePlayersById(player1, player2, matchManager, combogibManager)){
 
                     res.status(200).json({"message": "Merged players successfully"});
                     return;
@@ -186,7 +193,7 @@ export default async function handler (req, res){
 
                     res.status(200).json({"error": "There was a problem merging the players."});
                     return;
-                }
+                }*/
                 //mergePlayers(first, second, matchManager)
 
             }/*else if(mode === "namesearch"){

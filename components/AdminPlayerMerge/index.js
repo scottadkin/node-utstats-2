@@ -5,7 +5,7 @@ import { getPlayer } from "../../api/generic.mjs";
 import CountryFlag from "../CountryFlag";
 import styles from "./AdminPlayerMerge.module.css";
 import NotificationsCluster from "../NotificationsCluster";
-import useNotificationCluster from "../useNotificationCluster";
+import {notificationsInitial, notificationsReducer} from "../../reducers/notificationsReducer";
 import ErrorMessage from "../ErrorMessage";
 
 
@@ -208,7 +208,10 @@ const renderSelectedPlayers = (state, dispatch, bMaster) =>{
     </div>
 }
 
-const mergePlayer = async (state, dispatch, playerId, masterPlayerId, createNotification) =>{
+const mergePlayer = async (state, dispatch, playerId, masterPlayerId, nDispatch) =>{
+
+    const targetPlayer = getPlayer(state.playerList, playerId, false);
+    const masterPlayer =  getPlayer(state.playerList, masterPlayerId, false);
 
     try{
 
@@ -222,33 +225,44 @@ const mergePlayer = async (state, dispatch, playerId, masterPlayerId, createNoti
 
         const res = await req.json();
 
-        const targetPlayer = getPlayer(state.playerList, playerId, false);
-        const masterPlayer =  getPlayer(state.playerList, masterPlayerId, false);
+        
 
 
         if(res.error === undefined){
 
-            createNotification("pass", <>
-                Merged <CountryFlag country={targetPlayer.country}/><b>{targetPlayer.name} </b>
-                into <CountryFlag country={masterPlayer.country}/><b>{masterPlayer.name}</b>
-            </>);
-            return;
+            nDispatch({"type": "add", "notification": {
+                "type": "pass", 
+                "content":  <>
+                    Merged <CountryFlag country={targetPlayer.country}/><b>{targetPlayer.name} </b>
+                    into <CountryFlag country={masterPlayer.country}/><b>{masterPlayer.name}</b>
+                </>
+            }});
+
+            return true;
 
         }else{
-
-            createNotification("error", <>
-                Failed to merge <CountryFlag country={targetPlayer.country}/><b>{targetPlayer.name} </b>
-                into <CountryFlag country={masterPlayer.country}/><b>{masterPlayer.name}</b>
-            </>);
-            return;
+            throw new Error(res.error);
         }
 
     }catch(err){
-        console.trace(err);
+
+        nDispatch({"type": "add", "notification": {
+            "type": "error", 
+            "content":  <>
+                Failed to merge <CountryFlag country={targetPlayer.country}/><b>{targetPlayer.name} </b>
+                into <CountryFlag country={masterPlayer.country}/><b>{masterPlayer.name}</b><br/>
+                <b>Reason:</b> {err.toString()}
+            </>
+        }});
+
+        return false;
     }
 }
 
-const removeMergedPlayers = (state) =>{
+const removeMergedPlayers = (state, playersToRemove) =>{
+
+    console.log(playersToRemove);
+    if(playersToRemove.length === 0) [...state.playerList];
 
     const remainingPlayers = [];
 
@@ -256,15 +270,15 @@ const removeMergedPlayers = (state) =>{
 
         const p = state.playerList[i];
 
-        if(state.selectedPlayers.indexOf(p.id) === -1){
+        if(playersToRemove.indexOf(p.id) === -1){
             remainingPlayers.push(p);
         }
     }
 
-    return remainingPlayers
+    return remainingPlayers;
 }
 
-const mergePlayers = async (state, dispatch, createNotification) =>{
+const mergePlayers = async (state, dispatch, nDispatch) =>{
 
 
     if(state.masterPlayer.length === 0){
@@ -273,30 +287,35 @@ const mergePlayers = async (state, dispatch, createNotification) =>{
 
     dispatch({"type": "mergePlayers"});
 
+    const playersToRemove = [];
     
     for(let i = 0; i < state.selectedPlayers.length; i++){
 
         const targetPlayer = state.selectedPlayers[i];
 
-        await mergePlayer(state, dispatch, targetPlayer, state.masterPlayer[0], createNotification);
+        if(await mergePlayer(state, dispatch, targetPlayer, state.masterPlayer[0], nDispatch)){
+            playersToRemove.push(targetPlayer);
+        }
+        
 
     }
 
-    createNotification("pass", <>Finished merging players.</>);
+    nDispatch({"type": "add", "notification": {"type": "note", "content": <>Finished merging players.</>}});
+
     dispatch({"type": "currentMergeFinished"});
 
-    dispatch({"type": "updatePlayerList", "playerList": removeMergedPlayers(state)});
+    dispatch({"type": "updatePlayerList", "playerList": removeMergedPlayers(state, playersToRemove)});
 
 }
 
-const renderButton = (state, dispatch, createNotification, clearAllNotifications) =>{
+const renderButton = (state, dispatch, nDispatch) =>{
 
     if(state.selectedPlayers.length === 0 || state.masterPlayer.length === 0) return null;
     if(state.bMergeInProgress) return null;
 
     return <div className="search-button m-top-25" onClick={() =>{
-        clearAllNotifications();
-        mergePlayers(state, dispatch, createNotification);
+        nDispatch({"type": "clearAll"});
+        mergePlayers(state, dispatch, nDispatch);
     }}>Merge Players</div>;
 }
 
@@ -343,7 +362,9 @@ const renderLoadPlayersError = (state) =>{
 
 const AdminPlayerMerge = ({}) =>{
 
-    const [notifications, createNotification, hideNotification, clearAllNotifications] = useNotificationCluster();
+    //const [notifications, createNotification, hideNotification, clearAllNotifications] = useNotificationCluster();
+
+    const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
 
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
@@ -383,15 +404,16 @@ const AdminPlayerMerge = ({}) =>{
                 Select one or more players to be merged into another, the selected players will be merged into the master player&apos;s profile.
             </div>
             <Loading value={!state.bMergeInProgress} />
-            <NotificationsCluster notifications={notifications} hide={(id) =>hideNotification(id)}/>
+            <NotificationsCluster notifications={nState.notifications} hide={(id) => nDispatch({"type": "delete", "id": id})}/>
             {renderLoadPlayersError(state)}
 
             {renderSelectedPlayers(state, dispatch, false)}
             {renderSelectedPlayers(state, dispatch, true)}
             {renderSearchBoxes(state, dispatch)}
-            {renderButton(state, dispatch, createNotification, clearAllNotifications)}
+            {renderButton(state, dispatch, nDispatch)}
+            
         </div>
     </div>
-}
+}//{renderButton(state, dispatch, createNotification, clearAllNotifications)}
 
 export default AdminPlayerMerge;
