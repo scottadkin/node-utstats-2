@@ -1,5 +1,7 @@
 const mysql = require("./database");
 const Message = require("./message");
+const Players = require("./players");
+const Rankings = require("./rankings");
 
 /**
  * Maybe this time I get it right...
@@ -29,6 +31,7 @@ class PlayerMerger{
             await this.mergePlayerMatchData();
             await this.mergePlayerTotalsData();
             await this.mergePowerups();
+            await this.mergeRankings();
 
 
             await this.mergeTeleFrags();
@@ -1827,7 +1830,18 @@ class PlayerMerger{
         await this.deleteOldPowerups();
 
         await this.recalcPowerups();
+    }
 
+    async mergeRankings(){
+
+
+        const playerManager = new Players();
+        const r = new Rankings();
+
+        await r.init();
+        await r.deletePlayer(this.newId);
+        await r.deletePlayer(this.oldId);
+        await r.fullPlayerRecalculate(playerManager, this.newId);
     }
 }
 
