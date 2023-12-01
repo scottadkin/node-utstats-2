@@ -1726,16 +1726,7 @@ class PlayerMerger{
 
         await mysql.simpleQuery(updateQuery, [this.newId, this.newName, this.oldId]);
 
-
-
-
         const newTotals = await this.createNewPlayerTotals();
-
-        //console.log(newTotals);
-
-        //now insert
-
-        //update new id(master profile, gametype = 0, map = 0, player_id = 0)
 
         await this.updateMasterProfile(newTotals);
         await this.deleteOldMasterPlayerData();
@@ -1744,16 +1735,78 @@ class PlayerMerger{
         
         await this.insertNewPlayerTotals(newTotals);
         
-
-        //delete old master id this.oldId
-
-        //delete old data
-
-        //console.log(totals);
-        //console.log(result);
         new Message("Merge player totals table", "pass");
     }
 
+    async recalcPowerups(){
+
+        const query = `SELECT 
+        gametype_id, powerup_id,
+        COUNT(*) as total_matches,
+        MAX(times_used) as times_used_best,
+        SUM(times_used) as times_used,
+        SUM(carry_time) as carry_time,
+        MAX(carry_time_best) as carry_time_best,
+        MAX(total_kills) as total_kills_best,
+        SUM(total_kills) as total_kills,
+        MAX(best_kills) as best_kills,
+        SUM(end_deaths) as end_deaths,
+        SUM(end_suicides) as end_suicides,
+        SUM(end_timeouts) as end_timeouts,
+        SUM(end_match_end) as end_match_end,
+        MAX(carrier_kills) as carrier_kills_best,
+        SUM(carrier_kills) as total_carrier_kills,
+        MAX(carrier_kills_best) as carrier_kills_best_life
+        FROM nstats_powerups_player_match WHERE player_id=? GROUP BY powerup_id,gametype_id`;
+    
+        const result = await mysql.simpleQuery(query, [this.newId]);
+    
+        const insertVars = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            insertVars.push([
+                this.newId,
+                r.gametype_id,
+                r.total_matches,
+                0,//total_playtime
+                r.powerup_id,
+                r.times_used,
+                r.times_used_best,
+                r.carry_time,
+                r.carry_time_best,
+                r.total_kills,
+                r.total_kills_best, //all match
+                r.best_kills,    //single spree
+                r.end_deaths,
+                r.end_suicides,
+                r.end_timeouts,
+                r.end_match_end,
+                r.total_carrier_kills,
+                r.carrier_kills_best,
+                r.carrier_kills_best_life
+            ]);
+        }
+
+        const insertQuery = `INSERT INTO nstats_powerups_player_totals (
+            player_id, gametype_id, total_matches, total_playtime,
+            powerup_id, times_used, times_used_best, carry_time,
+            carry_time_best, total_kills, best_kills, best_kills_single_use,
+            end_deaths, end_suicides, end_timeouts, end_match_end, 
+            total_carrier_kills, carrier_kills_best, carrier_kills_single_life
+        ) VALUES ?`;
+
+        await mysql.bulkInsert(insertQuery, insertVars);
+    }
+
+    async deleteOldPowerups(){
+
+        const query = `DELETE FROM nstats_powerups_player_totals WHERE player_id IN (?)`;
+
+        await mysql.simpleQuery(query, [this.newId, this.oldId]);
+    }
 
     async mergePowerups(){
 
@@ -1769,6 +1822,11 @@ class PlayerMerger{
             const query = `UPDATE nstats_${t} SET player_id=? WHERE player_id=?`;
             await mysql.simpleQuery(query, [this.newId, this.oldId]);
         }
+
+
+        await this.deleteOldPowerups();
+
+        await this.recalcPowerups();
 
     }
 }
