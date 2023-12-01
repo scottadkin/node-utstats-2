@@ -68,9 +68,8 @@ export default async function handler(req, res){
         if(mode === "create-backup"){
 
             const backupManager = new Backup();
-
-            await backupManager.dumpAllTablesToJSON();
-
+            await backupManager.createArchive();
+            
             res.status(200).json({"message": "passed", "fileName": backupManager.fileName})
             return;
         }
