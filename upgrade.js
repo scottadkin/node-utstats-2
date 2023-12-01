@@ -430,6 +430,8 @@ async function fixACETables(){
         //import_as_id int(11) NOT NULL
         await alterTable("nstats_maps", "import_as_id", "int(11) NOT NULL", "AFTER playtime");
 
+
+        await changeColumnType("nstats_player_weapon_totals", "efficiency", "float");
         process.exit(0);
 
     }catch(err){

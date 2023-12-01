@@ -754,7 +754,7 @@ const queries = [
         team_kills int(11) NOT NULL,
         deaths int(11) NOT NULL,
         suicides int(11) NOT NULL,
-        efficiency int(11) NOT NULL,
+        efficiency float NOT NULL,
         accuracy float NOT NULL,
         shots int(11) NOT NULL,
         hits int(11) NOT NULL,
