@@ -2,6 +2,7 @@ const mysql = require("./database");
 const Message = require("./message");
 const Players = require("./players");
 const Rankings = require("./rankings");
+const WinRate = require("./winrate");
 
 /**
  * Maybe this time I get it right...
@@ -37,6 +38,8 @@ class PlayerMerger{
 
             await this.mergeTeleFrags();
             await this.mergeSprees();
+
+            await this.mergeWinRates();
 
         }catch(err){
             console.trace(err);
@@ -1937,6 +1940,64 @@ class PlayerMerger{
         await this.recalcWeaponTotals();
 
         new Message(`Merge player weapon data.`,"pass");
+    }
+
+    async mergeWinRates(){
+
+        new Message(`Merge player winrates`,"note");
+
+        const w = new WinRate();
+
+        await w.deletePlayer(this.newId);
+        await w.deletePlayer(this.oldId);
+        const data = await w.recalculatePlayerHistoryAfterMerge(this.newId);
+
+        const insertVars = [];
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            const gametype = d.gametype;
+            const map = d.map;
+
+            for(let x = 0; x < d.history.length; x++){
+
+                const h = d.history[x];
+
+                insertVars.push([
+                    h.date,
+                    h.match_id,
+                    this.newId,
+                    gametype, 
+                    map,
+                    h.match_result,
+                    h.matches,
+                    h.wins,
+                    h.draws,
+                    h.losses,
+                    h.winrate,
+                    h.current_win_streak,
+                    h.current_draw_streak,
+                    h.current_lose_streak,
+                    h.max_win_streak,
+                    h.max_draw_streak,
+                    h.max_lose_streak
+                ]);
+            } 
+        }
+
+
+        const insertQuery = `INSERT INTO nstats_winrates (
+            date, match_id, player, gametype, map,
+            match_result, matches,wins,draws,losses,winrate,
+            current_win_streak,current_draw_streak,current_lose_streak,
+            max_win_streak,max_draw_streak,max_lose_streak
+        ) VALUES ?`;
+        
+        await mysql.bulkInsert(insertQuery, insertVars);
+
+        new Message(`Merge player winrates`,"pass");
     }
 }
 

@@ -396,6 +396,7 @@ class WinRate{
     }
 
     async deletePlayer(playerId){
+        
         await mysql.simpleQuery("DELETE FROM nstats_winrates WHERE player=?", [playerId]);
         await mysql.simpleQuery("DELETE FROM nstats_winrates_latest WHERE player=?", [playerId]);
     }
@@ -407,6 +408,7 @@ class WinRate{
         const query = `SELECT match_id,match_date,map_id,gametype,winner,draw FROM nstats_player_matches WHERE player_id=? AND playtime>0 ORDER BY match_date ASC`;
         return await mysql.simpleQuery(query, [playerId]);
     }
+    
     
     async recalculatePlayerHistoryAfterMerge(playerId){
 
@@ -449,9 +451,11 @@ class WinRate{
             const gametype = d.gametype;
             const map = d.map;
 
+
             await this.createPlayerLatestFromRecalculation(playerId, gametype, map, d.data);
         }
 
+        return data;
         //await this.recaluatePlayerHistory(playerId);
     }
 
