@@ -30,6 +30,7 @@ class PlayerMerger{
             await this.mergePlayerMaps();
             await this.mergePlayerMatchData();
             await this.mergePlayerTotalsData();
+            await this.mergeWeapons();
             await this.mergePowerups();
             await this.mergeRankings();
 
@@ -1808,7 +1809,7 @@ class PlayerMerger{
 
         const query = `DELETE FROM nstats_powerups_player_totals WHERE player_id IN (?)`;
 
-        await mysql.simpleQuery(query, [this.newId, this.oldId]);
+        await mysql.simpleQuery(query, [[this.newId, this.oldId]]);
     }
 
     async mergePowerups(){
@@ -1834,6 +1835,7 @@ class PlayerMerger{
 
     async mergeRankings(){
 
+        new Message(`Merge player ranking data.`,"note");
 
         const playerManager = new Players();
         const r = new Rankings();
@@ -1842,6 +1844,99 @@ class PlayerMerger{
         await r.deletePlayer(this.newId);
         await r.deletePlayer(this.oldId);
         await r.fullPlayerRecalculate(playerManager, this.newId);
+
+        new Message(`Merge player ranking data.`,"pass");
+
+    }
+
+
+    async deleteOldWeaponTotals(){
+
+        const query = `DELETE FROM nstats_player_weapon_totals WHERE player_id IN (?)`;
+
+        await mysql.simpleQuery(query, [[this.newId, this.oldId]]);
+    }
+
+    async recalcWeaponTotals(){
+
+        const query = `SELECT 
+        weapon_id,
+        COUNT(*) as total_matches,
+        SUM(kills) as kills,
+        MAX(best_kills) as best_kills,
+        SUM(deaths) as deaths,
+        SUM(suicides) as suicides,
+        SUM(team_kills) as team_kills,
+        MAX(best_team_kills) as best_team_kills,
+        SUM(shots) as shots,
+        SUM(hits) as hits,
+        SUM(damage) as damage
+        FROM nstats_player_weapon_match
+        WHERE player_id=?
+        GROUP BY weapon_id`;
+
+        const result = await mysql.simpleQuery(query, this.newId);
+
+        const insertVars = [];
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            r.accuracy = 0;
+            r.efficiency = 0;
+
+            if(r.shots > 0 && r.hits > 0){
+                r.accuracy = r.hits / (r.shots + r.hits) * 100;
+            }
+
+            if(r.deaths === 0 && r.kills > 0) r.efficiency = 100;
+
+            if(r.deaths > 0 && r.kills > 0){
+                r.efficiency = r.kills / (r.kills + r.deaths) * 100;
+            }     
+            
+            insertVars.push([
+                this.newId,
+                0,
+                0,
+                0,
+                r.weapon_id,
+                r.kills, 
+                r.team_kills,
+                r.deaths,
+                r.suicides,
+                r.efficiency,
+                r.accuracy,
+                r.shots,
+                r.hits,
+                r.damage,
+                r.total_matches
+            ]);
+        }
+
+        const insertQuery = `INSERT INTO nstats_player_weapon_totals (
+            player_id,map_id,gametype,playtime,
+            weapon,kills,team_kills,deaths,suicides,
+            efficiency,accuracy,shots,hits,damage,matches
+        ) VALUES ?`;
+
+        await mysql.bulkInsert(insertQuery, insertVars);
+    }
+
+    async mergeWeapons(){
+
+        new Message(`Merge player weapon data.`,"note");
+
+        const query = `UPDATE nstats_player_weapon_match SET player_id=? WHERE player_id=?`;
+        await mysql.simpleQuery(query, [this.newId, this.oldId]);
+
+        await this.deleteOldWeaponTotals();
+
+
+        await this.recalcWeaponTotals();
+
+        new Message(`Merge player weapon data.`,"pass");
     }
 }
 
