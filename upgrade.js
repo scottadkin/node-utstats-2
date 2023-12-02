@@ -432,6 +432,15 @@ async function fixACETables(){
 
 
         await changeColumnType("nstats_player_weapon_totals", "efficiency", "float");
+
+
+
+        await mysql.simpleQuery( `CREATE TABLE IF NOT EXISTS nstats_hwid_to_name(
+        id int(11) NOT NULL AUTO_INCREMENT,
+        hwid varchar(32) NOT NULL,
+        player_name varchar(30) NOT NULL,
+        PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`);
+        
         process.exit(0);
 
     }catch(err){

@@ -45,6 +45,14 @@ export default async function handler (req, res){
                 return;
             }
 
+            if(mode === "force-hwid-to-name-list"){
+
+                const data = await playerManager.getAllHWIDtoNames();
+
+                res.status(200).json({"data": data});
+                return;
+            }
+
             if(mode === "players-hwid-list"){
 
                 const playersHWIDList = await playerManager.adminGetPlayersWithHWIDS();

@@ -1751,6 +1751,13 @@ const queries = [
           deaths int(11) NOT NULL,
           spree int(11) NOT NULL, 
           PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+
+
+          `CREATE TABLE IF NOT EXISTS nstats_hwid_to_name(
+            id int(11) NOT NULL AUTO_INCREMENT,
+            hwid varchar(32) NOT NULL,
+            player_name varchar(30) NOT NULL,
+            PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
   
 
 ];

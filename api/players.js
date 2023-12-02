@@ -3538,6 +3538,13 @@ class Players{
         await this.fixDuplucateMapsData(newId);
         await this.fixDuplicateMapTotals(newId);
     }
+
+    async getAllHWIDtoNames(){
+
+        const query = `SELECT * FROM nstats_hwid_to_name ORDER BY player_name ASC`;
+
+        return await mysql.simpleQuery(query);
+    }
 }
 
 

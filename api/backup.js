@@ -40,6 +40,7 @@ class Backup{
             "nstats_ftp",
             "nstats_gametypes",
             "nstats_headshots",
+            "nstats_hwid_to_name",
             "nstats_hits",
             "nstats_items",
             "nstats_items_match",

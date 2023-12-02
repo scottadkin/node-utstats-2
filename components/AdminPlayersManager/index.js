@@ -7,6 +7,8 @@ import AdminPlayerMerge from "../AdminPlayerMerge";
 import AdminPlayerSearch from "../AdminPlayerSearch";
 //import AdminPlayerHWIDMerge from "../AdminPlayerHWIDMerge";
 import AdminPlayerWinRateRecalculation from "../AdminPlayerWinRateRecalculation";
+import Tabs from "../Tabs";
+import AdminPlayerNameHWID from "../AdminPlayerNameHWID";
 
 class AdminPlayersManager extends React.Component{
 
@@ -14,7 +16,7 @@ class AdminPlayersManager extends React.Component{
 
         super(props);
         this.state = {
-            "mode": 1, 
+            "mode": 7, 
             "players": [], 
             "names": [],
             "bFinishedLoadingGeneral": false, 
@@ -130,36 +132,35 @@ class AdminPlayersManager extends React.Component{
         return <AdminPlayerWinRateRecalculation />;
     }
 
+    renderHWIDToName(){
+
+        if(this.state.mode !== 7) return null;
+
+        return <AdminPlayerNameHWID />;
+    }
+
     render(){
 
         return <div>
             <div className="default-header">Player Manager</div>
-            <div className="tabs">
-                <div className={`tab ${(this.state.mode === 0) ? "tab-selected" : ""}`} onClick={(() =>{
-                    this.changeMode(0);  
-                })}>General Summary</div>
-                <div className={`tab ${(this.state.mode === 1) ? "tab-selected" : ""}`} onClick={(() =>{
-                    this.changeMode(1);  
-                })}>Search</div>
-                <div className={`tab ${(this.state.mode === 2) ? "tab-selected" : ""}`} onClick={(() =>{
-                    this.changeMode(2);  
-                })}>Rename Player</div>
-                <div className={`tab ${(this.state.mode === 3) ? "tab-selected" : ""}`} onClick={(() =>{
-                    this.changeMode(3);  
-                })}>Merge Players<span className="yellow">(By Name)</span></div>
-                <div className={`tab ${(this.state.mode === 4) ? "tab-selected" : ""}`} onClick={(() =>{
-                    this.changeMode(4);  
-                })}>Delete Player</div>
-                <div className={`tab ${(this.state.mode === 6) ? "tab-selected" : ""}`} onClick={(() =>{
-                    this.changeMode(6);  
-                })}>Recalculate Win Rates</div>
-            </div>
+            <Tabs options={[
+                {"name": "General Summary", "value": 0},
+                {"name": "Search", "value": 1},
+                {"name": "Rename Player", "value": 2},
+                {"name": "Merge Players", "value": 3},
+                {"name": "Delete Player", "value": 4},
+                {"name": "Recalculate Win Rates", "value": 6},
+                {"name": "HWID to Name Override", "value": 7},
+            ]} selectedValue={this.state.mode} changeSelected={(id) =>{
+                this.setState({"mode": id});
+            }}/>
             {this.renderGeneral()}
             {this.renderSearch()}
             {this.renderRename()}
             {this.renderMerge()}
             {this.renderDelete()}
             {this.renderWinrate()}
+            {this.renderHWIDToName()}
         </div>
     }
 }
