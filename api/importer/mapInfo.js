@@ -29,7 +29,7 @@ class MapInfo{
     parseData(){
 
         const reg = /^\d+\.\d+?\tmap\t(.+?)\t(.*)$/i;
-        const prefixReg = /^(.+?)-.+$/i;
+        const nameReg = /^(.+?)(-.+\.)(unr)$/i;
 
         let currentResult = 0;
 
@@ -47,12 +47,17 @@ class MapInfo{
                 
                 if(currentResult[1].toLowerCase() === "name"){
 
-                    currentResult = prefixReg.exec(currentResult[2]);
+                    const nameResult = nameReg.exec(currentResult[2]);
+                    
 
-                    if(currentResult !== null){
-                        this.mapPrefix = currentResult[1].toLowerCase();
+                    if(nameResult !== null){
+
+                        const prefix = nameResult[1].toUpperCase();
+                        const unr = nameResult[3].toLowerCase();
+                        this.mapPrefix = prefix;
+                        this.name = `${prefix}${nameResult[2]}${unr}`;
+       
                     }
-
                 }
             }
         }
