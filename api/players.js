@@ -2649,7 +2649,7 @@ class Players{
     async adminGetHWIDUsageFromMatchData(){
 
         const query = `SELECT player_id,hwid,MIN(match_date) as first_match,MAX(match_date) as last_match,
-        SUM(playtime) as total_playtiem,COUNT(*) as total_matches FROM nstats_player_matches WHERE hwid!="" GROUP BY hwid,player_id`;
+        SUM(playtime) as total_playtime,COUNT(*) as total_matches FROM nstats_player_matches WHERE hwid!="" GROUP BY hwid,player_id`;
 
         return await mysql.simpleQuery(query);
     }

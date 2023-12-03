@@ -2,6 +2,8 @@ import { useEffect, useReducer } from "react";
 import { notificationsInitial, notificationsReducer } from "../../reducers/notificationsReducer";
 import NotificationsCluster from "../NotificationsCluster";
 import InteractiveTable from "../InteractiveTable";
+import { toPlaytime, getPlayer } from "../../api/generic.mjs";
+import CountryFlag from "../CountryFlag";
 
 
 const reducer = (state, action) =>{
@@ -67,14 +69,73 @@ const renderCurrentList = (state) =>{
     </>
 }
 
+const renderUsageList = (state) =>{
+
+
+    const headers = {
+        "hwid": "HWID",
+        "used": "Used By",
+        "playtime": "Total Playtime"
+    };
+
+    const totals = {};
+
+    for(let i = 0; i < state.usage.length; i++){
+
+        const u = state.usage[i];
+
+        if(totals[u.hwid] === undefined){
+            totals[u.hwid] = [];
+        }
+
+        totals[u.hwid].push(u);
+    }
+
+    const rows = [];
+
+    for(const [hwid, data] of Object.entries(totals)){
+
+        const playerElems = [];
+        let playtime = 0;
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+            //console.log(d);
+
+            const player = getPlayer(state.playerNames, d.player_id, true);
+
+            playtime += d.total_playtime;
+
+            playerElems.push(<div key={`${i}-${d.player_id}`}>
+                <CountryFlag country={player.country}/>{player.name}&nbsp;
+                <span className="playtime">({toPlaytime(d.total_playtime)})</span>
+            </div>);
+        }
+
+        rows.push({
+            "hwid": {"value": hwid, "className": "text-left"},
+            "used": {"value": playerElems.length, "displayValue": <>{playerElems}</>, "className": "text-left"},
+            "playtime": {"value": playtime, "displayValue": toPlaytime(playtime), "className": "playtime"}
+        });
+    }
+
+
+    return <>
+        <div className="default-sub-header m-top-25">HWID Usage</div>
+        <InteractiveTable width="1" headers={headers} data={rows}/>
+    </>
+}
+
 const AdminPlayerNameHWID = () =>{
 
     const [state, dispatch] = useReducer(reducer, {
-        "currentList": []
+        "currentList": [],
+        "usage": [],
+        "playerNames": {}
     });
+    
     const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
-
-    console.log(nState);
 
     useEffect(() =>{
 
@@ -102,6 +163,7 @@ const AdminPlayerNameHWID = () =>{
             clearAll={() => nDispatch({"type": "clearAll"})}
             hide={(id) => { nDispatch({"type": "delete", "id": id})}}
         />
+        {renderUsageList(state)}
         {renderCurrentList(state)}
     </>
 }
