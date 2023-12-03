@@ -11,7 +11,9 @@ const reducer = (state, action) =>{
         case "loaded-list": {
             return {
                 ...state,
-                "currentList": action.data
+                "currentList": action.forceList,
+                "usage": action.usage,
+                "playerNames": action.playerNames
             }
         }
     }
@@ -34,7 +36,7 @@ const loadList = async (controller, dispatch, nDispatch) =>{
 
         if(res.error !== undefined) throw new Error(res.error);
 
-        dispatch({"type": "loaded-list", "data": res.data});
+        dispatch({"type": "loaded-list", ...res});
 
         console.log(res);
 
