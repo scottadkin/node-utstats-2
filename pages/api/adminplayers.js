@@ -61,6 +61,21 @@ export default async function handler (req, res){
                 return;
             }
 
+            if(mode === "set-force-hwid-to-name"){
+
+
+                const hwid = (req.body.hwid !== undefined) ? req.body.hwid : "";
+                const name = (req.body.name !== undefined) ? req.body.name : "";
+
+                if(hwid === "") throw new Error("HWID can't be an empty string");
+                if(name === "") throw new Error("Name can't be an empty string");
+
+                await playerManager.adminAssignHWIDToName(hwid, name);
+
+                res.status(200).json({});
+                return;
+            }
+
             if(mode === "players-hwid-list"){
 
                 const playersHWIDList = await playerManager.adminGetPlayersWithHWIDS();

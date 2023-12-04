@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef } from "react";
+import { useEffect, useReducer } from "react";
 import { notificationsInitial, notificationsReducer } from "../../reducers/notificationsReducer";
 import NotificationsCluster from "../NotificationsCluster";
 import InteractiveTable from "../InteractiveTable";
@@ -188,14 +188,44 @@ const renderInfo = (state) =>{
     </div>;
 }
 
-const renderAssignHWIDToName = (state, dispatch, nDispatch,) =>{
+const saveChanges = async (state, dispatch, nDispatch) =>{
+
+    try{
+
+        const req = await fetch("/api/adminplayers", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({
+                "mode": "set-force-hwid-to-name", 
+                "hwid": state.selectedHWID, 
+                "name": state.selectedName
+            })
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined) throw new Error(res.error);
+
+        console.log(res);
+
+        
+
+    }catch(err){
+        console.trace(err);
+        nDispatch({"type": "add", "notification": {"type": "error", "content": err.toString()}});
+    }
+}
+
+const renderAssignHWIDToName = (state, dispatch, nDispatch) =>{
 
     if(state.mode !== 2) return null;
 
     let submit = "";
 
     if(state.selectedHWID !== "" && state.selectedName !== ""){
-        submit = <input type="button" className="search-button" value="Apply Change"/>;
+        submit = <input type="button" className="search-button" value="Apply Change" onClick={() =>{
+            saveChanges(state, dispatch, nDispatch);
+        }}/>;
     }
 
     return <div className="form">

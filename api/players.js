@@ -2661,6 +2661,19 @@ class Players{
         return await mysql.simpleQuery(query);
     }
 
+
+    async bHWIDAlreadyAssigned(hwid){
+
+    }
+
+    async adminAssignHWIDToName(hwid, name){
+
+        //TODO: Check HWID isn't al;ready assigned to another player name, if it is throw error
+        const query = `INSERT INTO nstats_hwid_to_name VALUES(NULL,?,?)`;
+
+        await mysql.simpleQuery(query, [hwid, name]);
+    }
+
     async adminGetPlayersBasic(){
 
         const query = `SELECT id,name,country,hwid,matches,last FROM nstats_player_totals WHERE gametype=0 AND map=0 ORDER BY name ASC`;
