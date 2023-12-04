@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useRef } from "react";
 import { notificationsInitial, notificationsReducer } from "../../reducers/notificationsReducer";
 import NotificationsCluster from "../NotificationsCluster";
 import InteractiveTable from "../InteractiveTable";
@@ -23,6 +23,18 @@ const reducer = (state, action) =>{
             return {
                 ...state,
                 "mode": action.value
+            }
+        }
+        case "set-hwid": {
+            return {
+                ...state,
+                "selectedHWID": action.value
+            }
+        }
+        case "set-name": {
+            return {
+                ...state,
+                "selectedName": action.value
             }
         }
     }
@@ -78,7 +90,7 @@ const renderCurrentList = (state) =>{
     </>
 }
 
-const renderUsageList = (state) =>{
+const renderUsageList = (state, dispatch) =>{
 
     if(state.mode !== 1) return null;
 
@@ -127,13 +139,18 @@ const renderUsageList = (state) =>{
             playtime += d.total_playtime;
 
             playerElems.push(<div key={`${i}-${d.player_id}`}>
-                <CountryFlag country={player.country}/>{player.name}&nbsp;
+                <CountryFlag country={player.country}/><span className="hover" onClick={() =>{
+                    dispatch({"type": "set-name", "value": player.name});
+                }}>{player.name}</span>&nbsp;
                 <span className="playtime">({toPlaytime(d.total_playtime)})</span>
             </div>);
         }
 
         rows.push({
-            "hwid": {"value": hwid, "className": "text-left"},
+            "hwid": {"value": hwid, "className": "text-left hover", "displayValue": <span onClick={() =>{
+                dispatch({"type": "set-hwid", "value": hwid});
+                dispatch({"type": "change-mode", "value": 2});
+            }}>{hwid}</span>},
             "used": {"value": playerElems.length, "displayValue": <>{playerElems}</>, "className": "text-left"},
             "playtime": {"value": playtime, "displayValue": toPlaytime(playtime), "className": "playtime"}
         });
@@ -150,31 +167,73 @@ const renderInfo = (state) =>{
 
     let content = <></>
     
-    if(state.mode === 0){
+    if(state.mode === 0 || state.mode === 2){
         content = <>
             Force a player to be imported as a certain name by using a player&apos;s HWID.<br/>
-            If the player doesn&apos;t exist the import will create the new player when it incounters the target HWID.
+            If the player doesn&apos;t exist the importrt will create the new player profile when it incounters the target HWID.
         </>;
     }
 
     if(state.mode === 1){
-        content = <>HWID usage based on player match data.</>
+        content = <>HWID usage based on player match data.<br/>
+            Click on a player name to set it as the target name.<br/>
+            Click on a HWID to select the HWID and be taken to the force name tab.    
+        </>;
     }
 
     return <div className="form">
         <div className="form-info">
             {content}
         </div>
+    </div>;
+}
+
+const renderAssignHWIDToName = (state, dispatch, nDispatch,) =>{
+
+    if(state.mode !== 2) return null;
+
+    let submit = "";
+
+    if(state.selectedHWID !== "" && state.selectedName !== ""){
+        submit = <input type="button" className="search-button" value="Apply Change"/>;
+    }
+
+    return <div className="form">
+        <div className="form-row">
+            <div className="form-label">Target HWID</div>
+            <input type="text" 
+                className="default-textbox" 
+                placeholder="Target hwid..."
+                value={state.selectedHWID} 
+                onChange={(e) =>{
+                    dispatch({"type": "set-hwid", "value": e.target.value});
+                }}
+            />
+        </div>
+        <div className="form-row">
+            <div className="form-label">Name To Use</div>
+            <input type="text" 
+                className="default-textbox" 
+                placeholder="Name..."
+                value={state.selectedName}
+                onChange={(e) =>{
+                    dispatch({"type": "set-name", "value": e.target.value});
+                }}
+            />
+        </div>
+        {submit}
     </div>
 }
 
 const AdminPlayerNameHWID = () =>{
 
     const [state, dispatch] = useReducer(reducer, {
-        "mode": 0,
+        "mode": 2,
         "currentList": [],
         "usage": [],
-        "playerNames": {}
+        "playerNames": {},
+        "selectedHWID": "",
+        "selectedName": ""
     });
     
     const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
@@ -192,10 +251,11 @@ const AdminPlayerNameHWID = () =>{
     },[]);
 
     return <>    
-        <div className="default-header">HWID to Name</div>
+        <div className="default-header">HWID Tools</div>
         <Tabs options={[
                 {"name": "Current Settings", "value": 0},
-                {"name": "HWID Usage", "value": 1}
+                {"name": "HWID Usage", "value": 1},
+                {"name": "Force HWID To Use Name", "value": 2},
             ]} 
             selectedValue={state.mode}
             changeSelected={(id) =>{
@@ -210,8 +270,9 @@ const AdminPlayerNameHWID = () =>{
             clearAll={() => nDispatch({"type": "clearAll"})}
             hide={(id) => { nDispatch({"type": "delete", "id": id})}}
         />
-        {renderUsageList(state)}
         {renderCurrentList(state)}
+        {renderUsageList(state, dispatch)}   
+        {renderAssignHWIDToName(state, dispatch, nDispatch)}
     </>
 }
 

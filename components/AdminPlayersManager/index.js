@@ -150,7 +150,7 @@ class AdminPlayersManager extends React.Component{
                 {"name": "Merge Players", "value": 3},
                 {"name": "Delete Player", "value": 4},
                 {"name": "Recalculate Win Rates", "value": 6},
-                {"name": "HWID to Name Override", "value": 7},
+                {"name": "HWID Tools", "value": 7},
             ]} selectedValue={this.state.mode} changeSelected={(id) =>{
                 this.setState({"mode": id});
             }}/>
