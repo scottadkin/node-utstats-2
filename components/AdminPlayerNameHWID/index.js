@@ -5,18 +5,26 @@ import InteractiveTable from "../InteractiveTable";
 import { toPlaytime, getPlayer } from "../../api/generic.mjs";
 import CountryFlag from "../CountryFlag";
 import Tabs from "../Tabs";
+import Loading from "../Loading";
 
 
 const reducer = (state, action) =>{
 
     switch(action.type){
 
+        case "setLoading": {
+            return {
+                ...state,
+                "bLoading": action.value
+            }
+        }
         case "loaded-list": {
             return {
                 ...state,
                 "currentList": action.forceList,
                 "usage": action.usage,
-                "playerNames": action.playerNames
+                "playerNames": action.playerNames,
+                "loadedList": true
             }
         }
         case "change-mode": {
@@ -58,6 +66,23 @@ const reducer = (state, action) =>{
                 ]
             }
         }
+        case "remove-from-force-list":{
+
+            const rem = [];
+
+            for(let i = 0; i < state.currentList.length; i++){
+
+                const c = state.currentList[i];
+
+                if(c.hwid !== action.hwid){
+                    rem.push(c);
+                }
+            }
+            return {
+                ...state,
+                "currentList": rem
+            }
+        }
     }
 
     return state;
@@ -89,19 +114,51 @@ const loadList = async (controller, dispatch, nDispatch) =>{
     }
 }
 
-const renderCurrentList = (state) =>{
+const deleteEntry = async (dispatch, nDispatch, hwid) =>{
+
+    try{
+
+        const req = await fetch("/api/adminplayers", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "remove-force-hwid-to-name", "hwid": hwid})
+        });
+
+        const res = await req.json();
+
+        if(res.error) throw new Error(res.error);
+
+        dispatch({"type": "remove-from-force-list", "hwid": hwid});
+        nDispatch({"type": "add", "notification": {"type": "pass", "content": <>Removed force name use for HWID = {hwid}</>}});
+
+    }catch(err){
+        nDispatch({"type": "add", "notification": {"type": "error", "content": err.toString()}});
+    }
+}
+
+const renderCurrentList = (state, dispatch, nDispatch) =>{
 
     if(state.mode !== 0) return null;
 
+    if(!state.loadedList) return <Loading />;
+
     const headers = {
         "hwid": "HWID",
-        "name": "Import as"
+        "name": "Import as",
+        "remove": "Remove Force Name Change"
     };
 
     const data = state.currentList.map((d) =>{
         return {
             "hwid": {"value": d.hwid.toLowerCase(), "displayValue": d.hwid, "className": "text-left"},
-            "name": {"value": d.player_name.toLowerCase(), "displayValue": d.player_name}
+            "name": {"value": d.player_name.toLowerCase(), "displayValue": d.player_name},
+            "remove": {"displayValue": <>
+                <input type="button" className="button" value="Remove Name Override" onClick={async () =>{
+
+                    await deleteEntry(dispatch, nDispatch, d.hwid);
+                   
+                }}/>
+            </>}
         }
     });
 
@@ -114,6 +171,8 @@ const renderCurrentList = (state) =>{
 const renderUsageList = (state, dispatch) =>{
 
     if(state.mode !== 1) return null;
+
+    if(!state.loadedList) return <Loading />;
 
     const headers = {
         "hwid": "HWID",
@@ -285,12 +344,14 @@ const renderAssignHWIDToName = (state, dispatch, nDispatch) =>{
 const AdminPlayerNameHWID = () =>{
 
     const [state, dispatch] = useReducer(reducer, {
-        "mode": 2,
+        "mode": 0,
         "currentList": [],
         "usage": [],
         "playerNames": {},
         "selectedHWID": "",
-        "selectedName": ""
+        "selectedName": "",
+        "loadedList": false,
+        "bLoading": true
     });
     
     const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
@@ -327,7 +388,7 @@ const AdminPlayerNameHWID = () =>{
             clearAll={() => nDispatch({"type": "clearAll"})}
             hide={(id) => { nDispatch({"type": "delete", "id": id})}}
         />
-        {renderCurrentList(state)}
+        {renderCurrentList(state, dispatch, nDispatch)}
         {renderUsageList(state, dispatch)}   
         {renderAssignHWIDToName(state, dispatch, nDispatch)}
     </>

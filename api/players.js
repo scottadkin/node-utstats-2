@@ -2686,6 +2686,13 @@ class Players{
         await mysql.simpleQuery(query, [hwid, name]);
     }
 
+    async adminDeleteHWIDToName(hwid){
+
+        const query = `DELETE FROM nstats_hwid_to_name WHERE hwid=?`;
+
+        return await mysql.simpleQuery(query, [hwid]);
+    }
+
     async adminGetPlayersBasic(){
 
         const query = `SELECT id,name,country,hwid,matches,last FROM nstats_player_totals WHERE gametype=0 AND map=0 ORDER BY name ASC`;
