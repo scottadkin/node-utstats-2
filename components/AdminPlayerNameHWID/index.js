@@ -307,12 +307,39 @@ const renderAssignHWIDToName = (state, dispatch, nDispatch) =>{
     if(state.mode !== 2) return null;
 
     let submit = "";
+    let warnings = null;
+
+    const isUsedBy = [];
+
+    for(let i = 0; i < state.currentList.length; i++){
+
+        const c = state.currentList[i];
+
+        if(c.player_name.toLowerCase() === state.selectedName.toLowerCase()){
+            isUsedBy.push(<div key={c.hwid}>HWID: <b>{c.hwid}</b>, is also set to import as player named <b>{c.player_name}</b>.</div>);
+        }
+    }
+
+    if(isUsedBy.length > 0){
+
+        warnings = <div className="team-yellow p-10 m-bottom-25">
+            <div className="default-sub-header-alt">Note</div>
+            {isUsedBy}
+            <div className="default-sub-header-alt p-10">Warning</div>
+            <div>If more than one players are in the same match they will be merged into one player on import.</div>
+        </div>
+    }
 
     if(state.selectedHWID !== "" && state.selectedName !== ""){
         submit = <input type="button" className="search-button" value="Apply Change" onClick={() =>{
             saveChanges(state, dispatch, nDispatch);
         }}/>;
     }
+
+    
+
+    
+    
 
     return <div className="form">
         <div className="form-row">
@@ -337,6 +364,7 @@ const renderAssignHWIDToName = (state, dispatch, nDispatch) =>{
                 }}
             />
         </div>
+        {warnings}
         {submit}
     </div>
 }
