@@ -4,6 +4,7 @@ import NotificationsCluster from "../NotificationsCluster";
 import InteractiveTable from "../InteractiveTable";
 import { toPlaytime, getPlayer } from "../../api/generic.mjs";
 import CountryFlag from "../CountryFlag";
+import Tabs from "../Tabs";
 
 
 const reducer = (state, action) =>{
@@ -16,6 +17,12 @@ const reducer = (state, action) =>{
                 "currentList": action.forceList,
                 "usage": action.usage,
                 "playerNames": action.playerNames
+            }
+        }
+        case "change-mode": {
+            return {
+                ...state,
+                "mode": action.value
             }
         }
     }
@@ -51,6 +58,8 @@ const loadList = async (controller, dispatch, nDispatch) =>{
 
 const renderCurrentList = (state) =>{
 
+    if(state.mode !== 0) return null;
+
     const headers = {
         "hwid": "HWID",
         "name": "Import as"
@@ -71,6 +80,7 @@ const renderCurrentList = (state) =>{
 
 const renderUsageList = (state) =>{
 
+    if(state.mode !== 1) return null;
 
     const headers = {
         "hwid": "HWID",
@@ -97,6 +107,15 @@ const renderUsageList = (state) =>{
 
         const playerElems = [];
         let playtime = 0;
+
+        data.sort((a, b) =>{
+            a = a.total_playtime;
+            b = b.total_playtime;
+
+            if(a < b) return 1;
+            if(a > b) return -1;
+            return 0;
+        });
 
         for(let i = 0; i < data.length; i++){
 
@@ -127,9 +146,32 @@ const renderUsageList = (state) =>{
     </>
 }
 
+const renderInfo = (state) =>{
+
+    let content = <></>
+    
+    if(state.mode === 0){
+        content = <>
+            Force a player to be imported as a certain name by using a player&apos;s HWID.<br/>
+            If the player doesn&apos;t exist the import will create the new player when it incounters the target HWID.
+        </>;
+    }
+
+    if(state.mode === 1){
+        content = <>HWID usage based on player match data.</>
+    }
+
+    return <div className="form">
+        <div className="form-info">
+            {content}
+        </div>
+    </div>
+}
+
 const AdminPlayerNameHWID = () =>{
 
     const [state, dispatch] = useReducer(reducer, {
+        "mode": 0,
         "currentList": [],
         "usage": [],
         "playerNames": {}
@@ -151,12 +193,17 @@ const AdminPlayerNameHWID = () =>{
 
     return <>    
         <div className="default-header">HWID to Name</div>
-        <div className="form">
-            <div className="form-info">
-                Force a player to be imported as a certain name by using a player&apos;s HWID.<br/>
-                If the player doesn&apos;t exist the import will create the new player when it incounters the target HWID.
-            </div>
-        </div>
+        <Tabs options={[
+                {"name": "Current Settings", "value": 0},
+                {"name": "HWID Usage", "value": 1}
+            ]} 
+            selectedValue={state.mode}
+            changeSelected={(id) =>{
+                dispatch({"type": "change-mode", "value": id});
+            }}
+        />
+        {renderInfo(state)}
+        
         <NotificationsCluster 
             width={1} 
             notifications={nState.notifications} 
