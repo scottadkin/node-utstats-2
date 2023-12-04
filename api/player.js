@@ -998,6 +998,18 @@ class Player{
 
         return await mysql.simpleQuery(query, [hwid, playerId]);
     }
+
+    async getHWIDNameOverride(hwid){
+
+        const query = `SELECT player_name FROM nstats_hwid_to_name WHERE hwid=?`;
+
+        const result = await mysql.simpleQuery(query, [hwid]);
+
+        if(result.length === 0) return null;
+
+        return result[0].player_name;
+
+    }
 }
 
 module.exports = Player;

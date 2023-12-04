@@ -2664,9 +2664,21 @@ class Players{
 
     async bHWIDAlreadyAssigned(hwid){
 
+        const query = `SELECT COUNT(*) as total_rows FROM nstats_hwid_to_name WHERE hwid=?`;
+
+        const result = await mysql.simpleQuery(query, [hwid]);
+
+        if(result.length > 0) return result[0].total_rows !== 0;
+
+        return false;
     }
 
     async adminAssignHWIDToName(hwid, name){
+
+        if(await this.bHWIDAlreadyAssigned(hwid)){
+
+            throw new Error("HWID is already assigned to a name.");
+        }
 
         //TODO: Check HWID isn't al;ready assigned to another player name, if it is throw error
         const query = `INSERT INTO nstats_hwid_to_name VALUES(NULL,?,?)`;

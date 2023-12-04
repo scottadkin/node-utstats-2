@@ -237,16 +237,25 @@ class PlayerManager{
         this.parseHWIDS();
 
         this.createPreliminaryPlayers();
-
         
         for(let i = 0; i < this.preliminaryPlayers.length; i++){
 
             const p = this.preliminaryPlayers[i];
 
-            let masterIds = null;
-
             new Message(`Player.getMasterIds(${p.name}, ${gametypeId}, ${mapId})`,"note");
-            masterIds = await Player.getMasterIds(p.name, gametypeId, mapId);
+
+            if(p.hwid !== ""){
+
+                const nameHWIDOverride = await Player.getHWIDNameOverride(p.hwid);
+
+                if(nameHWIDOverride !== null){
+                    p.name = nameHWIDOverride;
+                    this.idsToNames[p.id] = p.name;
+                }
+            }
+
+
+            const masterIds = await Player.getMasterIds(p.name, gametypeId, mapId);
             
             if(p.hwid !== ""){
                 await Player.setLatestHWIDInfo(masterIds.masterId, p.hwid);

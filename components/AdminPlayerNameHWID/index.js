@@ -37,6 +37,27 @@ const reducer = (state, action) =>{
                 "selectedName": action.value
             }
         }
+        case "reset-selected":{
+            return {
+                ...state,
+                "selectedHWID": "",
+                "selectedName": ""
+            }
+        }
+        case "add-to-force-list": {
+
+            return {
+                ...state,
+                "currentList": [
+                    ...state.currentList, 
+                    {
+                        "id": -1, 
+                        "hwid": action.hwid, 
+                        "player_name": action.name
+                    }
+                ]
+            }
+        }
     }
 
     return state;
@@ -205,9 +226,15 @@ const saveChanges = async (state, dispatch, nDispatch) =>{
         const res = await req.json();
 
         if(res.error !== undefined) throw new Error(res.error);
-
-        console.log(res);
-
+        nDispatch({
+            "type": "add", "notification": 
+            {
+                "type": "pass", 
+                "content": <>The player with the HWID of <b>{state.selectedHWID}</b> is now forced to import as the player named <b>{state.selectedName}</b>.</>
+            }
+        });
+        dispatch({"type": "add-to-force-list", "hwid": state.selectedHWID, "name": state.selectedName});
+        dispatch({"type": "reset-selected"});
         
 
     }catch(err){
