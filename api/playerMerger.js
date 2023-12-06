@@ -62,6 +62,7 @@ class PlayerMerger{
             const {matchId, playerId} = targetMatches[i];
 
             await this.mergeAssaultTables(playerId, this.newId, matchId);
+            await this.mergeCTFTables(playerId, this.newId, matchId);
         }
         
     }
@@ -74,7 +75,7 @@ class PlayerMerger{
             const newId = this.newId;
 
             await this.mergeAssaultTables(oldId, newId);
-            await this.mergeCTFTables();
+            await this.mergeCTFTables(oldId, newId);
             await this.mergeDomTables();
             await this.mergeHeadshots();
             await this.mergeItems();
@@ -113,7 +114,7 @@ class PlayerMerger{
             query = `UPDATE nstats_assault_match_objectives SET player=? WHERE player=? AND match_id=?`;
             vars = [newId, oldId, matchId];
         }
-        
+
         return await mysql.simpleQuery(query, vars);
     }
 
@@ -364,6 +365,7 @@ class PlayerMerger{
     async recalCTFTotals(){
 
         
+        //TODO: Recalculate totals from match data not totals data
 
         const tables = [
             "player_ctf_best",
@@ -396,11 +398,11 @@ class PlayerMerger{
     }
 
 
-    async fixDuplicatePlayerCTFData(){
+    async fixDuplicatePlayerCTFData(newId){
 
         const query = `SELECT * FROM nstats_player_ctf_match WHERE player_id=?`;
 
-        const result = await mysql.simpleQuery(query, this.newId);
+        const result = await mysql.simpleQuery(query, newId);
 
         const mergeTypes = [
             "playtime",
@@ -494,7 +496,7 @@ class PlayerMerger{
         }
 
         const deleteQuery = `DELETE FROM nstats_player_ctf_match WHERE player_id=?`;
-        await mysql.simpleQuery(deleteQuery, [this.newId]);
+        await mysql.simpleQuery(deleteQuery, [newId]);
 
         const insertQuery = `INSERT INTO nstats_player_ctf_match (
             player_id,
@@ -635,12 +637,12 @@ class PlayerMerger{
     }
 
     //This does not include nstats_player_match and totals table
-    async mergeCTFTables(){
+    async mergeCTFTables(oldId, newId, matchId){
 
         //ctf_assists
 
-        const oldId = this.oldId;
-        const newId = this.newId;
+       // const oldId = this.oldId;
+       // const newId = this.newId;
 
         //tables where we just change the player_ids, 
         //after we have done this we recalculate the players new totals and delete the oldId totals
@@ -648,77 +650,132 @@ class PlayerMerger{
         const initialQueries = {
             "ctf_assists": {
                 "query": "SET player_id=? WHERE player_id=?", 
-                "vars": [newId, oldId]
+                "hwidQuery": "SET player_id=? WHERE player_id=? AND match_id=?", 
+                "vars": [newId, oldId],
+                "hwidVars": [newId, oldId, matchId],
             }, 
             "ctf_caps": {
                 "query": "SET grab_player = IF(grab_player=?,?,grab_player), cap_player = IF(cap_player=?,?,cap_player)", 
-                "vars": [oldId, newId, oldId, newId]
+                "hwidQuery": 
+                    `SET grab_player = IF(grab_player=? AND match_id=?,?,grab_player),
+                    cap_player = IF(cap_player=? AND match_id=?,?,cap_player)`, 
+                "vars": [oldId, newId, oldId, newId],
+                "hwidVars": [oldId, matchId, newId, oldId, matchId, newId]
             }, 
             "ctf_carry_times": {
                 "query": "SET player_id=? WHERE player_id=?", 
-                "vars": [newId, oldId]
+                "hwidQuery": "SET player_id=? WHERE player_id=? AND match_id=?", 
+                "vars": [newId, oldId],
+                "hwidVars": [newId, oldId, matchId]
             }, 
             "ctf_covers": {  
                 "query": "SET killer_id = IF(killer_id=?,?,killer_id), victim_id = IF(victim_id=?,?,victim_id)", 
-                "vars": [oldId, newId, oldId, newId]
+                "hwidQuery": "SET killer_id = IF(killer_id=? AND match_id=?,?,killer_id), victim_id = IF(victim_id=? AND match_id=?,?,victim_id)", 
+                "vars": [oldId, newId, oldId, newId],
+                "hwidVars": [oldId, matchId, newId, oldId, matchId, newId]
             }, 
             "ctf_cr_kills": {
                 "query": "SET player_id=? WHERE player_id=?", 
-                "vars": [newId, oldId]
+                "hwidQuery": "SET player_id=? WHERE player_id=? AND match_id=?", 
+                "vars": [newId, oldId],
+                "hwidVars": [newId, oldId, matchId],
             }, 
             "ctf_events": {
                 "query": "SET player=? WHERE player=?", 
-                "vars": [newId, oldId]
+                "hwidQuery": "SET player=? WHERE player=? AND match_id=?", 
+                "vars": [newId, oldId],
+                "hwidVars": [newId, oldId, matchId]
             }, 
             "ctf_flag_deaths": {
                 "query": "SET killer_id = IF(killer_id=?,?,killer_id), victim_id = IF(victim_id=?,?,victim_id)", 
-                "vars": [oldId, newId, oldId, newId]
+                "hwidQuery": 
+                    `SET killer_id = IF(killer_id=? AND match_id=?,?,killer_id), 
+                    victim_id = IF(victim_id=? AND match_id=?,?,victim_id)`, 
+                "vars": [oldId, newId, oldId, newId],
+                "hwidVars": [oldId, matchId, newId, oldId, matchId, newId]
             }, 
             "ctf_flag_drops": {
                 "query": "SET player_id=? WHERE player_id=?", 
-                "vars": [newId, oldId]
+                "hwidQuery": "SET player_id=? WHERE player_id=? AND match_id=?", 
+                "vars": [newId, oldId],
+                "hwidVars": [newId, oldId, matchId]
             }, 
             "ctf_flag_pickups": {
                 "query": "SET player_id=? WHERE player_id=?", 
-                "vars": [newId, oldId]
+                "hwidQuery": "SET player_id=? WHERE player_id=? AND match_id=?", 
+                "vars": [newId, oldId],
+                "hwidVars": [newId, oldId, matchId]
             }, 
             "ctf_returns": {
                 "query": "SET grab_player = IF(grab_player=?,?,grab_player), return_player = IF(return_player=?,?,return_player)", 
-                "vars": [oldId, newId, oldId, newId]
+                "hwidQuery": 
+                    `SET grab_player = IF(grab_player=? AND match_id=?,?,grab_player), 
+                    return_player = IF(return_player=? AND match_id=?,?,return_player)`, 
+                "vars": [oldId, newId, oldId, newId],
+                "hwidVars": [oldId, matchId, newId, oldId, matchId, newId],
             }, 
             "ctf_seals": {
                 "query": "SET killer_id = IF(killer_id=?,?,killer_id), victim_id = IF(victim_id=?,?,victim_id)", 
-                "vars": [oldId, newId, oldId, newId]
+                "hwidQuery": 
+                    `SET killer_id = IF(killer_id=? AND match_id=?,?,killer_id), 
+                    victim_id = IF(victim_id=? AND match_id=?,?,victim_id)`, 
+                "vars": [oldId, newId, oldId, newId],
+                "hwidVars": [oldId, matchId, newId, oldId, matchId, newId],
             }, 
             "ctf_self_covers": {
                 "query": "SET killer_id = IF(killer_id=?,?,killer_id), victim_id = IF(victim_id=?,?,victim_id)", 
-                "vars": [oldId, newId, oldId, newId]
+                "hwidQuery": 
+                    `SET killer_id = IF(killer_id=? AND match_id=?,?,killer_id),
+                    victim_id = IF(victim_id=? AND match_id=?,?,victim_id)`, 
+                "vars": [oldId, newId, oldId, newId],
+                "hwidVars": [oldId, matchId, newId, oldId, matchId, newId]
             }, 
             "player_ctf_best": {
                 "query": "SET player_id=? WHERE player_id=?", 
-                "vars": [newId, oldId]
+                //"hwidQuery": "SET player_id=? WHERE player_id=? AND match_id=?", 
+                "vars": [newId, oldId],
+                //"hwidVars": [newId, oldId, matchId]
             }, //(recalc totals, delete duplicate)
             "player_ctf_best_life": {
                 "query": "SET player_id=? WHERE player_id=?", 
-                "vars": [newId, oldId]
+                //"hwidQuery": "SET player_id=? WHERE player_id=? AND match_id=?", 
+                "vars": [newId, oldId],
+                //"hwidVars": [newId, oldId, matchId]
             }, //(recalc totals, delete duplicate)
             "player_ctf_match": {
                 "query": "SET player_id=? WHERE player_id=?", 
-                "vars": [newId, oldId]
+                "hwidQuery": "SET player_id=? WHERE player_id=? AND match_id=?", 
+                "vars": [newId, oldId],
+                "hwidVars": [newId, oldId, matchId],
             }, 
             "player_ctf_totals": {
                 "query": "SET player_id=? WHERE player_id=?", 
-                "vars": [newId, oldId]
+                //"hwidQuery": "SET player_id=? WHERE player_id=? AND match_id=?", 
+                "vars": [newId, oldId],
+                //"hwidVars": [newId, oldId, matchId]
             }, // (recalc totals, delete duplicate)
         };
 
 
         for(const [table, info] of Object.entries(initialQueries)){
 
-            await mysql.simpleQuery(`UPDATE nstats_${table} ${info.query}`, info.vars);
+            const query = (matchId !== undefined) ? info.hwidQuery : info.query;
+            const vars = (matchId !== undefined) ? info.hwidVars : info.vars;
+
+            if(query === undefined || vars === undefined){
+                console.log("...");
+                continue;
+            }
+
+            console.log(query);
+
+            await mysql.simpleQuery(`UPDATE nstats_${table} ${query}`, vars);
         }
+
+        
     
-        await this.fixDuplicatePlayerCTFData();
+        await this.fixDuplicatePlayerCTFData(newId);
+        process.exit();
         await this.recalCTFTotals();
     }
 
