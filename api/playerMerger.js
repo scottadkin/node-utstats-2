@@ -9,17 +9,71 @@ const WinRate = require("./winrate");
  */
 class PlayerMerger{
 
-    constructor(oldId, newId){
+    constructor(oldId, newId, hwid){
 
         this.oldId = oldId;
         this.newId = newId;
+        this.hwid = (hwid !== undefined) ? hwid : "";
+        //this.name = (name !== undefined) ? name : null;
+    }
+
+    async mergeHWID(){
+
+        if(this.hwid === "") throw new Error("Can't apply changes to blank HWID.");
+
+        new Message(`Merge all matches with player hwid = ${this.hwid}`,"note");
+
+        const matchQuery = `SELECT * FROM nstats_player_matches WHERE hwid=?`;
+
+        const matchData = await mysql.simpleQuery(matchQuery, [this.hwid]);
+        console.log(matchData);
+
+        const targetMatches = [];
+
+        //players we need to recalculate totals
+        const affectedPlayerIds = new Set();
+
+        for(let i = 0; i < matchData.length; i++){
+
+            const d = matchData[i];
+
+            affectedPlayerIds.add(d.player_id);
+
+            targetMatches.push({"matchId": d.match_id, "playerId": d.player_id});
+        }
+        
+
+
+
+        const query = `UPDATE nstats_player_matches SET player_id=? WHERE hwid=?`;
+        await mysql.simpleQuery(query, [this.newId, this.hwid]);
+
+        console.log(affectedPlayerIds);
+
+        //need to go through all the database tables and change the player id to the new one where both the match_id and player_id matches
+        //this will make sure only correct data is changed and not every single match for said player_id
+
+        //await this.mergeAssaultTables(oldId, newId, matchIds)
+
+        console.log(targetMatches);
+
+        for(let i = 0; i < targetMatches.length; i++){
+
+            const {matchId, playerId} = targetMatches[i];
+
+            await this.mergeAssaultTables(playerId, this.newId, matchId);
+        }
+        
     }
 
     async merge(){
 
         try{
 
-            await this.mergeAssaultTables();
+            const oldId = this.oldId;
+            const newId = this.newId;
+
+            await this.mergeAssaultTables(oldId, newId);
             await this.mergeCTFTables();
             await this.mergeDomTables();
             await this.mergeHeadshots();
@@ -46,11 +100,21 @@ class PlayerMerger{
         }
     }
 
-    async mergeAssaultTables(){
+    async mergeAssaultTables(oldId, newId, matchId){
 
-        const query = `UPDATE nstats_assault_match_objectives SET player=? WHERE player=?`;
+        let query = "";
+        let vars = [];
 
-        return await mysql.simpleQuery(query, [this.newId, this.oldId]);
+        if(matchId === undefined){
+            query = `UPDATE nstats_assault_match_objectives SET player=? WHERE player=?`;
+            vars = [newId, oldId];     
+        }else{
+
+            query = `UPDATE nstats_assault_match_objectives SET player=? WHERE player=? AND match_id=?`;
+            vars = [newId, oldId, matchId];
+        }
+        
+        return await mysql.simpleQuery(query, vars);
     }
 
 
