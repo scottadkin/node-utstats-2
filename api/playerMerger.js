@@ -67,6 +67,7 @@ class PlayerMerger{
             await this.mergeDomTables(playerId, this.newId, matchId);
             await this.mergeHeadshots(playerId, this.newId, matchId);
             await this.mergeItems(playerId, this.newId, matchId);
+            await this.mergeKills(playerId, this.newId, matchId);
         }
         
     }
@@ -83,7 +84,7 @@ class PlayerMerger{
             await this.mergeDomTables(oldId, newId);
             await this.mergeHeadshots(oldId, newId);
             await this.mergeItems(oldId, newId);
-            await this.mergeKills();
+            await this.mergeKills(oldId, newId);
             await this.mergeCombogib();
             await this.mergeMiscPlayerMatch();
             await this.mergeMonsterTables();
@@ -964,13 +965,22 @@ class PlayerMerger{
         new Message(`Merge Item tables`,"pass");
     }
 
-    async mergeKills(){
+    async mergeKills(oldId, newId, matchId){
 
         new Message(`Merge kill tables`, "note");
 
-        const query = `UPDATE nstats_kills SET killer = IF(killer = ?, ?, killer), victim = if(victim = ?, ?, victim)`;
+        let query = "";
+        let vars = [];
 
-        await mysql.simpleQuery(query, [this.oldId, this.newId, this.oldId, this.newId]);
+        if(matchId === undefined){
+            query = `UPDATE nstats_kills SET killer = IF(killer = ?, ?, killer), victim = if(victim = ?, ?, victim)`;
+            vars = [oldId, newId, oldId, newId];
+        }else{
+            query = `UPDATE nstats_kills SET killer = IF(killer=? AND match_id=?, ?, killer), victim = if(victim = ? AND match_id=?, ?, victim)`;
+            vars = [oldId, matchId, newId, oldId, matchId, newId];
+        }
+        
+        await mysql.simpleQuery(query, vars);
 
         new Message(`Merge kill tables`, "pass");
     }
