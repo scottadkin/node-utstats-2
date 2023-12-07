@@ -121,36 +121,60 @@ class PlayerMerger{
 
     recalCTFBest(data){
 
-        //only need one array, just ignore this missing ones in best life table as all others are in both
+        //some are _best_life table and others  _ctf_best, we can call this method once like this
         const types = [
-            "flag_assist",
-            "flag_return",
-            "flag_return_base",
-            "flag_return_mid",
-            "flag_return_enemy_base",
-            "flag_return_save",
-            "flag_dropped",
-            "flag_kill",
-            "flag_suicide",
-            "flag_seal",
-            "flag_seal_pass",
-            "flag_seal_fail",
-            "flag_cover",
-            "flag_cover_pass",
-            "flag_cover_fail",
-            "flag_cover_multi",
-            "flag_cover_spree",
-            "flag_capture",
-            "flag_carry_time",
-            "flag_taken",
-            "flag_pickup",
-            "flag_self_cover",
-            "flag_self_cover_pass",
-            "flag_self_cover_fail",
-            "flag_solo_capture",
-            "best_single_seal",
-            "best_single_cover",
-            "best_single_self_cover"
+        "flag_assist",
+        "flag_assist_best",
+        "flag_return",
+        "flag_return_best",
+        "flag_return_base",
+        "flag_return_base_best",
+        "flag_return_mid",
+        "flag_return_mid_best",
+        "flag_return_enemy_base",
+        "flag_return_enemy_base_best",
+        "flag_return_save",
+        "flag_return_save_best",
+        "flag_dropped",
+        "flag_dropped_best",
+        "flag_kill",
+        "flag_kill_best",
+        "flag_suicide",
+        "flag_seal",
+        "flag_seal_best",
+        "flag_seal_pass",
+        "flag_seal_pass_best",
+        "flag_seal_fail",
+        "flag_seal_fail_best",
+        "best_single_seal",
+        "flag_cover",
+        "flag_cover_best",
+        "flag_cover_pass",
+        "flag_cover_pass_best",
+        "flag_cover_fail",
+        "flag_cover_fail_best",
+        "flag_cover_multi",
+        "flag_cover_multi_best",
+        "flag_cover_spree",
+        "flag_cover_spree_best",
+        "best_single_cover",
+        "flag_capture",
+        "flag_capture_best",
+        "flag_carry_time",
+        "flag_carry_time_best",
+        "flag_taken",
+        "flag_taken_best",
+        "flag_pickup",
+        "flag_pickup_best",
+        "flag_self_cover",
+        "flag_self_cover_best",
+        "flag_self_cover_pass",
+        "flag_self_cover_pass_best",
+        "flag_self_cover_fail",
+        "flag_self_cover_fail_best",
+        "best_single_self_cover",
+        "flag_solo_capture",
+        "flag_solo_capture_best"
         ];
 
         const totals = {};
@@ -163,6 +187,7 @@ class PlayerMerger{
             //need to do all time totals as well
             if(i === 0){
                 totals[0] = {...d};
+                totals[0].gametype_id = 0;
             }
 
             if(totals[gametypeId] === undefined){
@@ -261,6 +286,7 @@ class PlayerMerger{
             if(i === 0){
                 totals[0] = {...d};
                 totals[0].total_matches = 0;
+                totals[0].gametype_id = 0;
             }
 
             let bSkipAllTimeTotals = i === 0;
@@ -304,7 +330,7 @@ class PlayerMerger{
         return totals;  
     }
 
-    async deleteOldCTFData(){
+    async deleteOldCTFData(playerId){
 
         const tables = [
             "player_ctf_best",
@@ -319,12 +345,12 @@ class PlayerMerger{
 
             new Message(`Delete old data from table ${t}.`,"note");
 
-            await mysql.simpleQuery(`DELETE FROM nstats_${t} WHERE player_id=?`, [this.newId]);
+            await mysql.simpleQuery(`DELETE FROM nstats_${t} WHERE player_id=?`, [playerId]);
             new Message(`Deleted old data from table ${t}.`,"pass");
         }
     }
 
-    async insertNewCTFData(totals, best, bestLife){
+    async insertNewCTFData(totals, best/*, bestLife*/){
 
 
         const totalsQuery = `INSERT INTO nstats_player_ctf_totals (
@@ -396,15 +422,15 @@ class PlayerMerger{
 
         const bestLifeInsertVars = [];
 
-        for(const b of Object.values(bestLife)){
+        for(const b of Object.values(best)){
 
             bestLifeInsertVars.push([
-                b.player_id, b.gametype_id, b.flag_assist, b.flag_return, b.flag_return_base,
-                b.flag_return_mid, b.flag_return_enemy_base, b.flag_return_save, b.flag_dropped, b.flag_kill,
-                b.flag_seal, b.flag_seal_pass, b.flag_seal_fail, b.best_single_seal,
-                b.flag_cover, b.flag_cover_pass, b.flag_cover_fail, b.flag_cover_multi, b.flag_cover_spree,
-                b.best_single_cover, b.flag_capture, b.flag_carry_time, b.flag_taken, b.flag_pickup,
-                b.flag_self_cover, b.flag_self_cover_pass, b.flag_self_cover_fail, b.best_single_self_cover, b.flag_solo_capture
+                b.player_id, b.gametype_id, b.flag_assist_best, b.flag_return_best, b.flag_return_base_best,
+                b.flag_return_mid_best, b.flag_return_enemy_base_best, b.flag_return_save_best, b.flag_dropped_best, b.flag_kill_best,
+                b.flag_seal_best, b.flag_seal_pass_best, b.flag_seal_fail_best, b.best_single_seal,
+                b.flag_cover_best, b.flag_cover_pass_best, b.flag_cover_fail_best, b.flag_cover_multi_best, b.flag_cover_spree_best,
+                b.best_single_cover, b.flag_capture_best, b.flag_carry_time_best, b.flag_taken_best, b.flag_pickup_best,
+                b.flag_self_cover_best, b.flag_self_cover_pass_best, b.flag_self_cover_fail_best, b.best_single_self_cover, b.flag_solo_capture_best
             ]);
         }
 
@@ -424,27 +450,13 @@ class PlayerMerger{
 
         const matchResult = await mysql.simpleQuery(matchQuery, [playerId]);
 
-        console.log(matchResult);
         const totals = this.recalCTFPlayerTotals(matchResult);
         const best = this.recalCTFBest(matchResult);
-        console.log(best);
 
-        console.log(`totalMatches = ${matchResult.length}`);
-       // console.log("--------------best---------------------");
-        //console.log(best);
+        await this.deleteOldCTFData(playerId);
 
-        /*
+        await this.insertNewCTFData(totals, best/*, bestLife*/);
 
-        //----------------------------
-        /*
-        await this.deleteOldCTFData();
-
-        await this.insertNewCTFData(totals, best, bestLife);
-        */
-        //-----------------------------------
-
-        //console.log(best);
-        //console.log(bestLife);
     }
 
 
@@ -813,11 +825,10 @@ class PlayerMerger{
             const vars = (matchId !== undefined) ? info.hwidVars : info.vars;
 
             if(query === undefined || vars === undefined){
-                console.log("...");
+                //console.log("...");
                 continue;
             }
 
-            console.log(query);
 
             await mysql.simpleQuery(`UPDATE nstats_${table} ${query}`, vars);
         }
