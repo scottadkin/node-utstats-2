@@ -63,6 +63,7 @@ class PlayerMerger{
 
             await this.mergeAssaultTables(playerId, this.newId, matchId);
             await this.mergeCTFTables(playerId, this.newId, matchId);
+            await this.mergeDomTables(playerId, this.newId, matchId);
         }
         
     }
@@ -76,7 +77,7 @@ class PlayerMerger{
 
             await this.mergeAssaultTables(oldId, newId);
             await this.mergeCTFTables(oldId, newId);
-            await this.mergeDomTables();
+            await this.mergeDomTables(oldId, newId);
             await this.mergeHeadshots();
             await this.mergeItems();
             await this.mergeKills();
@@ -841,12 +842,12 @@ class PlayerMerger{
         if(matchId !== undefined){
             await this.recalCTFTotals(oldId);
         }
-        process.exit();
     }
 
 
     //doesn't change the main players table like the ctf stuff
-    async mergeDomTables(){
+    async mergeDomTables(oldId, newId, matchId){
+
 
         new Message(`Merge dom tables.`,"note");
         const tables = ["dom_match_caps", "dom_match_player_score"];
@@ -855,7 +856,16 @@ class PlayerMerger{
 
             const t = tables[i];
 
-            await mysql.simpleQuery(`UPDATE nstats_${t} SET player=? WHERE player=?`, [this.newId, this.oldId]);
+            const vars = [newId, oldId];
+
+            let query = `UPDATE nstats_${t} SET player=? WHERE player=?`;
+
+            if(matchId !== undefined){
+                vars.push(matchId);
+                query += ` AND match_id=?`;
+            }
+
+            await mysql.simpleQuery(query, vars);
         }
 
         new Message(`Merge dom tables.`,"pass");
