@@ -59,11 +59,14 @@ class PlayerMerger{
 
         for(let i = 0; i < targetMatches.length; i++){
 
+            new Message(`Started merge ${i + 1} out of ${targetMatches.length}`,"progress");
             const {matchId, playerId} = targetMatches[i];
 
             await this.mergeAssaultTables(playerId, this.newId, matchId);
             await this.mergeCTFTables(playerId, this.newId, matchId);
             await this.mergeDomTables(playerId, this.newId, matchId);
+            await this.mergeHeadshots(playerId, this.newId, matchId);
+            await this.mergeItems(playerId, this.newId, matchId);
         }
         
     }
@@ -78,8 +81,8 @@ class PlayerMerger{
             await this.mergeAssaultTables(oldId, newId);
             await this.mergeCTFTables(oldId, newId);
             await this.mergeDomTables(oldId, newId);
-            await this.mergeHeadshots();
-            await this.mergeItems();
+            await this.mergeHeadshots(oldId, newId);
+            await this.mergeItems(oldId, newId);
             await this.mergeKills();
             await this.mergeCombogib();
             await this.mergeMiscPlayerMatch();
@@ -871,46 +874,93 @@ class PlayerMerger{
         new Message(`Merge dom tables.`,"pass");
     }
 
-    async mergeHeadshots(){
+    async mergeHeadshots(oldId, newId, matchId){
 
         new Message(`Merge headshots table`, "note");
-        const query = `UPDATE nstats_headshots SET killer = IF(killer=?,?,killer), victim = IF(victim=?,?,victim)`;
 
-        await mysql.simpleQuery(query, [this.oldId, this.newId, this.oldId, this.newId]);
+        let query = "";
+        let vars = [];
+
+        if(matchId === undefined){
+            query = `UPDATE nstats_headshots SET killer = IF(killer=?,?,killer), victim = IF(victim=?,?,victim)`;
+            vars = [oldId, newId, oldId, newId];
+        }else{
+            query = `UPDATE nstats_headshots SET killer = IF(killer=? AND match_id=?, ?, killer),
+            victim = IF(victim=? AND match_id=?, ?, victim)`;
+            vars = [oldId, matchId, newId, oldId, matchId, newId];
+        }
+
+        await mysql.simpleQuery(query, vars);
         new Message(`Merge headshots table`, "pass");
     }
 
-    async mergeItems(){
+    async recalcItemTotals(playerId){
+
+        const getQuery = `SELECT item,uses FROM nstats_items_match WHERE player_id=?`;
+
+        const result = await mysql.simpleQuery(getQuery, [playerId]);
+
+        const totals = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const {item, uses} = result[i];
+
+            if(totals[item] === undefined){
+                totals[item] = {"matches": 0, "uses": 0, "first": 0, "last": 0};
+            }
+
+            totals[item].matches++;
+            totals[item].uses += uses;
+        }
+
+        return totals;
+    }
+
+    async fixItemTotals(playerId){
+
+        const deleteOldQuery = `DELETE FROM nstats_items_player WHERE player=?`;
+        await mysql.simpleQuery(deleteOldQuery, [playerId]);
+
+        const newTotals = await this.recalcItemTotals(playerId);
+
+        const totalInsertVars = [];
+
+        for(const [itemId, itemData] of Object.entries(newTotals)){
+
+            const {matches, uses, first, last} = itemData;
+
+            totalInsertVars.push([playerId, itemId, first, last, uses, matches]);
+        }
+
+        const totalsQuery = `INSERT INTO nstats_items_player (
+            player,item,first,last,uses,matches
+        ) VALUES ?`;
+
+        await mysql.bulkInsert(totalsQuery, totalInsertVars);
+    }
+
+    async mergeItems(oldId, newId, matchId){
 
         new Message(`Merge Item tables`,"note");
 
-        const matchQuery = `UPDATE nstats_items_match SET player_id=? WHERE player_id=?`;
-        await mysql.simpleQuery(matchQuery, [this.newId, this.oldId]);
+        const bMatchId = matchId !== undefined;
 
-        const totalsQuery = `UPDATE nstats_items_player SET player=? WHERE player=?`;
-        await mysql.simpleQuery(totalsQuery, [this.newId, this.oldId]);
+        let matchQuery = `UPDATE nstats_items_match SET player_id=? WHERE player_id=?`;
+        const matchVars = [newId, oldId];
 
-        const duplicateQuery = `SELECT item,MIN(first) as first, MAX(last) as last, SUM(uses) as uses, SUM(matches) as matches 
-        FROM nstats_items_player WHERE player=? GROUP BY item`;
-        const duplicateResult = await mysql.simpleQuery(duplicateQuery, [this.newId]);
-
-        const deleteOldQuery = `DELETE FROM nstats_items_player WHERE player=?`;
-        await mysql.simpleQuery(deleteOldQuery, [this.newId]);
-
-
-        const insertQuery = `INSERT INTO nstats_items_player (player,item,first,last,uses,matches) VALUES ?`;
-
-        const insertVars = [];
-
-        for(let i = 0; i < duplicateResult.length; i++){
-
-            const d = duplicateResult[i];
-            insertVars.push([
-                this.newId, d.item, d.first, d.last, d.uses, d.matches
-            ]);
+        if(bMatchId){
+            matchQuery += ` AND match_id=?`;
+            matchVars.push(matchId);
         }
+        await mysql.simpleQuery(matchQuery, matchVars);
 
-        await mysql.bulkInsert(insertQuery, insertVars);
+
+        await this.fixItemTotals(newId);
+
+        //if hwid merge we need to fix the other player totals if needed
+        if(bMatchId) await this.fixItemTotals(oldId);
+        
         new Message(`Merge Item tables`,"pass");
     }
 
