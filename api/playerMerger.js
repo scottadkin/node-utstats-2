@@ -68,6 +68,22 @@ class PlayerMerger{
             await this.mergeHeadshots(playerId, this.newId, matchId);
             await this.mergeItems(playerId, this.newId, matchId);
             await this.mergeKills(playerId, this.newId, matchId);
+
+            await this.mergeCombogib(playerId, this.newId, matchId);
+            //await this.mergeMiscPlayerMatch();
+            //await this.mergeMonsterTables();
+            //await this.mergePlayerMaps();
+            //await this.mergePlayerMatchData();
+            //await this.mergePlayerTotalsData();
+            //await this.mergeWeapons();
+            //await this.mergePowerups();
+            //await this.mergeRankings();
+
+
+            //await this.mergeTeleFrags();
+            //await this.mergeSprees();
+
+            //await this.mergeWinRates();
         }
         
     }
@@ -85,7 +101,7 @@ class PlayerMerger{
             await this.mergeHeadshots(oldId, newId);
             await this.mergeItems(oldId, newId);
             await this.mergeKills(oldId, newId);
-            await this.mergeCombogib();
+            await this.mergeCombogib(oldId, newId);
             await this.mergeMiscPlayerMatch();
             await this.mergeMonsterTables();
             await this.mergePlayerMaps();
@@ -1129,10 +1145,52 @@ class PlayerMerger{
         await mysql.bulkInsert(insertQuery, insertVars);
     }
 
-    async mergeCombogib(){
+
+    async recalcComboTotals(playerId){
+
+        const getQuery = `SELECT * FROM nstats_match_combogib WHERE player_id=?`;
+
+        const result = await mysql.simpleQuery(getQuery, [playerId]);
+
+        console.log(result);
+
+        const totals = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            const playerId = r.player_id;
+            const gametypeId = r.gametype_id;
+            const mapId = r.map_id;
+
+            if(totals[playerId] === undefined) totals[playerId] = {};
+            if(totals[playerId][gametypeId] === undefined) totals[playerId][gametypeId] = {};
+            if(totals[playerId][0] === undefined) totals[playerId][0] = {};
+            //alltime map total
+            if(totals[playerId][0][mapId] === undefined) totals[playerId][0][mapId] = r;
+            //alltime
+            if(totals[playerId][0][0] === undefined) totals[playerId][0][0] = r;
+            //map gametype total
+            if(totals[playerId][gametypeId][mapId] === undefined) totals[playerId][gametypeId][mapId] = r;
+            //gametype total
+            if(totals[playerId][gametypeId][0] === undefined) totals[playerId][gametypeId][0] = r;
+
+            //const allTime = totals[playerId]
+        }
+
+        console.log(totals);
+        //totals are gametype and mapids not just gametypes
+    }
+
+    async mergeCombogib(oldId, newId, matchId){
 
         new Message(`Merge Combogib Tables`,"note");
 
+        const bMatch = matchId !== undefined;
+
+
+        //no difference with hwid match merge as the map will never change
         const mapQuery = `UPDATE nstats_map_combogib SET 
         best_single_combo_player_id = IF(best_single_combo_player_id=?,?,best_single_combo_player_id),
         best_single_shockball_player_id = IF(best_single_shockball_player_id=?,?,best_single_shockball_player_id),
@@ -1147,30 +1205,39 @@ class PlayerMerger{
         max_primary_kills_player_id = IF(max_primary_kills_player_id=?,?,max_primary_kills_player_id)`;
 
         const mapVars = [
-            this.oldId, this.newId,
-            this.oldId, this.newId,
-            this.oldId, this.newId,
-            this.oldId, this.newId,
-            this.oldId, this.newId,
-            this.oldId, this.newId,
-            this.oldId, this.newId,
-            this.oldId, this.newId,
-            this.oldId, this.newId,
-            this.oldId, this.newId,
-            this.oldId, this.newId,
+            oldId, newId,
+            oldId, newId,
+            oldId, newId,
+            oldId, newId,
+            oldId, newId,
+            oldId, newId,
+            oldId, newId,
+            oldId, newId,
+            oldId, newId,
+            oldId, newId,
+            oldId, newId,
         ];
 
         await mysql.simpleQuery(mapQuery, mapVars);
 
 
-        const matchQuery = `UPDATE nstats_match_combogib SET player_id=? WHERE player_id=?`;
-        await mysql.simpleQuery(matchQuery, [this.newId, this.oldId]);
+        let matchQuery = `UPDATE nstats_match_combogib SET player_id=? WHERE player_id=?`;
+        const matchVars = [newId, oldId];
+
+        if(bMatch){
+            matchQuery += ` AND match_id=?`;
+            matchVars.push(matchId);
+        }
+        await mysql.simpleQuery(matchQuery, matchVars);
 
 
+        await this.recalcComboTotals(newId);
+        process.exit();
+        /*
         const playerUpdateQuery = `UPDATE nstats_player_combogib SET player_id=? WHERE player_id=?`;
-        await mysql.simpleQuery(playerUpdateQuery, [this.newId, this.oldId]);
+        await mysql.simpleQuery(playerUpdateQuery, [newId, oldId]);
 
-        await this.fixDuplicateCombogibData();
+        await this.fixDuplicateCombogibData();*/
 
         new Message(`Merge Combogib Tables`,"pass");
     }
