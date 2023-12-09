@@ -62,6 +62,8 @@ class PlayerMerger{
             new Message(`Started merge ${i + 1} out of ${targetMatches.length}`,"progress");
             const {matchId, playerId} = targetMatches[i];
 
+            await this.mergePlayerMatchData(playerId, this.newId, matchId);
+
             await this.mergeAssaultTables(playerId, this.newId, matchId);
             await this.mergeCTFTables(playerId, this.newId, matchId);
             await this.mergeDomTables(playerId, this.newId, matchId);
@@ -72,7 +74,7 @@ class PlayerMerger{
             await this.mergeCombogib(playerId, this.newId, matchId);
             await this.mergeMiscPlayerMatch(playerId, this.newId, matchId);
             await this.mergeMonsterTables(playerId, this.newId, matchId);
-            //await this.mergePlayerMaps();
+            await this.mergePlayerMaps(playerId, this.newId, matchId);
             //await this.mergePlayerMatchData();
             //await this.mergePlayerTotalsData();
             //await this.mergeWeapons();
@@ -94,7 +96,7 @@ class PlayerMerger{
 
             const oldId = this.oldId;
             const newId = this.newId;
-
+            await this.mergePlayerMatchData(oldId, newId);
             await this.mergeAssaultTables(oldId, newId);
             await this.mergeCTFTables(oldId, newId);
             await this.mergeDomTables(oldId, newId);
@@ -104,8 +106,8 @@ class PlayerMerger{
             await this.mergeCombogib(oldId, newId);
             await this.mergeMiscPlayerMatch(oldId, newId);
             await this.mergeMonsterTables(oldId, newId);
-            await this.mergePlayerMaps();
-            await this.mergePlayerMatchData();
+            await this.mergePlayerMaps(oldId, newId);
+            //await this.mergePlayerMatchData();
             await this.mergePlayerTotalsData();
             await this.mergeWeapons();
             await this.mergePowerups();
@@ -1583,15 +1585,21 @@ class PlayerMerger{
     }
 
 
-    async mergePlayerMaps(){
+    async mergePlayerMaps(oldId, newId, matchId){
 
         new Message(`Merge player maps table`, "note");
 
-        const updateQuery = `UPDATE nstats_player_maps SET player=? WHERE player=?`;
-        await mysql.simpleQuery(updateQuery, [this.newId, this.oldId]);
+        const query = `SELECT match_id,player_id,playtime,map_id FROM nstats_player_matches WHERE player_id=?`;
+
+        const result = await mysql.simpleQuery(query, [newId]);
+
+        console.log(result);
+
+        /*const updateQuery = `UPDATE nstats_player_maps SET player=? WHERE player=?`;
+        await mysql.simpleQuery(updateQuery, [newId, oldId]);
 
         const getQuery = `SELECT map,first,first_id,last,last_id,matches,playtime,longest,longest_id FROM nstats_player_maps WHERE player=?`;
-        const result = await mysql.simpleQuery(getQuery, [this.newId]);
+        const result = await mysql.simpleQuery(getQuery, [newId]);
 
         const totals = {};
 
@@ -1626,7 +1634,7 @@ class PlayerMerger{
         }
 
         const deleteQuery = `DELETE FROM nstats_player_maps WHERE player=?`;
-        await mysql.simpleQuery(deleteQuery, [this.newId]);
+        await mysql.simpleQuery(deleteQuery, [newId]);
 
         const insertVars = [];
 
@@ -1634,7 +1642,7 @@ class PlayerMerger{
 
             insertVars.push([
                 m.map,
-                this.newId,
+                newId,
                 m.first,
                 m.first_id,
                 m.last,
@@ -1651,17 +1659,19 @@ class PlayerMerger{
             longest, longest_id
         ) VALUES ?`;
 
-        await mysql.bulkInsert(insertQuery, insertVars);
+        await mysql.bulkInsert(insertQuery, insertVars);*/
+
+        process.exit();
 
         new Message(`Merge player maps table`, "pass");
     }
 
 
-    async fixDuplicatePlayerMatchData(){
+    async fixDuplicatePlayerMatchData(playerId){
 
         const getQuery = `SELECT * FROM nstats_player_matches WHERE player_id=?`;
 
-        const data = await mysql.simpleQuery(getQuery, [this.newId]);
+        const data = await mysql.simpleQuery(getQuery, [playerId]);
 
         const mergeTypes = [
             "playtime",              "team_0_playtime",
@@ -1793,7 +1803,7 @@ class PlayerMerger{
         }
  
         const deleteQuery = `DELETE FROM nstats_player_matches WHERE player_id=?`;
-        await mysql.simpleQuery(deleteQuery, [this.newId]);
+        await mysql.simpleQuery(deleteQuery, [playerId]);
 
         const rows = Object.values(totals);
      
@@ -1870,14 +1880,24 @@ class PlayerMerger{
 
     }
 
-    async mergePlayerMatchData(){
+    async mergePlayerMatchData(oldId, newId, matchId){
 
         new Message(`Merge player match data`,"note");
-        const query = `UPDATE nstats_player_matches SET player_id=? WHERE player_id=?`;
 
-        await mysql.simpleQuery(query, [this.newId, this.oldId]);
+        const bMatch = matchId !== undefined;
 
-        await this.fixDuplicatePlayerMatchData();
+        let query = `UPDATE nstats_player_matches SET player_id=? WHERE player_id=?`;
+        const vars = [newId, oldId]
+
+        if(bMatch){
+            query += ` AND match_id=?`;
+            vars.push(matchId);
+        }
+
+        await mysql.simpleQuery(query, vars);
+
+        await this.fixDuplicatePlayerMatchData(newId);
+
 
         new Message(`Merge player match data`,"pass");
     }
