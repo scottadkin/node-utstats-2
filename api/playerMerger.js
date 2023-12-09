@@ -1446,16 +1446,13 @@ class PlayerMerger{
             matchQuery += ` AND match_id=?`;
             matchVars.push(matchId);
         }
+
         await mysql.simpleQuery(matchQuery, matchVars);
 
-
+        if(bMatch){
+            await this.recalcComboTotals(oldId);
+        }
         await this.recalcComboTotals(newId);
-        process.exit();
-        /*
-        const playerUpdateQuery = `UPDATE nstats_player_combogib SET player_id=? WHERE player_id=?`;
-        await mysql.simpleQuery(playerUpdateQuery, [newId, oldId]);
-
-        await this.fixDuplicateCombogibData();*/
 
         new Message(`Merge Combogib Tables`,"pass");
     }
