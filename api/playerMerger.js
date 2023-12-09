@@ -1489,37 +1489,59 @@ class PlayerMerger{
     }
 
 
-    async fixMonsterDuplicateData(){
+    async fixMonsterDuplicateData(playerId){
 
         //TODO recreate totals with match data instead to work with HWID merge
-        const getQuery = `SELECT monster,SUM(matches) as matches,SUM(kills) as kills, SUM(deaths) as deaths FROM nstats_monsters_player_totals WHERE player=? GROUP BY monster`;
-        const result = await mysql.simpleQuery(getQuery, [this.newId]);
 
-        const deleteQuery = `DELETE FROM nstats_monsters_player_totals WHERE player=?`;
-        await mysql.simpleQuery(deleteQuery, [this.newId]);
+        const getQuery = `SELECT * FROM nstats_monsters_player_match WHERE player=?`;
 
-        const insertVars = [];
+        const result = await mysql.simpleQuery(getQuery, [playerId]);
+
+        const totals = {};
 
         for(let i = 0; i < result.length; i++){
 
             const r = result[i];
 
-            insertVars.push([
-                this.newId,
-                r.monster,
-                r.matches, 
-                r.kills,
-                r.deaths
-            ]);
+            if(totals[r.monster] === undefined){
+                totals[r.monster] = {
+                    "totalMatches": 0,
+                    "kills": 0,
+                    "deaths": 0
+                };
+            }
+
+            const t = totals[r.monster];
+
+            t.totalMatches++;
+            t.kills += r.kills;
+            t.deaths += r.deaths;
         }
+
+        const deleteQuery = `DELETE FROM nstats_monsters_player_totals WHERE player=?`;
+        await mysql.simpleQuery(deleteQuery, [playerId]);
 
         const insertQuery = `INSERT INTO nstats_monsters_player_totals (
             player,
             monster,
-            matches, 
-            kills,
+            matches,
+            kills, 
             deaths
         ) VALUES ?`;
+
+        const insertVars = [];
+
+        for(const [monsterId, data] of Object.entries(totals)){
+
+            insertVars.push([
+                playerId,
+                monsterId,
+                data.totalMatches,
+                data.kills,
+                data.deaths
+
+            ]);
+        }
 
         await mysql.bulkInsert(insertQuery, insertVars);
     }
@@ -1543,7 +1565,7 @@ class PlayerMerger{
             let query = `UPDATE nstats_${t} SET player=? WHERE player=?`;
             const vars = [newId, oldId];
 
-            //can't merge totals in the same way
+            //can't merge totals in the same way for HWID reasons
             if(i < 2 && bMatch){
                 query += ` AND match_id=?`;
                 vars.push(matchId);
@@ -1553,7 +1575,9 @@ class PlayerMerger{
             await mysql.simpleQuery(query, vars);
         }
 
-        await this.fixMonsterDuplicateData();
+
+        await this.fixMonsterDuplicateData(oldId, matchId);
+        await this.fixMonsterDuplicateData(newId, matchId);
 
         new Message(`Merge monster tables`,"pass");
     }
