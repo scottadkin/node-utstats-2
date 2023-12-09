@@ -1148,6 +1148,10 @@ class PlayerMerger{
 
     updateComboTotal(totals, data){
 
+        if(totals.total_matches === undefined) totals.total_matches = 0;
+
+        totals.total_matches++;
+
         const mergeTypes = [
             "playtime",
             "primary_kills",        
@@ -1209,8 +1213,35 @@ class PlayerMerger{
             }
         }
 
-        //calc eff and kpm here
-        console.log(totals);
+        const types = ["combo", "insane", "shockball", "primary"];
+
+        
+        for(let i = 0; i < types.length; i++){
+
+            const t = types[i];
+
+            const eff = `${t}_efficiency`;
+            const kpm = `${t}_kpm`;
+            const kills = totals[`${t}_kills`];
+            const deaths = totals[`${t}_deaths`];
+            const playtime = totals.playtime;
+
+            if(totals[eff] === undefined) totals[eff] = 0;
+            if(totals[kpm] === undefined) totals[kpm] = 0;
+
+            if(kills > 0){
+
+                if(deaths === 0){
+                    totals[eff] = 100;
+                }else{
+                    totals[eff] = kills / (kills + deaths) * 100;
+                }
+            }
+          
+            if(playtime > 0){
+                totals[kpm] = kills / (playtime / 60);
+            }   
+        }
     }
 
     async recalcComboTotals(playerId){
@@ -1218,11 +1249,7 @@ class PlayerMerger{
         const getQuery = `SELECT * FROM nstats_match_combogib WHERE player_id=?`;
 
         const result = await mysql.simpleQuery(getQuery, [playerId]);
-
-        console.log(result);
-
-       
-
+    
         const totals = {};
 
         for(let i = 0; i < result.length; i++){
@@ -1260,9 +1287,118 @@ class PlayerMerger{
             this.updateComboTotal(mapGametype, r);
 
         }
+        
 
-        console.log(totals);
-        //totals are gametype and mapids not just gametypes
+        const deleteQuery = `DELETE FROM nstats_player_combogib WHERE player_id=?`;
+        await mysql.simpleQuery(deleteQuery, [playerId]);
+
+
+        const insertQuery = `INSERT INTO nstats_player_combogib (
+            player_id,
+            gametype_id,
+            map_id,
+            total_matches,
+            playtime, 
+            combo_kills,
+            combo_deaths,
+            combo_efficiency,
+            combo_kpm,
+            insane_kills,
+            insane_deaths,
+            insane_efficiency,
+            insane_kpm,
+            shockball_kills,
+            shockball_deaths,
+            shockball_efficiency,
+            shockball_kpm,
+            primary_kills,
+            primary_deaths,
+            primary_efficiency,
+            primary_kpm,
+            best_single_combo,
+            best_single_combo_match_id,
+            best_single_insane,
+            best_single_insane_match_id,
+            best_single_shockball,
+            best_single_shockball_match_id,
+            max_combo_kills,
+            max_combo_kills_match_id,
+            max_insane_kills,
+            max_insane_kills_match_id,
+            max_shockball_kills,
+            max_shockball_kills_match_id,
+            max_primary_kills,
+            max_primary_kills_match_id,
+            best_combo_spree,
+            best_combo_spree_match_id,
+            best_insane_spree,
+            best_insane_spree_match_id,
+            best_shockball_spree,
+            best_shockball_spree_match_id,
+            best_primary_spree,
+            best_primary_spree_match_id
+        ) VALUES ?`;
+
+        const insertVars = [];
+
+        for(const [playerId, gametypeData] of Object.entries(totals)){
+  
+            for(const [gametypeId, mapData] of Object.entries(gametypeData)){
+                
+                for(const [mapId, d] of Object.entries(mapData)){
+
+                    insertVars.push(
+                        [
+                            playerId,
+                            gametypeId,
+                            mapId,
+                            d.total_matches,
+                            d.playtime, 
+                            d.combo_kills,
+                            d.combo_deaths,
+                            d.combo_efficiency,
+                            d.combo_kpm,
+                            d.insane_kills,
+                            d.insane_deaths,
+                            d.insane_efficiency,
+                            d.insane_kpm,
+                            d.shockball_kills,
+                            d.shockball_deaths,
+                            d.shockball_efficiency,
+                            d.shockball_kpm,
+                            d.primary_kills,
+                            d.primary_deaths,
+                            d.primary_efficiency,
+                            d.primary_kpm,
+                            d.best_single_combo,
+                            d.best_single_combo_match_id,
+                            d.best_single_insane,
+                            d.best_single_insane_match_id,
+                            d.best_single_shockball,
+                            d.best_single_shockball_match_id,
+                            d.max_combo_kills,
+                            d.max_combo_kills_match_id,
+                            d.max_insane_kills,
+                            d.max_insane_kills_match_id,
+                            d.max_shockball_kills,
+                            d.max_shockball_kills_match_id,
+                            d.max_primary_kills,
+                            d.max_primary_kills_match_id,
+                            d.best_combo_spree,
+                            d.best_combo_spree_match_id,
+                            d.best_insane_spree,
+                            d.best_insane_spree_match_id,
+                            d.best_shockball_spree,
+                            d.best_shockball_spree_match_id,
+                            d.best_primary_spree,
+                            d.best_primary_spree_match_id
+                        ]
+                    );
+                }
+            }
+        }
+
+        await mysql.bulkInsert(insertQuery, insertVars);
     }
 
     async mergeCombogib(oldId, newId, matchId){
