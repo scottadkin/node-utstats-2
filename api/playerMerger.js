@@ -1146,6 +1146,73 @@ class PlayerMerger{
     }
 
 
+    updateComboTotal(totals, data){
+
+        const mergeTypes = [
+            "playtime",
+            "primary_kills",        
+            "primary_deaths",
+            "shockball_kills",      
+            "shockball_deaths",
+            "combo_kills",          
+            "combo_deaths",  
+            "insane_kills",         
+            "insane_deaths"
+        ];
+
+        const higherBetter = [
+            "best_single_combo",    
+            "best_single_shockball",
+            "best_single_insane",   
+            "best_primary_spree",
+            "best_shockball_spree", 
+            "best_combo_spree",
+            "best_insane_spree"
+        ];
+
+        for(let i = 0; i < mergeTypes.length; i++){
+
+            const m = mergeTypes[i];
+
+            if(totals[m] === undefined){
+
+                totals[m] = data[m];
+
+                if(m !== "playtime"){
+                    totals[`max_${m}`] = data[m];
+                    totals[`max_${m}_match_id`] = data.match_id;
+                }
+                continue;
+            }
+
+            totals[m] += data[m];
+
+            if(m !== "playtime" && totals[`max_${m}`] < data[m]){
+                totals[`max_${m}`] = data[m];
+                totals[`max_${m}_match_id`] = data.match_id;
+            }
+        }
+
+        for(let i = 0; i < higherBetter.length; i++){
+
+            const h = higherBetter[i];
+
+            if(totals[h] === undefined){
+                totals[h] = data[h];
+                totals[`${h}_match_id`] = data.match_id;
+                continue;
+            }
+
+            if(totals[h] < data[h]){
+                totals[h] = data[h];
+                totals[`${h}_match_id`] = data.match_id;
+            }
+        }
+
+        //calc eff and kpm here
+        console.log(totals);
+    }
+
     async recalcComboTotals(playerId){
 
         const getQuery = `SELECT * FROM nstats_match_combogib WHERE player_id=?`;
@@ -1153,6 +1220,8 @@ class PlayerMerger{
         const result = await mysql.simpleQuery(getQuery, [playerId]);
 
         console.log(result);
+
+       
 
         const totals = {};
 
@@ -1164,19 +1233,32 @@ class PlayerMerger{
             const gametypeId = r.gametype_id;
             const mapId = r.map_id;
 
+            //check if player total exists
             if(totals[playerId] === undefined) totals[playerId] = {};
+            //check if player gametype total exists
             if(totals[playerId][gametypeId] === undefined) totals[playerId][gametypeId] = {};
+            //check if player all time totals exist
             if(totals[playerId][0] === undefined) totals[playerId][0] = {};
             //alltime map total
-            if(totals[playerId][0][mapId] === undefined) totals[playerId][0][mapId] = r;
+            if(totals[playerId][0][mapId] === undefined) totals[playerId][0][mapId] = {}//r;
             //alltime
-            if(totals[playerId][0][0] === undefined) totals[playerId][0][0] = r;
+            if(totals[playerId][0][0] === undefined) totals[playerId][0][0] = {}//r;
             //map gametype total
-            if(totals[playerId][gametypeId][mapId] === undefined) totals[playerId][gametypeId][mapId] = r;
+            if(totals[playerId][gametypeId][mapId] === undefined) totals[playerId][gametypeId][mapId] = {}//r;
             //gametype total
-            if(totals[playerId][gametypeId][0] === undefined) totals[playerId][gametypeId][0] = r;
+            if(totals[playerId][gametypeId][0] === undefined) totals[playerId][gametypeId][0] = {}//r;
 
-            //const allTime = totals[playerId]
+            const allTime = totals[playerId][0][0];
+            const gametype = totals[playerId][gametypeId][0];
+            const map = totals[playerId][0][mapId];
+            const mapGametype = totals[playerId][gametypeId][mapId];
+
+
+            this.updateComboTotal(allTime, r);
+            this.updateComboTotal(gametype, r);
+            this.updateComboTotal(map, r);
+            this.updateComboTotal(mapGametype, r);
+
         }
 
         console.log(totals);
