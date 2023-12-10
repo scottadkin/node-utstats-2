@@ -63,6 +63,15 @@ class PlayerMerger{
             const {matchId, playerId} = targetMatches[i];
 
             await this.mergePlayerMatchData(playerId, this.newId, matchId);
+            const newPlayerName = await this.getNewName(this.newId);
+            //need to recalc totals for the old player just incase they have data
+            const oldPlayerName = await this.getNewName(playerId);
+       
+            console.log(oldPlayerName, newPlayerName);
+      
+            await this.recalcPlayerTotalsFromMatchData(this.newId, newPlayerName);
+            await this.recalcPlayerTotalsFromMatchData(playerId, oldPlayerName);
+            process.exit();
 
             await this.mergeAssaultTables(playerId, this.newId, matchId);
             await this.mergeCTFTables(playerId, this.newId, matchId);
@@ -86,8 +95,170 @@ class PlayerMerger{
             //await this.mergeSprees();
 
             //await this.mergeWinRates();
-        }
+        } 
+    }
+
+
+    createEmptyPlayerTotal(r, name, gametypeId, mapId){
         
+
+        return {
+            "id": r.id,
+            "hwid": r.hwid,
+            "name": name,
+            "player_id": r.player_id,
+            "first": 0,
+            "last": 0,
+            "ip": r.ip,
+            "country": 0,
+            "face": r.face,
+            "voice": r.voice,
+            //"gametype": gametypeId,
+           // "map": mapId,
+            "matches": 0,
+            "wins": 0,
+            "losses": 0,
+            "draws": 0,
+            "winrate": 0,
+            "playtime": 0,
+            "team_0_playtime": 0,
+            "team_1_playtime": 0,
+            "team_2_playtime": 0,
+            "team_3_playtime": 0,
+            "spec_playtime": 0,
+            "first_bloods": 0,
+            "frags": 0,
+            "score": 0,
+            "kills": 0,
+            "deaths": 0,
+            "suicides": 0,
+            "team_kills": 0,
+            "spawn_kills": 0,
+            "efficiency": 0,
+            "multi_1": 0,
+            "multi_2": 0,
+            "multi_3": 0,
+            "multi_4": 0,
+            "multi_5": 0,
+            "multi_6": 0,
+            "multi_7": 0,
+            "multi_best": 0,
+            "spree_1": 0,
+            "spree_2": 0,
+            "spree_3": 0,
+            "spree_4": 0,
+            "spree_5": 0,
+            "spree_6": 0,
+            "spree_7": 0,
+            "spree_best": 0,
+            "fastest_kill": 0,
+            "slowest_kill": 0,
+            "best_spawn_kill_spree": 0,
+            "assault_objectives": 0,
+            "dom_caps": 0,
+            "dom_caps_best": 0,
+            "dom_caps_best_life": 0,
+            "accuracy": 0,
+            "k_distance_normal": 0,
+            "k_distance_long": 0,
+            "k_distance_uber": 0,
+            "headshots": 0,
+            "shield_belt": 0,
+            "amp": 0,
+            "amp_time": 0,
+            "invisibility": 0,
+            "invisibility_time": 0,
+            "pads": 0,
+            "armor": 0,
+            "boots": 0,
+            "super_health": 0,
+            "mh_kills": 0,
+            "mh_kills_best_life": 0,
+            "mh_kills_best": 0,
+            "views": 0,
+            "mh_deaths": 0,
+            "mh_deaths_worst": 0
+            };
+    }
+
+    async recalcPlayerTotalsFromMatchData(playerId, playerName){
+
+        const getQuery = `SELECT * FROM nstats_player_matches WHERE player_id=?`;
+        const result = await mysql.simpleQuery(getQuery, [playerId]);
+
+        console.log(result);
+
+        const totals = {};
+
+        /**
+         * [
+  "id",                    "match_id",              "match_date",
+  "map_id",                "player_id",             "hwid",
+  "bot",                   "spectator",             "played",
+  "ip",                    "country",               "face",
+  "voice",                 "gametype",              "winner",
+  "draw",                  "playtime",              "team_0_playtime",
+  "team_1_playtime",       "team_2_playtime",       "team_3_playtime",
+  "spec_playtime",         "team",                  "first_blood",
+  "frags",                 "score",                 "kills",
+  "deaths",                "suicides",              "team_kills",
+  "spawn_kills",           "efficiency",            "multi_1",
+  "multi_2",               "multi_3",               "multi_4",
+  "multi_5",               "multi_6",               "multi_7",
+  "multi_best",            "spree_1",               "spree_2",
+  "spree_3",               "spree_4",               "spree_5",
+  "spree_6",               "spree_7",               "spree_best",
+  "best_spawn_kill_spree", "assault_objectives",    "dom_caps",
+  "dom_caps_best_life",    "ping_min",              "ping_average",
+  "ping_max",              "accuracy",              "shortest_kill_distance",
+  "average_kill_distance", "longest_kill_distance", "k_distance_normal",
+  "k_distance_long",       "k_distance_uber",       "headshots",
+  "shield_belt",           "amp",                   "amp_time",
+  "invisibility",          "invisibility_time",     "pads",
+  "armor",                 "boots",                 "super_health",
+  "mh_kills",              "mh_kills_best_life",    "views",
+  "mh_deaths",             "telefrag_kills",        "telefrag_deaths",
+  "telefrag_best_spree",   "telefrag_best_multi",   "tele_disc_kills",
+  "tele_disc_deaths",      "tele_disc_best_spree",  "tele_disc_best_multi"
+]
+         */
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            if(totals[r.gametype] === undefined){
+               // totals[r.gametype] = this.createEmptyPlayerTotal(r, playerName, r.gametype, r.map);
+            }
+
+            //create all time totals if not exist
+            if(totals[0] === undefined){
+                totals[0] = {"0": this.createEmptyPlayerTotal(r, playerName)};
+            }
+
+            if(totals[r.gametype] === undefined) totals[r.gametype] = {};
+
+            //create map all time totals if not exist
+            if(totals[0][r.map_id] === undefined){
+                totals[0][r.map_id] = this.createEmptyPlayerTotal(r, playerName);
+            }
+
+            
+            //create gametype totals if not exist
+            if(totals[r.gametype][0] === undefined){
+                totals[r.gametype][0] = this.createEmptyPlayerTotal(r, playerName);
+            }
+
+            //create map gametype totals if not exist
+            if(totals[r.gametype][r.map_id] === undefined){
+                totals[r.gametype][r.map_id] = this.createEmptyPlayerTotal(r, playerName);
+            }
+
+            
+        }
+
+        console.log(totals);
+        process.exit();
     }
 
     async merge(){
@@ -2095,11 +2266,11 @@ class PlayerMerger{
     }
 
 
-    async getNewName(){
+    async getNewName(playerId){
 
         const query = `SELECT name FROM nstats_player_totals WHERE id=?`;
 
-        const result = await mysql.simpleQuery(query, [this.newId]);
+        const result = await mysql.simpleQuery(query, [playerId]);
 
         if(result.length > 0) return result[0].name;
 
@@ -2333,7 +2504,7 @@ class PlayerMerger{
 
         new Message("Merge player totals table", "note");
 
-        this.newName = await this.getNewName();
+        this.newName = await this.getNewName(this.newId);
 
 
         //for everything other than master profile(id=x and player_id=0)
