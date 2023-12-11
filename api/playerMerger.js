@@ -81,6 +81,10 @@ class PlayerMerger{
             await this.insertNewPlayerTotals(newPlayerTotals, newPlayerName);
             await this.insertNewPlayerTotals(oldPlayerTotals, oldPlayerName);
 
+
+            await this.recalcMapTotals(playerId);
+            await this.recalcMapTotals(this.newId);
+
             process.exit();
 
             await this.mergeAssaultTables(playerId, this.newId, matchId);
@@ -93,7 +97,7 @@ class PlayerMerger{
             await this.mergeCombogib(playerId, this.newId, matchId);
             await this.mergeMiscPlayerMatch(playerId, this.newId, matchId);
             await this.mergeMonsterTables(playerId, this.newId, matchId);
-            await this.mergePlayerMaps(playerId, this.newId, matchId);
+            
             //await this.mergePlayerMatchData();
             //await this.mergePlayerTotalsData();
             //await this.mergeWeapons();
@@ -173,7 +177,8 @@ class PlayerMerger{
             await this.mergeCombogib(oldId, newId);
             await this.mergeMiscPlayerMatch(oldId, newId);
             await this.mergeMonsterTables(oldId, newId);
-            await this.mergePlayerMaps(oldId, newId);
+            await this.recalcMapTotals(newId);
+            await this.recalcMapTotals(oldId);
             //await this.mergePlayerMatchData();
             const playerName = await this.getNewName(newId);
             await this.mergePlayerTotalsData(oldId, newId, playerName);
@@ -1653,21 +1658,22 @@ class PlayerMerger{
     }
 
 
-    async mergePlayerMaps(oldId, newId, matchId){
+    async deleteCurrentMapTotals(playerId){
+
+        const query = `DELETE FROM nstats_player_maps WHERE player=?`;
+
+        await mysql.simpleQuery(query, [playerId]);
+    }
+
+    async recalcMapTotals(playerId){
 
         new Message(`Merge player maps table`, "note");
 
-        const query = `SELECT match_id,player_id,playtime,map_id FROM nstats_player_matches WHERE player_id=?`;
+        const query = `SELECT match_id,player_id,playtime,map_id,match_date FROM nstats_player_matches WHERE player_id=?`;
 
-        const result = await mysql.simpleQuery(query, [newId]);
+        const result = await mysql.simpleQuery(query, [playerId]);
 
-        console.log(result);
-
-        /*const updateQuery = `UPDATE nstats_player_maps SET player=? WHERE player=?`;
-        await mysql.simpleQuery(updateQuery, [newId, oldId]);
-
-        const getQuery = `SELECT map,first,first_id,last,last_id,matches,playtime,longest,longest_id FROM nstats_player_maps WHERE player=?`;
-        const result = await mysql.simpleQuery(getQuery, [newId]);
+        await this.deleteCurrentMapTotals(playerId);
 
         const totals = {};
 
@@ -1675,42 +1681,49 @@ class PlayerMerger{
 
             const r = result[i];
 
-            if(totals[r.map] === undefined){
-                totals[r.map] = r;
+            if(totals[r.map_id] === undefined){
+
+                totals[r.map_id] = {
+                    "first": r.match_date,
+                    "first_id": r.match_id,
+                    "last": r.match_date,
+                    "last_id": r.match_id,
+                    "matches": 1,
+                    "playtime": r.playtime,
+                    "longest": r.playtime,
+                    "longest_id": r.match_id
+                };
                 continue;
             }
 
-            const t = totals[r.map];
+            const t = totals[r.map_id];
 
-            if(t.first > r.first){
-                t.first = r.first;
-                t.first_id = r.first_id;
-            }
-
-            if(t.last < r.last){
-                t.last = r.last;
-                t.last_id = r.last_id;
-            }
-
-            if(t.longest < r.longest){
-                t.longest = r.longest;
-                t.longest_id = r.longest_id;
-            }
-
-            t.matches += r.matches;
             t.playtime += r.playtime;
-        }
+            t.matches++;
 
-        const deleteQuery = `DELETE FROM nstats_player_maps WHERE player=?`;
-        await mysql.simpleQuery(deleteQuery, [newId]);
+            if(r.match_date < t.first){
+                t.first = r.match_date;
+                t.first_id = r.match_id;
+            }
+
+            if(r.match_date > t.last){
+                t.last = r.match_date;
+                t.last_id = r.match_id;
+            }
+
+            if(r.playtime > t.longest){
+                t.longest = r.playtime;
+                t.longest_id = r.playtime;
+            }
+        }
 
         const insertVars = [];
 
-        for(const m of Object.values(totals)){
+        for(const [mapId, m] of Object.entries(totals)){
 
             insertVars.push([
-                m.map,
-                newId,
+                mapId,
+                playerId,
                 m.first,
                 m.first_id,
                 m.last,
@@ -1727,9 +1740,7 @@ class PlayerMerger{
             longest, longest_id
         ) VALUES ?`;
 
-        await mysql.bulkInsert(insertQuery, insertVars);*/
-
-        //process.exit();
+        await mysql.bulkInsert(insertQuery, insertVars);
 
         new Message(`Merge player maps table`, "pass");
     }
