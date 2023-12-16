@@ -68,12 +68,13 @@ class PlayerMerger{
             const oldPlayerName = await this.getNewName(playerId);
       
             const newPlayerTotals = await this.createNewPlayerTotals(this.newId);
-            const oldPlayerTotals = await this.createNewPlayerTotals(this.newId);
+            const oldPlayerTotals = await this.createNewPlayerTotals(playerId);
             //await this.recalcPlayerTotalsFromMatchData(this.newId, newPlayerName);
             //await this.recalcPlayerTotalsFromMatchData(playerId, oldPlayerName);
 
             await this.updateMasterProfile(newPlayerTotals, this.newId);
             await this.updateMasterProfile(oldPlayerTotals, playerId);
+            //not needed for match merge
             //await this.deleteOldMasterPlayerData();
 
             await this.deleteOldGametypeTotals();
@@ -85,7 +86,6 @@ class PlayerMerger{
             await this.recalcMapTotals(playerId);
             await this.recalcMapTotals(this.newId);
 
-            process.exit();
 
             await this.mergeAssaultTables(playerId, this.newId, matchId);
             await this.mergeCTFTables(playerId, this.newId, matchId);
@@ -98,9 +98,8 @@ class PlayerMerger{
             await this.mergeMiscPlayerMatch(playerId, this.newId, matchId);
             await this.mergeMonsterTables(playerId, this.newId, matchId);
             
-            //await this.mergePlayerMatchData();
             //await this.mergePlayerTotalsData();
-            //await this.mergeWeapons();
+            await this.mergeWeapons(playerId, this.newId, matchId);
             //await this.mergePowerups();
             //await this.mergeRankings();
 
@@ -179,10 +178,9 @@ class PlayerMerger{
             await this.mergeMonsterTables(oldId, newId);
             await this.recalcMapTotals(newId);
             await this.recalcMapTotals(oldId);
-            //await this.mergePlayerMatchData();
             const playerName = await this.getNewName(newId);
             await this.mergePlayerTotalsData(oldId, newId, playerName);
-            await this.mergeWeapons();
+            await this.mergeWeapons(oldId, newId);
             await this.mergePowerups();
             await this.mergeRankings();
 
@@ -2338,20 +2336,20 @@ class PlayerMerger{
         
     }
 
-    async deleteOldMasterPlayerData(){
+    async deleteOldMasterPlayerData(playerId){
 
         const query = `DELETE FROM nstats_player_totals WHERE id=?`;
 
-        await mysql.simpleQuery(query, [this.oldId]);
+        await mysql.simpleQuery(query, [playerId]);
     }
 
 
     //delete everything except for master profile
-    async deleteOldGametypeTotals(){
+    async deleteOldGametypeTotals(playerId){
 
         const query = `DELETE FROM nstats_player_totals WHERE player_id=?`;
 
-        return await mysql.simpleQuery(query, [this.newId]);
+        return await mysql.simpleQuery(query, [playerId]);
     }
 
 
@@ -2415,16 +2413,16 @@ class PlayerMerger{
 
 
         //for everything other than master profile(id=x and player_id=0)
-        const updateQuery = `UPDATE nstats_player_totals SET player_id=?,name=? WHERE player_id=?`;
+        //const updateQuery = `UPDATE nstats_player_totals SET player_id=?,name=? WHERE player_id=?`;
 
-        await mysql.simpleQuery(updateQuery, [newId, playerName, oldId]);
+        //await mysql.simpleQuery(updateQuery, [newId, playerName, oldId]);
 
         const newTotals = await this.createNewPlayerTotals(newId);
 
         await this.updateMasterProfile(newTotals, newId);
-        await this.deleteOldMasterPlayerData();
+        await this.deleteOldMasterPlayerData(oldId);
 
-        await this.deleteOldGametypeTotals();
+        await this.deleteOldGametypeTotals(newId);
         
         await this.insertNewPlayerTotals(newTotals, playerName);
         
@@ -2539,14 +2537,14 @@ class PlayerMerger{
     }
 
 
-    async deleteOldWeaponTotals(){
+    async deleteOldWeaponTotals(oldId, newId){
 
         const query = `DELETE FROM nstats_player_weapon_totals WHERE player_id IN (?)`;
 
-        await mysql.simpleQuery(query, [[this.newId, this.oldId]]);
+        await mysql.simpleQuery(query, [[newId, oldId]]);
     }
 
-    async recalcWeaponTotals(){
+    async recalcWeaponTotals(playerId){
 
         const query = `SELECT 
         weapon_id,
@@ -2564,7 +2562,7 @@ class PlayerMerger{
         WHERE player_id=?
         GROUP BY weapon_id`;
 
-        const result = await mysql.simpleQuery(query, this.newId);
+        const result = await mysql.simpleQuery(query, [playerId]);
 
         const insertVars = [];
 
@@ -2586,7 +2584,7 @@ class PlayerMerger{
             }     
             
             insertVars.push([
-                this.newId,
+                playerId,
                 0,
                 0,
                 0,
@@ -2613,17 +2611,29 @@ class PlayerMerger{
         await mysql.bulkInsert(insertQuery, insertVars);
     }
 
-    async mergeWeapons(){
+    async mergeWeapons(oldId, newId, matchId){
 
         new Message(`Merge player weapon data.`,"note");
 
-        const query = `UPDATE nstats_player_weapon_match SET player_id=? WHERE player_id=?`;
-        await mysql.simpleQuery(query, [this.newId, this.oldId]);
+        const bMatch = matchId !== undefined;
 
-        await this.deleteOldWeaponTotals();
+        let query = `UPDATE nstats_player_weapon_match SET player_id=? WHERE player_id=?`;
+        const vars = [newId, oldId];
+
+        if(bMatch){
+             query += ` AND match_id=?`;
+             vars.push(matchId);
+        }
+        await mysql.simpleQuery(query, vars);
+
+        await this.deleteOldWeaponTotals(oldId, newId);
 
 
-        await this.recalcWeaponTotals();
+        await this.recalcWeaponTotals(newId);
+        //need to recalculate the other player as well if it's a match otherwise there may be missing totals data
+        if(bMatch){
+            await this.recalcWeaponTotals(oldId);
+        }
 
         new Message(`Merge player weapon data.`,"pass");
     }
