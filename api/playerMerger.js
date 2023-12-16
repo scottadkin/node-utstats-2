@@ -100,7 +100,7 @@ class PlayerMerger{
             
             //await this.mergePlayerTotalsData();
             await this.mergeWeapons(playerId, this.newId, matchId);
-            //await this.mergePowerups();
+            await this.mergePowerups(playerId, this.newId, matchId);
             //await this.mergeRankings();
 
 
@@ -181,7 +181,7 @@ class PlayerMerger{
             const playerName = await this.getNewName(newId);
             await this.mergePlayerTotalsData(oldId, newId, playerName);
             await this.mergeWeapons(oldId, newId);
-            await this.mergePowerups();
+            await this.mergePowerups(oldId, newId);
             await this.mergeRankings();
 
 
@@ -2429,7 +2429,7 @@ class PlayerMerger{
         new Message("Merge player totals table", "pass");
     }
 
-    async recalcPowerups(){
+    async recalcPowerups(playerId){
 
         const query = `SELECT 
         gametype_id, powerup_id,
@@ -2450,7 +2450,7 @@ class PlayerMerger{
         MAX(carrier_kills_best) as carrier_kills_best_life
         FROM nstats_powerups_player_match WHERE player_id=? GROUP BY powerup_id,gametype_id`;
     
-        const result = await mysql.simpleQuery(query, [this.newId]);
+        const result = await mysql.simpleQuery(query, [playerId]);
     
         const insertVars = [];
 
@@ -2459,7 +2459,7 @@ class PlayerMerger{
             const r = result[i];
 
             insertVars.push([
-                this.newId,
+                playerId,
                 r.gametype_id,
                 r.total_matches,
                 0,//total_playtime
@@ -2492,14 +2492,14 @@ class PlayerMerger{
         await mysql.bulkInsert(insertQuery, insertVars);
     }
 
-    async deleteOldPowerups(){
+    async deleteOldPowerups(oldId, newId){
 
         const query = `DELETE FROM nstats_powerups_player_totals WHERE player_id IN (?)`;
 
-        await mysql.simpleQuery(query, [[this.newId, this.oldId]]);
+        await mysql.simpleQuery(query, [[newId, oldId]]);
     }
 
-    async mergePowerups(){
+    async mergePowerups(oldId, newId, matchId){
 
         const tables = [
             "powerups_player_match",
@@ -2507,17 +2507,30 @@ class PlayerMerger{
         ];
         //also need to merge powerups_player_totals
 
+        const bMatch = matchId !== undefined;
+
         for(let i = 0; i < tables.length; i++){
 
             const t = tables[i];
-            const query = `UPDATE nstats_${t} SET player_id=? WHERE player_id=?`;
-            await mysql.simpleQuery(query, [this.newId, this.oldId]);
+
+            const vars = [newId, oldId];
+            let query = `UPDATE nstats_${t} SET player_id=? WHERE player_id=?`;
+
+            if(bMatch){
+                query += ` AND match_id=?`;
+                vars.push(matchId);
+            }
+
+            await mysql.simpleQuery(query, vars);
         }
 
 
-        await this.deleteOldPowerups();
+        await this.deleteOldPowerups(oldId, newId);
 
-        await this.recalcPowerups();
+        await this.recalcPowerups(newId);
+        if(bMatch){
+            this.recalcPowerups(oldId);
+        }
     }
 
     async mergeRankings(){
