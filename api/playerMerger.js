@@ -101,10 +101,10 @@ class PlayerMerger{
             //await this.mergePlayerTotalsData();
             await this.mergeWeapons(playerId, this.newId, matchId);
             await this.mergePowerups(playerId, this.newId, matchId);
-            //await this.mergeRankings();
+            await this.mergeRankings(playerId, this.newId, matchId);
 
 
-            //await this.mergeTeleFrags();
+            await this.mergeTeleFrags(playerId, this.newId, matchId);
             //await this.mergeSprees();
 
             //await this.mergeWinRates();
@@ -182,10 +182,10 @@ class PlayerMerger{
             await this.mergePlayerTotalsData(oldId, newId, playerName);
             await this.mergeWeapons(oldId, newId);
             await this.mergePowerups(oldId, newId);
-            await this.mergeRankings();
+            await this.mergeRankings(oldId, newId);
 
 
-            await this.mergeTeleFrags();
+            await this.mergeTeleFrags(oldId, newId);
             await this.mergeSprees();
 
             await this.mergeWinRates();
@@ -1979,12 +1979,190 @@ class PlayerMerger{
         new Message(`Merge player match data`,"pass");
     }
 
-    async mergeTeleFrags(){
+    updateTelefragTotals(totals, data, gametypeId, mapId){
+
+        if(totals[gametypeId] === undefined) totals[gametypeId] = {};
+
+        if(totals[gametypeId][mapId] === undefined){
+            totals[gametypeId][mapId] = {
+                ...data,
+                "best_tele_kills": data.telefrag_kills,
+                "worst_tele_deaths": data.telefrag_deaths,
+                "best_tele_multi": data.telefrag_best_multi,
+                "best_tele_spree": data.telefrag_best_spree,
+                "best_disc_kills": data.tele_disc_kills,
+                "worst_disc_deaths": data.tele_disc_deaths,
+                "best_disc_multi": data.tele_disc_best_multi,
+                "best_disc_spree": data.tele_disc_best_spree,
+                "total_matches": 1,
+                "playtime": data.playtime
+            };
+            return;
+        }
+
+        const t = totals[gametypeId][mapId];
+
+        const mergeTypes = [
+            "telefrag_kills", "telefrag_deaths","tele_disc_kills", "tele_disc_deaths"
+        ];
+
+        const higherBetter = [
+            "telefrag_best_spree", "telefrag_best_multi","tele_disc_best_spree","tele_disc_best_multi"
+        ];
+
+        const d = data;
+
+        if(d.telefrag_kills > t.best_tele_kills) t.best_tele_kills = d.telefrag_kills;
+        if(d.telefrag_deaths > t.worst_tele_deaths) t.worst_tele_deaths = d.telefrag_deaths;
+        if(d.telefrag_best_multi > t.best_tele_multi) t.best_tele_multi = d.telefrag_best_multi;
+        if(d.telefrag_best_spree > t.best_tele_spree) t.best_tele_spree = d.telefrag_best_spree;
+        if(d.tele_disc_kills > t.best_disc_kills) t.best_disc_kills = d.telefrag_best_spree;
+        if(d.tele_disc_deaths > t.worst_disc_deaths) t.worst_disc_deaths = d.tele_disc_deaths;
+        if(d.tele_disc_best_multi > t.best_disc_multi) t.best_disc_multi = d.tele_disc_best_multi;
+        if(d.tele_disc_best_spree > t.best_disc_spree) t.best_disc_spree = d.tele_disc_best_spree;
+
+        t.total_matches++;
+        t.playtime += d.playtime;
+
+
+        for(let i = 0; i < mergeTypes.length; i++){
+
+            const m = mergeTypes[i];
+            t[m] += d[m];
+        }
+
+        for(let i = 0; i < higherBetter.length; i++){
+
+            const h = higherBetter[i];
+            
+            if(d[h] > t[h]) d[h] = t[h];   
+        }
+    }
+
+    async deletePlayerTeleFragTotals(playerId){
+
+        const query = `DELETE FROM nstats_player_telefrags WHERE player_id=?`;
+
+        return await mysql.simpleQuery(query, [playerId]);
+    }
+
+
+    async insertPlayerTeleFragTotals(playerId, data){
+
+        const query = `INSERT INTO nstats_player_telefrags (
+            player_id,map_id,gametype_id,playtime,total_matches,
+            tele_kills,tele_deaths,tele_efficiency,best_tele_kills,
+            worst_tele_deaths,best_tele_multi,best_tele_spree,disc_kills,
+            disc_deaths,disc_efficiency,best_disc_kills,worst_disc_deaths,
+            best_disc_multi,best_disc_spree
+        ) VALUES ?`;
+
+        const insertVars = [];
+
+        for(const [gametypeId, gametypeData] of Object.entries(data)){
+
+            for(const [mapId, mapData] of Object.entries(gametypeData)){
+
+                const d = mapData;
+
+                insertVars.push([
+                    playerId, mapId, gametypeId, d.playtime, d.total_matches,
+                    d.telefrag_kills, d.telefrag_deaths, d.tele_efficiency, d.best_tele_kills,
+                    d.worst_tele_deaths, d.best_tele_multi, d.best_tele_spree, d.tele_disc_kills,
+                    d.tele_disc_deaths, d.disc_efficiency, d.best_disc_kills, d.worst_disc_deaths,
+                    d.best_disc_multi, d.best_disc_spree
+                ]);
+            }
+        }
+
+        await mysql.bulkInsert(query, insertVars);
+    }
+
+    async recalcPlayerTeleFragTotals(playerId){
+
+        const query = `SELECT match_id,map_id,gametype,playtime,telefrag_kills,telefrag_deaths,telefrag_best_spree,
+        telefrag_best_multi,tele_disc_kills,tele_disc_deaths,tele_disc_best_spree,tele_disc_best_multi
+        FROM nstats_player_matches WHERE player_id=?`;
+
+        const result = await mysql.simpleQuery(query, [playerId]);
+
+        //gametype and maps for the totals table
+
+        const totals = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            //map gametype totals
+            this.updateTelefragTotals(totals, r, r.gametype, r.map_id);
+
+            //gametype totals
+            this.updateTelefragTotals(totals, r, r.gametype, 0);
+
+            //map totals
+            this.updateTelefragTotals(totals, r, 0, r.map_id);
+
+            //all time totals
+            this.updateTelefragTotals(totals, r, 0, 0);
+        }
+
+
+        //calc eff for all totals
+
+        for(const gametypeData of Object.values(totals)){
+
+            for(const mapData of Object.values(gametypeData)){
+          
+                const m = mapData;
+
+                if(m.tele_efficiency === undefined){
+                    m.tele_efficiency = 0;
+                }
+
+                if(m.disc_efficiency === undefined){
+                    m.disc_efficiency = 0;
+                }
+
+                if(m.telefrag_kills > 0 && m.telefrag_deaths === 0){
+                    m.tele_efficiency = 100;
+                }else if(m.telefrag_kills > 0){
+                    m.tele_efficiency = m.telefrag_kills / (m.telefrag_kills + m.telefrag_deaths) * 100;
+                }
+
+                if(m.tele_disc_kills > 0 && m.tele_disc_deaths === 0){
+                    m.disc_efficiency = 100;
+                }else if(m.tele_disc_kills > 0){
+                    m.disc_efficiency = m.tele_disc_kills / (m.tele_disc_kills + m.tele_disc_deaths) * 100;
+                }
+            }
+        }
+
+        await this.deletePlayerTeleFragTotals(playerId);
+    
+        await this.insertPlayerTeleFragTotals(playerId, totals);
+    }
+
+    async mergeTeleFrags(oldId, newId, matchId){
 
         new Message("Merge telefrags table", "note");
-        const query = `UPDATE nstats_tele_frags SET killer_id = IF(killer_id=?,?,killer_id), victim_id = IF(victim_id=?,?,victim_id)`;
+        let query = "";
+        let vars = [];
 
-        await mysql.simpleQuery(query, [this.oldId, this.newId, this.oldId, this.newId]);
+        if(matchId === undefined){
+            query = `UPDATE nstats_tele_frags SET killer_id = IF(killer_id=?,?,killer_id), victim_id = IF(victim_id=?,?,victim_id)`;
+            vars = [oldId, newId, oldId, newId];
+        }else{
+            query = `UPDATE nstats_tele_frags SET killer_id = IF(killer_id=? AND match_id=?,?,killer_id), victim_id = IF(victim_id=? AND match_id=?,?,victim_id)`;
+            vars = [oldId, matchId, newId, oldId, matchId, newId];
+        }
+
+        await mysql.simpleQuery(query, vars);
+
+
+        await this.recalcPlayerTeleFragTotals(oldId);
+        await this.recalcPlayerTeleFragTotals(newId);
+
         new Message("Merge telefrags table", "pass");
     }
 
@@ -2533,7 +2711,7 @@ class PlayerMerger{
         }
     }
 
-    async mergeRankings(){
+    async mergeRankings(oldId, newId, matchId){
 
         new Message(`Merge player ranking data.`,"note");
 
@@ -2541,9 +2719,13 @@ class PlayerMerger{
         const r = new Rankings();
 
         await r.init();
-        await r.deletePlayer(this.newId);
-        await r.deletePlayer(this.oldId);
-        await r.fullPlayerRecalculate(playerManager, this.newId);
+        await r.deletePlayer(newId);
+        await r.deletePlayer(oldId);
+        await r.fullPlayerRecalculate(playerManager, newId);
+
+        if(matchId !== undefined){
+            await r.fullPlayerRecalculate(playerManager, oldId);
+        }
 
         new Message(`Merge player ranking data.`,"pass");
 
