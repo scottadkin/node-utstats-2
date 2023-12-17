@@ -105,7 +105,7 @@ class PlayerMerger{
 
 
             await this.mergeTeleFrags(playerId, this.newId, matchId);
-            //await this.mergeSprees();
+            await this.mergeSprees(playerId, this.newId, matchId);
 
             //await this.mergeWinRates();
         } 
@@ -186,7 +186,7 @@ class PlayerMerger{
 
 
             await this.mergeTeleFrags(oldId, newId);
-            await this.mergeSprees();
+            await this.mergeSprees(oldId, newId);
 
             await this.mergeWinRates();
 
@@ -2166,11 +2166,22 @@ class PlayerMerger{
         new Message("Merge telefrags table", "pass");
     }
 
-    async mergeSprees(){
+    async mergeSprees(oldId, newId, matchId){
 
         new Message("Merge sprees table", "note");
-        const query = `UPDATE nstats_sprees SET player = IF(player=?,?,player), killer = IF(killer=?,?,killer)`;
-        await mysql.simpleQuery(query, [this.oldId, this.newId, this.oldId, this.newId]);
+
+        let query = "";
+        let vars =[ ];
+
+        if(matchId === undefined){
+            query = `UPDATE nstats_sprees SET player = IF(player=?,?,player), killer = IF(killer=?,?,killer)`;
+            vars = [oldId, newId, oldId, newId];
+        }else{
+            query = `UPDATE nstats_sprees SET player = IF(player=? AND match_id=?,?,player), killer = IF(killer=? AND match_id=?,?,killer)`;
+            vars = [oldId, matchId, newId, oldId, matchId, newId];
+        }
+
+        await mysql.simpleQuery(query, vars);
         new Message("Merge sprees table", "pass");
     }
 
