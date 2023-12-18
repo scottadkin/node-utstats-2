@@ -714,22 +714,28 @@ class Players{
         }
     }
 
-    async getAllNames(bOnlyNames){
+    async getAllNames(bOnlyNames, bObject){
 
         if(bOnlyNames === undefined) bOnlyNames = false;
 
-        if(!bOnlyNames){
-            return await mysql.simpleFetch("SELECT id,name,country FROM nstats_player_totals WHERE gametype=0 AND map=0 ORDER BY name ASC");
-        }
+        if(bObject === undefined) bObject = false;
 
-        const result = await mysql.simpleQuery("SELECT name FROM nstats_player_totals WHERE gametype=0 AND map=0 ORDER BY name ASC");
+        const names = (bObject) ? {} : [];
 
-        const names = [];
+        const nameOnlyQuery = "SELECT name FROM nstats_player_totals WHERE gametype=0 AND map=0 ORDER BY name ASC";
+        const normalQuery = "SELECT id,name,country FROM nstats_player_totals WHERE gametype=0 AND map=0 ORDER BY name ASC";
+
+        const result = await mysql.simpleQuery((bOnlyNames) ? nameOnlyQuery : normalQuery);
 
         for(let i = 0; i < result.length; i++){
 
-            names.push(result[i].name);
+            if(!bObject){
+                names.push(result[i].name);
+            }else{
+                names[result[i].id] = {"name": result[i].name, "country": result[i].country};
+            }
         }
+
         return names;
     }
 

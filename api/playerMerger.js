@@ -26,7 +26,7 @@ class PlayerMerger{
         const matchQuery = `SELECT * FROM nstats_player_matches WHERE hwid=?`;
 
         const matchData = await mysql.simpleQuery(matchQuery, [this.hwid]);
-        console.log(matchData);
+
 
         const targetMatches = [];
 
@@ -107,7 +107,7 @@ class PlayerMerger{
             await this.mergeTeleFrags(playerId, this.newId, matchId);
             await this.mergeSprees(playerId, this.newId, matchId);
 
-            //await this.mergeWinRates();
+            await this.mergeWinRates(playerId, this.newId);
         } 
     }
 
@@ -188,7 +188,7 @@ class PlayerMerger{
             await this.mergeTeleFrags(oldId, newId);
             await this.mergeSprees(oldId, newId);
 
-            await this.mergeWinRates();
+            await this.mergeWinRates(oldId, newId);
 
         }catch(err){
             console.trace(err);
@@ -2376,6 +2376,12 @@ class PlayerMerger{
     async updateMasterProfile(totals, playerId){
 
         new Message(`Updating master profile stats`,"note");
+
+        console.log(totals);
+
+        if(totals[0] === undefined){
+            throw new Error("Could not find master profile! updateMasterProfile[0]"); 
+        }
        
         if(totals[0][0] === undefined){
             throw new Error("Could not find master profile! updateMasterProfile[0][0]");  
@@ -2520,9 +2526,7 @@ class PlayerMerger{
 
         await mysql.simpleQuery(query, vars);
 
-        new Message(`Updating master profile stats`,"pass");
-
-        
+        new Message(`Updating master profile stats`,"pass");   
     }
 
     async deleteOldMasterPlayerData(playerId){
@@ -2844,15 +2848,15 @@ class PlayerMerger{
         new Message(`Merge player weapon data.`,"pass");
     }
 
-    async mergeWinRates(){
+    async mergeWinRates(oldId, newId){
 
         new Message(`Merge player winrates`,"note");
 
         const w = new WinRate();
 
-        await w.deletePlayer(this.newId);
-        await w.deletePlayer(this.oldId);
-        const data = await w.recalculatePlayerHistoryAfterMerge(this.newId);
+        await w.deletePlayer(newId);
+        await w.deletePlayer(oldId);
+        const data = await w.recalculatePlayerHistoryAfterMerge(newId);
 
         const insertVars = [];
 
@@ -2870,7 +2874,7 @@ class PlayerMerger{
                 insertVars.push([
                     h.date,
                     h.match_id,
-                    this.newId,
+                    newId,
                     gametype, 
                     map,
                     h.match_result,

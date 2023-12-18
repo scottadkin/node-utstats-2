@@ -51,11 +51,13 @@ export default async function handler (req, res){
 
                 const usage = await playerManager.adminGetHWIDUsageFromMatchData();
 
-                const playerIds = [...new Set(usage.map((d) =>{
+                /* const playerIds = [...new Set(usage.map((d) =>{
                     return d.player_id;
                 }))];
 
-                const playerNames = await playerManager.getNamesByIds(playerIds, true);
+                const playerNames = await playerManager.getNamesByIds(playerIds, true);*/
+
+                const playerNames = await playerManager.getAllNames(false, true);
              
                 res.status(200).json({"forceList": data, "usage": usage, "playerNames": playerNames});
                 return;

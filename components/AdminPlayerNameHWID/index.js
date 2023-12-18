@@ -103,6 +103,8 @@ const loadList = async (controller, dispatch, nDispatch) =>{
 
         if(res.error !== undefined) throw new Error(res.error);
 
+        console.log(res);
+
         dispatch({"type": "loaded-list", ...res});
 
         console.log(res);
@@ -261,6 +263,12 @@ const renderInfo = (state) =>{
         </>;
     }
 
+    if(state.mode === 3){
+        content = <>
+            Merge HWID usage by match data into a single player profile.
+        </>;
+    }
+
     return <div className="form">
         <div className="form-info">
             {content}
@@ -336,11 +344,6 @@ const renderAssignHWIDToName = (state, dispatch, nDispatch) =>{
         }}/>;
     }
 
-    
-
-    
-    
-
     return <div className="form">
         <div className="form-row">
             <div className="form-label">Target HWID</div>
@@ -369,10 +372,23 @@ const renderAssignHWIDToName = (state, dispatch, nDispatch) =>{
     </div>
 }
 
+const renderHWIDToName = (state, dispatch, nDispatch) =>{
+
+    if(state.mode !== 3) return null;
+
+    console.log(state.usage);
+
+    return <div className="form">
+        <div className="form-info">
+            Horse Noise<br/>
+        </div>
+    </div>
+}
+
 const AdminPlayerNameHWID = () =>{
 
     const [state, dispatch] = useReducer(reducer, {
-        "mode": 0,
+        "mode": 3,
         "currentList": [],
         "usage": [],
         "playerNames": {},
@@ -402,6 +418,7 @@ const AdminPlayerNameHWID = () =>{
                 {"name": "Current Settings", "value": 0},
                 {"name": "HWID Usage", "value": 1},
                 {"name": "Force HWID To Use Name", "value": 2},
+                {"name": "Merge HWID Into Player", "value": 3},
             ]} 
             selectedValue={state.mode}
             changeSelected={(id) =>{
@@ -419,6 +436,7 @@ const AdminPlayerNameHWID = () =>{
         {renderCurrentList(state, dispatch, nDispatch)}
         {renderUsageList(state, dispatch)}   
         {renderAssignHWIDToName(state, dispatch, nDispatch)}
+        {renderHWIDToName(state, dispatch, nDispatch)}
     </>
 }
 
