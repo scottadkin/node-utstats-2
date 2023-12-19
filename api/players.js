@@ -730,9 +730,17 @@ class Players{
         for(let i = 0; i < result.length; i++){
 
             if(!bObject){
-                names.push(result[i].name);
+
+                if(bOnlyNames){
+                    names.push({"name":result[i].name});
+                }else{
+                    names.push(result[i]);
+                }
+
+
             }else{
-                names[result[i].id] = {"name": result[i].name, "country": result[i].country};
+
+                names[result[i].id] = {...result[i]};
             }
         }
 

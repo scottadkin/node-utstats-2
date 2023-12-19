@@ -158,6 +158,7 @@ const loadPlayerList = async (dispatch, controller) =>{
 
         const res = await req.json();
 
+
         if(res.error !== undefined){
             dispatch({"type": "loadPlayersError", "errorMessage": res.error});
             //createNotification("error", <>{res.error}</>);

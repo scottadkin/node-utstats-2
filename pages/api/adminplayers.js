@@ -356,7 +356,8 @@ export default async function handler (req, res){
 
             }else if(mode === "player-list"){
 
-                const result = await playerManager.getAllNames();
+                const result = await playerManager.getAllNames(false, false);
+            
                 res.status(200).json({"players": result});
                 return;
             }
