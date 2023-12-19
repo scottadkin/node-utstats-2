@@ -63,7 +63,7 @@ const InteractivePlayerSearchBox = ({data, maxDisplay, searchValue, selectedPlay
 
             const index = selectedPlayers.indexOf(d.id);
 
-            return <div className={`${styles.player} ${(index !== -1) ? styles.selected : ""}`} key={d.id} onClick={() =>{
+            return <div className={`${styles.player} ${(index !== -1) ? styles.selected : ""}`} key={d.id } onClick={() =>{
                 togglePlayer(d.id);
                 if(bAutoSet){
                     setSearchValue(d.name);

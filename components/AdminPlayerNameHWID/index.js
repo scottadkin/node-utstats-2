@@ -6,6 +6,7 @@ import { toPlaytime, getPlayer } from "../../api/generic.mjs";
 import CountryFlag from "../CountryFlag";
 import Tabs from "../Tabs";
 import Loading from "../Loading";
+import InteractivePlayerSearchBox from "../InteractivePlayerSearchBox";
 
 
 const reducer = (state, action) =>{
@@ -45,11 +46,18 @@ const reducer = (state, action) =>{
                 "selectedName": action.value
             }
         }
+        case "set-selected-profile": {
+            return {
+                ...state,
+                "selectedProfile": action.value
+            }
+        }
         case "reset-selected":{
             return {
                 ...state,
                 "selectedHWID": "",
-                "selectedName": ""
+                "selectedName": "",
+                "selectedProfile": -1
             }
         }
         case "add-to-force-list": {
@@ -103,11 +111,9 @@ const loadList = async (controller, dispatch, nDispatch) =>{
 
         if(res.error !== undefined) throw new Error(res.error);
 
-        console.log(res);
 
         dispatch({"type": "loaded-list", ...res});
 
-        console.log(res);
 
     }catch(err){
         if(err.name === "AbortError") return;
@@ -179,7 +185,8 @@ const renderUsageList = (state, dispatch) =>{
     const headers = {
         "hwid": "HWID",
         "used": "Used By",
-        "playtime": "Total Playtime"
+        "playtime": "Total Playtime",
+        "jump": "Select & Jump To Tool",
     };
 
     const totals = {};
@@ -229,12 +236,23 @@ const renderUsageList = (state, dispatch) =>{
         }
 
         rows.push({
-            "hwid": {"value": hwid, "className": "text-left hover", "displayValue": <span onClick={() =>{
-                dispatch({"type": "set-hwid", "value": hwid});
-                dispatch({"type": "change-mode", "value": 2});
-            }}>{hwid}</span>},
+            "hwid": {"value": hwid, "className": "text-left hover", "displayValue":
+                <span>{hwid}</span>},
             "used": {"value": playerElems.length, "displayValue": <>{playerElems}</>, "className": "text-left"},
-            "playtime": {"value": playtime, "displayValue": toPlaytime(playtime), "className": "playtime"}
+            "playtime": {"value": playtime, "displayValue": toPlaytime(playtime), "className": "playtime"},
+            "jump": {
+                "value": "",
+                "displayValue": <>
+                    <input type="button" className="button" value="Force HWID to Name" onClick={() =>{
+                        dispatch({"type": "set-hwid", "value": hwid});
+                        dispatch({"type": "change-mode", "value": 2});
+                    }}/>
+                <input type="button" className="button" value="Merge HWID into Player" onClick={() =>{
+                        dispatch({"type": "set-hwid", "value": hwid});
+                        dispatch({"type": "change-mode", "value": 3});
+                    }}/>
+                </>
+            },
         });
     }
 
@@ -376,11 +394,42 @@ const renderHWIDToName = (state, dispatch, nDispatch) =>{
 
     if(state.mode !== 3) return null;
 
-    console.log(state.usage);
+    const options = [];
+
+    for(const player of Object.values(state.playerNames)){
+
+        options.push({
+            "id": player.id,
+            "name": player.name,
+            "country": player.country
+        });
+    }
 
     return <div className="form">
         <div className="form-info">
-            Horse Noise<br/>
+            <div className="form-row">
+                <div className="form-label">
+                    Target HWID
+                </div>
+                <input type="text" className="default-textbox" placeholder="Target HWID..." value={state.selectedHWID} onChange={(e) =>{
+                    dispatch({"type": "set-hwid", "value": e.target.value});
+                }}/>
+            </div>
+            <div className="form-row">
+                <div className="form-label">Profile To Merge Into</div>
+                <InteractivePlayerSearchBox 
+                    data={options} 
+                    selectedPlayers={[state.selectedProfile]} 
+                    searchValue={state.selectedName} 
+                    bAutoSet={true}
+                    togglePlayer={(value) =>{
+                        dispatch({"type": "set-selected-profile", "value": value});
+                    }}
+                    setSearchValue={(value) =>{
+                        dispatch({"type": "set-name", "value": value})
+                    }}
+                />
+            </div>
         </div>
     </div>
 }
@@ -395,7 +444,8 @@ const AdminPlayerNameHWID = () =>{
         "selectedHWID": "",
         "selectedName": "",
         "loadedList": false,
-        "bLoading": true
+        "bLoading": true,
+        "selectedProfile": -1
     });
     
     const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
