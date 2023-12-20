@@ -390,6 +390,11 @@ const renderAssignHWIDToName = (state, dispatch, nDispatch) =>{
     </div>
 }
 
+const mergeHWIDUsage = async () =>{
+
+    console.log("Merge usage");
+}
+
 const renderHWIDToName = (state, dispatch, nDispatch) =>{
 
     if(state.mode !== 3) return null;
@@ -405,6 +410,36 @@ const renderHWIDToName = (state, dispatch, nDispatch) =>{
         });
     }
 
+    let selected = [];
+
+    if(state.selectedProfile !== -1){
+
+        const player = getPlayer(state.playerNames, state.selectedProfile, true);
+
+        const playerElem = <><CountryFlag country={player.country}/><span className="hover" onClick={() =>{
+            dispatch({"type": "set-selected-profile", "value": -1});
+        }}>{player.name}</span></>
+
+        if(state.selectedHWID === ""){
+
+            selected = <>Selected profile is {playerElem}</>;
+
+        }else{
+
+            selected = <>
+                All matches where a player had the HWID of <b>{state.selectedHWID} </b> 
+                will be merged into the profile {playerElem}.<br/>
+            </>;
+        }
+    }
+
+    const button = (state.selectedHWID !== "" && state.selectedProfile !== -1) ? 
+        <div className="m-top-10">
+            <input type="button" className="search-button" value="Merge HWID Usage" onClick={mergeHWIDUsage}/> 
+        </div>
+        : 
+        null;
+
     return <div className="form">
         <div className="form-info">
             <div className="form-row">
@@ -415,8 +450,9 @@ const renderHWIDToName = (state, dispatch, nDispatch) =>{
                     dispatch({"type": "set-hwid", "value": e.target.value});
                 }}/>
             </div>
+            
             <div className="form-row">
-                <div className="form-label">Profile To Merge Into</div>
+                <div className="form-label">Search for profile</div>
                 <InteractivePlayerSearchBox 
                     data={options} 
                     selectedPlayers={[state.selectedProfile]} 
@@ -430,6 +466,8 @@ const renderHWIDToName = (state, dispatch, nDispatch) =>{
                     }}
                 />
             </div>
+            {selected}
+            {button}
         </div>
     </div>
 }
