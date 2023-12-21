@@ -217,6 +217,17 @@ export default async function handler (req, res){
                     return;
                 }
 
+            }else if(mode === "merge-hwid-usage"){
+                
+                const profile = (req.body.profile === undefined) ? -1 : parseInt(req.body.profile);
+                const hwid = (req.body.hwid === undefined) ? "" : req.body.hwid;
+                //const pm = new PlayerMerger(null,9999999,"A21D9F879988878A0D19AE5C072134E3");
+
+                
+                if(profile < 1) throw new Error(`Player profile id can not be 0 or lower.`);
+                if(hwid.length === 0) throw new Error(`HWID can't be a blank string.`);
+               //// ..await pm.mergeHWID();
+
             }else if(mode === "merge"){
 
                 const matchManager = new Matches();

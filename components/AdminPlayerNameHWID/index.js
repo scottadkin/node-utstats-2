@@ -390,9 +390,31 @@ const renderAssignHWIDToName = (state, dispatch, nDispatch) =>{
     </div>
 }
 
-const mergeHWIDUsage = async () =>{
+const mergeHWIDUsage = async (state, dispatch, nDispatch) =>{
 
     console.log("Merge usage");
+
+    try{
+
+        console.log(state.selectedHWID, state.selectedProfile);
+        
+        const req = await fetch("/api/adminplayers", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({
+                "mode": "merge-hwid-usage",
+                "hwid": state.selectedHWID,
+                "profile": state.selectedProfile
+            })
+        });
+
+        const res = await req.json();
+
+        console.log(res);
+
+    }catch(err){
+        console.trace(err);
+    }
 }
 
 const renderHWIDToName = (state, dispatch, nDispatch) =>{
@@ -435,7 +457,9 @@ const renderHWIDToName = (state, dispatch, nDispatch) =>{
 
     const button = (state.selectedHWID !== "" && state.selectedProfile !== -1) ? 
         <div className="m-top-10">
-            <input type="button" className="search-button" value="Merge HWID Usage" onClick={mergeHWIDUsage}/> 
+            <input type="button" className="search-button" value="Merge HWID Usage" onClick={() =>{
+                mergeHWIDUsage(state, dispatch, nDispatch);
+            }}/> 
         </div>
         : 
         null;
