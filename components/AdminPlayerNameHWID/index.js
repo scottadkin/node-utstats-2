@@ -237,7 +237,9 @@ const renderUsageList = (state, dispatch) =>{
 
         rows.push({
             "hwid": {"value": hwid, "className": "text-left hover", "displayValue":
-                <span>{hwid}</span>},
+                <span onClick={() =>{
+                    dispatch({"type": "set-hwid", "value": hwid});
+                }}>{hwid}</span>},
             "used": {"value": playerElems.length, "displayValue": <>{playerElems}</>, "className": "text-left"},
             "playtime": {"value": playtime, "displayValue": toPlaytime(playtime), "className": "playtime"},
             "jump": {
@@ -270,14 +272,14 @@ const renderInfo = (state) =>{
     if(state.mode === 0 || state.mode === 2){
         content = <>
             Force a player to be imported as a certain name by using a player&apos;s HWID.<br/>
-            If the player doesn&apos;t exist the importrt will create the new player profile when it incounters the target HWID.
+            If the player doesn&apos;t exist the importrt will create the new player profile when it encounters the target HWID.
         </>;
     }
 
     if(state.mode === 1){
         content = <>HWID usage based on player match data.<br/>
             Click on a player name to set it as the target name.<br/>
-            Click on a HWID to select the HWID and be taken to the force name tab.    
+            Click on a HWID to set it as the target HWID.
         </>;
     }
 
@@ -476,7 +478,7 @@ const renderHWIDToName = (state, dispatch, nDispatch) =>{
             </div>
             
             <div className="form-row">
-                <div className="form-label">Search for profile</div>
+                <div className="form-label">Search For Profile</div>
                 <InteractivePlayerSearchBox 
                     data={options} 
                     selectedPlayers={[state.selectedProfile]} 
