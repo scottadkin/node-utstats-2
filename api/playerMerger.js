@@ -48,14 +48,14 @@ class PlayerMerger{
         const query = `UPDATE nstats_player_matches SET player_id=? WHERE hwid=?`;
         await mysql.simpleQuery(query, [this.newId, this.hwid]);
 
-        console.log(affectedPlayerIds);
+        //console.log(affectedPlayerIds);
 
         //need to go through all the database tables and change the player id to the new one where both the match_id and player_id matches
         //this will make sure only correct data is changed and not every single match for said player_id
 
         //await this.mergeAssaultTables(oldId, newId, matchIds)
 
-        console.log(targetMatches);
+        //console.log(targetMatches);
 
         for(let i = 0; i < targetMatches.length; i++){
 
@@ -79,7 +79,8 @@ class PlayerMerger{
             //not needed for match merge
             //await this.deleteOldMasterPlayerData();
 
-            await this.deleteOldGametypeTotals();
+            await this.deleteOldGametypeTotals(playerId);
+            await this.deleteOldGametypeTotals(this.newId);
             
             await this.insertNewPlayerTotals(newPlayerTotals, newPlayerName);
             await this.insertNewPlayerTotals(oldPlayerTotals, oldPlayerName);
