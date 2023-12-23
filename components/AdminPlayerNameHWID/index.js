@@ -100,12 +100,16 @@ const loadList = async (controller, dispatch, nDispatch) =>{
 
     try{
 
-        const req = await fetch("/api/adminplayers", {
-            "signal": controller.signal,
+
+        const options = {
             "headers": {"Content-type": "application/json"},
             "method": "POST",
             "body": JSON.stringify({"mode": "force-hwid-to-name-list"})
-        });
+        }
+
+        if(controller !== null) options.signal = controller.signal;
+
+        const req = await fetch("/api/adminplayers", options);
 
         const res = await req.json();
 
@@ -229,7 +233,9 @@ const renderUsageList = (state, dispatch) =>{
 
             playerElems.push(<div key={`${i}-${d.player_id}`}>
                 <CountryFlag country={player.country}/><span className="hover" onClick={() =>{
+                   
                     dispatch({"type": "set-name", "value": player.name});
+                    dispatch({"type": "set-selected-profile", "value": player.id});
                 }}>{player.name}</span>&nbsp;
                 <span className="playtime">({toPlaytime(d.total_playtime)})</span>
             </div>);
@@ -412,10 +418,18 @@ const mergeHWIDUsage = async (state, dispatch, nDispatch) =>{
 
         const res = await req.json();
 
-        console.log(res);
+        
+        if(res.error) throw new Error(res.error);
+
+        nDispatch({"type": "add", "notification": {"type": "pass", "content": res.message}});
+        
+ 
+        await loadList(null, dispatch, nDispatch);
+        dispatch({"type": "reset-selected"});
 
     }catch(err){
         console.trace(err);
+        nDispatch({"type": "add", "notification": {"type": "error", "content": err.toString()}});
     }
 }
 

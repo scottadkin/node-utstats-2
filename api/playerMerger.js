@@ -72,7 +72,9 @@ class PlayerMerger{
             //await this.recalcPlayerTotalsFromMatchData(this.newId, newPlayerName);
             //await this.recalcPlayerTotalsFromMatchData(playerId, oldPlayerName);
 
+    
             await this.updateMasterProfile(newPlayerTotals, this.newId);
+      
             await this.updateMasterProfile(oldPlayerTotals, playerId);
             //not needed for match merge
             //await this.deleteOldMasterPlayerData();
@@ -2377,14 +2379,22 @@ class PlayerMerger{
 
         new Message(`Updating master profile stats`,"note");
 
-        console.log(totals);
 
         if(totals[0] === undefined){
-            throw new Error("Could not find master profile! updateMasterProfile[0]"); 
+
+            //only want to throw a warning for hwid merging
+            if(this.oldId !== null){
+                new Message(`Could not find master profile! updateMasterProfile[0] PlayerId = ${playerId}`,"warning");
+            }
+            return;
         }
        
         if(totals[0][0] === undefined){
-            throw new Error("Could not find master profile! updateMasterProfile[0][0]");  
+
+            if(this.oldId !== null){
+                new Message(`Could not find master profile! updateMasterProfile[0][0] PlayerId = ${playerId}`,"warning");
+            }
+            return;
         }
 
         const d = totals[0][0];
