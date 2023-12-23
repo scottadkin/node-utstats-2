@@ -987,24 +987,74 @@ class PlayerMerger{
         new Message(`Merge headshots table`, "pass");
     }
 
+    async getFirstLastMatchDates(matchIds){
+
+        if(matchIds.length === 0) return {"first": -1, "last": -1};
+
+        const query = `SELECT MIN(date) as first_date, MAX(date) as last_date FROM nstats_matches WHERE id IN(?)`;
+
+        const result = await mysql.simpleQuery(query, [matchIds]);
+
+        return {
+            "first": result[0].first_date,
+            "last": result[0].last_date
+        };
+    }
+
+    async getMatchDates(matchIds){
+
+        if(matchIds.length === 0) return {};
+
+        const query = `SELECT id,date FROM nstats_matches WHERE id IN(?)`;
+
+        const result = await mysql.simpleQuery(query, [matchIds]);
+
+        const data = {};
+
+        for(let i = 0; i < result.length; i++){
+
+            const {id, date} = result[i];
+            data[id] = date;
+        }
+        return data;
+    }
+
     async recalcItemTotals(playerId){
 
-        const getQuery = `SELECT item,uses FROM nstats_items_match WHERE player_id=?`;
+        const getQuery = `SELECT match_id,item,uses FROM nstats_items_match WHERE player_id=?`;
 
         const result = await mysql.simpleQuery(getQuery, [playerId]);
 
         const totals = {};
 
+        const uniqueMatchIds = [...new Set(result.map((r) =>{
+            return r.match_id;
+        }))];
+
+        const dates = await this.getMatchDates(uniqueMatchIds);
+
         for(let i = 0; i < result.length; i++){
 
-            const {item, uses} = result[i];
+            const {match_id, item, uses} = result[i];
+
+            const currentDate = dates[match_id] ?? 0;
 
             if(totals[item] === undefined){
-                totals[item] = {"matches": 0, "uses": 0, "first": 0, "last": 0};
+                totals[item] = {"matches": 0, "uses": 0, "first": null, "last": null};
             }
 
+            
             totals[item].matches++;
             totals[item].uses += uses;
+
+            
+            if(totals[item].first === null || currentDate < totals[item].first){
+                totals[item].first = currentDate;
+            }
+
+            if(totals[item].last === null || currentDate > totals[item].last){
+                totals[item].last = currentDate;
+            }
         }
 
         return totals;
@@ -1046,8 +1096,8 @@ class PlayerMerger{
             matchQuery += ` AND match_id=?`;
             matchVars.push(matchId);
         }
-        await mysql.simpleQuery(matchQuery, matchVars);
 
+        await mysql.simpleQuery(matchQuery, matchVars);
 
         await this.fixItemTotals(newId);
 
