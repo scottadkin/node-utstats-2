@@ -542,6 +542,7 @@ const AdminPlayerNameHWID = () =>{
 
     return <>    
         <div className="default-header">HWID Tools</div>
+        <div className="warning team-red">Experimental(needs testing), use at your own risk, make a backup of database before using just in case there are any issues.</div>
         <Tabs options={[
                 {"name": "Current Settings", "value": 0},
                 {"name": "HWID Usage", "value": 1},

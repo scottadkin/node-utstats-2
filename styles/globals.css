@@ -713,6 +713,11 @@ input[type="range"]{
 	padding:5px;
 }
 
+.warning{
+	padding:10px;
+	
+}
+
 
 .map-image{
 	width:382px;
