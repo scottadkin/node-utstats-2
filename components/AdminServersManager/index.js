@@ -29,6 +29,12 @@ const reducer = (state, action) =>{
                 "serverList": action.data
             }
         }
+        case "select-server": {
+            return {
+                ...state,
+                "selectedServer": action.value
+            }
+        }
     }
 
     return state;
@@ -78,7 +84,7 @@ const renderServerList = (state) =>{
         let address = "Not Set";
 
         if(s.ip !== "") address = `${s.ip}:${s.port}`;
-        
+
         return {
             "name": {
                 "value": s.name.toLowerCase(), 
@@ -92,8 +98,54 @@ const renderServerList = (state) =>{
         }
     });
 
+    return <>
+        <div className="default-header">Current Server List</div>
+        <InteractiveTable width={1} headers={headers} data={rows}/>
+    </>;
+}
 
-    return <InteractiveTable width={1} headers={headers} data={rows}/>
+const renderEditServer = (state, dispatch) =>{
+
+    if(state.mode !== 1) return null;
+
+    return <>
+        <div className="default-header">Edit Server</div>
+        <div className="form">
+            <div className="form-info">Edit displayed server info</div>
+            <div className="form-row">
+                <div className="form-label">Select a Server</div>
+                <select className="default-select" value={state.selectedServer} onChange={(e) =>{
+                    dispatch({"type": "select-server", "id": e.target.value});
+                }}>
+                    <option value="-1">Please select a server</option>
+                    {state.serverList.map((s) =>{
+                        return <option key={s.id} value={s.id}>{s.name}</option>
+                    })} 
+                </select>
+            </div>
+            <div className="form-row">
+                <div className="form-label">Name</div>
+                <input type="text" className="default-textbox"/>
+            </div>
+            <div className="form-row">
+                <div className="form-label">IP</div>
+                <input type="text" className="default-textbox"/>
+            </div>
+            <div className="form-row">
+                <div className="form-label">Port</div>
+                <input type="number" min="0" max="65535" className="default-textbox"/>
+            </div>
+            <div className="form-row">
+                <div className="form-label">Password</div>
+                <input type="text" className="default-textbox"/>
+            </div>
+            <div className="form-row">
+                <div className="form-label">Country</div>
+                <input type="text" className="default-textbox"/>
+            </div>
+            <input type="button" className="search-button m-top-25" value="Save Changes"/>
+        </div>
+    </>
 }
 
 const AdminServersManager = ({}) =>{
@@ -101,9 +153,10 @@ const AdminServersManager = ({}) =>{
     const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
 
     const [state, dispatch] = useReducer(reducer, {
-        "mode": 0,
+        "mode": 1,
         "bLoading": false,
-        "serverList": []
+        "serverList": [],
+        "selectedServer": -1
     });
     
     useEffect(() =>{
@@ -117,7 +170,7 @@ const AdminServersManager = ({}) =>{
         }
     },[]);
 
-    return <>
+    return <div>
         <div className="default-header">Servers Manager</div>
         <Tabs 
             options={[
@@ -135,7 +188,8 @@ const AdminServersManager = ({}) =>{
         }}/>
         <Loading value={!state.bLoading}/>
         {renderServerList(state)}
-    </>
+        {renderEditServer(state, dispatch)}
+    </div>
 }
 
 export default AdminServersManager;
