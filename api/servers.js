@@ -32,34 +32,34 @@ class Servers{
         });
     }
 
-    async insertServer(ip, port, name, date, playtime, country){
+    async insertServer(/*ip, port,*/ name, date, playtime, country){
 
-        const query = `INSERT INTO nstats_servers VALUES(NULL,?,?,?,?,?,1,?,"","","",?,0,0)`;
-        const vars = [name, ip, port, date, date, playtime, country];
+        const query = `INSERT INTO nstats_servers VALUES(NULL,?,"",7777,?,?,1,?,"","","",?,0,0)`;
+        const vars = [name, /*ip, port,*/ date, date, playtime, country];
 
         return await mysql.simpleQuery(query, vars);
     }
 
-    async updateServer(ip, port, name, date, playtime, country){
+    async updateServer(/*ip, port,*/ name, date, playtime, country){
 
         try{
 
             date = parseInt(date);
             playtime = parseFloat(playtime);
 
-            if(port !== port) throw new Error(`Port must be a valid integer.`);
+            //if(port !== port) throw new Error(`Port must be a valid integer.`);
 
             //If server doesn't exist create it
-            if(!await this.updateBasicInfo(ip, port, name, 1, playtime, country)){
-                await this.insertServer(ip, port, name, date, playtime, country);
+            if(!await this.updateBasicInfo(/*ip, port,*/ name, 1, playtime, country)){
+                await this.insertServer(/*ip, port,*/ name, date, playtime, country);
             }
 
-            const dates = await this.getFirstLast(ip, port);
+            const dates = await this.getFirstLast(name);
 
             if(dates === null) throw new Error(`Dates for server were not found.`);
 
-            await this.updateDate('first', ip, port, date, dates.first);
-            await this.updateDate('last', ip, port, date, dates.last);
+            await this.updateDate('first', name, date, dates.first);
+            await this.updateDate('last', name, date, dates.last);
             
 
 
@@ -68,13 +68,13 @@ class Servers{
         }
     }
 
-    async updateBasicInfo(ip, port, name, matches, playtime, country){
+    async updateBasicInfo(/*ip, port,*/ name, matches, playtime, country){
 
         const query = `UPDATE nstats_servers SET
             name=?, playtime=playtime+?, matches=matches+?, country=?
-            WHERE ip=? AND port=?`;
+            WHERE name=?`;
         
-        const vars = [name, playtime, matches, country, ip, port];
+        const vars = [name, playtime, matches, country, name];
 
         const result = await mysql.simpleQuery(query, vars);
 
@@ -83,51 +83,27 @@ class Servers{
         return false;
     }
 
-    getFirstLast(ip, port){
+    async getFirstLast(name){
 
-        return new Promise((resolve, reject) =>{
+        const query = `SELECT first,last FROM nstats_servers WHERE name=? LIMIT 1`;
 
-            const query = `SELECT first,last FROM nstats_servers WHERE ip=? AND port=? LIMIT 1`;
+        const result = await mysql.simpleQuery(query, [name]);
 
-            mysql.query(query, [ip, port], (err, result) =>{
+        if(result.length === 0) return null;
 
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    if(result.length > 0) resolve(result[0]);     
-                }
-
-                resolve(null);
-            });
-        });
+        return result[0];
     }
 
-    updateDate(type, ip, port, current, previous){
+    async updateDate(type, name, current, previous){
 
-        return new Promise((resolve, reject) =>{
+        type = type.toLowerCase();
 
-            type = type.toLowerCase();
+        if(type === "first" && current >= previous) return;
+        if(type === "last" && current <= previous) return
+        
+        const query = `UPDATE nstats_servers SET ${type}=? WHERE name=?`;
 
-            if(type === 'first'){
-                if(current >= previous){
-                    resolve();
-                }
-            }else{
-                type = 'last';
-                if(current <= previous){
-                    resolve();
-                }
-            }
-
-            const query = `UPDATE nstats_servers SET ${type}=? WHERE ip=? AND port=?`;
-
-            mysql.query(query, [current, ip, port], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        await mysql.simpleQuery(query, [current, name]);
     }
 
     deleteServer(ip, port){
@@ -182,6 +158,16 @@ class Servers{
         }
 
         return null;       
+    }
+
+    async getServerIdByName(name){
+
+        const query = `SELECT id FROM nstats_servers WHERE LOWER(name)=?`;
+
+        const result = await mysql.simpleQuery(query, [name.toLowerCase()]);
+     
+        if(result.length > 0) return result[0].id;
+        return null;
     }
 
     debugGetAllServers(){

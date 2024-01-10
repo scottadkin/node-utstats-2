@@ -17,23 +17,23 @@ class ServerInfo{
    
     }
 
-    async updateServer(geoip){
+    async updateServer(/*geoip*/){
 
-        const geo = geoip.lookup(this.ip);
+        /*const geo = geoip.lookup(this.ip);
 
         let country = 'xx';
 
         if(geo !== null){
             country = geo.country.toLowerCase();
-        }
+        }*/
         
         await this.servers.updateServer(
-            this.ip, 
-            this.server_port, 
+            //this.ip, 
+            //this.server_port, 
             this.server_servername, 
             this.date, 
             this.matchTimings.length,
-            country
+            ""
         );
 
     }
@@ -113,12 +113,14 @@ class ServerInfo{
 
         try{
 
-            const id = await this.servers.getServerId(this.ip, this.server_port);
+            //const id = await this.servers.getServerId(this.ip, this.server_port);
+
+            const id = await this.servers.getServerIdByName(this.server_servername);
       
             if(id !== null){
                 return id;
             }else{
-                new Message('Server with that ip port combo does not exist in the database. ','warning');
+                new Message('Server with that name does not exist in the database. ','warning');
             }
 
             return null;
