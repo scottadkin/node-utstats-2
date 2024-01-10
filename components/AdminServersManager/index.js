@@ -1,6 +1,6 @@
 import NotificationsCluster from "../NotificationsCluster";
 import { notificationsInitial, notificationsReducer } from "../../reducers/notificationsReducer";
-import { useReducer, useEffect } from "react";
+import { useReducer, useEffect, useRef } from "react";
 import Tabs from "../Tabs";
 import InteractiveTable from "../InteractiveTable";
 import Loading from "../Loading";
@@ -40,7 +40,7 @@ const reducer = (state, action) =>{
     return state;
 }
 
-async function loadData(controller, state, dispatch, nDispatch){
+async function loadData(controller, dispatch, nDispatch){
 
     try{
 
@@ -104,7 +104,67 @@ const renderServerList = (state) =>{
     </>;
 }
 
-const renderEditServer = (state, dispatch) =>{
+const getServerById = (state, id) =>{
+
+    id = parseInt(id);
+
+    for(let i = 0; i < state.serverList.length; i++){
+
+        const s = state.serverList[i];
+        if(s.id === id) return s;
+    }
+
+    return null;
+}
+
+const saveChanges = async (state, dispatch, editRefs, nDispatch) =>{
+
+    const name = editRefs.name.current.value;
+    const ip = editRefs.ip.current.value;
+    const port = editRefs.port.current.value;
+    const password = editRefs.password.current.value;
+    const country = editRefs.country.current.value;
+
+    console.log(name,ip,port,password,country);
+
+    if(state.selectedServer === -1){
+        nDispatch({"type": "add", "notification": {"type": "error", "content": "You have not selected a server to edit."}})
+        return;
+    }
+
+    if(name === ""){
+        nDispatch({"type": "add", "notification": {"type": "error", "content": "Server name can not be an empty string."}})
+        return;
+    }
+
+    dispatch({"type": "set-loading", "value": true});
+
+    try{
+
+        const req = await fetch("/api/adminservers", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({
+                "mode": "edit-server",
+                "id": state.selectedServer,
+                "name": name,
+                "ip": ip,
+                "port": port,
+                "password": password,
+                "country": country,
+            })
+        });
+        const res = await req.json();
+        dispatch({"type": "set-loading", "value": false});
+
+        if(res.error !== undefined) throw new Error(res.error);
+
+    }catch(err){
+        nDispatch({"type": "add", "notification": {"type": "error", "content": err.toString()}})
+    }
+}
+
+const renderEditServer = (state, dispatch, nDispatch, editRefs) =>{
 
     if(state.mode !== 1) return null;
 
@@ -115,7 +175,20 @@ const renderEditServer = (state, dispatch) =>{
             <div className="form-row">
                 <div className="form-label">Select a Server</div>
                 <select className="default-select" value={state.selectedServer} onChange={(e) =>{
+
                     dispatch({"type": "select-server", "id": e.target.value});
+
+                    const server = getServerById(state, e.target.value);
+
+                    if(server === null) return;
+
+                    const types = ["name", "ip", "port", "password", "country"];
+
+                    for(let i = 0; i < types.length; i++){
+
+                        const t = types[i];
+                        editRefs[t].current.value = server[t];
+                    }
                 }}>
                     <option value="-1">Please select a server</option>
                     {state.serverList.map((s) =>{
@@ -125,25 +198,27 @@ const renderEditServer = (state, dispatch) =>{
             </div>
             <div className="form-row">
                 <div className="form-label">Name</div>
-                <input type="text" className="default-textbox"/>
+                <input type="text" className="default-textbox" ref={editRefs.name}/>
             </div>
             <div className="form-row">
                 <div className="form-label">IP</div>
-                <input type="text" className="default-textbox"/>
+                <input type="text" className="default-textbox" ref={editRefs.ip}/>
             </div>
             <div className="form-row">
                 <div className="form-label">Port</div>
-                <input type="number" min="0" max="65535" className="default-textbox"/>
+                <input type="number" min="0" max="65535" className="default-textbox" ref={editRefs.port}/>
             </div>
             <div className="form-row">
                 <div className="form-label">Password</div>
-                <input type="text" className="default-textbox"/>
+                <input type="text" className="default-textbox" ref={editRefs.password}/>
             </div>
             <div className="form-row">
                 <div className="form-label">Country</div>
-                <input type="text" className="default-textbox"/>
+                <input type="text" className="default-textbox" ref={editRefs.country}/>
             </div>
-            <input type="button" className="search-button m-top-25" value="Save Changes"/>
+            <input type="button" className="search-button m-top-25" value="Save Changes" onClick={async () =>{
+                await saveChanges(state, dispatch, editRefs, nDispatch);
+            }}/>
         </div>
     </>
 }
@@ -151,6 +226,20 @@ const renderEditServer = (state, dispatch) =>{
 const AdminServersManager = ({}) =>{
 
     const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
+
+    const nameRef = useRef("");
+    const ipRef = useRef("");
+    const portRef = useRef(7777);
+    const passwordRef = useRef("");
+    const countryRef = useRef("");
+
+    const editRefs = {
+        "name": nameRef,
+        "ip": ipRef,
+        "port": portRef,
+        "password": passwordRef,
+        "country": countryRef
+    };
 
     const [state, dispatch] = useReducer(reducer, {
         "mode": 1,
@@ -163,7 +252,7 @@ const AdminServersManager = ({}) =>{
        
         const controller = new AbortController();
 
-        loadData(controller, state, dispatch, nDispatch);
+        loadData(controller, dispatch, nDispatch);
 
         return () =>{
             controller.abort();
@@ -188,7 +277,7 @@ const AdminServersManager = ({}) =>{
         }}/>
         <Loading value={!state.bLoading}/>
         {renderServerList(state)}
-        {renderEditServer(state, dispatch)}
+        {renderEditServer(state, dispatch, nDispatch, editRefs)}
     </div>
 }
 
