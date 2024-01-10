@@ -102,9 +102,11 @@ class ServersPage extends React.Component{
 
             const url = `/matches/?server=${s.id}`;
 
+            let address = (s.ip === "") ? "No address set" : `${s.ip}:${s.port}`;
+
             data.push({
                 "name": {"value": s.name, "className": "text-left", "url": url},
-                "address": {"value": `${s.ip}:${s.port}`},
+                "address": {"value": address},
                 "first": {"displayValue": Functions.convertTimestamp(s.first, true), "value": s.first, "className": "playtime"},
                 "last": {"displayValue": Functions.convertTimestamp(s.first, true), "value": s.last, "className": "playtime"},
                 "matches": {"value": s.matches},

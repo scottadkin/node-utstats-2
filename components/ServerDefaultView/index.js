@@ -32,6 +32,25 @@ const ServerDefaultView = ({mapImages, mapNames, data}) =>{
         passwordElem = <span className={styles.password}>?password={d.password}</span>
     }
 
+    let joinElem = null;
+
+    if(d.ip !== ""){
+
+        joinElem = <a href={`unreal://${d.ip}:${d.port}${password}`}>
+            <div className={`${styles.join} purple ellipsis`}>
+                <span className="yellow">Join the server</span> {d.ip}:{d.port}{passwordElem}
+            </div>
+        </a>;
+    }else{
+
+        joinElem = <a href={`unreal://${d.ip}:${d.port}${password}`}>
+            <div className={`${styles.join} purple ellipsis`}>
+                Can&apos;t join server no address set
+            </div>
+        </a>
+
+    }
+
     return <div className={styles.wrapper}>
             <Link href={`/server/${d.id}`}>
                 
@@ -74,11 +93,7 @@ const ServerDefaultView = ({mapImages, mapNames, data}) =>{
                     </div>
                 
             </Link>
-            <a href={`unreal://${d.ip}:${d.port}${password}`}>
-                <div className={`${styles.join} purple ellipsis`}>
-                    <span className="yellow">Join the server</span> {d.ip}:{d.port}{passwordElem}
-                </div>
-            </a>
+            {joinElem}
         </div>
 }
 
