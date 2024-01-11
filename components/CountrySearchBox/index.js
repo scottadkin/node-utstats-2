@@ -28,7 +28,9 @@ const renderList = (state, changeSelected, selectedValue) =>{
 
     const list = Countries("all");
 
-    const filtered = [];
+    const filtered = [
+        //{"value": "", "name": "Please select a value"}
+    ];
 
     for(const [code, name] of Object.entries(list)){
 
@@ -43,10 +45,26 @@ const renderList = (state, changeSelected, selectedValue) =>{
             <input type="text" className="default-textbox" value="No results found..." disabled/>
         </div>
     }
+    
 
     const options = filtered.map((f) =>{
-        return {"value": f.code, "displayValue": <><CountryFlag country={f.code}/>{f.name}</>}
+        return {"name": f.name.toLowerCase(),"value": f.code, "displayValue": <><CountryFlag country={f.code}/>{f.name}</>}
     });
+
+
+    options.sort((a, b) =>{
+
+        a = a.name.toLowerCase();
+        b = b.name.toLowerCase();
+
+        if(a < b) return -1;
+        if(a > b) return 1;
+        return 0;
+    });
+
+    if(selectedValue === ""){
+        options.unshift({"value": "-1", "displayValue": <>Please select a country</>});
+    }
 
     return <>
         <DropDown dName="Selected Country" data={options} selectedValue={selectedValue} changeSelected={(key,value) =>{ changeSelected(value)}}/>

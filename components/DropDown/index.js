@@ -1,6 +1,7 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import styles from "./DropDown.module.css";
 import ErrorMessage from "../ErrorMessage";
+import useScreenInfo from "../../hooks/useScreenInfo";
 
 const reducer = (state, action) =>{
 
@@ -80,7 +81,7 @@ const renderEntries = (state, dispatch, data, changeSelected, fName) =>{
 
         }
     }
-
+    
     const zStyle = (state.bActive) ? {"position":"relative", "width": "100%", "border": "1px solid var(--border-color-3)"} : { "overflow": "hidden"};
 
     return <div className={styles.entries} 
@@ -97,8 +98,17 @@ const DropDown = ({data, dName, fName, selectedValue, changeActive, changeSelect
     const [state, dispatch] = useReducer(reducer, {
         "bActive": false,
         "selectedValue": (selectedValue !== undefined) ? selectedValue : (originalValue !== null) ? originalValue : null,
-    
     });
+
+    const [height, setHeight] = useState(0);
+    const screenInfo = useScreenInfo();
+    console.log(screenInfo);
+
+    useEffect(() =>{
+        console.log(window.scrollY);
+        
+        //setHeight();
+    },[]);
 
     if(data === undefined ){
         return <ErrorMessage title={`DropDown (${this.props.dName})`} text="No data supplied."/>
@@ -107,6 +117,7 @@ const DropDown = ({data, dName, fName, selectedValue, changeActive, changeSelect
     if(data === null){
         return <ErrorMessage title={`DropDown (${this.props.dName})`} text="Data is null."/>
     }
+
 
     const style = {};
 
