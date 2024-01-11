@@ -1,143 +1,132 @@
-import React from "react";
+import React, { useEffect, useReducer } from "react";
 import styles from "./DropDown.module.css";
 import ErrorMessage from "../ErrorMessage";
 
-class DropDown extends React.Component{
+const reducer = (state, action) =>{
 
-    constructor(props){
 
-        super(props);
+    switch(action.type){
 
-        this.state = {"bActive": false, "selectedValue": this.props.originalValue ?? null};
-        
-        //this.setOrginalValue();
-
-        this.changeActive = this.changeActive.bind(this);
-        this.changeSelected = this.changeSelected.bind(this);
-        this.hide = this.hide.bind(this);
-    }
-
-    componentDidUpdate(prevProps){
-
-        if(prevProps.originalValue !== this.props.originalValue){
-            this.setState({"selectedValue": this.props.originalValue})
+        case "set-active": {
+            return {
+                ...state,
+                "bActive": action.value
+            }
+        }
+        case "set-selected": {
+            return {
+                ...state,
+                "selectedValue": action.value
+            }
         }
     }
+    return state;
+}
 
+const renderEntries = (state, dispatch, data, changeSelected, fName) =>{
 
-    setOrginalValue(){
+    const elems = [];
 
-        if(this.props.originalValue !== undefined){
-            this.setState({"selectedValue": this.props.originalValue});
-        }
-    }
+    for(let i = 0; i < data.length; i++){
 
-    changeActive(){
+        const {value, displayValue} = data[i];
 
-        const previous = this.state.bActive;
-        this.setState({"bActive": !previous});
-    }
+        if(!state.bActive){
 
-    hide(){
+            if(state.selectedValue === null){
 
-        if(!this.state.bActive) return;
+                elems.push(<div className={styles.fake} key={"null"}>Please select value</div>);
+                break;
 
-        this.setState({"bActive": false});
-    }
-
-    changeSelected(value){
-
-        if(!this.state.bActive) return;
-        this.setState({"selectedValue": value});
-
-        this.props.changeSelected(this.props.fName, value);
-    }
-
-
-    renderEntries(){
-
-        const elems = [];
-
-        for(let i = 0; i < this.props.data.length; i++){
-
-            const {value, displayValue} = this.props.data[i];
-
-            if(!this.state.bActive){
-
-                if(this.state.selectedValue === null){
-
-                    elems.push(<div className={styles.fake} key={"null"}>Please select value</div>);
+            }else{           
+                if(value === state.selectedValue){
+                    elems.push(<div className={styles.fake} key={`${i}-${value}`}>{displayValue}</div>);
                     break;
-
-                }else{           
-                    if(value === this.state.selectedValue){
-                        elems.push(<div className={styles.fake} key={`${i}-${value}`}>{displayValue}</div>);
-                        break;
-                    }
                 }
-
-            }else{
-
-                let className = `${styles.entry}`;
-
-                if(value === this.state.selectedValue){
-                    className += ` ${styles.selected}`;
-                }
-
-                elems.push(<div className={className} key={`${i}-${value}`} onClick={(() =>{
-                    this.changeSelected(value);
-                })}>{displayValue}</div>);
             }
-        }
 
-        //just incase there is a value that is not in the dataset
-        if(elems.length === 0){
+        }else{
 
-            if(this.props.data.length > 0){
+            let className = `${styles.entry}`;
 
-                const data = this.props.data[0];
-
-                elems.push(<div className={styles.fake} key={data.value} onClick={(() =>{
-                    this.changeSelected(data.value);
-                })}>{data.displayValue}</div>);
-
+            if(value === state.selectedValue){
+                className += ` ${styles.selected}`;
             }
-        }
- 
-        const zStyle = (this.state.bActive) ? {"position":"relative", "width": "100%", "border": "1px solid var(--border-color-3)"} : { "overflow": "hidden"};
 
-        return <div className={styles.entries} onMouseLeave={this.hide} style={zStyle} onClick={this.changeActive}>
-            {elems}
-        </div>
+            elems.push(<div className={className} key={`${i}-${value}`} onMouseDown={(() =>{
+         
+                dispatch({"type": "set-selected", "value": value});
+                dispatch({"type": "set-active", "value": false});
+                changeSelected(fName, value);
+              
+          
+            })}>{displayValue}</div>);
+        }
     }
 
-    render(){
-        
-        if(this.props.data === undefined){
-            return <ErrorMessage title={`DropDown (${this.props.dName})`} text="No data supplied."/>
+    //just incase there is a value that is not in the dataset
+    if(elems.length === 0){
+
+        if(data.length > 0){
+
+            const option = data[0];
+
+            elems.push(<div className={styles.fake} key={option.value} onMouseDown={(() =>{
+                //changeSelected(data.value);
+                dispatch({"type": "set-selected", "value": option.value});
+                dispatch({"type": "set-active", "value": false});
+                changeSelected(fName, option.value);
+            })}>{option.displayValue}</div>);
+
         }
-
-        if(this.props.data === null){
-            return <ErrorMessage title={`DropDown (${this.props.dName})`} text="Data is null."/>
-        }
-
-        const style = {};
-
-        if(this.props.bForceSmall !== undefined){
-
-            style.width = "var(--textbox-width-1)";
-            style.maxWidth = "var(--textbox-max-width-1)";
-        }
-
-        return <div className={styles.wrapper} onClick={this.hide}>  
-            <div className={styles.label}>
-                {this.props.dName}
-            </div>
-            <div className={styles.dd} style={style}>
-                {this.renderEntries()}
-            </div>
-        </div>
     }
+
+    const zStyle = (state.bActive) ? {"position":"relative", "width": "100%", "border": "1px solid var(--border-color-3)"} : { "overflow": "hidden"};
+
+    return <div className={styles.entries} 
+        onMouseLeave={() =>{
+            dispatch({"type": "set-active", "value": false});
+        }} 
+        style={zStyle}>
+        {elems}
+    </div>
+}
+
+const DropDown = ({data, dName, fName, selectedValue, changeActive, changeSelected, hide, originalValue, bForceSmall}) =>{
+    
+    const [state, dispatch] = useReducer(reducer, {
+        "bActive": false,
+        "selectedValue": (selectedValue !== undefined) ? selectedValue : (originalValue !== null) ? originalValue : null,
+    
+    });
+
+    if(data === undefined ){
+        return <ErrorMessage title={`DropDown (${this.props.dName})`} text="No data supplied."/>
+    }
+
+    if(data === null){
+        return <ErrorMessage title={`DropDown (${this.props.dName})`} text="Data is null."/>
+    }
+
+    const style = {};
+
+    if(bForceSmall !== undefined){
+
+        style.width = "var(--textbox-width-1)";
+        style.maxWidth = "var(--textbox-max-width-1)";
+    }
+
+    return <div className={styles.wrapper} onMouseDown={() => {
+            if(state.bActive) return;
+            dispatch({"type": "set-active", "value": true})}
+        }>  
+        <div className={styles.label}>
+            {dName}
+        </div>
+        <div className={styles.dd} style={style}>
+            {renderEntries(state, dispatch, data, changeSelected, fName)}
+        </div>
+    </div>
 }
 
 export default DropDown;
