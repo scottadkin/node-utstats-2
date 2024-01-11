@@ -327,12 +327,12 @@ class Servers{
     }
 
 
-    async adminUpdateServer(serverId, serverName, serverIP, serverPort, serverPassword){  
+    async adminUpdateServer(serverId, serverName, serverIP, serverPort, serverPassword, country){  
 
 
         if(!await this.bServerIDExist(serverId)) throw new Error(`There are no servers with the id of ${serverId}`);
 
-        const query = `UPDATE nstats_servers SET name=?,ip=?,port=?,password=? WHERE id=?`;
+        const query = `UPDATE nstats_servers SET name=?,ip=?,port=?,password=?,country=? WHERE id=?`;
 
         if(serverPort !== ""){
             serverPort = parseInt(serverPort);
@@ -341,7 +341,7 @@ class Servers{
             serverPort = 7777;
         }
 
-        const result = await mysql.simpleQuery(query, [serverName, serverIP, serverPort, serverPassword, serverId]);
+        const result = await mysql.simpleQuery(query, [serverName, serverIP, serverPort, serverPassword, country, serverId]);
 
         if(result.affectedRows !== 0) return true;
 

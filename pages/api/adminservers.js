@@ -33,13 +33,14 @@ export default async function handler(req, res){
 
         if(mode === "edit-server"){
 
+            console.log(req.body.country);
             if(await serverManager.adminUpdateServer(
                 req.body.id, 
                 req.body.name, 
                 req.body.ip, 
                 req.body.port, 
                 req.body.password, 
-                req.body.country
+                (req.body.country === null) ? "" : req.body.country
             )){
 
                 res.status(200).json({"message": "passed"});

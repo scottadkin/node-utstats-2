@@ -5,6 +5,8 @@ import Tabs from "../Tabs";
 import InteractiveTable from "../InteractiveTable";
 import Loading from "../Loading";
 import { toPlaytime, convertTimestamp } from "../../api/generic.mjs";
+import CountrySearchBox from "../CountrySearchBox";
+import Countries from "../../api/countries";
 
 const reducer = (state, action) =>{
 
@@ -14,7 +16,8 @@ const reducer = (state, action) =>{
             return {
                 ...state,
                 "mode": action.mode,
-                "selectedServer": -1
+                "selectedServer": -1,
+                "selectedCountry": ""
             }
         }
         case "set-loading": {
@@ -41,6 +44,12 @@ const reducer = (state, action) =>{
                 ...state,
                 "selectedServer": -1,
                 "bLoading": false
+            }
+        }
+        case "set-country": {
+            return {
+                ...state,
+                "selectedCountry": action.value
             }
         }
     }
@@ -130,7 +139,7 @@ const saveChanges = async (state, dispatch, editRefs, nDispatch) =>{
     const ip = editRefs.ip.current.value;
     const port = editRefs.port.current.value;
     const password = editRefs.password.current.value;
-    const country = editRefs.country.current.value;
+    //const country = editRefs.country.current.value;
     if(state.selectedServer === -1){
         nDispatch({"type": "add", "notification": {"type": "error", "content": "You have not selected a server to edit."}})
         return;
@@ -155,7 +164,7 @@ const saveChanges = async (state, dispatch, editRefs, nDispatch) =>{
                 "ip": ip,
                 "port": port,
                 "password": password,
-                "country": country,
+                "country": state.selectedCountry,
             })
         });
         const res = await req.json();
@@ -169,7 +178,7 @@ const saveChanges = async (state, dispatch, editRefs, nDispatch) =>{
             editRefs.ip.current.value = "";
             editRefs.port.current.value = "";
             editRefs.password.current.value = "";
-            editRefs.country.current.value = "";
+            //editRefs.country.current.value = "";
             dispatch({"type": "reset-edit"});
             return;
         }
@@ -183,6 +192,10 @@ const renderEditServer = (state, dispatch, nDispatch, editRefs) =>{
 
     if(state.mode !== 1) return null;
 
+
+    let currentCountry = Countries(state.selectedCountry).country;
+    if(currentCountry === "Unknown") currentCountry = "";
+
     return <>
         <div className="default-header">Edit Server</div>
         <div className="form">
@@ -191,13 +204,15 @@ const renderEditServer = (state, dispatch, nDispatch, editRefs) =>{
                 <div className="form-label">Select a Server</div>
                 <select className="default-select" value={state.selectedServer} onChange={(e) =>{
 
-                    dispatch({"type": "select-server", "id": e.target.value});
+                    dispatch({"type": "select-server", "id": e.target.value });
 
                     const server = getServerById(state, e.target.value);
 
                     if(server === null) return;
 
-                    const types = ["name", "ip", "port", "password", "country"];
+                    dispatch({"type": "set-country", "value": server.country});
+
+                    const types = ["name", "ip", "port", "password"];
 
                     for(let i = 0; i < types.length; i++){
 
@@ -227,10 +242,13 @@ const renderEditServer = (state, dispatch, nDispatch, editRefs) =>{
                 <div className="form-label">Password</div>
                 <input type="text" className="default-textbox" ref={editRefs.password}/>
             </div>
-            <div className="form-row">
-                <div className="form-label">Country</div>
-                <input type="text" className="default-textbox" ref={editRefs.country}/>
-            </div>
+            <CountrySearchBox 
+                changeSelected={(country) => {
+                    dispatch({"type": "set-country", "value": country});
+                }} 
+                selectedValue={state.selectedCountry} 
+                searchTerm={currentCountry}
+            />
             <input type="button" className="search-button m-top-25" value="Save Changes" onClick={async () =>{
                 await saveChanges(state, dispatch, editRefs, nDispatch);
             }}/>
@@ -246,21 +264,20 @@ const AdminServersManager = ({}) =>{
     const ipRef = useRef("");
     const portRef = useRef(7777);
     const passwordRef = useRef("");
-    const countryRef = useRef("");
 
     const editRefs = {
         "name": nameRef,
         "ip": ipRef,
         "port": portRef,
-        "password": passwordRef,
-        "country": countryRef
+        "password": passwordRef
     };
 
     const [state, dispatch] = useReducer(reducer, {
         "mode": 1,
         "bLoading": false,
         "serverList": [],
-        "selectedServer": -1
+        "selectedServer": -1,
+        "selectedCountry": ""
     });
     
     useEffect(() =>{
