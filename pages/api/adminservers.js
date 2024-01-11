@@ -33,23 +33,19 @@ export default async function handler(req, res){
 
         if(mode === "edit-server"){
 
-            console.log(req.body);
-
             if(await serverManager.adminUpdateServer(
                 req.body.id, 
                 req.body.name, 
                 req.body.ip, 
+                req.body.port, 
                 req.body.password, 
                 req.body.country
             )){
 
+                res.status(200).json({"message": "passed"});
             }else{
                 throw new Error("Failed to update server details.");
             }
-
-            res.status(200).json({});
-            return;
-
         }
 
         res.status(200).json({"error": "Unknown command"});
@@ -59,7 +55,5 @@ export default async function handler(req, res){
         res.status(200).json({"error": err.toString()});
         return;
         
-    }
-
-    
+    }   
 }

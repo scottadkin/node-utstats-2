@@ -13,7 +13,8 @@ const reducer = (state, action) =>{
         case "change-mode": {
             return {
                 ...state,
-                "mode": action.mode
+                "mode": action.mode,
+                "selectedServer": -1
             }
         }
         case "set-loading": {
@@ -32,7 +33,14 @@ const reducer = (state, action) =>{
         case "select-server": {
             return {
                 ...state,
-                "selectedServer": action.value
+                "selectedServer": parseInt(action.id)
+            }
+        }
+        case "reset-edit": {
+            return {
+                ...state,
+                "selectedServer": -1,
+                "bLoading": false
             }
         }
     }
@@ -58,11 +66,10 @@ async function loadData(controller, dispatch, nDispatch){
         if(res.error) throw new Error(res.error);
 
         dispatch({"type": "loaded-servers", "data": res});
-        console.log(res);
+       
     }catch(err){
         
         if(err.name === "AbortError") return;
-
         nDispatch({"type": "add", "notification": {"type": "error", "content": err.toString()}});
     }
 }
@@ -124,9 +131,6 @@ const saveChanges = async (state, dispatch, editRefs, nDispatch) =>{
     const port = editRefs.port.current.value;
     const password = editRefs.password.current.value;
     const country = editRefs.country.current.value;
-
-    console.log(name,ip,port,password,country);
-
     if(state.selectedServer === -1){
         nDispatch({"type": "add", "notification": {"type": "error", "content": "You have not selected a server to edit."}})
         return;
@@ -158,6 +162,17 @@ const saveChanges = async (state, dispatch, editRefs, nDispatch) =>{
         dispatch({"type": "set-loading", "value": false});
 
         if(res.error !== undefined) throw new Error(res.error);
+        if(res.message === "passed"){
+
+            nDispatch({"type": "add", "notification": {"type": "pass", "content": "Changes Saved."}})
+            editRefs.name.current.value = "";
+            editRefs.ip.current.value = "";
+            editRefs.port.current.value = "";
+            editRefs.password.current.value = "";
+            editRefs.country.current.value = "";
+            dispatch({"type": "reset-edit"});
+            return;
+        }
 
     }catch(err){
         nDispatch({"type": "add", "notification": {"type": "error", "content": err.toString()}})

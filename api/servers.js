@@ -334,8 +334,12 @@ class Servers{
 
         const query = `UPDATE nstats_servers SET name=?,ip=?,port=?,password=? WHERE id=?`;
 
-        serverPort = parseInt(serverPort);
-        if(serverPort !== serverPort) throw new Error("ServerPort must be a valid integer.");
+        if(serverPort !== ""){
+            serverPort = parseInt(serverPort);
+            if(serverPort !== serverPort) throw new Error("ServerPort must be a valid integer.");
+        }else{
+            serverPort = 7777;
+        }
 
         const result = await mysql.simpleQuery(query, [serverName, serverIP, serverPort, serverPassword, serverId]);
 
