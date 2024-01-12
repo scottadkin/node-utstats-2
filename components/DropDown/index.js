@@ -110,11 +110,12 @@ const fixHeight = (dRef, screenHeight) =>{
     }
 }
 
-const DropDown = ({data, dName, fName, selectedValue, changeActive, changeSelected, hide, originalValue, bForceSmall}) =>{
+const DropDown = ({data, dName, fName, selectedValue, changeActive, changeSelected, originalValue, bForceSmall}) =>{
     
     const [state, dispatch] = useReducer(reducer, {
         "bActive": false,
         "selectedValue": (selectedValue !== undefined) ? selectedValue : (originalValue !== null) ? originalValue : null,
+
     });
     
 
@@ -123,12 +124,14 @@ const DropDown = ({data, dName, fName, selectedValue, changeActive, changeSelect
     const screenInfo = useScreenInfo();
 
     useEffect(() =>{
-        fixHeight(dRef, screenInfo.height)
+        fixHeight(dRef, screenInfo.height);
+        
     },[]);
+
 
     useEffect(() =>{
 
-        fixHeight(dRef, screenInfo.height)
+        fixHeight(dRef, screenInfo.height);
 
     },[state.bActive]);
 
@@ -150,14 +153,14 @@ const DropDown = ({data, dName, fName, selectedValue, changeActive, changeSelect
     }
 
 
-    return <div className={styles.wrapper} onMouseDown={() => {
-            if(state.bActive) return;
-            dispatch({"type": "set-active", "value": true})}
-        }>  
+    return <div className={styles.wrapper}>  
         <div className={styles.label}>
             {dName} 
         </div>
-        <div className={styles.dd} style={style}>
+        <div className={styles.dd} style={style} onMouseDown={() => {
+            if(state.bActive) return;
+            dispatch({"type": "set-active", "value": true})}
+        }>
             {renderEntries(state, dispatch, data, changeSelected, fName, dRef, screenInfo.height)}
         </div>
     </div>

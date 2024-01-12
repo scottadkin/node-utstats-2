@@ -32,18 +32,33 @@ const renderList = (state, changeSelected, selectedValue) =>{
         //{"value": "", "name": "Please select a value"}
     ];
 
+    let selected = null;
+
     for(const [code, name] of Object.entries(list)){
+
+        if(code.toUpperCase() === selectedValue){
+            selected = {"code": (code === "UK") ? "gb" : code, "name": name};
+            continue;
+        }
 
         if(name.toLowerCase().indexOf(searchTerm) !== -1){
             filtered.push({"code": (code === "UK") ? "gb" : code, "name": name});
         }
     }
 
+
     if(filtered.length === 0){
-        return <div className="form-row">
-            <div className="form-label">Selected Country</div>
-            <input type="text" className="default-textbox" value="No results found..." disabled/>
-        </div>
+
+        if(state.selectedValue === ""){
+            return <div className="form-row">
+                <div className="form-label">Selected Country</div>
+                <input type="text" className="default-textbox" value="No results found..." disabled/>
+            </div>
+        }
+    }
+
+    if(selected !== null){
+        filtered.unshift(selected);
     }
     
 
@@ -63,7 +78,7 @@ const renderList = (state, changeSelected, selectedValue) =>{
     });
 
     if(selectedValue === ""){
-        options.unshift({"value": "-1", "displayValue": <>Please select a country</>});
+        options.unshift({"value": "", "displayValue": <>None</>});
     }
 
     return <>
@@ -74,7 +89,7 @@ const renderList = (state, changeSelected, selectedValue) =>{
 const CountrySearchBox = ({changeSelected, selectedValue, searchTerm}) =>{
 
     const [state, dispatch] = useReducer(reducer, {
-        "searchTerm": searchTerm
+        "searchTerm": searchTerm,
     });
 
 
@@ -83,14 +98,10 @@ const CountrySearchBox = ({changeSelected, selectedValue, searchTerm}) =>{
     },[searchTerm]);
 
 
-    useEffect(() =>{
-        console.log("changeSelected");
-    },[selectedValue]);
-
 
     return <>
         <div className="form-row">
-            <div className="form-label">Search for Country</div>
+            <div className="form-label">Filter Countries</div>
             <input type="text" className="default-textbox" value={state.searchTerm} onChange={(e) =>{
                 dispatch({"type": "set-search", "value": e.target.value});
             }}/>
