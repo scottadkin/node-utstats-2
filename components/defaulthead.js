@@ -35,6 +35,7 @@ const DefaultHead = ({host, title, description, keywords, image, imageType}) =>{
             <meta property="og:image:secure_url" content={`https://${host}${ogImage}`} />
             <meta property="og:image" content={`http://${host}${ogImage}`} />
             <meta property="og:site_name" content="Node UTStats 2" />
+            <meta name="viewport" content="width=device-width,initial-scale=1"/>
         </Head>    
     );
 }

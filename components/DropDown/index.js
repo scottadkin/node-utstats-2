@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useEffect, useReducer, useRef } from "react";
 import styles from "./DropDown.module.css";
 import ErrorMessage from "../ErrorMessage";
 import useScreenInfo from "../../hooks/useScreenInfo";
@@ -24,7 +24,7 @@ const reducer = (state, action) =>{
     return state;
 }
 
-const renderEntries = (state, dispatch, data, changeSelected, fName) =>{
+const renderEntries = (state, dispatch, data, changeSelected, fName, dRef) =>{
 
     const elems = [];
 
@@ -74,7 +74,7 @@ const renderEntries = (state, dispatch, data, changeSelected, fName) =>{
 
             elems.push(<div className={styles.fake} key={option.value} onMouseDown={(() =>{
                 //changeSelected(data.value);
-                dispatch({"type": "set-selected", "value": option.value});
+                //dispatch({"type": "set-selected", "value": option.value});
                 dispatch({"type": "set-active", "value": false});
                 changeSelected(fName, option.value);
             })}>{option.displayValue}</div>);
@@ -84,7 +84,9 @@ const renderEntries = (state, dispatch, data, changeSelected, fName) =>{
     
     const zStyle = (state.bActive) ? {"position":"relative", "width": "100%", "border": "1px solid var(--border-color-3)"} : { "overflow": "hidden"};
 
-    return <div className={styles.entries} 
+
+
+    return <div className={styles.entries} ref={dRef}
         onMouseLeave={() =>{
             dispatch({"type": "set-active", "value": false});
         }} 
@@ -93,22 +95,42 @@ const renderEntries = (state, dispatch, data, changeSelected, fName) =>{
     </div>
 }
 
+const fixHeight = (dRef, screenHeight) =>{
+
+    if(dRef.current === null || screenHeight === 0) return;
+
+    const bounds = dRef.current.getBoundingClientRect();
+
+    if(bounds.bottom> screenHeight){
+
+        const overlap = bounds.bottom - screenHeight;
+        dRef.current.style.maxHeight = `${bounds.height - overlap}px`;
+    }else{
+        dRef.current.style.maxHeight = `30vh`;
+    }
+}
+
 const DropDown = ({data, dName, fName, selectedValue, changeActive, changeSelected, hide, originalValue, bForceSmall}) =>{
     
     const [state, dispatch] = useReducer(reducer, {
         "bActive": false,
         "selectedValue": (selectedValue !== undefined) ? selectedValue : (originalValue !== null) ? originalValue : null,
     });
+    
 
-    const [height, setHeight] = useState(0);
+    const dRef = useRef(null);
+
     const screenInfo = useScreenInfo();
-    console.log(screenInfo);
 
     useEffect(() =>{
-        console.log(window.scrollY);
-        
-        //setHeight();
+        fixHeight(dRef, screenInfo.height)
     },[]);
+
+    useEffect(() =>{
+
+        fixHeight(dRef, screenInfo.height)
+
+    },[state.bActive]);
 
     if(data === undefined ){
         return <ErrorMessage title={`DropDown (${this.props.dName})`} text="No data supplied."/>
@@ -127,15 +149,16 @@ const DropDown = ({data, dName, fName, selectedValue, changeActive, changeSelect
         style.maxWidth = "var(--textbox-max-width-1)";
     }
 
+
     return <div className={styles.wrapper} onMouseDown={() => {
             if(state.bActive) return;
             dispatch({"type": "set-active", "value": true})}
         }>  
         <div className={styles.label}>
-            {dName}
+            {dName} 
         </div>
         <div className={styles.dd} style={style}>
-            {renderEntries(state, dispatch, data, changeSelected, fName)}
+            {renderEntries(state, dispatch, data, changeSelected, fName, dRef, screenInfo.height)}
         </div>
     </div>
 }
