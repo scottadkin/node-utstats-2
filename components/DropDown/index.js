@@ -124,16 +124,17 @@ const DropDown = ({data, dName, fName, selectedValue, changeActive, changeSelect
     const screenInfo = useScreenInfo();
 
     useEffect(() =>{
-        fixHeight(dRef, screenInfo.height);
-        
+        fixHeight(dRef, screenInfo.height);  
     },[]);
 
 
     useEffect(() =>{
-
         fixHeight(dRef, screenInfo.height);
-
     },[state.bActive]);
+
+    useEffect(() =>{
+        dispatch({"type": "set-selected", "value": selectedValue});
+    },[selectedValue]);
 
     if(data === undefined ){
         return <ErrorMessage title={`DropDown (${this.props.dName})`} text="No data supplied."/>

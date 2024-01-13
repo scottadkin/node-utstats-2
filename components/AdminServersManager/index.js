@@ -5,8 +5,9 @@ import Tabs from "../Tabs";
 import InteractiveTable from "../InteractiveTable";
 import Loading from "../Loading";
 import { toPlaytime, convertTimestamp } from "../../api/generic.mjs";
-import CountrySearchBox from "../CountrySearchBox";
+import DropDown from "../DropDown";
 import Countries from "../../api/countries";
+import CountryFlag from "../CountryFlag";
 
 const reducer = (state, action) =>{
 
@@ -196,6 +197,28 @@ const renderEditServer = (state, dispatch, nDispatch, editRefs) =>{
     let currentCountry = Countries(state.selectedCountry).country;
     if(currentCountry === "Unknown") currentCountry = "";
 
+    const allCountries = Countries("all");
+
+    const countryOptions = [];
+
+    for(const [code, name] of Object.entries(allCountries)){
+
+        if(code.toLowerCase() === "uk") continue;
+        countryOptions.push({"value": code, "displayValue": <><CountryFlag country={code}/> {name}</>, "name": name.toLowerCase()});
+    }
+
+    countryOptions.sort((a, b) =>{
+
+        a = a.name;
+        b = b.name;
+
+        if(a > b) return 1;
+        if(a < b) return -1;
+        return 0;
+    });
+
+    countryOptions.unshift({"value": "", "displayValue": <>Please select a country</>});
+
     return <>
         <div className="default-header">Edit Server</div>
         <div className="form">
@@ -242,13 +265,10 @@ const renderEditServer = (state, dispatch, nDispatch, editRefs) =>{
                 <div className="form-label">Password</div>
                 <input type="text" className="default-textbox" ref={editRefs.password}/>
             </div>
-            <CountrySearchBox 
-                changeSelected={(country) => {
-                    dispatch({"type": "set-country", "value": country});
-                }} 
-                selectedValue={state.selectedCountry} 
-                searchTerm={currentCountry}
-            />
+            <DropDown fName="country" dName="Country" data={countryOptions} selectedValue={state.selectedCountry} changeSelected={(name,value) =>{
+                dispatch({"type": "set-country", "value": value});
+            }}/>
+            
             <input type="button" className="search-button m-top-25" value="Save Changes" onClick={async () =>{
                 await saveChanges(state, dispatch, editRefs, nDispatch);
             }}/>
