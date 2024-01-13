@@ -360,6 +360,66 @@ class Servers{
         return await mysql.simpleQuery(query, [serverId]);
     }
 
+
+    async adminMergeServers(oldId, newId){
+
+        oldId = parseInt(oldId);
+        newId = parseInt(newId);
+
+        if(oldId !== oldId || newId !== newId) throw new Error("Server ids must be valid intergers");
+
+        const matchesQuery = `UPDATE nstats_matches SET server=? WHERE server=?`;
+        await mysql.simpleQuery(matchesQuery, [newId, oldId]);
+
+
+        const serversQuery = `SELECT * FROM nstats_servers WHERE id IN(?)`;
+        const serversResult = await mysql.simpleQuery(serversQuery, [[oldId, newId]]);
+
+
+        const totals = {};
+
+        let master = null;
+
+        for(let i = 0; i < serversResult.length; i++){
+
+            const s = serversResult[i];
+
+            if(s.id === newId){
+                master = {...s};
+            }
+
+            if(i === 0){
+                totals.first = s.first;
+                totals.last = s.last;
+                totals.matches = s.matches;
+                totals.playtime = s.playtime;
+                totals.lastMatchId = s.last_match_id;
+                totals.lastMapId = s.last_map_id;
+                continue;
+            }
+
+            totals.matches += s.matches;
+            totals.playtime += s.playtime;
+
+            if(s.last > totals.last){
+                totals.last = s.last;
+                totals.lastMatchId = s.last_match_id;
+                totals.lastMapId = s.last_map_id;
+            }
+        }
+
+        const updateQuery = `UPDATE nstats_servers SET first=?,last=?,matches=?,playtime=?,last_match_id=?,last_map_id=? WHERE id=?`;
+
+        await mysql.simpleQuery(updateQuery, [
+            totals.first, totals.last,
+            totals.matches, totals.playtime, totals.lastMatchId, 
+            totals.lastMapId, newId]
+        );
+
+        const deleteQuery = `DELETE FROM nstats_servers WHERE id=?`;
+        await mysql.simpleQuery(deleteQuery, [oldId]);
+    }
+
     async getQueryList(){
 
         const query = `SELECT * FROM nstats_server_query`;
