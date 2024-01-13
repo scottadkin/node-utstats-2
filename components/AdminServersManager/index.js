@@ -53,6 +53,18 @@ const reducer = (state, action) =>{
                 "selectedCountry": action.value
             }
         }
+        case "set-merge": {
+
+            const fart = {
+                ...state,
+            }
+            fart[`mergeServer${action.id}`] = action.value;
+
+            return {
+                ...fart,
+
+            }
+        }
     }
 
     return state;
@@ -276,6 +288,66 @@ const renderEditServer = (state, dispatch, nDispatch, editRefs) =>{
     </>
 }
 
+const renderMergeServers = (state, dispatch, nDispatch) =>{
+
+    if(state.mode !== 2) return null;
+
+    const options = state.serverList.map((s) =>{
+        return {"value": s.id, "displayValue": s.name};
+    });
+
+    options.unshift({"value": -1, "displayValue": "Please select a server"});
+
+    let noteElem = <></>;
+
+    const s1 = getServerById(state, state.mergeServer1);
+    const s2 = getServerById(state, state.mergeServer2);
+
+    if(s1 !== null && s2 !== null){
+
+        if(s1.id === s2.id){
+            noteElem = <>
+                <div className="form-info">
+                    You can't merge a server into itself.
+                </div>
+            </>
+        }else{
+            noteElem = <>
+                <div className="form-info">
+                    <b>{s1.name}</b> will be merged into <b>{s2.name}</b>
+                </div>
+                <input type="button" className="search-button" value="Merge Servers"/>
+            </>;
+        }
+    }
+
+    return <>
+        <div className="default-header">Merge Servers</div>
+        <div className="form">
+            <div className="form-info">
+                Merge one server into another.<br/>
+                <b>Example</b>: Merge Server 1 into Server 2, taking Server 2&apos;s name.<br/>
+                Pretty much will just change the server id of matches where the server id was server 1, and replace it with server 2.
+            </div>
+
+          
+            <DropDown dName="Server 1" fName="s1" data={options} changeSelected={(key, value) =>{
+
+                dispatch({"type": "set-merge", "id": 1, "value": value});
+
+            }} selectedValue={state.mergeServer1}/>
+
+            <DropDown dName="Server 2" fName="s2" data={options} changeSelected={(key, value) =>{
+
+                dispatch({"type": "set-merge", "id": 2, "value": value});
+
+            }} selectedValue={state.mergeServer2}/>
+  
+           {noteElem}
+        </div>
+    </>
+}
+
 const AdminServersManager = ({}) =>{
 
     const [nState, nDispatch] = useReducer(notificationsReducer, notificationsInitial);
@@ -293,11 +365,13 @@ const AdminServersManager = ({}) =>{
     };
 
     const [state, dispatch] = useReducer(reducer, {
-        "mode": 1,
+        "mode": 2,
         "bLoading": false,
         "serverList": [],
         "selectedServer": -1,
-        "selectedCountry": ""
+        "selectedCountry": "",
+        "mergeServer1": -1,
+        "mergeServer2": -1,
     });
     
     useEffect(() =>{
@@ -317,6 +391,7 @@ const AdminServersManager = ({}) =>{
             options={[
                 {"name": "Server List", "value": 0},
                 {"name": "Edit Server", "value": 1},
+                {"name": "Merge Servers", "value": 2},
             ]}
             selectedValue={state.mode}
             changeSelected={(a,b) =>{ dispatch({"type": "change-mode", "mode": a})}}
@@ -330,6 +405,7 @@ const AdminServersManager = ({}) =>{
         <Loading value={!state.bLoading}/>
         {renderServerList(state)}
         {renderEditServer(state, dispatch, nDispatch, editRefs)}
+        {renderMergeServers(state, dispatch, nDispatch)}
     </div>
 }
 
