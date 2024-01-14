@@ -371,10 +371,8 @@ class Servers{
         const matchesQuery = `UPDATE nstats_matches SET server=? WHERE server=?`;
         await mysql.simpleQuery(matchesQuery, [newId, oldId]);
 
-
         const serversQuery = `SELECT * FROM nstats_servers WHERE id IN(?)`;
         const serversResult = await mysql.simpleQuery(serversQuery, [[oldId, newId]]);
-
 
         const totals = {};
 

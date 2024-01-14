@@ -27,6 +27,12 @@ const reducer = (state, action) =>{
                 "bLoading": action.value
             }
         }
+        case "set-merge-loading": {
+            return {
+                ...state,
+                "bMergeInProgress": action.value
+            }
+        }
         case "loaded-servers": {
             return {
                 ...state,
@@ -55,14 +61,20 @@ const reducer = (state, action) =>{
         }
         case "set-merge": {
 
-            const fart = {
+            const nState = {
                 ...state,
             }
-            fart[`mergeServer${action.id}`] = action.value;
+            nState[`mergeServer${action.id}`] = action.value;
 
             return {
-                ...fart,
-
+                ...nState,
+            }
+        }
+        case "reset-merge": {
+            return {
+                ...state,
+                "mergeServer1": -1,
+                "mergeServer2": -1,
             }
         }
     }
@@ -288,6 +300,31 @@ const renderEditServer = (state, dispatch, nDispatch, editRefs) =>{
     </>
 }
 
+const mergeServers = async (state, dispatch, nDispatch) =>{
+
+    try{
+
+        dispatch({"type": "set-merge-loading", "value": true});
+
+        const req = await fetch("/api/adminservers", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "merge-servers", "oldId": state.mergeServer1, "newId": state.mergeServer2})
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined) throw new Error(res.error);
+
+        nDispatch({"type": "add", "notification": {"type": "pass", "content": "Merge completed"}});
+        dispatch({"type": "set-merge-loading", "value": false});
+        dispatch({"type": "reset-merge"});
+
+    }catch(err){
+        nDispatch({"type": "add", "notification": {"type": "error", "content": err.toString()}});
+    }
+}
+
 const renderMergeServers = (state, dispatch, nDispatch) =>{
 
     if(state.mode !== 2) return null;
@@ -312,12 +349,22 @@ const renderMergeServers = (state, dispatch, nDispatch) =>{
                 </div>
             </>
         }else{
-            noteElem = <>
-                <div className="form-info">
-                    <b>{s1.name}</b> will be merged into <b>{s2.name}</b>
-                </div>
-                <input type="button" className="search-button" value="Merge Servers"/>
-            </>;
+
+            if(state.bMergeInProgress){
+                noteElem = <>
+                    Merge in progress, please wait.<br/>
+                    <Loading value={!state.bMergeInProgress}/>
+                </>
+            }else{
+                noteElem = <>
+                    <div className="form-info">
+                        <b>{s1.name}</b> will be merged into <b>{s2.name}</b>
+                    </div>
+                    <input type="button" className="search-button" value="Merge Servers" onClick={() =>{
+                        mergeServers(state, dispatch, nDispatch);
+                    }}/>
+                </>;
+            }
         }
     }
 
@@ -372,6 +419,7 @@ const AdminServersManager = ({}) =>{
         "selectedCountry": "",
         "mergeServer1": -1,
         "mergeServer2": -1,
+        "bMergeInProgress": false
     });
     
     useEffect(() =>{

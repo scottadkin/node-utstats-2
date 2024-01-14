@@ -33,7 +33,6 @@ export default async function handler(req, res){
 
         if(mode === "edit-server"){
 
-            console.log(req.body.country);
             if(await serverManager.adminUpdateServer(
                 req.body.id, 
                 req.body.name, 
@@ -44,9 +43,24 @@ export default async function handler(req, res){
             )){
 
                 res.status(200).json({"message": "passed"});
+                return;
             }else{
                 throw new Error("Failed to update server details.");
             }
+        }
+
+        if(mode === "merge-servers"){
+
+            const oldId = (req.body.oldId !== undefined) ? parseInt(req.body.oldId) : NaN;
+            const newId = (req.body.newId !== undefined) ? parseInt(req.body.newId) : NaN;
+
+            if(oldId !== oldId) throw new Error(`Server id must be a valid interger(oldId/Server 1).`);
+            if(newId !== newId) throw new Error(`Server id must be a valid interger(newId/Server 2).`);
+
+            await serverManager.adminMergeServers(oldId, newId);
+
+            res.status(200).json({"message": "passed"})
+            return;
         }
 
         res.status(200).json({"error": "Unknown command"});
