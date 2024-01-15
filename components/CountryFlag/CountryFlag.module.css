@@ -2,6 +2,7 @@
     display:inline-block;
     padding-right:5px;
     color:white;
+    max-width:100px;
 }
 
 .mouse{
@@ -21,4 +22,8 @@
 
 .country-name{
     margin-bottom:5px;
+}
+
+.wrapper img{
+    max-width:128px;
 }

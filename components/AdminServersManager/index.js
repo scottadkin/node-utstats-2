@@ -77,6 +77,51 @@ const reducer = (state, action) =>{
                 "mergeServer2": -1,
             }
         }
+        case "remove-server": {
+
+            const serverList = [];
+
+            
+           
+            for(let i = 0; i < state.serverList.length; i++){
+
+                const s = state.serverList[i];
+
+                if(s.id !== action.id) serverList.push(s);
+
+            }
+
+            return {
+                ...state,
+                "serverList": serverList
+            }
+        }
+
+        case "modify-server": {
+
+            const serverList = [];
+
+            const types = ["name", "ip", "port", "password", "country"];
+
+            for(let i = 0; i < state.serverList.length; i++){
+
+                const s = state.serverList[i];
+
+                if(s.id === action.id){
+                    for(let x = 0; x < types.length; x++){
+                        const t = types[x];
+                        s[t] = action[t];
+                    }
+                }
+
+                serverList.push(s);     
+            }
+
+            return {
+                ...state,
+                "serverList": serverList
+            }
+        }
     }
 
     return state;
@@ -129,7 +174,7 @@ const renderServerList = (state) =>{
         return {
             "name": {
                 "value": s.name.toLowerCase(), 
-                "displayValue": s.name,
+                "displayValue": <><CountryFlag country={s.country}/>{s.name}</>,
                 "className": "text-left"
             },
             "address": {"value": address, "displayValue": address},
@@ -204,6 +249,7 @@ const saveChanges = async (state, dispatch, editRefs, nDispatch) =>{
             editRefs.port.current.value = "";
             editRefs.password.current.value = "";
             //editRefs.country.current.value = "";
+            dispatch({"type": "modify-server","id": state.selectedServer, name, ip, port, password, "country":state.selectedCountry});
             dispatch({"type": "reset-edit"});
             return;
         }
@@ -318,7 +364,9 @@ const mergeServers = async (state, dispatch, nDispatch) =>{
 
         nDispatch({"type": "add", "notification": {"type": "pass", "content": "Merge completed"}});
         dispatch({"type": "set-merge-loading", "value": false});
+        dispatch({"type": "remove-server", "id": state.mergeServer1});
         dispatch({"type": "reset-merge"});
+        
 
     }catch(err){
         nDispatch({"type": "add", "notification": {"type": "error", "content": err.toString()}});
