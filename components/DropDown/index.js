@@ -125,12 +125,12 @@ const DropDown = ({data, dName, fName, selectedValue, changeActive, changeSelect
 
     useEffect(() =>{
         fixHeight(dRef, screenInfo.height);  
-    },[]);
+    },[screenInfo.height]);
 
 
     useEffect(() =>{
         fixHeight(dRef, screenInfo.height);
-    },[state.bActive]);
+    },[state.bActive, screenInfo.height]);
 
     useEffect(() =>{
         dispatch({"type": "set-selected", "value": selectedValue});

@@ -393,7 +393,7 @@ const renderMergeServers = (state, dispatch, nDispatch) =>{
         if(s1.id === s2.id){
             noteElem = <>
                 <div className="form-info">
-                    You can't merge a server into itself.
+                    You can&apos;t merge a server into itself.
                 </div>
             </>
         }else{
@@ -460,7 +460,7 @@ const AdminServersManager = ({}) =>{
     };
 
     const [state, dispatch] = useReducer(reducer, {
-        "mode": 2,
+        "mode": 0,
         "bLoading": false,
         "serverList": [],
         "selectedServer": -1,
