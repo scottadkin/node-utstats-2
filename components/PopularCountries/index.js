@@ -6,6 +6,7 @@ import Loading from "../Loading";
 import ErrorMessage from "../ErrorMessage";
 import InteractiveTable from "../InteractiveTable";
 import CountryFlag from '../CountryFlag';
+import Link from 'next/link';
 
 
 const reducer = (state, action) =>{
@@ -117,14 +118,16 @@ const renderDefault = (state, totalPlayers) =>{
             percent = (d.total_uses / totalPlayers) * 100;
         }
         
-        return <div key={i} className={styles.country}>
-            <div className={styles.name}>{d.countryName}</div>
-            <div><Image src={`/images/flags/${d.country.toLowerCase()}.svg`} alt={d.country} width={190} height={100}/></div>
-            <div className={styles.info}>
-                {d.total_uses} Players<br/>
-                {percent.toFixed(2)}% of all Players<br/>
+        return <Link href={`/players?country=${d.country.toLowerCase()}`}>
+            <div key={i} className={styles.country}>
+                <div className={styles.name}>{d.countryName}</div>
+                <div><Image src={`/images/flags/${d.country.toLowerCase()}.svg`} alt={d.country} width={190} height={100}/></div>
+                <div className={styles.info}>
+                    {d.total_uses} Players<br/>
+                    {percent.toFixed(2)}% of all Players<br/>
+                </div>
             </div>
-        </div>
+        </Link>
     });
 
 

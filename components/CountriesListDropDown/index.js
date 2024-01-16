@@ -2,7 +2,7 @@ import DropDown from "../DropDown";
 import Countires from "../../api/countries";
 import CountryFlag from "../CountryFlag";
 
-const CountriesListDropDown = ({changeSelected, dName, originalValue}) =>{
+const CountriesListDropDown = ({changeSelected, dName, selectedValue}) =>{
 
     const countryList = Countires("ALL");
 
@@ -22,7 +22,7 @@ const CountriesListDropDown = ({changeSelected, dName, originalValue}) =>{
     return <DropDown 
         dName="Country" 
         data={data}
-        originalValue={originalValue}
+        selectedValue={selectedValue}
         changeSelected={changeSelected}
     />
 }

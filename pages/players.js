@@ -141,7 +141,7 @@ const createDescription = (state, page) =>{
     }
 
     let description = `Search for a player here, viewing page ${page} of ${totalPages} from a total of ${state.totalMatches} players.`;
-    console.log(state.activeRange);
+
     if(state.nameSearch === "" && state.selectedCountry === "" && state.activeRange === 0) return description;
 
 
@@ -210,7 +210,6 @@ const loadData = async (signal, dispatch, nDispatch, nameSearch, page, perPage, 
 
         dispatch({"type": "setSearchResult", "totalMatches": res.totalMatches, "searchResult": res.data});
         dispatch({"type": "changeLoading", "value": false});
-        console.log(res);
 
     }catch(err){
         if(err.name === "AbortError") return;
@@ -413,7 +412,7 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
                         data={[
                             {"displayValue": "test", "value": 0}
                         ]}
-                        originalValue={state.selectedCountry}
+                        selectedValue={state.selectedCountry}
                         changeSelected={(name,value) =>{
                             
                             dispatch({"type": "changeCountry", "name": value});
@@ -431,7 +430,7 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
                             {"displayValue": "Past 28 Days", "value": "3"},
                             {"displayValue": "Past Year", "value": "4"},
                         ]}
-                        originalValue={state.activeRange}
+                        selectedValue={state.activeRange}
                         changeSelected={(name, value) => {
                             dispatch({"type": "changeActiveRange", "value": value});
                             setURL(router, state, "active", value);
@@ -443,7 +442,7 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
                             {"displayValue": "Default View", "value": "0"},
                             {"displayValue": "Table View", "value": "1"},
                         ]}
-                        originalValue={state.displayType}
+                        selectedValue={state.displayType}
                         changeSelected={(name, value) => {
                             dispatch({"type": "changeDisplay", "value": value});
                             setURL(router, state, "display", value);
@@ -460,7 +459,7 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
                             {"displayValue": "Kills ", "value": "kills"},
                             {"displayValue": "Last Active ", "value": "last"},
                         ]}
-                        originalValue={state.sortBy}
+                        selectedValue={state.sortBy}
                         changeSelected={(name, value) => {
                             dispatch({"type": "changeSortBy", "value": value});
                             setURL(router, state, "sb", value);
@@ -474,7 +473,7 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
                             {"displayValue": "DESC ", "value": "desc"},
              
                         ]}
-                        originalValue={state.order}
+                        selectedValue={state.order}
                         changeSelected={(name, value) => {
                             dispatch({"type": "changeOrder", "order": value});
                             setURL(router, state, "o", value);
@@ -486,7 +485,7 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
                             dispatch({"type": "changePerPage", "value": value});
                             setURL(router, state, "pp", value);
                         }}
-                        originalValue={state.perPage}
+                        selectedValue={state.perPage}
                     />
                 </div>
                 <NotificationsCluster 
