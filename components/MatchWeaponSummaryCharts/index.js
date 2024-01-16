@@ -283,25 +283,82 @@ const renderTotalDamage = (displayMode, matchId, totalData, players, totalTeams)
     </>
 }
 
-const renderByStatsType = (state, dispatch) =>{
+const getPlayerStatType = (stats, playerId, weaponId, statType) =>{
+
+    playerId = parseInt(playerId);
+    weaponId = parseInt(weaponId);
+
+    for(let i = 0; i < stats.length; i++){
+
+        const s = stats[i];
+
+        if(s.player_id !== playerId || s.weapon_id !== weaponId) continue;
+
+        return s[statType];
+    }
+
+    return 0;
+}
+
+const renderByStatsType = (state, dispatch, players) =>{
 
     if(state.mode !== -3) return null;
+
+    console.log(state.weaponStats.playerData);
+
+    console.log(players);
+
+    const headers = {
+        "player": "Player"
+    };
+    const rows = [];
+
+
+    for(let i = 0; i < state.weaponStats.names.length; i++){
+
+        const w = state.weaponStats.names[i];
+        headers[`w_${w.id}`] = w.name;
+    }
+
+    for(const [playerId, playerData] of Object.entries(players)){
+
+        const current = {
+            "player": {
+                "value": playerData.name.toLowerCase(), 
+                "displayValue": <><CountryFlag country={playerData.country}/>{playerData.name}</>,
+                "className": "text-left"
+            }
+        };
+
+        for(let i = 0; i < state.weaponStats.names.length; i++){
+
+            const w = state.weaponStats.names[i];
+
+            const cValue = getPlayerStatType(state.weaponStats.playerData, playerId, w.id, state.selectedStatType);
+            current[`w_${w.id}`] = {"value": cValue, "displayValue": cValue};
+        
+        }
+
+        rows.push(current);
+        
+    }
 
     return <>
         <Tabs 
             options={[
-                {"value": 0, "name": "Kills"},
-                {"value": 1, "name": "Deaths"},
-                {"value": 2, "name": "Damage"},
-                {"value": 3, "name": "Accuracy"},
-                {"value": 4, "name": "Hits"},
-                {"value": 5, "name": "Shots"}
+                {"name": "Kills", "value": "kills"},
+                {"name": "Deaths", "value": "deaths"},
+                {"name": "Damage", "value": "damage"},
+                {"name": "Shots", "value": "shots"},
+                {"name": "Hits", "value": "hits"},
+                {"name": "Accuracy", "value": "accuracy"},
             ]}
-            selectedValue={state.statsType}
+            selectedValue={state.selectedStatType}
             changeSelected={(value) =>{
                 dispatch({"type": "set-stats-type", "value": value});
             }}
         />
+        <InteractiveTable data={rows} headers={headers} width={1}/>
     </>
 }
 
@@ -556,7 +613,7 @@ const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
         {renderBest(state, matchId, playerData, totalTeams)}
         {renderBarChart(state, dispatch, playerData)}
         {renderSingleTable(state, totalTeams, matchId, playerData)}
-        {renderByStatsType(state, dispatch)}
+        {renderByStatsType(state, dispatch, playerData)}
     </div>
 }
 
