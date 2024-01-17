@@ -322,11 +322,13 @@ const renderByStatsType = (state, dispatch, players) =>{
 
     for(const [playerId, playerData] of Object.entries(players)){
 
+        if(playerData.playtime === 0) continue;
+
         const current = {
             "player": {
                 "value": playerData.name.toLowerCase(), 
                 "displayValue": <><CountryFlag country={playerData.country}/>{playerData.name}</>,
-                "className": "text-left"
+                "className": `text-left ${getTeamColor(playerData.team)}`
             }
         };
 
@@ -334,8 +336,22 @@ const renderByStatsType = (state, dispatch, players) =>{
 
             const w = state.weaponStats.names[i];
 
-            const cValue = getPlayerStatType(state.weaponStats.playerData, playerId, w.id, state.selectedStatType);
-            current[`w_${w.id}`] = {"value": cValue, "displayValue": cValue};
+            let cValue = getPlayerStatType(state.weaponStats.playerData, playerId, w.id, state.selectedStatType);
+
+            const originalValue = cValue;
+
+            if(state.selectedStatType !== "accuracy" || cValue === 0){
+                cValue = ignore0(cValue);
+            }else{
+                cValue = `${cValue.toFixed(2)}%`;
+            }
+
+
+            current[`w_${w.id}`] = {
+                "value": originalValue, 
+                "displayValue": cValue,
+                
+            };
         
         }
 
