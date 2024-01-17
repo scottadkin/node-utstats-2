@@ -304,9 +304,6 @@ const renderByStatsType = (state, dispatch, players) =>{
 
     if(state.mode !== -3) return null;
 
-    console.log(state.weaponStats.playerData);
-
-    console.log(players);
 
     const headers = {
         "player": "Player"
@@ -314,9 +311,21 @@ const renderByStatsType = (state, dispatch, players) =>{
     const rows = [];
 
 
-    for(let i = 0; i < state.weaponStats.names.length; i++){
+    const weaponNames = [...state.weaponStats.names];
 
-        const w = state.weaponStats.names[i];
+    weaponNames.sort((a, b) =>{
+
+        a = a.name.toLowerCase();
+        b = b.name.toLowerCase();
+
+        if(a < b) return -1;
+        if(a > b) return 1;
+        return 0;
+    });
+
+    for(let i = 0; i < weaponNames.length; i++){
+
+        const w = weaponNames[i];
         headers[`w_${w.id}`] = w.name;
     }
 
@@ -332,9 +341,9 @@ const renderByStatsType = (state, dispatch, players) =>{
             }
         };
 
-        for(let i = 0; i < state.weaponStats.names.length; i++){
+        for(let i = 0; i < weaponNames.length; i++){
 
-            const w = state.weaponStats.names[i];
+            const w = weaponNames[i];
 
             let cValue = getPlayerStatType(state.weaponStats.playerData, playerId, w.id, state.selectedStatType);
 
