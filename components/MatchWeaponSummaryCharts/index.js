@@ -329,6 +329,8 @@ const renderByStatsType = (state, dispatch, players) =>{
         headers[`w_${w.id}`] = w.name;
     }
 
+    headers["totals"] = "Total";
+
     for(const [playerId, playerData] of Object.entries(players)){
 
         if(playerData.playtime === 0) continue;
@@ -341,6 +343,8 @@ const renderByStatsType = (state, dispatch, players) =>{
             }
         };
 
+        let total = 0;
+
         for(let i = 0; i < weaponNames.length; i++){
 
             const w = weaponNames[i];
@@ -349,20 +353,27 @@ const renderByStatsType = (state, dispatch, players) =>{
 
             const originalValue = cValue;
 
+            total += cValue;
+
             if(state.selectedStatType !== "accuracy" || cValue === 0){
                 cValue = ignore0(cValue);
             }else{
                 cValue = `${cValue.toFixed(2)}%`;
             }
 
-
             current[`w_${w.id}`] = {
                 "value": originalValue, 
-                "displayValue": cValue,
-                
+                "displayValue": cValue,  
             };
         
         }
+
+        if(state.selectedStatType === "accuracy"){
+
+            total = total.toFixed(2);
+        }
+
+        current.totals = {"value": parseFloat(total), "displayValue": (state.selectedStatType === "accuracy") ? `${total}%` :ignore0(total)};
 
         rows.push(current);
         
