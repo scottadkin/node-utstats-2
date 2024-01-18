@@ -1,11 +1,11 @@
 import {React, useReducer, useEffect} from "react";
-import Functions from "../../api/functions";
+import Functions, { ignore0 } from "../../api/functions";
 import BarChart from "../BarChart";
 import Loading from "../Loading";
 import ErrorMessage from "../ErrorMessage";
 import Tabs from "../Tabs";
 import InteractiveTable from "../InteractiveTable";
-import {getPlayer, getTeamColor} from "../../api/generic.mjs";
+import {getPlayer, getTeamColor, getTeamName} from "../../api/generic.mjs";
 import CountryFlag from "../CountryFlag";
 import Link from "next/link";
 
@@ -68,6 +68,20 @@ const filterByType = (state, targetType) =>{
 const createTypeTabs = (state, dispatch, selectedKey, selectedType) =>{
     
     const items = filterByType(state, state.mode);
+
+    const bSelectedExist = items.some((item) =>{
+        return item.id === state[selectedKey];
+    });
+
+    if(!bSelectedExist && items.length > 0){
+        dispatch({"type": "changeSelectedItem", "value": items[0].id});
+    }
+
+    if(items.length === 0){
+        return <div className="not-found">
+            No data found
+        </div>
+    }
 
     return <>
         <Tabs 
@@ -302,14 +316,43 @@ const getTeamTotalUses = (state, players, itemId, targetTeam) =>{
     return totalUses;
 }
 
-const renderTeamTables = (state, dispatch, players, matchId) =>{
+const renderTeamTables = (state, dispatch, players, matchId, totalTeams) =>{
 
     if(state.bLoading || state.displayMode !== 0 || !state.bTeamsView) return null;
 
     console.log(state);
 
+    //const items = filterByType(state, );
+
+    const headers = {
+        "team": "Team",
+        "used": "Times Used"
+    };
+
+    const rows = [];
+
+    for(let i = 0; i < totalTeams; i++){
+
+        const teamTotal = getTeamTotalUses(state, players, state.selectedItem, i);
+        //console.log(teamTotal);
+        //data.push(teamTotal);
+        rows.push({
+            "team": {
+                "value": i, 
+                "displayValue": getTeamName(i),
+                "className": `text-left ${getTeamColor(i)}`
+            },
+            "used": {
+                "value": teamTotal,
+                "displayValue": ignore0(teamTotal)
+            }
+        });
+    }
+
+
     return <>
         {createTypeTabs(state, dispatch, "selectedItem", "changeSelectedItem")}
+        <InteractiveTable headers={headers} data={rows} width={2}/>
     </>
 }
 
@@ -321,8 +364,11 @@ const MatchItemsSummary = ({matchId, players, totalTeams}) =>{
         "mode": 1,
         "error": null,
         "displayMode": 0,
-        "bTeamsView": false,
-        "selectedItem": -1
+        "bTeamsView": true,
+        "selectedItem": -1,
+        "itemNames": [],
+        "playerUses": [],
+        "itemTotals": []
         
     });
 
@@ -361,7 +407,6 @@ const MatchItemsSummary = ({matchId, players, totalTeams}) =>{
         }
     }, [matchId]);
 
-
     if(state.error !== null) return <ErrorMessage title="Items Summary" text={state.error}/>
     if(state.bLoading) return <Loading />;
 
@@ -387,7 +432,7 @@ const MatchItemsSummary = ({matchId, players, totalTeams}) =>{
         {renderTeamBarCharts(state, players, totalTeams)}
         {renderPlayerBarCharts(state, players)}
         {renderPlayerTables(state, dispatch, players, matchId)}
-        {renderTeamTables(state, dispatch, players, matchId)}
+        {renderTeamTables(state, dispatch, players, matchId, totalTeams)}
     </div>
 }
 
