@@ -9,6 +9,77 @@ import {getPlayer, getTeamColor} from "../../api/generic.mjs";
 import CountryFlag from "../CountryFlag";
 import Link from "next/link";
 
+const reducer = (state, action) =>{
+
+    switch(action.type){
+        case "setError": {
+            return {
+                ...state,
+                "error": action.payload.error,
+                "bLoading": false
+            }
+        }
+        case "teamsViewChange": {
+            return {
+                ...state,
+                "bTeamsView": action.mode
+            }
+        }
+        case "modeChange": {
+            return {
+                ...state,
+                "mode": action.mode
+            };
+        }
+        case "changeDisplayMode": {
+            return {
+                ...state,
+                "displayMode": action.displayMode
+            }
+        }
+        case "changeSelectedItem": {
+            return {
+                ...state,
+                "selectedItem": action.value
+            }
+        }
+        case "loaded": {
+            return {
+                ...state,
+                "bLoading": false,
+                "itemNames": action.payload.itemNames,
+                "playerUses": action.payload.playerUses,
+                "itemTotals": action.payload.itemTotals
+            };
+        }
+        default: return state
+    }
+}
+
+const filterByType = (state, targetType) =>{
+
+    const result = state.itemNames.filter((item) =>{
+        return item.type === targetType;
+    });
+
+    return result;
+}
+
+const createTypeTabs = (state, dispatch, selectedKey, selectedType) =>{
+    
+    const items = filterByType(state, state.mode);
+
+    return <>
+        <Tabs 
+            options={items.map((item) =>{
+                return {"value": item.id, "name": item.name}
+            })} 
+            selectedValue={state[selectedKey]}
+            changeSelected={(value) =>{dispatch({"type": selectedType,"value": value})}}
+        />
+    </>
+}
+
 const renderTeamTabs = (totalTeams, dispatch, state) =>{
 
     if(totalTeams < 2) return null;
@@ -79,9 +150,9 @@ const renderTypeTabs = (state, dispatch) =>{
     }/>
 }
 
-const renderPlayerTables = (state, players, matchId) =>{
+const renderPlayerTables = (state, dispatch, players, matchId) =>{
     
-    if(state.bLoading || state.displayMode !== 0) return null;
+    if(state.bLoading || state.displayMode !== 0 || state.bTeamsView) return null;
 
     const tables = [];
 
@@ -121,51 +192,129 @@ const renderPlayerTables = (state, players, matchId) =>{
         tables.push(<InteractiveTable key={item.id} title={item.name} width={2} headers={headers} data={data} defaultOrder="uses" bAsc={false}/>);
     }
 
-    return tables;
+    return <>
+        {createTypeTabs(state, dispatch, "selectedItem", "changeSelectedItem")}
+        {tables}
+    </>;
+}
+
+const renderTeamBarCharts = (state, players, totalTeams) =>{
+
+
+    if(state.displayMode !== 1 || !state.bTeamsView) return null;
+    
+    const barCharts = [];
+
+    const names = [];
+
+    for(let i = 0; i < totalTeams; i++){
+
+        names.push(Functions.getTeamName(i));
+    }
+
+    for(let i = 0; i < state.itemNames.length; i++){
+
+        const item = state.itemNames[i];
+        
+
+        if(item.type !== state.mode) continue;
+        
+        const values = [];
+
+        for(let x = 0; x < totalTeams; x++){
+            values.push(getTeamTotalUses(state, players, item.id, x));
+        }
+      
+        barCharts.push(<BarChart key={item.id} label="Taken" title={item.name} values={values} names={names}/>);
+    }
+
+    return <div>
+        {barCharts}
+    </div>
+}
+
+
+const getPlayerUses = (state, itemId) =>{
+
+    const uses = [];
+
+    for(const playerUses of Object.values(state.playerUses)){
+
+        if(playerUses[itemId] !== undefined){
+            uses.push(playerUses[itemId]);
+        }else{
+            uses.push(0);
+        }
+    }
+
+    return uses;
+}
+
+const renderPlayerBarCharts = (state, players) =>{
+
+    if(state.bTeamsView || state.displayMode !== 1) return null;
+
+    const barCharts = [];
+
+    const names = [];
+
+    for(const player of Object.values(players)){
+
+        if(player.spectator) continue;
+        
+        names.push(player.name);
+        
+    }
+
+    for(let i = 0; i < state.itemNames.length; i++){
+
+        const item = state.itemNames[i];
+
+        if(item.type !== state.mode) continue;
+
+        const uses = getPlayerUses(state, item.id);
+
+        barCharts.push(<BarChart key={item.id} label="Taken" title={item.name} names={names} values={uses} />);
+
+    }
+
+    return <div>
+        {barCharts}
+    </div>
+}
+
+const getTeamTotalUses = (state, players, itemId, targetTeam) =>{
+
+    let totalUses = 0;
+
+    for(const [playerId, playerUses] of Object.entries(state.playerUses)){
+
+        const player = getPlayer(players, playerId, true);
+
+        if(player.team === targetTeam){
+
+            if(playerUses[itemId] !== undefined){
+                totalUses += playerUses[itemId];
+            }
+        }
+    }
+
+    return totalUses;
+}
+
+const renderTeamTables = (state, dispatch, players, matchId) =>{
+
+    if(state.bLoading || state.displayMode !== 0 || !state.bTeamsView) return null;
+
+    console.log(state);
+
+    return <>
+        {createTypeTabs(state, dispatch, "selectedItem", "changeSelectedItem")}
+    </>
 }
 
 const MatchItemsSummary = ({matchId, players, totalTeams}) =>{
 
-    const reducer = (state, action) =>{
-
-        switch(action.type){
-            case "setError": {
-                return {
-                    ...state,
-                    "error": action.payload.error,
-                    "bLoading": false
-                }
-            }
-            case "teamsViewChange": {
-                return {
-                    ...state,
-                    "bTeamsView": action.mode
-                }
-            }
-            case "modeChange": {
-                return {
-                    ...state,
-                    "mode": action.mode
-                };
-            }
-            case "changeDisplayMode": {
-                return {
-                    ...state,
-                    "displayMode": action.displayMode
-                }
-            }
-            case "loaded": {
-                return {
-                    ...state,
-                    "bLoading": false,
-                    "itemNames": action.payload.itemNames,
-                    "playerUses": action.payload.playerUses,
-                    "itemTotals": action.payload.itemTotals
-                };
-            }
-            default: return state
-        }
-    }
 
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
@@ -173,6 +322,7 @@ const MatchItemsSummary = ({matchId, players, totalTeams}) =>{
         "error": null,
         "displayMode": 0,
         "bTeamsView": false,
+        "selectedItem": -1
         
     });
 
@@ -212,112 +362,6 @@ const MatchItemsSummary = ({matchId, players, totalTeams}) =>{
     }, [matchId]);
 
 
-    const getTeamTotalUses = (itemId, targetTeam) =>{
-
-        let totalUses = 0;
-
-        for(const [playerId, playerUses] of Object.entries(state.playerUses)){
-
-            const player = getPlayer(players, playerId, true);
-
-            if(player.team === targetTeam){
-
-                if(playerUses[itemId] !== undefined){
-                    totalUses += playerUses[itemId];
-                }
-            }
-        }
-
-        return totalUses;
-    }
-
-    const renderTeamBarCharts = () =>{
-
-        if(state.displayMode !== 1 || !state.bTeamsView) return null;
-        
-        const barCharts = [];
-
-        const names = [];
-
-        for(let i = 0; i < totalTeams; i++){
-
-            names.push(Functions.getTeamName(i));
-        }
-
-        for(let i = 0; i < state.itemNames.length; i++){
-
-            const item = state.itemNames[i];
-            
-
-            if(item.type !== state.mode) continue;
-            
-            const values = [];
-
-            for(let x = 0; x < totalTeams; x++){
-                values.push(getTeamTotalUses(item.id, x));
-            }
-          
-            barCharts.push(<BarChart key={item.id} label="Taken" title={item.name} values={values} names={names}/>);
-        }
-
-        return <div>
-            {barCharts}
-        </div>
-    }
-
-
-    const getPlayerUses = (itemId) =>{
-
-        const uses = [];
-
-        for(const playerUses of Object.values(state.playerUses)){
-
-            if(playerUses[itemId] !== undefined){
-                uses.push(playerUses[itemId]);
-            }else{
-                uses.push(0);
-            }
-        }
-
-        return uses;
-    }
-
-    const renderPlayerBarCharts = () =>{
-
-        if(state.bTeamsView || state.displayMode !== 1) return null;
-
-        const barCharts = [];
-
-        const names = [];
-
-        for(const player of Object.values(players)){
-
-            if(player.spectator) continue;
-            
-            names.push(player.name);
-            
-        }
-
-        for(let i = 0; i < state.itemNames.length; i++){
-
-            const item = state.itemNames[i];
-
-            if(item.type !== state.mode) continue;
-
-            const uses = getPlayerUses(item.id);
-
-            barCharts.push(<BarChart key={item.id} label="Taken" title={item.name} names={names} values={uses} />);
-
-        }
-
-        return <div>
-            {barCharts}
-        </div>
-    }
-
-    
-
-
     if(state.error !== null) return <ErrorMessage title="Items Summary" text={state.error}/>
     if(state.bLoading) return <Loading />;
 
@@ -340,9 +384,10 @@ const MatchItemsSummary = ({matchId, players, totalTeams}) =>{
                 dispatch({"type": "changeDisplayMode", "displayMode": a});
             }}
         />
-        {renderTeamBarCharts()}
-        {renderPlayerBarCharts()}
-        {renderPlayerTables(state, players, matchId)}
+        {renderTeamBarCharts(state, players, totalTeams)}
+        {renderPlayerBarCharts(state, players)}
+        {renderPlayerTables(state, dispatch, players, matchId)}
+        {renderTeamTables(state, dispatch, players, matchId)}
     </div>
 }
 

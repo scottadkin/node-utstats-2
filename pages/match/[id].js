@@ -22,7 +22,6 @@ import MatchRankingChanges from '../../components/MatchRankingChanges/';
 import AdminMatchControl from '../../components/AdminMatchControl/';
 import MatchSprees from '../../components/MatchSprees/';
 import MatchMonsterHuntFragSummary from '../../components/MatchMonsterHuntFragSummary/';
-import MatchMonsterHuntMonsterKills from '../../components/MatchMonsterHuntMonsterKills/';
 import Analytics from '../../api/analytics';
 import MatchFragsGraph from '../../components/MatchFragsGraph';
 import MatchCTFGraphs from '../../components/MatchCTFGraphs';
