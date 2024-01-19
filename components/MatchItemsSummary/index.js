@@ -65,6 +65,7 @@ const filterByType = (state, targetType) =>{
     return result;
 }
 
+
 const createTypeTabs = (state, dispatch, selectedKey, selectedType) =>{
     
     const items = filterByType(state, state.mode);
@@ -172,7 +173,7 @@ const renderPlayerTables = (state, dispatch, players, matchId) =>{
 
     const headers = {
         "name": "Player",
-        "uses": "Times Used"
+        "uses": "Times Picked Up"
     };
 
     for(let i = 0; i < state.itemNames.length; i++){
@@ -180,6 +181,7 @@ const renderPlayerTables = (state, dispatch, players, matchId) =>{
         const item = state.itemNames[i];
 
         if(item.type !== state.mode) continue;
+        if(item.id !== state.selectedItem) continue;
 
         const itemId = item.id;
         const data = [];
@@ -320,13 +322,11 @@ const renderTeamTables = (state, dispatch, players, matchId, totalTeams) =>{
 
     if(state.bLoading || state.displayMode !== 0 || !state.bTeamsView) return null;
 
-    console.log(state);
-
     //const items = filterByType(state, );
 
     const headers = {
         "team": "Team",
-        "used": "Times Used"
+        "used": "Times Picked Up"
     };
 
     const rows = [];
@@ -334,8 +334,7 @@ const renderTeamTables = (state, dispatch, players, matchId, totalTeams) =>{
     for(let i = 0; i < totalTeams; i++){
 
         const teamTotal = getTeamTotalUses(state, players, state.selectedItem, i);
-        //console.log(teamTotal);
-        //data.push(teamTotal);
+
         rows.push({
             "team": {
                 "value": i, 
@@ -361,10 +360,10 @@ const MatchItemsSummary = ({matchId, players, totalTeams}) =>{
 
     const [state, dispatch] = useReducer(reducer, {
         "bLoading": true,
-        "mode": 1,
+        "mode": 0,
         "error": null,
         "displayMode": 0,
-        "bTeamsView": true,
+        "bTeamsView": false,
         "selectedItem": -1,
         "itemNames": [],
         "playerUses": [],
