@@ -11,7 +11,7 @@ class CountriesManager{
         if(limit === undefined) limit = 5;
 
         const query = `SELECT COUNT(*) as total_uses, country, MIN(first) as first_match, MAX(last) as last_match
-        FROM nstats_player_totals WHERE gametype=0 AND map=0
+        FROM nstats_player_totals WHERE gametype=0 AND map=0 AND country!=""
         GROUP BY(country) ORDER BY total_uses DESC LIMIT ?`;
 
         const result = await mysql.simpleQuery(query, [limit]);
