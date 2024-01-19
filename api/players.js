@@ -282,23 +282,13 @@ class Players{
     }
 
 
-    getRecentPlayers(max){
+    async getRecentPlayers(max){
 
-        return new Promise((resolve, reject) =>{
+        const query = `SELECT id,name,country,matches,playtime,face,first,last 
+        FROM nstats_player_totals WHERE gametype=0 AND map=0 AND playtime>0 ORDER BY last DESC LIMIT ?`;
 
-            const query = "SELECT id,name,country,matches,playtime,face,first,last FROM nstats_player_totals WHERE gametype=0 AND playtime>0 ORDER BY last DESC LIMIT ?";
+        return await mysql.simpleQuery(query, [max]);
 
-            mysql.query(query, [max], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
     }
 
     async getBestOfTypeTotal(validTypes, type, gametype, limit, page){
