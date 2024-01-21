@@ -590,20 +590,6 @@ function ScoreKill(Pawn Killer, Pawn Other){
 		}
 	}
 
-	if(Other != None){
-
-		if(Other.PlayerReplicationInfo != None){	
-			OtherId = getPlayerIndex(Other.PlayerReplicationInfo);
-		}else{
-			OtherId = -1;
-		}
-	}
-
-
-	if(OtherId != -1){
-		//nPlayers[OtherId]
-	}
-
 	if(NextMutator != None){
 		NextMutator.ScoreKill(Killer, Other);
 	}
