@@ -102,6 +102,13 @@ const reducer = (state, action) =>{
                 "perPage": action.value
             }
         }
+
+        case "changeDisplay": {
+            return {
+                ...state,
+                "displayType": parseInt(action.value)
+            }
+        }
     }
 
     return state;
@@ -117,9 +124,10 @@ const setURL = (router, state, forceKeyName, forceKeyValue) => {
         "active": state.activeRange,
         "pp": state.perPage,
         "sb": state.sortBy,
-        "o": state.order
+        "o": state.order,
+        "display": state.displayType
     };
-
+    
     if(forceKeyName !== undefined){
         query[forceKeyName] = forceKeyValue;
     }
@@ -219,6 +227,7 @@ const loadData = async (signal, dispatch, nDispatch, nameSearch, page, perPage, 
 
 const renderTable = (state, dispatch, router) =>{
 
+    if(parseInt(state.displayType) !== 1) return;
 
     const headers = [
         {
@@ -368,7 +377,8 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
         state.activeRange,
         state.selectedCountry,
         state.sortBy,
-        state.order
+        state.order,
+        state.displayType
     ]);
 
     let searchURL = `/players?name=${state.nameSearch}&pp=${state.perPage}&sb=${state.sortBy}&o=${state.order}&active=${state.activeRange}&page=`;
@@ -439,8 +449,8 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
                     <DropDown 
                         dName="Display Type"
                         data={[
-                            {"displayValue": "Default View", "value": "0"},
-                            {"displayValue": "Table View", "value": "1"},
+                            {"displayValue": "Default View", "value": 0},
+                            {"displayValue": "Table View", "value": 1},
                         ]}
                         selectedValue={state.displayType}
                         changeSelected={(name, value) => {
@@ -518,7 +528,7 @@ export async function getServerSideProps({req, query}){
     const nameSearch = (query.name !== undefined) ? query.name : "";
     const selectedCountry = (query.country !== undefined) ? query.country : "";
     const activeRange = (query.active !== undefined) ? query.active : 0;
-    const displayType = (query.display !== undefined) ? query.display : "";
+    const displayType = (query.display !== undefined) ? query.display : 0;
     const perPage = (query.pp !== undefined) ? query.pp : 25;
     const page = (query.page !== undefined) ? cleanInt(query.page, 1, null) : 1;
     const sortBy = (query.sb !== undefined) ? query.sb : "name";

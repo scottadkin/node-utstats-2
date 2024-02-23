@@ -177,7 +177,6 @@ const renderIndividualTabs = (state, dispatch) =>{
     ];
 
     return <Tabs options={options} selectedValue={state.individualDisplayMode} changeSelected={(value) =>{
-        console.log(value);
         dispatch({"type": "set-individual-mode", "value": value});
     }}/>
 }
