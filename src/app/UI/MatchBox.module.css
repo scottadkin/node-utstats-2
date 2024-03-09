@@ -1,0 +1,40 @@
+.wrapper{
+    display:inline-block;
+    text-align:center;
+    background-color:var(--bg-color-2);
+    border:1px solid var(--border-color-1);  
+    width:360px;
+    max-width:90%;
+    margin-right:5px;
+    overflow:hidden;
+    padding-top:5px;
+
+}
+
+.wrapper img{
+    width:100%;
+
+}
+
+.map{
+    font-size:18px;
+    padding:5px;
+    max-width:95%;
+    margin-left:2.5%;
+}
+
+.gametype{
+    padding:5px;
+}
+
+.server{
+    font-size:12px;
+    padding:5px;
+    color:var(--font-color-2);
+    margin-bottom:5px;
+}
+
+.info{
+    font-size:14px;
+    line-height:18px;
+}

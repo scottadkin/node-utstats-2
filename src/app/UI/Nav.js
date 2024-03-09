@@ -12,8 +12,8 @@ export default function Nav({params}){
         {"name": "Home", "url": "/", "bExactMatchesOnly": true,"matches": [
             "/"
         ]},
-        {"name": "Match", "url": "/matches", "matches": [
-            "/match/[id]",
+        {"name": "Matches", "url": "/matches", "matches": [
+            "/match/",
             "/matches"
 
         ]},
@@ -35,7 +35,7 @@ export default function Nav({params}){
   
             if(!bExactMatchesOnly){
 
-                if(pathname.startsWith(m)){
+                if(pathname.toLowerCase().startsWith(m)){
                     bActive = true;
                     break;
                 }
