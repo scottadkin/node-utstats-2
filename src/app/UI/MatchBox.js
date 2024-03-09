@@ -2,6 +2,7 @@
 import Link from "next/link";
 import styles from "./MatchBox.module.css";
 import Image from "next/image";
+import MatchScoreBox from "./MatchScoreBox";
 
 export default function MatchBox({data}){
 
@@ -21,6 +22,7 @@ export default function MatchBox({data}){
                 Players 23<br/>
                 Date 1st January 1900
             </div>
+            <MatchScoreBox data={data}/>
         </div>
     </Link>
 }

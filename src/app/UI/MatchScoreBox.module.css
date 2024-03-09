@@ -1,0 +1,21 @@
+.wrapper{
+    background-color:red;
+    height:25px;
+    line-height:25px;
+}
+
+
+.duo{
+    display:grid;
+    grid-template-columns: 1fr 1fr;   
+}
+
+.trio{
+    display:grid;
+    grid-template-columns: 1fr 1fr 1fr; 
+}
+
+.quad{
+    display:grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+}

@@ -7,6 +7,8 @@
 	--active-link-color:yellow;
 	--border-color-1:rgba(255,255,255,0.125);
 	--max-width-1:90%;
+	--red-2:rgba(89,0,0);
+	--yellow-2:rgba(95,95,0);
 }
 
 *{
@@ -19,10 +21,23 @@ table{
 	border-collapse: collapse;
 }
 
-body{
+body{ 
+	min-height: 100vh; 
+	display: grid;
+	grid-template-rows: auto 5fr auto;
 	background-color:var(--bg-color-1);
+  }
+
+header{ 
+min-height:50px;
+background:lightcyan; 
 }
 
+footer{ 
+	min-height:50px; 
+	background:var(--bg-color-2); 
+	color:white;
+}
 
 a{
 	color:var(--font-color-1);
@@ -32,4 +47,27 @@ a{
 .center{
 	margin-left:auto;
 	margin-right:auto;
+}
+
+
+.team-none{
+	background-color:rgba(0,0,0, 0.25);
+	
+}
+
+.team-red{
+	background-color:var(--red-2);
+}
+
+
+.team-blue{
+	background-color:rgb(20,61,116);
+}
+
+.team-green{
+	background-color:rgba(0,66,0);
+}
+
+.team-yellow{
+	background-color:var(--yellow-2)
 }

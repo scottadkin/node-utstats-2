@@ -15,6 +15,7 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <Nav params={{}}/>
         {children}
+        <footer>Horse Noise</footer>
       </body>
     </html>
   );
