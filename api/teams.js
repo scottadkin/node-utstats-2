@@ -1,5 +1,4 @@
 const mysql = require('./database');
-const Promise = require('promise');
 
 class Teams{
 

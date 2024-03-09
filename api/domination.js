@@ -1,5 +1,4 @@
 const mysql = require('./database');
-const Promise = require('promise');
 const Message = require('./message');
 const Functions = require('./functions');
 

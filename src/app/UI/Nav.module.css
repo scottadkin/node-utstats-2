@@ -1,0 +1,13 @@
+.wrapper{
+    background-color:var(--bg-color-2);
+    color:var(--font-color-2);
+}
+
+.wrapper a{
+    display:inline-block;
+    padding:10px;
+}
+
+.active{
+    color:var(--active-link-color);
+}

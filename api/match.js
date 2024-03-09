@@ -64,6 +64,12 @@ class Match{
 
     async get(id){
 
+        if(id === undefined) id = -1;
+
+        if(id.length === 32){
+            id = await this.getMatchIdFromHash(id);
+        }
+        
         id = parseInt(id);
         if(id !== id) throw new Error("Match id must be a number");
 
