@@ -1,8 +1,0 @@
-.wrapper{
-    max-width:90%;
-}
-
-.wrapper canvas{
-    width:50%;
-    max-width:var(--max-width-1);
-}

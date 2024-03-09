@@ -1,13 +1,6 @@
 {
-    "bUseHTTPS": false,
-    "ssl": {
-        "cert": "cert.pem",
-        "key": "key.pem"
-    },
-    "importInterval": 30,
-    "bUseSeperateImageServer": false,
+    "importInterval": 0,
     "imageServerPort": 3001,
-    "bIncludeImageServerPortInURLs": true,
     "websitePort": 3000,
     "minTMPFileAgeInDays": 1,
     "mysql": {

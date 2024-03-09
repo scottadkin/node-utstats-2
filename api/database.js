@@ -1,14 +1,15 @@
-const mysql = require('mysql');
-const config = require( '../config.json');
+const mysql = require("mysql2/promise");
+const config = require( "../config.json");
 
 
-const Database = mysql.createPool({
+const connection = mysql.createPool({
     "host": config.mysql.host,
     "user": config.mysql.user,
     "password": config.mysql.password,
     "database": config.mysql.database
 });
 
+/*
 Database.simpleFetch = async (query, vars) =>{
 
     return await Database.simpleQuery(query, vars);
@@ -132,6 +133,40 @@ Database.bulkInsert = (query, vars, maxPerInsert) =>{
 
     });
 }
+*/
 
+class Test{
+
+    constructor(){
+
+        this.connection = connection;
+    }
+
+
+    async simpleQuery(query, vars){
+
+        if(query === undefined) throw new Error("No query specified.");
+        
+        if(vars === undefined){
+
+            const [result] = await connection.query(query);
+            return result;
+        }
+
+        const [result] = await connection.query(query, vars);     
+        return result;   
+    }
+
+
+}
+
+const Database = new Test();
+console.log(Database);
+(async () =>{
+
+    const a = await Database.simpleQuery("SELECT * FROM nstats_ftp WHERE port=?", [21]);
+    console.log(a);
+
+})();
 
 module.exports = Database;
