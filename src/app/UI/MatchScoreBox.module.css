@@ -1,9 +1,18 @@
 .wrapper{
-    background-color:red;
-    height:25px;
-    line-height:25px;
+    height:82px;
 }
 
+.wrapper div img{
+    width:32px;
+    height:32px;
+    margin-top:10px;
+    margin-bottom:5px;
+}
+
+.score{
+    padding:5px;
+    font-size:18px;
+}
 
 .duo{
     display:grid;

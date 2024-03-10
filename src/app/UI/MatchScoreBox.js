@@ -1,5 +1,6 @@
 import styles from "./MatchScoreBox.module.css";
-import { getTeamColorClass } from "../api/generic";
+import { getTeamColorClass, getTeamIcon } from "../api/generic";
+import Image from "next/image";
 
 export default function MatchScoreBox({data}){
 
@@ -16,7 +17,8 @@ export default function MatchScoreBox({data}){
     for(let i = 0; i < data.total_teams; i++){
 
         scoreElems.push(<div key={i} className={getTeamColorClass(i)}>
-            {data[`team_score_${i}`]}
+            <Image src={`/images/${getTeamIcon(i)}`} alt="image" width={32} height={32} priority={true}/><br/>
+            <div className={styles.score}>{data[`team_score_${i}`]}</div>
         </div>);
     }
 

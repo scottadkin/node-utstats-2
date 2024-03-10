@@ -3,8 +3,11 @@ import Link from "next/link";
 import styles from "./MatchBox.module.css";
 import Image from "next/image";
 import MatchScoreBox from "./MatchScoreBox";
+import { convertTimestamp, toPlaytime } from "../../../api/generic.mjs";
 
 export default function MatchBox({data}){
+
+    console.log(data);
 
     return <Link href={`/match/${data.id}`}>
         <div className={styles.wrapper}>
@@ -17,10 +20,13 @@ export default function MatchBox({data}){
             <div className={styles.server}>
                 {data.serverName}
             </div>  
-            <img src={`/images/maps/thumbs/${data.mapImage}.jpg`} alt="image" />
+            <Image src={`/images/maps/thumbs/${data.mapImage}.jpg`} alt="image" width={360} height={202} />
             <div className={styles.info}>
-                Players 23<br/>
-                Date 1st January 1900
+                {data.players} Player{(data.players !== 1) ? "s" : ""}<br/>
+                {toPlaytime(data.playtime)}<br/>
+
+                {convertTimestamp(data.date, true)}
+
             </div>
             <MatchScoreBox data={data}/>
         </div>

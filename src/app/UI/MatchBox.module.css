@@ -36,5 +36,7 @@
 
 .info{
     font-size:14px;
-    line-height:18px;
+    line-height:20px;
+    padding:5px;
+    color:var(--font-color-2);
 }

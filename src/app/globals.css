@@ -7,8 +7,33 @@
 	--active-link-color:yellow;
 	--border-color-1:rgba(255,255,255,0.125);
 	--max-width-1:90%;
-	--red-2:rgba(89,0,0);
-	--yellow-2:rgba(95,95,0);
+	--team-color-none:rgb(0,0,0);
+	--team-color-red:rgb(89,0,0);
+	--team-color-blue:rgb(20,61,116);
+	--team-color-green:rgb(0,66,0);
+	--team-color-yellow:rgb(95,95,0);
+}
+
+.team-none{
+	background-color:var(--team-color-none);
+	
+}
+
+.team-red{
+	background-color:var(--team-color-red);
+}
+
+
+.team-blue{
+	background-color:var(--team-color-blue);
+}
+
+.team-green{
+	background-color:var(--team-color-green);
+}
+
+.team-yellow{
+	background-color:var(--team-color-yellow);
 }
 
 *{
@@ -28,10 +53,6 @@ body{
 	background-color:var(--bg-color-1);
   }
 
-header{ 
-min-height:50px;
-background:lightcyan; 
-}
 
 footer{ 
 	min-height:50px; 
@@ -50,24 +71,3 @@ a{
 }
 
 
-.team-none{
-	background-color:rgba(0,0,0, 0.25);
-	
-}
-
-.team-red{
-	background-color:var(--red-2);
-}
-
-
-.team-blue{
-	background-color:rgb(20,61,116);
-}
-
-.team-green{
-	background-color:rgba(0,66,0);
-}
-
-.team-yellow{
-	background-color:var(--yellow-2)
-}
