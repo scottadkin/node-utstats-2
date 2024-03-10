@@ -4,6 +4,18 @@ import Gametypes from "../../../api/gametypes";
 import Maps from "../../../api/maps";
 import { cleanMapName } from "../../../api/generic.mjs";
 
+async function getDMWinner(playerId){
+
+    const query = `SELECT name,country FROM nstats_player_totals WHERE id=?`;
+
+    const result = await mysql.simpleQuery(query, [playerId]);
+
+    if(result.length > 0){
+        return {"name": result[0].name, "country": result[0].country};
+    }
+
+    return null;
+}
 
 async function setMatchDetails(data){
 
@@ -37,16 +49,14 @@ async function setMatchDetails(data){
 
         const cleanName = cleanMapName(d.mapName).toLowerCase();
         d.mapImage = mapImages[cleanName] ?? "default";
-        console.log(`cleanName = ${cleanName}`);
-    }
-    
 
-   // return {serverNames, gametypeNames, mapNames, mapImages};
+        if(d.dm_winner !== 0){
+            d.dmWinner = await getDMWinner(d.dm_winner);
+        }
+    }  
 }
 
 export async function searchMatches(page, perPage, gametype, map, sortBy, order){
-
-
 
     if(page === undefined) throw new Error("Page is undefined");
     if(perPage === undefined) throw new Error("perPage is undefined");
@@ -62,15 +72,11 @@ export async function searchMatches(page, perPage, gametype, map, sortBy, order)
 
     const query = `SELECT * FROM nstats_matches ORDER BY date DESC LIMIT ?, ?`;
 
-
     let start = perPage * (page - 1);
-
-    console.log(start, perPage);
 
     const result = await mysql.simpleQuery(query, [start, perPage]);
 
     await setMatchDetails(result);
-
 
     return result;
 }

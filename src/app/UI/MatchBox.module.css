@@ -4,10 +4,10 @@
     background-color:var(--bg-color-2);
     border:1px solid var(--border-color-1);  
     width:360px;
-    max-width:90%;
     margin-right:5px;
     overflow:hidden;
     padding-top:5px;
+    
 
 }
 
@@ -19,12 +19,14 @@
 .map{
     font-size:18px;
     padding:5px;
-    max-width:95%;
-    margin-left:2.5%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap
 }
 
 .gametype{
     padding:5px;
+    font-size:14px;
 }
 
 .server{
@@ -36,7 +38,7 @@
 
 .info{
     font-size:14px;
-    line-height:20px;
+    line-height:22px;
     padding:5px;
     color:var(--font-color-2);
 }

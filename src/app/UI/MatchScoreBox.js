@@ -14,11 +14,20 @@ export default function MatchScoreBox({data}){
 
     const scoreElems = [];
 
-    for(let i = 0; i < data.total_teams; i++){
+    if(data.dmWinner == null){
 
-        scoreElems.push(<div key={i} className={getTeamColorClass(i)}>
-            <Image src={`/images/${getTeamIcon(i)}`} alt="image" width={32} height={32} priority={true}/><br/>
-            <div className={styles.score}>{data[`team_score_${i}`]}</div>
+        for(let i = 0; i < data.total_teams; i++){
+
+            scoreElems.push(<div key={i} className={getTeamColorClass(i)}>
+                <Image src={`/images/${getTeamIcon(i)}`} alt="image" width={32} height={32} priority={true}/><br/>
+                <div className={styles.score}>{data[`team_score_${i}`]}</div>
+            </div>);
+        }
+    }else{
+
+        scoreElems.push(<div key="-1">
+            <Image src={`/images/${getTeamIcon(255)}`} alt="image" width={32} height={32} priority={true}/><br/>
+            {data.dmWinner.name} Wins with {data.dm_score}
         </div>);
     }
 
