@@ -1,0 +1,22 @@
+.wrapper{
+    text-align: center;
+    margin-top:var(--margin-1);
+    margin-bottom:var(--margin-1);
+}
+
+.button{
+    display:inline-block;
+    padding:10px;
+    background-color:var(--bg-color-2);
+    margin-right:5px;
+    color:var(--font-color-1);
+    user-select: none;
+}
+
+.button:hover{
+    cursor: pointer;
+}
+
+.active{
+    color:yellow;
+}

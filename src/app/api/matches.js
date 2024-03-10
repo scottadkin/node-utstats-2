@@ -71,12 +71,16 @@ export async function searchMatches(page, perPage, gametype, map, sortBy, order)
     if(perPage < 5) perPage = 5;
 
     const query = `SELECT * FROM nstats_matches ORDER BY date DESC LIMIT ?, ?`;
+    const totalQuery = `SELECT COUNT(*) as total_matches FROM nstats_matches`;
 
     let start = perPage * (page - 1);
 
     const result = await mysql.simpleQuery(query, [start, perPage]);
+    //total possible matches that meet the search
+    const totalResult = await mysql.simpleQuery(totalQuery);
+
 
     await setMatchDetails(result);
 
-    return result;
+    return {"matches": result, "total": totalResult[0].total_matches};
 }

@@ -2,6 +2,7 @@ import {searchMatches} from "../api/matches";
 import Link from "next/link";
 import MatchList from "../UI/MatchList";
 import Header from "../UI/Header";
+import Pagination from "../UI/Pagination";
 
 
 
@@ -13,7 +14,7 @@ export default async function Page({params, searchParams}) {
     let page = searchParams?.page ?? 1;
 
     //const matches = await m.getRecent(page, perPage, 0, playerManager);
-    const matches = await searchMatches(page, perPage,0,0,"date","ASC");;
+    const {matches, total} = await searchMatches(page, perPage,0,0,"date","ASC");;
     //console.log(matches);
 
     return (
@@ -21,6 +22,7 @@ export default async function Page({params, searchParams}) {
         <div>
             <Header>Recent Matches</Header>
             <MatchList matches={matches} />
+            <Pagination url="/matches?page=" currentPage={page} results={total} perPage={perPage}/>
         </div>
       </main>
     );
