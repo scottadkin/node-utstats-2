@@ -1,6 +1,7 @@
 import {searchMatches} from "../api/matches";
 import Link from "next/link";
 import MatchList from "../UI/MatchList";
+import Header from "../UI/Header";
 
 
 
@@ -18,7 +19,7 @@ export default async function Page({params, searchParams}) {
     return (
       <main className={"styles.main"}>
         <div>
-            {perPage}, {page}
+            <Header>Recent Matches</Header>
             <MatchList matches={matches} />
         </div>
       </main>

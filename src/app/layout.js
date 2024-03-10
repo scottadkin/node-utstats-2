@@ -14,6 +14,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={inter.className}>
         <Nav params={{}}/>
+        <div className="padding-top"></div>
         {children}
         <footer>Horse Noise</footer>
       </body>
