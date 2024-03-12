@@ -2,6 +2,7 @@ import Image from "next/image";
 import {getData} from "@/app/api/match";
 import Header from "@/app/UI/Header";
 import MatchScoreBox from "@/app/UI/MatchScoreBox";
+import InteractiveTable from "@/app/UI/InteractiveTable";
 
 
 export async function generateMetadata({ params, searchParams }, parent) {
@@ -40,10 +41,27 @@ export default async function MatchPage({params, searchParams}) {
 
     console.log(matchData);
     //<MatchScoreBox data={matchData}/>
+
+	const headers = {
+		"id": {"title": "Player ID"},
+		"name": {"title": "Name"}
+	};
+
+	const playerRows = [];
+
+	for(const [playerId, playerName] of Object.entries(matchData.playerNames)){
+
+		playerRows.push({
+			"id": {"value": parseInt(playerId)},
+			"name": {"value": playerName.toLowerCase(), "displayValue": playerName}
+		});
+	}
+
     return (
         <main>
 			<Header>Match Report</Header> 
 			<MatchScoreBox data={matchData.basic}/>
+			<InteractiveTable headers={headers} rows={playerRows}/>
         </main>
     );
 }

@@ -14,8 +14,7 @@ export async function getPlayers(matchId){
         delete r.hwid;
         delete r.ip;
     }
-
-    
+   
     return result;
 }
 
