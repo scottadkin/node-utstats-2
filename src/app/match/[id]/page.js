@@ -1,7 +1,7 @@
 import Image from "next/image";
-import db from "../../../../api/database";
-import Match from "../../../../api/match";
-
+import {getData} from "@/app/api/match";
+import Header from "@/app/UI/Header";
+import MatchScoreBox from "@/app/UI/MatchScoreBox";
 
 
 export async function generateMetadata({ params, searchParams }, parent) {
@@ -24,23 +24,26 @@ export async function generateMetadata({ params, searchParams }, parent) {
         images: ['/some-specific-page-image.jpg'],
       },*/
     }
-  }
+}
+
+
    
 
 export default async function MatchPage({params, searchParams}) {
 
-    const match = new Match();
-    
+
 
     let matchId = params.id ?? -1;
 
 
-    const matchData = await match.get(matchId);
+    const matchData = await getData(matchId);
 
     console.log(matchData);
-    
+    //<MatchScoreBox data={matchData}/>
     return (
         <main>
+			<Header>Match Report</Header> 
+			<MatchScoreBox data={matchData.basic}/>
         </main>
     );
 }

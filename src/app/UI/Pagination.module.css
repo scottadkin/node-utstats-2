@@ -2,12 +2,14 @@
     text-align: center;
     margin-top:var(--margin-1);
     margin-bottom:var(--margin-1);
+    background-color: var(--bg-color-2);
+    padding-bottom:var(--padding-1);
 }
 
 .button{
     display:inline-block;
     padding:10px;
-    background-color:var(--bg-color-2);
+    background-color:var(--bg-color-3);
     border:1px solid var(--border-color-1);
     margin-right:5px;
     color:var(--font-color-1);
