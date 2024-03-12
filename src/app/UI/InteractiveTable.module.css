@@ -1,0 +1,21 @@
+.wrapper table{
+    border-collapse: collapse;
+    background-color:var(--bg-color-2);
+    color:var(--font-color-1);
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.wrapper th{
+    padding:var(--padding-1);
+}
+
+.wrapper th:hover{
+    cursor: pointer;
+    user-select: none;
+}
+
+.wrapper td{
+    padding:var(--padding-2);
+    border:1px solid var(--border-color-1);
+}

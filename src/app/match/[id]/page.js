@@ -59,9 +59,9 @@ export default async function MatchPage({params, searchParams}) {
 
     return (
         <main>
-			<Header>Match Report</Header> 
-			<MatchScoreBox data={matchData.basic}/>
-			<InteractiveTable headers={headers} rows={playerRows}/>
+          <Header>Match Report</Header> 
+          <MatchScoreBox data={matchData.basic}/>
+          <InteractiveTable headers={headers} rows={playerRows}/>
         </main>
     );
 }
