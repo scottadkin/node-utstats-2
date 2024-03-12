@@ -8,9 +8,11 @@
     display:inline-block;
     padding:10px;
     background-color:var(--bg-color-2);
+    border:1px solid var(--border-color-1);
     margin-right:5px;
     color:var(--font-color-1);
     user-select: none;
+    font-size:18px;
 }
 
 .button:hover{
@@ -18,5 +20,13 @@
 }
 
 .active{
-    color:yellow;
+    color:var(--active-font-color-1);
+    font-weight:bold;
+}
+
+.info{
+    font-size:var(--font-size-small);
+    color:var(--font-color-1);
+    padding:var(--padding-1);
+    line-height:22px;
 }
