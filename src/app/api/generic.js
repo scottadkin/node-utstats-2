@@ -22,3 +22,44 @@ export function getTeamIcon(value){
 
     return "controlpoint.png"
 }
+
+export function MMSS(timestamp){
+
+    let seconds = Math.floor(timestamp % 60);
+    let minutes = Math.floor(timestamp / 60);
+    let hours = Math.floor(minutes / 60);
+
+    if(seconds < 0) seconds = 0;
+    if(minutes < 0) minutes = 0;
+
+    if(seconds < 10){
+        seconds = `0${seconds}`;
+    }
+
+    if(minutes < 10){
+        minutes = `0${minutes}`;
+    }
+
+    if(hours < 1){
+        return `${minutes}:${seconds}`;
+    }else{
+
+        minutes = minutes % 60;
+        if(minutes < 10) minutes = `0${minutes}`;
+        
+        return `${hours}:${minutes}:${seconds}`;
+    }
+}
+
+
+export function ignore0(value){
+
+    const pValue = parseInt(value);
+
+    if(pValue !== pValue) return value;
+
+    if(pValue === 0) return "";
+
+    return value;
+    
+}

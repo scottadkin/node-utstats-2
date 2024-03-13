@@ -81,3 +81,7 @@ a{
 .padding-top{
 	height:50px;
 }
+
+.text-left{
+	text-align:left;
+}

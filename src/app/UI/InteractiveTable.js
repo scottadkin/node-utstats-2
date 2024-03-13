@@ -28,7 +28,9 @@ function createRows(headers, rows){
 
         for(const name of Object.keys(headers)){
 
-            columns.push(<td key={name}>
+            const currentClass = r[name]?.className ?? "";
+            
+            columns.push(<td key={name} className={currentClass}>
                 {r[name]?.displayValue ?? r[name]?.value}
             </td>);
             
@@ -56,8 +58,8 @@ function sortRows(rows, sortBy, order){
         a = a[sortBy].value;
         b = b[sortBy].value;
 
-        const result1 = (order === "ASC") ? 1 : -1;
-        const result2 = (order === "ASC") ? -1 : 1;
+        const result1 = (order === "ASC") ? -1 : 1;
+        const result2 = (order === "ASC") ? 1 : -1;
 
 
         if(a < b) return result1;
@@ -97,11 +99,11 @@ function reducer(state, action){
     return state;
 }
 
-export default function InteractiveTable({headers, rows}){
+export default function InteractiveTable({headers, rows, sortBy, order}){
 
     const [state, dispatch] = useReducer(reducer, {
-        "order": "DESC",
-        "sortBy": "name"
+        "order": (order !== undefined) ? order.toUpperCase() : "DESC",
+        "sortBy": (sortBy !== undefined) ? sortBy : Object.keys(headers)[0]
     });
 
     sortRows(rows, state.sortBy, state.order);

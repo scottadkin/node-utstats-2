@@ -1,13 +1,15 @@
 .wrapper table{
     border-collapse: collapse;
-    background-color:var(--bg-color-2);
     color:var(--font-color-1);
     margin-left:auto;
     margin-right:auto;
+    font-size:14px;
 }
 
 .wrapper th{
     padding:var(--padding-1);
+    color:yellow;
+    font-weight:normal;
 }
 
 .wrapper th:hover{
@@ -17,5 +19,11 @@
 
 .wrapper td{
     padding:var(--padding-2);
-    border:1px solid var(--border-color-1);
+}
+
+.wrapper tr:nth-child(even){
+    background-color:var(--bg-color-2);
+}
+.wrapper tr:nth-child(odd){
+    background-color:var(--bg-color-3);
 }

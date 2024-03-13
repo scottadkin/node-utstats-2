@@ -3,6 +3,8 @@ import {getData} from "@/app/api/match";
 import Header from "@/app/UI/Header";
 import MatchScoreBox from "@/app/UI/MatchScoreBox";
 import InteractiveTable from "@/app/UI/InteractiveTable";
+import { getTeamColorClass } from "../../api/generic";
+import FragTable from "@/app/UI/Match/FragTable";
 
 
 export async function generateMetadata({ params, searchParams }, parent) {
@@ -39,28 +41,33 @@ export default async function MatchPage({params, searchParams}) {
 
     const matchData = await getData(matchId);
 
-    console.log(matchData);
+    console.log(Object.keys(matchData));
     //<MatchScoreBox data={matchData}/>
 
-	const headers = {
-		"id": {"title": "Player ID"},
-		"name": {"title": "Name"}
-	};
+    const headers = {
+      "id": {"title": "Player ID"},
+      "name": {"title": "Name"}
+    };
 
-	const playerRows = [];
+    const playerRows = [];
 
-	for(const [playerId, playerName] of Object.entries(matchData.playerNames)){
+    for(const [playerId, playerName] of Object.entries(matchData.playerNames)){
 
 		playerRows.push({
-			"id": {"value": parseInt(playerId)},
-			"name": {"value": playerName.toLowerCase(), "displayValue": playerName}
+				"id": {"value": parseInt(playerId)},
+				"name": {
+				"value": playerName.toLowerCase(), 
+				"displayValue": playerName,
+				"className": getTeamColorClass(2)
+			}
 		});
-	}
+    }
 
     return (
         <main>
           <Header>Match Report</Header> 
           <MatchScoreBox data={matchData.basic}/>
+		  <FragTable data={matchData.playerData} playerNames={matchData.playerNames} totalTeams={matchData.basic.total_teams}/>
           <InteractiveTable headers={headers} rows={playerRows}/>
         </main>
     );
