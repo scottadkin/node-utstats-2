@@ -1,7 +1,7 @@
 "use client"
 import Header from "../Header";
 import InteractiveTable from "../InteractiveTable";
-import { getTeamColorClass, MMSS, ignore0 } from "@/app/api/generic";
+import { getTeamColorClass, MMSS, ignore0 } from "@/app/lib/generic";
 import styles from "./FragTable.module.css";
 
 export default function FragTable({data, playerNames, totalTeams}){

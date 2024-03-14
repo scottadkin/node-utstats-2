@@ -63,3 +63,12 @@ export function ignore0(value){
     return value;
     
 }
+
+export function generateRandomChar(){
+
+    const chars = `abcdefghijklmnopqrstuvwxyz0123456789!"$%^&*()_+-=:;@'~#[],.<>?/`;
+
+    const r = Math.floor(Math.random() * (chars.length - 1));
+
+    return chars[r];
+}

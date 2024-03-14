@@ -1,5 +1,5 @@
 import styles from "./MatchScoreBox.module.css";
-import { getTeamColorClass, getTeamIcon } from "../api/generic";
+import { getTeamColorClass, getTeamIcon } from "../lib/generic";
 import Image from "next/image";
 
 export default function MatchScoreBox({data}){

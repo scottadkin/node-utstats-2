@@ -1,6 +1,7 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Nav from "./UI/Nav";
+import { cookies } from "next/headers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -10,6 +11,8 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+
+  console.log(cookies().get("name"));
   return (
     <html lang="en">
       <body className={inter.className}>

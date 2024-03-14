@@ -1,9 +1,9 @@
 import Image from "next/image";
-import {getData} from "@/app/api/match";
+import {getData} from "@/app/lib/match";
 import Header from "@/app/UI/Header";
 import MatchScoreBox from "@/app/UI/MatchScoreBox";
 import InteractiveTable from "@/app/UI/InteractiveTable";
-import { getTeamColorClass } from "../../api/generic";
+import { getTeamColorClass } from "../../lib/generic";
 import FragTable from "@/app/UI/Match/FragTable";
 
 

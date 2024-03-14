@@ -1,4 +1,4 @@
-import {searchMatches} from "../api/matches";
+import {searchMatches} from "../lib/matches";
 import Link from "next/link";
 import MatchList from "../UI/MatchList";
 import Header from "../UI/Header";
