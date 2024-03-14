@@ -16,9 +16,14 @@
 	--team-color-green:rgb(0,66,0);
 	--team-color-yellow:rgb(95,95,0);
 	--margin-1:25px;
+	--margin-2:10px;
 	--font-size-small:12px;
 	--padding-1:10px;
 	--padding-2:5px;
+	--font-size-1:16px;
+	--font-size-2:18px;
+	--font-size-3:20px;
+	--transition-1:background-color 0.5s;
 }
 
 .team-none{
@@ -84,4 +89,46 @@ a{
 
 .text-left{
 	text-align:left;
+}
+
+label{
+	text-align:right;
+	padding-right:var(--padding-1);
+	color:var(--font-color-1);
+}
+
+form{
+	text-align: center;
+}
+
+.form-row{
+	display:grid;
+	grid-template-columns: 50% 50%;
+	max-width:1000px;
+	margin-left:auto;
+	margin-right:auto;
+	font-size:20px;
+	margin-bottom:var(--margin-2);
+}
+
+.textbox{
+	font-size:22px;
+	background-color:var(--bg-color-3);
+	border:1px solid var(--border-color-1);
+	color:var(--font-color-1);
+	padding:3px;
+}
+
+.submit-button{
+	background-color: var(--bg-color-2);
+	padding:var(--padding-1);
+	color:var(--font-color-1);
+	border:1px solid var(--border-color-1);
+	font-size:var(--font-size-3);
+	transition:var(--transition-1)
+}
+
+.submit-button:hover{
+	background-color: var(--bg-color-4);
+	cursor: pointer;
 }

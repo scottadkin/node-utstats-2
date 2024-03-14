@@ -9,14 +9,29 @@ export default function Nav({params}){
     const pathname = usePathname().toLowerCase();
 
     const options = [
-        {"name": "Home", "url": "/", "bExactMatchesOnly": true,"matches": [
-            "/"
-        ]},
-        {"name": "Matches", "url": "/matches", "matches": [
-            "/match/",
-            "/matches"
-
-        ]},
+        {
+            "name": "Home", 
+            "url": "/", 
+            "bExactMatchesOnly": true,
+            "matches": ["/"]},
+        {
+            "name": "Matches", 
+            "url": "/matches", 
+            "matches": [
+                "/match/",
+                "/matches"
+            ]
+        },
+        {
+            "name": "Login",
+            "url": "/login",
+            "matches": ["/login"]
+        },
+        {
+            "name": "Register",
+            "url": "/register",
+            "matches": ["/register"]
+        }
     ];
 
     const elems = [];
