@@ -5,6 +5,56 @@ import mysql from "../../../api/database";
 import { cookies } from 'next/headers';
 
 
+async function bAccountActive(id){
+
+    const query = `SELECT activated FROM nstats_users WHERE id=?`;
+
+    const result = await mysql.simpleQuery(query, [id]);
+
+    if(result.length === 0) throw new Error(`There is no user with the account id of ${id}`);
+
+    if(result[0].activated === 1) return true;
+
+    return false;
+}
+
+async function bAccountBanned(id){
+
+    const query = `SELECT banned FROM nstats_users WHERE id=?`;
+
+    const result = await mysql.simpleQuery(query, [id]);
+
+    if(result.length === 0) throw new Error(`There is no user with the account id of ${id}`);
+
+    if(result[0].banned === 1) return true;
+
+    return false;
+}
+
+async function bAccountAdmin(id){
+
+    const query = `SELECT admin FROM nstats_users WHERE id=?`;
+
+    const result = await mysql.simpleQuery(query, [id]);
+
+    if(result.length === 0) throw new Error(`There is no user with the account id of ${id}`);
+
+    if(result[0].admin === 1) return true;
+
+    return false;
+}
+
+
+async function getAccountPermissions(id){
+
+    const query = `SELECT activated,admin,banned,upload_images FROM nstats_users WHERE id=?`;
+
+    const result = await mysql.simpleQuery(query, [id]);
+
+    if(result.length > 0) return result[0];
+
+    throw new Error(`There is no user with the account id of ${id}`);
+}
 
 export async function register(currentState, formData){
 
@@ -17,6 +67,7 @@ export async function register(currentState, formData){
         console.trace(err);
     }
 }
+
 
 export async function login(currentState, formData){
 
@@ -35,14 +86,18 @@ export async function login(currentState, formData){
         if(password === null || password === "") throw new Error("No password entered");
 
         password = sha256(`${salt()}${password}`);
-        const query = `SELECT COUNT(*) as total_users FROM nstats_users WHERE name=? AND password=?`;
+        const query = `SELECT id FROM nstats_users WHERE name=? AND password=?`;
 
         const result = await mysql.simpleQuery(query, [username, password]);
-        console.log(result[0].total_users === 0);
-        if(result[0].total_users === 0) throw new Error("Incorrect username or password");
+    
+        if(result.length === 0) throw new Error("Incorrect username or password");
 
         const cookieStore = cookies();
-        //console.log(cookieStore.getAll());
+
+        const permissions = await getAccountPermissions(result[0].id);
+
+        if(permissions.banned === 1) throw new Error("User account has been banned.");
+        if(permissions.activated === 0) throw new Error("User account has not been activated.");
 
         const expires = new Date(Date.now() + 60 * 1000);
 
@@ -51,7 +106,7 @@ export async function login(currentState, formData){
         cookies().set("name",Math.random(),{expires, "httpOnly": true, "path": "/"});
         return {"message": "ok", "error": null};
     }catch(err){
-        console.trace(err);
+        //console.trace(err);
         return {"error": err.toString(), "message": null};
     }
 }
