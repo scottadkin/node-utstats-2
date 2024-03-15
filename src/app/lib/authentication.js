@@ -3,6 +3,7 @@ import { sha256 } from 'js-sha256';
 import salt from "../../../salt";
 import mysql from "../../../api/database";
 import { cookies } from 'next/headers';
+import { createRandomString } from "./generic";
 
 
 async function bAccountActive(id){
@@ -45,9 +46,31 @@ async function bAccountAdmin(id){
 }
 
 
+
+async function createSession(userId, hash, expires){
+
+    const query = `INSERT INTO nstats_sessions VALUES(NULL,?,?,?,?,?,?)`;
+
+    expires = Math.floor(expires * 0.001);
+    const now = Math.floor(Date.now() * 0.001);
+    await mysql.simpleQuery(query, [now, userId, hash, now, expires, "0.0.0.0"]);
+}
+
+async function bUserLoggedIn(userId){
+
+}
+
+async function updateSessionExpires(hash, expires){
+
+}
+
+async function deleteSession(){
+
+}
+
 async function getAccountPermissions(id){
 
-    const query = `SELECT activated,admin,banned,upload_images FROM nstats_users WHERE id=?`;
+    const query = `SELECT name,activated,admin,banned,upload_images FROM nstats_users WHERE id=?`;
 
     const result = await mysql.simpleQuery(query, [id]);
 
@@ -94,7 +117,9 @@ export async function login(currentState, formData){
 
         const cookieStore = cookies();
 
-        const permissions = await getAccountPermissions(result[0].id);
+        const userId = result[0].id;
+
+        const permissions = await getAccountPermissions(userId);
 
         if(permissions.banned === 1) throw new Error("User account has been banned.");
         if(permissions.activated === 0) throw new Error("User account has not been activated.");
@@ -103,7 +128,17 @@ export async function login(currentState, formData){
 
         console.log(username, password);
 
-        cookies().set("name",Math.random(),{expires, "httpOnly": true, "path": "/"});
+        const part1 = createRandomString(100);
+        const part2 = createRandomString(100);
+        const sid = sha256(`${part1}${part2}`);
+
+        console.log(`sid = ${sid}`);
+
+        await createSession(userId, sid, expires);
+
+        cookies().set("nstats_name", permissions.name,{expires, "httpOnly": true, "path": "/"});
+        cookies().set("nstats_userid", userId,{expires, "httpOnly": true, "path": "/"});
+        cookies().set("nstats_sid", sid,{expires, "httpOnly": true, "path": "/"});
         return {"message": "ok", "error": null};
     }catch(err){
         //console.trace(err);

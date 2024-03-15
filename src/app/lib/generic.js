@@ -72,3 +72,18 @@ export function generateRandomChar(){
 
     return chars[r];
 }
+
+export function createRandomString(targetLength){
+
+    let result = "";
+
+    if(targetLength === undefined) targetLength = 1;
+    if(targetLength < 1) targetLength = 1;
+
+    for(let i = 0; i < targetLength; i++){
+
+        result += generateRandomChar();
+    }
+
+    return result;
+}
