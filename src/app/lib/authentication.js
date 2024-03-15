@@ -6,7 +6,7 @@ import { cookies } from 'next/headers';
 
 
 
-export async function register(formData){
+export async function register(currentState, formData){
 
     try{
 
@@ -18,7 +18,7 @@ export async function register(formData){
     }
 }
 
-export async function login(formData){
+export async function login(currentState, formData){
 
     try{
 
@@ -35,9 +35,11 @@ export async function login(formData){
         if(password === null || password === "") throw new Error("No password entered");
 
         password = sha256(`${salt()}${password}`);
-        const query = `SELECT COUNT(*) FROM nstats_users WHERE name=? AND password=?`;
+        const query = `SELECT COUNT(*) as total_users FROM nstats_users WHERE name=? AND password=?`;
 
-        console.log(await mysql.simpleQuery(query, ["ooper", password]));
+        const result = await mysql.simpleQuery(query, [username, password]);
+        console.log(result[0].total_users === 0);
+        if(result[0].total_users === 0) throw new Error("Incorrect username or password");
 
         const cookieStore = cookies();
         //console.log(cookieStore.getAll());
@@ -47,9 +49,9 @@ export async function login(formData){
         console.log(username, password);
 
         cookies().set("name",Math.random(),{expires, "httpOnly": true, "path": "/"});
-        return "";
+        return {"message": "ok", "error": null};
     }catch(err){
         console.trace(err);
-        return err.toString();
+        return {"error": err.toString(), "message": null};
     }
 }

@@ -1,0 +1,16 @@
+.wrapper{
+    background-color:var(--team-color-red);
+    color:var(--font-color-1);
+}
+
+.title{
+    padding:var(--padding-1);
+    text-align:center;
+    font-weight:500;
+    font-size:var(--font-size-2);
+}
+
+.content{
+    text-align:center;
+    padding:var(--padding-1);
+}

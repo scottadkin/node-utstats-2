@@ -1,12 +1,22 @@
 
+"use client"
 import { login } from "../lib/authentication";
 import Header from "../UI/Header";
+import {useFormState} from "react-dom";
+import ErrorBox from "../UI/ErrorBox";
+import MessageBox from "../UI/MessageBox";
+
 
 export default function Login(){
 
+    const [state, formAction] = useFormState(login, {
+        "message": null,
+        "error": null
+    });
+
     return <div>
         <Header>Login</Header>
-        <form action={login}>
+        <form action={formAction}>
             <div className="form-row">
                 <label htmlFor="username">Username</label>
                 <input type="text" className="textbox" name="username" placeholder="Username..."/>
@@ -17,5 +27,7 @@ export default function Login(){
             </div>
             <input type="submit" className="submit-button" value="Login"/>
         </form>
+        {(state.message !== null) ? <MessageBox title="Test">{state.message}</MessageBox> : null}
+        {(state.error !== null) ? <ErrorBox title="Failed to Login">{state.error}</ErrorBox> : null}
     </div>
 }
