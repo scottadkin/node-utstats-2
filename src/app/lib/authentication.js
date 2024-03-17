@@ -124,7 +124,7 @@ export async function login(currentState, formData){
         if(permissions.banned === 1) throw new Error("User account has been banned.");
         if(permissions.activated === 0) throw new Error("User account has not been activated.");
 
-        const expires = new Date(Date.now() + 60 * 1000);
+        const expires = new Date(Date.now() + 1 * 1000);
 
         console.log(username, password);
 

@@ -12,15 +12,18 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
 
-  console.log(cookies().get("name"));
-  return (
-    <html lang="en">
-      <body className={inter.className}>
-        <Nav params={{}}/>
-        <div className="padding-top"></div>
-        {children}
-        <footer>Horse Noise</footer>
-      </body>
-    </html>
-  );
+	const cookieStore = cookies();
+
+	const username = cookieStore.get("nstats_name")?.value ?? null;
+	
+	return (
+		<html lang="en">
+		<body className={inter.className}>
+			<Nav username={username}/>
+			<div className="padding-top"></div>
+			{children}
+			<footer>Horse Noise</footer>
+		</body>
+		</html>
+	);
 }

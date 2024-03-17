@@ -3,8 +3,7 @@ import styles from "./Nav.module.css";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
-
-export default function Nav({params}){
+export default function Nav({username}){
 
     const pathname = usePathname().toLowerCase();
 
@@ -21,18 +20,30 @@ export default function Nav({params}){
                 "/match/",
                 "/matches"
             ]
-        },
-        {
+        }
+    ];
+
+    if(username === null){
+
+        options.push({
             "name": "Login",
             "url": "/login",
             "matches": ["/login"]
-        },
-        {
+        });
+
+        options.push({
             "name": "Register",
             "url": "/register",
             "matches": ["/register"]
-        }
-    ];
+        });
+    }else{
+
+        options.push({
+            "name": `Logout ${username}`,
+            "url": "/logout",
+            "matches": ["/logout"]
+        });
+    }
 
     const elems = [];
 
