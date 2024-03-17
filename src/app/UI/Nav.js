@@ -1,10 +1,12 @@
 "use client"
 import styles from "./Nav.module.css";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import { logout } from "../lib/authentication";
 
 export default function Nav({username}){
 
+    const router = useRouter();
     const pathname = usePathname().toLowerCase();
 
     const options = [
@@ -36,12 +38,23 @@ export default function Nav({username}){
             "url": "/register",
             "matches": ["/register"]
         });
+
     }else{
 
         options.push({
             "name": `Logout ${username}`,
             "url": "/logout",
-            "matches": ["/logout"]
+            "matches": ["/logout"],
+            "onClick": async () =>{
+                const a = await logout();
+    
+                
+                console.log(a);
+    
+                
+                router.push("/");
+                router.refresh();
+            }
         });
     }
 
@@ -77,7 +90,9 @@ export default function Nav({username}){
         
         const className = (bActive) ? styles.active : "";
 
-        const elem = <Link href={o.url} key={i} className={className}>{o.name}</Link>;
+        const elem = <Link href={o.url} key={i} className={className} onClick={(o.onClick !== undefined) ? o.onClick : null}>
+            {o.name}
+        </Link>;
 
         elems.push(elem);
     }

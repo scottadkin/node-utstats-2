@@ -4,6 +4,7 @@ import salt from "../../../salt";
 import mysql from "../../../api/database";
 import { cookies } from 'next/headers';
 import { createRandomString } from "./generic";
+import { redirect } from 'next/navigation'
 
 
 async function bAccountActive(id){
@@ -124,7 +125,7 @@ export async function login(currentState, formData){
         if(permissions.banned === 1) throw new Error("User account has been banned.");
         if(permissions.activated === 0) throw new Error("User account has not been activated.");
 
-        const expires = new Date(Date.now() + 1 * 1000);
+        const expires = new Date(Date.now() + 60 * 60 * 1000);
 
         console.log(username, password);
 
@@ -144,4 +145,22 @@ export async function login(currentState, formData){
         //console.trace(err);
         return {"error": err.toString(), "message": null};
     }
+}
+
+export async function logout(){
+
+    try{
+        const cookieStore = cookies();
+
+        console.log(cookieStore.getAll());
+
+        cookieStore.delete("nstats_name");
+        cookieStore.delete("nstats_sid");
+        cookieStore.delete("nstats_userid");
+
+        return {"message": "done"};
+    }catch(err){
+        console.trace(err);
+    }
+
 }
