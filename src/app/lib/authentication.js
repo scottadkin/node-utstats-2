@@ -5,6 +5,7 @@ import mysql from "../../../api/database";
 import { cookies } from 'next/headers';
 import { createRandomString } from "./generic";
 import { redirect } from 'next/navigation'
+import { NextResponse } from 'next/server';
 
 
 async function bAccountActive(id){
@@ -159,6 +160,50 @@ export async function logout(){
         cookieStore.delete("nstats_userid");
 
         return {"message": "done"};
+    }catch(err){
+        console.trace(err);
+    }
+}
+
+export async function updateSession(nextRequest){
+
+    try{
+
+        const sId = nextRequest.cookies.get("nstats_sid");
+
+        if(sId === undefined) return;
+
+        const userId = nextRequest.cookies.get("nstats_userid");
+        const userName = nextRequest.cookies.get("nstats_name");
+
+        
+        const expires = new Date(Date.now() + 60 * 60 * 1000);
+
+        const res = NextResponse.next();
+
+        res.cookies.set({
+            "name": "nstats_name",
+            "value": userName.value,
+            "httpOnly": true,
+            "expires": expires
+        });
+
+        res.cookies.set({
+            "name": "nstats_userid",
+            "value": userId.value,
+            "httpOnly": true,
+            "expires": expires
+        });
+
+        res.cookies.set({
+            "name": "nstats_sid",
+            "value": sId.value,
+            "httpOnly": true,
+            "expires": expires
+       });
+
+       return res;
+
     }catch(err){
         console.trace(err);
     }
