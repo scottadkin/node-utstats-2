@@ -9,7 +9,7 @@ export async function getPlayers(matchId){
 
     for(let i = 0; i < result.length; i++){
 
-        const r =result[i];
+        const r = result[i];
 
         delete r.hwid;
         delete r.ip;

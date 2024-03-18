@@ -5,7 +5,8 @@ import Header from "../UI/Header";
 import {useFormState} from "react-dom";
 import ErrorBox from "../UI/ErrorBox";
 import MessageBox from "../UI/MessageBox";
-
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Login(){
 
@@ -13,6 +14,16 @@ export default function Login(){
         "message": null,
         "error": null
     });
+
+    const router = useRouter();
+
+    useEffect(() =>{
+     
+        if(state.message === "ok"){
+            router.push("/");
+        }
+        
+    },[state.message, router]);
 
     return <div>
         <Header>Login</Header>

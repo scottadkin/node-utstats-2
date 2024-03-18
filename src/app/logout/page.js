@@ -1,6 +1,6 @@
 "use client"
 import { logout } from "../lib/authentication";
-import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation";
 
 
 
