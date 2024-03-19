@@ -63,19 +63,22 @@ async function bAccountAdmin(id){
 
 async function createSession(userId, hash, expires){
 
-    const query = `INSERT INTO nstats_sessions VALUES(NULL,?,?,?,?,?,?)`;
+    const query = `INSERT INTO nstats_sessions VALUES(NULL,?,?,?,?)`;
 
     expires = Math.floor(expires * 0.001);
     const now = Math.floor(Date.now() * 0.001);
-    await mysql.simpleQuery(query, [now, userId, hash, now, expires, "0.0.0.0"]);
+    await mysql.simpleQuery(query, [now, userId, hash, "0.0.0.0"]);
 }
 
 async function bUserLoggedIn(userId){
 
 }
 
-async function deleteSession(){
+async function deleteSession(userId, sId){
 
+    const query = `DELETE FROM nstats_sessions WHERE user=? AND hash=?`;
+
+    return await mysql.simpleQuery(query, [userId, sId]);
 }
 
 async function getAccountPermissions(id){
@@ -176,8 +179,6 @@ async function bSessionValid(userId, sessionId){
     if(result.length > 0){
 
         const r = result[0].total_sessions;
-
-        console.log(`r = ${r}`);
         return r > 0;
     }
 
@@ -208,11 +209,14 @@ export async function updateSession(){
 
         if(!await bSessionValid(userId.value, sId.value)){
 
+            await deleteSession(userId.value, sId.value);
             cookieStore.delete("nstats_name");
             cookieStore.delete("nstats_userid");
             cookieStore.delete("nstats_sid");
             
-            throw new Error("Not a valid session");   
+            
+            return;
+            //throw new Error("Not a valid session");   
         }
 
         const expires = new Date(Date.now() + 60 * 60 * 1000);
