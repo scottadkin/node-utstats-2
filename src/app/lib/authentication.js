@@ -151,11 +151,11 @@ export async function logout(){
         
         const cookieStore = cookies();
 
-        const userId = cookieStore.get("nstats_userid");
-        const sessionId = cookieStore.get("nstats_sid");
+       // ..const userId = cookieStore.get("nstats_userid");
+       // ,,const sessionId = cookieStore.get("nstats_sid");
 
-        if(userId === undefined) throw new Error("UserId is undefined");
-        if(sessionId === undefined) throw new Error("sessionId is undefined");
+        //if(userId === undefined) throw new Error("UserId is undefined");
+        //if(sessionId === undefined) throw new Error("sessionId is undefined");
 
         cookieStore.delete("nstats_name");
         cookieStore.delete("nstats_sid");
@@ -201,7 +201,7 @@ export async function updateSession(){
 
         const sId = cookieStore.get("nstats_sid");
 
-        if(sId === undefined) return;
+        if(sId === undefined) return null;
 
         const userId = cookieStore.get("nstats_userid");
         //const userName = cookieStore.get("nstats_name");
@@ -227,6 +227,7 @@ export async function updateSession(){
        await updateSessionExpires(userId.value, sId.value, expires);
 
        //return res;
+       return userName;
 
     }catch(err){
         console.trace(err);

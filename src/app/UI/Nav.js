@@ -5,30 +5,8 @@ import Link from "next/link";
 import { logout } from "../lib/authentication";
 import { useEffect } from "react";
 
-async function sessionTest(){
-
-    try{
-
-        const req = await fetch("/api/session", {
-            "headers": {"Content-type": "application/json"},
-            "method": "POST",
-            "body": JSON.stringify({"a": "avavava"})
-        });
-
-        const res = await req.json();
-
-        console.log(res);
-    }catch(err){
-
-        console.trace(err);
-    }
-}
 
 export default function Nav({username}){
-
-    useEffect(() =>{
-        sessionTest();
-    },[]);
 
     const router = useRouter();
     const pathname = usePathname().toLowerCase();
@@ -67,8 +45,8 @@ export default function Nav({username}){
 
         options.push({
             "name": `Logout ${username}`,
-            "url": "/logout",
-            "matches": ["/logout"],
+            "url": "#",
+            "matches": ["#"],
             "onClick": async () =>{
                 const a = await logout();
     
