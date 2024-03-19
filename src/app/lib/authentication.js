@@ -7,6 +7,18 @@ import { createRandomString } from "./generic";
 import { redirect } from 'next/navigation'
 import { NextResponse } from 'next/server';
 
+async function getUserName(id){
+
+    const query = `SELECT name FROM nstats_users WHERE id=?`;
+
+    const result = await mysql.simpleQuery(query, [id])
+
+    if(result.length > 0){
+        return result[0].name;
+    }
+
+    return "Not Found";
+}
 
 async function bAccountActive(id){
 
@@ -62,10 +74,6 @@ async function bUserLoggedIn(userId){
 
 }
 
-async function updateSessionExpires(hash, expires){
-
-}
-
 async function deleteSession(){
 
 }
@@ -98,12 +106,6 @@ export async function login(currentState, formData){
 
     try{
 
-        console.log("test");
-        console.log(formData);
-
-        //console.log(sha256("test"));
-        //console.log(salt());
-
         const username = formData.get("username");
         let password = formData.get("password");
 
@@ -117,8 +119,6 @@ export async function login(currentState, formData){
     
         if(result.length === 0) throw new Error("Incorrect username or password");
 
-        const cookieStore = cookies();
-
         const userId = result[0].id;
 
         const permissions = await getAccountPermissions(userId);
@@ -128,13 +128,9 @@ export async function login(currentState, formData){
 
         const expires = new Date(Date.now() + 60 * 60 * 1000);
 
-        console.log(username, password);
-
         const part1 = createRandomString(100);
         const part2 = createRandomString(100);
         const sid = sha256(`${part1}${part2}`);
-
-        console.log(`sid = ${sid}`);
 
         await createSession(userId, sid, expires);
 
@@ -151,9 +147,15 @@ export async function login(currentState, formData){
 export async function logout(){
 
     try{
+
+        
         const cookieStore = cookies();
 
-        console.log(cookieStore.getAll());
+        const userId = cookieStore.get("nstats_userid");
+        const sessionId = cookieStore.get("nstats_sid");
+
+        if(userId === undefined) throw new Error("UserId is undefined");
+        if(sessionId === undefined) throw new Error("sessionId is undefined");
 
         cookieStore.delete("nstats_name");
         cookieStore.delete("nstats_sid");
@@ -165,44 +167,66 @@ export async function logout(){
     }
 }
 
-export async function updateSession(nextRequest){
+async function bSessionValid(userId, sessionId){
+
+    const query = `SELECT COUNT(*) as total_sessions FROM nstats_sessions WHERE user=? AND hash=?`;
+
+    const result = await mysql.simpleQuery(query, [userId, sessionId]);
+
+    if(result.length > 0){
+
+        const r = result[0].total_sessions;
+
+        console.log(`r = ${r}`);
+        return r > 0;
+    }
+
+    return false;
+}
+
+async function updateSessionExpires(userId, sessionId, expires){
+
+    const query = `UPDATE nstats_sessions SET expires=? WHERE user=? AND hash=?`;
+
+    expires = Math.floor(expires * 0.001);
+
+    await mysql.simpleQuery(query, [expires, userId, sessionId]);
+}
+
+export async function updateSession(){
 
     try{
 
-        const sId = nextRequest.cookies.get("nstats_sid");
+        const cookieStore = cookies();
+
+        const sId = cookieStore.get("nstats_sid");
 
         if(sId === undefined) return;
 
-        const userId = nextRequest.cookies.get("nstats_userid");
-        const userName = nextRequest.cookies.get("nstats_name");
+        const userId = cookieStore.get("nstats_userid");
+        //const userName = cookieStore.get("nstats_name");
 
-        
+        if(!await bSessionValid(userId.value, sId.value)){
+
+            cookieStore.delete("nstats_name");
+            cookieStore.delete("nstats_userid");
+            cookieStore.delete("nstats_sid");
+            
+            throw new Error("Not a valid session");   
+        }
+
         const expires = new Date(Date.now() + 60 * 60 * 1000);
 
-        const res = NextResponse.next();
+        const userName = await getUserName(userId.value);
 
-        res.cookies.set({
-            "name": "nstats_name",
-            "value": userName.value,
-            "httpOnly": true,
-            "expires": expires
-        });
 
-        res.cookies.set({
-            "name": "nstats_userid",
-            "value": userId.value,
-            "httpOnly": true,
-            "expires": expires
-        });
+       cookieStore.set("nstats_name", userName, {expires, "httpOnly": true, "path": "/"});
+       cookieStore.set("nstats_userid", userId.value, {expires, "httpOnly": true, "path": "/"});
+       cookieStore.set("nstats_sid", sId.value, {expires, "httpOnly": true, "path": "/"});
 
-        res.cookies.set({
-            "name": "nstats_sid",
-            "value": sId.value,
-            "httpOnly": true,
-            "expires": expires
-       });
+       await updateSessionExpires(userId.value, sId.value, expires);
 
-       return res;
+       //return res;
 
     }catch(err){
         console.trace(err);

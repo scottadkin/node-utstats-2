@@ -15,6 +15,7 @@ export default async function RootLayout({ children }) {
 	const cookieStore = cookies();
 
 	const username = cookieStore.get("nstats_name")?.value ?? null;
+
 	
 	return (
 		<html lang="en">
