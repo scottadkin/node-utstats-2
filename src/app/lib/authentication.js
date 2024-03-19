@@ -92,15 +92,65 @@ async function getAccountPermissions(id){
     throw new Error(`There is no user with the account id of ${id}`);
 }
 
+async function bNameTaken(username){
+
+    const query = `SELECT COUNT(*) as total_users FROM nstats_users WHERE name=?`;
+
+    const result = await mysql.simpleQuery(query, [username]);
+
+    if(result[0].total_users > 0) return true;
+
+    return false;
+}
+
+async function createAccount(username, password){
+
+    const now = Math.floor(Date.now() * 0.001);
+
+    const query = `INSERT INTO nstats_users VALUES(NULL, ?,?,?,0,0,0,0,0,"",0,0)`;
+
+    await mysql.simpleQuery(query, [username, password, now]);
+
+}
+
 export async function register(currentState, formData){
 
     try{
+        //TODO: automatically set the account to activated and admin if it's the only account in the database
 
-        console.log("register");
-        console.log(formData);
+        const minNameLength = 1;
+        const minPassLength = 6;
+
+        const username = formData.get("username");
+        const pass1 = formData.get("password");
+        const pass2 = formData.get("password2");
+
+        if(username.length < minNameLength){
+            throw new Error(`Username must be at least ${minNameLength} characters long.`);
+        }
+
+        if(await bNameTaken(username)){
+            throw new Error(`Username has already been taken, please choose another one.`);
+        }
+
+        if(pass1 !== pass2){
+            throw new Error("The passwords you have entered do not match.");
+        }
+
+        if(pass1.length < minPassLength){
+            throw new Error(`Your password must be at least ${minPassLength} characters long.`);
+        }
+
+        const passHash = sha256(pass1);
+
+        await createAccount(username, passHash);
+
+        return {"message": "Account created, you may have to wait for an admin to activate your account before you can login.", "error": null};
 
     }catch(err){
         console.trace(err);
+
+        return {"message": null, "error": err.toString()};
     }
 }
 
@@ -187,7 +237,7 @@ async function bSessionValid(userId, sessionId){
 
 async function updateSessionExpires(userId, sessionId, expires){
 
-    const query = `UPDATE nstats_sessions SET expires=? WHERE user=? AND hash=?`;
+    const query = `UPDATE nstats_sessions SET date=? WHERE user=? AND hash=?`;
 
     expires = Math.floor(expires * 0.001);
 
