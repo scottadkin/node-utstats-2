@@ -23,6 +23,13 @@ export default function Nav({username}){
                 "/match/",
                 "/matches"
             ]
+        },
+        {
+            "name": "Admin",
+            "url": "/admin",
+            "matches": [
+                "/admin"
+            ]
         }
     ];
 

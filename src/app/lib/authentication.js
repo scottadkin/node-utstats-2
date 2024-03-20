@@ -46,17 +46,25 @@ async function bAccountBanned(id){
     return false;
 }
 
-async function bAccountAdmin(id){
+export async function bAccountAdmin(id){
 
-    const query = `SELECT admin FROM nstats_users WHERE id=?`;
+    try{
+        const query = `SELECT admin FROM nstats_users WHERE id=?`;
 
-    const result = await mysql.simpleQuery(query, [id]);
+        const result = await mysql.simpleQuery(query, [id]);
 
-    if(result.length === 0) throw new Error(`There is no user with the account id of ${id}`);
+        if(result.length === 0) throw new Error(`There is no user with the account id of ${id}`);
 
-    if(result[0].admin === 1) return true;
+        if(result[0].admin === 1) return true;
 
-    return false;
+        return false;
+
+    }catch(err){
+
+        console.trace(err);
+
+        return false;
+    }
 }
 
 
@@ -243,7 +251,7 @@ export async function logout(){
     }
 }
 
-async function bSessionValid(userId, sessionId){
+export async function bSessionValid(userId, sessionId){
 
     const query = `SELECT COUNT(*) as total_sessions FROM nstats_sessions WHERE user=? AND hash=?`;
 
