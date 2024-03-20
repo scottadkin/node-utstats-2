@@ -17,7 +17,7 @@ export default function RegisterPage(){
         <form action={formAction}>
             <div className="form-row">
                 <label htmlFor="username">Username</label>
-                <input type="text" className="textbox" name="username" placeholder="Username..."/>
+                <input type="text" className="textbox" name="username" placeholder="Username..." maxLength={20}/>
             </div>
             <div className="form-row">
                 <label htmlFor="password">Password</label>

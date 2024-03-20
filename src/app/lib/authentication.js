@@ -17,7 +17,7 @@ async function getUserName(id){
         return result[0].name;
     }
 
-    return "Not Found";
+    return null;
 }
 
 async function bAccountActive(id){
@@ -107,16 +107,39 @@ async function createAccount(username, password){
 
     const now = Math.floor(Date.now() * 0.001);
 
-    const query = `INSERT INTO nstats_users VALUES(NULL, ?,?,?,0,0,0,0,0,"",0,0)`;
+    let bAdmin = 1;
+    let bActive = 0;
 
-    await mysql.simpleQuery(query, [username, password, now]);
+    const bAnyUsers = await bAnyAccounts();
 
+    if(!bAnyUsers){
+        bAdmin = 1;
+        bActive = 1;
+    }
+
+    const query = `INSERT INTO nstats_users VALUES(NULL, ?,?,?,?,0,?,0,0,"",0,0)`;
+
+    await mysql.simpleQuery(query, [username, password, now, bActive, bAdmin]);
+
+}
+
+async function bAnyAccounts(){
+
+    const query = `SELECT COUNT(*) as total_users FROM nstats_users`;
+
+    const result = await mysql.simpleQuery(query);
+
+    if(result.length > 0){
+
+        return result[0].total_users > 1;
+    }
+
+    return 99999;
 }
 
 export async function register(currentState, formData){
 
     try{
-        //TODO: automatically set the account to activated and admin if it's the only account in the database
 
         const minNameLength = 1;
         const minPassLength = 6;
@@ -141,7 +164,7 @@ export async function register(currentState, formData){
             throw new Error(`Your password must be at least ${minPassLength} characters long.`);
         }
 
-        const passHash = sha256(pass1);
+        const passHash = sha256(`${salt()}${pass1}`);
 
         await createAccount(username, passHash);
 
@@ -273,6 +296,10 @@ export async function updateSession(){
 
         const userName = await getUserName(userId.value);
 
+        if(userName === null){
+            throw new Error("There is no user account with that id");
+        }
+
 
        cookieStore.set("nstats_name", userName, {expires, "httpOnly": true, "path": "/"});
        cookieStore.set("nstats_userid", userId.value, {expires, "httpOnly": true, "path": "/"});
@@ -285,5 +312,6 @@ export async function updateSession(){
 
     }catch(err){
         console.trace(err);
+        return null;
     }
 }

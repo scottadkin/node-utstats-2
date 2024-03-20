@@ -3,7 +3,6 @@ import styles from "./Nav.module.css";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { logout } from "../lib/authentication";
-import { useEffect } from "react";
 
 
 export default function Nav({username}){
