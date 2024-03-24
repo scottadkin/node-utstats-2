@@ -1,0 +1,22 @@
+.wrapper{
+    background-color:var(--bg-color-3);
+    color:var(--font-color-1);
+    text-align:center;
+    margin-bottom:var(--margin-1);
+}
+
+.tab{
+    display:inline-block;
+    padding:5px 10px;
+    transition: var(--transition-1);
+}
+
+.tab:hover{
+    cursor:pointer;
+    user-select:none;
+    background-color:var(--bg-color-2);
+}
+
+.selected{
+    background-color:red;
+}
