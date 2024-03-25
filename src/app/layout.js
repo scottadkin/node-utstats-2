@@ -3,6 +3,7 @@ import "./globals.css";
 import Nav from "./UI/Nav";
 import { cookies } from "next/headers";
 import UpdateSession from "./UpdateSession";
+import { bSessionAdminUser } from "./lib/authentication";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,12 +18,16 @@ export default async function RootLayout({ children }) {
 
 	const username = cookieStore.get("nstats_name")?.value ?? null;
 
+	const {bAdmin, error} = await bSessionAdminUser();
+
+	console.log(bAdmin, error);
+
 	
 	return (
 		<html lang="en">
 		<body className={inter.className}>
 			<UpdateSession />
-			<Nav username={username}/>
+			<Nav username={username} bAdmin={bAdmin}/>
 			<div className="padding-top"></div>
 			{children}
 			<footer>Horse Noise</footer>

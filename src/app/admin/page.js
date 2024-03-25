@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import ErrorBox from "../UI/ErrorBox";
 import Header from "../UI/Header";
-import { bSessionValid, bAccountAdmin } from "../lib/authentication";
+import { bSessionValid, bAccountAdmin, bSessionAdminUser } from "../lib/authentication";
 import Tabs from "../UI/Tabs";
 import FTPManager from "../UI/admin/FTPManager";
 
@@ -22,22 +22,14 @@ export default async function AdminPage({params, searchParams}){
         </div>
     }
 
-    const bValidSession = await bSessionValid(userId.value, sId.value);
+    const {bAdmin, error} = await bSessionAdminUser();
 
-    if(!bValidSession){
-        return <div>
-            <Header>Admin Control Panel</Header>
-            <ErrorBox title="Access Denied">User session not valid or expired.</ErrorBox>
-        </div>
-    }
-
-    const bAdmin = await bAccountAdmin(userId.value);
 
     if(!bAdmin){
 
         return <div>
             <Header>Admin Control Panel</Header>
-            <ErrorBox title="Access Denied">You do not have the required permissions to use this page.</ErrorBox>
+            <ErrorBox title="Access Denied">{error}</ErrorBox>
         </div>
     }
 

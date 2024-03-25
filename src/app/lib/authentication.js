@@ -323,3 +323,29 @@ export async function updateSession(){
         return null;
     }
 }
+
+export async function bSessionAdminUser(){
+
+    try{
+
+        const userId = cookies().get("nstats_userid");
+        const sId = cookies().get("nstats_sid");
+
+        if(userId === undefined || sId === undefined){
+            throw new Error("UserId or Session is undefined");
+        }
+
+        if(!await bSessionValid(userId.value, sId.value)){
+            throw new Error("You are not logged in, or Session is not valid");
+        }
+
+        if(!await bAccountAdmin(userId.value)){
+            throw new Error("You do not have the required permissions.");
+        }
+
+        return {"bAdmin": true, "error": null};
+
+    }catch(err){
+        return {"bAdmin": false, "error": err.toString()};
+    }
+}

@@ -5,10 +5,11 @@ import Link from "next/link";
 import { logout } from "../lib/authentication";
 
 
-export default function Nav({username}){
+export default async function Nav({username, bAdmin}){
 
     const router = useRouter();
     const pathname = usePathname().toLowerCase();
+
 
     const options = [
         {
@@ -23,15 +24,18 @@ export default function Nav({username}){
                 "/match/",
                 "/matches"
             ]
-        },
-        {
+        }
+    ];
+
+    if(bAdmin){
+        options.push({
             "name": "Admin",
             "url": "/admin",
             "matches": [
                 "/admin"
             ]
-        }
-    ];
+        });
+    }
 
     if(username === null){
 
