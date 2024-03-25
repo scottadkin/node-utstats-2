@@ -5,7 +5,7 @@ import Link from "next/link";
 import { logout } from "../lib/authentication";
 
 
-export default async function Nav({username, bAdmin}){
+export default function Nav({username, bAdmin}){
 
     const router = useRouter();
     const pathname = usePathname().toLowerCase();

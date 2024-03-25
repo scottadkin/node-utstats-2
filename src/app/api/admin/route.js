@@ -1,15 +1,36 @@
-import { cookies } from "next/headers";
 import { bSessionAdminUser } from "@/app/lib/authentication";
 
-export async function POST(a,b,c){
+export async function POST(req){
 
-    //console.log(a,b,c);
-    console.log("-------------------------------------------------------");
-    console.log(cookies().getAll());
+    const {bAdmin, error} = await bSessionAdminUser();
 
-    await bSessionAdminUser();
+    if(!bAdmin){
+        return Response.json({"error": error});
+    }
+;
 
+    const {mode} = await req.json();
+
+
+    if(mode === undefined){
+        return Response.json({"error": "Mode is undefined"});
+    }
+
+    console.log(`mode = ${mode}`);
     //Check if admin, if not return error message
+
+    return Response.json({"message": "hi"});
+}
+
+
+export async function GET(req){
+
+    const {bAdmin, error} = await bSessionAdminUser();
+
+    if(!bAdmin){
+        return Response.json({"error": error});
+    }
+
 
     return Response.json({"message": "hi"});
 }
