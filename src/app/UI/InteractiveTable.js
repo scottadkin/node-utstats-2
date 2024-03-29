@@ -103,7 +103,7 @@ export default function InteractiveTable({headers, rows, sortBy, order}){
 
     const [state, dispatch] = useReducer(reducer, {
         "order": (order !== undefined) ? order.toUpperCase() : "DESC",
-        "sortBy": (sortBy !== undefined) ? sortBy : Object.keys(headers)[0]
+        "sortBy": (sortBy !== undefined) ? sortBy : (Object.keys(headers).length > 0) ? Object.keys(headers)[0] : ""
     });
 
     sortRows(rows, state.sortBy, state.order);
