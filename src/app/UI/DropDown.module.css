@@ -1,0 +1,21 @@
+.wrapper{
+    background-color:green;
+    width:500px;
+    font-size:var(--font-size-1);
+    line-height:var(--line-height-1);
+    position:relative;
+}
+
+.current{
+    padding:var(--padding-2);
+}
+
+.options{
+    position:absolute;
+    width:100%;
+}
+
+.option{
+    background-color:red;
+    padding:var(--padding-2);
+}

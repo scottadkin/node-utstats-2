@@ -3,6 +3,7 @@ import Header from "../Header";
 import { useEffect, useReducer } from "react";
 import ErrorBox from "../ErrorBox";
 import InteractiveTable from "../InteractiveTable";
+import DropDown from "../DropDown";
 
 async function loadData(controller, dispatch){
 
@@ -128,8 +129,20 @@ export default function FTPManager(){
 
     },[]);
 
+    const testOptions = [
+        {"value": "test 1", "display": <b>Bold Text</b>},
+        {"value": "test 2", "display": "Normal text"},
+        {"value": "test 3", "display": "Normal text 2"},
+        {"value": "test 4", "display": "Normal text 3"},
+        {"value": "test 5", "display": "Normal text 4"},
+        {"value": "test 6", "display": "Normal text 5"},
+        {"value": "test 7", "display": "Normal text 6"},
+        {"value": "test 8", "display": "Normal text 7"},
+    ];
+
     return <div>
         <Header>FTP Manager</Header>
+        <DropDown selectedValue={"test"} options={testOptions}/>
         <ErrorBox title="There was a problem loading FTP settings.">{state.error}</ErrorBox>
         {renderSettings(state, dispatch)}
     </div>
