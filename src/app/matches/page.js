@@ -1,5 +1,4 @@
 import {searchMatches} from "../lib/matches";
-import Link from "next/link";
 import MatchList from "../UI/MatchList";
 import Header from "../UI/Header";
 import Pagination from "../UI/Pagination";
@@ -21,7 +20,7 @@ export default async function Page({params, searchParams}) {
       <main className={"styles.main"}>
         <div>
             <Header>Recent Matches</Header>
-            <MatchList matches={matches} />
+            <MatchList matches={JSON.stringify(matches)} />
             <Pagination url="/matches?page=" currentPage={page} results={total} perPage={perPage}/>
         </div>
       </main>

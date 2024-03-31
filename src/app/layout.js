@@ -20,7 +20,10 @@ export default async function RootLayout({ children }) {
 
 	const {bAdmin, error} = await bSessionAdminUser();
 
+	console.log("bAdmin, error");
 	console.log(bAdmin, error);
+
+	console.log(`userName = ${username}`);
 
 	
 	return (
