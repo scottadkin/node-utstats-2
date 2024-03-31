@@ -18,6 +18,8 @@ export default function useScreenInfo(){
 
         window.addEventListener("resize", updateStats);
 
+        updateStats();
+
         return () =>{
             window.removeEventListener("resize", updateStats);
         }

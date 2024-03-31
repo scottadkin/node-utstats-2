@@ -138,11 +138,30 @@ export default function FTPManager(){
         {"value": "test 6", "display": "Normal text 5"},
         {"value": "test 7", "display": "Normal text 6"},
         {"value": "test 8", "display": "Normal text 7"},
+        {"value": "test 9", "display": "Normal text 7"},
+        {"value": "test 10", "display": "Normal text 7"},
+        {"value": "test 11", "display": "Normal text 7"},
+        {"value": "test 12", "display": "Normal text 7"},
+        {"value": "test 13", "display": "Normal text 7"},
+        {"value": "test 14", "display": "Normal text 7"},
+        {"value": "test 15", "display": "Normal text 7"},
+        {"value": "test 16", "display": "Normal text 7"},
+        {"value": "test 17", "display": "Normal text 7"},
+        {"value": "test 18", "display": "Normal text 7"},
+        {"value": "test 28", "display": "Normal text 7"},
+        {"value": "test 38", "display": "Normal text 7"},
+        {"value": "test 48", "display": "Normal text 7"},
+        {"value": "test 58", "display": "Normal text 7"},
+        {"value": "test 68", "display": "Normal text 7"},
+        {"value": "test 78", "display": "Normal text 7"},
+        {"value": "test 88", "display": "Normal text 7"},
+        {"value": "test 98", "display": "Normal text 7"},
+        {"value": "test 08", "display": "Normal text 7"},
     ];
 
     return <div>
         <Header>FTP Manager</Header>
-        <DropDown selectedValue={"test"} options={testOptions}/>
+        <DropDown selectedValue={"test"} options={testOptions} />
         <ErrorBox title="There was a problem loading FTP settings.">{state.error}</ErrorBox>
         {renderSettings(state, dispatch)}
     </div>

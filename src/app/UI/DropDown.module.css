@@ -13,9 +13,15 @@
 .options{
     position:absolute;
     width:100%;
+    overflow:hidden;
+    overflow-y: auto;
 }
 
 .option{
     background-color:red;
     padding:var(--padding-2);
+}
+
+.hidden{
+    display:none;
 }
