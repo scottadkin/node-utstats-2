@@ -49,6 +49,13 @@ const reducer = function (state, action){
                 "loadError": action.message
             }
         }
+
+        case "select-server": {
+            return {
+                ...state,
+                "selectedServer": action.value
+            }
+        }
     }
     return state;
 }
@@ -113,7 +120,8 @@ export default function FTPManager(){
         "loading": true,
         "ftp": null,
         "logsFolder": null,
-        "loadError": null
+        "loadError": null,
+        "selectedServer": null
     });
 
     useEffect(() =>{
@@ -161,7 +169,14 @@ export default function FTPManager(){
 
     return <div>
         <Header>FTP Manager</Header>
-        <DropDown selectedValue={"test"} options={testOptions} />
+        <div className="form-row">
+            <div className="form-label">test</div>
+            <DropDown selectedValue={state.selectedServer} options={testOptions} changeSelected={(value) =>{
+                console.log(value);
+                dispatch({"type": "select-server", "value": value});
+            }}/>
+        </div>
+        
         <ErrorBox title="There was a problem loading FTP settings.">{state.error}</ErrorBox>
         {renderSettings(state, dispatch)}
     </div>

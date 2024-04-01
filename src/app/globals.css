@@ -7,10 +7,11 @@
 	--bg-color-4:rgb(56,56,56);
 	--font-color-1:rgb(255,255,255);
 	--font-color-2:rgb(164,164,164);
+	--font-color-3:yellow;
 	--active-font-color-1:yellow;
 	--active-link-color:yellow;
-	--border-color-1:rgba(255,255,255,0.125);
-	--border-color-2:rgba(255,255,255,0.2);
+	--border-color-1:rgba(255,255,255,0.05);
+	--border-color-2:rgba(255,255,255,0.125);
 	--max-width-1:90%;
 	--team-color-none:rgb(0,0,0);
 	--team-color-red:rgb(89,0,0);
@@ -112,6 +113,14 @@ form{
 	margin-right:auto;
 	font-size:20px;
 	margin-bottom:var(--margin-2);
+}
+
+.form-label{
+	text-align:right;
+	padding-right:var(--padding-1);
+	color:var(--font-color-1);
+	font-size:var(--font-size-1);
+	line-height: var(--line-height-1);
 }
 
 .textbox{

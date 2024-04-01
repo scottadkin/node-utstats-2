@@ -1,9 +1,13 @@
 .wrapper{
-    background-color:green;
-    width:500px;
+    background-color:var(--bg-color-3);
+    color:var(--font-color-1);
     font-size:var(--font-size-1);
     line-height:var(--line-height-1);
     position:relative;
+}
+
+.wrapper:hover{
+    cursor: pointer;
 }
 
 .current{
@@ -18,8 +22,19 @@
 }
 
 .option{
-    background-color:red;
     padding:var(--padding-2);
+    background-color:var(--bg-color-3);
+    border-bottom:1px solid var(--border-color-1);
+}
+
+.option:hover{
+    background-color:var(--bg-color-2);
+    transition: var(--transition-1);
+    color:var(--font-color-3);
+}
+
+.selected{
+    background-color:green;
 }
 
 .hidden{
