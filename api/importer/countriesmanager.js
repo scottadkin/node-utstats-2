@@ -1,6 +1,5 @@
 const mysql = require('../database.js');
 const Message = require('../message');
-const Promise = require('promise');
 
 class CountriesManager{
 

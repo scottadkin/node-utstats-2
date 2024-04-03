@@ -9,13 +9,18 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "encoding-japanese": "^2.1.0",
+    "ftp": "^0.3.10",
+    "geoip-lite": "^1.4.10",
     "js-sha256": "^0.11.0",
+    "md5": "^2.3.0",
     "mysql": "^2.18.1",
     "mysql2": "^3.9.2",
     "next": "14.1.4",
     "react": "^18",
     "react-dom": "^18",
-    "sharp": "^0.33.2"
+    "sharp": "^0.33.2",
+    "ssh2-sftp-client": "^10.0.3"
   },
   "devDependencies": {
     "eslint": "^8",

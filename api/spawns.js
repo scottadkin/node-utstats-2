@@ -1,4 +1,3 @@
-const Promise = require('promise');
 const mysql = require('./database.js');
 
 class Spawns{
