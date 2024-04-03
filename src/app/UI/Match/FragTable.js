@@ -4,7 +4,9 @@ import InteractiveTable from "../InteractiveTable";
 import { getTeamColorClass, MMSS, ignore0 } from "@/app/lib/generic";
 import styles from "./FragTable.module.css";
 
-export default function FragTable({data, playerNames, totalTeams}){
+export default function FragTable({data, totalTeams}){
+
+    data = JSON.parse(data);
 
     const headers = {
         "name": {"title": "Player"},
@@ -23,11 +25,11 @@ export default function FragTable({data, playerNames, totalTeams}){
 
     const test = {};
 
-    for(let i = 0; i < data.length; i++){
+    for(let i = 0; i < data.playerData.length; i++){
 
-        const d = data[i];
+        const d = data.playerData[i];
 
-        const name = playerNames[d.player_id] ?? "Not Found";
+        const name = data.playerNames[d.player_id] ?? "Not Found";
 
         let team = 0;
 

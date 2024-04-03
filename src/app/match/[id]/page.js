@@ -67,8 +67,10 @@ export default async function MatchPage({params, searchParams}) {
         <main>
           <Header>Match Report</Header> 
           <MatchScoreBox data={matchData.basic}/>
-		  <FragTable data={matchData.playerData} playerNames={matchData.playerNames} totalTeams={matchData.basic.total_teams}/>
+		      <FragTable data={JSON.stringify(matchData)} totalTeams={matchData.basic.total_teams}/>
           <InteractiveTable headers={headers} rows={playerRows}/>
         </main>
     );
 }
+
+//<FragTable data={matchData.playerData} playerNames={matchData.playerNames} totalTeams={matchData.basic.total_teams}/>

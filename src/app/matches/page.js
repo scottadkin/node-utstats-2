@@ -14,8 +14,7 @@ export default async function Page({params, searchParams}) {
 
     //const matches = await m.getRecent(page, perPage, 0, playerManager);
     const {matches, total} = await searchMatches(page, perPage,0,0,"date","ASC");;
-    //console.log(matches);
-
+  
     return (
       <main className={"styles.main"}>
         <div>

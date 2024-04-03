@@ -1,82 +1,122 @@
-const mysql = require("mysql2/promise"); //MYSQL2 CAUSING BUILD ERROR?
-const config = require( "../config.json");
+const mysql = require('mysql');
+const config = require( '../config.json');
 
-const pool = mysql.createPool({
+
+const Database = mysql.createPool({
     "host": config.mysql.host,
     "user": config.mysql.user,
     "password": config.mysql.password,
     "database": config.mysql.database
 });
 
+Database.simpleFetch = async (query, vars) =>{
 
+    return await Database.simpleQuery(query, vars);
+}
 
-class Test{
+Database.simpleDelete = async (query, vars) =>{
 
-    constructor(){
+    return await Database.simpleQuery(query, vars);
+}
 
-        this.init();
-    }
+Database.simpleUpdate = async (query, vars) =>{
 
-    async init(){
-        this.connection = await pool.getConnection();
-    }
+    return await Database.simpleQuery(query, vars);
+}
 
+Database.simpleInsert = async (query, vars) =>{
 
-    async simpleQuery(query, vars){
+    return await Database.simpleQuery(query, vars);
+  
+}
 
-        if(query === undefined) throw new Error("No query specified.");
+Database.insertReturnInsertId = (query, vars) =>{
+
+    return new Promise((resolve, reject) =>{
+
+        if(vars === undefined) vars = [];
+
+        Database.query(query, vars, (err, result) =>{
+
+            if(err) reject(err);
+
+            if(result !== undefined){
+                resolve(result.insertId);
+            }
+
+            resolve(-1);
+        });
         
-        if(vars === undefined){
+    });
+}
 
-            const [result] = await this.connection.query(query);
-            return result;
+Database.updateReturnAffectedRows = (query, vars) =>{
+
+    return new Promise((resolve, reject) =>{
+
+        if(vars === undefined) vars = [];
+        
+        Database.query(query, vars, (err, result) =>{
+
+            if(err){
+                console.trace(err);
+                reject(err);
+                return
+            }
+
+            if(result !== undefined){
+                resolve(result.affectedRows);
+                return;
+            }
+
+            resolve(0);
+        });
+        
+    });
+}
+
+
+Database.simpleQuery = (query, vars) =>{
+
+    return new Promise((resolve, reject) =>{
+
+        if(vars === undefined) vars = [];
+
+        Database.query(query, vars, (err, result) =>{
+
+            if(err){
+                console.trace(err);
+                reject(err);
+                return;
+            }
+
+            if(result !== undefined){
+                resolve(result);
+                return;
+            }
+
+            resolve([]);
+            return;
+        });
+    });  
+}
+
+Database.bulkInsert = (query, vars, maxPerInsert) =>{
+
+    return new Promise(async (resolve, reject) =>{
+
+        if(vars.length === 0){
+            resolve();
+            return;
         }
 
-        const [result] = await this.connection.query(query, vars);     
-        return result;   
-    }
-
-    async simpleFetch(query, vars){
-
-        return await this.simpleQuery(query, vars);
-    }
-
-    async simpleInsert(query, vars){
-
-        return await this.simpleQuery(query, vars);
-    }
-
-    async simpleDelete(query, vars){
-        
-        return await this.simpleQuery(query, vars);
-    }
-
-    async simpleUpdate(query, vars){
-        
-        return await this.simpleQuery(query, vars);
-    }
-
-    async insertReturnInsertId(query, vars){
-
-        const result = await this.simpleQuery(query, vars);
-        return result.insertId;
-    }
-
-    async updateReturnAffectedRows(query, vars){
-        const result = await this.simpleQuery(query, vars);
-        return result.affectedRows;
-    }
-
-
-    async bulkInsert(query, vars, maxPerInsert){
-
-        if(vars.length === 0) return;
         if(maxPerInsert === undefined) maxPerInsert = 100000;
 
         let startIndex = 0;
 
         if(vars.length < maxPerInsert){
-            await connection.query(query, [vars]);
+            await Database.simpleQuery(query, [vars]);
+            resolve();
             return;
         }
 
@@ -84,15 +124,14 @@ class Test{
 
             const end = (startIndex + maxPerInsert > vars.length) ? vars.length : startIndex + maxPerInsert;
             const currentVars = vars.slice(startIndex, end);
-            await connection.query(query, [currentVars]);
+            await Database.simpleQuery(query, [currentVars]);
             startIndex += maxPerInsert;
         }
 
-        return;
-    }
+        resolve();
 
+    });
 }
 
-const Database = new Test();
 
 module.exports = Database;
