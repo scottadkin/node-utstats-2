@@ -1,4 +1,4 @@
-import mysql from "../../../api/database";
+import mysql from "../../../api/database.js";
 import { getNamesByIds } from "./players";
 
 export async function getPlayers(matchId){

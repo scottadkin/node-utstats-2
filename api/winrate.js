@@ -1,5 +1,5 @@
 const Message = require("./message");
-const mysql = require("./database");
+const mysql = require("./database.js");
 
 class WinRate{
 

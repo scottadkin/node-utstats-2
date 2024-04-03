@@ -1,4 +1,4 @@
-const mysql = require('./database');
+const mysql = require('./database.js');
 const Promise = require('promise');
 const User = require('./user');
 const cookie = require('cookie');

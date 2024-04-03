@@ -1,4 +1,4 @@
-const mysql = require('./database');
+const mysql = require('./database.js');
 const shajs = require('sha.js');
 const cookie = require('cookie');
 const Functions  = require('./functions');

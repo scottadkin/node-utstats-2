@@ -1,4 +1,4 @@
-const mysql = require('../database');
+const mysql = require('../database.js');
 const PlayerInfo = require('./playerinfo');
 const Message = require('../message');
 const P = require('../player');

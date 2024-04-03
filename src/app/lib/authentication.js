@@ -1,7 +1,7 @@
 "use server"
 import { sha256 } from 'js-sha256';
 import salt from "../../../salt";
-import mysql from "../../../api/database";
+import mysql from "../../../api/database.js";
 import { cookies } from 'next/headers';
 import { createRandomString } from "./generic";
 import { redirect } from 'next/navigation'

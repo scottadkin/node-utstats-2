@@ -1,4 +1,4 @@
-const mysql = require('./database');
+const mysql = require('./database.js');
 const Match = require('./match');
 const Assault = require('./assault');
 const CountriesManager = require('./countriesmanager');

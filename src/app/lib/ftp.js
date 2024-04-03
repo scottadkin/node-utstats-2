@@ -1,4 +1,4 @@
-import mysql from "../../../api/database";
+import mysql from "../../../api/database.js";
 
 export async function getLogsFolderSettings(){
 

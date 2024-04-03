@@ -1,4 +1,4 @@
-import mysql from "../../../api/database";
+import mysql from "../../../api/database.js";
 import Servers from "../../../api/servers";
 import Gametypes from "../../../api/gametypes";
 import Maps from "../../../api/maps";

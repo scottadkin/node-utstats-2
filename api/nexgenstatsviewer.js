@@ -1,4 +1,4 @@
-const mysql = require('./database');
+const mysql = require('./database.js');
 const Player = require('./player');
 const Functions = require('./functions');
 

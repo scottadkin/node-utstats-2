@@ -1,4 +1,4 @@
-import mysql from "./database";
+import mysql from "./database.js";
 import { cleanInt } from "./generic.mjs";
 
 class PlayerSearch{

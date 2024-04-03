@@ -35,6 +35,29 @@ function getCurrentValue(options, selectedValue){
     return "Please select a value";
 }
 
+function renderCurrent(options, selectedValue, changeSelected, bHide){
+
+    let onClick = null;
+    let displayText = "";
+
+    if(!bHide){
+
+        onClick = () =>{
+            changeSelected(null);
+        }
+
+        displayText = "Unselect Option";
+
+    }else{
+
+        displayText = getCurrentValue(options, selectedValue);
+    }
+
+    return <div className={styles.current} onClick={onClick}>
+        {displayText}
+    </div>
+}
+
 export default function DropDown({selectedValue, changeSelected, options, maxHeight}){
 
     if(maxHeight !== undefined){
@@ -80,9 +103,7 @@ export default function DropDown({selectedValue, changeSelected, options, maxHei
             onMouseLeave={() =>{
                 setBHide(true);
             }}>
-        <div className={styles.current}>
-            {getCurrentValue(options, selectedValue)}
-        </div>
+        {renderCurrent(options, selectedValue, changeSelected, bHide)}
         <div className={`${styles.options} ${(!bHide) ? "" : styles.hidden}`} ref={optionsRef} style={{"maxHeight": `${maxOptionsHeight}px`}}>
             {createOptions(options, selectedValue, setBHide, changeSelected)}
         </div>

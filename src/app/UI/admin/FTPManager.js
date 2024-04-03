@@ -137,41 +137,22 @@ export default function FTPManager(){
 
     },[]);
 
-    const testOptions = [
-        {"value": "test 1", "display": <b>Bold Text</b>},
-        {"value": "test 2", "display": "Normal text"},
-        {"value": "test 3", "display": "Normal text 2"},
-        {"value": "test 4", "display": "Normal text 3"},
-        {"value": "test 5", "display": "Normal text 4"},
-        {"value": "test 6", "display": "Normal text 5"},
-        {"value": "test 7", "display": "Normal text 6"},
-        {"value": "test 8", "display": "Normal text 7"},
-        {"value": "test 9", "display": "Normal text 7"},
-        {"value": "test 10", "display": "Normal text 7"},
-        {"value": "test 11", "display": "Normal text 7"},
-        {"value": "test 12", "display": "Normal text 7"},
-        {"value": "test 13", "display": "Normal text 7"},
-        {"value": "test 14", "display": "Normal text 7"},
-        {"value": "test 15", "display": "Normal text 7"},
-        {"value": "test 16", "display": "Normal text 7"},
-        {"value": "test 17", "display": "Normal text 7"},
-        {"value": "test 18", "display": "Normal text 7"},
-        {"value": "test 28", "display": "Normal text 7"},
-        {"value": "test 38", "display": "Normal text 7"},
-        {"value": "test 48", "display": "Normal text 7"},
-        {"value": "test 58", "display": "Normal text 7"},
-        {"value": "test 68", "display": "Normal text 7"},
-        {"value": "test 78", "display": "Normal text 7"},
-        {"value": "test 88", "display": "Normal text 7"},
-        {"value": "test 98", "display": "Normal text 7"},
-        {"value": "test 08", "display": "Normal text 7"},
-    ];
+    const serverOptions = [];
+
+    if(state.ftp !== null){
+
+        for(let i = 0; i < state.ftp.length; i++){
+            
+            const f = state.ftp[i];
+            serverOptions.push({"value": f.id, "display": <><b>f.name</b> ({f.host}:{f.port})</>});
+        }
+    }
 
     return <div>
         <Header>FTP Manager</Header>
         <div className="form-row">
-            <div className="form-label">test</div>
-            <DropDown selectedValue={state.selectedServer} options={testOptions} changeSelected={(value) =>{
+            <div className="form-label">Selected Server</div>
+            <DropDown selectedValue={state.selectedServer} options={serverOptions} changeSelected={(value) =>{
                 console.log(value);
                 dispatch({"type": "select-server", "value": value});
             }}/>

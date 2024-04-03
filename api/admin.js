@@ -1,4 +1,4 @@
-const mysql = require("./database");
+const mysql = require("./database.js");
 const fs = require('fs');
 const Maps = require('./maps');
 const User = require('./user');

@@ -1,5 +1,5 @@
 const Player = require("./player");
-const mysql = require("./database");
+const mysql = require("./database.js");
 const Functions = require("./functions");
 const Matches = require("./matches");
 const Assault = require("./assault");
