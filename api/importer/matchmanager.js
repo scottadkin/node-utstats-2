@@ -123,11 +123,14 @@ class MatchManager{
             
 
             await this.playerManager.createPlayers(this.gametype.currentMatchGametype, this.mapInfo.mapId);
+            this.playerManager.totalTeams = this.gameInfo.totalTeams;
             this.playerManager.init();
 
+            this.playerManager.setPlayerPlaytime(this.gameInfo.hardcore);
 
-            const playersWithPlaytime = this.playerManager.getTotalPlayersWithPlaytime();
-
+            //const playersWithPlaytime = this.playerManager.getTotalPlayersWithPlaytime();
+            const playersWithPlaytime = this.playerManager.getTotalPlayers();
+            
 
             if(playersWithPlaytime < this.minPlayers){
                 new Message(`Total players is less then the minimum specified, skipping.`, "note");
@@ -143,7 +146,6 @@ class MatchManager{
                 this.gameInfo.totalTeams = 0;
             }
  
-            this.playerManager.totalTeams = this.gameInfo.totalTeams;
             
 
             this.killManager = new KillManager(this.killLines, this.playerManager, this.bIgnoreBots, matchTimings, this.gameInfo.hardcore);
@@ -155,15 +157,12 @@ class MatchManager{
             this.playerManager.setKills(this.killManager.kills);
             this.playerManager.matchEnded(this.gameInfo.end);
             this.playerManager.setHeadshots(this.killManager.headshots);
-            this.playerManager.setPlayerPlaytime(this.gameInfo.hardcore);
+            //this.playerManager.setPlayerPlaytime(this.gameInfo.hardcore);
 
             this.match = new Match();
             this.matches = new Matches();
             this.maps = new Maps();
-
-            
-
-            
+ 
             
 
 

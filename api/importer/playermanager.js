@@ -264,7 +264,7 @@ class PlayerManager{
             this.masterIdsToNames[masterIds.masterId] = p.name.toLowerCase();
 
 
-            const player = new PlayerInfo(p.id, p.name, masterIds.masterId, masterIds.gametypeId, masterIds.mapId, masterIds.mapGametypeId, p.hwid);
+            const player = new PlayerInfo(p.id, p.name, masterIds.masterId, masterIds.gametypeId, masterIds.mapId, masterIds.mapGametypeId, p.hwid, p.bSpectator);
 
             this.players.push(player);
 
@@ -1757,6 +1757,7 @@ class PlayerManager{
         for(let i = 0; i < this.players.length; i++){
 
             const p = this.players[i];
+            
 
             for(const [teamId, playtime] of Object.entries(p.stats.teamPlaytime)){
 
