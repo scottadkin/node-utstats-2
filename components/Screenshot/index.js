@@ -298,7 +298,7 @@ class MatchScreenshot{
         let date = (!this.bClassic) ? this.matchData.date * 1000 : Functions.utDate(this.matchData.time) * 1000;
 
 
-        const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+        const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
         const now = new Date(date);
