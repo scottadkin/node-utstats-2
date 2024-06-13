@@ -507,6 +507,14 @@ export default async function handler(req, res){
             }
 
 
+            if(mode === "match-flag-kills"){
+
+                const data = await ctfManager.getMatchFlagKillDetails(matchId, mapId, playerId);
+
+                res.status(200).json(data);
+                return;
+            }
+
             res.status(200).json({"error": "Unknown Command"});
 
             resolve();

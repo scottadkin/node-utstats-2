@@ -3524,6 +3524,79 @@ class CTF{
         await this.deleteDuplicateMapFlags(newId);
 
     }
+
+    async getMapFlags(mapId){
+
+        const query = `SELECT * FROM nstats_maps_flags WHERE map=?`;
+
+        return await mysql.simpleQuery(query, [mapId]);
+    }
+
+
+    async getMatchFlagKillDetails(matchId, mapId, playerId){
+
+        const flagBases = await this.getMapFlags(mapId);
+
+        if(flagBases.length < 2) return null;
+
+        const a = flagBases[0];
+        const b = flagBases[1];
+
+        const dX =  a.x - b.x;
+        const dY =  a.y - b.y;
+        const dZ =  a.z - b.z;
+        const distance = Math.sqrt(dX * dX + dY * dY + dZ * dZ);
+
+        if(distance === 0) throw new Error("Flag bases distance is 0");
+
+        let query = `SELECT killer_id,killer_team,victim_id,victim_team,distance_to_cap 
+        FROM nstats_ctf_flag_deaths WHERE match_id=? AND victim_id!=-1`;
+        const vars = [matchId];
+        if(playerId !== -1){
+            query += ` AND killer_id=?`;
+            vars.push(playerId);
+        }
+
+        const result = await mysql.simpleQuery(query, vars);
+
+        const data = {};
+
+        //console.log(result);
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            if(data[r.killer_id] === undefined){
+
+                data[r.killer_id] = {
+                    "closeSave": 0,
+                    "enemyBase": 0,
+                    "mid": 0,
+                    "homeBase": 0,
+                    "homeFlagStand": 0
+                };
+            }
+
+            const d = data[r.killer_id];
+
+            const dtc = r.distance_to_cap;
+
+            if(dtc <= distance * 0.05){
+                d.closeSave++;
+            }else if(dtc <= distance * 0.33){
+                d.enemyBase++;
+            }else if(dtc <= distance * 0.67){
+                d.mid++;
+            }else if(dtc < distance * 0.95){
+                d.homeBase++;
+            }else if(dtc >= distance * 0.95){
+                d.homeFlagStand++;
+            }
+        }
+
+        return data;
+    }
 }
 
 

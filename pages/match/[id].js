@@ -1,4 +1,4 @@
-import {React, useEffect, useReducer} from 'react';
+import {React} from 'react';
 import DefaultHead from '../../components/defaulthead';
 import Nav from '../../components/Nav/'
 import Footer from '../../components/Footer/';
@@ -183,6 +183,7 @@ const Match = ({matchId, error, host, image, info, metaData, session, pageSettin
                     matchId={matchId} 
                     playerData={players.playedPlayersData} 
                     single={false}
+                    mapId={info.map}
                 />
             }
         

@@ -141,6 +141,7 @@ const PlayerMatch = ({host, session, pageError, navSettings, pageSettings, pageO
                 matchId={matchId} 
                 playerData={players.targetPlayer} 
                 single={true}
+                mapId={info.map}
             />
         }
 

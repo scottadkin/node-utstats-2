@@ -208,7 +208,7 @@ export function getPlayer(players, id, bObject){
 
         for(let i = 0; i < players.length; i++){
     
-            if(players[i].id === id){
+            if(players[i].id === id || players[i].player_id === id){
                 return players[i];
             }
         }
