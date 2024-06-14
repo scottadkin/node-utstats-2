@@ -1,4 +1,3 @@
-import React from 'react';
 import DefaultHead from '../../components/defaulthead';
 import Nav from '../../components/Nav/';
 import Footer from '../../components/Footer/';
@@ -11,145 +10,125 @@ import Session from '../../api/session';
 import SiteSettings from '../../api/sitesettings';
 import RankingsExplained from '../../components/RankingsExplained/';
 import Analytics from '../../api/analytics';
+import { useReducer } from 'react';
 
+function reducer(state, action){
 
-class Rankings extends React.Component{
+    switch(action.type){
 
-    constructor(props){
+        case "toggleExplained":{
 
-        super(props);
-
-        this.state = {"bDisplayExplained": 0};
-
-        this.changeMode = this.changeMode.bind(this);
-    }
-
-
-    changeMode(){
-
-        let current = this.state.bDisplayExplained;
-
-        if(current === 0){
-            current = 1;
-        }else{
-            current = 0;
+            return {
+                ...state,
+                "bDisplayExplained": !state.bDisplayExplained
+            }
         }
-
-        this.setState({
-            "bDisplayExplained": current
-        });
-
-        Functions.setCookie("rankingsDisplayExplained", current);
     }
 
-    displaySettings(){
+    return state;
+}
 
-        const settings = JSON.parse(this.props.rankingValues);
+function getGametypeName(names, id){
 
-        return <RankingsExplained settings={settings}/>
+    for(const [key, value] of Object.entries(names)){
+
+        if(parseInt(key) === id) return value;
     }
 
-    getGametypeName(names, id){
+    return "Not Found";
+}
 
 
-        for(const [key, value] of Object.entries(names)){
+function createElems(data, gametypeNames, host, gametypeId, page, perPage){
 
-            if(parseInt(key) === id) return value;
-        }
+    const bDisplayPagination = data.length === 1;
 
-        return "Not Found";
+    const elems = [];
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+        
+        if(d.data.length === 0) continue;
+
+        elems.push(<RankingTable host={Functions.getImageHostAndPort(host)} gametypeId={d.id} page={page-1} perPage={perPage} 
+            key={i} mode={gametypeId}
+            title={getGametypeName(gametypeNames, d.id)} data={d.data} results={d.results} bDisplayPagination={bDisplayPagination}
+        />);
     }
 
-    createElems(){
+    return elems;
+}
 
+function displaySettings(rankingValues){
 
-        const data = JSON.parse(this.props.data);
-        const gametypeNames = JSON.parse(this.props.gametypeNames);
+    return <RankingsExplained settings={JSON.parse(rankingValues)}/>
+}
 
-        const bDisplayPagination = data.length === 1;
+export default function Rankings({data, gametypeId, gametypeNames, host, navSettings, page, perPage, rankingValues, session}){
 
-        const elems = [];
+    const [state, dispatch] = useReducer(reducer, {"mode": 0, "bDisplayExplained": false});
+ 
+    let titleName = "Rankings";
 
-        for(let i = 0; i < data.length; i++){
+    const totalGametypes = Object.keys(gametypeNames).length;
 
-            const d = data[i];
-            
-            if(d.data.length === 0) continue;
+    data = JSON.parse(data);
 
-            elems.push(<RankingTable host={Functions.getImageHostAndPort(this.props.host)} gametypeId={d.id} page={this.props.page-1} perPage={this.props.perPage} 
-                key={i} mode={this.props.gametypeId}
-                title={this.getGametypeName(gametypeNames, d.id)} data={d.data} results={d.results} bDisplayPagination={bDisplayPagination}
-            />);
-        }
+    let keywords = "gametype,rankings";
 
-        return elems;
+    let description = "View player rankings for their gametypes played.";
+
+    if(gametypeId === 0){
+
+        titleName = "Top Rankings";
+
+        keywords += ",top,all";
+
+        description = `View all the top players of each gametype. There are a total of ${totalGametypes} gametypes to choose from, see who's the best of your favourite gametype.`;
+
+    }else{
+
+        const pages = Math.ceil(data[0].results / perPage);
+
+        titleName = `${gametypeNames[`${gametypeId}`]} Rankings - Page ${page} of ${pages}`;
+
+        keywords += `,${gametypeNames[`${gametypeId}`]}`
+
+        description = `View all the top players of the ${gametypeNames[`${gametypeId}`]} gametype, there are a total of ${data[0].results} players in the rankings.`;
+
     }
 
-    render(){
+    const welcomeElem = (gametypeId !== 0) ? null :  <div id="welcome-text">
+        View all the top players for each available gametype.
+    </div>
 
-        let titleName = "Rankings";
+    const mainTitle = (gametypeId === 0) ? <div className="default-header">Rankings</div> : null;
 
-        const gametypeNames = JSON.parse(this.props.gametypeNames);
-
-        const totalGametypes = Object.keys(gametypeNames).length;
-
-        const data = JSON.parse(this.props.data);
-
-        let keywords = "gametype,rankings";
-
-        let description = "View player rankings for their gametypes played.";
-
-        if(this.props.gametypeId === 0){
-
-            titleName = "Top Rankings";
-
-            keywords += ",top,all";
-
-            description = `View all the top players of each gametype. There are a total of ${totalGametypes} gametypes to choose from, see who's the best of your favourite gametype.`;
-
-        }else{
-
-            const pages = Math.ceil(data[0].results / this.props.perPage);
-
-            titleName = `${gametypeNames[`${this.props.gametypeId}`]} Rankings - Page ${this.props.page} of ${pages}`;
-
-            keywords += `,${gametypeNames[`${this.props.gametypeId}`]}`
-
-            description = `View all the top players of the ${gametypeNames[`${this.props.gametypeId}`]} gametype, there are a total of ${data[0].results} players in the rankings.`;
-   
-        }
-
-        const welcomeElem = (this.props.gametypeId !== 0) ? null :  <div id="welcome-text">
-            View all the top players for each available gametype.
-        </div>
-
-        const mainTitle = (this.props.gametypeId === 0) ? <div className="default-header">Rankings</div> : null;
-
-        return <div>
-            <DefaultHead host={this.props.host} title={titleName}
+    return <div>
+            <DefaultHead host={host} title={titleName}
                 description={description} 
                 keywords={keywords}
             />
             <main>
-                <Nav settings={this.props.navSettings} session={this.props.session}/>
+                <Nav settings={navSettings} session={session}/>
                 <div id="content">
                     <div className="default">
                         {mainTitle}
                         {welcomeElem}
-                        {this.createElems()}
+                        {createElems(data, gametypeNames, host, gametypeId, page, perPage)}
 
                         <div className="big-tabs m-top-25">
-                            <div onClick={this.changeMode} className={`big-tab ${(this.state.bDisplayExplained) ? "tab-selected" : ""}`}>
-                                {(this.state.bDisplayExplained) ? "Hide Explain Ranking" : "Explain Rankings"}
+                            <div onClick={() =>{ dispatch({"type": "toggleExplained"})}} className={`big-tab ${(state.bDisplayExplained) ? "tab-selected" : ""}`}>
+                                {(state.bDisplayExplained) ? "Hide Explain Ranking" : "Explain Rankings"}
                             </div>
                         </div>
-                        {(this.state.bDisplayExplained) ? this.displaySettings() : null }
+                        {(state.bDisplayExplained) ? displaySettings(rankingValues) : null }
                     </div>
                 </div>
-                <Footer session={this.props.session}/>
+                <Footer session={session}/>
             </main>   
         </div>;
-    }
 }
 
 
@@ -222,13 +201,11 @@ export async function getServerSideProps({req, query}){
 
     const playerIds = [];
 
-    let d = 0;
-
     for(let i = 0; i < data.length; i++){
 
         for(let x = 0; x < data[i].data.length; x++){
 
-            d = data[i].data[x];
+            const d = data[i].data[x];
 
             if(playerIds.indexOf(d.player_id) === -1){
                 playerIds.push(d.player_id);
@@ -270,7 +247,7 @@ export async function getServerSideProps({req, query}){
         props:{
             "host": req.headers.host,
             "data": JSON.stringify(data),
-            "gametypeNames": JSON.stringify(gametypeNames),
+            "gametypeNames": gametypeNames,
             "page": page,
             "perPage": perPage,
             "gametypeId": gametype,
@@ -280,9 +257,3 @@ export async function getServerSideProps({req, query}){
         }
     }
 }
-
-
-
-
-
-export default Rankings;
