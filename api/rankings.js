@@ -613,6 +613,39 @@ class Rankings{
 
         return await mysql.simpleQuery(query, [matchId]);
     }
+
+
+    async _getAllPlayerIdsFromCurrent(){
+
+        const query = `SELECT player_id,gametype FROM nstats_ranking_player_current`;
+
+        const result = await mysql.simpleQuery(query);
+
+        return result.map((r) =>{
+            return {"player": r.player_id, "gametype": r.gametype}
+        });
+    }
+
+    async setAllPlayerCurrentLastActive(){
+        
+        const data = await this._getAllPlayerIdsFromCurrent();
+
+        const query = `UPDATE nstats_ranking_player_current SET last_active=? WHERE player_id=? AND gametype=?`;
+
+        for(let i = 0; i < data.length; i++){
+
+            const {player, gametype} = data[i];
+
+            const last = await this._getPlayerLatestGametypeDate(player, gametype);
+
+            if(last === null){
+                new Message(`setAllPlayerCurrentLastActive last is null`,"warning");
+                continue;
+            }
+
+            await mysql.simpleQuery(query, [last, player, gametype]);
+        } 
+    }
 }
 
 module.exports = Rankings;
