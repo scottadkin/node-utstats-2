@@ -43,11 +43,29 @@ class Rankings{
     }
 
 
+    async _getPlayerLatestGametypeDate(playerId, gametypeId){
+
+        const query = `SELECT match_date FROM nstats_player_matches WHERE player_id=? AND gametype=? AND playtime>0 ORDER BY match_date DESC LIMIT 1`;
+
+        const result = await mysql.simpleQuery(query, [playerId, gametypeId]);
+
+        if(result.length > 0) return result[0].match_date;
+
+        return null;
+    }
+
     async insertPlayerCurrent(playerId, gametypeId, totalMatches, playtime, ranking, rankingChange){
 
-        const query = "INSERT INTO nstats_ranking_player_current VALUES(NULL,?,?,?,?,?,?)";
+        const query = "INSERT INTO nstats_ranking_player_current VALUES(NULL,?,?,?,?,?,?,?)";
 
-        await mysql.simpleQuery(query, [playerId, gametypeId, totalMatches, playtime, ranking, rankingChange]);
+        let latestMatchDate = await this._getPlayerLatestGametypeDate(playerId, gametypeId);
+
+        if(latestMatchDate === null){
+            new Message(`rankings.insertPlayerCurrent() latestMatchDate is null!`);
+            latestMatchDate = 0;
+        }
+
+        await mysql.simpleQuery(query, [playerId, gametypeId, totalMatches, playtime, ranking, rankingChange, latestMatchDate]);
     }
 
 

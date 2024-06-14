@@ -440,6 +440,9 @@ async function fixACETables(){
         hwid varchar(32) NOT NULL,
         player_name varchar(30) NOT NULL,
         PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`);
+
+
+        await alterTable("nstats_ranking_player_current", "last_active", "INT NOT NULL", "AFTER ranking_change");
         
         process.exit(0);
 

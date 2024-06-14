@@ -786,7 +786,8 @@ const queries = [
         matches int(11) NOT NULL,
         playtime float NOT NULL,
         ranking Decimal(10,4) NOT NULL,
-        ranking_change Decimal(10,4) NOT NULL
+        ranking_change Decimal(10,4) NOT NULL,
+        last_active int(11) NOT NULl
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_ranking_player_history (
         id int(11) NOT NULL AUTO_INCREMENT,
