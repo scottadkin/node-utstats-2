@@ -227,7 +227,7 @@ const loadData = async (signal, dispatch, nDispatch, nameSearch, page, perPage, 
 
 const renderTable = (state, dispatch, router) =>{
 
-    if(parseInt(state.displayType) !== 1) return;
+    //if(parseInt(state.displayType) !== 1) return;
 
     const headers = [
         {
@@ -296,7 +296,6 @@ const renderTable = (state, dispatch, router) =>{
         },
         
     ];
-
 
     return <div className="m-top-25">
         <CustomTable width={1} 
@@ -446,19 +445,6 @@ const PlayersPage = ({host, session, pageSettings, navSettings, nameSearch, sele
                             setURL(router, state, "active", value);
                         }}
                     />
-                    <DropDown 
-                        dName="Display Type"
-                        data={[
-                            {"displayValue": "Default View", "value": 0},
-                            {"displayValue": "Table View", "value": 1},
-                        ]}
-                        selectedValue={state.displayType}
-                        changeSelected={(name, value) => {
-                            dispatch({"type": "changeDisplay", "value": value});
-                            setURL(router, state, "display", value);
-                        }}
-                    />
-
                     <DropDown 
                         dName="Sort By"
                         data={[
