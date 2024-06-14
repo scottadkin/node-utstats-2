@@ -143,26 +143,26 @@ function renderTeamTable(state, playerData, targetTeam){
 
 export default function MatchCTFSummaryKills({matchId, mapId, playerData, single}){
 
-    let playerId = -1;
-
     const [state, dispatch] = useReducer(reducer, {
         "data": {},
         "error": null,
         "bLoaded":  false
     });
 
+    let playerId = -1;
+    if(playerData.length === 1) playerId = playerData[0].player_id;
+
     useEffect(() =>{
 
         const controller = new AbortController();
 
-        if(playerData.length === 1) playerId = playerData[0].player_id;
         loadData(controller.signal, matchId, mapId, dispatch, playerId);
 
         return () =>{
             controller.abort();
         }
 
-    },[matchId, mapId]);
+    },[matchId, mapId, playerId]);
     
 
     return <>
