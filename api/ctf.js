@@ -3574,7 +3574,8 @@ class CTF{
                     "enemyBase": 0,
                     "mid": 0,
                     "homeBase": 0,
-                    "homeFlagStand": 0
+                    "homeFlagStand": 0,
+                    "far": 0
                 };
             }
 
@@ -3590,8 +3591,10 @@ class CTF{
                 d.mid++;
             }else if(dtc < distance * 0.95){
                 d.homeBase++;
-            }else if(dtc >= distance * 0.95){
+            }else if(dtc >= distance * 0.95 && dtc < distance * 1.05){
                 d.homeFlagStand++;
+            }else{
+                d.far++;
             }
         }
 

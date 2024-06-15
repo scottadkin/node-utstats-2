@@ -2,34 +2,25 @@ import styles from './RankingTable.module.css';
 import MouseHoverBox from '../MouseHoverBox/';
 import Link from 'next/link';
 import CountryFlag from '../CountryFlag/';
-import Functions from '../../api/functions';
 import Pagination from '../../components/Pagination/';
 import Image from 'next/image';
 import Table2 from '../Table2';
-import Playtime from '../Playtime';
+import { convertTimestamp, toPlaytime, getOrdinal } from '../../api/generic.mjs';
 
 const RankingTable = ({host, gametypeId, title, data, page, perPage, results, bDisplayPagination, mode}) =>{
 
     const rows = [];
 
-    let d = 0;
-
-    let currentImage = 0;
-
-    let changeString = "";
-    let rChangeS = 0;
-
-    let position = 0;
-
     for(let i = 0; i < data.length; i++){
 
-        d = data[i];
+        const d = data[i];
 
-        rChangeS = parseFloat(d.ranking_change.toFixed(2));
+        const rChangeS = parseFloat(d.ranking_change.toFixed(2));
 
-        changeString = (rChangeS > 0) ? `${d.name} gained ${rChangeS} points` : 
+        const changeString = (rChangeS > 0) ? `${d.name} gained ${rChangeS} points` : 
         (rChangeS == 0) ? `No change` : `${d.name} lost ${rChangeS} points`
 
+        let currentImage = 0;
         if(rChangeS > 0){
             currentImage = "/images/up.png";
         }else if(rChangeS < 0){
@@ -39,13 +30,13 @@ const RankingTable = ({host, gametypeId, title, data, page, perPage, results, bD
         }
 
 
-        position = (page * perPage) + i + 1;
+        const position = (page * perPage) + i + 1;
 
         rows.push(<tr key={i}>
-            <td className="place">{position}{Functions.getOrdinal(position)}</td>
+            <td className="place">{position}{getOrdinal(position)}</td>
             <td className="text-left"><Link href={`/player/${d.player_id}`}><CountryFlag country={d.country} host={host}/> {d.name}</Link></td>
-      
-            <td className="playtime"><Playtime timestamp={d.playtime}/></td>
+            <td className="playtime">{convertTimestamp(d.last_active, true, true)}</td>
+            <td className="playtime">{toPlaytime(d.playtime)}</td>
             <td><Image className={styles.icon} src={currentImage} width={12} height={12} alt="image"/> <MouseHoverBox title={`Previous Match Ranking Change`} 
                     content={changeString} 
                     display={d.ranking.toFixed(2)} />
@@ -67,6 +58,7 @@ const RankingTable = ({host, gametypeId, title, data, page, perPage, results, bD
             <tr>
                 <th>Place</th>
                 <th>Player</th>
+                <th>Last Active</th>
                 <th>Playtime</th>
                 <th>Ranking</th>
             </tr>

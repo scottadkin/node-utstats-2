@@ -62,6 +62,10 @@ function renderTeamTable(state, playerData, targetTeam){
 
     const headers = {
         "player": "Player",
+        "far": {
+            "title": "Far", 
+            "content": "Player killed an enemy with the flag where the enemy was further away from capping then the distance between the two flag bases."
+        },
         "stand": {
             "title": "Home Flag Base", 
             "content": "Player killed an enemy with the flag very close to their home flag base(<5% the distance between flag bases)."
@@ -79,12 +83,13 @@ function renderTeamTable(state, playerData, targetTeam){
             "content": "Player killed an enemy with the flag where the enemy got back into their home base(33% of distance between both flag bases)."
         },
         "save": {
-            "title": "Close Save", 
-            "content": "Player killed an enemy with the flag where the enemy that was very close to capping(within 5% of the distance between both flag bases)."
+            "title": "Enemy Flag Stand", 
+            "content": "Player killed an enemy with the flag where the enemy was very close to capping(within 5% of the distance between both flag bases)."
         },
     };
 
     const totals = { 
+        "far": 0,
         "stand": 0,
         "home":0,
         "mid": 0,
@@ -100,6 +105,7 @@ function renderTeamTable(state, playerData, targetTeam){
 
         if(player.team !== targetTeam) continue;
 
+        totals.far += kT.far;
         totals.stand += kT.homeFlagStand;
         totals.home += kT.enemyBase;
         totals.mid += kT.mid;
@@ -112,6 +118,7 @@ function renderTeamTable(state, playerData, targetTeam){
                 "displayValue": <><CountryFlag country={player.country}/>{player.name}</>,
                 "className": `text-left ${getTeamColor(player.team, 2)}`
             },
+            "far": {"value": kT.far, "displayValue": ignore0(kT.far)},
             "stand": {"value": kT.homeFlagStand, "displayValue": ignore0(kT.homeFlagStand)},
             "home":{"value":  kT.enemyBase, "displayValue": ignore0(kT.enemyBase)},
             "mid": {"value":  kT.mid, "displayValue": ignore0(kT.mid)},
@@ -131,6 +138,7 @@ function renderTeamTable(state, playerData, targetTeam){
                     "className": `black`
                 },
                 "stand": {"value": totals.stand, "displayValue": ignore0(totals.stand)},
+                "far": {"value": totals.far, "displayValue": ignore0(totals.far)},
                 "home":{"value":  totals.home, "displayValue": ignore0(totals.home)},
                 "mid": {"value":  totals.mid, "displayValue": ignore0(totals.mid)},
                 "enemy": {"value":  totals.enemy, "displayValue": ignore0(totals.enemy)},
