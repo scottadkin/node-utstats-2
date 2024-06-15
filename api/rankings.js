@@ -3,7 +3,17 @@ const Message = require('./message');
 
 class Rankings{
 
-    constructor(){}
+    constructor(){
+
+        this.validLastActive = {
+            "1": 60 * 60 * 24,
+            "7": 60 * 60 * 24 * 7,
+            "28": 60 * 60 * 24 * 28,
+            "90": 60 * 60 * 24 * 90,
+            "365": 60 * 60 * 24 * 365,
+            "0": Number.MAX_SAFE_INTEGER
+        };
+    }
 
     async init(){
 
@@ -233,8 +243,22 @@ class Rankings{
         return score;
     }
 
+    sanitizeLastActive(lastActive){
 
-    async getData(gametypeId, page, perPage){
+        const now = Math.ceil(Date.now() * 0.001);
+
+        let limit = 0;
+
+        if(this.validLastActive[lastActive] !== undefined){
+
+            limit = now - this.validLastActive[lastActive];
+            if(limit < 0) limit = 0;
+        }
+
+        return limit;
+    }
+
+    async getData(gametypeId, page, perPage, lastActive){
 
         page = parseInt(page);
         perPage = parseInt(perPage);
@@ -246,13 +270,14 @@ class Rankings{
 
         const start = page * perPage;
 
-        const query = "SELECT * FROM nstats_ranking_player_current WHERE gametype=? ORDER BY ranking DESC LIMIT ?,?";
+        let limit = this.sanitizeLastActive(lastActive);
 
-        return await mysql.simpleQuery(query, [gametypeId, start, perPage]);
+        const query = "SELECT * FROM nstats_ranking_player_current WHERE gametype=? AND last_active>=? ORDER BY ranking DESC LIMIT ?,?";
 
+        return await mysql.simpleQuery(query, [gametypeId, limit, start, perPage]);
     }
 
-    async getMultipleGametypesData(gametypeIds, perPage){
+    async getMultipleGametypesData(gametypeIds, perPage, lastActive){
 
         if(gametypeIds.length === 0) return [];
 
@@ -262,7 +287,7 @@ class Rankings{
 
             const id = gametypeIds[i];
 
-            const result = await this.getData(id, 1, perPage);
+            const result = await this.getData(id, 1, perPage, lastActive);
             data.push({"data": result, "id": id});
         }
 
@@ -271,11 +296,13 @@ class Rankings{
     }
 
 
-    async getTotalPlayers(gametypeId){
+    async getTotalPlayers(gametypeId, lastActive){
 
-        const query = "SELECT COUNT(*) as total_players FROM nstats_ranking_player_current WHERE gametype=?";
+        const limit = this.sanitizeLastActive(lastActive);
 
-        const result = await mysql.simpleQuery(query, [gametypeId]);
+        const query = "SELECT COUNT(*) as total_players FROM nstats_ranking_player_current WHERE gametype=? AND last_active>=?";
+
+        const result = await mysql.simpleQuery(query, [gametypeId, limit]);
 
         return result[0].total_players;
 

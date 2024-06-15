@@ -11,12 +11,14 @@ import SiteSettings from '../../api/sitesettings';
 import RankingsExplained from '../../components/RankingsExplained/';
 import Analytics from '../../api/analytics';
 import { useReducer } from 'react';
+import { useRouter } from 'next/router';
+import DropDown from '../../components/DropDown';
 
 function reducer(state, action){
 
     switch(action.type){
 
-        case "toggleExplained":{
+        case "toggle-explained":{
 
             return {
                 ...state,
@@ -65,9 +67,14 @@ function displaySettings(rankingValues){
     return <RankingsExplained settings={JSON.parse(rankingValues)}/>
 }
 
-export default function Rankings({data, gametypeId, gametypeNames, host, navSettings, page, perPage, rankingValues, session}){
+export default function Rankings({data, gametypeId, gametypeNames, host, navSettings, page, perPage, rankingValues, session, lastActive}){
 
-    const [state, dispatch] = useReducer(reducer, {"mode": 0, "bDisplayExplained": false});
+    const [state, dispatch] = useReducer(reducer, {
+        "mode": 0, 
+        "bDisplayExplained": false
+    });
+
+    const router = useRouter();
  
     let titleName = "Rankings";
 
@@ -116,10 +123,30 @@ export default function Rankings({data, gametypeId, gametypeNames, host, navSett
                     <div className="default">
                         {mainTitle}
                         {welcomeElem}
+
+                        <div className="form">
+                            <DropDown 
+                                dName="Last Active" 
+                                fName="last-active" 
+                                selectedValue={lastActive.toString()} 
+                                data={[
+                                    {"value": "1", "displayValue": "Past 1 Day"},
+                                    {"value": "7", "displayValue": "Past 7 Days"},
+                                    {"value": "28", "displayValue": "Past 28 Days"},
+                                    {"value": "90", "displayValue": "Past 90 Days"},
+                                    {"value": "365", "displayValue": "Past 365 Days"},
+                                    {"value": "0", "displayValue": "No Limit"},
+                                ]} 
+                                changeSelected={(name, value) =>{
+                                    router.push(`/rankings/${gametypeId}?lastActive=${value}`)
+                                }}
+                            />
+                        </div>  
+
                         {createElems(data, gametypeNames, host, gametypeId, page, perPage)}
 
                         <div className="big-tabs m-top-25">
-                            <div onClick={() =>{ dispatch({"type": "toggleExplained"})}} className={`big-tab ${(state.bDisplayExplained) ? "tab-selected" : ""}`}>
+                            <div onClick={() =>{ dispatch({"type": "toggle-explained"})}} className={`big-tab ${(state.bDisplayExplained) ? "tab-selected" : ""}`}>
                                 {(state.bDisplayExplained) ? "Hide Explain Ranking" : "Explain Rankings"}
                             </div>
                         </div>
@@ -165,6 +192,15 @@ export async function getServerSideProps({req, query}){
         perPage = parseInt(pageSettings["Rankings Per Gametype (Main)"]);
     }
 
+    const DEFAULT_ACTIVE = 28;
+
+    let lastActive = (query.lastActive !== undefined) ? parseInt(query.lastActive) : DEFAULT_ACTIVE;
+
+    if(lastActive !== lastActive) lastActive = DEFAULT_ACTIVE;
+    lastActive = lastActive.toString();
+
+    console.log(`lastActive = ${lastActive}`);
+
     const rankingManager = new RankingManager();
     const gametypeManager = new Gametypes();
     const playerManager = new Players();
@@ -186,17 +222,17 @@ export async function getServerSideProps({req, query}){
             perPage = parseInt(pageSettings["Rankings Per Page (Individual)"]);
         }
 
-        data = await rankingManager.getMultipleGametypesData(gametypeIds, perPage);
+        data = await rankingManager.getMultipleGametypesData(gametypeIds, perPage, lastActive);
         
     
     }else{
-        data.push({"id": gametype, "data": await rankingManager.getData(gametype, page, perPage)});
+        data.push({"id": gametype, "data": await rankingManager.getData(gametype, page, perPage, lastActive)});
     }
 
 
     for(let i = 0; i < data.length; i++){
 
-        data[i].results = await rankingManager.getTotalPlayers(data[i].id);
+        data[i].results = await rankingManager.getTotalPlayers(data[i].id, lastActive);
     }
 
     const playerIds = [];
@@ -253,7 +289,8 @@ export async function getServerSideProps({req, query}){
             "gametypeId": gametype,
             "session": JSON.stringify(session.settings),
             "navSettings": JSON.stringify(navSettings),
-            "rankingValues": JSON.stringify(rankingValues)
+            "rankingValues": JSON.stringify(rankingValues),
+            "lastActive": lastActive
         }
     }
 }

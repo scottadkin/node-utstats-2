@@ -101,7 +101,7 @@ const fixHeight = (dRef, screenHeight) =>{
 
     const bounds = dRef.current.getBoundingClientRect();
 
-    if(bounds.bottom> screenHeight){
+    if(bounds.bottom > screenHeight){
 
         const overlap = bounds.bottom - screenHeight;
         dRef.current.style.maxHeight = `${bounds.height - overlap}px`;
