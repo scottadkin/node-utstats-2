@@ -46,7 +46,7 @@ const RankingTable = ({host, gametypeId, title, data, page, perPage, results, bD
 
     if(rows.length === 0){
         rows.push(<tr key="0">
-            <td colSpan="4" className="small-font grey">No Data</td>     
+            <td colSpan="5" className="small-font grey">No Data</td>     
         </tr>);
     }
 

@@ -51,7 +51,7 @@ function createElems(data, gametypeNames, host, gametypeId, page, perPage){
 
         const d = data[i];
         
-        if(d.data.length === 0) continue;
+        //if(d.data.length === 0) continue;
 
         elems.push(<RankingTable host={Functions.getImageHostAndPort(host)} gametypeId={d.id} page={page-1} perPage={perPage} 
             key={i} mode={gametypeId}
@@ -67,7 +67,7 @@ function displaySettings(rankingValues){
     return <RankingsExplained settings={JSON.parse(rankingValues)}/>
 }
 
-export default function Rankings({data, gametypeId, gametypeNames, host, navSettings, page, perPage, rankingValues, session, lastActive}){
+export default function Rankings({data, gametypeId, gametypeNames, host, navSettings, page, perPage, rankingValues, session, lastActive, minPlaytime}){
 
     const [state, dispatch] = useReducer(reducer, {
         "mode": 0, 
@@ -106,11 +106,8 @@ export default function Rankings({data, gametypeId, gametypeNames, host, navSett
 
     }
 
-    const welcomeElem = (gametypeId !== 0) ? null :  <div id="welcome-text">
-        View all the top players for each available gametype.
-    </div>
 
-    const mainTitle = (gametypeId === 0) ? <div className="default-header">Rankings</div> : null;
+    const mainTitle = <div className="default-header">Filter Rankings</div>
 
     return <div>
             <DefaultHead host={host} title={titleName}
@@ -122,11 +119,10 @@ export default function Rankings({data, gametypeId, gametypeNames, host, navSett
                 <div id="content">
                     <div className="default">
                         {mainTitle}
-                        {welcomeElem}
 
                         <div className="form">
                             <DropDown 
-                                dName="Last Active" 
+                                dName="Active Within" 
                                 fName="last-active" 
                                 selectedValue={lastActive.toString()} 
                                 data={[
@@ -138,7 +134,26 @@ export default function Rankings({data, gametypeId, gametypeNames, host, navSett
                                     {"value": "0", "displayValue": "No Limit"},
                                 ]} 
                                 changeSelected={(name, value) =>{
-                                    router.push(`/rankings/${gametypeId}?lastActive=${value}`)
+                                    router.push(`/rankings/${gametypeId}?lastActive=${value}&minPlaytime=${minPlaytime}`);
+                                }}
+                            />
+
+                            <DropDown 
+                                dName="Min Playtime" 
+                                fName="last-active" 
+                                selectedValue={minPlaytime.toString()} 
+                                data={[
+                                    {"value": "1", "displayValue": "1 Hour"},
+                                    {"value": "2", "displayValue": "2 Hours"},
+                                    {"value": "3", "displayValue": "3 Hours"},
+                                    {"value": "6", "displayValue": "6 Hours"},
+                                    {"value": "12", "displayValue": "12 Hours"},
+                                    {"value": "24", "displayValue": "24 Hours"},
+                                    {"value": "48", "displayValue": "48 Hours"},
+                                    {"value": "0", "displayValue": "No Limit"},
+                                ]} 
+                                changeSelected={(name, value) =>{
+                                    router.push(`/rankings/${gametypeId}?lastActive=${lastActive}&minPlaytime=${value}`);
                                 }}
                             />
                         </div>  
@@ -193,13 +208,16 @@ export async function getServerSideProps({req, query}){
     }
 
     const DEFAULT_ACTIVE = 28;
+    const DEFAULT_MIN_PLAYTIME = 3;
 
     let lastActive = (query.lastActive !== undefined) ? parseInt(query.lastActive) : DEFAULT_ACTIVE;
 
     if(lastActive !== lastActive) lastActive = DEFAULT_ACTIVE;
     lastActive = lastActive.toString();
 
-    console.log(`lastActive = ${lastActive}`);
+    let minPlaytime = (query.minPlaytime !== undefined) ? parseInt(query.minPlaytime) : DEFAULT_MIN_PLAYTIME;
+    if(minPlaytime !== minPlaytime) minPlaytime = DEFAULT_MIN_PLAYTIME;
+    minPlaytime = minPlaytime.toString();
 
     const rankingManager = new RankingManager();
     const gametypeManager = new Gametypes();
@@ -222,17 +240,17 @@ export async function getServerSideProps({req, query}){
             perPage = parseInt(pageSettings["Rankings Per Page (Individual)"]);
         }
 
-        data = await rankingManager.getMultipleGametypesData(gametypeIds, perPage, lastActive);
+        data = await rankingManager.getMultipleGametypesData(gametypeIds, perPage, lastActive, minPlaytime);
         
     
     }else{
-        data.push({"id": gametype, "data": await rankingManager.getData(gametype, page, perPage, lastActive)});
+        data.push({"id": gametype, "data": await rankingManager.getData(gametype, page, perPage, lastActive, minPlaytime)});
     }
 
 
     for(let i = 0; i < data.length; i++){
 
-        data[i].results = await rankingManager.getTotalPlayers(data[i].id, lastActive);
+        data[i].results = await rankingManager.getTotalPlayers(data[i].id, lastActive, minPlaytime);
     }
 
     const playerIds = [];
@@ -290,7 +308,8 @@ export async function getServerSideProps({req, query}){
             "session": JSON.stringify(session.settings),
             "navSettings": JSON.stringify(navSettings),
             "rankingValues": JSON.stringify(rankingValues),
-            "lastActive": lastActive
+            "lastActive": lastActive,
+            "minPlaytime": minPlaytime
         }
     }
 }
