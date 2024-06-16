@@ -9,6 +9,8 @@ import { convertTimestamp, toPlaytime, getOrdinal } from '../../api/generic.mjs'
 
 const RankingTable = ({host, gametypeId, title, data, page, perPage, results, bDisplayPagination, mode}) =>{
 
+    if(data.length === 0) return null;
+
     const rows = [];
 
     for(let i = 0; i < data.length; i++){

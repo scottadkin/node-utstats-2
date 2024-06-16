@@ -135,7 +135,25 @@ class SiteSettings{
 
         return {
             "Rankings Per Gametype (Main)": this.defaultPerPageValues,
-            "Rankings Per Page (Individual)": this.defaultPerPageValues
+            "Rankings Per Page (Individual)": this.defaultPerPageValues,
+            "Default Min Playtime": [
+                {"name": "No Limit", "value": "0"},
+                {"name": "1 Hour", "value": "1"},
+                {"name": "2 Hours", "value": "2"},
+                {"name": "3 Hours", "value": "3"},
+                {"name": "6 Hours", "value": "6"},
+                {"name": "12 Hours", "value": "12"},
+                {"name": "24 Hours", "value": "24"},
+                {"name": "48 Hours", "value": "48"},
+            ],
+            "Default Last Active": [
+                {"name": "No Limit", "value": "0"},
+                {"name": "1 Day", "value": "1"},
+                {"name": "7 Days", "value": "7"},
+                {"name": "28 Days", "value": "28"},
+                {"name": "90 Days", "value": "90"},
+                {"name": "365 Days", "value": "365"},
+            ]
         }
     }
 

@@ -207,8 +207,8 @@ export async function getServerSideProps({req, query}){
         perPage = parseInt(pageSettings["Rankings Per Gametype (Main)"]);
     }
 
-    const DEFAULT_ACTIVE = 28;
-    const DEFAULT_MIN_PLAYTIME = 3;
+    const DEFAULT_ACTIVE = pageSettings["Default Last Active"];
+    const DEFAULT_MIN_PLAYTIME = pageSettings["Default Min Playtime"];
 
     let lastActive = (query.lastActive !== undefined) ? parseInt(query.lastActive) : DEFAULT_ACTIVE;
 
@@ -309,7 +309,7 @@ export async function getServerSideProps({req, query}){
             "navSettings": JSON.stringify(navSettings),
             "rankingValues": JSON.stringify(rankingValues),
             "lastActive": lastActive,
-            "minPlaytime": minPlaytime
+            "minPlaytime": minPlaytime,
         }
     }
 }

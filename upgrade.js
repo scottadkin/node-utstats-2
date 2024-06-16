@@ -263,6 +263,18 @@ async function updateSiteSettings(){
     if(!await bSettingExist("Servers Pages", "Default Display Type")){
         await mysql.simpleQuery(query7);
     }
+
+    const query8 = `INSERT INTO nstats_site_settings VALUES(NULL,"Rankings","Default Min Playtime","3","0")`;
+
+    if(!await bSettingExist("Rankings", "Default Min Playtime")){
+        await mysql.simpleQuery(query8);
+    }
+
+    const query9 = `INSERT INTO nstats_site_settings VALUES(NULL,"Rankings","Default Last Active","90","0")`;
+
+    if(!await bSettingExist("Rankings", "Default Last Active")){
+        await mysql.simpleQuery(query9);
+    }
 }
 
 
