@@ -1100,6 +1100,11 @@ class CTF{
     async insertFlagLocation(map, team, position){
 
         try{
+           
+            if(position === null){
+                new Message(`Flag location was not found, skipping save location.`,"warning");
+                return;
+            }
 
             if(!await this.bFlagLocationExists(map, team)){
                 new Message(`Flag location doesn't exists(map = ${map}, team = ${team}), inserting now.`,"note");
@@ -3537,7 +3542,7 @@ class CTF{
 
         const flagBases = await this.getMapFlags(mapId);
 
-        if(flagBases.length < 2) return null;
+        if(flagBases.length < 2) return {};
 
         const a = flagBases[0];
         const b = flagBases[1];

@@ -92,7 +92,7 @@ export default function Rankings({data, gametypeId, gametypeNames, host, navSett
 
         keywords += ",top,all";
 
-        description = `View all the top players of each gametype. There are a total of ${totalGametypes} gametypes to choose from, see who's the best of your favourite gametype.`;
+        description = `View all the top players of each gametype. There are a total of ${totalGametypes} gametypes to choose from, see who's the best at your favourite gametype.`;
 
     }else{
 
@@ -242,7 +242,6 @@ export async function getServerSideProps({req, query}){
 
         data = await rankingManager.getMultipleGametypesData(gametypeIds, perPage, lastActive, minPlaytime);
         
-    
     }else{
         data.push({"id": gametype, "data": await rankingManager.getData(gametype, page, perPage, lastActive, minPlaytime)});
     }
