@@ -1,8 +1,8 @@
 const mysql = require('../database');
 const PlayerInfo = require('./playerinfo');
 const Message = require('../message');
-const P = require('../player');
-const Player = new P();
+const Pl = require('../player');
+const Player = new Pl();
 const Faces = require('../faces');
 const Voices = require('../voices');
 const ConnectionsManager = require('./connectionsmanager');
@@ -29,16 +29,11 @@ class PlayerManager{
 
 
         this.players = [];
-        this.uniqueNames = [];
-        this.duplicateNames = [];
 
         this.HWIDS = {};
 
         this.HWIDSToNames = {};
 
-
-        this.idsToNames = {};
-        this.masterIdsToNames = {};
 
         this.faces = new Faces();
         this.voices = new Voices();
@@ -89,113 +84,75 @@ class PlayerManager{
         }
     }
 
-    connectPlayer(subString){
 
-        const reg = /^(.+?)\t(\d+?)\t.+$/i;
-
-        const result = reg.exec(subString);
-
-        if(result === null) return;
-
-        const playerName = result[1];
-        const playerId = parseInt(result[2]);
-        const HWID = this.HWIDS[playerId] ?? "";
-
-        this.idsToNames[playerId] = playerName.toLowerCase();
-
-        this.createPreliminaryPlayer(playerName, playerId, HWID, false);
-    }
-
-    renameIdsToName(oldName, newName){
-
-        oldName = oldName.toLowerCase();
-        newName = newName.toLowerCase();
-
-        for(const [playerId, playerName] of Object.entries(this.idsToNames)){
-
-            if(playerName.toLowerCase() === oldName){
-                this.idsToNames[playerId] = newName;
-            } 
-        }
-    }
-
-    renamePreliminaryByPlayerId(id, newName){
-
-        for(let i = 0; i < this.preliminaryPlayers.length; i++){
-
-            const p = this.preliminaryPlayers[i];
-
-            if(p.id === id){
-                this.renameIdsToName(p.name, newName);
-                p.name = newName;
-            }
-        }
-    }
-
-
-    bPreliminaryPlayerExits(playerId, HWID){
-
-        for(let i = 0; i < this.preliminaryPlayers.length; i++){
-
-            const p = this.preliminaryPlayers[i];
-
-            if(HWID !== "" && p.hwid === HWID) return true;
-            if(p.id === playerId) return true;
-
-        }
-
-        return false;
-    }
-
-
-    createPreliminaryPlayer(name, id, hwid, bSpectator){
-
-        for(let i = 0; i < this.preliminaryPlayers.length; i++){
-
-            const p = this.preliminaryPlayers[i];
-
-            if(p.name === name || p.id === id){
-
-                p.bSpectator = bSpectator;
-                return;
-            }
-        }
-
-        this.preliminaryPlayers.push({"name": name, "id": id, "hwid": hwid ?? "", "bSpectator": bSpectator});
-    }
-
-    renamePlayer(subString){
+    /**
+    *  Update player id list if already exists
+    */
+    renamePreliminary(timestamp, subString){
 
         const reg = /^(.+?)\t(\d+)$/i;
 
         const result = reg.exec(subString);
 
-        if(result === null) return;
+        if(result === null){
+            new Message(`renamePreliminary reg expression failed.`, "error");
+            return;
+        }
 
-        const playerName = result[1];
-        const playerId = parseInt(result[2]);
+        let name = result[1];
+        let id = parseInt(result[2]);
 
-        const HWID = this.HWIDS[playerId] ?? "";
 
-        this.createPreliminaryPlayer(playerName, playerId, HWID, true);
-        this.idsToNames[playerId] = playerName.toLowerCase();
-        this.renamePreliminaryByPlayerId(playerId, playerName);
+        for(let i = 0; i < this.preliminaryPlayers.length; i++){
 
+            let p = this.preliminaryPlayers[i];
+
+            if(p.name.toLowerCase() === name.toLowerCase()){
+                p.ids.push(id);
+                return;
+            }
+        }
+
+        this.preliminaryPlayers.push({
+            "ids": [id],
+            "name": name,
+            "bSpectator": true,
+            "hwid": ""
+        });
     }
 
-    updatePreliminaryPlayers(subString, type){
+    connectPreliminary(timestamp, subString){
 
-        
-        if(type === "connect"){
-            this.connectPlayer(subString);
+        const reg = /^(.+?)\t(\d+)\t.+$/i;
+
+        const result = reg.exec(subString);
+
+        if(result === null){
+            new Message("ConnectPreliminary reg expression failed", "error");
             return;
         }
 
-        if(type === "rename"){
-            this.renamePlayer(subString);
-            return;
-        }
+        let name = result[1];
+        let id = parseInt(result[2]);
 
+
+        for(let i = 0; i < this.preliminaryPlayers.length; i++){
+
+            const p = this.preliminaryPlayers[i];
+
+            //spectators don't get connect events only rename events
+            if(p.ids.indexOf(id) !== -1){
+                p.bSpectator = false;
+                return;
+            }
+
+            /*
+            if(p.name.toLowerCase() === name.toLowerCase()){
+                p.bSpectator = false;
+                p.ids.push(id);
+                return;
+            }*/
+        }
     }
 
     createPreliminaryPlayers(){
@@ -215,29 +172,41 @@ class PlayerManager{
             const timestamp = parseFloat(result[1]);
             const subString = result[3];
 
-            if(type === "connect" || type === "rename"){
+            if(type === "connect"){
 
-                //console.log(subString);
+                //don't create new players on connect due to connect event not having correct player name if player is named player
+                //only players have this event
+                this.connectPreliminary(timestamp, subString);
 
-                this.updatePreliminaryPlayers(subString, type)
-
-                //await this.connectPlayer(timestamp, subString, gametypeId);
             }else if(type === "disconnect"){
                 //this.disconnectPlayer(timestamp, subString);
+            }else if(type === "rename"){
+                this.renamePreliminary(timestamp, subString);
             }
         }
 
+        for(let i = 0; i < this.preliminaryPlayers.length; i++){
+
+            const p = this.preliminaryPlayers[i];
+         
+            const lastUsedId = p.ids[p.ids.length - 1];
+
+            p.hwid = this.HWIDS[lastUsedId] ?? "";
+        }
+
+        console.log(this.HWIDS);
+        console.log(this.preliminaryPlayers);
+ 
     }
 
 
 
     async createPlayers(gametypeId, mapId){
 
-
         this.parseHWIDS();
 
         this.createPreliminaryPlayers();
-        
+
         for(let i = 0; i < this.preliminaryPlayers.length; i++){
 
             const p = this.preliminaryPlayers[i];
@@ -250,10 +219,9 @@ class PlayerManager{
 
                 if(nameHWIDOverride !== null){
                     p.name = nameHWIDOverride;
-                    this.idsToNames[p.id] = p.name;
+                    //this.idsToNames[p.id] = p.name.toLowerCase();
                 }
             }
-
 
             const masterIds = await Player.getMasterIds(p.name, gametypeId, mapId);
             
@@ -261,13 +229,20 @@ class PlayerManager{
                 await Player.setLatestHWIDInfo(masterIds.masterId, p.hwid);
             }
 
-            this.masterIdsToNames[masterIds.masterId] = p.name.toLowerCase();
+            //this.masterIdsToNames[masterIds.masterId] = p.name.toLowerCase();
 
-
-            const player = new PlayerInfo(p.id, p.name, masterIds.masterId, masterIds.gametypeId, masterIds.mapId, masterIds.mapGametypeId, p.hwid, p.bSpectator);
+            const player = new PlayerInfo(
+                p.ids, 
+                p.name, 
+                masterIds.masterId, 
+                masterIds.gametypeId, 
+                masterIds.mapId, 
+                masterIds.mapGametypeId, 
+                p.hwid, 
+                p.bSpectator
+            );
 
             this.players.push(player);
-
         }
     }
 
@@ -276,32 +251,32 @@ class PlayerManager{
         
         id = parseInt(id);
 
-        const name = this.idsToNames[id];
+        for(let i = 0; i < this.players.length; i++){
 
-        //console.log(`getPlayerById(${id}) name = ${name}`);
+            const p = this.players[i];
 
-        if(name === undefined){
-
-            new Message(`getPlayerById(${id}) Name is undefined`,"error");
-            return null;
+            if(p.ids.indexOf(id) !== -1){
+                return p;
+            }
         }
 
-        return this.getPlayerByName(name);
+        return null;
+
     }
 
     getPlayerByMasterId(id){
 
         id = parseInt(id);
 
-        const name = this.masterIdsToNames[id];
+        for(let i = 0; i < this.players.length; i++){
 
-        if(name === undefined){
-            
-            new Message(`getPlayerByMasterId(${id}) Name is undefined`,"error");
-            return null;
+            const p = this.players[i];
+
+            if(p.masterId === id) return p;
         }
 
-        return this.getPlayerByName(name);
+        return null;
+    
     }
 
     getPlayerByName(name){
@@ -550,22 +525,6 @@ class PlayerManager{
         //set bestspawnkillspree, spawnkills ect
     }
 
-    updateDuplicateNames(name){
-
-        const uniqueNameIndex = this.uniqueNames.indexOf(name);
-        const duplicateNameIndex = this.duplicateNames.indexOf(name);
-
-        if(uniqueNameIndex === -1){
-            this.uniqueNames.push(name);
-        }else{
-
-            if(duplicateNameIndex === -1){
-                this.duplicateNames.push(name);
-            }
-        }
-    }
-
-    
 
     setTeam(subString, timestamp, bDisconnect){
 
@@ -867,12 +826,11 @@ class PlayerManager{
 
     }
 
-    async mergeDuplicates(bLastManStanding){
+    /*async mergeDuplicates(bLastManStanding){
 
         //console.log('MERGE DUPLCIATES');
 
         this.bLastManStanding = bLastManStanding;
-
 
         if(this.duplicateNames.length > 0){
 
@@ -903,7 +861,7 @@ class PlayerManager{
         }else{
             new Message(`There are no duplicates to import`,'pass');
         }
-    }
+    }*/
 
 
     setWeaponStats(){

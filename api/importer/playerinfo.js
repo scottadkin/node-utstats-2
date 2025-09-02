@@ -5,9 +5,9 @@ const Functions = require("../functions");
 
 class PlayerInfo{
 
-    constructor(id, name, masterId, gametypeId, mapId, mapGametypeId, HWID, bSpectator){
+    constructor(ids, name, masterId, gametypeId, mapId, mapGametypeId, HWID, bSpectator){
 
-        this.id = id;
+        this.ids = ids;
         this.name = name;
         //all time totals id
         this.masterId = masterId;
