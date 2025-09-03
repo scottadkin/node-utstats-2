@@ -4,7 +4,7 @@
         "cert": "cert.pem",
         "key": "key.pem"
     },
-    "importInterval": 30,
+    "importInterval": 0,
     "bUseSeperateImageServer": false,
     "imageServerPort": 3001,
     "bIncludeImageServerPortInURLs": true,

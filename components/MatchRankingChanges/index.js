@@ -128,6 +128,8 @@ const MatchRankingChanges = ({matchId, players, gametype}) =>{
 
     const getRankingChangeString = (value) =>{
 
+        value = parseFloat(value);
+
         if(value > 0){
             return <>Player gained <b>{value.toFixed(2)}</b> ranking points.</>
         }
@@ -172,6 +174,10 @@ const MatchRankingChanges = ({matchId, players, gametype}) =>{
 
             const diffIcon = getIcon(diff);
             const previousIcon = getIcon(previousRanking - matchChange.ranking);
+
+            const currentRanking =  (matchChange.ranking !== undefined) ? parseFloat(matchChange.ranking) : 0;
+            const matchRanking =  (matchChange.match_ranking !== undefined) ? parseFloat(matchChange.match_ranking) : 0;
+
             
             data.push({
                 "player": {
@@ -185,25 +191,25 @@ const MatchRankingChanges = ({matchId, players, gametype}) =>{
                 },
                 "previous": {
                     "value": previousRanking,
-                    "displayValue": <><img className="ranking-icon" src={previousIcon} alt="image"/>{previousRanking.toFixed(2)}</>
+                    "displayValue": <><img className="ranking-icon" src={previousIcon} alt="image"/>{parseFloat(previousRanking).toFixed(2)}</>
                 },
                 "after": {
-                    "value": matchChange.ranking, 
+                    "value": currentRanking, 
                     "displayValue": <MouseOver title="Player Latest Ranking Change" display={getRankingChangeString(diff)}>
                         <img className="ranking-icon" src={diffIcon} alt="image"/>
-                        {matchChange.ranking.toFixed(2)}
+                        {currentRanking}
                     </MouseOver>
                 },
                 "match": {
-                    "value": matchChange.match_ranking, 
-                    "displayValue": matchChange.match_ranking.toFixed(2)
+                    "value": matchRanking, 
+                    "displayValue": matchRanking
                 },
                 "current": {
                     "value": c.ranking, 
                     "displayValue": <MouseOver title="Player Latest Ranking Change" display={getRankingChangeString(c.ranking_change)}>
                         <span className="ranking-position">{getPlayerPosition(c.player_id)}</span>
                         <img className="ranking-icon" src={currentIcon} alt="image"/>
-                        {c.ranking.toFixed(2)}
+                        {parseFloat(c.ranking).toFixed(2)}
                     </MouseOver>
                 }
             });

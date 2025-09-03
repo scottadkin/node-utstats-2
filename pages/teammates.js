@@ -1,4 +1,4 @@
-import SiteSettings from "../api/sitesettings";
+/*import SiteSettings from "../api/sitesettings";
 import Session from "../api/session";
 import React from "react";
 import Analytics from "../api/analytics";
@@ -1463,6 +1463,40 @@ export async function getServerSideProps({req, res}){
             "session": JSON.stringify(session.settings),
             "navSettings": JSON.stringify(navSettings),
             "players": JSON.stringify(playerList),       
+        }
+    }
+}
+
+export default TeamMates;*/
+import React from "react";
+class TeamMates extends React.Component{
+    constructor(props){
+
+        super(props);
+    }
+
+    render(){
+        return <></>
+    }
+}
+
+export async function getServerSideProps({req, res}){
+
+    //const session = new Session(req);
+    //await session.load();
+
+    //const navSettings = await SiteSettings.getSettings("Navigation");
+    //const pageSettings = await SiteSettings.getSettings("Records Page");
+
+    //await Analytics.insertHit(session.userIp, req.headers.host, req.headers['user-agent']);
+
+
+    return {
+        "props":{
+           /// "host": Functions.getImageHostAndPort(req.headers.host),
+          //  "session": JSON.stringify(session.settings),
+          // "navSettings": JSON.stringify(navSettings),
+          //  "players": JSON.stringify(playerList),       
         }
     }
 }
