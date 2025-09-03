@@ -555,13 +555,11 @@ class PlayerManager{
                     this.setBotStatus(result[3]);
                 }else if(type == 'ip'){
                     this.setIp(result[3]);
-                }else if(type == 'connect'){
-                    //this.connectionsManager.lines.push(d);
-                }else if(type == 'disconnect'){
+                }else if(type === 'connect' || type === "rename"){
+                    continue;
+                }else if(type === 'disconnect'){
                     this.setTeam(result[3], result[1], true);
-                    //this.connectionsManager.lines.push(d);
-                }else if(type === "rename"){
-                    //this.connectionsManager.lines.push(d);          
+                    continue;
                 }else if(type === 'teamchange'){
                     this.setTeam(result[3], result[1], false);
                     this.teamsManager.lines.push(d);
@@ -1491,8 +1489,6 @@ class PlayerManager{
     async insertConnectionData(matchId){
 
         try{
-
-            this.connectionsManager.parseData();
 
             await this.connectionsManager.insertData(matchId);
 
