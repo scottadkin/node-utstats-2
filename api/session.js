@@ -4,16 +4,22 @@ const User = require('./user');
 const cookie = require('cookie');
 const Message = require('./message');
 
+
+
 class Session{
 
-    constructor(req){
+    constructor(ip, cookies){
+
+        this.userIp = ip;
+
+        
 
         this.user = new User();
         this.rawCookies = "";
 
-        if(req.headers.cookie !== undefined){
-            this.rawCookies = req.headers.cookie;
-            this.cookies = cookie.parse(req.headers.cookie);
+        if(cookies !== undefined){
+            this.rawCookies = cookies;
+            this.cookies = cookie.parse(cookies);
         }else{
             this.cookies = {};
         }
@@ -21,7 +27,6 @@ class Session{
 
         this.userIp = -1;
 
-        if(req.socket.remoteAddress !== undefined) this.userIp = req.socket.remoteAddress;
 
 
         this.settings = {

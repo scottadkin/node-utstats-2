@@ -1,5 +1,6 @@
+"use client"
 import Link from 'next/link';
-import {useRouter} from 'next/router';
+import {useRouter, usePathname} from 'next/navigation';
 import styles from './Nav.module.css';
 
 function Nav({session, settings}){
@@ -75,7 +76,7 @@ function Nav({session, settings}){
         
     }
 
-    const pathName = router.pathname.toLowerCase();
+    const pathName = usePathname().toLowerCase();
 
     let links = [];
 

@@ -1,5 +1,4 @@
 import Head from 'next/head';
-import {useRouter} from 'next/router';
 import Functions from '../api/functions';
 
 const DefaultHead = ({host, title, description, keywords, image, imageType}) =>{
