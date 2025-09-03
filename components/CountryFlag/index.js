@@ -1,5 +1,5 @@
+"use client"
 import Countries from '../../api/countries';
-import React from 'react';
 import styles from './CountryFlag.module.css';
 import { useState } from 'react';
 

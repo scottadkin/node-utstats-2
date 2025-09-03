@@ -1,9 +1,9 @@
-import Footer from "../components/Footer";
-import Nav from "../components/Nav";
-import SiteSettings from "../api/sitesettings";
-import Session from "../api/session";
+import Footer from "../../components/Footer";
+import Nav from "../../components/Nav";
+import SiteSettings from "../../api/sitesettings";
+import Session from "../../api/session";
 import { cookies, headers } from "next/headers";
-import "../styles/globals.css";
+import "../../styles/globals.css";
 
 export const metadata = {
 	title: 'Next.js',

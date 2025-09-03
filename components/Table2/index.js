@@ -2,45 +2,35 @@ import React from 'react';
 import styles from './Table2.module.css';
 import TableHeader from '../TableHeader';
 
-class Table2 extends React.Component{
 
-    constructor(props){
+export default function Table2({width, header, players, noBottomMargin, compressed, children}){
 
-        super(props);
-    }
-
-
-    render(){
-
-        const widthId = (this.props.width !== undefined) ? this.props.width : 0;
+    const widthId = (width !== undefined) ? width : 0;
 
         const widthClass = `t-width-${widthId}`;
 
-        const playerClass = (this.props.players !== undefined) ? (this.props.players) ? "player-td-1" : "" : "";
+        const playerClass = (players !== undefined) ? (players) ? "player-td-1" : "" : "";
 
-        let noBottomMargin = false;
 
-        if(this.props.noBottomMargin !== undefined){
-            noBottomMargin = this.props.noBottomMargin;
+
+        if(noBottomMargin !== undefined){
+            noBottomMargin = noBottomMargin;
         }
 
-        const bCompressed = (this.props.compressed !== undefined) ? true : false;
+        const bCompressed = (compressed !== undefined) ? true : false;
 
         let headerElem = null;
 
-        if(this.props.header !== undefined){
-            headerElem = <TableHeader width={widthId}>{this.props.header}</TableHeader>
+        if(header !== undefined){
+            headerElem = <TableHeader width={widthId}>{header}</TableHeader>
         }
 
         return <div className={`${styles.wrapper}`} style={{"marginBottom": `${(noBottomMargin) ? 0 : 25}px`}}>
             {headerElem}
             <table className={`${widthClass} ${playerClass}`} style={(bCompressed) ? {"lineHeight": "10px"} : {}}>
                 <tbody>
-                    {this.props.children}
+                    {children}
                 </tbody>
             </table>
         </div>;
-    }
 }
-
-export default Table2;
