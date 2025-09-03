@@ -34,6 +34,8 @@ class PlayerManager{
 
         this.HWIDSToNames = {};
 
+        this.namesToIds = {};
+
 
         this.faces = new Faces();
         this.voices = new Voices();
@@ -85,6 +87,21 @@ class PlayerManager{
     }
 
 
+    getNameFromIdList(id){
+
+        id = parseInt(id);
+
+        let latestName = null;
+
+        for(let [key, value] of Object.entries(this.namesToIds)){
+            key = parseInt(key);
+
+            if(key === id) return value;
+        }
+
+        return latestName;
+    }
+
     /**
     *  Update player id list if already exists
     */
@@ -99,9 +116,15 @@ class PlayerManager{
             return;
         }
 
-        let name = result[1];
+        //let name = result[1];
 
         let id = parseInt(result[2]);
+
+        let name = this.getNameFromIdList(id);
+
+        if(name === null){
+            throw new Error(`PlayerManager.connectPreliminary() name is null!`);
+        }
 
         for(let i = 0; i < this.preliminaryPlayers.length; i++){
 
@@ -141,36 +164,32 @@ class PlayerManager{
             return;
         }
 
-        let name = result[1];
+        const originalName = result[1];
         let id = parseInt(result[2]);
+        let name = this.getNameFromIdList(id);
 
-        console.log(`name = ${name}`);
+        if(name === null){
+            throw new Error(`PlayerManager.connectPreliminary() name is null!`);
+        }
+
+       // new Message(`originalName was ${originalName}, final name is ${name}`,"error");
+    
+
+        //console.log(`name = ${name}`);
 
         
         //work around connect events not having the players correct name if they are named player
 
         if(name.toLowerCase() === "player"){
-            console.log("found player");
+            //console.log("found player");
             //append player id like connect should do
             name = `${name}${id}`;
-            console.log(`renamed player to ${name}`);
-
-
-            process.exit();
+           // console.log(`renamed player to ${name}`);
         }
 
         for(let i = 0; i < this.preliminaryPlayers.length; i++){
 
             const p = this.preliminaryPlayers[i];
-
-            
-        }
-
-
-        for(let i = 0; i < this.preliminaryPlayers.length; i++){
-
-            const p = this.preliminaryPlayers[i];
-
             //spectators don't get connect events only rename events
             if(p.ids.indexOf(id) !== -1){
                 p.bSpectator = false;
@@ -197,7 +216,6 @@ class PlayerManager{
 
     teamChangePreliminary(timestamp, subString){
 
-        console.log(subString);
 
         const reg = /^(\d+?)\t(\d+)$/i;
 
@@ -222,7 +240,6 @@ class PlayerManager{
         }
     }
 
-
     setPreliminaryPlaytimes(){
 
         for(let i = 0; i < this.preliminaryPlayers.length; i++){
@@ -242,7 +259,7 @@ class PlayerManager{
 
                 //user joins as spectator
                 if(e.type === "rename" && !bConnectedToServer){
-                    previousTeam = 255;    
+                    //previousTeam = 255;    
                     bConnectedToServer = true;  
                     previousTimestamp = timestamp;   
                 }
@@ -260,7 +277,7 @@ class PlayerManager{
                     const diff = timestamp - previousTimestamp;
 
                     p.teamPlaytimes[previousTeam] += diff;
-                    console.log(`${p.name} was on the ${previousTeam} for ${diff}`);
+                   // console.log(`${p.name} was on the ${previousTeam} for ${diff}, Disconnect!`);
                     previousTimestamp = timestamp;
                 }   
 
@@ -280,13 +297,14 @@ class PlayerManager{
 
                 const diff = this.ignoreWarmpup(this.matchTimings.end) - previousTimestamp;
                 p.teamPlaytimes[previousTeam] += diff;
-                console.log(p.name,"played to the end", diff, previousTeam);
-                console.log(p.teamPlaytimes);
+               // console.log(p.name,"played to the end", diff, previousTeam);
+               // console.log(p.teamPlaytimes);
             }
         }
 
-        console.log(this.preliminaryPlayers);
-        process.exit();
+        //console.log(this.preliminaryPlayers);
+     
+        //process.exit();
     }
 
     createPreliminaryPlayers(){
@@ -307,6 +325,7 @@ class PlayerManager{
             const subString = result[3];
 
             if(type === "connect"){
+
 
                 //don't create new players on connect due to connect event not having correct player name if player is named player
                 //only players have this event
@@ -337,25 +356,50 @@ class PlayerManager{
             });
 
             p.hwid = this.HWIDS[lastUsedId] ?? "";
-            console.log(p.connectEvents);
            // console.log(p.connectEvents);
         }
 
 
         this.setPreliminaryPlaytimes();
-
-        console.log(this.HWIDS);
-        //console.log(this.preliminaryPlayers);
-        //process.exit();
     }
 
 
+    setNamesToIds(){
+
+        const cReg = /^\d+?\.\d+?\tplayer\tconnect\t(.+?)\t(\d+)\t.+$/i;
+        const rReg = /^\d+?\.\d+?\tplayer\trename\t(.+?)\t(\d+)$/i;
+
+        for(let i = 0; i < this.data.length; i++){
+
+            const d = this.data[i];
+
+            if(cReg.test(d)){
+
+                const result = cReg.exec(d);
+                this.namesToIds[parseInt(result[2])] = result[1];
+                continue;
+            }
+
+            if(rReg.test(d)){
+
+                const result = rReg.exec(d);
+                this.namesToIds[parseInt(result[2])] = result[1];
+            }
+        }
+    }
 
     async createPlayers(gametypeId, mapId){
 
         this.parseHWIDS();
 
+        //work around connect name issue
+        this.setNamesToIds();
+
+        //process.exit();
+
         this.createPreliminaryPlayers();
+
+        //process.exit();
 
         for(let i = 0; i < this.preliminaryPlayers.length; i++){
 
@@ -393,16 +437,18 @@ class PlayerManager{
             );
 
             player.setConnectionEvents(p.connectEvents);
+            //console.log(p.teamPlaytimes);
+            player.setTeamPlaytimes(p.teamPlaytimes);
 
             this.players.push(player);
         }
 
 
-        for(let i = 0; i < this.players.length; i++){
+        /*for(let i = 0; i < this.players.length; i++){
 
             const p = this.players[i];
             console.log(p.name, p.ids, p.masterId);
-        }
+        }*/
     }
 
 
@@ -984,44 +1030,6 @@ class PlayerManager{
         return;
 
     }
-
-    /*async mergeDuplicates(bLastManStanding){
-
-        //console.log('MERGE DUPLCIATES');
-
-        this.bLastManStanding = bLastManStanding;
-
-        if(this.duplicateNames.length > 0){
-
-            new Message(`Found ${this.duplicateNames.length} duplicate players to merge`,'pass');
-            
-            let originalIndex = 0;
-
-            for(let i = 0; i < this.duplicateNames.length; i++){
-
-                originalIndex = -1;
-
-                for(let x = 0; x < this.players.length; x++){
-
-                    if(this.players[x].name === this.duplicateNames[i]){
-
-                        if(originalIndex === -1){
-                            originalIndex = x;
-                        }else{
-                            
-                            this.players[x].bDuplicate = true;
-                            this.mergePlayer(this.players[originalIndex], this.players[x]);
-                            
-                        }                
-                    }
-                }
-            }
-
-        }else{
-            new Message(`There are no duplicates to import`,'pass');
-        }
-    }*/
-
 
     setWeaponStats(){
 
@@ -1736,31 +1744,6 @@ class PlayerManager{
         
     }
 
-    /*fixPlaytime(bHardcore, matchLength){
-
-
-        for(let i = 0; i < this.players.length; i++){
-
-            const p = this.players[i];
-
-            let playtime = p.stats.time_on_server;
-
-            if(bHardcore){
-                if(playtime > 0){
-                    playtime = playtime / 1.1;
-                }
-            }
-
-            //lazy way to ignore warm up
-            if(playtime > matchLength){
-                playtime = matchLength;
-            }
-
-            p.stats.time_on_server = playtime;
-
-        }
-    }*/
-
     async updateRankings(rankingsManager, gametypeId, matchId){
 
         for(let i = 0; i < this.players.length; i++){
@@ -1788,117 +1771,8 @@ class PlayerManager{
 
     setPlayerPlaytime(bHardcore){
 
-        const matchTimings = this.matchTimings;
-
-    
-
-        process.exit();
-   
-
-        /*for(let i = 0; i < this.players.length; i++){
-
-            const p = this.players[i];
-
-            const events = [...p.teamChangeEvents];
-
-            events.sort((a, b) =>{
-
-                a = a.timestamp;
-                b = b.timestamp;
-
-                if(a < b) return -1;
-                if(a > b) return 1;
-                return 0;
-            });
-
-            console.log(events);
-
-            let previousTimestamp = 0;
-            let previousTeam = 255;
-            let bConnectedToServer = false;
-
-            for(let i = 0; i < events.length; i++){
-
-                const {type, timestamp} = events[i];
-
-                if(type === "change" || type === "disconnect"){
-
-                    const diff = timestamp - previousTimestamp;
-                    console.log(`diff was ${diff}`);
-
-                    p.stats.teamPlaytime[previousTeam] += diff;
-                }
-
-                previousTimestamp = timestamp;
-
-                if(type === "spectator-join"){
-                    previousTeam = 255;
-                }
-
-                if(type === "change" || type === "spectator-join"){
-                    bConnectedToServer = true;
-                }
-
-                if(type === "dischange"){
-                    bConnectedToServer = false;
-                }
-
-            }
-
-            if(bConnectedToServer){
-
-                const diff = matchTimings.end - previousTimestamp;
-                
-                console.log(`EEEEEEEEEE= ${diff}`);
-            }
-            console.log(p.stats.teamPlaytime);
-            continue;
-
-            /*let previousTimestamp = 0;
-            let bLastDisconnect = false;
-            let previousTeam = 255;
-
-            for(let x = 0; x < events.length; x++){
-
-                const currentEvent = events[x];
-
-                if(x === 0){
-
-                    previousTimestamp = this.ignoreWarmpup(currentEvent.timestamp);
-
-                    if(currentEvent.type === "change"){
-                        previousTeam = currentEvent.newTeam;
-                    }
-
-                    continue;
-                }
-
-
-                const diff = this.ignoreWarmpup(currentEvent.timestamp) - previousTimestamp;
-
-                if(currentEvent.type === "disconnect"){
-                    bLastDisconnect = true;
-                    p.stats.teamPlaytime[previousTeam] += diff;
-                }else{
-                    bLastDisconnect = false;
-                    p.stats.teamPlaytime[previousTeam] += diff;
-                    previousTeam = currentEvent.newTeam;             
-                }
-
-                previousTimestamp = this.ignoreWarmpup(currentEvent.timestamp);
-                
-            }
-
-            if(!bLastDisconnect){
-                
-                const finalDiff = matchTimings.end - previousTimestamp;
-                p.stats.teamPlaytime[previousTeam] += finalDiff;
-            }*/
-        //}*/
-
-
         this.scalePlaytimes(bHardcore);
-        
+  
     }
 
     

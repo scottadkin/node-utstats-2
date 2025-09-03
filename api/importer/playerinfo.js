@@ -316,7 +316,6 @@ class PlayerInfo{
 
         this.spawnTimestamps = [];
         //console.log(this);
-
     }
 
     setConnectionEvents(events){
@@ -350,7 +349,6 @@ class PlayerInfo{
             }
         }
 
-        console.table(this.teamChangeEvents);
     }
 
     /*connect(timestamp, bSpectator){
@@ -883,6 +881,11 @@ class PlayerInfo{
         }
 
         return closest;
+    }
+
+    setTeamPlaytimes(teamPlaytime){
+
+        this.stats.teamPlaytime = teamPlaytime;
     }
 
 
