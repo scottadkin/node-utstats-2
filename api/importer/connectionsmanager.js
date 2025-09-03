@@ -32,11 +32,11 @@ class ConnectionsManager{
 
         //to prevent duplicate entries, rename is always logged first,
         //if there is also a connect event the player is a player, otherwise a spectator
-        if(currentPlayer.bConnectedToServer){
-            currentPlayer.bSpectator = false;
-        }else{
-            currentPlayer.connect(timestamp, false);
-        }
+        //if(currentPlayer.bConnectedToServer){
+        //    currentPlayer.bSpectator = false;
+        //}else{
+        //    currentPlayer.connect(timestamp, false);
+       // }
     
         this.data.push({"type": 0, "player": currentPlayer.masterId, "timestamp": timestamp});
         
@@ -58,7 +58,7 @@ class ConnectionsManager{
 
         const timestamp = parseFloat(result[1]);
 
-        currentPlayer.disconnect(timestamp);
+       // currentPlayer.disconnect(timestamp);
 
         this.data.push({"type": 1, "player": currentPlayer.masterId, "timestamp": timestamp});
     }
@@ -74,9 +74,9 @@ class ConnectionsManager{
         const player = this.playerManager.getPlayerById(playerId);
 
         //set player to spectator, if there is also a connect event they will later be set to player
-        if(!player.bConnectedToServer){
-            player.connect(timestamp, true);
-        }
+        //if(!player.bConnectedToServer){
+           // player.connect(timestamp, true);
+        //}
 
     }
 

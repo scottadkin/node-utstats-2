@@ -319,7 +319,41 @@ class PlayerInfo{
 
     }
 
-    connect(timestamp, bSpectator){
+    setConnectionEvents(events){
+
+        let bSpectator = true;
+
+        for(let i = 0; i < events.length; i++){
+
+            const e = events[i];
+
+            if(e.type === "connect"){
+                bSpectator = false;
+                this.connects.push(e.timestamp);
+                this.teamChangeEvents.push({"timestamp": e.timestamp, "type": "connect"})
+                continue;
+            }
+
+            if(e.type === "disconnect"){
+                this.disconnects.push(e.timestamp);
+                this.teamChangeEvents.push({"timestamp": e.timestamp, "type": "disconnect"})
+                bSpectator = true;
+                continue;
+            }
+
+            if(e.type === "rename"){
+          
+                this.teamChangeEvents.push({
+                    "timestamp": e.timestamp, 
+                    "type": (!bSpectator) ? "rename" : "spectator-join"
+                })
+            }
+        }
+
+        console.table(this.teamChangeEvents);
+    }
+
+    /*connect(timestamp, bSpectator){
 
         this.connects.push(timestamp);
 
@@ -333,9 +367,9 @@ class PlayerInfo{
         }
 
         //this.teamChangeEvents.push({"timestamp": timestamp, "type": "connect"});
-    }
+    }*/
 
-    disconnect(timestamp){
+    /*disconnect(timestamp){
 
         this.disconnects.push(timestamp);
 
@@ -343,7 +377,7 @@ class PlayerInfo{
 
         this.teamChangeEvents.push({"timestamp": timestamp, "type": "disconnect"});
 
-    }
+    }*/
 
     bDuplicateTeamData(timestamp/*, id*/){
 

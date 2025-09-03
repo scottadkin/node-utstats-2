@@ -100,8 +100,8 @@ class PlayerManager{
         }
 
         let name = result[1];
-        let id = parseInt(result[2]);
 
+        let id = parseInt(result[2]);
 
         for(let i = 0; i < this.preliminaryPlayers.length; i++){
 
@@ -109,6 +109,7 @@ class PlayerManager{
 
             if(p.name.toLowerCase() === name.toLowerCase()){
                 p.ids.push(id);
+                p.connectEvents.push({"type": "rename", "timestamp": timestamp});
                 return;
             }
         }
@@ -117,7 +118,15 @@ class PlayerManager{
             "ids": [id],
             "name": name,
             "bSpectator": true,
-            "hwid": ""
+            "hwid": "",
+            "connectEvents": [{"type": "rename", "timestamp": timestamp}],
+            "teamPlaytimes": {
+                "0": 0,
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "255": 0,
+            }
         });
     }
 
@@ -135,6 +144,28 @@ class PlayerManager{
         let name = result[1];
         let id = parseInt(result[2]);
 
+        console.log(`name = ${name}`);
+
+        
+        //work around connect events not having the players correct name if they are named player
+
+        if(name.toLowerCase() === "player"){
+            console.log("found player");
+            //append player id like connect should do
+            name = `${name}${id}`;
+            console.log(`renamed player to ${name}`);
+
+
+            process.exit();
+        }
+
+        for(let i = 0; i < this.preliminaryPlayers.length; i++){
+
+            const p = this.preliminaryPlayers[i];
+
+            
+        }
+
 
         for(let i = 0; i < this.preliminaryPlayers.length; i++){
 
@@ -143,16 +174,119 @@ class PlayerManager{
             //spectators don't get connect events only rename events
             if(p.ids.indexOf(id) !== -1){
                 p.bSpectator = false;
+                p.connectEvents.push({"type": "connect", "timestamp": timestamp});
                 return;
             }
-
-            /*
-            if(p.name.toLowerCase() === name.toLowerCase()){
-                p.bSpectator = false;
-                p.ids.push(id);
-                return;
-            }*/
         }
+    }
+
+    disconnectPreliminary(timestamp, subString){
+
+        const playerId = parseInt(subString);
+
+        for(let i = 0; i < this.preliminaryPlayers.length; i++){
+
+            const p = this.preliminaryPlayers[i];
+
+            if(p.ids.indexOf(playerId) !== -1){
+                p.connectEvents.push({"type": "disconnect", "timestamp": timestamp});
+                return;
+            }
+        }
+    }
+
+    teamChangePreliminary(timestamp, subString){
+
+        console.log(subString);
+
+        const reg = /^(\d+?)\t(\d+)$/i;
+
+        const result = reg.exec(subString);
+
+        if(result === null){
+            new Message(`teamChangePreliminary reg expression failed`,"error");
+            return;
+        }
+
+        const playerId = parseInt(result[1]);
+        const teamId = parseInt(result[2]);
+
+        for(let i = 0; i < this.preliminaryPlayers.length; i++){
+
+            const p = this.preliminaryPlayers[i];
+
+            if(p.ids.indexOf(playerId) !== -1){
+                p.connectEvents.push({"type": "teamChange", "newTeam": teamId, "timestamp": timestamp});
+                return;
+            }
+        }
+    }
+
+
+    setPreliminaryPlaytimes(){
+
+        for(let i = 0; i < this.preliminaryPlayers.length; i++){
+
+            const p = this.preliminaryPlayers[i];
+
+            //only applies to an event where a user changed team
+            let previousTimestamp = 0;
+            let previousTeam = 255;
+            let bConnectedToServer = false;
+
+            for(let x = 0; x < p.connectEvents.length; x++){
+
+                const e = p.connectEvents[x];
+
+                const timestamp = this.ignoreWarmpup(e.timestamp);
+
+                //user joins as spectator
+                if(e.type === "rename" && !bConnectedToServer){
+                    previousTeam = 255;    
+                    bConnectedToServer = true;  
+                    previousTimestamp = timestamp;   
+                }
+
+                //user joins as player
+                if(e.type === "connect"){
+                    bConnectedToServer = true;
+                    previousTimestamp = timestamp;
+                }
+
+                if(e.type === "disconnect"){
+                    bConnectedToServer = false;
+                    //calc time on team or as spectator here
+
+                    const diff = timestamp - previousTimestamp;
+
+                    p.teamPlaytimes[previousTeam] += diff;
+                    console.log(`${p.name} was on the ${previousTeam} for ${diff}`);
+                    previousTimestamp = timestamp;
+                }   
+
+                if(e.type === "teamChange"){
+                    bConnectedToServer = true;
+                    const diff = timestamp - previousTimestamp;
+
+                    p.teamPlaytimes[previousTeam] += diff;
+
+                    previousTeam = e.newTeam;
+                    previousTimestamp = timestamp;
+                }
+            }
+
+            //if player didn't have disconnect event they stayed to the end
+            if(bConnectedToServer){
+
+                const diff = this.ignoreWarmpup(this.matchTimings.end) - previousTimestamp;
+                p.teamPlaytimes[previousTeam] += diff;
+                console.log(p.name,"played to the end", diff, previousTeam);
+                console.log(p.teamPlaytimes);
+            }
+        }
+
+        console.log(this.preliminaryPlayers);
+        process.exit();
     }
 
     createPreliminaryPlayers(){
@@ -179,9 +313,11 @@ class PlayerManager{
                 this.connectPreliminary(timestamp, subString);
 
             }else if(type === "disconnect"){
-                //this.disconnectPlayer(timestamp, subString);
+                this.disconnectPreliminary(timestamp, subString);
             }else if(type === "rename"){
                 this.renamePreliminary(timestamp, subString);
+            }else if(type === "teamchange"){
+                this.teamChangePreliminary(timestamp, subString);
             }
         }
 
@@ -191,12 +327,26 @@ class PlayerManager{
          
             const lastUsedId = p.ids[p.ids.length - 1];
 
+            p.connectEvents.sort((a, b) =>{
+                a = a.timestamp;
+                b = b.timestamp;
+
+                if(a < b) return -1;
+                if(a > b) return 1;
+                return 0;
+            });
+
             p.hwid = this.HWIDS[lastUsedId] ?? "";
+            console.log(p.connectEvents);
+           // console.log(p.connectEvents);
         }
 
+
+        this.setPreliminaryPlaytimes();
+
         console.log(this.HWIDS);
-        console.log(this.preliminaryPlayers);
- 
+        //console.log(this.preliminaryPlayers);
+        //process.exit();
     }
 
 
@@ -239,10 +389,19 @@ class PlayerManager{
                 masterIds.mapId, 
                 masterIds.mapGametypeId, 
                 p.hwid, 
-                p.bSpectator
+                p.bSpectator,
             );
 
+            player.setConnectionEvents(p.connectEvents);
+
             this.players.push(player);
+        }
+
+
+        for(let i = 0; i < this.players.length; i++){
+
+            const p = this.players[i];
+            console.log(p.name, p.ids, p.masterId);
         }
     }
 
@@ -351,12 +510,12 @@ class PlayerManager{
                 }else if(type == 'ip'){
                     this.setIp(result[3]);
                 }else if(type == 'connect'){
-                    this.connectionsManager.lines.push(d);
+                    //this.connectionsManager.lines.push(d);
                 }else if(type == 'disconnect'){
                     this.setTeam(result[3], result[1], true);
-                    this.connectionsManager.lines.push(d);
+                    //this.connectionsManager.lines.push(d);
                 }else if(type === "rename"){
-                    this.connectionsManager.lines.push(d);          
+                    //this.connectionsManager.lines.push(d);          
                 }else if(type === 'teamchange'){
                     this.setTeam(result[3], result[1], false);
                     this.teamsManager.lines.push(d);
@@ -1229,15 +1388,10 @@ class PlayerManager{
                 connect = this.players[p].connects[i];
                 disconnect = (this.players[p].disconnects[i] !== undefined) ? this.players[p].disconnects[i] : 999999999999;
 
-                //console.log(`connect = ${connect}  disconnect = ${disconnect}`);
 
                 if(connect <= timestamp && timestamp < disconnect){
-
-                    if(this.players[p].bDuplicate === undefined){
-                        found.push(this.players[p]);
-                    }
+                    found.push(this.players[p]);   
                 }
-
             }
         }
 
@@ -1291,7 +1445,7 @@ class PlayerManager{
 
                 const p = this.players[i];
 
-                if(p.bDuplicate === undefined){
+                //if(p.bDuplicate === undefined){
 
                     pingData = this.pingManager.getPlayerValues(p.masterId);
 
@@ -1313,9 +1467,9 @@ class PlayerManager{
 
                     
                     
-                }else{
-                    new Message(`${p.name} is a duplicate not inserting match data.`,'note');
-                }
+                //}else{
+                //    new Message(`${p.name} is a duplicate not inserting match data.`,'note');
+                //}
             }
 
             //console.log(this.players);
@@ -1636,7 +1790,12 @@ class PlayerManager{
 
         const matchTimings = this.matchTimings;
 
-        for(let i = 0; i < this.players.length; i++){
+    
+
+        process.exit();
+   
+
+        /*for(let i = 0; i < this.players.length; i++){
 
             const p = this.players[i];
 
@@ -1652,7 +1811,50 @@ class PlayerManager{
                 return 0;
             });
 
+            console.log(events);
+
             let previousTimestamp = 0;
+            let previousTeam = 255;
+            let bConnectedToServer = false;
+
+            for(let i = 0; i < events.length; i++){
+
+                const {type, timestamp} = events[i];
+
+                if(type === "change" || type === "disconnect"){
+
+                    const diff = timestamp - previousTimestamp;
+                    console.log(`diff was ${diff}`);
+
+                    p.stats.teamPlaytime[previousTeam] += diff;
+                }
+
+                previousTimestamp = timestamp;
+
+                if(type === "spectator-join"){
+                    previousTeam = 255;
+                }
+
+                if(type === "change" || type === "spectator-join"){
+                    bConnectedToServer = true;
+                }
+
+                if(type === "dischange"){
+                    bConnectedToServer = false;
+                }
+
+            }
+
+            if(bConnectedToServer){
+
+                const diff = matchTimings.end - previousTimestamp;
+                
+                console.log(`EEEEEEEEEE= ${diff}`);
+            }
+            console.log(p.stats.teamPlaytime);
+            continue;
+
+            /*let previousTimestamp = 0;
             let bLastDisconnect = false;
             let previousTeam = 255;
 
@@ -1691,8 +1893,8 @@ class PlayerManager{
                 
                 const finalDiff = matchTimings.end - previousTimestamp;
                 p.stats.teamPlaytime[previousTeam] += finalDiff;
-            }
-        }
+            }*/
+        //}*/
 
 
         this.scalePlaytimes(bHardcore);
