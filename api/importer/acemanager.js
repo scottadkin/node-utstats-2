@@ -1,6 +1,6 @@
 import ACE from "../ace.js";
 import fs from "fs";
-const config = require('../../config.json');
+import config from "../../config.json" with {"type": "json"};
 import geoip from "geoip-lite";
 import Message from "../message.js";
 

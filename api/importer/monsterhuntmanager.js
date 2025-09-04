@@ -1,7 +1,7 @@
-const MonsterHunt = require('../monsterhunt');
-const Message = require('../message');
+import MonsterHunt from "../monsterhunt.js";
+import Message from "../message.js";
 
-class MonsterHuntManager{
+export default class MonsterHuntManager{
 
     constructor(){
 
@@ -305,6 +305,3 @@ class MonsterHuntManager{
         await this.monsterHunt.setMatchMonsterKills(matchId, this.kills.length);
     }
 }
-
-
-module.exports = MonsterHuntManager;

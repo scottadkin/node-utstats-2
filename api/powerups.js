@@ -487,7 +487,3 @@ export default class PowerUps{
         await simpleQuery(query, [newId, oldId]);
     }
 }
-
-
-
-module.exports = PowerUps;

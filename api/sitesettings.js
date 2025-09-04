@@ -1,8 +1,8 @@
-const mysql = require('./database');
-const Gametypes = require('../api/gametypes');
-const Message = require('../api/message');
+import { simpleQuery } from "./database.js";
+import Gametypes from "./gametypes.js";
+import Message from "./message.js";
 
-class SiteSettings{
+export default class SiteSettings{
 
     constructor(){
 
@@ -38,24 +38,17 @@ class SiteSettings{
     async debugGetAllSettings(){
 
         const query = "SELECT * FROM nstats_site_settings ORDER BY category ASC, name ASC";
-        return await mysql.simpleQuery(query);
+        return await simpleQuery(query);
 
     }
 
 
-    updateSetting(category, name, value){
+    async updateSetting(category, name, value){
 
-        return new Promise((resolve, reject) =>{
 
-            const query = "UPDATE nstats_site_settings SET value=? WHERE category=? AND name=?";
+        const query = "UPDATE nstats_site_settings SET value=? WHERE category=? AND name=?";
 
-            mysql.query(query, [value, category, name], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [value, category, name]);
     }
 
     async updateSettings(data, category){
@@ -278,7 +271,7 @@ class SiteSettings{
 
         const query = "SELECT name,value FROM nstats_site_settings WHERE category=?";
 
-        const result = await mysql.simpleFetch(query, [cat]);
+        const result = await simpleQuery(query, [cat]);
 
         const settings = {};
 
@@ -304,7 +297,7 @@ class SiteSettings{
 
         const query = "SELECT name,value FROM nstats_site_settings WHERE category=?";
 
-        const result = await mysql.simpleQuery(query, [cat]);
+        const result = await simpleQuery(query, [cat]);
 
         const settings = {};
 
@@ -323,7 +316,7 @@ class SiteSettings{
     async getDuplicates(){
 
         const query = "SELECT DISTINCT category,name,COUNT(*) as total_found, MAX(id) as last_id FROM nstats_site_settings GROUP BY category,name";
-        const result = await mysql.simpleQuery(query);
+        const result = await simpleQuery(query);
 
         const found = [];
 
@@ -351,7 +344,7 @@ class SiteSettings{
         for(let i = 0; i < dups.length; i++){
 
             const d = dups[i];
-            await mysql.simpleQuery(query, [d.category, d.name, d.last_id]);
+            await simpleQuery(query, [d.category, d.name, d.last_id]);
             new Message(`Deleted duplicate site setting entry ${d.category}, ${d.name} with id not equal to ${d.last_id}`,"pass");
             
         }
@@ -362,7 +355,7 @@ class SiteSettings{
 
         const query = "SELECT DISTINCT category FROM nstats_site_settings ORDER BY category ASC";
 
-        const result = await mysql.simpleQuery(query);
+        const result = await simpleQuery(query);
 
         const names = [];
 
@@ -379,7 +372,7 @@ class SiteSettings{
 
         const query = "SELECT * FROM nstats_site_settings WHERE category=? ORDER BY page_order ASC";
 
-        const result =  await mysql.simpleQuery(query, [category]);
+        const result =  await simpleQuery(query, [category]);
 
         let currentOrder = 0;
 
@@ -443,7 +436,7 @@ class SiteSettings{
         //const query = "SELECT name,page_order,value FROM nstats_site_settings WHERE category=? ORDER BY page_order ASC";
         const query = "SELECT name,page_order,value FROM nstats_site_settings WHERE category=? AND (value ='true' OR value='false') ORDER BY page_order ASC";
 
-        const result = await mysql.simpleQuery(query, [categoryName]);
+        const result = await simpleQuery(query, [categoryName]);
 
         const dataObject = {};
 
@@ -484,7 +477,7 @@ class SiteSettings{
 
         const vars = [value, pageOrder, category, name];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async updateSettings(settings){
@@ -499,5 +492,3 @@ class SiteSettings{
         }
     }
 }
-
-module.exports = SiteSettings;

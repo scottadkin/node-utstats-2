@@ -1,85 +1,43 @@
-const Promise = require('promise');
-const mysql = require('./database');
+import { simpleQuery } from "./database.js";
 
-class Spawns{
+export default class Spawns{
 
-    constructor(){
+    constructor(){}
 
+    async getMapSpawns(id){
+
+        id = parseInt(id);
+        const query = "SELECT * FROM nstats_map_spawns WHERE map=?";
+        return await simpleQuery(query, [id]);
     }
 
-    getMapSpawns(id){
+    async getTotalMapSpawns(id){
 
-        return new Promise((resolve, reject) =>{
+        id = parseInt(id);
 
-            id = parseInt(id);
+        const query = "SELECT COUNT(*) as spawns FROM nstats_map_spawns WHERE map=?";
 
-            const query = "SELECT * FROM nstats_map_spawns WHERE map=?";
+        const result = await simpleQuery(query, [id]);
 
-            mysql.query(query, [id], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-                
-            });
-        });
+        return result[0].spawns;     
+        
     }
 
-    getTotalMapSpawns(id){
+    async insert(name, map, x, y, z, spawns, team){
 
-        return new Promise((resolve, reject) =>{
+        name = name.toLowerCase();
 
-            id = parseInt(id);
+        const query = "INSERT INTO nstats_map_spawns VALUES(NULL,?,?,?,?,?,?,?)";
 
-            const query = "SELECT COUNT(*) as spawns FROM nstats_map_spawns WHERE map=?";
-
-            mysql.query(query, [id], (err, result) =>{
-
-                if(err) reject(err);
-
-                resolve(result[0].spawns);
-            });
-        });
+        return await simpleQuery(query, [name, map, x, y, z, spawns, team]);
     }
 
-    insert(name, map, x, y, z, spawns, team){
+    async update(name, map, spawns){
 
-        return new Promise((resolve, reject) =>{
+        name = name.toLowerCase();
 
-            name = name.toLowerCase();
+        const query = "UPDATE nstats_map_spawns SET spawns=spawns+? WHERE name=? AND map=?";
 
-            const query = "INSERT INTO nstats_map_spawns VALUES(NULL,?,?,?,?,?,?,?)";
-
-            mysql.query(query, [name, map, x, y, z, spawns, team], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
-    }
-
-    update(name, map, spawns){
-
-        return new Promise((resolve, reject) =>{
-
-            name = name.toLowerCase();
-
-            const query = "UPDATE nstats_map_spawns SET spawns=spawns+? WHERE name=? AND map=?";
-
-            mysql.query(query, [spawns, name, map], (err, result) =>{
-
-                if(err) reject(err);
-
-                resolve(result);
-            });
-        });
+        return await simpleQuery(query, [spawns, name, map]);
     }
 }
-
-
-module.exports = Spawns;

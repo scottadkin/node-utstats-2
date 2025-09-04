@@ -1,7 +1,7 @@
-const mysql = require('./database');
-const fs = require('fs');
+import { simpleQuery, insertReturnInsertId, updateReturnAffectedRows } from "./database.js";
+import fs from "fs";
 
-class MonsterHunt{
+export default class MonsterHunt{
 
     constructor(){
 
@@ -11,7 +11,7 @@ class MonsterHunt{
 
         const query = "UPDATE nstats_player_matches SET mh_kills=?,mh_kills_best_life=?,mh_deaths=? WHERE match_id=? AND player_id=?";
 
-        await mysql.simpleUpdate(query, [kills, bestKillsInLife, monsterDeaths, matchId, playerId]);
+        await simpleQuery(query, [kills, bestKillsInLife, monsterDeaths, matchId, playerId]);
     }
 
     async updatePlayerTotals(gametypeId, playerId, kills, bestKillsInLife, monsterDeaths){
@@ -37,7 +37,7 @@ class MonsterHunt{
             gametypeId
         ];
 
-        await mysql.simpleUpdate(query, vars);
+        await simpleQuery(query, vars);
     
     }
 
@@ -56,7 +56,7 @@ class MonsterHunt{
 
         const query = "INSERT INTO nstats_monsters VALUES(NULL,?,?,0,0,0)";
 
-        return await mysql.insertReturnInsertId(query, [className, displayName]);
+        return await insertReturnInsertId(query, [className, displayName]);
     }
 
 
@@ -75,7 +75,7 @@ class MonsterHunt{
 
             const query = "SELECT id,class_name from nstats_monsters WHERE class_name IN(?)";
 
-            const result = await mysql.simpleFetch(query, [classNames]);
+            const result = await simpleQuery(query, [classNames]);
 
             const getId = (className) =>{
 
@@ -126,42 +126,42 @@ class MonsterHunt{
 
         const query = "UPDATE nstats_monsters SET deaths=deaths+?,matches=matches+1,kills=kills+? WHERE id=?";
 
-        await mysql.simpleUpdate(query, [deaths, kills, id]);
+        await simpleQuery(query, [deaths, kills, id]);
     }
 
     async insertMonsterMatchTotals(matchId, monsterId, deaths, kills){
 
         const query = "INSERT INTO nstats_monsters_match VALUES(NULL,?,?,?,?)";
 
-        await mysql.simpleInsert(query, [matchId, monsterId, deaths, kills]);
+        await simpleQuery(query, [matchId, monsterId, deaths, kills]);
     }
 
     async insertKill(matchId, timestamp, monsterId, killer){
 
         const query = "INSERT INTO nstats_monster_kills VALUES(NULL,?,?,?,?)";
 
-        await mysql.simpleInsert(query, [matchId, timestamp, monsterId, killer]);
+        await simpleQuery(query, [matchId, timestamp, monsterId, killer]);
     }
 
     async insertPlayerMatchTotals(matchId, player, monster, kills, deaths){
 
         const query = "INSERT INTO nstats_monsters_player_match VALUES(NULL,?,?,?,?,?)";
 
-        await mysql.simpleInsert(query, [matchId, player, monster, kills, deaths]);
+        await simpleQuery(query, [matchId, player, monster, kills, deaths]);
     }
 
     async changeKillsPlayerIds(oldId, newId){
 
         const query = "UPDATE nstats_monster_kills SET player=? WHERE player=?";
 
-        await mysql.simpleUpdate(query, [newId, oldId]);
+        await simpleQuery(query, [newId, oldId]);
     }
 
     async changePlayerMonsterTotalsIds(oldId, newId){
 
         const query = "UPDATE nstats_monsters_player_totals SET player=? WHERE player=?";
 
-        await mysql.simpleUpdate(query, [newId, oldId]);
+        await simpleQuery(query, [newId, oldId]);
     }
 
     async changePlayerIds(oldId, newId){
@@ -175,14 +175,14 @@ class MonsterHunt{
 
         const query = "SELECT * FROM nstats_monsters_player_match WHERE player=?";
 
-        return await mysql.simpleFetch(query, [id]);
+        return await simpleQuery(query, [id]);
     }
 
     async mergePlayerMatchTotalKills(oldId, newId){
 
         const query = "UPDATE nstats_monsters_player_match SET player=? WHERE player=?";
 
-        await mysql.simpleUpdate(query, [newId, oldId]);
+        await simpleQuery(query, [newId, oldId]);
 
     }
 
@@ -191,7 +191,7 @@ class MonsterHunt{
 
         const query = "INSERT INTO nstats_monsters_player_match VALUES(NULL,?,?,?,?,?)";
 
-        await mysql.simpleInsert(query, [matchId, playerId, monsterId, kills, deaths]);
+        await simpleQuery(query, [matchId, playerId, monsterId, kills, deaths]);
     }
 
 
@@ -199,7 +199,7 @@ class MonsterHunt{
 
         const query = "DELETE FROM nstats_monsters_player_match WHERE player=?";
 
-        await mysql.simpleDelete(query, [player]);
+        await simpleQuery(query, [player]);
     }
 
 
@@ -247,7 +247,7 @@ class MonsterHunt{
 
         const query = "DELETE FROM nstats_monsters_player_totals WHERE player=?";
 
-        return await mysql.simpleDelete(query, [id]);
+        return await simpleQuery(query, [id]);
     }
 
     async mergeTotals(data, newId){
@@ -315,14 +315,14 @@ class MonsterHunt{
 
         const query = "INSERT INTO nstats_monsters_player_totals VALUES(NULL,?,?,?,?,?)";
 
-        await mysql.simpleInsert(query, [player, monster, matches, kills, deaths]);
+        await simpleQuery(query, [player, monster, matches, kills, deaths]);
     }
 
     async updatePlayerMonsterTotals(player, monster, kills, deaths){
 
         const query = "UPDATE nstats_monsters_player_totals SET kills=kills+?,deaths=deaths+?,matches=matches+1 WHERE player=? AND monster=?";
 
-        const result = await mysql.updateReturnAffectedRows(query, [kills, deaths, player, monster]);
+        const result = await updateReturnAffectedRows(query, [kills, deaths, player, monster]);
 
         if(result === 0){
 
@@ -335,35 +335,35 @@ class MonsterHunt{
 
         const query = "DELETE FROM nstats_monsters_player_totals WHERE player=?";
 
-        await mysql.simpleDelete(query, [id]);
+        await simpleQuery(query, [id]);
     }
 
     async deletePlayerMonsterMatchTotals(id){
 
         const query = "DELETE FROM nstats_monsters_player_match WHERE player=?";
 
-        await mysql.simpleDelete(query, [id]);
+        await simpleQuery(query, [id]);
     }
 
     async deletePlayerMonsterKills(id){
 
         const query = "DELETE FROM nstats_monster_kills WHERE player=?";
 
-        await mysql.simpleDelete(query, [id]);
+        await simpleQuery(query, [id]);
     }
 
     async getPlayerMonsterTotals(id){
 
         const query = "SELECT monster,kills,matches,deaths FROM nstats_monsters_player_totals WHERE player=?";
 
-        return await mysql.simpleFetch(query, [id]);
+        return await simpleQuery(query, [id]);
     }
 
     async reducePlayerMonsterTotals(player, monster, kills){
 
         const query = "UPDATE nstats_monsters_player_totals SET kills=kills-?,matches=matches-1 WHERE player=? AND monster=?";
 
-        await mysql.simpleUpdate(query, [kills, player, monster]);
+        await simpleQuery(query, [kills, player, monster]);
     }
 
 
@@ -371,7 +371,7 @@ class MonsterHunt{
 
         const query = "UPDATE nstats_monsters SET deaths=deaths-? WHERE id=?";
 
-        await mysql.simpleUpdate(query, [kills, monsterId]);
+        await simpleQuery(query, [kills, monsterId]);
     }
 
     async deletePlayer(id){
@@ -407,28 +407,28 @@ class MonsterHunt{
 
         const query = "SELECT * FROM nstats_monsters_player_match WHERE match_id=? AND player=?";
 
-        return await mysql.simpleFetch(query, [matchId, playerId]);
+        return await simpleQuery(query, [matchId, playerId]);
     }
 
     async deletePlayerMatchKills(playerId, matchId){
 
         const query = "DELETE FROM nstats_monster_kills WHERE player=? AND match_id=?";
 
-        await mysql.simpleDelete(query, [playerId, matchId]);
+        await simpleQuery(query, [playerId, matchId]);
     }
 
     async deletePlayerSingleMatchTotals(playerId, matchId){
 
         const query = "DELETE FROM nstats_monsters_player_match WHERE match_id=? AND player=?";
 
-        await mysql.simpleDelete(query, [matchId, playerId]);
+        await simpleQuery(query, [matchId, playerId]);
     }
 
     async reduceMonsterTotals(monsterId, deaths, matches){
 
         const query = "UPDATE nstats_monsters SET deaths=deaths-?,matches=matches-? WHERE id=?";
 
-        await mysql.simpleUpdate(query, [deaths, matches, monsterId]);
+        await simpleQuery(query, [deaths, matches, monsterId]);
     }
 
 
@@ -436,7 +436,7 @@ class MonsterHunt{
 
         const query = "UPDATE nstats_monsters_match SET deaths=deaths-? WHERE monster=? AND match_id=?";
 
-        await mysql.simpleUpdate(query, [deaths, monsterId, matchId]);
+        await simpleQuery(query, [deaths, monsterId, matchId]);
     }
 
     async removePlayerFromMatch(playerId, matchId){
@@ -470,28 +470,28 @@ class MonsterHunt{
 
         const query = "SELECT monster,deaths,kills FROM nstats_monsters_match WHERE match_id=?";
 
-        return await mysql.simpleFetch(query, [id]);
+        return await simpleQuery(query, [id]);
     }
 
     async getMatchPlayerTotals(id){
 
         const query = "SELECT player,monster,kills FROM nstats_monsters_player_match WHERE match_id=?";
 
-        return await mysql.simpleFetch(query, [id]);
+        return await simpleQuery(query, [id]);
     }
 
     async deleteMatchPlayerTotals(id){
 
         const query = "DELETE FROM nstats_monsters_player_match WHERE match_id=?";
 
-        await mysql.simpleDelete(query, [id]);
+        await simpleQuery(query, [id]);
     }
 
     async deleteMatchKills(id){
 
         const query = "DELETE FROM nstats_monster_kills WHERE match_id=?";
 
-        await mysql.simpleDelete(query, [id]);
+        await simpleQuery(query, [id]);
     }
 
     async deleteMatch(id){
@@ -530,7 +530,7 @@ class MonsterHunt{
 
         const query = "SELECT * FROM nstats_monsters ORDER BY class_name ASC";
 
-        return await mysql.simpleFetch(query);
+        return await simpleQuery(query);
     }
 
     async getAllMonsterImages(){
@@ -542,7 +542,7 @@ class MonsterHunt{
 
         const query = "UPDATE nstats_monsters SET display_name=? WHERE id=?";
 
-        await mysql.simpleUpdate(query, [name, id]);
+        await simpleQuery(query, [name, id]);
     }
 
 
@@ -550,18 +550,18 @@ class MonsterHunt{
 
         const query = "UPDATE nstats_matches SET mh_kills=? WHERE id=?";
 
-        await mysql.simpleUpdate(query, [kills, matchId]);
+        await simpleQuery(query, [kills, matchId]);
     }
 
 
     async getPlayerMatchKillTotals(matchId){
 
-        return mysql.simpleFetch("SELECT player,monster,kills,deaths FROM nstats_monsters_player_match WHERE match_id=?",[matchId]);
+        return simpleQuery("SELECT player,monster,kills,deaths FROM nstats_monsters_player_match WHERE match_id=?",[matchId]);
     }
 
     async getSinglePlayerMatchKillTotals(matchId, playerId){
 
-        return mysql.simpleFetch("SELECT monster,kills FROM nstats_monsters_player_match WHERE match_id=? AND player=?", [matchId, playerId]);
+        return simpleQuery("SELECT monster,kills FROM nstats_monsters_player_match WHERE match_id=? AND player=?", [matchId, playerId]);
     }
 
 
@@ -569,7 +569,7 @@ class MonsterHunt{
 
         if(ids.length === 0) return [];
 
-        const result =  await mysql.simpleFetch("SELECT id,class_name,display_name FROM nstats_monsters WHERE id IN(?)",[ids]);
+        const result =  await simpleQuery("SELECT id,class_name,display_name FROM nstats_monsters WHERE id IN(?)",[ids]);
 
         const objData = {};
 
@@ -648,5 +648,3 @@ class MonsterHunt{
         return found;
     }
 }
-
-module.exports = MonsterHunt;

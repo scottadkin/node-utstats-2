@@ -12,7 +12,7 @@ import WinRateManager from "../winrate.js";
 import SpreeManager  from "./spreemanager.js";
 import {scalePlaytime} from "../functions.js";
 
-class PlayerManager{
+export default class PlayerManager{
 
     constructor(data, spawnManager, bIgnoreBots, matchTimings, geoip, bUsePlayerACEHWID, bHardcore){
 
@@ -1799,5 +1799,3 @@ class PlayerManager{
     
     
 }
-
-module.exports = PlayerManager;

@@ -1,4 +1,4 @@
-const config = require('../../config.json');
+import config from "../../config.json" with {"type": "json"};
 import WeaponStats from "./weaponstats.js";
 import Message from "../message.js";
 import { scalePlaytime, convertTimestamp } from "../functions.js";

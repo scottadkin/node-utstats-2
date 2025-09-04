@@ -1,12 +1,13 @@
-const Client =  require("ssh2-sftp-client");
-const config = require("../../config.json");
-const Message = require("../message");
-const fs = require("fs");
-const Logs = require("../logs");
-const Ace = require("../ace");
+
+import Client from "ssh2-sftp-client";
+import config from "../../config.json" with {"type": "json"};
+import Message from "../message.js";
+import fs from "fs";
+import { bExists as logsBExists } from "../logs.js";
+import Ace from "../ace.js";
 
 
-class SFTPImporter{
+export default class SFTPImporter{
 
     constructor(host, port, user, password, entryPoint, bDeleteAfter, bDeleteTmpFiles, bIgnoreDuplicates, bImportAce, bDeleteAceLogs, bDeleteAceScreenshots){
 
@@ -152,7 +153,7 @@ class SFTPImporter{
 
             const log = this.logsToDownload[i];
 
-            if(await Logs.bExists(log.name) && this.bIgnoreDuplicates){
+            if(await logsBExists(log.name) && this.bIgnoreDuplicates){
 
                 new Message(`${log.name} has already been imported, skipping.`,"warning");
                 duplicates++;
@@ -397,5 +398,3 @@ class SFTPImporter{
         }
     }
 }
-
-module.exports = SFTPImporter;

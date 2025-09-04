@@ -1,8 +1,5 @@
-const {imageServerPort, bIncludeImageServerPortInURLs, bUseSeperateImageServer} = require("../config.json");
-
-
-
-
+//const {imageServerPort, bIncludeImageServerPortInURLs, bUseSeperateImageServer} = require("../config.json");
+import config from  "../config.json"  with {"type": "json"};
 
 export function firstCharLowerCase(input){
 
@@ -668,7 +665,7 @@ export function reduceGraphDataPoints(inputData, max){
 
 export function getImageHostAndPort(host){
 
-    if(!bUseSeperateImageServer){
+    if(!config.bUseSeperateImageServer){
         //console.log(host);
         //return host;
 
@@ -681,18 +678,18 @@ export function getImageHostAndPort(host){
     let port = "";
     
     if(hostResult !== null){
-        port = `${imageServerPort}`;
+        port = `${config.imageServerPort}`;
         host = hostResult[1];
     }else{
 
-        if(bIncludeImageServerPortInURLs){
+        if(config.bIncludeImageServerPortInURLs){
             return `${host}:${imageServerPort}`;
         }else{
             return `${imageServerPort}`;
         }
     }
 
-    if(bIncludeImageServerPortInURLs){
+    if(config.bIncludeImageServerPortInURLs){
         return `http://${host}:${port}`;
     }else{
         return `http://${host}`;

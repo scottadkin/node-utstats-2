@@ -5,8 +5,8 @@ import config from "./config.json" with {"type": "json"};
 
 new Message('Node UTStats 2 Importer module started.','note');
 
-ftpServers = [];
-bCurrentImportFinished = false;
+let ftpServers = [];
+let bCurrentImportFinished = false;
 
 async function setFTPSettings(){
 

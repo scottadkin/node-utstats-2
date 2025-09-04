@@ -2,7 +2,7 @@ import { simpleQuery, insertReturnInsertId } from "./api/database.js";
 
 (async () =>{
 
-    const test = await simpleQuery("SELECT * FROM nstats_dummy WHERE id=999999999");
+    const test = await simpleQuery("SELECT COUNT(*) as spawns FROM nstats_map_spawns WHERE map=33333");
     console.log(test);
     process.exit();
 

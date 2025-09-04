@@ -3,21 +3,21 @@ import Message from "./message.js";
 import { setValueIfUndefined, calculateKillEfficiency, removeIps } from "./functions.js";
 import CountriesManager from "./countriesmanager.js";
 import Assault from "./assault.js";
-const CTF = require("./ctf");
-const Domination = require("./domination");
-const Faces = require("./faces");
-const Headshots = require("./headshots");
-const Items = require("./items");
-const Kills = require("./kills");
-const Connections = require("./connections");
-const Pings = require("./pings");
-const Weapons = require("./weapons");
-const Voices = require("./voices");
-const WinRate = require("./winrate");
-const Sprees = require("./sprees");
-const MonsterHunt = require("./monsterhunt");
-const SiteSettings = require("./sitesettings");
-const Combogib = require("./combogib");
+import CTF from "./ctf.js";
+import Domination from "./domination.js";
+import Faces from "./faces.js";
+import Headshots from "./headshots.js";
+import Items from "./items.js";
+import Kills from "./kills.js";
+import Connections from "./connections.js";
+import Pings from "./pings.js";
+import Weapons from "./weapons.js";
+import Voices from "./voices.js";
+import WinRate from "./winrate.js";
+import Sprees from "./sprees.js";
+import MonsterHunt from "./monsterhunt.js";
+import SiteSettings from "./sitesettings.js";
+import Combogib from "./combogib.js";
 
 export default class Player{
 

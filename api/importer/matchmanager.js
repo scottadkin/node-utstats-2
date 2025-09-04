@@ -1,4 +1,4 @@
-const config = require('../../config.json');
+import config from "../../config.json" with {"type": "json"};
 import Message from "../message.js";
 import {bExists as logsBExists, insert as logsInsert, setMatchId as logsSetMatchId } from "../logs.js";
 import ServerInfo from "./serverInfo.js";

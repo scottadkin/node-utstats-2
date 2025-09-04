@@ -1,22 +1,22 @@
 import { simpleQuery } from "./database.js";
 import Message from "./message.js";
-const CTF = require('./ctf');
-const Assault = require('./assault');
-const Domination = require('./domination');
-const Faces = require('./faces');
-const Headshots = require('./headshots');
-const Items = require('./items');
-const Kills = require('./kills');
-const Logs = require('./logs');
-const Maps = require('./maps');
-const Connections = require('./connections');
-const Pings = require('./pings');
-const Weapons = require('./weapons');
-const Rankings = require('./rankings');
-const Servers = require('./servers');
-const Voices = require('./voices');
-const Winrate = require('./winrate');
-const fs = require('fs');
+import CTF from "./ctf.js";
+import Assault from "./assault.js";
+import Domination from "./domination.js";
+import Faces from "./faces.js";
+import Headshots from "./headshots.js";
+import Items from "./items.js";
+import Kills from "./kills.js";
+import { deleteMatches as logsDeleteMatches } from "./logs.js";
+import Maps from "./maps.js";
+import Connections from "./connections.js";
+import Pings from "./pings.js";
+import Weapons from "./weapons.js";
+import Rankings from "./rankings.js";
+import Servers from "./servers.js";
+import Voices from "./voices.js";
+import WinRate from "./winrate.js";
+import fs from "fs";
 
 export default class Gametypes{
 
@@ -875,7 +875,7 @@ export default class Gametypes{
 
         await killManager.deleteMatches(matchIds);
 
-        await Logs.deleteMatches(matchIds);
+        await logsDeleteMatches(matchIds);
 
         const mapsManager = new Maps();
 
@@ -910,7 +910,7 @@ export default class Gametypes{
         
         await voiceManager.reduceViaPlayerMatchData(playersData);
 
-        const winrateManager = new Winrate();
+        const winrateManager = new WinRate();
 
         await winrateManager.deleteMatches(matchIds, gametypeId, playerIds);
 

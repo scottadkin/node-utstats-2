@@ -1,7 +1,7 @@
-const Message = require('../message');
-const Spawns = require('../spawns');
+import Message from "../message.js";
+import Spawns from "../spawns.js";
 
-class SpawnManager{
+export default class SpawnManager{
 
     constructor(){
 
@@ -198,6 +198,3 @@ class SpawnManager{
         }
     }
 }
-
-
-module.exports = SpawnManager;

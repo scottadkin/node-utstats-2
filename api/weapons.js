@@ -1,8 +1,8 @@
-const mysql = require('./database');
-const Message = require('./message');
-const fs = require('fs');
+import { simpleQuery, bulkInsert, updateReturnAffectedRows } from "./database.js";
+import Message from "./message.js";
+import fs from "fs";
 
-class Weapons{
+export default class Weapons{
 
     constructor(){
 
@@ -13,7 +13,7 @@ class Weapons{
 
         const query = "SELECT COUNT(*) as total_matches FRON nstats_weapons WHERE name=?";
 
-        const result = await mysql.simpleQuery(query, [name]);
+        const result = await simpleQuery(query, [name]);
 
         if(result[0].total_matches >= 1) return true;
 
@@ -25,7 +25,7 @@ class Weapons{
 
         const query = "INSERT INTO nstats_weapons VALUES(NULL,?,0,0,0,0,0,0,0)";
 
-        const result = await mysql.simpleQuery(query, [name]);
+        const result = await simpleQuery(query, [name]);
 
         return result.insertId;
 
@@ -39,7 +39,7 @@ class Weapons{
             accuracy=IF(hits > 0 AND shots > 0, (hits/shots)*100, IF(hits > 0, 100,0))
             WHERE id=?`;
         
-        return await mysql.simpleQuery(query, [kills, deaths, shots, hits, damage, weapon]);
+        return await simpleQuery(query, [kills, deaths, shots, hits, damage, weapon]);
 
     }
 
@@ -47,7 +47,7 @@ class Weapons{
 
         const query = "SELECT * FROM nstats_weapons WHERE name IN (?)";
 
-        return await mysql.simpleQuery(query, [names]);
+        return await simpleQuery(query, [names]);
     }
 
 
@@ -119,7 +119,7 @@ class Weapons{
             stats.accuracy, stats.shots, stats.hits, Math.abs(stats.damage), stats.efficiency
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
 
     }*/
 
@@ -130,14 +130,14 @@ class Weapons{
             deaths,suicides,team_kills,best_team_kills,accuracy,shots,hits,damage,efficiency
         ) VALUES ?`;
 
-        return await mysql.bulkInsert(query, data);
+        return await bulkInsert(query, data);
     }
 
 
     async bPlayerTotalExists(mapId, gametypeId, playerId, weaponId){
 
         const query = "SELECT COUNT(*) as total_stats FROM nstats_player_weapon_totals WHERE player_id=? AND map_id=? AND gametype=? AND weapon=?";
-        const result = await mysql.simpleQuery(query, [playerId, mapId, gametypeId, weaponId]);
+        const result = await simpleQuery(query, [playerId, mapId, gametypeId, weaponId]);
 
         if(result[0].total_stats > 0) return true;
         return false;
@@ -167,7 +167,7 @@ class Weapons{
             gametypeId
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
 
     }
 
@@ -219,7 +219,7 @@ class Weapons{
         FROM nstats_player_weapon_totals
         WHERE player_id=? AND map_id=0 AND gametype=0`;
 
-        return await mysql.simpleQuery(query, [playerId]);
+        return await simpleQuery(query, [playerId]);
     }
 
     async getPlayerBest(playerId){
@@ -228,20 +228,20 @@ class Weapons{
         FROM nstats_player_weapon_best
         WHERE player_id=? AND gametype_id=0 AND map_id=0`;
 
-        return await mysql.simpleQuery(query, [playerId]);
+        return await simpleQuery(query, [playerId]);
 
     }
 
     async getAllPlayerTotals(id){
 
-        return await mysql.simpleFetch("SELECT * FROM nstats_player_weapon_totals WHERE player_id=?", [id]);
+        return await simpleQuery("SELECT * FROM nstats_player_weapon_totals WHERE player_id=?", [id]);
     }
 
     async getAllNames(){
 
         const query = "SELECT id,name FROM nstats_weapons";
 
-        return await mysql.simpleFetch(query);
+        return await simpleQuery(query);
     }
 
     async getNamesByIds(ids, bReturnObject){
@@ -253,7 +253,7 @@ class Weapons{
         }
 
         const query = "SELECT id,name FROM nstats_weapons WHERE id IN(?)";
-        const result =  await mysql.simpleQuery(query, [ids]);
+        const result =  await simpleQuery(query, [ids]);
 
         if(!bReturnObject) return result;
 
@@ -330,7 +330,7 @@ class Weapons{
         deaths,suicides,accuracy,shots,hits,damage,efficiency 
         FROM nstats_player_weapon_match WHERE match_id=? ORDER BY kills DESC, deaths ASC`;
 
-        return await mysql.simpleQuery(query, [id]);
+        return await simpleQuery(query, [id]);
 
     }
 
@@ -369,88 +369,74 @@ class Weapons{
     async deletePlayerMatchData(id){
 
         const query = "DELETE FROM nstats_player_weapon_match WHERE match_id=?";
-        return await mysql.simpleQuery(query, [id]);
+        return await simpleQuery(query, [id]);
 
     }
 
 
-    reducePlayerWeaponTotal(data){
+    async reducePlayerWeaponTotal(data){
 
 
-        return new Promise((resolve, reject) =>{
 
-            const query = `UPDATE nstats_player_weapon_totals SET
-            kills=kills-?,deaths=deaths-?,shots=shots-?,hits=hits-?,damage=damage-?,
-            matches=matches-1,
-            accuracy = IF(hits > 0 AND shots > 0,(hits / shots) * 100, IF(hits > 0, 100, 0)),
-            efficiency = IF(kills > 0 && deaths > 0, (kills / (kills + deaths)) * 100, IF(kills > 0, 100, 0))
-            WHERE player_id=? AND weapon=?
-            `;
+        const query = `UPDATE nstats_player_weapon_totals SET
+        kills=kills-?,deaths=deaths-?,shots=shots-?,hits=hits-?,damage=damage-?,
+        matches=matches-1,
+        accuracy = IF(hits > 0 AND shots > 0,(hits / shots) * 100, IF(hits > 0, 100, 0)),
+        efficiency = IF(kills > 0 && deaths > 0, (kills / (kills + deaths)) * 100, IF(kills > 0, 100, 0))
+        WHERE player_id=? AND weapon=?
+        `;
 
-            const vars = [
-                data.kills,
-                data.deaths,
-                data.shots,
-                data.hits,
-                data.damage,
-                data.player_id,
-                data.weapon_id
-            ];
+        const vars = [
+            data.kills,
+            data.deaths,
+            data.shots,
+            data.hits,
+            data.damage,
+            data.player_id,
+            data.weapon_id
+        ];
 
 
-            mysql.query(query, vars, (err) =>{
-
-                if(err) reject(err);
-                resolve()
-            });
-
-        });
+        return await simpleQuery(query, vars);
     }
 
 
-    reduceTotals(weapon, data, dontReduceMatches){
+    async reduceTotals(weapon, data, dontReduceMatches){
 
-        return new Promise((resolve, reject) =>{
+        let query = `UPDATE nstats_weapons SET
+        kills=kills-?,
+        deaths=deaths-?,
+        shots=shots-?,
+        hits=hits-?,
+        damage=damage-?,
+        matches=matches-1,
+        accuracy = IF(hits > 0 && shots > 0, (hits / shots) * 100, IF(hits > 0, 100, 0))
+        WHERE id=?
+        `;
 
-            let query = `UPDATE nstats_weapons SET
+        if(dontReduceMatches !== undefined){
+            query = `UPDATE nstats_weapons SET
             kills=kills-?,
             deaths=deaths-?,
             shots=shots-?,
             hits=hits-?,
             damage=damage-?,
-            matches=matches-1,
             accuracy = IF(hits > 0 && shots > 0, (hits / shots) * 100, IF(hits > 0, 100, 0))
             WHERE id=?
             `;
+        }
 
-            if(dontReduceMatches !== undefined){
-                query = `UPDATE nstats_weapons SET
-                kills=kills-?,
-                deaths=deaths-?,
-                shots=shots-?,
-                hits=hits-?,
-                damage=damage-?,
-                accuracy = IF(hits > 0 && shots > 0, (hits / shots) * 100, IF(hits > 0, 100, 0))
-                WHERE id=?
-                `;
-            }
+        const vars = [
+            data.kills,
+            data.deaths,
+            data.shots,
+            data.hits,
+            data.damage,
+            weapon
+        ];
 
-            const vars = [
-                data.kills,
-                data.deaths,
-                data.shots,
-                data.hits,
-                data.damage,
-                weapon
-            ];
-
-            mysql.query(query, vars, (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, vars);
+    
     }
 
 
@@ -504,18 +490,18 @@ class Weapons{
 
     async getPlayerMatchData(playerId, matchId){
 
-        return await mysql.simpleFetch("SELECT * FROM nstats_player_weapon_match WHERE match_id=? AND player_id=?",[matchId, playerId]);
+        return await simpleQuery("SELECT * FROM nstats_player_weapon_match WHERE match_id=? AND player_id=?",[matchId, playerId]);
     }
 
     async getAllPlayerMatchData(playerId){
 
-        return await mysql.simpleFetch("SELECT * FROM nstats_player_weapon_match WHERE player_id=?", [playerId]);
+        return await simpleQuery("SELECT * FROM nstats_player_weapon_match WHERE player_id=?", [playerId]);
     }
 
 
     async deleteSinglePlayerMatchData(playerId, matchId){
 
-        await mysql.simpleDelete("DELETE FROM nstats_player_weapon_match WHERE player_id=? AND match_id=?",[
+        await simpleQuery("DELETE FROM nstats_player_weapon_match WHERE player_id=? AND match_id=?",[
             playerId, matchId
         ]);
     }
@@ -557,14 +543,14 @@ class Weapons{
             data.id
         ];
 
-        await mysql.simpleUpdate(query, vars);
+        await simpleQuery(query, vars);
     }
 
     /*async deletePlayerMatchData(id, matchIds){
 
         if(matchIds.length === 0) return;
 
-        await mysql.simpleDelete("DELETE FROM nstats_player_weapon_match WHERE player_id=? AND match_id IN(?)", [id, matchIds]);
+        await simpleQuery("DELETE FROM nstats_player_weapon_match WHERE player_id=? AND match_id IN(?)", [id, matchIds]);
     }*/
 
 
@@ -729,7 +715,7 @@ class Weapons{
                 ];
 
 
-                updatedRows = await mysql.updateReturnAffectedRows(updateQuery, vars);
+                updatedRows = await updateReturnAffectedRows(updateQuery, vars);
 
                // console.log(`${updatedRows} rows updated`);
 
@@ -751,7 +737,7 @@ class Weapons{
                         weaponData.matches,     
                     ];
 
-                    await mysql.simpleInsert(insertQuery, vars);
+                    await simpleQuery(insertQuery, vars);
                 }
             }
         }
@@ -760,8 +746,8 @@ class Weapons{
 
     async deletePlayer(id){
 
-        await mysql.simpleDelete("DELETE FROM nstats_player_weapon_match WHERE player_id=?", [id]);
-        await mysql.simpleDelete("DELETE FROM nstats_player_weapon_totals WHERE player_id=?", [id]);
+        await simpleQuery("DELETE FROM nstats_player_weapon_match WHERE player_id=?", [id]);
+        await simpleQuery("DELETE FROM nstats_player_weapon_totals WHERE player_id=?", [id]);
     }
 
     createDummyMatchData(){
@@ -781,13 +767,13 @@ class Weapons{
     async changePlayerIdMatches(oldId, newId){
 
         const query = "UPDATE nstats_player_weapon_match SET player_id=? WHERE player_id=?";
-        return await mysql.simpleQuery(query, [newId, oldId]);
+        return await simpleQuery(query, [newId, oldId]);
     }
 
     async changePlayerIdTotals(oldId, newId){
 
         const query = "UPDATE nstats_player_weapon_totals SET player_id=? WHERE player_id=?";
-        return await mysql.simpleQuery(query, [newId, oldId]);
+        return await simpleQuery(query, [newId, oldId]);
     }
 
 
@@ -804,7 +790,7 @@ class Weapons{
             FROM nstats_player_weapon_match
             WHERE match_id=? AND player_id=? AND weapon_id=?`;
 
-        const data = await mysql.simpleQuery(query, [matchId, playerId, weaponId]);
+        const data = await simpleQuery(query, [matchId, playerId, weaponId]);
 
         if(data.length > 0){
             return data[0];
@@ -816,7 +802,7 @@ class Weapons{
     async deleteMatchRows(matchId, playerId, weaponId){
 
         const query = "DELETE FROM nstats_player_weapon_match WHERE match_id=? AND player_id=? AND weapon_id=?";
-        return await mysql.simpleQuery(query, [matchId, playerId, weaponId]);
+        return await simpleQuery(query, [matchId, playerId, weaponId]);
     }
 
     async insertMatchRow(matchId, mapId, gametypeId, playerId, weaponId, kills, bestKills, teamKills, bestTeamKills, deaths, suicides, accuracy, shots, hits, damage){
@@ -840,14 +826,14 @@ class Weapons{
             accuracy, shots, hits, damage, efficiency
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async mergePlayerMatchData(newId){
 
         const query = "SELECT match_id,map_id,gametype_id,weapon_id,COUNT(*) as total_entries FROM nstats_player_weapon_match WHERE player_id=? GROUP BY match_id, map_id, gametype_id, weapon_id";
 
-        const result = await mysql.simpleQuery(query, [newId]);
+        const result = await simpleQuery(query, [newId]);
 
         const needsRecalculation = [];
 
@@ -906,7 +892,7 @@ class Weapons{
     async deletePlayerTotalData(playerId){
 
         const query = "DELETE FROM nstats_player_weapon_totals WHERE player_id=?";
-        return await mysql.simpleQuery(query, [playerId]);
+        return await simpleQuery(query, [playerId]);
     }
 
     async mergePlayerTotalData(newId){
@@ -915,7 +901,7 @@ class Weapons{
         map_id,gametype,weapon,playtime,kills,team_kills,deaths,suicides,efficiency,accuracy,shots,hits,damage,matches 
         FROM nstats_player_weapon_totals WHERE player_id=?`;
 
-        const data = await mysql.simpleQuery(query, [newId]);
+        const data = await simpleQuery(query, [newId]);
 
         await this.deletePlayerTotalData(newId);
 
@@ -939,7 +925,7 @@ class Weapons{
         const query = "INSERT INTO nstats_player_weapon_totals VALUES(NULL,?,?,?,?,?,?,?,?,?,0,?,?,?,?,1)";//13
         const vars = [playerId, mapId, gametypeId, playtime, weaponId, kills, teamKills, deaths, suicides, accuracy, shots, hits, Math.abs(damage)];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
 
     }
 
@@ -947,7 +933,7 @@ class Weapons{
 
         const query = "INSERT INTO nstats_player_weapon_totals VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         const vars = [playerId, mapId, gametypeId, playtime, weaponId, kills, teamKills, deaths, suicides, efficiency, accuracy, shots, hits, damage, matches];
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async updatePlayerTotalCustom(playerId, mapId, gametypeId, weaponId, playtime, kills, teamKills, deaths, suicides, efficiency, accuracy, shots, hits, damage, matches){
@@ -967,7 +953,7 @@ class Weapons{
         WHERE player_id=? AND map_id=? AND gametype=? AND weapon=?`;
 
         const vars = [playtime, kills, teamKills, deaths, suicides, shots, hits, damage, matches, playerId, mapId, gametypeId, weaponId];
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async mergePlayers(oldId, newId){
@@ -983,11 +969,11 @@ class Weapons{
     }
 
     async deleteAllPlayerMatchData(playerId){
-        await mysql.simpleDelete("DELETE FROM nstats_player_weapon_match WHERE player_id=?", [playerId]);
+        await simpleQuery("DELETE FROM nstats_player_weapon_match WHERE player_id=?", [playerId]);
     }
 
     async deleteAllPlayerTotals(playerId){
-        await mysql.simpleDelete("DELETE FROM nstats_player_weapon_totals WHERE player_id=?", [playerId]);
+        await simpleQuery("DELETE FROM nstats_player_weapon_totals WHERE player_id=?", [playerId]);
     }
 
     async deletePlayer(playerId){
@@ -1041,14 +1027,14 @@ class Weapons{
 
         if(ids.length === 0) return [];
 
-        return await mysql.simpleFetch("SELECT * FROM nstats_player_weapon_match WHERE match_id IN(?)", [ids]);
+        return await simpleQuery("SELECT * FROM nstats_player_weapon_match WHERE match_id IN(?)", [ids]);
     }
 
     async deleteMatchesData(matchIds){
 
         if(matchIds.length === 0) return;
 
-        await mysql.simpleDelete("DELETE FROM nstats_player_weapon_match WHERE match_id IN(?)", [matchIds]);
+        await simpleQuery("DELETE FROM nstats_player_weapon_match WHERE match_id IN(?)", [matchIds]);
     }
 
     async reduceTotalsAlt(weaponId, matches, data){
@@ -1073,7 +1059,7 @@ class Weapons{
             weaponId
         ];
 
-        await mysql.simpleUpdate(query, vars);
+        await simpleQuery(query, vars);
     }
 
     async deleteMatches(gametypeId, matchIds){
@@ -1206,14 +1192,14 @@ class Weapons{
             weaponId,
         ];
 
-        await mysql.simpleUpdate(query, vars);
+        await simpleQuery(query, vars);
     }
 
     async bPlayerBestExist(playerId, mapId, gametypeId, weaponId){
 
         const query = `SELECT COUNT(*) as total_matches FROM nstats_player_weapon_best WHERE player_id=? AND map_id=? AND gametype_id=? AND weapon_id=?`;
 
-        const result = await mysql.simpleQuery(query, [playerId, mapId, gametypeId, weaponId]);
+        const result = await simpleQuery(query, [playerId, mapId, gametypeId, weaponId]);
 
         if(result[0].total_matches > 0) return true;
 
@@ -1238,7 +1224,7 @@ class Weapons{
             stats.damage
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async updatePlayerBestQuery(playerId, mapId, gametypeId, weaponId, stats){
@@ -1272,7 +1258,7 @@ class Weapons{
             playerId, mapId, gametypeId, weaponId
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async updatePlayerBest(playerId, mapId, gametypeId, weaponId, stats){
@@ -1303,7 +1289,7 @@ class Weapons{
 
         const query = `UPDATE nstats_player_weapon_best SET player_id=? WHERE player_id=?`;
 
-        return await mysql.simpleQuery(query, [newId, oldId]);
+        return await simpleQuery(query, [newId, oldId]);
     }
 
 
@@ -1311,7 +1297,7 @@ class Weapons{
 
         const query = `DELETE FROM nstats_player_weapon_best WHERE player_id=?`;
 
-        return await mysql.simpleQuery(query, [playerId])
+        return await simpleQuery(query, [playerId])
     }
 
     async mergePlayerBestData(playerId){
@@ -1333,7 +1319,7 @@ class Weapons{
         WHERE player_id=?
         GROUP BY player_id,map_id,gametype_id,weapon_id`;
 
-        const result = await mysql.simpleQuery(query, [playerId]);
+        const result = await simpleQuery(query, [playerId]);
 
         await this.deletePlayerBest(playerId);
 
@@ -1354,7 +1340,7 @@ class Weapons{
 
         const query = `SELECT player_id,weapon FROM nstats_player_weapon_totals WHERE map_id=? AND gametype=? AND weapon IN ? AND player_id IN ?`;
 
-        const result = await mysql.simpleQuery(query, [mapId, gametypeId, [weaponIds], [playerIds]]);
+        const result = await simpleQuery(query, [mapId, gametypeId, [weaponIds], [playerIds]]);
 
         const foundData = {};
 
@@ -1416,7 +1402,7 @@ class Weapons{
             }    
         }   
 
-        return await mysql.bulkInsert(query, insertVars);
+        return await bulkInsert(query, insertVars);
     }
 
     async bulkUpdatePlayerTotals(data){
@@ -1442,14 +1428,14 @@ class Weapons{
             WHERE player_id=${d.playerId} AND weapon=${d.weaponId} AND gametype=${d.gametypeId} AND map_id=${d.mapId} LIMIT 1;`;
         }
 
-        await mysql.simpleQuery(query);     
+        await simpleQuery(query);     
     }
 
     async getCurrentPlayerTotals(mapId, gametypeId, playerIds, weaponIds){
 
         const query = `SELECT * FROM nstats_player_weapon_totals WHERE map_id=? AND gametype=? AND player_id IN(?) AND weapon IN(?)`;
 
-        const result = await mysql.simpleQuery(query, [mapId, gametypeId, playerIds, weaponIds]);
+        const result = await simpleQuery(query, [mapId, gametypeId, playerIds, weaponIds]);
 
         const data = {};
 
@@ -1473,7 +1459,7 @@ class Weapons{
 
         const query = `DELETE FROM nstats_player_weapon_totals WHERE id IN (?)`;
 
-        return await mysql.simpleQuery(query, [ids]);
+        return await simpleQuery(query, [ids]);
     }
 
     async insertNewPlayerTotalStats(data){
@@ -1507,7 +1493,7 @@ class Weapons{
             }
         }
 
-        await mysql.bulkInsert(query, insertVars);
+        await bulkInsert(query, insertVars);
     }
 
 
@@ -1515,7 +1501,7 @@ class Weapons{
 
         const query = `DELETE FROM nstats_player_weapon_totals WHERE gametype=? AND map_id=? AND player_id IN (?) AND weapon IN (?)`;
 
-        return await mysql.simpleQuery(query, [gametypeId, mapId, playerIds, weaponIds]);
+        return await simpleQuery(query, [gametypeId, mapId, playerIds, weaponIds]);
     }
 
 
@@ -1523,21 +1509,21 @@ class Weapons{
 
         const query = `UPDATE nstats_player_weapon_match SET gametype_id=? WHERE gametype_id=?`;
 
-        return await mysql.simpleQuery(query, [newId, oldId]);
+        return await simpleQuery(query, [newId, oldId]);
     }
 
     async changeTotalsGametypes(oldId, newId){
 
         const query = `UPDATE nstats_player_weapon_totals SET gametype=? WHERE gametype=?`;
 
-        return await mysql.simpleQuery(query, [newId, oldId]);
+        return await simpleQuery(query, [newId, oldId]);
     }
 
     async getDuplicateTotalsData(gametypeId){
 
         const query = `SELECT player_id,weapon,map_id,gametype,COUNT(*) as total_matches FROM nstats_player_weapon_totals WHERE gametype=? GROUP BY player_id,map_id,weapon`;
 
-        const result = await mysql.simpleQuery(query, [gametypeId]);
+        const result = await simpleQuery(query, [gametypeId]);
 
         const duplicates = [];
 
@@ -1557,7 +1543,7 @@ class Weapons{
 
         const query = `DELETE FROM nstats_player_weapon_totals WHERE player_id=? AND gametype=? AND map_id=? AND weapon=?`;
 
-        return await mysql.simpleQuery(query, [playerId, gametypeId, mapId, weaponId]);
+        return await simpleQuery(query, [playerId, gametypeId, mapId, weaponId]);
     }
 
     async combineTotalsData(playerId, gametypeId, mapId, weaponId){
@@ -1574,7 +1560,7 @@ class Weapons{
         SUM(matches) as matches
         FROM nstats_player_weapon_totals WHERE player_id=? AND gametype=? AND map_id=? AND weapon=?`;
 
-        const result = await mysql.simpleQuery(fetchQuery, [playerId, gametypeId, mapId, weaponId]);
+        const result = await simpleQuery(fetchQuery, [playerId, gametypeId, mapId, weaponId]);
 
         if(result.length === 0) return;
 
@@ -1641,7 +1627,7 @@ class Weapons{
 
         const query = `SELECT player_id,gametype_id,COUNT(*) as total_rows FROM nstats_player_weapon_best GROUP BY player_id, gametype_id`;
     
-        const result = await mysql.simpleQuery(query, [mapId]);
+        const result = await simpleQuery(query, [mapId]);
 
         console.log(result);
     }
@@ -1661,7 +1647,7 @@ class Weapons{
             const t = tables[i];
 
             const query = `UPDATE nstats_${t} SET map_id=? WHERE map_id=?`;
-            await mysql.simpleQuery(query, [newId, oldId]);
+            await simpleQuery(query, [newId, oldId]);
         }
 
         //await this.fixMapDuplicateBestData(newId);
@@ -1669,5 +1655,3 @@ class Weapons{
     }
 }
 
-
-module.exports = Weapons;

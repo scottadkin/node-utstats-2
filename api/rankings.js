@@ -1,7 +1,7 @@
-const mysql = require('./database');
-const Message = require('./message');
+import { simpleQuery } from "./database.js";
+import Message from "./message.js";
 
-class Rankings{
+export default class Rankings{
 
     constructor(){
 
@@ -60,7 +60,7 @@ class Rankings{
     async getCurrentSettings(){
 
         const query = "SELECT name,value FROM nstats_ranking_values";
-        return await mysql.simpleQuery(query);
+        return await simpleQuery(query);
     }
 
 
@@ -68,7 +68,7 @@ class Rankings{
 
         const query = `SELECT match_date FROM nstats_player_matches WHERE player_id=? AND gametype=? AND playtime>0 ORDER BY match_date DESC LIMIT 1`;
 
-        const result = await mysql.simpleQuery(query, [playerId, gametypeId]);
+        const result = await simpleQuery(query, [playerId, gametypeId]);
 
         if(result.length > 0) return result[0].match_date;
 
@@ -86,7 +86,7 @@ class Rankings{
             latestMatchDate = 0;
         }
 
-        await mysql.simpleQuery(query, [playerId, gametypeId, totalMatches, playtime, ranking, rankingChange, latestMatchDate]);
+        await simpleQuery(query, [playerId, gametypeId, totalMatches, playtime, ranking, rankingChange, latestMatchDate]);
     }
 
 
@@ -95,7 +95,7 @@ class Rankings{
         const query = `UPDATE nstats_ranking_player_current SET 
         matches=matches+1,playtime=playtime+?,ranking=?,ranking_change=? WHERE player_id=? AND gametype=?`;
 
-        await mysql.simpleQuery(query, [playtime, ranking, rankingChange, playerId, gametypeId]);
+        await simpleQuery(query, [playtime, ranking, rankingChange, playerId, gametypeId]);
     }
 
     async updatePlayerCurrentCustom(playerId, gametypeId, playtime, totalMatches, ranking, rankingChange){
@@ -103,7 +103,7 @@ class Rankings{
         const query = `UPDATE nstats_ranking_player_current SET 
         matches=?,playtime=?,ranking=?,ranking_change=? WHERE player_id=? AND gametype=?`;
 
-        const result = await mysql.simpleQuery(query, [totalMatches, playtime, ranking, rankingChange, playerId, gametypeId]);
+        const result = await simpleQuery(query, [totalMatches, playtime, ranking, rankingChange, playerId, gametypeId]);
 
         if(result.changedRows === 0){      
             await this.insertPlayerCurrent(playerId, gametypeId, totalMatches, playtime, ranking, rankingChange);
@@ -114,7 +114,7 @@ class Rankings{
 
         const query = `SELECT ranking FROM nstats_ranking_player_current WHERE player_id=? AND gametype=? LIMIT 1`;
 
-        const result = await mysql.simpleQuery(query, [playerId, gametypeId]);
+        const result = await simpleQuery(query, [playerId, gametypeId]);
 
         if(result.length > 0){
             return result[0].ranking;
@@ -168,7 +168,7 @@ class Rankings{
 
         const query = "SELECT COUNT(*) as total_players FROM nstats_ranking_player_current WHERE player_id=? AND gametype=?";
 
-        const result = await mysql.simpleQuery(query, [playerId, gametypeId]);
+        const result = await simpleQuery(query, [playerId, gametypeId]);
 
         if(result.length > 0){
 
@@ -186,7 +186,7 @@ class Rankings{
 
         const vars = [matchId, playerId, gametypeId, ranking, matchRanking, rankingChange];
 
-        await mysql.simpleQuery(query, vars);
+        await simpleQuery(query, vars);
     }
 
     calculateRanking(data){
@@ -297,7 +297,7 @@ class Rankings{
 
         const query = "SELECT * FROM nstats_ranking_player_current WHERE gametype=? AND last_active>=? AND playtime>=? ORDER BY ranking DESC LIMIT ?,?";
 
-        return await mysql.simpleQuery(query, [gametypeId, limit, minPlaytime, start, perPage]);
+        return await simpleQuery(query, [gametypeId, limit, minPlaytime, start, perPage]);
     }
 
     async getMultipleGametypesData(gametypeIds, perPage, lastActive, minPlaytime){
@@ -326,7 +326,7 @@ class Rankings{
 
         const query = "SELECT COUNT(*) as total_players FROM nstats_ranking_player_current WHERE gametype=? AND last_active>=? AND playtime>=?";
 
-        const result = await mysql.simpleQuery(query, [gametypeId, limit, minPlaytime]);
+        const result = await simpleQuery(query, [gametypeId, limit, minPlaytime]);
 
         return result[0].total_players;
 
@@ -335,7 +335,7 @@ class Rankings{
     async getDetailedSettings(){
 
         const query = "SELECT name,display_name,description,value FROM nstats_ranking_values";
-        return await mysql.simpleQuery(query);
+        return await simpleQuery(query);
     }
 
 
@@ -343,14 +343,14 @@ class Rankings{
 
         const query = "SELECT gametype,matches,playtime,ranking,ranking_change FROM nstats_ranking_player_current WHERE player_id=?";
 
-        return await mysql.simpleQuery(query, [playerId]);
+        return await simpleQuery(query, [playerId]);
     }
 
     async getGametypePosition(rankingValue, gametypeId){
 
         const query = "SELECT COUNT(*) as total_values FROM nstats_ranking_player_current WHERE gametype=? AND ranking>? ORDER BY ranking DESC";
 
-        const result = await mysql.simpleQuery(query, [gametypeId, rankingValue]);
+        const result = await simpleQuery(query, [gametypeId, rankingValue]);
 
         if(result[0].total_values === 0) return 1;
 
@@ -360,7 +360,7 @@ class Rankings{
     async getMatchRankingChanges(matchId){
 
         const query = "SELECT player_id,ranking,match_ranking,ranking_change,match_ranking_change FROM nstats_ranking_player_history WHERE match_id=?";
-        return await mysql.simpleQuery(query, [matchId]);
+        return await simpleQuery(query, [matchId]);
     }
 
 
@@ -369,7 +369,7 @@ class Rankings{
         const query = `SELECT ranking,match_ranking,ranking_change,match_ranking_change 
         FROM nstats_ranking_player_history WHERE match_id=? AND player_id=?`;
 
-        const result = await mysql.simpleQuery(query, [matchId, playerId]);
+        const result = await simpleQuery(query, [matchId, playerId]);
 
         if(result.length > 0){
             return result[0];
@@ -385,14 +385,14 @@ class Rankings{
 
         const query = "SELECT player_id,ranking,ranking_change FROM nstats_ranking_player_current WHERE player_id IN(?) AND gametype=?";
 
-        return await mysql.simpleQuery(query, [players, gametype]);
+        return await simpleQuery(query, [players, gametype]);
     }
 
     async getCurrentRanking(playerId, gametype){
 
         const query = "SELECT ranking,ranking_change FROM nstats_ranking_player_current WHERE player_id=? AND gametype=?";
 
-        const result = await mysql.simpleQuery(query, [playerId, gametype]);
+        const result = await simpleQuery(query, [playerId, gametype]);
 
         if(result.length > 0){
             return result[0];
@@ -404,7 +404,7 @@ class Rankings{
     async getPlayerMatchHistory(playerId, matchId){
 
         const query = "SELECT * FROM nstats_ranking_player_history WHERE player_id=? AND match_id=?";
-        return await mysql.simpleFetch(query, [playerId, matchId]);
+        return await simpleQuery(query, [playerId, matchId]);
     }
 
     async getCurrentPlayerRanking(playerId, gametypeId){
@@ -412,25 +412,25 @@ class Rankings{
         const query = `SELECT matches, playtime, ranking, ranking_change FROM 
         nstats_ranking_player_current WHERE player_id=? AND gametype=?`;
         
-        return await mysql.simpleFetch(query, [playerId, gametypeId]);
+        return await simpleQuery(query, [playerId, gametypeId]);
     }
 
     async deleteGametypeHistory(gametypeId){
 
         const query = "DELETE FROM nstats_ranking_player_history WHERE gametype=?";
-        return await mysql.simpleQuery(query, [gametypeId]);
+        return await simpleQuery(query, [gametypeId]);
     }
 
     async deleteGametypeCurrent(gametypeId){
 
         const query = "DELETE FROM nstats_ranking_player_current WHERE gametype=?";
-        return await mysql.simpleQuery(query, [gametypeId]);
+        return await simpleQuery(query, [gametypeId]);
     }
 
     async deletePlayerGametypeCurrent(playerId, gametypeId){
 
         const query = "DELETE FROM nstats_ranking_player_current WHERE player_id=? AND gametype=?";
-        return await mysql.simpleQuery(query, [playerId, gametypeId]);
+        return await simpleQuery(query, [playerId, gametypeId]);
     }
 
 
@@ -535,7 +535,7 @@ class Rankings{
 
         const query = "UPDATE nstats_ranking_values SET display_name=?,description=?,value=? WHERE name=?";
 
-        const result = await mysql.simpleQuery(query, [displayName, description, value, name]);
+        const result = await simpleQuery(query, [displayName, description, value, name]);
 
         if(result.changedRows > 0) return true;
 
@@ -560,14 +560,14 @@ class Rankings{
 
         const query = "DELETE FROM nstats_ranking_player_history WHERE player_id=? AND match_id=?";
 
-        return await mysql.simpleQuery(query, [playerId, matchId]);
+        return await simpleQuery(query, [playerId, matchId]);
     }
 
     async deletePlayerGametypeHistory(playerId, gametypeId){
 
         const query = "DELETE FROM nstats_ranking_player_history WHERE player_id=? AND gametype=?";
 
-        return await mysql.simpleQuery(query, [playerId, gametypeId]);
+        return await simpleQuery(query, [playerId, gametypeId]);
     }
 
 
@@ -649,10 +649,10 @@ class Rankings{
         const vars = [playerId];
 
         const historyQuery = "DELETE FROM nstats_ranking_player_history WHERE player_id=?";
-        const historyResult = await mysql.simpleQuery(historyQuery, vars);
+        const historyResult = await simpleQuery(historyQuery, vars);
 
         const currentQuery = "DELETE FROM nstats_ranking_player_current WHERE player_id=?";
-        const currentResult = await mysql.simpleQuery(currentQuery, vars);
+        const currentResult = await simpleQuery(currentQuery, vars);
 
         return {"history": historyResult.affectedRows, "current": currentResult.affectedRows};
     }
@@ -662,7 +662,7 @@ class Rankings{
 
         const query = `DELETE FROM nstats_ranking_player_history WHERE match_id=?`;
 
-        return await mysql.simpleQuery(query, [matchId]);
+        return await simpleQuery(query, [matchId]);
     }
 
 
@@ -670,7 +670,7 @@ class Rankings{
 
         const query = `SELECT player_id,gametype FROM nstats_ranking_player_current`;
 
-        const result = await mysql.simpleQuery(query);
+        const result = await simpleQuery(query);
 
         return result.map((r) =>{
             return {"player": r.player_id, "gametype": r.gametype}
@@ -694,9 +694,7 @@ class Rankings{
                 continue;
             }
 
-            await mysql.simpleQuery(query, [last, player, gametype]);
+            await simpleQuery(query, [last, player, gametype]);
         } 
     }
 }
-
-module.exports = Rankings;

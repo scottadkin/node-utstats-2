@@ -1,7 +1,7 @@
-const Weapons = require('../weapons');
-const Message = require('../message');
+import Weapons from "../weapons.js";
+import Message from "../message.js";
 
-class WeaponsManager{
+export default class WeaponsManager{
 
     constructor(){
 
@@ -210,5 +210,3 @@ class WeaponsManager{
         }
     }
 }
-
-module.exports = WeaponsManager;
