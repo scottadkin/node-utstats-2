@@ -1,7 +1,7 @@
-const mysql = require('./database');
-const Message = require('./message');
+import { simpleQuery, updateReturnAffectedRows } from "./database.js";
+import Message from "./message.js";
 
-class ACE{
+export default class ACE{
 
     constructor(){}
 
@@ -19,7 +19,7 @@ class ACE{
 
         }
 
-        const result = await mysql.simpleQuery(query, [name]);
+        const result = await simpleQuery(query, [name]);
 
         if(result[0].matching_logs > 0) return true;
         
@@ -43,7 +43,7 @@ class ACE{
 
         const query = "SELECT COUNT(*) as total_screenshots FROM nstats_ace_screenshots WHERE name=?";
 
-        const result = await mysql.simpleQuery(query, [name]);
+        const result = await simpleQuery(query, [name]);
 
         if(result[0].total_screenshots > 0) return true;
         
@@ -56,7 +56,7 @@ class ACE{
 
         const query = "INSERT INTO nstats_ace_screenshots VALUES(NULL,?,?)";
 
-        await mysql.simpleQuery(query, [name, now]);
+        await simpleQuery(query, [name, now]);
 
     }
 
@@ -93,7 +93,7 @@ class ACE{
 
         const vars = [name, ip, country, mac1, mac2, hwid, time, time];
 
-        await mysql.simpleInsert(query, vars);
+        await simpleQuery(query, vars);
     }
 
     async updatePlayer(data){
@@ -118,7 +118,7 @@ class ACE{
             data.hwid
         ];
 
-        const result = await mysql.updateReturnAffectedRows(query, vars);
+        const result = await updateReturnAffectedRows(query, vars);
 
         if(result === 0){
             await this.createNewPlayer(data.name, data.ip, data.country, data.mac1, data.mac2, data.hwid, data.time);
@@ -142,7 +142,7 @@ class ACE{
             data.hwid
         ];
 
-        await mysql.simpleInsert(query, vars);
+        await simpleQuery(query, vars);
     }
 
     async updatePlayerKickStats(name, ip, mac1, mac2, hwid, date){
@@ -153,7 +153,7 @@ class ACE{
 
         const vars = [date, date, date, name, ip, mac1, mac2, hwid];
 
-        await mysql.simpleUpdate(query, vars);
+        await simpleQuery(query, vars);
     }
 
     async insertKick(fileName, rawData, data){
@@ -194,7 +194,7 @@ class ACE{
             data.status
         ];
 
-        await mysql.simpleInsert(query, vars);
+        await simpleQuery(query, vars);
 
         await this.updatePlayerKickStats(data.playername, data.playerip, data.machash1, data.machash2, data.hwid, data.timestamp);
     }
@@ -206,7 +206,7 @@ class ACE{
         const query = `SELECT name,ip,country,mac1,mac2,hwid,timestamp,kick_reason,package_name,package_version
         FROM nstats_ace_kicks ORDER BY timestamp DESC LIMIT 5`;
 
-        return await mysql.simpleFetch(query);
+        return await simpleQuery(query);
        
     }
 
@@ -214,7 +214,7 @@ class ACE{
 
         const query = "SELECT name,ip,country,hwid,first,last,times_connected FROM nstats_ace_players ORDER BY last DESC LIMIT 5";
 
-        return await mysql.simpleFetch(query);
+        return await simpleQuery(query);
     }
 
 
@@ -252,7 +252,7 @@ class ACE{
 
         if(vars.length === 0) return [];
 
-        return await mysql.simpleFetch(query, vars);
+        return await simpleQuery(query, vars);
     }
 
 
@@ -260,7 +260,7 @@ class ACE{
 
         const query = "SELECT COUNT(*) as total_joins FROM nstats_ace_joins WHERE player=?";
 
-        const result = await mysql.simpleFetch(query, [name]);
+        const result = await simpleQuery(query, [name]);
 
         if(result.length > 0) return result[0].total_joins;
 
@@ -280,7 +280,7 @@ class ACE{
 
         const totalPlayerData = await this.getTotalPlayerJoins(name);
 
-        const data = await mysql.simpleFetch(query, [name, start, perPage]);
+        const data = await simpleQuery(query, [name, start, perPage]);
 
         return {"data": data, "results": totalPlayerData};
         
@@ -342,7 +342,7 @@ class ACE{
 
         query += ")";
 
-        return await mysql.simpleFetch(query, vars);
+        return await simpleQuery(query, vars);
 
     }
 
@@ -351,7 +351,7 @@ class ACE{
 
         const query = `SELECT * FROM nstats_ace_players WHERE name=? ORDER BY id ASC`;
 
-        return await mysql.simpleFetch(query, [name]);
+        return await simpleQuery(query, [name]);
         
     }
     
@@ -359,7 +359,7 @@ class ACE{
 
         const query = "SELECT DISTINCT ip FROM nstats_ace_players WHERE name=?";
 
-        const result = await mysql.simpleFetch(query, [name]);
+        const result = await simpleQuery(query, [name]);
 
         const data = [];
 
@@ -394,7 +394,7 @@ class ACE{
 
         const query = "SELECT COUNT(*) as total_kicks FROM nstats_ace_kicks WHERE name=?";
 
-        const result = await mysql.simpleFetch(query, [name]);
+        const result = await simpleQuery(query, [name]);
 
         if(result.length > 0) return result[0].total_kicks;
 
@@ -416,7 +416,7 @@ class ACE{
         package_version,screenshot_file,screenshot_status,timestamp
         FROM nstats_ace_kicks WHERE name=? ORDER BY timestamp DESC LIMIT ?, ?`;
 
-        return await mysql.simpleFetch(query, [name, start, perPage]);
+        return await simpleQuery(query, [name, start, perPage]);
     }
 
     async insertScreenshotRequest(fileName, rawData, data){
@@ -459,7 +459,7 @@ class ACE{
             data.status
         ];
 
-        await mysql.simpleInsert(query, vars);
+        await simpleQuery(query, vars);
     }
 
 
@@ -475,14 +475,14 @@ class ACE{
         const query = `SELECT ip,country,admin_name,screenshot_file,timestamp,hwid,mac1,mac2 FROM nstats_ace_sshot_requests
         WHERE player=? ORDER BY timestamp DESC LIMIT ?, ?`;
         
-        return await mysql.simpleFetch(query, [name, start, perPage]);
+        return await simpleQuery(query, [name, start, perPage]);
     }
 
     async getTotalPlayerScreenshotRequests(name){
 
         const query = "SELECT COUNT(*) as total_sshots FROM nstats_ace_sshot_requests WHERE player=?";
 
-        const result = await mysql.simpleFetch(query, [name]);
+        const result = await simpleQuery(query, [name]);
 
         if(result.length > 0) return result[0].total_sshots;
         return 0;
@@ -493,7 +493,7 @@ class ACE{
         const query = `SELECT ip,country,admin_name,screenshot_file,timestamp,hwid,mac1,mac2 FROM nstats_ace_sshot_requests 
         ORDER BY timestamp DESC LIMIT 5`;
 
-        return await mysql.simpleFetch(query);
+        return await simpleQuery(query);
     }
 
     static cleanImageURL(url){
@@ -525,7 +525,7 @@ class ACE{
         
         const query = "SELECT id,timestamp,ip,country,hwid,mac1,mac2,name,kick_reason,package_name,package_version FROM nstats_ace_kicks ORDER BY timestamp DESC LIMIT ?, ?";
 
-        return await mysql.simpleFetch(query, [start, perPage]);
+        return await simpleQuery(query, [start, perPage]);
 
     }
 
@@ -533,7 +533,7 @@ class ACE{
 
         const query = "SELECT COUNT(*) as total_logs FROM nstats_ace_kicks";
 
-        const result = await mysql.simpleFetch(query);
+        const result = await simpleQuery(query);
 
         if(result.length > 0) return result[0].total_logs;
 
@@ -544,7 +544,7 @@ class ACE{
 
         const query = "SELECT * FROM nstats_ace_kicks WHERE id=?";
 
-        const result = await mysql.simpleFetch(query, [id]);
+        const result = await simpleQuery(query, [id]);
 
         if(result.length > 0) return result[0];
 
@@ -561,14 +561,14 @@ class ACE{
         let start = page * perPage;
         if(start < 0) start = 0;
 
-        return await mysql.simpleFetch(query, [start, perPage]);
+        return await simpleQuery(query, [start, perPage]);
     }
 
     async getTotalScreenshots(){
 
         const query = "SELECT COUNT(*) as total_sshots FROM nstats_ace_sshot_requests";
 
-        const result = await mysql.simpleFetch(query);
+        const result = await simpleQuery(query);
 
         if(result.length > 0) return result[0].total_sshots;
 
@@ -580,7 +580,7 @@ class ACE{
 
         const query = "SELECT * FROM nstats_ace_sshot_requests WHERE id=?";
 
-        const result = await mysql.simpleFetch(query, [id]);
+        const result = await simpleQuery(query, [id]);
 
         if(result.length > 0) return result[0];
 
@@ -613,9 +613,6 @@ class ACE{
 
         const vars = [host, port];
 
-        await mysql.simpleQuery(query, vars);
+        await simpleQuery(query, vars);
     }
 }
-
-
-module.exports = ACE;

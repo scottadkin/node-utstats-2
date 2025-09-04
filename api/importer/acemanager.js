@@ -1,11 +1,11 @@
-const ACE = require('../ace');
-const fs = require('fs');
+import ACE from "../ace.js";
+import fs from "fs";
 const config = require('../../config.json');
-const geoip = require('geoip-lite');
-const Message = require('../message');
+import geoip from "geoip-lite";
+import Message from "../message.js";
 
 
-class AceManager{
+export default class AceManager{
 
     constructor(){
         this.ace = new ACE();
@@ -195,6 +195,3 @@ class AceManager{
 
     }
 }
-
-
-module.exports = AceManager;

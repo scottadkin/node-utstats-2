@@ -1,17 +1,17 @@
-const config = require('../../config.json');
-const FTPImporter =  require('./ftpimporter');
-const fs =  require('fs');
-const Message = require('../message');
-const MatchManager = require('./matchmanager');
-const AceManager = require('./acemanager');
-const mysql = require('../database');
-const SFTPImporter = require("./sftpimporter");
-const Logs = require("../logs");
-const ACE = require("../ace");
-const Encoding = require('encoding-japanese');
+import config from "../../config.json" with {"type": "json"};
+import FTPImporter from "./ftpimporter.js";
+import fs from "fs";
+import Message from "../message.js";
+import MatchManager from "./matchmanager.js";
+import AceManager from "./acemanager.js";
+import { simpleQuery } from "../database.js";
+import SFTPImporter from "./sftpimporter.js";
+import {bExists as logsBExists} from "../logs.js";
+import ACE from "../ace.js";
+import Encoding from "encoding-japanese";
 //const jschardet = require("jschardet")
 
-class Importer{
+export default class Importer{
 
     constructor(serverId, host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, 
         bIgnoreBots, bIgnoreDuplicates, minPlayers, minPlaytime, bSFTP, bImportAce,
@@ -141,7 +141,7 @@ class Importer{
                     
                     if(this.bIgnoreDuplicates){
 
-                        if(await Logs.bExists(f)){
+                        if(await logsBExists(f)){
 
                             new Message(`The file ${f} has already been imported, skipping.`,"note");
                             fs.renameSync(`${config.importedLogsFolder}/${f}`,`Logs/imported/${f}`);
@@ -361,7 +361,7 @@ class Importer{
 
         const vars = [now, now, now, now, now, this.serverId];
 
-        await mysql.simpleInsert(query, vars);
+        await simpleQuery(query, vars);
     }
 
     async updateTotalImports(){
@@ -374,9 +374,6 @@ class Importer{
             query = `UPDATE nstats_logs_folder SET total_imports=total_imports+1 WHERE id > -1`;
         }
 
-        await mysql.simpleQuery(query, [this.serverId]);
+        await simpleQuery(query, [this.serverId]);
     }
-
 }
-
-module.exports = Importer;

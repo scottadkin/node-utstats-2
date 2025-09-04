@@ -1,7 +1,7 @@
-const Servers = require('../servers');
-const Message = require('../message');
+import Servers from "../servers.js";
+import Message from "../message.js";
 
-class ServerInfo{
+export default class ServerInfo{
 
     constructor(data, matchTimings){
            
@@ -153,5 +153,3 @@ class ServerInfo{
         await this.servers.setLastIds(serverId, matchId, mapId);
     }
 }
-
-module.exports = ServerInfo;

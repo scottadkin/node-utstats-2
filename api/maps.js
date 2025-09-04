@@ -1,9 +1,9 @@
-const mysql = require('./database');
-const Message = require('./message');
-const fs = require('fs');
-const Functions = require('./functions');
+import {simpleQuery} from "./database.js";
+import Message from "./message.js";
+import fs from "fs";
+import {cleanMapName} from "./functions.js";
 
-class Maps{
+export default class Maps{
     
     constructor(settings){
 
@@ -21,101 +21,55 @@ class Maps{
         
     }
 
-    bExists(name){
+    async bExists(name){
 
-        
+        const query = "SELECT COUNT(*) as total_maps FROM nstats_maps WHERE name=?";
+        const result = await simpleQuery(query, [name]);
 
-        return new Promise((resolve, reject) =>{
+        return result[0].total_maps > 0;
 
-            const query = "SELECT COUNT(*) as total_maps FROM nstats_maps WHERE name=?";
-
-            mysql.query(query, [name], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-
-                    if(result[0].total_maps > 0){
-                        resolve(true);
-                    }
-                }
-
-                resolve(false);
-            });
-        });
     }
 
     async insert(name, title, author, idealPlayerCount, levelEnterText, date, matchLength){
 
         const query = "INSERT INTO nstats_maps VALUES(NULL,?,?,?,?,?,?,?,1,?,0)";
-        return await mysql.simpleQuery(query, [name, title, author, idealPlayerCount, levelEnterText, date, date, matchLength]);
+        return await simpleQuery(query, [name, title, author, idealPlayerCount, levelEnterText, date, date, matchLength]);
     }
 
     async adminCreateMap(name, title, author, idealPlayerCount, levelEnterText, importAs){
 
         const query = "INSERT INTO nstats_maps VALUES(NULL,?,?,?,?,?,0,0,0,0,?)";
-        return await mysql.simpleQuery(query, [name, title, author, idealPlayerCount, levelEnterText, importAs]);
+        return await simpleQuery(query, [name, title, author, idealPlayerCount, levelEnterText, importAs]);
     }
 
-    updatePlaytime(name, matchLength){
+    async updatePlaytime(name, matchLength){
 
-        return new Promise((resolve, reject) =>{
+        const query = "UPDATE nstats_maps SET playtime=playtime+?, matches=matches+1 WHERE name=?";
 
-            const query = "UPDATE nstats_maps SET playtime=playtime+?, matches=matches+1 WHERE name=?";
-
-            mysql.query(query, [matchLength, name], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-
-            });
-        });
+        return await simpleQuery(query, [matchLength, name]);
     }
 
-    getCurrentDates(name){
+    async getCurrentDates(name){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT last,first FROM nstats_maps WHERE name=? LIMIT 1";
+        const result = await simpleQuery(query, [name]);
 
-            const query = "SELECT last,first FROM nstats_maps WHERE name=? LIMIT 1";
-
-            mysql.query(query, [name], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-
-                    if(result.length > 0){
-
-                        resolve(result[0]);
-                    }
-                }
-
-                resolve(null);
-            });
-        });
+        if(result.length === 0) return null;
+        return result[0];
     }
 
 
-    updateDate(name, type, date){
+    async updateDate(name, type, date){
 
-        return new Promise((resolve, reject) =>{
+        type = type.toLowerCase();
 
-            type = type.toLowerCase();
+        if(type !== 'first'){
+            type = 'last';
+        }
+    
+        const query = `UPDATE nstats_maps SET ${type}=? WHERE name=?`;
 
-            if(type !== 'first'){
-                type = 'last';
-            }
-        
-            const query = `UPDATE nstats_maps SET ${type}=? WHERE name=?`;
-
-            mysql.query(query, [date, name], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [date, name]);
     }
 
 
@@ -149,7 +103,7 @@ class Maps{
 
         const query = `SELECT import_as_id FROM nstats_maps WHERE name=?`;
 
-        const result = await mysql.simpleQuery(query, [name]);
+        const result = await simpleQuery(query, [name]);
 
         if(result.length > 0) return result[0].import_as_id;
 
@@ -204,7 +158,7 @@ class Maps{
         if(bIncludeAutoMergeId === undefined) bIncludeAutoMergeId = false;
         const query = "SELECT id,import_as_id FROM nstats_maps WHERE name=? LIMIT 1";
 
-        const result = await mysql.simpleQuery(query, [name]);
+        const result = await simpleQuery(query, [name]);
 
         if(result.length === 0) return null;
 
@@ -247,7 +201,7 @@ class Maps{
     async getName(id){
 
         const query = "SELECT name FROM nstats_maps WHERE id=?";
-        const result = await mysql.simpleQuery(query, [id]);
+        const result = await simpleQuery(query, [id]);
 
         if(result.length === 0) return "Not Found";
 
@@ -260,7 +214,7 @@ class Maps{
 
         const query = "SELECT * FROM nstats_maps ORDER BY name ASC";
 
-        return await mysql.simpleQuery(query);
+        return await simpleQuery(query);
 
     }
 
@@ -291,7 +245,7 @@ class Maps{
         if(ids.length === 0) return {};
 
         const query = "SELECT id,name FROM nstats_maps WHERE id IN(?) ORDER BY name ASC";
-        const result = await mysql.simpleFetch(query, [ids]);
+        const result = await simpleQuery(query, [ids]);
 
         const data = (bSimpleObject) ? {} : [];
 
@@ -351,7 +305,7 @@ class Maps{
 
     async getImage(name){
 
-        name = Functions.cleanMapName(name);
+        name = cleanMapName(name);
 
         const justName = name.toLowerCase();
         name = justName+'.jpg';
@@ -377,7 +331,7 @@ class Maps{
 
         for(let i = 0; i < names.length; i++){
             
-            const currentName = Functions.cleanMapName(names[i]).toLowerCase();
+            const currentName = cleanMapName(names[i]).toLowerCase();
 
             if(files.indexOf(`${currentName}.jpg`) !== -1){
 
@@ -404,7 +358,7 @@ class Maps{
         const data = {};
         const query = "SELECT id,name FROM nstats_maps WHERE id IN(?)";
 
-        const result = await mysql.simpleQuery(query, [ids]);
+        const result = await simpleQuery(query, [ids]);
 
         for(let i = 0; i < result.length; i++){
 
@@ -415,30 +369,21 @@ class Maps{
         return data;
     }
 
-    getTotalResults(name){
+    async getTotalResults(name){
 
-        return new Promise((resolve, reject) =>{
+        if(name === undefined) name = "";
 
-            if(name === undefined) name = "";
+        let query = "SELECT COUNT(*) as total_results FROM nstats_maps";
+        let vars = [];
 
-            let query = "SELECT COUNT(*) as total_results FROM nstats_maps";
-            let vars = [];
+        if(name !== ""){
+            query = "SELECT COUNT(*) as total_results FROM nstats_maps WHERE name LIKE(?)";
+            vars = [`%${name}%`];
+        }
 
-            if(name !== ""){
-                query = "SELECT COUNT(*) as total_results FROM nstats_maps WHERE name LIKE(?)";
-                vars = [`%${name}%`];
-            }
+        const result = await simpleQuery(query, vars);
 
-            mysql.query(query, vars, (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result[0].total_results);
-                }
-                resolve(0);
-            });
-        });
+        return result[0].total_results;
     }
 
 
@@ -482,63 +427,16 @@ class Maps{
         const query = `SELECT * FROM nstats_maps WHERE import_as_id=0 ${nameSearch} ORDER BY ${sortBy} ${bAsc} LIMIT ?, ?`;
 
         
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
 
     
     }
 
-    /*get(page, perPage, name){
+    async getSingle(id){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT * FROM nstats_maps WHERE id=?";
 
-            page = parseInt(page);
-            perPage = parseInt(perPage);
-
-            if(page !== page || perPage !== perPage){
-                return [];
-            }
-
-            page--;
-
-            const start = page * perPage;
-
-            let query = "SELECT * FROM nstats_maps ORDER BY name ASC, id DESC LIMIT ?, ?";
-            let vars = [start, perPage];
-            
-
-            if(name !== ""){
-                query = "SELECT * FROM nstats_maps WHERE name LIKE(?) ORDER BY name ASC, id DESC LIMIT ?, ?";
-                vars = [`%${name}%`, start, perPage]
-            }
-
-            mysql.query(query, vars, (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                   
-                    resolve(result);
-                }
-                resolve([]);
-            });
-        });
-    }*/
-
-
-    getSingle(id){
-
-        return new Promise((resolve, reject) =>{
-
-            const query = "SELECT * FROM nstats_maps WHERE id=?";
-
-            mysql.query(query, [id], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined) resolve(result);
-                resolve([]);
-            });
-        });
+        return await simpleQuery(query, [id]);
     }
 
 
@@ -548,7 +446,7 @@ class Maps{
 
         const settings = this.currentSettings();
 
-        const result = await mysql.simpleFetch(query, [id, settings.minPlaytime, settings.minPlayers]);
+        const result = await simpleQuery(query, [id, settings.minPlaytime, settings.minPlayers]);
 
         if(result.length > 0) return {"match": result[0].id, "playtime": result[0].playtime};
 
@@ -584,7 +482,7 @@ class Maps{
 
         const vars = [id, settings.minPlaytime, settings.minPlayers, start, perPage];
         
-        const result = await mysql.simpleQuery(query, vars);
+        const result = await simpleQuery(query, vars);
 
         const dmWinners = new Set(result.map(r => r.dm_winner));
 
@@ -603,95 +501,62 @@ class Maps{
 
     }
 
-    getMatchDates(map, limit){
+    async getMatchDates(map, limit){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT date FROM nstats_matches WHERE map=? ORDER BY date DESC";
 
-            const query = "SELECT date FROM nstats_matches WHERE map=? ORDER BY date DESC";
+        const result = await simpleQuery(query, [map]);
 
-            mysql.query(query, [map], (err, result) =>{
+        const data = [];
 
-                if(err) reject(err);
+        for(let i = 0; i < result.length; i++){
 
-                if(result !== undefined){
+            data.push(result[i].date);
+        }
 
-                    const data = [];
-
-                    for(let i = 0; i < result.length; i++){
-
-                        data.push(result[i].date);
-                    }
-
-                    resolve(data);
-                }
-
-                resolve([]);
-            });
-
-        });
+        return data;
     }
 
 
-    bPlayerExist(player, map){
+    async bPlayerExist(player, map){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT COUNT(*) as total_players FROM nstats_player_maps WHERE map=? AND player=?";
 
-            const query = "SELECT COUNT(*) as total_players FROM nstats_player_maps WHERE map=? AND player=?";
+        const result = await simpleQuery(query, [map, player]);
 
-            mysql.query(query, [map, player], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    if(result[0].total_players > 0){
-                        resolve(true);
-                    }
-                }
-                resolve(false);
-            });
-        });
+        return result[0].total_players > 0;
     }
 
-    insertNewPlayerHistory(player, map, matchId, date){
+    async insertNewPlayerHistory(player, map, matchId, date){
 
-        return new Promise((resolve, reject) =>{
+        const query = "INSERT INTO nstats_player_maps VALUES(NULL,?,?,?,?,?,?,1,?,?,?)";
 
-            const query = "INSERT INTO nstats_player_maps VALUES(NULL,?,?,?,?,?,?,1,?,?,?)";
+        let playtime = 0;
 
-            let playtime = 0;
+        if(player.stats.time_on_server !== undefined){
+            playtime = player.stats.time_on_server.toFixed(4);
+        }else{
+            new Message(`Maps.InsertNewPlayerHistory() playtime is undefined`,'warning');
+        }
+ 
+        const vars = [
+            map, 
+            player.masterId,
+            date,
+            matchId,
+            date,
+            matchId,
+            playtime,
+            playtime,
+            matchId
+        ];
 
-            if(player.stats.time_on_server !== undefined){
-                playtime = player.stats.time_on_server.toFixed(4);
-            }else{
-                new Message(`Maps.InsertNewPlayerHistory() playtime is undefined`,'warning');
-            }
-
-            const vars = [
-                map, 
-                player.masterId,
-                date,
-                matchId,
-                date,
-                matchId,
-                playtime,
-                playtime,
-                matchId
-            ];
-
-            mysql.query(query, vars, (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, vars);
     }
 
-    updatePlayerHistoryQuery(player, map, matchId, date){
+    async updatePlayerHistoryQuery(player, map, matchId, date){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = `UPDATE nstats_player_maps SET
+        const query = `UPDATE nstats_player_maps SET
             first = IF(first > ?, ?, first),
             last = IF(last <= ?, ?, last),
             last_id = IF(last <= ?, ?, last_id),
@@ -702,41 +567,31 @@ class Maps{
             WHERE player=? AND map=?
             `;
 
-            let playtime = 0;
+        let playtime = 0;
 
-            if(player.stats.time_on_server !== undefined){
-                playtime = player.stats.time_on_server.toFixed(4);
-            }else{
-                new Message(`Maps.updatePlayerHistoryQuery() playtime is undefined`,'warning');
-            }
+        if(player.stats.time_on_server !== undefined){
+            playtime = player.stats.time_on_server.toFixed(4);
+        }else{
+            new Message(`Maps.updatePlayerHistoryQuery() playtime is undefined`,'warning');
+        }
 
-            const vars = [
-                date, 
-                date,
-                date,
-                date,
-                date, 
-                matchId,
-                playtime,
-                playtime,
-                matchId,
-                playtime,
-                playtime,
-                player.masterId,
-                map
-            ];
+        const vars = [
+            date, 
+            date,
+            date,
+            date,
+            date, 
+            matchId,
+            playtime,
+            playtime,
+            matchId,
+            playtime,
+            playtime,
+            player.masterId,
+            map
+        ];
 
-            mysql.query(query, vars, (err) =>{
-
-                if(err){
-
-                    console.trace(err);
-                    reject(err);
-                }
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, vars);
     }
 
     async updatePlayerHistory(player, map, matchId, date){
@@ -778,46 +633,23 @@ class Maps{
     }
 
 
-    getTopPlayersPlaytime(mapId, limit){
+    async getTopPlayersPlaytime(mapId, limit){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT player,playtime,matches,longest,longest_id,first,last FROM nstats_player_maps WHERE map=? ORDER BY playtime DESC LIMIT ?";
 
-            const query = "SELECT player,playtime,matches,longest,longest_id,first,last FROM nstats_player_maps WHERE map=? ORDER BY playtime DESC LIMIT ?";
-
-            mysql.query(query, [mapId, limit], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
+        return await simpleQuery(query, [mapId, limit]);
     }
 
 
-    getLongestMatches(mapId, limit){
+    async getLongestMatches(mapId, limit){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = `SELECT 
+        const query = `SELECT 
             id,date,server,gametype,map,playtime,insta,total_teams,players,dm_winner,dm_score,team_score_0,team_score_1,team_score_2,team_score_3
             FROM nstats_matches WHERE map=? ORDER BY playtime DESC LIMIT ?
             `;
 
-            mysql.query(query, [mapId, limit], (err, result) =>{
 
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
+        return await simpleQuery(query, [mapId, limit]);
     }
 
 
@@ -825,63 +657,42 @@ class Maps{
 
         const query = "SELECT name,x,y,z,spawns,team FROM nstats_map_spawns WHERE map=?";
 
-        return await mysql.simpleQuery(query, [mapId]);
+        return await simpleQuery(query, [mapId]);
 
     }
 
-    getMostPlayed(limit){
+   async getMostPlayed(limit){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "SELECT id,name,first,last,matches,playtime FROM nstats_maps ORDER BY matches DESC LIMIT ?";
-
-            mysql.query(query, [limit], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
+        const query = "SELECT id,name,first,last,matches,playtime FROM nstats_maps ORDER BY matches DESC LIMIT ?";
+        return await simpleQuery(query, [limit]);
     }
 
 
     async getAllNames(){
 
         const query = "SELECT name FROM nstats_maps ORDER BY name ASC";
-        return await mysql.simpleQuery(query);
+        return await simpleQuery(query);
     }
 
-    reduceMapTotals(id, playtime){
+    async reduceMapTotals(id, playtime){
 
-        return new Promise((resolve, reject) =>{
+        const query = "UPDATE nstats_maps SET matches=matches-1, playtime=playtime-? WHERE id=?";
+        return await simpleQuery(query, [playtime, id]);
 
-            const query = "UPDATE nstats_maps SET matches=matches-1, playtime=playtime-? WHERE id=?";
-
-            mysql.query(query, [playtime, id], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
     }
 
     async getPlayerMapsHistory(ids){
 
         if(ids.length === 0) return [];
 
-        return await mysql.simpleFetch("SELECT * FROM nstats_player_maps WHERE player IN (?)",[ids]);
+        return await simpleQuery("SELECT * FROM nstats_player_maps WHERE player IN (?)",[ids]);
     }
 
     async deletePlayerHistoryRows(rowIds){
 
         if(rowIds.length === 0) return;
 
-        await mysql.simpleDelete("DELETE FROM nstats_player_maps WHERE id IN(?)", [rowIds]);
+        await simpleQuery("DELETE FROM nstats_player_maps WHERE id IN(?)", [rowIds]);
     }
 
 
@@ -889,13 +700,13 @@ class Maps{
 
         const query = "SELECT id,match_date,map_id,playtime FROM nstats_player_matches WHERE player_id=?";
 
-        return await mysql.simpleQuery(query, [playerId]);
+        return await simpleQuery(query, [playerId]);
     }
 
 
     async deletePlayer(playerId){
 
-        return await mysql.simpleQuery("DELETE FROM nstats_player_maps WHERE player=?", [playerId]);
+        return await simpleQuery("DELETE FROM nstats_player_maps WHERE player=?", [playerId]);
     }
 
 
@@ -916,7 +727,7 @@ class Maps{
             data.longest_id
         ];
 
-        await mysql.simpleUpdate(query, vars);
+        await simpleQuery(query, vars);
     }
 
     async recalculatePlayerTotalsAfterMerge(playerId){
@@ -984,7 +795,7 @@ class Maps{
         const query = "UPDATE nstats_maps SET playtime=playtime-?, matches=matches-? WHERE id=?";
         const vars = [playtime, matches, mapId];
 
-        await mysql.simpleUpdate(query, vars);
+        await simpleQuery(query, vars);
     }
 
     async reduceTotals(mapStats){
@@ -1007,7 +818,7 @@ class Maps{
         const query = "UPDATE nstats_player_maps SET matches=matches-?, playtime=playtime-? WHERE map=? AND player=?";
         const vars = [matches, playtime, mapId, playerId];
 
-        await mysql.simpleUpdate(query, vars);
+        await simpleQuery(query, vars);
     }
 
     async reducePlayersTotals(playerData){
@@ -1052,7 +863,7 @@ class Maps{
 
     async getDetails(id){
 
-        const result = await mysql.simpleFetch("SELECT * FROM nstats_maps WHERE id=?", [id]);
+        const result = await simpleQuery("SELECT * FROM nstats_maps WHERE id=?", [id]);
 
         if(result.length === 0){
             return null;
@@ -1070,7 +881,7 @@ class Maps{
 
         const vars = [id, settings.minPlaytime, settings.minPlayers];
 
-        const result = await mysql.simpleFetch(query, vars);
+        const result = await simpleQuery(query, vars);
 
         return result[0].total_matches;
     }
@@ -1121,7 +932,7 @@ class Maps{
             query = "SELECT id,name FROM nstats_maps WHERE import_as_id=0 ORDER BY name ASC";
         }
 
-        const result = await mysql.simpleQuery(query);
+        const result = await simpleQuery(query);
 
 
         const data = {};
@@ -1167,14 +978,14 @@ class Maps{
 
         const query = `SELECT team,x,y,z FROM nstats_maps_flags WHERE map=?`;
 
-        return await mysql.simpleQuery(query, [mapId]);
+        return await simpleQuery(query, [mapId]);
     }
 
     async getLastestMatchId(mapId){
 
         const query = `SELECT id FROM nstats_matches WHERE map=? ORDER BY date DESC LIMIT 1`;
 
-        const result = await mysql.simpleQuery(query, [mapId]);
+        const result = await simpleQuery(query, [mapId]);
 
         if(result.length === 0) return -1;
 
@@ -1196,7 +1007,7 @@ class Maps{
 
         const query = `SELECT item_id,item_name,pos_x,pos_y,pos_z FROM nstats_map_items_locations WHERE match_id=?`;
 
-        const data = await mysql.simpleQuery(query, [latestMatchId]);
+        const data = await simpleQuery(query, [latestMatchId]);
 
         const uniqueItemIds = this.returnUniqueItems(data);
 
@@ -1218,7 +1029,7 @@ class Maps{
 
         const query = `SELECT * FROM nstats_map_items WHERE id IN(?)`;
 
-        const result = await mysql.simpleQuery(query, [ids]);
+        const result = await simpleQuery(query, [ids]);
 
         const data = {};
 
@@ -1240,7 +1051,7 @@ class Maps{
     async getHistoryBetween(id, start, end){
 
         const query = `SELECT date FROM nstats_matches WHERE map=? AND date>=? AND date<=? ORDER BY date DESC`;
-        const result = await mysql.simpleQuery(query, [id, start, end]);
+        const result = await simpleQuery(query, [id, start, end]);
 
         return result.map((r) =>{
             return r.date;
@@ -1319,13 +1130,13 @@ class Maps{
 
         const query = `SELECT * FROM nstats_maps WHERE id=? OR id=?`;
 
-        return await mysql.simpleQuery(query, [map1, map2]);
+        return await simpleQuery(query, [map1, map2]);
     }
 
     async deleteMap(id){
         const query = `DELETE FROM nstats_maps WHERE id=?`;
 
-        return await mysql.simpleQuery(query, [id]);
+        return await simpleQuery(query, [id]);
     }
 
     async updateTotalsFromMergeData(mapId, first, last, matches, playtime){
@@ -1339,27 +1150,27 @@ class Maps{
 
         const vars = [first, first, last, last, matches, playtime, mapId];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async deleteFlags(mapId){
 
         const query = `DELETE FROM nstats_maps_flags WHERE map=?`;
 
-        return await mysql.simpleQuery(query, [mapId]);
+        return await simpleQuery(query, [mapId]);
     }
 
     async deleteItemSpawns(mapId){
 
         const query = `DELETE FROM nstats_map_items_locations WHERE map_id=?`;
-        return await mysql.simpleQuery(query, [mapId]);
+        return await simpleQuery(query, [mapId]);
     }
 
     async deleteSpawnPoints(mapId){
 
         const query = `DELETE FROM nstats_map_spawns WHERE map=?`;
 
-        return await mysql.simpleQuery(query, [mapId]);
+        return await simpleQuery(query, [mapId]);
     }
 
     async merge(oldId, newId, matchManager, assaultManager, ctfManager, domManager, combogibManager, weaponsManager, 
@@ -1399,14 +1210,14 @@ class Maps{
 
         const query = `UPDATE nstats_maps SET name=? WHERE id=?`;
 
-        return await mysql.simpleQuery(query, [newName, mapId]);
+        return await simpleQuery(query, [newName, mapId]);
     }
 
     async getAllPlayedMatchIds(mapId){
 
         const query = `SELECT id FROM nstats_matches WHERE map=?`;
 
-        const result = await mysql.simpleQuery(query, [mapId]);
+        const result = await simpleQuery(query, [mapId]);
 
         return result.map((r) =>{
             return r.id;
@@ -1433,12 +1244,8 @@ class Maps{
 
         const query = `UPDATE nstats_maps SET import_as_id=? WHERE id=?`;
 
-        await mysql.simpleQuery(query, [targetId, mapId]);
+        await simpleQuery(query, [targetId, mapId]);
 
     
     }
 }
-
-
-
-module.exports = Maps;

@@ -1,6 +1,5 @@
-const mysql = require('mysql2');
-const config = require( '../config.json');
-
+import mysql from "mysql2/promise";
+import config from "../config.json" with { "type": "json"};
 
 const Database = mysql.createPool({
     "host": config.mysql.host,
@@ -9,129 +8,53 @@ const Database = mysql.createPool({
     "database": config.mysql.database
 });
 
-Database.simpleFetch = async (query, vars) =>{
+export async function simpleQuery(query, vars){
 
-    return await Database.simpleQuery(query, vars);
-}
+    if(vars === undefined) vars = [];
 
-Database.simpleDelete = async (query, vars) =>{
-
-    return await Database.simpleQuery(query, vars);
-}
-
-Database.simpleUpdate = async (query, vars) =>{
-
-    return await Database.simpleQuery(query, vars);
-}
-
-Database.simpleInsert = async (query, vars) =>{
-
-    return await Database.simpleQuery(query, vars);
-  
-}
-
-Database.insertReturnInsertId = (query, vars) =>{
-
-    return new Promise((resolve, reject) =>{
-
-        if(vars === undefined) vars = [];
-
-        Database.query(query, vars, (err, result) =>{
-
-            if(err) reject(err);
-
-            if(result !== undefined){
-                resolve(result.insertId);
-            }
-
-            resolve(-1);
-        });
-        
-    });
-}
-
-Database.updateReturnAffectedRows = (query, vars) =>{
-
-    return new Promise((resolve, reject) =>{
-
-        if(vars === undefined) vars = [];
-        
-        Database.query(query, vars, (err, result) =>{
-
-            if(err){
-                console.trace(err);
-                reject(err);
-                return
-            }
-
-            if(result !== undefined){
-                resolve(result.affectedRows);
-                return;
-            }
-
-            resolve(0);
-        });
-        
-    });
+    const [result, fields] = await Database.execute(query, vars);
+    
+    return result;
 }
 
 
-Database.simpleQuery = (query, vars) =>{
+export async function updateReturnAffectedRows(query, vars){
 
-    return new Promise((resolve, reject) =>{
+    const data = await simpleQuery(query, vars);
 
-        if(vars === undefined) vars = [];
-
-        Database.query(query, vars, (err, result) =>{
-
-            if(err){
-                console.trace(err);
-                reject(err);
-                return;
-            }
-
-            if(result !== undefined){
-                resolve(result);
-                return;
-            }
-
-            resolve([]);
-            return;
-        });
-    });  
-}
-
-Database.bulkInsert = (query, vars, maxPerInsert) =>{
-
-    return new Promise(async (resolve, reject) =>{
-
-        if(vars.length === 0){
-            resolve();
-            return;
-        }
-
-        if(maxPerInsert === undefined) maxPerInsert = 100000;
-
-        let startIndex = 0;
-
-        if(vars.length < maxPerInsert){
-            await Database.simpleQuery(query, [vars]);
-            resolve();
-            return;
-        }
-
-        while(startIndex < vars.length){
-
-            const end = (startIndex + maxPerInsert > vars.length) ? vars.length : startIndex + maxPerInsert;
-            const currentVars = vars.slice(startIndex, end);
-            await Database.simpleQuery(query, [currentVars]);
-            startIndex += maxPerInsert;
-        }
-
-        resolve();
-
-    });
+    return data.affectedRows;
 }
 
 
-module.exports = Database;
+export async function insertReturnInsertId(query, vars){
+
+    const data = await simpleQuery(query, vars);
+
+    return data.insertId;
+}
+
+
+
+export async function bulkInsert(query, vars, maxPerInsert){
+
+    if(vars.length === 0) return;
+
+    if(maxPerInsert === undefined) maxPerInsert = 100000;
+
+    let startIndex = 0;
+
+    if(vars.length < maxPerInsert){
+        await simpleQuery(query, [vars]);
+        return;
+    }
+
+    while(startIndex < vars.length){
+
+        const end = (startIndex + maxPerInsert > vars.length) ? vars.length : startIndex + maxPerInsert;
+        const currentVars = vars.slice(startIndex, end);
+        await simpleQuery(query, [currentVars]);
+        startIndex += maxPerInsert;
+    }
+
+    return;
+}

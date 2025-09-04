@@ -1,13 +1,13 @@
-const config = require('../../config.json');
-const Client = require('ftp');
-const fs = require('fs');
-const Message = require('../message');
-const Logs = require('../logs');
-const Ace = require("../ace");
+import config from "../../config.json" with {"type": "json"};
+import Client from "ftp";
+import fs from "fs";
+import Message from "../message.js";
+import {bExists as logsBExists} from "../logs.js";
+import Ace from "../ace.js";
 
 //class MyEmitter extends EventEmitter {}
 
-class FTPImporter{
+export default class FTPImporter{
 
     constructor(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreDuplicates, bImportAce, bDeleteAceLogs, bDeleteAceScreenshots){
 
@@ -176,7 +176,7 @@ class FTPImporter{
                 if(name.startsWith(logFilePrefix)){
 
                     if(this.bIgnoreDuplicates){
-                        bAlreadyImported = await Logs.bExists(f.name);
+                        bAlreadyImported = await logsBExists(f.name);
                     }
 
                     if(!bAlreadyImported){
@@ -462,6 +462,4 @@ class FTPImporter{
         });
 
     }
-
 }
-module.exports = FTPImporter;

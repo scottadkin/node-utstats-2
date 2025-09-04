@@ -1,4 +1,4 @@
-class Message{
+export default class Message{
 
     constructor(message, type){
 
@@ -61,8 +61,4 @@ class Message{
         console.log(`${fontColor}${timeString} ${type}: ${this.message}\u001b[0m`);
     }
 
-
 }
-
-
-module.exports = Message;

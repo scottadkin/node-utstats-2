@@ -1,7 +1,7 @@
-const Functions = require('../functions');
-const Maps = require('../maps');
+import {firstCharLowerCase} from "../functions.js";
+import Maps from "../maps.js";
 
-class MapInfo{
+export default class MapInfo{
 
     constructor(data){
 
@@ -43,7 +43,7 @@ class MapInfo{
                     currentResult[2] = currentResult[2].slice(0,100);
                 }
 
-                this[Functions.firstCharLowerCase(currentResult[1])] = currentResult[2];   
+                this[firstCharLowerCase(currentResult[1])] = currentResult[2];   
                 
                 if(currentResult[1].toLowerCase() === "name"){
 
@@ -80,7 +80,5 @@ class MapInfo{
             console.trace(err);
         }   
     }
-
 }
 
-module.exports = MapInfo;

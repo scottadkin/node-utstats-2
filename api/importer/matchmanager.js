@@ -1,30 +1,30 @@
 const config = require('../../config.json');
-const Message = require('../message');
-const Logs = require('../logs');
-const ServerInfo = require('./serverInfo');
-const MapInfo = require('./mapInfo');
-const GameInfo = require('./gameinfo');
-const PlayerManager = require('./playermanager');
-const KillManager = require('./killmanager');
-const Matches = require('../matches');
-const Match = require('../match');
-const Maps = require('../maps');
-const Gametypes = require('../gametypes');
-const CTFManager = require('./ctfmanager');
-const LMSManager = require('./lmsmanager');
-const AssaultManager = require('./assaultmanager');
-const DOMManager = require('./dommanager');
-const SpawnManager = require('./spawnmanager');
-const WeaponsManager = require('./weaponsmanager');
-const ItemsManager = require('./itemsmanager');
-const CountriesManager = require('./countriesmanager');
-const Rankings = require('../rankings');
-const MonsterHuntManager = require('./monsterhuntmanager');
-const CombogibManager = require('./combogibmanager');
-const geoip = require('geoip-lite');
-const md5 = require("md5");
+import Message from "../message.js";
+import Logs from "../logs.js";
+import ServerInfo from "./serverInfo.js";
+import MapInfo from "./mapInfo.js";
+import GameInfo from "./gameinfo.js";
+import PlayerManager from "./playermanager.js";
+import KillManager from "./killmanager.js";
+import Matches from "../matches.js";
+import Match from "../match.js";
+import Maps from "../maps.js";
+import Gametypes from "../gametypes.js";
+import CTFManager from "./ctfmanager.js";
+import LMSManager from "./lmsmanager.js";
+import AssaultManager from "./assaultmanager.js";
+import DOMManager from "./dommanager.js";
+import SpawnManager from "./spawnmanager.js";
+import WeaponsManager from "./weaponsmanager.js";
+import ItemsManager from "./itemsmanager.js";
+import CountriesManager from "./countriesmanager.js";
+import Rankings from "../rankings.js";
+import MonsterHuntManager from "./monsterhuntmanager.js";
+import CombogibManager from "./combogibmanager.js";
+import geoip from "geoip-lite";
+import md5 from "md5";
 
-class MatchManager{
+export default class MatchManager{
 
     constructor(data, fileName, bIgnoreBots, minPlayers, minPlaytime, bUsePlayerACEHWID){
 
@@ -885,5 +885,3 @@ class MatchManager{
         return reg.test(this.gameInfo.gamename);
     }
 }
-
-module.exports = MatchManager;
