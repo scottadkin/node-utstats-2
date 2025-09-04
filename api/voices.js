@@ -1,8 +1,7 @@
-const mysql = require('./database');
-const Promise = require('promise');
-const Message = require('./message');
+import { simpleQuery } from './database.js';
+import Message from './message.js';
 
-class Voices{
+export default class Voices{
 
     constructor(){
 
@@ -14,7 +13,7 @@ class Voices{
 
         const query = "SELECT COUNT(*) as total_voices FROM nstats_voices WHERE name=?";
 
-        const result = await mysql.simpleQuery(query, [name]);
+        const result = await simpleQuery(query, [name]);
 
         return result[0].total_voices > 0;
     }
@@ -23,7 +22,7 @@ class Voices{
 
         const query = "INSERT INTO nstats_voices VALUES(NULL,?,?,?,?)";
 
-        return await mysql.simpleQuery(query, [name, date, date, uses]);
+        return await simpleQuery(query, [name, date, date, uses]);
     }
 
 
@@ -38,7 +37,7 @@ class Voices{
 
         const vars = [uses, date, date, date, date, name];
         
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async updateStatsBulk(data, matchDate){
@@ -67,13 +66,13 @@ class Voices{
     async updatePlayerVoice(playerId, voiceId){
 
         const query = "UPDATE nstats_player_totals SET voice=? WHERE id=?";
-        return await mysql.simpleQuery(query, [voiceId, playerId]);
+        return await simpleQuery(query, [voiceId, playerId]);
     }
 
     async getAllIds(){
 
         const query = "SELECT id,name FROM nstats_voices";
-        const result = await mysql.simpleQuery(query);
+        const result = await simpleQuery(query);
 
         this.voices = {};
 
@@ -127,7 +126,7 @@ class Voices{
         const query = "UPDATE nstats_voices SET uses=uses-? WHERE id=?";
         const vars = [amount, id];
 
-        await mysql.simpleUpdate(query, vars);
+        await simpleQuery(query, vars);
    
     }
 
@@ -187,5 +186,3 @@ class Voices{
         }
     }
 }
-
-module.exports = Voices;

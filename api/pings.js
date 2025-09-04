@@ -1,32 +1,22 @@
-const mysql = require('./database');
+import { simpleQuery, bulkInsert } from "./database.js";
 
 
-class Pings{
+export default class Pings{
 
-    constructor(){
+    constructor(){}
 
-    }
+    async insert(match, timestamp, player, ping){
 
-    insert(match, timestamp, player, ping){
+        const query = "INSERT INTO nstats_match_pings VALUES(NULL,?,?,?,?)";
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "INSERT INTO nstats_match_pings VALUES(NULL,?,?,?,?)";
-
-            mysql.query(query, [match, timestamp, player, ping], (err) =>{
-            
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [match, timestamp, player, ping]);
     }
 
     async bulkInsert(vars){
 
         const query = `INSERT INTO nstats_match_pings (match_id,timestamp,player,ping) VALUES ?`;
 
-        return await mysql.bulkInsert(query, vars);
+        return await bulkInsert(query, vars);
     }
 
     createMatchGraphData(inputData, players){
@@ -119,71 +109,61 @@ class Pings{
 
 
         const query = "SELECT timestamp,player,ping FROM nstats_match_pings WHERE match_id=? ORDER BY timestamp ASC";
-        const data = await mysql.simpleQuery(query, [id]);
+        const data = await simpleQuery(query, [id]);
 
         return this.createMatchGraphData(data, players);
 
     }
 
-    getPlayerHistoryAfter(player, limit){
+    async getPlayerHistoryAfter(player, limit){
 
-        return new Promise((resolve, reject) =>{
-            const query = "SELECT ping_min,ping_average,ping_max FROM nstats_player_matches WHERE player_id=? ORDER by match_date DESC LIMIT ?";
+        const query = "SELECT ping_min,ping_average,ping_max FROM nstats_player_matches WHERE player_id=? ORDER by match_date DESC LIMIT ?";
 
-            mysql.query(query, [player, limit], (err, result) =>{
+        const result = await simpleQuery(query, [player, limit]);
 
-                if(err) reject(err);
+        const data = [];
 
-                if(result !== undefined){
+        for(let i = 0; i < result.length; i++){
 
-                    const data = [];
-
-                    for(let i = 0; i < result.length; i++){
-
-                        data.push({
-                            "min": result[i].ping_min,
-                            "average": result[i].ping_average,
-                            "max": result[i].ping_max
-                        });
-
-                    }
-
-                    resolve(data);
-                }
-
-                resolve([]);
+            data.push({
+                "min": result[i].ping_min,
+                "average": result[i].ping_average,
+                "max": result[i].ping_max
             });
-        });     
+
+        }
+
+        return data;
     }
 
     async deletePlayerMatchData(playerId, matchId){
 
-         return await mysql.simpleDelete("DELETE FROM nstats_match_pings WHERE player=? AND match_id=?", [playerId, matchId]);
+         return await simpleQuery("DELETE FROM nstats_match_pings WHERE player=? AND match_id=?", [playerId, matchId]);
      
     }
 
     async changePlayerIds(oldId, newId){
 
-        await mysql.simpleUpdate("UPDATE nstats_match_pings SET player=? WHERE player=?", [newId, oldId]);
+        await simpleQuery("UPDATE nstats_match_pings SET player=? WHERE player=?", [newId, oldId]);
 
     }
 
     async deletePlayer(playerId){
-        await mysql.simpleDelete("DELETE FROM nstats_match_pings WHERE player=?", [playerId]);
+        await simpleQuery("DELETE FROM nstats_match_pings WHERE player=?", [playerId]);
     }
 
     async deleteMatches(ids){
 
         if(ids.length === 0) return;
 
-        await mysql.simpleQuery("DELETE FROM nstats_match_pings WHERE match_id IN (?)", [ids]);
+        await simpleQuery("DELETE FROM nstats_match_pings WHERE match_id IN (?)", [ids]);
     }
 
     async getPlayerMatchData(matchId, playerId){
 
         const query = "SELECT timestamp,ping FROM nstats_match_pings WHERE match_id=? AND player=? ORDER BY timestamp ASC";
 
-        const data = await mysql.simpleQuery(query, [matchId, playerId]);
+        const data = await simpleQuery(query, [matchId, playerId]);
 
         if(data.length === 0){
             return [];
@@ -245,7 +225,7 @@ class Pings{
         const query = `SELECT match_date,ping_min,ping_average,ping_max FROM nstats_player_matches 
         WHERE player_id=? ORDER BY match_date DESC LIMIT ?`;
 
-        return await mysql.simpleQuery(query, [playerId, limit]);
+        return await simpleQuery(query, [playerId, limit]);
     }
 
     async getPlayerHistoryGraphData(playerId, limit){
@@ -278,5 +258,3 @@ class Pings{
         return {"data": data, "labels": labels};
     }
 }
-
-module.exports = Pings;

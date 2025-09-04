@@ -1,16 +1,16 @@
-const mysql = require('../database');
-const PlayerInfo = require('./playerinfo');
-const Message = require('../message');
-const Pl = require('../player');
+import {simpleQuery} from "../database.js";
+import PlayerInfo from "./playerinfo.js";
+import Message from "../message.js";
+import Pl from "../player.js";
 const Player = new Pl();
-const Faces = require('../faces');
-const Voices = require('../voices');
-const ConnectionsManager = require('./connectionsmanager');
-const PingManager = require('./pingmanager');
-const TeamsManager = require('./teamsmanager');
-const WinRateManager = require('../winrate');
-const SpreeManager = require("./spreemanager");
-const Functions = require("../functions");
+import Faces from "../faces.js";
+import Voices from "../voices.js";
+import ConnectionsManager from "./connectionsmanager.js";
+import PingManager from "./pingmanager.js";
+import TeamsManager from "./teamsmanager.js";
+import WinRateManager from "../winrate.js";
+import SpreeManager  from "./spreemanager.js";
+import {scalePlaytime} from "../functions.js";
 
 class PlayerManager{
 
@@ -1290,7 +1290,7 @@ class PlayerManager{
 
         const query = "UPDATE nstats_player_totals SET ip=?,country=? WHERE id=?";
 
-        return await mysql.simpleQuery(query, [ip, country, id]);
+        return await simpleQuery(query, [ip, country, id]);
     }
 
     async setIpCountry(){
@@ -1792,7 +1792,7 @@ class PlayerManager{
             for(const [teamId, playtime] of Object.entries(p.stats.teamPlaytime)){
 
                 //console.log(`scaled ${p.stats.teamPlaytime[teamId]} to ${this.scalePlaytime(playtime, bHardcore)}`);
-                p.stats.teamPlaytime[teamId] = Functions.scalePlaytime(playtime, bHardcore);
+                p.stats.teamPlaytime[teamId] = scalePlaytime(playtime, bHardcore);
             }
         }
     }

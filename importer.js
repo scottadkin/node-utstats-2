@@ -1,7 +1,7 @@
-const Importer =  require('./api/importer/importer');
-const Message =  require('./api/message');
-const mysql = require('./api/database');
-const config = require('./config.json');
+import Importer from "./api/importer/importer.js";
+import Message from "./api/message.js";
+import {simpleQuery} from "./api/database.js";
+import config from "./config.json" with {"type": "json"};
 
 new Message('Node UTStats 2 Importer module started.','note');
 
@@ -14,7 +14,7 @@ async function setFTPSettings(){
 
         ftpServers = [];
         const query = "SELECT * FROM nstats_ftp ORDER BY id ASC";
-        const result = await mysql.simpleFetch(query);
+        const result = await simpleQuery(query);
 
         for(let i = 0; i < result.length; i++){
 
@@ -33,7 +33,7 @@ async function getLogsFolderSettings(){
 
     const query = "SELECT ignore_duplicates,ignore_bots,min_players,min_playtime,import_ace,use_ace_player_hwid FROM nstats_logs_folder ORDER BY id DESC LIMIT 1";
 
-    const result = await mysql.simpleQuery(query);
+    const result = await simpleQuery(query);
 
     if(result.length === 0){
         throw new Error("Logs folder settings have not been found, you have most likely missed an upgrade step from a previous version of node utstats 2.");    

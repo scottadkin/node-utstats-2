@@ -1,51 +1,35 @@
-const mysql = require('./database');
-const Promise = require('promise');
-const Message = require('./message');
-const fs = require('fs');
+import { simpleQuery, insertReturnInsertId } from "./database.js";
+import Message from "./message.js";
+import fs from "fs";
 
-class Faces{
+export default class Faces{
 
     constructor(){
 
     }
 
-    create(name){
+    async create(name){
 
-        return new Promise((resolve, reject) =>{
+        name = name.toLowerCase();
 
-            name = name.toLowerCase();
+        const query = "INSERT INTO nstats_faces VALUES(NULL,?,0,0,0)";
 
-            const query = "INSERT INTO nstats_faces VALUES(NULL,?,0,0,0)";
+        return await insertReturnInsertId(query, [name]);
 
-            mysql.query(query, [name], (err, result) =>{
-
-                if(err) reject(err);
-
-                resolve(result.insertId);
-            }); 
-        });
     }
 
 
-    getIdByName(name){
+    async getIdByName(name){
 
-        return new Promise((resolve, reject) =>{
+        name = name.toLowerCase();
 
-            name = name.toLowerCase();
+        const query = `SELECT id FROM nstats_faces WHERE name=? LIMIT 1`;
 
-            const query = `SELECT id FROM nstats_faces WHERE name=? LIMIT 1`;
+        const result = await simpleQuery(query, [name]);
 
-            mysql.query(query, [name], (err, result) =>{
+        if(result.length > 0) return result[0].id;
 
-                if(err) reject(err);
-
-                if(result[0] !== undefined){
-                    resolve(result[0].id);
-                }else{
-                    resolve(null);
-                }
-            });
-        });
+        return null;
     }
 
 
@@ -83,22 +67,16 @@ class Faces{
         }
     }
 
-    updateQuery(id, uses, date){
+    async updateQuery(id, uses, date){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = `UPDATE nstats_faces SET uses=uses+?,
+        const query = `UPDATE nstats_faces SET uses=uses+?,
             first = IF(first = 0 OR ? < first, ?, first),
             last = IF(last = 0 OR ? > last, ?, last)
             WHERE id=?`;
 
-            mysql.query(query, [uses, date, date, date, date, id], (err) =>{
+        const vars = [uses, date, date, date, date, id];
 
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, vars);
     }
 
     async update(name, uses, date){
@@ -193,22 +171,14 @@ class Faces{
         }
     }
     
-    updatePlayerFace(player, face){
+    async updatePlayerFace(player, face){
 
-        return new Promise((resolve, reject) =>{
+        face = parseInt(face);
+        if(face !== face) face = 0;
 
-            face = parseInt(face);
-            if(face !== face) face = 0;
+        const query = `UPDATE nstats_player_totals SET face=? WHERE id=?`;
 
-            const query = `UPDATE nstats_player_totals SET face=? WHERE id=?`
-
-            mysql.query(query, [face, player], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [face, player]);
     }
 
     static imageExists(name){
@@ -254,24 +224,12 @@ class Faces{
     }
 
 
-    getFacesName(faces){
+    async getFacesName(faces){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT id,name FROM nstats_faces WHERE id IN(?)";
 
-            const query = "SELECT id,name FROM nstats_faces WHERE id IN(?)";
+        return await simpleQuery(query, [faces]);
 
-            mysql.query(query, [faces], (err, result) =>{
-
-                if(err) resolve([]);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-
-        });   
     }
 
     //smartCTF strips some data from the texture name, so we have to strip the face file names in the same way
@@ -353,43 +311,19 @@ class Faces{
     }
 
 
-    getMostUsed(limit){
+    async getMostUsed(limit){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT * FROM nstats_faces ORDER BY uses DESC LIMIT ?";
 
-            const query = "SELECT * FROM nstats_faces ORDER BY uses DESC LIMIT ?";
-
-            mysql.query(query, [limit], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
+        return await simpleQuery(query, [limit]);
     }
 
 
-    getAll(){
+    async getAll(){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT name,first,last,uses FROM nstats_faces ORDER BY uses DESC";
 
-            const query = "SELECT name,first,last,uses FROM nstats_faces ORDER BY uses DESC";
-
-            mysql.query(query, (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
+        return await simpleQuery(query);
     }
 
 
@@ -397,19 +331,11 @@ class Faces{
         return fs.readdirSync("./public/images/faces");
     }
 
-    reduceUsage(id, amount){
+    async reduceUsage(id, amount){
 
-        return new Promise((resolve, reject) =>{
+        const query = "UPDATE nstats_faces SET uses=uses-? WHERE id=?";
 
-            const query = "UPDATE nstats_faces SET uses=uses-? WHERE id=?";
-
-            mysql.query(query, [amount, id], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [amount, id]);
     }
 
     async reduceMatchUses(playersData){
@@ -473,7 +399,7 @@ class Faces{
 
     async reduceUses(id, uses){
 
-        await mysql.simpleUpdate("UPDATE nstats_faces SET uses=uses-? WHERE id=?", [uses, id]);
+        await simpleQuery("UPDATE nstats_faces SET uses=uses-? WHERE id=?", [uses, id]);
     }
 
     async deleteViaPlayerMatchesData(playersData){
@@ -534,5 +460,3 @@ class Faces{
         }
     }
 }
-
-module.exports = Faces;

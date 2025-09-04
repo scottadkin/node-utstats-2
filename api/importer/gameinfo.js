@@ -1,6 +1,6 @@
-const Message = require("../message");
+import Message from "../message.js";
 
-class GameInfo{
+export default class GameInfo{
 
     constructor(data){
 
@@ -170,5 +170,3 @@ class GameInfo{
     }
 
 }
-
-module.exports = GameInfo;

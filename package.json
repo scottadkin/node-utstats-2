@@ -1,6 +1,7 @@
 {
   "name": "node-utstats-2",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "node server.js",
     "build": "next build",

@@ -1,8 +1,8 @@
-const mysql = require("./database");
-const Message = require("./message");
-const Functions = require("./functions");
-const CountriesManager = require("./countriesmanager");
-const Assault = require("./assault");
+import { simpleQuery, bulkInsert } from "./database.js";
+import Message from "./message.js";
+import { setValueIfUndefined, calculateKillEfficiency, removeIps } from "./functions.js";
+import CountriesManager from "./countriesmanager.js";
+import Assault from "./assault.js";
 const CTF = require("./ctf");
 const Domination = require("./domination");
 const Faces = require("./faces");
@@ -19,7 +19,7 @@ const MonsterHunt = require("./monsterhunt");
 const SiteSettings = require("./sitesettings");
 const Combogib = require("./combogib");
 
-class Player{
+export default class Player{
 
     constructor(){}
 
@@ -36,7 +36,7 @@ class Player{
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0)`;
 
-        const result = await mysql.simpleQuery(query, [hwid, playerName]);
+        const result = await simpleQuery(query, [hwid, playerName]);
 
             //55
         return result.insertId;
@@ -47,7 +47,7 @@ class Player{
 
         const query = "SELECT id FROM nstats_player_totals WHERE name=? AND gametype=0 AND map=0";
 
-        const result = await mysql.simpleQuery(query, [playerName]);
+        const result = await simpleQuery(query, [playerName]);
 
         if(result.length === 0){
             return await this.createMasterId(playerName);
@@ -69,7 +69,7 @@ class Player{
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,0,0,0)`;
 
-        const result = await mysql.simpleQuery(query, [hwid, playerName, playerMasterId, gametypeId, mapId]);
+        const result = await simpleQuery(query, [hwid, playerName, playerMasterId, gametypeId, mapId]);
 
         return result.insertId;
     }
@@ -78,7 +78,7 @@ class Player{
 
         const query = "SELECT id FROM nstats_player_totals WHERE player_id=? AND gametype=? AND map=?";
 
-        const result = await mysql.simpleQuery(query, [playerMasterId, gametypeId, mapId]);
+        const result = await simpleQuery(query, [playerMasterId, gametypeId, mapId]);
 
         if(result.length === 0){
             return await this.createGametypeId(playerName, playerMasterId, gametypeId, mapId);
@@ -91,7 +91,7 @@ class Player{
     async getMapId(playerName, playerMasterId, gametypeId, mapId){
 
         const query = `SELECT id FROM nstats_player_totals WHERE player_id=? AND gametype=? AND map=?`;
-        const result = await mysql.simpleQuery(query, [playerMasterId, gametypeId, mapId]);
+        const result = await simpleQuery(query, [playerMasterId, gametypeId, mapId]);
 
         if(result.length === 0){
             //create new map id
@@ -121,7 +121,7 @@ class Player{
     async updatePlayerNameHWID(hwid, playerName){
 
         const query = "UPDATE nstats_player_totals SET name=? WHERE hwid=?";
-        return await mysql.simpleQuery(query, [playerName, hwid]);
+        return await simpleQuery(query, [playerName, hwid]);
     }
 
 
@@ -129,7 +129,7 @@ class Player{
 
         const query = `SELECT id FROM nstats_player_totals WHERE hwid=? AND gametype=0`;
 
-        const result = await mysql.simpleQuery(query, [hwid]);
+        const result = await simpleQuery(query, [hwid]);
 
         if(result.length === 0) return null;
 
@@ -142,7 +142,7 @@ class Player{
 
         const query = `SELECT id FROM nstats_player_totals WHERE hwid=? AND gametype=? AND map=?`;
 
-        const result = await mysql.simpleQuery(query, [hwid, gametypeId, mapId]);
+        const result = await simpleQuery(query, [hwid, gametypeId, mapId]);
 
         if(result.length === 0) return null;
 
@@ -272,7 +272,7 @@ class Player{
             map
         ];
 
-        await mysql.simpleQuery(query, vars);
+        await simpleQuery(query, vars);
 
         //await this.updateEfficiency(id);
     }
@@ -285,7 +285,7 @@ class Player{
 
         const query = `UPDATE nstats_player_totals SET matches=matches+1 WHERE id=?`;
 
-        return await mysql.simpleQuery(query, [playerId]);
+        return await simpleQuery(query, [playerId]);
     }
 
 
@@ -306,7 +306,7 @@ class Player{
             }
         }
 
-        return await mysql.simpleQuery(query, [id, gametype, mapId]);
+        return await simpleQuery(query, [id, gametype, mapId]);
 
     }
 
@@ -340,10 +340,10 @@ class Player{
             player.bBot,
             (player.stats.time_on_server === 0) ? 1 : 0,//player.bSpectator,
             (player.stats.time_on_server === 0) ? 0 : 1,//player.bPlayedInMatch,
-            Functions.setValueIfUndefined(player.ip,""),
-            Functions.setValueIfUndefined(player.country,"xx"),
-            Functions.setValueIfUndefined(player.faceId),
-            Functions.setValueIfUndefined(player.voiceId),
+            setValueIfUndefined(player.ip,""),
+            setValueIfUndefined(player.country,"xx"),
+            setValueIfUndefined(player.faceId),
+            setValueIfUndefined(player.voiceId),
             gametypeId,
             player.bWinner,
             player.bDrew,
@@ -362,7 +362,7 @@ class Player{
             player.stats.suicides,
             player.stats.teamkills,
             player.stats.spawnKills,
-            Functions.calculateKillEfficiency(player.stats.kills, player.stats.deaths),
+            calculateKillEfficiency(player.stats.kills, player.stats.deaths),
             player.stats.multis.double,
             player.stats.multis.multi,
             player.stats.multis.mega,
@@ -384,8 +384,8 @@ class Player{
             parseInt(ping.average),
             ping.max,
             player.stats.accuracy.toFixed(2),
-            (isNaN(player.stats.killMinDistance)) ? 0 : Functions.setValueIfUndefined(player.stats.killMinDistance),
-            (isNaN(player.stats.killAverageDistance)) ? 0 : Functions.setValueIfUndefined(player.stats.killAverageDistance),
+            (isNaN(player.stats.killMinDistance)) ? 0 : setValueIfUndefined(player.stats.killMinDistance),
+            (isNaN(player.stats.killAverageDistance)) ? 0 : setValueIfUndefined(player.stats.killAverageDistance),
             player.stats.killMaxDistance,
             player.stats.killsNormalRange,
             player.stats.killsLongRange,
@@ -401,7 +401,7 @@ class Player{
             player.stats.teleFrags.discKillsBestMulti,
         ];
 
-        const result = await mysql.simpleQuery(query, vars);
+        const result = await simpleQuery(query, vars);
 
         return result.insertId;
 
@@ -421,7 +421,7 @@ class Player{
                 if(err) reject(err);
 
                 if(result !== undefined){
-                    Functions.removeIps(result);
+                    removeIps(result);
                     resolve(result[0]);
                 }
                 
@@ -435,7 +435,7 @@ class Player{
 
         const query = "SELECT gametype,map,matches,wins,losses,draws,playtime,accuracy,last FROM nstats_player_totals WHERE gametype!=0 AND map=0 AND name=?";
 
-        const result = await mysql.simpleQuery(query, [name]);
+        const result = await simpleQuery(query, [name]);
 
         return result;
     }
@@ -445,7 +445,7 @@ class Player{
 
         const query = "SELECT match_id FROM nstats_player_matches WHERE player_id=?";
 
-        const result = await mysql.simpleFetch(query, [id]);
+        const result = await simpleQuery(query, [id]);
 
         const ids = [];
 
@@ -500,7 +500,7 @@ class Player{
         const query = "SELECT * FROM nstats_player_matches WHERE player_id=? AND match_id IN (?) AND playtime > 0 AND playtime >=? ORDER BY match_date DESC, id DESC LIMIT ?,?";
         const start = amount * page;
         const vars = [id, validMatchIds, settings["Minimum Playtime"], start, amount];
-        const result = await mysql.simpleFetch(query, vars);
+        const result = await simpleQuery(query, vars);
 
         const uniqueDMWinners = new Set();
 
@@ -528,7 +528,7 @@ class Player{
         const query = "SELECT COUNT(*) as total_matches FROM nstats_player_matches WHERE player_id=? AND match_id IN(?) AND playtime > 0 AND playtime >=?";
         const vars = [id, validIds, settings["Minimum Playtime"]];
 
-        const result = await mysql.simpleFetch(query, vars);
+        const result = await simpleQuery(query, vars);
 
         return result[0].total_matches;
 
@@ -617,7 +617,7 @@ class Player{
 
         const query = "INSERT INTO nstats_match_player_score (match_id,timestamp,player,score) VALUES ?";
 
-        return await mysql.bulkInsert(query, vars);
+        return await bulkInsert(query, vars);
     }
 
     getMatchDatesAfter(timestamp, player){
@@ -680,7 +680,7 @@ class Player{
 
         const query = "SELECT DISTINCT player_id FROM nstats_player_matches WHERE ip IN(?)";
 
-        const result = await mysql.simpleQuery(query, [ips]);
+        const result = await simpleQuery(query, [ips]);
 
         return result.map((r) =>{
             return r.player_id;
@@ -702,7 +702,7 @@ class Player{
         const altQuery = `SELECT id,name,country,face,first,last,playtime,spec_playtime FROM nstats_player_totals WHERE id IN(?) AND name NOT REGEXP '^player[0-9]{1,2}$'`;
         const vars = [ids];
 
-        return await mysql.simpleQuery((bIgnorePlayer) ? altQuery : query, vars);
+        return await simpleQuery((bIgnorePlayer) ? altQuery : query, vars);
 
     }
 
@@ -735,7 +735,7 @@ class Player{
             FROM nstats_player_totals WHERE gametype=? AND player_id=?
             `;
 
-        const result = await mysql.simpleQuery(query, [gametype, player]);
+        const result = await simpleQuery(query, [gametype, player]);
 
         if(result.length > 0){
             return result[0];
@@ -748,7 +748,7 @@ class Player{
 
         const query = "SELECT * FROM nstats_player_ctf_match WHERE player_id=? AND match_id=?";
 
-        const result = await mysql.simpleQuery(query, [playerId, matchId]);
+        const result = await simpleQuery(query, [playerId, matchId]);
 
         if(result.length > 0) return result[0];
 
@@ -760,7 +760,7 @@ class Player{
 
         const query = "SELECT * FROM nstats_player_matches WHERE player_id=? AND match_id=? LIMIT 1";
 
-        const result = await mysql.simpleQuery(query, [playerId, matchId]);
+        const result = await simpleQuery(query, [playerId, matchId]);
 
         if(result.length > 0){
 
@@ -779,28 +779,28 @@ class Player{
 
     async deletePlayerMatch(playerId, matchId){
 
-        return await mysql.simpleDelete("DELETE FROM nstats_player_matches WHERE player_id=? AND match_id=?", [
+        return await simpleQuery("DELETE FROM nstats_player_matches WHERE player_id=? AND match_id=?", [
             playerId, matchId
         ]);
     }
 
     async deletePlayerScoreData(playerId, matchId){
 
-        return await mysql.simpleDelete("DELETE FROM nstats_match_player_score WHERE player=? AND match_id=?",
+        return await simpleQuery("DELETE FROM nstats_match_player_score WHERE player=? AND match_id=?",
         [playerId, matchId]);
     }
 
 
     async deletePlayerTeamChanges(playerId, matchId){
 
-        return await mysql.simpleDelete("DELETE FROM nstats_match_team_changes WHERE player=? AND match_id=?",[
+        return await simpleQuery("DELETE FROM nstats_match_team_changes WHERE player=? AND match_id=?",[
             playerId, matchId
         ]);
     }
 
     async reduceMapTotals(playerId, mapId, playtime){
 
-        return await mysql.simpleUpdate(`UPDATE nstats_player_maps SET matches=matches-1,playtime=playtime-? WHERE player=?
+        return await simpleQuery(`UPDATE nstats_player_maps SET matches=matches-1,playtime=playtime-? WHERE player=?
         AND map=?
         `, [playtime, playerId, mapId]);
     }
@@ -809,7 +809,7 @@ class Player{
 
     async getPlayerGametypeData(playerName, gametypeId){
 
-        return await mysql.simpleFetch("SELECT * FROM nstats_player_totals WHERE name=? AND gametype=?", 
+        return await simpleQuery("SELECT * FROM nstats_player_totals WHERE name=? AND gametype=?", 
             [playerName, gametypeId]
         );
     }
@@ -933,7 +933,7 @@ class Player{
 
         const query = "SELECT match_id,match_date,map_id FROM nstats_ctf_cap_records WHERE cap=?";
 
-        const result = await mysql.simpleQuery(query, [playerId]);
+        const result = await simpleQuery(query, [playerId]);
 
     }
 
@@ -941,7 +941,7 @@ class Player{
 
         const query = "SELECT COUNT(*) as total_rows FROM nstats_player_matches WHERE player_id=? AND match_id=?";
 
-        const result = await mysql.simpleQuery(query, [playerId, matchId]);
+        const result = await simpleQuery(query, [playerId, matchId]);
 
         return result[0].total_rows > 0;
     }
@@ -951,7 +951,7 @@ class Player{
 
         const query = "SELECT * FROM nstats_player_totals WHERE player_id=? AND gametype=? LIMIT 1";
 
-        const result = await mysql.simpleQuery(query, [playerId, gametypeId]);
+        const result = await simpleQuery(query, [playerId, gametypeId]);
 
         if(result.length > 0){
             return result[0];
@@ -965,7 +965,7 @@ class Player{
 
         const query = "SELECT * FROM nstats_player_matches WHERE player_id=? AND gametype=? ORDER BY match_date ASC";
 
-        return await mysql.simpleQuery(query, [playerId, gametypeId]);
+        return await simpleQuery(query, [playerId, gametypeId]);
     }
 
 
@@ -973,7 +973,7 @@ class Player{
 
         const query = `SELECT name,country FROM nstats_player_totals WHERE id=? AND gametype=0`;
 
-        const result = await mysql.simpleQuery(query, [playerId]);
+        const result = await simpleQuery(query, [playerId]);
 
         if(result.length > 0){
             return result[0];
@@ -988,7 +988,7 @@ class Player{
         kills,deaths,suicides,team_kills,spawn_kills,efficiency,accuracy
         FROM nstats_player_totals WHERE gametype!=0 AND map=0 AND player_id=?`;
 
-        return await mysql.simpleQuery(query, [playerId]);
+        return await simpleQuery(query, [playerId]);
     }
 
 
@@ -996,14 +996,14 @@ class Player{
 
         const query = "UPDATE nstats_player_totals SET hwid=? WHERE player_id=0 AND id=?";
 
-        return await mysql.simpleQuery(query, [hwid, playerId]);
+        return await simpleQuery(query, [hwid, playerId]);
     }
 
     async getHWIDNameOverride(hwid){
 
         const query = `SELECT player_name FROM nstats_hwid_to_name WHERE hwid=?`;
 
-        const result = await mysql.simpleQuery(query, [hwid]);
+        const result = await simpleQuery(query, [hwid]);
 
         if(result.length === 0) return null;
 
@@ -1011,5 +1011,3 @@ class Player{
 
     }
 }
-
-module.exports = Player;

@@ -1,7 +1,7 @@
-const Pings = require('../pings');
-const Message = require('../message');
+import Pings from "../pings.js";
+import Message from "../message.js";
 
-class PingManager{
+export default class PingManager{
 
     constructor(){
 
@@ -192,5 +192,3 @@ class PingManager{
         return {"min": min, "average": average, "max": max};
     }
 }
-
-module.exports = PingManager;

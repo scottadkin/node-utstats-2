@@ -258,7 +258,7 @@ const flags =  {
     "ZW": "Zimbabwe"
 }
 
-const Countires = (code) =>{
+export default function Countires(code){
 
     const defaultObj = {"code": "XX", "country": 'Unknown'};
 
@@ -277,5 +277,3 @@ const Countires = (code) =>{
     return {"code": code, "country": flags[code]};
 
 }
-
-module.exports = Countires;

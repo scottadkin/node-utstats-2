@@ -1,7 +1,7 @@
-const mysql = require('./database');
-const countries = require('./countries');
+import { simpleQuery } from "./database.js";
+import countries from "./countries.js";
 
-class CountriesManager{
+export default class CountriesManager{
 
     constructor(){}
 
@@ -14,7 +14,7 @@ class CountriesManager{
         FROM nstats_player_totals WHERE country!="xx" AND gametype=0 AND map=0
         GROUP BY(country) ORDER BY total_uses DESC LIMIT ?`;
 
-        const result = await mysql.simpleQuery(query, [limit]);
+        const result = await simpleQuery(query, [limit]);
 
         for(let i = 0; i < result.length; i++){
 
@@ -29,19 +29,12 @@ class CountriesManager{
         return result;
     }
 
-    reduceUses(code, amount){
+    async reduceUses(code, amount){
 
-        return new Promise((resolve, reject) =>{
+        const query = "UPDATE nstats_countries SET total=total-? WHERE code=?";
 
-            const query = "UPDATE nstats_countries SET total=total-? WHERE code=?";
+        return await simpleQuery(query, [amount, code]);
 
-            mysql.query(query, [amount, code], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
     }
 
     async deletePlayerViaMatchData(matches){
@@ -91,5 +84,3 @@ class CountriesManager{
         return uses;
     }
 }
-
-module.exports = CountriesManager;

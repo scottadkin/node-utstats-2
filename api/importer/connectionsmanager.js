@@ -1,7 +1,7 @@
-const Message = require('../message');
-const Connections = require('../connections');
+import Message from "../message.js";
+import Connections from "../connections.js";
 
-class ConnectionsManager{
+export default class ConnectionsManager{
 
     constructor(playerManager){
 
@@ -52,7 +52,3 @@ class ConnectionsManager{
         }
     }
 }
-
-
-
-module.exports = ConnectionsManager;
