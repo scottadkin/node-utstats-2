@@ -1,6 +1,6 @@
-const mysql = require("./database");
+import { simpleQuery } from "./database.js";
 
-class Telefrags{
+export default class Telefrags{
 
     constructor(){}
 
@@ -10,7 +10,7 @@ class Telefrags{
         const query = `SELECT timestamp,killer_id,killer_team,victim_id,victim_team,disc_kill 
         FROM nstats_tele_frags WHERE match_id=? ORDER BY timestamp ASC`;
 
-        return await mysql.simpleQuery(query, [matchId]);
+        return await simpleQuery(query, [matchId]);
     }
 
     async getPlayerMatchKills(matchId, targetPlayerId){
@@ -19,14 +19,14 @@ class Telefrags{
         FROM nstats_tele_frags WHERE match_id=? 
         AND (killer_id=? || victim_id=?)`;
 
-        return await mysql.simpleQuery(query, [matchId, targetPlayerId, targetPlayerId]);
+        return await simpleQuery(query, [matchId, targetPlayerId, targetPlayerId]);
     }
 
     async bPlayerTotalExist(playerId, mapId, gametypeId){
 
         const query = `SELECT COUNT(*) as total_matches FROM nstats_player_telefrags WHERE player_id=? AND map_id=? AND gametype_id=?`;
 
-        const result = await mysql.simpleQuery(query, [playerId, mapId, gametypeId]);
+        const result = await simpleQuery(query, [playerId, mapId, gametypeId]);
 
         if(result[0].total_matches > 0) return true;
         return false;
@@ -36,7 +36,7 @@ class Telefrags{
 
         const query = `INSERT INTO nstats_player_telefrags VALUES(NULL,?,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)`;
 
-        return await mysql.simpleQuery(query, [playerId, mapId, gametypeId]);
+        return await simpleQuery(query, [playerId, mapId, gametypeId]);
     }
 
     async updatePlayerTotal(playerId, mapId, gametypeId, playtime, stats){
@@ -77,7 +77,7 @@ class Telefrags{
             playerId, mapId, gametypeId,
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async updatePlayerTotalCustom(playerId, mapId, gametypeId, data){
@@ -136,7 +136,7 @@ class Telefrags{
             playerId, mapId, gametypeId,
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async updatePlayerTotals(playerId, mapId, gametypeId, playtime, stats){
@@ -161,7 +161,7 @@ class Telefrags{
     async deletePlayer(playerId){
 
         const query = `DELETE FROM nstats_player_telefrags WHERE player_id=?`;
-        return await mysql.simpleQuery(query, [playerId]);
+        return await simpleQuery(query, [playerId]);
     }
 
     async changePlayerIds(oldId, newId){
@@ -175,7 +175,7 @@ class Telefrags{
             oldId, newId
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async insertCustomTotal(playerId, data){
@@ -221,7 +221,7 @@ class Telefrags{
 
             //console.log(`insert new telefrag totals for playerId ${playerId}, ${d.map_id}, ${d.gametype}`);
 
-            await mysql.simpleQuery(query, vars);
+            await simpleQuery(query, vars);
 
             //all time total
             await this.updatePlayerTotalCustom(playerId, 0, 0, d);
@@ -251,7 +251,7 @@ class Telefrags{
         MAX(tele_disc_best_multi) as tele_disc_best_multi
         FROM nstats_player_matches WHERE player_id=? GROUP BY gametype, map_id`;
     
-        const result = await mysql.simpleQuery(query, [playerId]);
+        const result = await simpleQuery(query, [playerId]);
 
         if(result.length > 0){
             await this.insertCustomTotal(playerId, result);
@@ -275,7 +275,7 @@ class Telefrags{
 
         const query = `SELECT * FROM nstats_player_telefrags WHERE player_id=?`;
 
-        const result = await mysql.simpleQuery(query, [playerId]);
+        const result = await simpleQuery(query, [playerId]);
 
         const targetKeys = [
             "tele_kills", 
@@ -309,8 +309,6 @@ class Telefrags{
 
         const query = `UPDATE nstats_tele_frags SET map_id=? WHERE map_id=?`;
 
-        await mysql.simpleQuery(query, [newId, oldId]);
+        await simpleQuery(query, [newId, oldId]);
     }
 }
-
-module.exports = Telefrags;

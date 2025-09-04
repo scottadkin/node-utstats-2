@@ -21,7 +21,7 @@ const Logs = require('./logs');
 const MonsterHunt = require('./monsterhunt');
 const SiteSettings = require('./sitesettings');
 
-class Matches{
+export default class Matches{
 
     constructor(){}
 
@@ -1893,4 +1893,3 @@ class Matches{
     }
 
 }
-module.exports = Matches;

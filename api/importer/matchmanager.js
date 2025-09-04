@@ -1,6 +1,6 @@
 const config = require('../../config.json');
 import Message from "../message.js";
-import Logs from "../logs.js";
+import {bExists as logsBExists, insert as logsInsert, setMatchId as logsSetMatchId } from "../logs.js";
 import ServerInfo from "./serverInfo.js";
 import MapInfo from "./mapInfo.js";
 import GameInfo from "./gameinfo.js";
@@ -61,7 +61,7 @@ export default class MatchManager{
 
             if(config.bIgnoreDuplicates){
 
-                if(await Logs.bExists(this.fileName)){
+                if(await logsBExists(this.fileName)){
                     new Message(`${this.fileName} has already been imported and will not be re-imported, to change this change bIgnoreDuplicates to false in config.js`,'warning');
                     new Message(`Finished import of log file ${this.fileName}.`, 'note');
                     return;
@@ -472,11 +472,11 @@ export default class MatchManager{
             new Message("Updating player rankings.","note");
             await this.playerManager.updateRankings(this.rankingsManager, this.gametype.currentMatchGametype, this.matchId);
 
-            const logId = await Logs.insert(this.fileName);
+            const logId = await logsInsert(this.fileName);
 
             new Message(`Log file id is ${logId}`,"note");
 
-            await Logs.setMatchId(logId, this.matchId);
+            await logsSetMatchId(logId, this.matchId);
 
             
 

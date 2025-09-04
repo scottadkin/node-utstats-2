@@ -1,6 +1,6 @@
-const Message = require('../message');
+import Message from "../message.js";
 
-class LMSManager{
+export default class LMSManager{
 
     constructor(playerManager, killManager, matchLength, fragLimit){
 
@@ -103,5 +103,3 @@ class LMSManager{
         return {"name": players[0].name, "score": players[0].stats.score, "id": players[0].id};
     }
 }
-
-module.exports = LMSManager;

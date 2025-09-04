@@ -1,6 +1,6 @@
-const mysql = require("./database");
+import { simpleQuery } from "./database.js";
 
-class PowerUps{
+export default class PowerUps{
 
     constructor(){}
 
@@ -8,7 +8,7 @@ class PowerUps{
     async createPowerUp(name){
 
         const query = `INSERT INTO nstats_powerups VALUES(NULL,?,?)`;
-        return await mysql.simpleQuery(query, [name, name]);
+        return await simpleQuery(query, [name, name]);
     }
     
 
@@ -16,7 +16,7 @@ class PowerUps{
 
         const query = "SELECT id FROM nstats_powerups WHERE name=? LIMIT 1";
 
-        const result = await mysql.simpleQuery(query, [name]);
+        const result = await simpleQuery(query, [name]);
 
         if(result.length !== 0) return result[0].id;
 
@@ -32,7 +32,7 @@ class PowerUps{
         const query = `INSERT INTO nstats_powerups_carry_times VALUES(NULL,?,?,?,?,?,?,?,?,?)`;
         const vars = [matchId, matchDate, playerId, powerUpId, start, end, carryTime, kills, endReason];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async insertPlayerMatchData(matchId, matchDate, mapId, gametypeId, playerId, powerUpId, stats){
@@ -57,7 +57,7 @@ class PowerUps{
             stats.matchEnds
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
 
@@ -65,7 +65,7 @@ class PowerUps{
 
         const query = `SELECT COUNT(*) as total_matches FROM nstats_powerups_player_totals WHERE player_id=? AND gametype_id=? AND powerup_id=?`;
 
-        const result = await mysql.simpleQuery(query, [playerId, gametypeId, powerUpId]);
+        const result = await simpleQuery(query, [playerId, gametypeId, powerUpId]);
 
         if(result.length > 0){
             if(result[0].total_matches > 0) return true;
@@ -96,7 +96,7 @@ class PowerUps{
             stats.matchEnds
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async updatePlayerTotals(playerId, gametypeId, powerUpId, stats, playerPlaytime){
@@ -143,7 +143,7 @@ class PowerUps{
             powerUpId
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
 
@@ -154,7 +154,7 @@ class PowerUps{
         carrier_kills_best
         FROM nstats_powerups_player_match WHERE match_id=?`;
 
-        return await mysql.simpleQuery(query, [matchId]);
+        return await simpleQuery(query, [matchId]);
     }
 
     getUniquePowerupIds(playerMatchData){
@@ -177,7 +177,7 @@ class PowerUps{
 
         const query = `SELECT id,name FROM nstats_powerups WHERE id IN(?)`;
 
-        const result = await mysql.simpleQuery(query, [ids]);
+        const result = await simpleQuery(query, [ids]);
 
         const found = {};
 
@@ -194,7 +194,7 @@ class PowerUps{
 
         const query = "SELECT COUNT(*) as total_matches FROM nstats_powerups_player_match WHERE player_id=? AND powerup_id=? AND match_id=?";
 
-        const result = await mysql.simpleQuery(query, [playerId, powerUpId, matchId]);
+        const result = await simpleQuery(query, [playerId, powerUpId, matchId]);
 
         if(result.length > 0){
             if(result[0].total_matches > 0) return true;
@@ -219,7 +219,7 @@ class PowerUps{
             bestKills
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
 
@@ -232,14 +232,14 @@ class PowerUps{
 
         const query = `UPDATE nstats_powerups_player_match SET carrier_kills=?,carrier_kills_best=? WHERE player_id=? AND match_id=? AND powerup_id=?`;
 
-        return await mysql.simpleQuery(query, [totalKills, bestKills, playerId, matchId, powerUpId]);
+        return await simpleQuery(query, [totalKills, bestKills, playerId, matchId, powerUpId]);
     }
 
     async bPlayerTotalPowerupExists(playerId, gametypeId, powerUpId){
 
         const query = "SELECT COUNT(*) as total_matches FROM nstats_powerups_player_totals WHERE player_id=? AND gametype_id=? AND powerup_id=?";
 
-        const result = await mysql.simpleQuery(query, [playerId, gametypeId, powerUpId]);
+        const result = await simpleQuery(query, [playerId, gametypeId, powerUpId]);
 
         if(result.length > 0){
             if(result[0].total_matches > 0) return true;
@@ -262,7 +262,7 @@ class PowerUps{
             bestCarrierKills
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async updatePlayerTotalCarrierKills(playerId, gametypeId, powerUpId, playerPlaytime, totalKills, bestKills){
@@ -281,14 +281,14 @@ class PowerUps{
 
         const vars = [totalKills, totalKills, totalKills, bestKills, bestKills, playerPlaytime, playerId, gametypeId, powerUpId];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async changeMatchPowerupsPlayerIds(oldId, newId){
 
         const query = "UPDATE nstats_powerups_player_match SET player_id=? WHERE player_id=?";
 
-        return await mysql.simpleQuery(query, [newId, oldId]);
+        return await simpleQuery(query, [newId, oldId]);
     }
 
     async getPlayerMatchData(playerId, matchId){
@@ -314,7 +314,7 @@ class PowerUps{
         WHERE match_id=? AND player_id=?
         GROUP BY powerup_id,match_date,map_id,gametype_id`;
 
-        const result = await mysql.simpleQuery(query, [matchId, playerId]);
+        const result = await simpleQuery(query, [matchId, playerId]);
 
         if(result.length > 0) return result;
 
@@ -324,7 +324,7 @@ class PowerUps{
     async deletePlayerMatchData(playerId, matchId){
 
         const query = "DELETE FROM nstats_powerups_player_match WHERE player_id=? AND match_id=?";
-        return await mysql.simpleQuery(query, [playerId, matchId]);
+        return await simpleQuery(query, [playerId, matchId]);
     }
 
     async insertPlayerMatchDataMerge(playerId, matchId, data){
@@ -352,7 +352,7 @@ class PowerUps{
             data.carrier_kills_best
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async mergePlayerMatchData(playerId, matchId){
@@ -376,7 +376,7 @@ class PowerUps{
 
         const query = `SELECT COUNT(*) as total_matches, match_id FROM nstats_powerups_player_match WHERE player_id=? GROUP BY match_id`;
 
-        const result = await mysql.simpleQuery(query, [playerId]);
+        const result = await simpleQuery(query, [playerId]);
 
         for(let i = 0; i < result.length; i++){
 
@@ -392,14 +392,14 @@ class PowerUps{
 
         const query = `UPDATE nstats_powerups_player_totals SET player_id=? WHERE player_id=?`;
 
-        return await mysql.simpleQuery(query, [newId, oldId]);
+        return await simpleQuery(query, [newId, oldId]);
     }
 
     async deletePlayerTotalsData(playerId){
 
         const query = `DELETE FROM nstats_powerups_player_totals WHERE player_id=?`;
 
-        return await mysql.simpleQuery(query, [playerId]);
+        return await simpleQuery(query, [playerId]);
     }
 
     async insertPlayerTotalMerge(playerId, data){
@@ -419,7 +419,7 @@ class PowerUps{
             data.total_carrier_kills, data.carrier_kills_best, data.carrier_kills_single_life
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async mergeDuplicatePlayerTotals(playerId){
@@ -447,7 +447,7 @@ class PowerUps{
         WHERE player_id=?
         GROUP BY gametype_id, powerup_id`;
 
-        const totals = await mysql.simpleQuery(query, [playerId]);
+        const totals = await simpleQuery(query, [playerId]);
         await this.deletePlayerTotalsData(playerId);
 
         for(let i = 0; i < totals.length; i++){
@@ -459,7 +459,7 @@ class PowerUps{
     async changeCarryTimePlayerIds(oldId, newId){
 
         const query = `UPDATE nstats_powerups_carry_times SET player_id=? WHERE player_id=?`;
-        return await mysql.simpleQuery(query, [newId, oldId]);
+        return await simpleQuery(query, [newId, oldId]);
     }
 
 
@@ -484,7 +484,7 @@ class PowerUps{
 
         const query = `UPDATE nstats_powerups_player_match SET map_id=? WHERE map_id=?`;
 
-        await mysql.simpleQuery(query, [newId, oldId]);
+        await simpleQuery(query, [newId, oldId]);
     }
 }
 

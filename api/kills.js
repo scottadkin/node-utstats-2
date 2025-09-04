@@ -1,27 +1,16 @@
-const mysql = require('./database');
+import { simpleQuery, bulkInsert } from "./database.js";
 
-class Kills{
+export default class Kills{
 
-    constructor(){
+    constructor(){}
 
-    }
+    async insert(matchId, timestamp, killer, killerTeam, victim, victimTeam, killerWeapon, victimWeapon, distance){
 
+        const query = "INSERT INTO nstats_kills VALUES(NULL,?,?,?,?,?,?,?,?,?)";
 
-    insert(matchId, timestamp, killer, killerTeam, victim, victimTeam, killerWeapon, victimWeapon, distance){
+        const vars = [matchId, timestamp, killer, killerTeam, victim, victimTeam, killerWeapon, victimWeapon, distance];
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "INSERT INTO nstats_kills VALUES(NULL,?,?,?,?,?,?,?,?,?)";
-
-            const vars = [matchId, timestamp, killer, killerTeam, victim, victimTeam, killerWeapon, victimWeapon, distance];
-
-            mysql.query(query, vars, (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, vars);
     }
 
     async insertMultipleKills(vars){
@@ -32,78 +21,50 @@ class Kills{
             victim_x, victim_y, victim_z
             ) VALUES ?`;
 
-        await mysql.bulkInsert(query, vars);
+        await bulkInsert(query, vars);
     }
 
-    getMatchData(id){
+    async getMatchData(id){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT timestamp,killer,killer_team,victim,victim_team FROM nstats_kills WHERE match_id=? ORDER BY timestamp ASC";
 
-            const query = "SELECT timestamp,killer,killer_team,victim,victim_team FROM nstats_kills WHERE match_id=? ORDER BY timestamp ASC";
-
-            mysql.query(query, [id], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-                resolve([]);
-            });
-
-        });
+        return await simpleQuery(query, [id]);
     }
 
-    deleteMatchData(id){
+    async deleteMatchData(id){
 
-        return new Promise((resolve, reject) =>{
+        const query = "DELETE FROM nstats_kills WHERE match_id=?";
 
-            const query = "DELETE FROM nstats_kills WHERE match_id=?";
-
-            mysql.query(query, [id], (err) =>{
-                
-                if(err) reject(err);
-
-                resolve();
-            }); 
-        });
+        return await simpleQuery(query, [id]);   
     }
 
-    deletePlayerMatchData(playerId, matchId){
+    async deletePlayerMatchData(playerId, matchId){
 
-        return new Promise((resolve, reject) =>{
+        const query = "DELETE FROM nstats_kills WHERE (killer=? AND match_id=?) OR (victim=? AND match_id=?)";
 
-            const query = "DELETE FROM nstats_kills WHERE (killer=? AND match_id=?) OR (victim=? AND match_id=?)";
-
-            mysql.query(query, [playerId, matchId, playerId, matchId], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [playerId, matchId, playerId, matchId]);
     }
 
     async changePlayerIds(oldId, newId){
 
-        await mysql.simpleQuery("UPDATE nstats_kills SET killer=? WHERE killer=?", [newId, oldId]);
-        await mysql.simpleQuery("UPDATE nstats_kills SET victim=? WHERE victim=?", [newId, oldId]);
-        await mysql.simpleQuery("UPDATE nstats_tele_frags SET killer_id=? WHERE killer_id=?", [newId, oldId]);
-        await mysql.simpleQuery("UPDATE nstats_tele_frags SET victim_id=? WHERE victim_id=?", [newId, oldId]);
+        await simpleQuery("UPDATE nstats_kills SET killer=? WHERE killer=?", [newId, oldId]);
+        await simpleQuery("UPDATE nstats_kills SET victim=? WHERE victim=?", [newId, oldId]);
+        await simpleQuery("UPDATE nstats_tele_frags SET killer_id=? WHERE killer_id=?", [newId, oldId]);
+        await simpleQuery("UPDATE nstats_tele_frags SET victim_id=? WHERE victim_id=?", [newId, oldId]);
         
     }
 
     async deletePlayer(player){
 
-        await mysql.simpleDelete("DELETE FROM nstats_kills WHERE (killer = ?) OR (victim = ?)", [player, player]);
-        await mysql.simpleDelete("DELETE FROM nstats_tele_frags WHERE (killer_id = ?) OR (victim_id = ?)", [player, player]);
+        await simpleQuery("DELETE FROM nstats_kills WHERE (killer = ?) OR (victim = ?)", [player, player]);
+        await simpleQuery("DELETE FROM nstats_tele_frags WHERE (killer_id = ?) OR (victim_id = ?)", [player, player]);
     }
 
     async deleteMatches(ids){
 
         if(ids.length === 0) return;
 
-        await mysql.simpleDelete("DELETE FROM nstats_kills WHERE match_id IN (?)", [ids]);
+        await simpleQuery("DELETE FROM nstats_kills WHERE match_id IN (?)", [ids]);
     }
 
     async getMatchKillsIncludingPlayer(matchId, playerId){
@@ -111,7 +72,7 @@ class Kills{
         const query = `SELECT timestamp,killer,killer_team,victim,victim_team,killer_weapon,victim_weapon,distance
         FROM nstats_kills WHERE match_id=? AND (killer=? OR victim=?) ORDER BY timestamp ASC`;
 
-        return await mysql.simpleFetch(query, [matchId, playerId, playerId]);
+        return await simpleQuery(query, [matchId, playerId, playerId]);
     }
 
 
@@ -119,7 +80,7 @@ class Kills{
 
         const query = "SELECT killer,victim FROM nstats_kills WHERE match_id=?";
 
-        return await mysql.simpleFetch(query, [matchId]);
+        return await simpleQuery(query, [matchId]);
    
     }
 
@@ -395,7 +356,7 @@ class Kills{
 
         const query = "SELECT timestamp,killer,victim,killer_team,victim_team FROM nstats_kills WHERE match_id=? ORDER BY timestamp ASC";
         
-        const result =  await mysql.simpleQuery(query, [matchId]);
+        const result =  await simpleQuery(query, [matchId]);
 
         return this.createGraphData(result, players, totalTeams, getTeamName, createGraphData);
     }
@@ -408,7 +369,7 @@ class Kills{
         WHERE match_id=? AND timestamp >= ? AND timestamp <= ?
         GROUP BY killer`;
 
-        return await mysql.simpleQuery(query, [matchId, start, end]);
+        return await simpleQuery(query, [matchId, start, end]);
     }
 
     async insertTeleFrag(matchId, mapId, gametypeId, data){
@@ -427,7 +388,7 @@ class Kills{
             data.bDiscKill
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async bulkInsertTeleFrags(matchId, mapId, gametypeId, teleFrags){
@@ -449,7 +410,7 @@ class Kills{
             );
         }
 
-        return await mysql.bulkInsert(query, insertVars);
+        return await bulkInsert(query, insertVars);
     }
 
     async insertTeleFrags(matchId, mapId, gametypeId, teleFrags){
@@ -463,11 +424,6 @@ class Kills{
         const query = `SELECT timestamp,killer,killer_team,victim,victim_team,killer_weapon,victim_weapon,distance,
         killer_x,killer_y,killer_z,victim_x,victim_y,victim_z FROM nstats_kills WHERE match_id=? ORDER BY timestamp ASC`;
 
-        return await mysql.simpleQuery(query, [matchId]);
+        return await simpleQuery(query, [matchId]);
     }
 }
-
-
-
-
-module.exports = Kills;

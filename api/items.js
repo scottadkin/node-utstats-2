@@ -1,62 +1,35 @@
-const mysql = require('./database');
-const Message = require('./message');
+import { simpleQuery, bulkInsert } from "./database.js";
+import Message from "./message.js";
 
-class Items{
+export default class Items{
 
-    constructor(){
+    constructor(){}
 
+    async exists(item){
+
+        const query = "SELECT COUNT(*) as total_pickups FROM nstats_items WHERE name=?";
+
+        const result = await simpleQuery(query, [item]);
+
+        return result[0].total_pickups > 0;
     }
 
-    exists(item){
+    async create(name, uses, date){
 
-        return new Promise((resolve, reject) =>{
+        const query = "INSERT INTO nstats_items VALUES(NULL,?,?,?,?,?,1,0)";
 
-            const query = "SELECT COUNT(*) as total_pickups FROM nstats_items WHERE name=?";
-
-            mysql.query(query, [item], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result[0].total_pickups > 0){
-                    resolve(true);
-                }
-
-                resolve(false);
-            });
-        });
+        return await simpleQuery(query, [name, name, date, date, uses]);
     }
 
-    create(name, uses, date){
+    async update(name, uses, date){
 
-        return new Promise((resolve, reject) =>{
+        const query = `UPDATE nstats_items SET uses=uses+?,
+        first = IF(? < first, ?, IF(first = 0, ?, first)),
+        last = IF(? > last, ?, last),
+        matches=matches+1
+        WHERE name=?`;
 
-            const query = "INSERT INTO nstats_items VALUES(NULL,?,?,?,?,?,1,0)";
-
-            mysql.query(query, [name, name, date, date, uses], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
-    }
-
-    update(name, uses, date){
-
-        return new Promise((resolve, reject) =>{
-
-            const query = `UPDATE nstats_items SET uses=uses+?,
-            first = IF(? < first, ?, IF(first = 0, ?, first)),
-            last = IF(? > last, ?, last),
-            matches=matches+1
-            WHERE name=?`;
-
-            mysql.query(query, [uses, date, date, date, date, date, name], (err) =>{
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [uses, date, date, date, date, date, name]);
     }
 
     async updateTotals(item, uses, date){
@@ -76,25 +49,13 @@ class Items{
     }
 
 
-    getIdsByNames(names){
+    async getIdsByNames(names){
 
-        return new Promise((resolve, reject) =>{
+        if(names.length === 0) return [];
 
-            if(names.length === 0) resolve([]);
+        const query = "SELECT id,name,type FROM nstats_items WHERE name IN(?)";
 
-            const query = "SELECT id,name,type FROM nstats_items WHERE name IN(?)";
-
-            mysql.query(query, [names], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
+        return await simpleQuery(query, [names]);
     }
 
     async getNamesByIds(ids, bReturnSimpleObject){
@@ -105,7 +66,7 @@ class Items{
 
         const query = "SELECT id,name,display_name,type FROM nstats_items WHERE id IN(?) ORDER BY name ASC";
 
-        const result = await mysql.simpleQuery(query, [ids]);
+        const result = await simpleQuery(query, [ids]);
 
         if(!bReturnSimpleObject){
             return result;
@@ -127,78 +88,44 @@ class Items{
         return obj;
     }
 
-    insertPlayerMatchItem(matchId, playerId, item, uses){
+    async insertPlayerMatchItem(matchId, playerId, item, uses){
 
-        return new Promise((resolve, reject) =>{
+        const query = "INSERT INTO nstats_items_match VALUES(NULL,?,?,?,?)";
 
-            const query = "INSERT INTO nstats_items_match VALUES(NULL,?,?,?,?)";
-
-            mysql.query(query, [matchId, playerId, item, uses], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [matchId, playerId, item, uses]);
     }
 
     async insertAllPlayerMatchItems(vars){
 
         const query = "INSERT INTO nstats_items_match (match_id,player_id,item,uses) VALUES ?";
 
-        await mysql.bulkInsert(query, vars);
+        await bulkInsert(query, vars);
     }
 
-    playerTotalExists(playerId, item){
+    async playerTotalExists(playerId, item){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT COUNT(*) as total_items FROM nstats_items_player WHERE player=? AND item=?";
 
-            const query = "SELECT COUNT(*) as total_items FROM nstats_items_player WHERE player=? AND item=?";
-
-            mysql.query(query, [playerId, item], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    if(result[0].total_items > 0){
-                        resolve(true);
-                    }
-                }
-                resolve(false);
-            });
-        });
+        const result = await simpleQuery(query, [playerId, item]);
+        return result[0].total_items > 0;   
     }
 
-    insertPlayerTotal(playerId, item, uses, date){
+    async insertPlayerTotal(playerId, item, uses, date){
 
-        return new Promise((resolve, reject) =>{
+        const query = "INSERT INTO nstats_items_player VALUES(NULL,?,?,?,?,?,1)";
 
-            const query = "INSERT INTO nstats_items_player VALUES(NULL,?,?,?,?,?,1)";
-
-            mysql.query(query, [playerId, item, date, date, uses], (err) =>{
-                if(err) reject(err);
-
-                resolve();
-            }); 
-        });
+        return await simpleQuery(query, [playerId, item, date, date, uses]);
     }
 
-    updatePlayerTotalQuery(playerId, item, uses, date){
+    async updatePlayerTotalQuery(playerId, item, uses, date){
 
-        return new Promise((resolve, reject) =>{
+ 
+        const query = `UPDATE nstats_items_player SET uses=uses+?,matches=matches+1,
+        first = IF(? < first, ?, first),
+        last = IF(? > last, ?, last)
+        WHERE player=? AND item=?`;
 
-            const query = `UPDATE nstats_items_player SET uses=uses+?,matches=matches+1,
-            first = IF(? < first, ?, first),
-            last = IF(? > last, ?, last)
-            WHERE player=? AND item=?`;
-
-            mysql.query(query, [uses, date, date, date, date, playerId, item], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [uses, date, date, date, date, playerId, item]);
     }
 
     async updatePlayerTotal(playerId, item, uses, date){
@@ -221,14 +148,14 @@ class Items{
     async getMatchData(matchId){
 
         const query = "SELECT player_id,item,uses FROM nstats_items_match WHERE match_id=?";
-        return await mysql.simpleQuery(query, [matchId]);
+        return await simpleQuery(query, [matchId]);
 
     }
 
     async getMatchTotals(matchId){
 
         const query = "SELECT item,SUM(uses) as total_uses FROM nstats_items_match WHERE match_id=? GROUP BY item";
-        const result =  await mysql.simpleQuery(query, [matchId]);
+        const result =  await simpleQuery(query, [matchId]);
 
         const obj = {};
 
@@ -241,23 +168,11 @@ class Items{
         return obj;
     }
 
-    getPlayerTotalData(player){
+    async getPlayerTotalData(player){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT item,first,last,uses,matches FROM nstats_items_player WHERE player=?";
 
-            const query = "SELECT item,first,last,uses,matches FROM nstats_items_player WHERE player=?";
-
-            mysql.query(query, [player], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
+        return await simpleQuery(query, [player]);
     }
 
 
@@ -285,7 +200,7 @@ class Items{
         ];
 
 
-        return await mysql.simpleQuery(query, vars)
+        return await simpleQuery(query, vars)
 
     }
 
@@ -314,67 +229,40 @@ class Items{
             player
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
 
-    reduceItemTotal(id, amount, matches){
+    async reduceItemTotal(id, amount, matches){
 
-        return new Promise((resolve, reject) =>{
+        let query = "UPDATE nstats_items SET uses=uses-?, matches=matches-1 WHERE id=?";
 
-            let query = "UPDATE nstats_items SET uses=uses-?, matches=matches-1 WHERE id=?";
+        let vars = [amount, id];
 
-            let vars = [amount, id];
+        if(matches !== undefined){
 
-            if(matches !== undefined){
+            matches = parseInt(matches);
+            if(matches !== matches) matches = 1;
 
-                matches = parseInt(matches);
+            vars = [amount, matches, id]
+            query = "UPDATE nstats_items SET uses=uses-?, matches=matches-? WHERE id=?";
+        }
 
-                if(matches !== matches) matches = 1;
-
-                vars = [amount, matches, id]
-
-                query = "UPDATE nstats_items SET uses=uses-?, matches=matches-? WHERE id=?";
-            }
-
-            mysql.query(query, vars, (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, vars);
     }
 
-    reduceItemPlayerTotal(id, playerId, amount){
+    async reduceItemPlayerTotal(id, playerId, amount){
 
-        return new Promise((resolve, reject) =>{
+        const query = "UPDATE nstats_items_player SET uses=uses-?, matches=matches-1 WHERE player=? AND item=?";
 
-            const query = "UPDATE nstats_items_player SET uses=uses-?, matches=matches-1 WHERE player=? AND item=?";
-
-            mysql.query(query, [amount, playerId, id], (err, result) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [amount, playerId, id]);    
     }
 
 
-    deleteMatchItems(id){
+    async deleteMatchItems(id){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "DELETE FROM nstats_items_match WHERE match_id=?";
-
-            mysql.query(query, [id], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        const query = "DELETE FROM nstats_items_match WHERE match_id=?";
+        return await simpleQuery(query, [id]);
     }
 
     async deleteMatchData(id){
@@ -411,53 +299,24 @@ class Items{
     }
 
 
-    getPlayerMatchItemData(playerId, matchId){
+    async getPlayerMatchItemData(playerId, matchId){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "SELECT item,uses FROM nstats_items_match WHERE match_id=? AND player_id=?";
-
-            mysql.query(query, [matchId, playerId], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
+        const query = "SELECT item,uses FROM nstats_items_match WHERE match_id=? AND player_id=?";
+        return await simpleQuery(query, [matchId, playerId]);
     }
 
-    reduceItemTotalsByPlayerMatchUse(item, uses){
+    async reduceItemTotalsByPlayerMatchUse(item, uses){
 
-        return new Promise((resolve, reject) =>{
+        const query = "UPDATE nstats_items SET uses=uses-? WHERE id=?";
 
-            const query = "UPDATE nstats_items SET uses=uses-? WHERE id=?";
-
-            mysql.query(query, [uses, item], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [uses, item]);
     }
 
-    deletePlayerMatchUses(playerId, matchId){
+    async deletePlayerMatchUses(playerId, matchId){
 
-        return new Promise((resolve, reject) =>{
+        const query = "DELETE FROM nstats_items_match WHERE player_id=? AND match_id=?";
 
-            const query = "DELETE FROM nstats_items_match WHERE player_id=? AND match_id=?";
-
-            mysql.query(query, [playerId, matchId], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [playerId, matchId]);
     }
 
     async deletePlayerFromMatch(playerId, matchId){
@@ -487,12 +346,12 @@ class Items{
 
     async changePlayerIdsMatch(oldId, newId){
 
-        await mysql.simpleQuery("UPDATE nstats_items_match SET player_id=? WHERE player_id=?", [newId, oldId]);
+        await simpleQuery("UPDATE nstats_items_match SET player_id=? WHERE player_id=?", [newId, oldId]);
     }
 
     async deletePlayerTotals(id){
 
-        await mysql.simpleQuery("DELETE FROM nstats_items_player WHERE player=?", [id]);
+        await simpleQuery("DELETE FROM nstats_items_player WHERE player=?", [id]);
     }
 
     async createNewPlayerTotalFromMerge(player, item, first, last, uses, matches){
@@ -500,7 +359,7 @@ class Items{
         const query = "INSERT INTO nstats_items_player VALUES(NULL,?,?,?,?,?,?)";
         const vars = [player, item, first, last, uses, matches];
 
-        await mysql.simpleQuery(query, vars);
+        await simpleQuery(query, vars);
     }
 
     async mergePlayerTotals(oldId, newId){
@@ -557,18 +416,18 @@ class Items{
 
     async getAllPlayerMatchData(playerId){
 
-        return await mysql.simpleFetch("SELECT * FROM nstats_items_match WHERE player_id=?", [playerId]);
+        return await simpleQuery("SELECT * FROM nstats_items_match WHERE player_id=?", [playerId]);
     }
 
     async deletePlayerTotals(player){
 
-        await mysql.simpleDelete("DELETE FROM nstats_items_player WHERE player=?", [player]);
+        await simpleQuery("DELETE FROM nstats_items_player WHERE player=?", [player]);
 
     }
 
     async deleteAllPlayerMatchData(player){
 
-        await mysql.simpleDelete("DELETE FROM nstats_items_match WHERE player_id=?", [player]);
+        await simpleQuery("DELETE FROM nstats_items_match WHERE player_id=?", [player]);
     }
 
     async deletePlayer(playerId){
@@ -606,7 +465,7 @@ class Items{
 
         if(ids.length === 0) return [];
         
-        return await mysql.simpleFetch("SELECT * FROM nstats_items_match WHERE match_id IN (?)", [ids]);
+        return await simpleQuery("SELECT * FROM nstats_items_match WHERE match_id IN (?)", [ids]);
     }
 
     async reducePlayerTotalsAlt(player, item, uses, matches){
@@ -614,14 +473,14 @@ class Items{
         const query = "UPDATE nstats_items_player SET uses=uses-?,matches=matches-? WHERE player=? AND item=?";
         const vars = [uses, matches, player, item];
 
-        await mysql.simpleUpdate(query, vars);
+        await simpleQuery(query, vars);
     }
 
     async deleteMatchesData(ids){
 
         if(ids.length === 0) return;
 
-        await mysql.simpleDelete("DELETE FROM nstats_items_match WHERE match_id IN (?)", [ids]);
+        await simpleQuery("DELETE FROM nstats_items_match WHERE match_id IN (?)", [ids]);
     }
 
     async deleteMatches(ids){
@@ -686,7 +545,7 @@ class Items{
 
     async getAll(){
 
-        return await mysql.simpleFetch("SELECT * FROM nstats_items ORDER BY name ASC");
+        return await simpleQuery("SELECT * FROM nstats_items ORDER BY name ASC");
     }
 
     async updateEntry(id, displayName, type){
@@ -694,7 +553,7 @@ class Items{
         const query = "UPDATE nstats_items SET display_name=?,type=? WHERE id=?";
         const vars = [displayName, type, id];
 
-        await mysql.simpleUpdate(query, vars);
+        await simpleQuery(query, vars);
     }
 
     async adminUpdateEntries(data){
@@ -719,7 +578,7 @@ class Items{
 
         const query = "SELECT item,uses FROM nstats_items_match WHERE match_id=? AND player_id=?";
 
-        const result = await mysql.simpleQuery(query, [matchId, playerId]);
+        const result = await simpleQuery(query, [matchId, playerId]);
 
         const data = {};
 
@@ -789,7 +648,7 @@ class Items{
             matchId
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async createMapItemsObject(uniqueItems){
@@ -824,14 +683,14 @@ class Items{
         const insertVars = this.createMapItemsLocationInsertVars(namesToIds, locationData, mapId, matchId);
 
         const query = `INSERT INTO nstats_map_items_locations (map_id, match_id, item_id, item_name, pos_x, pos_y, pos_z) VALUES ?`;
-        await mysql.bulkInsert(query, insertVars);
+        await bulkInsert(query, insertVars);
     }
 
     async createMapItemId(item, type){
 
         const query = `INSERT INTO nstats_map_items VALUES(NULL,?,?,"","")`;
 
-        const result = await mysql.simpleQuery(query, [item, type]);
+        const result = await simpleQuery(query, [item, type]);
 
         return result.insertId;
     }
@@ -840,7 +699,7 @@ class Items{
 
         const query = `SELECT id FROM nstats_map_items WHERE item_class=? AND item_type=?`;
 
-        const result = await mysql.simpleQuery(query, [item, type]);
+        const result = await simpleQuery(query, [item, type]);
 
         if(result.length > 0){
             return result[0].id;
@@ -849,5 +708,3 @@ class Items{
         return await this.createMapItemId(item, type);
     }
 }
-
-module.exports = Items;

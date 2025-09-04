@@ -1,9 +1,9 @@
-const mysql = require("./database");
-const Message = require("./message");
-const Players = require("./players");
+import { simpleQuery } from "./database.js";
+import Message from "./message.js";
+import Players from "./players.js";
 
 
-class Match{
+export default class Match{
 
     constructor(){};
 
@@ -18,7 +18,7 @@ class Match{
             query = "SELECT COUNT(*) as total_rows FROM nstats_matches WHERE id=?";
         }
 
-        const result = await mysql.simpleQuery(query, [matchId]);
+        const result = await simpleQuery(query, [matchId]);
         return result[0].total_rows > 0;
         
     }
@@ -27,7 +27,7 @@ class Match{
 
         const query = "UPDATE nstats_matches SET dm_winner=?,dm_score=? WHERE id=?";
 
-        await mysql.simpleQuery(query, [winner, winnerScore, matchId]);
+        await simpleQuery(query, [winner, winnerScore, matchId]);
 
     }
 
@@ -53,7 +53,7 @@ class Match{
 
         const query = `SELECT id FROM nstats_matches WHERE match_hash=?`;
 
-        const result = await mysql.simpleQuery(query, [hash]);
+        const result = await simpleQuery(query, [hash]);
 
         if(result.length > 0){
             return result[0].id;
@@ -69,7 +69,7 @@ class Match{
 
         const query = "SELECT * FROM nstats_matches WHERE id=?";
 
-        const result = await mysql.simpleQuery(query, [id]);
+        const result = await simpleQuery(query, [id]);
 
         if(result.length > 0){
 
@@ -92,10 +92,8 @@ class Match{
         const query = `UPDATE nstats_matches SET ping_min_average=?, ping_average_average=?, ping_max_average=?
         WHERE id=?`;
 
-        return await mysql.simpleQuery(query, [min, average, max, matchId]);
+        return await simpleQuery(query, [min, average, max, matchId]);
 
     }
 
 }
-
-module.exports = Match;

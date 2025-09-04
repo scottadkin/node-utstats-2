@@ -1,28 +1,18 @@
-const mysql = require('./database');
+import { simpleQuery, bulkInsert } from "./database.js";
 
-class Headshots{
+export default class Headshots{
 
-    constructor(){
+    constructor(){}
 
-    }
+    async insert(match, timestamp, killer, victim, distance, killerTeam, victimTeam){
 
-    insert(match, timestamp, killer, victim, distance, killerTeam, victimTeam){
+        if(distance === undefined) distance = -1;
 
-        return new Promise((resolve, reject) =>{
+        if(distance === null) distance = -1;
 
-            if(distance === undefined) distance = -1;
+        const query = "INSERT INTO nstats_headshots VALUES(NULL,?,?,?,?,?,?,?)";
 
-            if(distance === null) distance = -1;
-
-            const query = "INSERT INTO nstats_headshots VALUES(NULL,?,?,?,?,?,?,?)";
-
-            mysql.query(query, [match, timestamp, killer, victim, distance, killerTeam, victimTeam], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [match, timestamp, killer, victim, distance, killerTeam, victimTeam]);
     }
 
 
@@ -30,77 +20,45 @@ class Headshots{
 
         const query = "INSERT INTO nstats_headshots (match_id,timestamp,killer,victim,distance,killer_team,victim_team) VALUES ?";
 
-        return await mysql.bulkInsert(query, vars);
+        return await bulkInsert(query, vars);
     }
 
-    getMatchData(match){
+    async getMatchData(match){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "SELECT timestamp,killer,victim,distance,killer_team,victim_team FROM nstats_headshots WHERE match_id=?";
-
-            mysql.query(query, [match], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
+        const query = "SELECT timestamp,killer,victim,distance,killer_team,victim_team FROM nstats_headshots WHERE match_id=?";
+        return await simpleQuery(query, [match]);
     }
 
-    deleteMatchData(id){
+    async deleteMatchData(id){
 
-        return new Promise((resolve, reject) =>{
+        const query = "DELETE FROM nstats_headshots WHERE match_id=?";
 
-            const query = "DELETE FROM nstats_headshots WHERE match_id=?";
-
-            mysql.query(query, [id], (err) =>{
-                
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [id]);
     }
 
-    deletePlayerFromMatch(playerId, matchId){
+    async deletePlayerFromMatch(playerId, matchId){
 
-        return new Promise((resolve, reject) =>{
+        const query = `DELETE FROM nstats_headshots WHERE (match_id=? AND killer=?) OR (match_id=? AND victim=?)`;
 
-            const query = `DELETE FROM nstats_headshots WHERE (match_id=? AND killer=?) OR (match_id=? AND victim=?)`;
-
-            mysql.query(query, [matchId, playerId, matchId, playerId], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            }); 
-        });
+        return await simpleQuery(query, [matchId, playerId, matchId, playerId]);
     }
 
     async changePlayerIds(oldId, newId){
 
-        await mysql.simpleUpdate("UPDATE nstats_headshots SET killer=? WHERE killer=?", [newId, oldId]);
-        await mysql.simpleUpdate("UPDATE nstats_headshots SET victim=? WHERE victim=?", [newId, oldId]);
+        await simpleQuery("UPDATE nstats_headshots SET killer=? WHERE killer=?", [newId, oldId]);
+        await simpleQuery("UPDATE nstats_headshots SET victim=? WHERE victim=?", [newId, oldId]);
     }
 
 
     async deletePlayer(player){
 
-        await mysql.simpleDelete("DELETE FROM nstats_headshots WHERE (killer = ?) OR (victim = ?)", [player, player]);
+        await simpleQuery("DELETE FROM nstats_headshots WHERE (killer = ?) OR (victim = ?)", [player, player]);
     }
 
     async deleteMatches(ids){
 
         if(ids.length === 0) return;
 
-        await mysql.simpleDelete("DELETE FROM nstats_headshots WHERE match_id IN (?)", [ids]);
+        await simpleQuery("DELETE FROM nstats_headshots WHERE match_id IN (?)", [ids]);
     }
 }
-
-
-module.exports = Headshots;

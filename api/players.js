@@ -1,31 +1,31 @@
-const Player = require("./player");
-const mysql = require("./database");
-const Functions = require("./functions");
-const Matches = require("./matches");
-const Assault = require("./assault");
-const CTF = require("./ctf");
-const Domination = require("./domination");
-const Headshots = require("./headshots");
-const Items = require("./items");
-const Kills = require("./kills");
-const Connections = require("./connections");
-const Pings = require("./pings");
-const Maps = require("./maps");
-const Weapons = require("./weapons");
-const Rankings = require("./rankings");
-const Winrate = require("./winrate");
-const CountriesManager = require("./countriesmanager");
-const Faces = require("./faces");
-const Teams = require("./teams");
-const Voices = require("./voices");
-const Sprees = require("./sprees");
-const MonsterHunt = require("./monsterhunt");
-const Combogib = require("./combogib");
-const PowerUps = require("./powerups");
-const Telefrags = require("./telefrags");
-const Message = require("./message");
+import Player from "./player.js";
+import { simpleQuery, bulkInsert } from "./database.js";
+import { removeIps, setIdNames, getUniqueValues } from "./functions.js";
+import Matches from "./matches.js";
+import Assault from "./assault.js";
+import CTF from "./ctf.js";
+import Domination from "./domination.js";
+import Headshots from "./headshots.js";
+import Items from "./items.js";
+import Kills from "./kills.js";
+import Connections from "./connections.js";
+import Pings from "./pings.js";
+import Maps from "./maps.js";
+import Weapons from "./weapons.js";
+import Rankings from "./rankings.js";
+import WinRate from "./winrate.js";
+import CountriesManager from "./countriesmanager.js";
+import Faces from "./faces.js";
+import Teams from "./teams.js";
+import Voices from "./voices.js";
+import Sprees from "./sprees.js";
+import MonsterHunt from "./monsterhunt.js";
+import Combogib from "./combogib.js";
+import PowerUps from "./powerups.js";
+import Telefrags from "./telefrags.js";
+import Message from "./message.js";
 
-class Players{
+export default class Players{
 
     constructor(){
         this.player = new Player();
@@ -37,29 +37,21 @@ class Players{
 
         const query = `SELECT id FROM nstats_player_totals WHERE player_id=0`;
 
-        const result = await mysql.simpleQuery(query);
+        const result = await simpleQuery(query);
 
         return result.map((r) =>{
             return r.id;
         });
     }
 
-    debugGetAll(){
+    async debugGetAll(){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT * FROM nstats_player_totals WHERE gametype=0 AND map=0 ORDER BY name ASC";
 
-            const query = "SELECT * FROM nstats_player_totals WHERE gametype=0 AND map=0 ORDER BY name ASC";
+        const result = await simpleQuery(query);
 
-            const players = [];
-
-            mysql.query(query, (err, result) =>{
-
-                if(err) reject(err);
-
-                Functions.removeIps(result);
-                resolve(result);
-            });
-        });
+        return removeIps(result);      
+            
     }
 
     async getTotalPlayers(name){
@@ -76,9 +68,9 @@ class Players{
         let result = 0;
 
         if(name === undefined){
-            result = await mysql.simpleQuery(query);
+            result = await simpleQuery(query);
         }else{
-            result = await mysql.simpleQuery(query, vars);
+            result = await simpleQuery(query, vars);
         }
 
         return result[0].total_players;
@@ -100,9 +92,9 @@ class Players{
         let result = 0;
 
         if(name === undefined){
-            result = await mysql.simpleQuery(query);
+            result = await simpleQuery(query);
         }else{
-            result = await mysql.simpleQuery(query, vars);
+            result = await simpleQuery(query, vars);
         }
 
         return result[0].unique_ips;
@@ -129,66 +121,53 @@ class Players{
     }
 
 
-    getPlayers(page, perPage, sort, order, name){
+    async getPlayers(page, perPage, sort, order, name){
 
-        return new Promise((resolve, reject) =>{
+        page = page - 1;
 
-            page = page - 1;
+        const start = page * perPage;
 
-            const start = page * perPage;
+        const validTypes = [
+            "name",
+            "country",
+            "score",
+            "frags",
+            "kills",
+            "playtime",
+            "winrate",
+            "wins",
+            "loses",
+            "draws",
+            "matches",
+            "first",
+            "last",
+            "deaths",
+            "efficiency",
+            "accuracy"
+        ];
 
-            const validTypes = [
-                "name",
-                "country",
-                "score",
-                "frags",
-                "kills",
-                "playtime",
-                "winrate",
-                "wins",
-                "loses",
-                "draws",
-                "matches",
-                "first",
-                "last",
-                "deaths",
-                "efficiency",
-                "accuracy"
-            ];
+        sort = sort.toLowerCase();
 
-            sort = sort.toLowerCase();
+        let index = validTypes.indexOf(sort);
 
-            let index = validTypes.indexOf(sort);
+        if(index === -1){
+            index = 0;
+        }
 
-            if(index === -1){
-                index = 0;
-            }
+        if(order !== "ASC" && order !== "DESC"){
+            order = "ASC";
+        }
 
-            if(order !== "ASC" && order !== "DESC"){
-                order = "ASC";
-            }
+        let query = `SELECT * FROM nstats_player_totals WHERE gametype=0 AND map=0 AND playtime>0 ORDER BY ${validTypes[index]} ${order} LIMIT ?, ?`;
+        let vars = [start, perPage];
 
-            let query = `SELECT * FROM nstats_player_totals WHERE gametype=0 AND map=0 AND playtime>0 ORDER BY ${validTypes[index]} ${order} LIMIT ?, ?`;
-            let vars = [start, perPage];
+        if(name !== ""){
+            query = `SELECT * FROM nstats_player_totals WHERE gametype=0 AND map=0 AND playtime>0 AND name LIKE(?) ORDER BY ${validTypes[index]} ${order} LIMIT ?, ?`;
+            vars = [`%${name}%`, start, perPage];
+        }
 
-            if(name !== ""){
-                query = `SELECT * FROM nstats_player_totals WHERE gametype=0 AND map=0 AND playtime>0 AND name LIKE(?) ORDER BY ${validTypes[index]} ${order} LIMIT ?, ?`;
-                vars = [`%${name}%`, start, perPage];
-            }
-
-            mysql.query(query, vars, (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-
-                    Functions.removeIps(result);
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });    
+        const result = await simpleQuery(query, vars);
+        return removeIps(result);   
     }
 
 
@@ -221,7 +200,7 @@ class Players{
 
         const query = "SELECT id,name,country,face FROM nstats_player_totals WHERE id IN (?)";
 
-        const data = await mysql.simpleQuery(query, [ids]);
+        const data = await simpleQuery(query, [ids]);
 
         const foundStatus = {};
 
@@ -260,25 +239,13 @@ class Players{
     }
 
 
-    getAddictedPlayers(max, gametype){
+    async getAddictedPlayers(max, gametype){
 
-        return new Promise((resolve, reject) =>{
+        if(gametype === undefined) gametype = 0;
 
-            if(gametype === undefined) gametype = 0;
+        const query = "SELECT id,name,country,matches,playtime,face,first,last FROM nstats_player_totals WHERE gametype=? ORDER BY playtime DESC LIMIT ?";
 
-            const query = "SELECT id,name,country,matches,playtime,face,first,last FROM nstats_player_totals WHERE gametype=? ORDER BY playtime DESC LIMIT ?";
-
-            mysql.query(query, [gametype, max], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
+        return await simpleQuery(query, [gametype, max]);
     }
 
 
@@ -287,7 +254,7 @@ class Players{
         const query = `SELECT id,name,country,matches,playtime,face,first,last 
         FROM nstats_player_totals WHERE gametype=0 AND map=0 AND playtime>0 ORDER BY last DESC LIMIT ?`;
 
-        return await mysql.simpleQuery(query, [max]);
+        return await simpleQuery(query, [max]);
 
     }
 
@@ -306,7 +273,7 @@ class Players{
         const query = `SELECT id as player_id,name,country,matches,last,playtime,${validTypes[typeIndex]} as value 
         FROM nstats_player_totals WHERE gametype=? ORDER BY ${validTypes[typeIndex]} DESC LIMIT ?, ?`;
 
-        return await mysql.simpleQuery(query, [gametype, start, limit]);
+        return await simpleQuery(query, [gametype, start, limit]);
 
     }
 
@@ -315,7 +282,7 @@ class Players{
 
         const query = `SELECT COUNT(*) as total_results FROM nstats_player_totals WHERE gametype=?`;
 
-        const result = await mysql.simpleQuery(query, [gametype]);
+        const result = await simpleQuery(query, [gametype]);
 
         if(result.length > 0){
             return result[0].total_results;
@@ -335,7 +302,7 @@ class Players{
         const query = `SELECT player_id,match_id,map_id,match_date,country,playtime,${valid[index]} as value FROM 
         nstats_player_matches WHERE ${valid[index]}=? AND player_id=? LIMIT 1`;
 
-        return await mysql.simpleQuery(query, [value, playerId]);
+        return await simpleQuery(query, [value, playerId]);
 
     }
 
@@ -359,7 +326,7 @@ class Players{
         const query = `SELECT MAX(${valid[index]}) as value, player_id
         FROM nstats_player_matches GROUP BY player_id ORDER BY value DESC LIMIT ?, ?`;
 
-        const result = await mysql.simpleQuery(query, [start, perPage]);
+        const result = await simpleQuery(query, [start, perPage]);
 
         for(let i = 0; i < result.length; i++){
 
@@ -383,7 +350,7 @@ class Players{
         if(index === -1) index = 0;
 
         const query = `SELECT COUNT(DISTINCT player_id) as total_results FROM nstats_player_matches WHERE played=1`;
-        const result = await mysql.simpleQuery(query);
+        const result = await simpleQuery(query);
 
         return result[0].total_results;
     }
@@ -399,38 +366,30 @@ class Players{
             vars.push(gametype);
         }
 
-        const result = await mysql.simpleQuery(query, vars);
+        const result = await simpleQuery(query, vars);
 
         return result[0].total_matches;
     }
 
 
-    getBestMatchRecord(valid, type){
+    async getBestMatchRecord(valid, type){
         
-        return new Promise((resolve, reject) =>{
+        type = type.toLowerCase();
 
-            type = type.toLowerCase();
+        let index = valid.indexOf(type);
 
-            let index = valid.indexOf(type);
+        if(index === -1) index = 0;
 
-            if(index === -1) index = 0;
+        const query = `SELECT ${valid[index]} as value FROM nstats_player_matches ORDER BY ${valid[index]} DESC`;
 
-            const query = `SELECT ${valid[index]} as value FROM nstats_player_matches ORDER BY ${valid[index]} DESC`;
+        const result = await simpleQuery(query);
 
-            mysql.query(query, (err, result) =>{
+        if(result.length > 0){
+            return result;
+        }
 
-                if(err) reject(err);
-
-                if(result !== undefined){
-
-                    if(result.length > 0){
-                        resolve(result);
-                    }
-                }
-
-                resolve([{"value": 0}]);
-            });
-        });
+        return [{"value": 0}];      
+       
     }
 
 
@@ -441,7 +400,7 @@ class Players{
 
         const query = "SELECT id,name FROM nstats_player_totals WHERE gametype=0 AND id IN(?)";
 
-        const result = await mysql.simpleQuery(query, [ids]);
+        const result = await simpleQuery(query, [ids]);
 
         const data = {};
 
@@ -457,7 +416,7 @@ class Players{
     async deleteMatchData(id){
 
         const query = "DELETE FROM nstats_player_matches WHERE match_id=?";
-        return await mysql.simpleQuery(query, [id]);
+        return await simpleQuery(query, [id]);
     }
 
 
@@ -559,7 +518,7 @@ class Players{
 
         
 
-        const result = await mysql.simpleQuery(query, vars);
+        const result = await simpleQuery(query, vars);
 
         if(result.length > 0){
 
@@ -663,7 +622,7 @@ class Players{
         mh_deaths_worst=0
         WHERE ${(gametypeId !== 0 && mapId !== 0) ? "player_id" : "id"}=? AND gametype=? AND map=?`;
 
-        return await mysql.simpleQuery(query, [playerId, gametypeId, mapId]);
+        return await simpleQuery(query, [playerId, gametypeId, mapId]);
     }
 
     
@@ -715,7 +674,7 @@ class Players{
         const nameOnlyQuery = "SELECT name FROM nstats_player_totals WHERE gametype=0 AND map=0 ORDER BY name ASC";
         const normalQuery = "SELECT id,name,country FROM nstats_player_totals WHERE gametype=0 AND map=0 ORDER BY name ASC";
 
-        const result = await mysql.simpleQuery((bOnlyNames) ? nameOnlyQuery : normalQuery);
+        const result = await simpleQuery((bOnlyNames) ? nameOnlyQuery : normalQuery);
 
         for(let i = 0; i < result.length; i++){
 
@@ -741,14 +700,14 @@ class Players{
 
         const query = "SELECT id,name FROM nstats_player_totals WHERE gametype=0 AND map=0 ORDER BY name ASC";
 
-        return await mysql.simpleQuery(query);
+        return await simpleQuery(query);
     }
     
     async renamePlayer(oldName, newName){
 
         try{
 
-            await mysql.simpleUpdate("UPDATE nstats_player_totals SET name=? WHERE name=?", [newName, oldName]);
+            await simpleQuery("UPDATE nstats_player_totals SET name=? WHERE name=?", [newName, oldName]);
 
             const matchManager = new Matches();
 
@@ -766,7 +725,7 @@ class Players{
 
         try{
 
-            const result = await mysql.simpleFetch("SELECT COUNT(*) as total_found FROM nstats_player_totals WHERE name=? AND gametype=0", 
+            const result = await simpleQuery("SELECT COUNT(*) as total_found FROM nstats_player_totals WHERE name=? AND gametype=0", 
             [name]);
 
 
@@ -784,7 +743,7 @@ class Players{
 
     async getPlayerTotals(name){
 
-        return await mysql.simpleFetch("SELECT * FROM nstats_player_totals WHERE name=?",[name]);
+        return await simpleQuery("SELECT * FROM nstats_player_totals WHERE name=?",[name]);
     }
 
 
@@ -837,7 +796,7 @@ class Players{
                 d.mh_kills, d.mh_kills_best_life, d.mh_kills_best, d.views, d.mh_deaths, d.mh_deaths_worst
             ];
             
-            await mysql.simpleQuery(query, vars);
+            await simpleQuery(query, vars);
 
         }catch(err){
             console.trace(err);
@@ -848,7 +807,7 @@ class Players{
     async bPlayerGametypeTotalExists(playerId, gametypeId){
 
         const query = "SELECT COUNT(*) as total_players FROM nstats_player_totals WHERE player_id=? AND gametype=?";
-        const result = await mysql.simpleFetch(query, [playerId, gametypeId]);
+        const result = await simpleQuery(query, [playerId, gametypeId]);
 
         if(result[0].total_players === 0) return false;
         return true;
@@ -932,7 +891,7 @@ class Players{
             await weaponsManager.mergePlayers(first, second, matchManager);
 
 
-            const winrateManager = new Winrate();
+            const winrateManager = new WinRate();
 
             await winrateManager.deletePlayer(first);
             await winrateManager.deletePlayer(second);
@@ -1097,7 +1056,7 @@ class Players{
 
         query += part2;
 
-        const result = await mysql.simpleQuery(query, [playerId]);
+        const result = await simpleQuery(query, [playerId]);
 
         for(let i = 0; i < result.length; i++){
 
@@ -1272,7 +1231,7 @@ class Players{
             playerId, gametypeId, mapId
         ];
 
-        const result = await mysql.simpleQuery(query, vars);
+        const result = await simpleQuery(query, vars);
 
         return result;
     }
@@ -1441,12 +1400,12 @@ class Players{
             data.mh_kills_best_life, data.mh_kills_best, 0, data.mh_deaths, data.mh_deaths_worst, //5
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async deletePlayerTotals(id){
-        await mysql.simpleQuery("DELETE FROM nstats_player_totals WHERE player_id=?", [id]);
-        await mysql.simpleQuery("DELETE FROM nstats_player_totals WHERE id=?", [id]);
+        await simpleQuery("DELETE FROM nstats_player_totals WHERE player_id=?", [id]);
+        await simpleQuery("DELETE FROM nstats_player_totals WHERE id=?", [id]);
 
     }
 
@@ -1455,7 +1414,7 @@ class Players{
 
         try{
 
-            const result = await mysql.simpleFetch("SELECT name FROM nstats_player_totals WHERE id=?", [player]);
+            const result = await simpleQuery("SELECT name FROM nstats_player_totals WHERE id=?", [player]);
 
             if(result.length > 0){
 
@@ -1472,17 +1431,17 @@ class Players{
     }
 
     async deleteScoreHistory(playerId){
-        await mysql.simpleDelete("DELETE FROM nstats_match_player_score WHERE player=?", [playerId]);
+        await simpleQuery("DELETE FROM nstats_match_player_score WHERE player=?", [playerId]);
     }
 
     async deleteMapTotals(playerId){
-        await mysql.simpleDelete("DELETE FROM nstats_player_maps WHERE player=?", [playerId]);
+        await simpleQuery("DELETE FROM nstats_player_maps WHERE player=?", [playerId]);
     }
 
 
     async deleteAllMatches(playerId){
 
-        await mysql.simpleDelete("DELETE FROM nstats_player_matches WHERE player_id=?", [playerId]);
+        await simpleQuery("DELETE FROM nstats_player_matches WHERE player_id=?", [playerId]);
     }
 
     async deletePlayer(playerId, matchManager){
@@ -1567,7 +1526,7 @@ class Players{
 
             await voiceManager.deletePlayer(matches);
 
-            const winrateManager = new Winrate();
+            const winrateManager = new WinRate();
 
             await winrateManager.deletePlayer(playerId);
 
@@ -1594,14 +1553,14 @@ class Players{
 
     async getAllGametypeMatchData(gametypeId){
 
-        return await mysql.simpleFetch("SELECT * FROM nstats_player_matches WHERE gametype=?", [gametypeId]);
+        return await simpleQuery("SELECT * FROM nstats_player_matches WHERE gametype=?", [gametypeId]);
     }
 
     async getAllPlayersGametypeMatchData(gametypeId, playerId){
 
         const query = "SELECT * FROM nstats_player_matches WHERE gametype=? AND player_id=?";
 
-        return await mysql.simpleQuery(query, [gametypeId, playerId]);
+        return await simpleQuery(query, [gametypeId, playerId]);
     }
 
     async reducePlayerGametypeTotals(gametypeId, playerId, data){
@@ -1697,20 +1656,20 @@ class Players{
 
 
 
-        await mysql.simpleUpdate(query, vars);
+        await simpleQuery(query, vars);
     }
 
     async deleteGametypeTotals(id){
 
         console.log(`delete gametype ${id}`);
-        await mysql.simpleDelete("DELETE FROM nstats_player_totals WHERE gametype=?", [id]);
+        await simpleQuery("DELETE FROM nstats_player_totals WHERE gametype=?", [id]);
     }
 
     async deletePlayerMatchesData(ids){
 
         if(ids.length === 0) return;
 
-        await mysql.simpleDelete("DELETE FROM nstats_player_matches WHERE match_id IN (?)", [ids]);
+        await simpleQuery("DELETE FROM nstats_player_matches WHERE match_id IN (?)", [ids]);
 
     }
 
@@ -1852,7 +1811,7 @@ class Players{
 
         const query = "SELECT * FROM nstats_player_matches WHERE match_id=?";
 
-        const players = await mysql.simpleQuery(query, [id]);
+        const players = await simpleQuery(query, [id]);
 
         for(let i = 0; i < players.length; i++){
             delete players[i].ip;
@@ -1870,7 +1829,7 @@ class Players{
 
         const query = "SELECT * FROM nstats_player_matches WHERE match_id=? AND player_id=?";
 
-        const players = await mysql.simpleQuery(query, [matchId, playerId]);
+        const players = await simpleQuery(query, [matchId, playerId]);
 
 
         for(let i = 0; i < players.length; i++){
@@ -1890,7 +1849,7 @@ class Players{
 
         const query = "SELECT COUNT(DISTINCT player_id) as players FROM nstats_player_matches WHERE match_date>? AND match_date<=?";
 
-        const data = await mysql.simpleFetch(query, [start, end]);
+        const data = await simpleQuery(query, [start, end]);
 
         if(data.length > 0) return data[0].players;
 
@@ -1994,7 +1953,7 @@ class Players{
         
         const query = "SELECT timestamp,player,score FROM nstats_match_player_score WHERE match_id=? ORDER BY timestamp ASC";
 
-        const data = await mysql.simpleQuery(query, [matchId]);
+        const data = await simpleQuery(query, [matchId]);
 
         const timestamps = [...new Set(data.map((d) =>{
             return d.timestamp;
@@ -2019,7 +1978,7 @@ class Players{
 
         const query = "SELECT match_id, player_id, team FROM nstats_player_matches WHERE player_id IN (?) AND playtime>0";
 
-        const result = await mysql.simpleQuery(query, [players]);
+        const result = await simpleQuery(query, [players]);
 
         const matchIds = {};
 
@@ -2067,7 +2026,7 @@ class Players{
 
         const query = "SELECT match_id FROM nstats_player_matches WHERE player_id IN (?)";
 
-        const result = await mysql.simpleQuery(query, [playerIds]);
+        const result = await simpleQuery(query, [playerIds]);
 
         const data = [];
 
@@ -2182,7 +2141,7 @@ class Players{
         flag_kill,flag_save,flag_carry_time
         FROM nstats_player_matches WHERE match_id IN (?) AND player_id IN (?)`;
 
-        const result = await mysql.simpleQuery(query, [matchIds, playerIds]);
+        const result = await simpleQuery(query, [matchIds, playerIds]);
 
         const maps = {};
         const gametypes = {};
@@ -2228,7 +2187,7 @@ class Players{
 
         const vars = [start, maxPlayers];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
 
@@ -2243,7 +2202,7 @@ class Players{
         const query = `SELECT id,player_id,hwid,name,ip,country,first,last,playtime,matches as total_matches
         FROM nstats_player_totals WHERE player_id=0 AND ${columnName} LIKE ? AND gametype=0 ORDER BY ${columnName} ASC`;
 
-        const result = await mysql.simpleQuery(query, [`%${value}%`]);
+        const result = await simpleQuery(query, [`%${value}%`]);
 
         return result;
     }
@@ -2256,7 +2215,7 @@ class Players{
             FROM nstats_player_matches
             WHERE ip LIKE ? GROUP BY player_id, ip`;
 
-        return await mysql.simpleQuery(query, [`%${ip}%`]);
+        return await simpleQuery(query, [`%${ip}%`]);
 
    
     }
@@ -2296,7 +2255,7 @@ class Players{
         const playerNames = await this.getJustNamesByIds(playerIds);
 
 
-        Functions.setIdNames(data, playerNames, "player_id", "name");
+        setIdNames(data, playerNames, "player_id", "name");
 
         data.sort((a, b) =>{
 
@@ -2373,9 +2332,9 @@ class Players{
 
         const query = "SELECT match_id,player_id,country,match_date FROM nstats_player_matches WHERE ip=? ORDER BY match_date DESC";
 
-        const result = await mysql.simpleQuery(query, [ip]);
+        const result = await simpleQuery(query, [ip]);
 
-        const uniquePlayerIds = Functions.getUniqueValues(result, "player_id");
+        const uniquePlayerIds = getUniqueValues(result, "player_id");
 
         const playerNames = await this.getJustNamesByIds(uniquePlayerIds);
 
@@ -2388,7 +2347,7 @@ class Players{
         SUM(playtime) as total_playtime
         FROM nstats_player_matches WHERE player_id=? GROUP BY(ip)`;
 
-        const result = await mysql.simpleQuery(query, [playerId]);
+        const result = await simpleQuery(query, [playerId]);
 
         const ips = [];
 
@@ -2410,7 +2369,7 @@ class Players{
         COUNT(*) as total_matches, SUM(playtime) as total_playtime
         FROM nstats_player_matches WHERE ip IN(?) GROUP BY(player_id)`;
 
-        const result = await mysql.simpleQuery(query, [ips]);
+        const result = await simpleQuery(query, [ips]);
 
         const playerIds = [];
 
@@ -2457,7 +2416,7 @@ class Players{
         const query = `SELECT hwid,MIN(match_date) as first_match, MAX(match_date) as last_match, COUNT(*) as total_uses 
         FROM nstats_player_matches WHERE player_id=? GROUP BY hwid`;
 
-        return await mysql.simpleQuery(query, [playerId]);
+        return await simpleQuery(query, [playerId]);
     }
 
     async getAliasesByHWIDs(hwids){
@@ -2470,7 +2429,7 @@ class Players{
         MIN(match_date) as first_match, MAX(match_date) as last_match, 
         SUM(playtime) as total_playtime FROM nstats_player_matches WHERE hwid IN (?) GROUP BY player_id,hwid`;
 
-        return await mysql.simpleQuery(query, [cleanHWIDS]);
+        return await simpleQuery(query, [cleanHWIDS]);
         
     }
 
@@ -2506,7 +2465,7 @@ class Players{
 
         const start = perPage * page;
 
-        return await mysql.simpleQuery(query, [playerId, start, perPage]);
+        return await simpleQuery(query, [playerId, start, perPage]);
 
     }
 
@@ -2515,7 +2474,7 @@ class Players{
 
         const query = "SELECT COUNT(*) as total_connections FROM nstats_player_matches WHERE player_id=?";
 
-        const result = await mysql.simpleQuery(query, [playerId]);
+        const result = await simpleQuery(query, [playerId]);
 
         return result[0].total_connections;
     }
@@ -2601,7 +2560,7 @@ class Players{
 
         const query = "SELECT DISTINCT gametype FROM nstats_player_matches WHERE player_id=?";
 
-        const result = await mysql.simpleQuery(query, [playerId]);
+        const result = await simpleQuery(query, [playerId]);
 
         const gametypes = [];
 
@@ -2633,7 +2592,7 @@ class Players{
         if(playerIds.length === 0) return {};
 
         const query = `SELECT name,id,country FROM nstats_player_totals WHERE id IN(?)`;
-        const result = await mysql.simpleQuery(query, [playerIds]);
+        const result = await simpleQuery(query, [playerIds]);
         const found = {};
 
         for(let i = 0; i < result.length; i++){
@@ -2655,14 +2614,14 @@ class Players{
         const query = `SELECT player_id,hwid,MIN(match_date) as first_match,MAX(match_date) as last_match,
         SUM(playtime) as total_playtime,COUNT(*) as total_matches FROM nstats_player_matches WHERE hwid!="" GROUP BY hwid,player_id`;
 
-        return await mysql.simpleQuery(query);
+        return await simpleQuery(query);
     }
 
     async adminGetPlayersWithHWIDS(){
 
         const query = `SELECT id,name,country,hwid,matches,last FROM nstats_player_totals WHERE gametype=0 AND map=0 AND hwid!="" ORDER BY name ASC`;
 
-        return await mysql.simpleQuery(query);
+        return await simpleQuery(query);
     }
 
 
@@ -2670,7 +2629,7 @@ class Players{
 
         const query = `SELECT COUNT(*) as total_rows FROM nstats_hwid_to_name WHERE hwid=?`;
 
-        const result = await mysql.simpleQuery(query, [hwid]);
+        const result = await simpleQuery(query, [hwid]);
 
         if(result.length > 0) return result[0].total_rows !== 0;
 
@@ -2687,21 +2646,21 @@ class Players{
         //TODO: Check HWID isn't al;ready assigned to another player name, if it is throw error
         const query = `INSERT INTO nstats_hwid_to_name VALUES(NULL,?,?)`;
 
-        await mysql.simpleQuery(query, [hwid, name]);
+        await simpleQuery(query, [hwid, name]);
     }
 
     async adminDeleteHWIDToName(hwid){
 
         const query = `DELETE FROM nstats_hwid_to_name WHERE hwid=?`;
 
-        return await mysql.simpleQuery(query, [hwid]);
+        return await simpleQuery(query, [hwid]);
     }
 
     async adminGetPlayersBasic(){
 
         const query = `SELECT id,name,country,hwid,matches,last FROM nstats_player_totals WHERE gametype=0 AND map=0 ORDER BY name ASC`;
 
-        return await mysql.simpleQuery(query);
+        return await simpleQuery(query);
     }
 
 
@@ -2709,7 +2668,7 @@ class Players{
 
         const query = `SELECT id,name,country FROM nstats_player_totals WHERE hwid=? AND gametype=0 LIMIT 1`;
 
-        const result = await mysql.simpleQuery(query, [hwid]);
+        const result = await simpleQuery(query, [hwid]);
 
         if(result.length === 0) return null;
         return result[0];
@@ -2719,7 +2678,7 @@ class Players{
     async adminSetPlayerHWID(playerId, hwid){
 
         const query = `UPDATE nstats_player_totals SET hwid=?,player_id=? WHERE (player_id=? || id=?)`;
-        return await mysql.simpleQuery(query, [hwid, playerId, playerId, playerId]);
+        return await simpleQuery(query, [hwid, playerId, playerId, playerId]);
     }
 
 
@@ -2727,7 +2686,7 @@ class Players{
 
         const query = `SELECT id,name,country,face FROM nstats_player_totals WHERE hwid=? AND gametype=0 ORDER BY last DESC LIMIT 1`;
 
-        const result = await mysql.simpleQuery(query, [hwid]);
+        const result = await simpleQuery(query, [hwid]);
 
         if(result.length > 0) return result[0];
 
@@ -2826,7 +2785,7 @@ class Players{
 
         const query = `SELECT id,country FROM nstats_player_totals WHERE id IN(?)`;
 
-        const result = await mysql.simpleQuery(query, [playerIds]);
+        const result = await simpleQuery(query, [playerIds]);
 
         const obj = {};
 
@@ -2921,7 +2880,7 @@ class Players{
 
         FROM nstats_player_matches GROUP BY player_id,map_id,gametype`;
 
-        return await mysql.simpleQuery(query);
+        return await simpleQuery(query);
     }
 
     /**
@@ -2931,7 +2890,7 @@ class Players{
 
         const query = `DELETE FROM nstats_player_totals WHERE player_id!=0`;
 
-        return await mysql.simpleQuery(query);
+        return await simpleQuery(query);
     }
 
 
@@ -2947,7 +2906,7 @@ class Players{
 
         const query = `SELECT COUNT(*) as total_players FROM nstats_player_totals WHERE player_id=? AND gametype=? AND map=?`;
 
-        const result = await mysql.simpleQuery(query, [playerId, gametypeId, mapId]);
+        const result = await simpleQuery(query, [playerId, gametypeId, mapId]);
 
         if(result[0].total_players > 0) return true;
 
@@ -2972,7 +2931,7 @@ class Players{
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,0,0,0)`;
 
-        return await mysql.simpleQuery(query, ["", playerName, playerId, gametypeId, mapId]);
+        return await simpleQuery(query, ["", playerName, playerId, gametypeId, mapId]);
     }
 
     async updateNewGametypeMapStats(playerId, gametypeId, mapId, data){
@@ -3127,7 +3086,7 @@ class Players{
             playerId, gametypeId, mapId
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     updateRecalulatePlayerCurrent(totals, playerId, gametypeId, mapId, data){
@@ -3219,7 +3178,7 @@ class Players{
         const query = `SELECT first,last,map,matches,wins,draws,losses,winrate,playtime,spec_playtime 
         FROM nstats_player_totals WHERE map!=0 AND gametype=0 AND player_id=?`;
 
-        return await mysql.simpleQuery(query, [playerId]);
+        return await simpleQuery(query, [playerId]);
     }
 
     async insertNewPlayerTotalFromData(gametypeId, data){
@@ -3291,7 +3250,7 @@ class Players{
             d.mh_kills_best_life, d.mh_kills_best, 0, 0, 0
         ];
 
-        await mysql.simpleQuery(query, vars);
+        await simpleQuery(query, vars);
     }
     
     async adminHWIDSearch(hwid){
@@ -3304,7 +3263,7 @@ class Players{
         FROM nstats_player_matches WHERE hwid=? 
         GROUP BY player_id, hwid, ip, country`;
 
-        const result = await mysql.simpleQuery(query, [hwid]);
+        const result = await simpleQuery(query, [hwid]);
 
         const uniqueIds = [...new Set(result.map((r) =>{
             return r.player_id;
@@ -3319,13 +3278,13 @@ class Players{
 
         const query = `DELETE FROM nstats_player_maps WHERE id IN(?)`;
 
-        return await mysql.simpleQuery(query, [rowIds]);
+        return await simpleQuery(query, [rowIds]);
     }
 
     async fixDuplucateMapsData(newId){
 
         const getQuery = `SELECT id,player,first,first_id,last,last_id,matches,playtime,longest,longest_id FROM nstats_player_maps WHERE map=?`;
-        const getResult = await mysql.simpleQuery(getQuery, [newId]);
+        const getResult = await simpleQuery(getQuery, [newId]);
 
         const rowsToDelete = [];
         const totals = {};
@@ -3371,7 +3330,7 @@ class Players{
             insertVars.push([newId, d.player, d.first, d.first_id, d.last, d.last_id, d.matches, d.playtime, d.longest, d.longest_id]);
         }
 
-        await mysql.bulkInsert(insertQuery, insertVars);
+        await bulkInsert(insertQuery, insertVars);
 
         await this.deletePlayerMapsDataWithRowIds(rowsToDelete);
 
@@ -3383,7 +3342,7 @@ class Players{
 
         const query = `DELETE FROM nstats_player_totals WHERE id IN(?)`;
 
-        return await mysql.simpleQuery(query, [rowIds]);
+        return await simpleQuery(query, [rowIds]);
     }
 
 
@@ -3445,7 +3404,7 @@ class Players{
             }
         }
 
-        await mysql.bulkInsert(query, insertVars);
+        await bulkInsert(query, insertVars);
 
     }
 
@@ -3454,7 +3413,7 @@ class Players{
 
         const query = `SELECT * FROM nstats_player_totals WHERE map=?`;
 
-        const result = await mysql.simpleQuery(query, [mapId]);
+        const result = await simpleQuery(query, [mapId]);
 
         //result = [...result, ...result];
         const totals = {};
@@ -3575,7 +3534,7 @@ class Players{
 
             const query = `UPDATE nstats_${t} SET ${c}=? WHERE ${c}=?`;
 
-            await mysql.simpleQuery(query, [newId, oldId]);
+            await simpleQuery(query, [newId, oldId]);
         }
 
 
@@ -3587,10 +3546,6 @@ class Players{
 
         const query = `SELECT * FROM nstats_hwid_to_name ORDER BY player_name ASC`;
 
-        return await mysql.simpleQuery(query);
+        return await simpleQuery(query);
     }
 }
-
-
-
-module.exports = Players;

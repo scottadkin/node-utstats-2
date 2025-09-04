@@ -1,10 +1,10 @@
-const Kill =  require('./kill');
-const Message = require('../message');
-const KillsManager = require('../kills');
-const Headshots = require('../headshots');
-const Telefrags = require("../telefrags");
+import Kill from "./kill.js";
+import Message from "../message.js";
+import Kills from "../kills.js";
+import Headshots from "../headshots.js";
+import Telefrags from "../telefrags.js";
 
-class KillManager{
+export default class KillManager{
 
     constructor(data, playerManager, bIgnoreBots, matchTimings){
 
@@ -17,7 +17,7 @@ class KillManager{
 
         this.playerManager = playerManager;
 
-        this.killsManager = new KillsManager();
+        this.killsManager = new Kills();
         this.headshotsManager = new Headshots();
 
         //suicides that are not caused by weapon damage
@@ -752,6 +752,3 @@ class KillManager{
         //updatePlayerTotals(playerId, mapId, gametypeId, playtime, stats)
     }
 }
-
-
-module.exports = KillManager;

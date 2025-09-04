@@ -1,6 +1,6 @@
-const PowerUps = require("../powerups");
+import PowerUps from "../powerups.js";
 
-class PowerUpManager{
+export default class PowerUpManager{
 
     constructor(playerManager, killsManager){
 
@@ -235,5 +235,3 @@ class PowerUpManager{
 
     }
 }
-
-module.exports = PowerUpManager;

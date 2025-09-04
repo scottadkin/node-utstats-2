@@ -1,4 +1,4 @@
-class Kill{
+export default class Kill{
 
     constructor(time, type, killerId, killerWeapon, victimId, victimWeapon, deathType){
 
@@ -39,5 +39,3 @@ class Kill{
 
     }
 }
-
-module.exports = Kill;
