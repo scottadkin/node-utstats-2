@@ -1,7 +1,7 @@
-const Message = require("./message");
-const mysql = require("./database");
+import Message from "./message.js";
+import { simpleQuery, bulkInsert } from "./database.js";
 
-class WinRate{
+export default class WinRate{
 
     constructor(){}
 
@@ -27,14 +27,14 @@ class WinRate{
             wins, draws, losses
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async deletePlayerLatest(playerId, gametypeId, mapId){
 
         const query = `DELETE FROM nstats_winrates_latest WHERE player=? AND gametype=? AND map=?`;
 
-        return await mysql.simpleQuery(query, [playerId, gametypeId, mapId]);
+        return await simpleQuery(query, [playerId, gametypeId, mapId]);
     }
 
     async createPlayerLatestFromRecalculation(playerId, gametype, map, data){
@@ -68,7 +68,7 @@ class WinRate{
             data.max_lose_streak
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async updatePlayerLatest(playerId, gametypeId, mapId, matchResult, matchDate, matchId){
@@ -98,7 +98,7 @@ class WinRate{
             matchResult,
             playerId, gametypeId, mapId];
 
-        const result = await mysql.simpleQuery(query, vars);
+        const result = await simpleQuery(query, vars);
 
         if(result.affectedRows === 0){
             await this.createPlayerLatest(playerId, gametypeId, mapId, matchResult, matchDate, matchId);
@@ -115,7 +115,7 @@ class WinRate{
         current_draw_streak,current_lose_streak,max_win_streak,max_draw_streak,max_lose_streak
         FROM nstats_winrates_latest WHERE player=? AND gametype=? AND map=?`;
 
-        const result = await mysql.simpleQuery(query, [playerId, gametypeId, mapId]);
+        const result = await simpleQuery(query, [playerId, gametypeId, mapId]);
 
         if(result.length > 0) return result[0];
 
@@ -147,14 +147,14 @@ class WinRate{
             latestData.max_win_streak, latestData.max_draw_streak, latestData.max_lose_streak
         ];
 
-        await mysql.simpleQuery(query, vars);
+        await simpleQuery(query, vars);
     }
 
     async bNeedToRecalulate(date){
 
         const query = `SELECT date FROM nstats_winrates_latest ORDER BY date DESC LIMIT 1`;
 
-        const result = await mysql.simpleQuery(query);
+        const result = await simpleQuery(query);
 
         if(result.length === 0) return false;
 
@@ -256,7 +256,7 @@ class WinRate{
     async deletePlayerHistory(playerId, gametypeId, mapId){
 
         const query = "DELETE FROM nstats_winrates WHERE player=? AND gametype=? AND map=?";
-        return await mysql.simpleQuery(query, [playerId, gametypeId, mapId]);
+        return await simpleQuery(query, [playerId, gametypeId, mapId]);
     }
 
     /**
@@ -330,7 +330,7 @@ class WinRate{
 
         //console.log(historyInsertVars);
 
-        await mysql.bulkInsert(query, historyInsertVars);
+        await bulkInsert(query, historyInsertVars);
     }
 
     async recaluatePlayerHistory(playerId, gametypeIds, mapIds){
@@ -345,7 +345,7 @@ class WinRate{
             vars = [playerId];
         }
 
-        const result = await mysql.simpleQuery(query, vars);
+        const result = await simpleQuery(query, vars);
 
         const history = [];
 
@@ -383,22 +383,22 @@ class WinRate{
         current_draw_streak,current_lose_streak,max_win_streak,max_draw_streak,max_lose_streak 
         FROM nstats_winrates_latest WHERE player=?`;
 
-        return await mysql.simpleQuery(query, [playerId]);
+        return await simpleQuery(query, [playerId]);
     }
 
 
     async deleteMatchData(id){
 
 
-        await mysql.simpleDelete("DELETE FROM nstats_winrates WHERE match_id=?", [id]);
-        await mysql.simpleDelete("DELETE FROM nstats_winrates_latest WHERE match_id=?", [id]);
+        await simpleQuery("DELETE FROM nstats_winrates WHERE match_id=?", [id]);
+        await simpleQuery("DELETE FROM nstats_winrates_latest WHERE match_id=?", [id]);
      
     }
 
     async deletePlayer(playerId){
         
-        await mysql.simpleQuery("DELETE FROM nstats_winrates WHERE player=?", [playerId]);
-        await mysql.simpleQuery("DELETE FROM nstats_winrates_latest WHERE player=?", [playerId]);
+        await simpleQuery("DELETE FROM nstats_winrates WHERE player=?", [playerId]);
+        await simpleQuery("DELETE FROM nstats_winrates_latest WHERE player=?", [playerId]);
     }
 
 
@@ -406,7 +406,7 @@ class WinRate{
     async getPlayerMatchResultsFromMatchTable(playerId){
 
         const query = `SELECT match_id,match_date,map_id,gametype,winner,draw FROM nstats_player_matches WHERE player_id=? AND playtime>0 ORDER BY match_date ASC`;
-        return await mysql.simpleQuery(query, [playerId]);
+        return await simpleQuery(query, [playerId]);
     }
     
     
@@ -461,8 +461,8 @@ class WinRate{
 
     async changeGametypeId(oldId, newId){
 
-        await mysql.simpleUpdate("UPDATE nstats_winrates SET gametype=? WHERE gametype=?", [newId, oldId]);
-        await mysql.simpleUpdate("UPDATE nstats_winrates_latest SET gametype=? WHERE gametype=?", [newId, oldId]);
+        await simpleQuery("UPDATE nstats_winrates SET gametype=? WHERE gametype=?", [newId, oldId]);
+        await simpleQuery("UPDATE nstats_winrates_latest SET gametype=? WHERE gametype=?", [newId, oldId]);
     }
 
 
@@ -470,7 +470,7 @@ class WinRate{
 
         const query = `SELECT * FROM nstats_winrates WHERE gametype=? ORDER BY date ASC`;
 
-        return await mysql.simpleQuery(query, [gametypeId]);
+        return await simpleQuery(query, [gametypeId]);
     }
 
     async getGametypeResultsFromMatchesTable(gametypeId){
@@ -479,7 +479,7 @@ class WinRate{
         WHERE gametype=? AND playtime>0 ORDER BY match_date ASC`;
 
 
-        return await mysql.simpleQuery(query, [gametypeId]);
+        return await simpleQuery(query, [gametypeId]);
     }
 
 
@@ -540,14 +540,14 @@ class WinRate{
 
     async deleteGametypeLatest(id){
 
-        await mysql.simpleDelete("DELETE FROM nstats_winrates_latest WHERE gametype=?", [id]);
+        await simpleQuery("DELETE FROM nstats_winrates_latest WHERE gametype=?", [id]);
     }
 
     async deleteMatchesQuery(ids){
 
         if(ids.length === 0) return;
 
-        await mysql.simpleDelete("DELETE FROM nstats_winrates WHERE match_id IN (?)", [ids]);
+        await simpleQuery("DELETE FROM nstats_winrates WHERE match_id IN (?)", [ids]);
     }
 
     async deleteMatches(matchIds, gametypeId){
@@ -569,7 +569,7 @@ class WinRate{
 
         const query = `SELECT DISTINCT gametype FROM nstats_winrates`;
 
-        const result = await mysql.simpleQuery(query);
+        const result = await simpleQuery(query);
 
         return result.map((r) =>{
             return r.gametype;
@@ -643,14 +643,14 @@ class WinRate{
             await this.deletePlayerHistory(playerId, gametypesToDelete[i], mapId);
         }
 
-        await mysql.bulkInsert(query, historyInsertVars);
+        await bulkInsert(query, historyInsertVars);
     }
 
     async deleteMapLatest(mapId){
 
         const query = `DELETE FROM nstats_winrates_latest WHERE map=?`;
 
-        return await mysql.simpleQuery(query, [mapId]);
+        return await simpleQuery(query, [mapId]);
     }
 
     async recalculateMapHistory(mapId){
@@ -658,7 +658,7 @@ class WinRate{
 
         const getQuery = `SELECT * FROM nstats_winrates WHERE map=?`;
 
-        const result = await mysql.simpleQuery(getQuery, [mapId]);
+        const result = await simpleQuery(getQuery, [mapId]);
 
         const playerHistory = {};
 
@@ -688,7 +688,7 @@ class WinRate{
 
         const query = `UPDATE nstats_winrates SET map=? WHERE map=?`;
 
-        await mysql.simpleQuery(query, [newId, oldId]);
+        await simpleQuery(query, [newId, oldId]);
 
         //delete player latest data
         await this.deleteMapLatest(oldId);
@@ -718,5 +718,3 @@ class WinRate{
         }*/
     }
 }
-
-module.exports = WinRate;

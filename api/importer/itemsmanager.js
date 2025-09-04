@@ -1,8 +1,8 @@
-const Message = require("../message");
-const Items = require("../items");
-const PowerUpManager = require("./powerupmanager");
+import Message from "../message.js";
+import Items from "../items.js";
+import PowerUpManager from "./powerupmanager.js";
 
-class ItemsManager{
+export default class ItemsManager{
 
     constructor(lines, playerManager, killsManager, totalTeams){
 
@@ -573,5 +573,3 @@ class ItemsManager{
         await this.items.updateMapItems(uniqueItems, this.locations, mapId, matchId);
     }
 }
-
-module.exports = ItemsManager;

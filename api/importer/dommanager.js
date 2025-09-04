@@ -1,7 +1,7 @@
-const Domination = require('../domination');
-const Message = require('../message');
+import Domination from "../domination.js";
+import Message from "../message.js";
 
-class DOMManager{
+export default class DOMManager{
 
     constructor(){
 
@@ -388,6 +388,3 @@ class DOMManager{
         }
     }
 }
-
-
-module.exports = DOMManager;

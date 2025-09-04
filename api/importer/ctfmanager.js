@@ -1,8 +1,8 @@
-const CTF = require("../ctf");
-const Message = require("../message");
-const CTFFlag = require("./ctfflag");
+import CTF from "../ctf.js";
+import Message from "../message.js";
+import CTFFlag from "./ctfflag.js";
 
-class CTFManager{
+export default class CTFManager{
 
     constructor(){
 
@@ -1303,5 +1303,3 @@ class CTFManager{
         }
     }
 }
-
-module.exports = CTFManager;

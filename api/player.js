@@ -408,26 +408,13 @@ export default class Player{
     }
     
 
-    getPlayerById(id){
+    async getPlayerById(id){
 
-        return new Promise((resolve, reject) =>{
+        id = parseInt(id);
 
-            id = parseInt(id);
+        const query = "SELECT * FROM nstats_player_totals WHERE id=?";
 
-            const query = "SELECT * FROM nstats_player_totals WHERE id=?";
-
-            mysql.query(query, [id], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    removeIps(result);
-                    resolve(result[0]);
-                }
-                
-                resolve(null);
-            });
-        });
+        return await simpleQuery(query, [id]);
     }
 
 
@@ -536,81 +523,54 @@ export default class Player{
 
 
 
-    getNames(ids){
+    async getNames(ids){
 
-        return new Promise((resolve, reject) =>{
+        if(ids.length === 0){ resolve(new Map())}
 
-            if(ids.length === 0){ resolve(new Map())}
+        const query = "SELECT id,name FROM nstats_player_totals WHERE id IN(?)";
 
-            const query = "SELECT id,name FROM nstats_player_totals WHERE id IN(?)";
+        const data = new Map();
 
-            const data = new Map();
+        const result = await simpleQuery(query, [ids]);
 
-            mysql.query(query, [ids], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                   // resolve(result);
-
-                    for(let i = 0; i < result.length; i++){
-                        data.set(result[i].id, result[i].name)
-                    }
-                }
-                resolve(data);
-            });
-        });
+        for(let i = 0; i < result.length; i++){
+            data.set(result[i].id, result[i].name)
+        }
+        
+        return data;     
     }
 
 
-    getMaxValue(type){
+    async getMaxValue(type){
 
-        return new Promise((resolve, reject) =>{
+        type = type.toLowerCase();
+        //add winrate
+        const validTypes = ["playtime","score","frags","deaths","kills","matches","efficiency","winrate","accuracy","wins"];
+        
+        let data = 0;
 
-            type = type.toLowerCase();
-            //add winrate
-            const validTypes = ["playtime","score","frags","deaths","kills","matches","efficiency","winrate","accuracy","wins"];
-            
-            let data = 0;
+        const index = validTypes.indexOf(type);
 
-            const index = validTypes.indexOf(type);
+        if(index === -1){
+            resolve(0);
+        }
 
-            if(index === -1){
-                resolve(0);
-            }
+        const query = `SELECT ${validTypes[index]} as type_result FROM nstats_player_totals WHERE gametype=0 ORDER BY ${validTypes[index]} DESC LIMIT 1`;
 
-            const query = `SELECT ${validTypes[index]} as type_result FROM nstats_player_totals WHERE gametype=0 ORDER BY ${validTypes[index]} DESC LIMIT 1`;
-
-            mysql.query(query, (err, result) =>{
-
-                
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    if(result.length > 0){
-                        data = result[0].type_result;
-                    }
-                }
-
-                resolve(data);
-            });
-
-        });
+        const result = await simpleQuery(query);
+    
+        if(result.length > 0){
+            data = result[0].type_result;
+        }
+    
+        return data;
     }
 
-    insertScoreHistory(matchId, timestamp, player, score){
+    async insertScoreHistory(matchId, timestamp, player, score){
 
-        return new Promise((resolve, reject) =>{
+        const query = "INSERT INTO nstats_match_player_score VALUES(NULL,?,?,?,?)";
 
-            const query = "INSERT INTO nstats_match_player_score VALUES(NULL,?,?,?,?)";
-
-            mysql.query(query, [matchId, timestamp, player, score], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [matchId, timestamp, player, score]);  
     }
 
     async bulkInsertScoreHistory(vars){
@@ -620,58 +580,36 @@ export default class Player{
         return await bulkInsert(query, vars);
     }
 
-    getMatchDatesAfter(timestamp, player){
+    async getMatchDatesAfter(timestamp, player){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT match_date,gametype FROM nstats_player_matches WHERE match_date>=? AND player_id=? ORDER BY match_date DESC";
 
-            const query = "SELECT match_date,gametype FROM nstats_player_matches WHERE match_date>=? AND player_id=? ORDER BY match_date DESC";
+        const result = await simpleQuery(query, [timestamp, player]);
 
-            mysql.query(query, [timestamp, player], (err, result) =>{
+        const data = [];
 
-                if(err) reject(err);
+        for(let i = 0; i < result.length; i++){
+            data.push({"date": result[i].match_date, "gametype": result[i].gametype});
+        }
 
-                if(result !== undefined){
-
-                    const data = [];
-
-                    for(let i = 0; i < result.length; i++){
-
-                        data.push({"date": result[i].match_date, "gametype": result[i].gametype});
-                    }
-
-                    resolve(data);
-                }
-
-                resolve([]);
-            });
-        });
+        return data;       
     }
 
-    getAllIps(id){
+    async getAllIps(id){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT DISTINCT ip FROM nstats_player_matches WHERE player_id=?";
 
-            const query = "SELECT DISTINCT ip FROM nstats_player_matches WHERE player_id=?";
+        const result = await simpleQuery(query, [id]);
+                
+        const data = [];
 
-            mysql.query(query, [id], (err, result) =>{
+        for(let i = 0; i < result.length; i++){
 
-                if(err) reject(err);
+            data.push(result[i].ip);
+        }
 
-                if(result !== undefined){
-                    
-                    const data = [];
-
-                    for(let i = 0; i < result.length; i++){
-
-                        data.push(result[i].ip);
-                    }
-
-                    resolve(data);
-                }
-
-                resolve([]);
-            });
-        });
+        return data;
+            
     }
 
     async getIdsWithTheseIps(ips){

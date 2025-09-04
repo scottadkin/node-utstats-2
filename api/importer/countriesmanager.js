@@ -1,8 +1,7 @@
-const mysql = require('../database');
-const Message = require('../message');
-const Promise = require('promise');
+import { simpleQuery } from "../database.js";
+import Message from "../message.js";
 
-class CountriesManager{
+export default class CountriesManager{
 
     constructor(){
 
@@ -42,59 +41,32 @@ class CountriesManager{
         }
     }
 
-    exists(code){
+    async exists(code){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT COUNT(*) as total_countries FROM nstats_countries WHERE code=?";
 
-            const query = "SELECT COUNT(*) as total_countries FROM nstats_countries WHERE code=?";
-
-            mysql.query(query, [code], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    
-                    if(result[0].total_countries > 0){
-                        resolve(true);
-                    }
-                }
-                resolve(false);
-            });
-        });
+        const result = await simpleQuery(query, [code]);//
+        
+        return result[0].total_countries > 0;
+    
     }
 
-    insert(code, uses, date){
+    async insert(code, uses, date){
 
-        return new Promise((resolve, reject) =>{
+        const query = "INSERT INTO nstats_countries VALUES(NULL,?,?,?,?)";
 
-            const query = "INSERT INTO nstats_countries VALUES(NULL,?,?,?,?)";
-
-            mysql.query(query, [code, date, date, uses], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [code, date, date, uses]);
     }
 
-    updateQuery(code, uses, date){
+    async updateQuery(code, uses, date){
 
-        return new Promise((resolve, reject) =>{
+        const query = `UPDATE nstats_countries SET
+        total=total+?,
+        first = IF(first > ?, ?, first),
+        last = IF(last < ?, ?, last)
+        WHERE code=?`;
 
-            const query = `UPDATE nstats_countries SET
-            total=total+?,
-            first = IF(first > ?, ?, first),
-            last = IF(last < ?, ?, last)
-            WHERE code=?`;
-
-            mysql.query(query, [uses, date, date, date, date, code], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [uses, date, date, date, date, code]);
     }
 
     async update(code, uses, date){
@@ -115,6 +87,3 @@ class CountriesManager{
         }
     }
 }
-
-
-module.exports = CountriesManager;

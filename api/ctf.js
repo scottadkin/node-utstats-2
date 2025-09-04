@@ -1,8 +1,8 @@
-const mysql = require('./database');
-const Message = require('./message');
-const Functions = require('./functions');
+import { simpleQuery, bulkInsert } from "./database.js";
+import Message from "./message.js";
+import { getTeamName } from "./functions.js";
 
-class CTF{
+export default class CTF{
 
     constructor(data){
 
@@ -21,7 +21,7 @@ class CTF{
 
         const query = `SELECT COUNT(*) as total_matches FROM nstats_player_ctf_totals WHERE player_id=? AND gametype_id=?`;
 
-        const result = await mysql.simpleQuery(query, [playerId, gametypeId]);
+        const result = await simpleQuery(query, [playerId, gametypeId]);
 
         if(result[0].total_matches > 0) return true;
 
@@ -35,7 +35,7 @@ class CTF{
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0)`;
 
-        return await mysql.simpleQuery(query, [playerId, gametypeId]);
+        return await simpleQuery(query, [playerId, gametypeId]);
     }
 
     async updatePlayerTotals(playerId, gametypeId, playtime, stats){
@@ -113,7 +113,7 @@ class CTF{
             playerId, gametypeId
         ];
 
-        await mysql.simpleQuery(query, vars);
+        await simpleQuery(query, vars);
     }
 
     /*async updatePlayerMatchStats(playerId, matchId, stats){
@@ -166,7 +166,7 @@ class CTF{
                 matchId
             ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }*/
 
     calculateTimeDropped(dropTimes, pickupTimes){
@@ -252,7 +252,7 @@ class CTF{
             yellowSuicides
         ];
 
-        const result = await mysql.simpleQuery(query, vars);
+        const result = await simpleQuery(query, vars);
 
         return result.insertId;
 
@@ -321,7 +321,7 @@ class CTF{
             yellowSuicides
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
 
     }
 
@@ -331,7 +331,7 @@ class CTF{
 
         const vars = [matchId, matchDate, mapId, capId, playerId, pickupTime, droppedTime, carryTime];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     /*async insertCover(matchId, matchDate, mapId, capId, timestamp, killerId, killerTeam, victimId){
@@ -340,7 +340,7 @@ class CTF{
 
         const vars = [matchId, matchDate, mapId, capId, timestamp, killerId, killerTeam, victimId];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }*/
 
     addCover(matchId, matchDate, mapId, capId, timestamp, killerId, killerTeam, victimId){
@@ -352,7 +352,7 @@ class CTF{
 
         const query = `INSERT INTO nstats_ctf_covers (match_id, match_date, map_id, cap_id, timestamp, killer_id, killer_team, victim_id) VALUES ?`;
 
-        return await mysql.bulkInsert(query, this.covers);
+        return await bulkInsert(query, this.covers);
     }
 
     async insertSelfCover(matchId, matchDate, mapId, capId, timestamp, killerId, killerTeam, victimId){
@@ -361,7 +361,7 @@ class CTF{
 
         const vars = [matchId, matchDate, mapId, capId, timestamp, killerId, killerTeam, victimId];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async insertSeal(matchId, matchDate, mapId, capId, timestamp, killerId, victimId){
@@ -370,7 +370,7 @@ class CTF{
 
         const vars = [matchId, matchDate, mapId, capId, timestamp, killerId, victimId];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     addCarryTime(matchId, matchDate, mapId, capId, flagTeam, playerId, playerTeam, startTime, endTime, carryTime, carryPercent){
@@ -381,7 +381,7 @@ class CTF{
     async insertCarryTimes(){
 
         const query = "INSERT INTO nstats_ctf_carry_times (match_id,match_date,map_id,cap_id,flag_team,player_id,player_team,start_time,end_time,carry_time,carry_percent) VALUES ?";
-        await mysql.bulkInsert(query, this.carryTimes);
+        await bulkInsert(query, this.carryTimes);
     }
 
     addFlagDeath(matchId, matchDate, mapId, timestamp, capId, killerId, killerTeam, 
@@ -399,7 +399,7 @@ class CTF{
             ) 
         VALUES ?`;
 
-        await mysql.bulkInsert(query, this.flagDeaths);
+        await bulkInsert(query, this.flagDeaths);
     }
 
     addDrop(matchId, matchDate, mapId, timestamp, capId, flagTeam, playerId, playerTeam, distanceToCap, location,
@@ -429,7 +429,7 @@ class CTF{
             player_team,distance_to_cap,position_x,position_y,position_z,time_dropped) 
         VALUES ?`;
 
-        return await mysql.bulkInsert(query, this.flagDrops);
+        return await bulkInsert(query, this.flagDrops);
     }
 
     /*async insertDrop(matchId, matchDate, mapId, timestamp, capId, flagTeam, playerId, playerTeam, distanceToCap, location,
@@ -453,7 +453,7 @@ class CTF{
             timeDropped
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }*/
 
     async insertPickup(matchId, matchDate, mapId, capId, timestamp, playerId, playerTeam, flagTeam){
@@ -471,7 +471,7 @@ class CTF{
             flagTeam
         ];
 
-        return await mysql.simpleQuery(query, vars);         
+        return await simpleQuery(query, vars);         
     }
 
     /*async insertCap(matchId, matchDate, mapId, team, flagTeam, grabTime, grab, drops, dropTimes, pickups, pickupTimes, covers, coverTimes, assists, 
@@ -505,7 +505,7 @@ class CTF{
             type = 1;
         }
         
-        await mysql.simpleQuery(query, vars);
+        await simpleQuery(query, vars);
 
     }*/
 
@@ -517,7 +517,7 @@ class CTF{
 
         const query = `SELECT * FROM nstats_ctf_caps WHERE match_id=? ORDER BY grab_time ASC`;
 
-        return await mysql.simpleQuery(query, [matchId]);
+        return await simpleQuery(query, [matchId]);
     }
 
     async getMatchAssists(matchId){
@@ -525,7 +525,7 @@ class CTF{
         const query = `SELECT id,cap_id,player_id,pickup_time,dropped_time,carry_time 
         FROM nstats_ctf_assists WHERE match_id=? ORDER BY pickup_time ASC`;
 
-        return await mysql.simpleQuery(query, [matchId]);
+        return await simpleQuery(query, [matchId]);
     }
 
     async getMatchCovers(matchId, bOnlyCapped, bIgnoreId){
@@ -537,7 +537,7 @@ class CTF{
         const query = `SELECT ${(bIgnoreId) ? "" :"id,"}cap_id,timestamp,killer_id,victim_id FROM nstats_ctf_covers
         WHERE match_id=? ${(bOnlyCapped) ? extra : ""} ORDER BY timestamp ASC`;
 
-        return await mysql.simpleQuery(query, [matchId]);
+        return await simpleQuery(query, [matchId]);
     }
 
     async getMatchFailedCovers(matchId){
@@ -545,7 +545,7 @@ class CTF{
         const query = `SELECT id,timestamp,killer_id,victim_id,killer_team FROM nstats_ctf_covers
         WHERE match_id=? AND cap_id=-1 ORDER BY timestamp ASC`;
 
-        return await mysql.simpleQuery(query, [matchId]);
+        return await simpleQuery(query, [matchId]);
     }
 
 
@@ -556,7 +556,7 @@ class CTF{
         const query = `SELECT id,cap_id,timestamp,killer_id,victim_id FROM nstats_ctf_self_covers
         WHERE match_id=? ${(bOnlyCapped) ? extra : ""} ORDER BY timestamp ASC`;
 
-        return await mysql.simpleQuery(query, [matchId]);
+        return await simpleQuery(query, [matchId]);
     }
 
     async getMatchSeals(matchId, bOnlyCapped){
@@ -566,7 +566,7 @@ class CTF{
         const query = `SELECT id,cap_id,timestamp,killer_id,victim_id FROM nstats_ctf_seals
         WHERE match_id=? ${(bOnlyCapped) ? extra : ""} ORDER BY timestamp ASC`;
 
-        return await mysql.simpleQuery(query, [matchId]);
+        return await simpleQuery(query, [matchId]);
     }
 
     async getMatchCarryTimes(matchId, bOnlyCapped){
@@ -577,7 +577,7 @@ class CTF{
         FROM nstats_ctf_carry_times
         WHERE match_id=? ${(bOnlyCapped) ? extra : ""} ORDER BY start_time ASC`;
 
-        return await mysql.simpleQuery(query, [matchId]);
+        return await simpleQuery(query, [matchId]);
     }
 
     /**
@@ -601,7 +601,7 @@ class CTF{
         }
 
         query += " ORDER BY timestamp ASC";
-        return await mysql.simpleQuery(query, [matchId]);
+        return await simpleQuery(query, [matchId]);
     }
 
     /**
@@ -627,7 +627,7 @@ class CTF{
 
         query += " ORDER BY timestamp ASC"
 
-        return await mysql.simpleQuery(query, [matchId]);
+        return await simpleQuery(query, [matchId]);
     }
 
     async getMatchFlagPickups(matchId, include){
@@ -646,7 +646,7 @@ class CTF{
 
         query += " ORDER BY timestamp ASC"
 
-        return await mysql.simpleQuery(query, [matchId]);
+        return await simpleQuery(query, [matchId]);
 
     }
 
@@ -654,14 +654,14 @@ class CTF{
 
         const query = "SELECT * FROM nstats_ctf_returns WHERE match_id=? ORDER BY return_time ASC";
 
-        return await mysql.simpleQuery(query, [matchId]);
+        return await simpleQuery(query, [matchId]);
     }
 
     async getMatchReturnsInteractiveData(matchId){
 
         const query = `SELECT flag_team,return_time,return_player,pos_x,pos_y,pos_z FROM nstats_ctf_returns WHERE match_id=? ORDER BY return_time DESC`;
 
-        return await mysql.simpleQuery(query, [matchId]);
+        return await simpleQuery(query, [matchId]);
     }
 
     filterFlagCovers(covers, team, start, end, bSelfCovers){
@@ -698,7 +698,7 @@ class CTF{
         WHERE match_id=? AND cap_id=-1
         ORDER BY timestamp ASC`;
 
-        return await mysql.simpleQuery(query, [matchId]);
+        return await simpleQuery(query, [matchId]);
     }
 
     filterFlagDeaths(deaths, returnData, startKey, endKey){
@@ -781,7 +781,7 @@ class CTF{
         const query = `SELECT grab_time,return_time,return_string,distance_to_cap,travel_time,carry_time,drop_time 
         FROM nstats_ctf_returns WHERE match_id=? AND return_player=?`;
 
-        return await mysql.simpleQuery(query, [matchId, playerId]);
+        return await simpleQuery(query, [matchId, playerId]);
     }
 
     filterByCapId(data, capId){
@@ -833,13 +833,13 @@ class CTF{
 
         const query = "INSERT INTO nstats_ctf_events (match_id, timestamp, player, event, team) VALUES ?";
 
-        return await mysql.bulkInsert(query, this.eventList);
+        return await bulkInsert(query, this.eventList);
     }
 
     async getMatchEvents(id){
 
         const query = "SELECT player,event,team,timestamp FROM nstats_ctf_events WHERE match_id=? ORDER BY timestamp ASC";
-        return await mysql.simpleQuery(query, [id]);
+        return await simpleQuery(query, [id]);
 
     }
 
@@ -904,7 +904,7 @@ class CTF{
 
         for(let i = 0; i < teams; i++){
 
-            const teamName = Functions.getTeamName(i);
+            const teamName = getTeamName(i);
 
             teamsCapData.push({"name": teamName, "values": [0], "lastValue": 0});
             teamsGrabData.push({"name": teamName, "values": [0], "lastValue": 0});
@@ -1085,7 +1085,7 @@ class CTF{
 
         const query = "SELECT COUNT(*) as total_flags FROM nstats_maps_flags WHERE map=? AND team=?";
 
-        const result = await mysql.simpleQuery(query, [map, team]);
+        const result = await simpleQuery(query, [map, team]);
 
         if(result[0].total_flags > 0) return true;
         return false;
@@ -1094,7 +1094,7 @@ class CTF{
     async insertFlagLocationQuery(map, team, position){
 
         const query = "INSERT INTO nstats_maps_flags VALUES(NULL,?,?,?,?,?)";
-        return await mysql.simpleQuery(query, [map, team, position.x, position.y, position.z]);
+        return await simpleQuery(query, [map, team, position.x, position.y, position.z]);
     }
 
     async insertFlagLocation(map, team, position){
@@ -1117,54 +1117,27 @@ class CTF{
     }
 
 
-    getFlagLocations(id){
+    async getFlagLocations(id){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT team,x,y,z FROM nstats_maps_flags WHERE map=?";
 
-            const query = "SELECT team,x,y,z FROM nstats_maps_flags WHERE map=?";
-
-            mysql.query(query, [id], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
+        return await simpleQuery(query, [id]);
     }
 
 
-    deleteMatchCapData(id){
+    async deleteMatchCapData(id){
 
-        return new Promise((resolve, reject) =>{
+        const query = "DELETE FROM nstats_ctf_caps WHERE match_id=?";
 
-            const query = "DELETE FROM nstats_ctf_caps WHERE match_id=?";
-
-            mysql.query(query, [id], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [id]);
     }
 
-    deleteMatchEvents(id){
+    async deleteMatchEvents(id){
 
-        return new Promise((resolve, reject) =>{
+        const query = "DELETE FROM nstats_ctf_events WHERE match_id=?";
 
-            const query = "DELETE FROM nstats_ctf_events WHERE match_id=?";
-
-            mysql.query(query, [id], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [id]);
+      
     }
 
     parseCapEvents(caps, removedPlayer){
@@ -1237,39 +1210,31 @@ class CTF{
 
     }
 
-    updateCap(data){
+    async updateCap(data){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = `UPDATE nstats_ctf_caps SET
-            grab=?,
-            drops=?,
-            pickups=?,
-            covers=?,
-            assists=?,
-            assist_carry_ids=?,
-            cap=?
-            WHERE id=?`;
+        const query = `UPDATE nstats_ctf_caps SET
+        grab=?,
+        drops=?,
+        pickups=?,
+        covers=?,
+        assists=?,
+        assist_carry_ids=?,
+        cap=?
+        WHERE id=?`;
 
 
-            const vars = [
-                data.grab,
-                data.drops.toString(),
-                data.pickups.toString(),
-                data.covers.toString(),
-                data.assists.toString(),
-                data.assist_carry_ids.toString(),
-                data.cap,
-                data.id
-            ];
+        const vars = [
+            data.grab,
+            data.drops.toString(),
+            data.pickups.toString(),
+            data.covers.toString(),
+            data.assists.toString(),
+            data.assist_carry_ids.toString(),
+            data.cap,
+            data.id
+        ];
 
-            mysql.query(query, vars, (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, vars);
     }
 
     async updateEvent(data, ignoredPlayer){
@@ -1277,25 +1242,25 @@ class CTF{
         if(data.player !== ignoredPlayer) return;
 
         const query = "DELETE FROM nstats_ctf_events WHERE id=?";
-        await mysql.simpleQuery(query, [data.id]);
+        await simpleQuery(query, [data.id]);
     }
 
     async deletePlayerMatchEvents(playerId, matchId){
 
         const query = "DELETE FROM nstats_ctf_events WHERE match_id=? AND player=?";
-        await mysql.simpleQuery(query, [matchId, playerId]);
+        await simpleQuery(query, [matchId, playerId]);
     }
 
     async deletePlayerMatchAssists(playerId, matchId){
 
         const query = `DELETE FROM nstats_ctf_assists WHERE player_id=? AND match_id=?`;
-        return await mysql.simpleQuery(query, [playerId, matchId]);
+        return await simpleQuery(query, [playerId, matchId]);
     }
 
     async removePlayerMatchAssists(playerId, matchId){
 
         const query = `UPDATE nstats_ctf_assists SET player_id=-1 WHERE player_id=? AND match_id=?`;
-        return await mysql.simpleQuery(query, [playerId, matchId]);
+        return await simpleQuery(query, [playerId, matchId]);
     }
 
     async removePlayerMatchCaps(playerId, matchId){
@@ -1304,13 +1269,13 @@ class CTF{
         grab_player = IF(grab_player = ?, -1, grab_player),
         cap_player = IF(cap_player = ?, -1, cap_player)
         WHERE match_id=?`;
-        return await mysql.simpleQuery(query, [playerId, playerId, matchId]);
+        return await simpleQuery(query, [playerId, playerId, matchId]);
     }
 
     async removePlayerMatchCarryTimes(playerId, matchId){
 
         const query = `UPDATE nstats_ctf_carry_times SET player_id=-1 WHERE player_id=? AND match_id=?`;
-        return await mysql.simpleQuery(query, [playerId, matchId]);
+        return await simpleQuery(query, [playerId, matchId]);
     }
 
     async removePlayerMatchCovers(playerId, matchId){
@@ -1320,13 +1285,13 @@ class CTF{
         victim_id = IF(victim_id = ?, -1, victim_id)
         WHERE match_id=?`;
 
-        return await mysql.simpleQuery(query, [playerId, playerId, matchId]);
+        return await simpleQuery(query, [playerId, playerId, matchId]);
     }
 
     async removePlayerMatchCRKills(playerId, matchId){
 
         const query = `UPDATE nstats_ctf_cr_kills SET player_id=-1 WHERE player_id=? AND match_id=?`;
-        return await mysql.simpleQuery(query, [playerId, matchId]);
+        return await simpleQuery(query, [playerId, matchId]);
     }
 
     async removePlayerMatchFlagDeaths(playerId, matchId){
@@ -1336,19 +1301,19 @@ class CTF{
         victim_id = IF(victim_id = ?, -1, victim_id)
         WHERE match_id=?`;
 
-        return await mysql.simpleQuery(query, [playerId, playerId, matchId]);
+        return await simpleQuery(query, [playerId, playerId, matchId]);
     }
 
     async removePlayerMatchFlagDrops(playerId, matchId){
 
         const query = `UPDATE nstats_ctf_flag_drops SET player_id=-1 WHERE player_id=? AND match_id=?`;
-        return await mysql.simpleQuery(query, [playerId, matchId]);
+        return await simpleQuery(query, [playerId, matchId]);
     }
 
     async removePlayerMatchFlagPickups(playerId, matchId){
 
         const query = `UPDATE nstats_ctf_flag_pickups SET player_id=-1 WHERE player_id=? AND match_id=?`;
-        return await mysql.simpleQuery(query, [playerId, matchId]);
+        return await simpleQuery(query, [playerId, matchId]);
     }
 
     async removePlayerMatchReturns(playerId, matchId){
@@ -1357,7 +1322,7 @@ class CTF{
         grab_player = IF(grab_player = ?, -1, grab_player),
         return_player = IF(return_player = ?, -1, return_player)
         WHERE match_id=?`;
-        return await mysql.simpleQuery(query, [playerId, playerId, matchId]);
+        return await simpleQuery(query, [playerId, playerId, matchId]);
     }
 
     async removePlayerMatchSeals(playerId, matchId){
@@ -1367,7 +1332,7 @@ class CTF{
         victim_id = IF(victim_id = ?, -1, victim_id)
         WHERE match_id=?`;
 
-        return await mysql.simpleQuery(query, [playerId, playerId, matchId]);
+        return await simpleQuery(query, [playerId, playerId, matchId]);
     }
 
     async removePlayerMatchSelfCovers(playerId, matchId){
@@ -1377,14 +1342,14 @@ class CTF{
         victim_id = IF(victim_id = ?, -1, victim_id)
         WHERE match_id=?`;
 
-        return await mysql.simpleQuery(query, [playerId, playerId, matchId]);
+        return await simpleQuery(query, [playerId, playerId, matchId]);
     }
 
     async deletePlayerMatchStats(playerId, matchId){
 
         const query = `DELETE FROM nstats_player_ctf_match WHERE player_id=? AND match_id=?`;
 
-        return await mysql.simpleQuery(query, [playerId, matchId]);
+        return await simpleQuery(query, [playerId, matchId]);
     }
     /**
      * 
@@ -1419,14 +1384,14 @@ class CTF{
 
     async getAllCapData(){
 
-        return await mysql.simpleFetch("SELECT * FROM nstats_ctf_caps");
+        return await simpleQuery("SELECT * FROM nstats_ctf_caps");
     }
 
     async getCapDataByMatchIds(ids){
 
         if(ids.length === 0) return [];
 
-        return await mysql.simpleFetch("SELECT * FROM nstats_ctf_caps WHERE match_id IN(?)",[ids]);
+        return await simpleQuery("SELECT * FROM nstats_ctf_caps WHERE match_id IN(?)",[ids]);
     }
 
 
@@ -1454,14 +1419,14 @@ class CTF{
             data.id
         ];
 
-        return await mysql.simpleUpdate(query, vars);
+        return await simpleQuery(query, vars);
     }
     
 
     
     async deletePlayerEvents(playerId){
 
-        await mysql.simpleDelete("DELETE FROM nstats_ctf_events WHERE player=?", [playerId]);
+        await simpleQuery("DELETE FROM nstats_ctf_events WHERE player=?", [playerId]);
     }
 
     bAnyCtfDataInMatch(playerMatchData){
@@ -1551,14 +1516,14 @@ class CTF{
         if(ids.length === 0) return;
         const query = "DELETE FROM nstats_ctf_caps WHERE match_id IN (?)";
 
-        await mysql.simpleDelete(query, [ids]);
+        await simpleQuery(query, [ids]);
     }
 
     async deleteMatchesEvents(ids){
 
         if(ids.length === 0) return;
 
-        await mysql.simpleDelete("DELETE FROM nstats_ctf_events WHERE match_id IN (?)", [ids]);
+        await simpleQuery("DELETE FROM nstats_ctf_events WHERE match_id IN (?)", [ids]);
     }
 
     async deleteMatches(ids){
@@ -1579,7 +1544,7 @@ class CTF{
         const query = `SELECT SUM(carry_time) as total_carry_time, SUM(carry_percent) as total_carry_percent 
         FROM nstats_ctf_carry_times WHERE cap_id=? AND player_id=?`;
 
-        const r = await mysql.simpleQuery(query, [capId, playerId]);
+        const r = await simpleQuery(query, [capId, playerId]);
 
         const totalCarryTime = (r[0].total_carry_time === null) ? 0 : r[0].total_carry_time; 
         const totalCarryPercent = (r[0].total_carry_percent === null) ? 0 : r[0].total_carry_percent; 
@@ -1592,7 +1557,7 @@ class CTF{
         const query = `SELECT id,cap_team,flag_team,grab_time,cap_time,travel_time,total_assists 
         FROM nstats_ctf_caps WHERE match_id=? AND cap_player=? ORDER BY cap_time ASC`;
 
-        const caps = await mysql.simpleQuery(query, [matchId, playerId]);
+        const caps = await simpleQuery(query, [matchId, playerId]);
 
         for(let i = 0; i < caps.length; i++){
             
@@ -1607,7 +1572,7 @@ class CTF{
 
         const query = "SELECT team,grab,cap,assists,travel_time,cap_time FROM nstats_ctf_caps WHERE match_id=? ORDER BY travel_time ASC";
 
-        const result = await mysql.simpleQuery(query, [matchId]);
+        const result = await simpleQuery(query, [matchId]);
 
         for(let i = 0; i < result.length; i++){
 
@@ -1621,7 +1586,7 @@ class CTF{
     async clearRecords(){
 
         const query = "DELETE FROM nstats_ctf_cap_records";
-        await mysql.simpleQuery(query);
+        await simpleQuery(query);
     }
 
 
@@ -1699,7 +1664,7 @@ class CTF{
             player.stats.ctfNew.soloCapture.bestLife,
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
 
@@ -1711,13 +1676,13 @@ class CTF{
         FROM 
         nstats_player_ctf_match WHERE match_id=?`;
 
-        return await mysql.simpleQuery(query, [matchId]);
+        return await simpleQuery(query, [matchId]);
     }
 
     async bMatchCTF(matchId){
  
         const query = `SELECT COUNT(*) as total_players FROM nstats_player_ctf_match WHERE match_id=?`;
-        const result = await mysql.simpleQuery(query, [matchId]);
+        const result = await simpleQuery(query, [matchId]);
 
         if(result[0].total_players > 0) return true;
 
@@ -1731,7 +1696,7 @@ class CTF{
 
         const query = "SELECT * FROM nstats_player_ctf_match WHERE match_id=? AND player_id IN(?)";
 
-        const result =  await mysql.simpleQuery(query, [matchId, playerIds]);
+        const result =  await simpleQuery(query, [matchId, playerIds]);
 
         const data = {};
 
@@ -1779,7 +1744,7 @@ class CTF{
 
         const query = "INSERT INTO nstats_ctf_cr_kills (match_id,match_date,map_id,cap_id,event_type,timestamp,player_id,player_team,total_events) VALUES ?";
 
-        await mysql.bulkInsert(query, this.crKills);
+        await bulkInsert(query, this.crKills);
     }
 
     /*async insertCRKills(eventType, matchId, matchDate, mapId, capId, timestamp, playerId, playerTeam, kills){
@@ -1788,7 +1753,7 @@ class CTF{
 
         const vars = [matchId, matchDate, mapId, capId, eventType, timestamp, playerId, playerTeam, kills];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }*/
 
     async getCapFragEvents(matchId, option){
@@ -1810,7 +1775,7 @@ class CTF{
         const query = `SELECT cap_id,event_type,timestamp,player_id,player_team,total_events 
         FROM nstats_ctf_cr_kills WHERE match_id=? ${extra} ORDER BY timestamp ASC`;
 
-        const result = await mysql.simpleQuery(query, [matchId]);
+        const result = await simpleQuery(query, [matchId]);
 
         const killsByTimestamp = {};
         const suicidesByTimestamp = {};
@@ -1835,7 +1800,7 @@ class CTF{
 
         const query = `SELECT COUNT(*) as total_matches FROM nstats_player_ctf_best WHERE player_id=? AND gametype_id=?`;
 
-        const result = await mysql.simpleQuery(query, [playerId, gametypeId]);
+        const result = await simpleQuery(query, [playerId, gametypeId]);
 
         if(result[0].total_matches > 0) return true;
 
@@ -1849,7 +1814,7 @@ class CTF{
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0)`;
 
-        return await mysql.simpleQuery(query, [playerId, gametypeId]);
+        return await simpleQuery(query, [playerId, gametypeId]);
     }
 
     async updatePlayerBestValues(playerId, gametypeId, stats){
@@ -1922,7 +1887,7 @@ class CTF{
             playerId, gametypeId
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
 
@@ -1930,7 +1895,7 @@ class CTF{
 
         const query = `SELECT COUNT(*) as total_matches FROM nstats_player_ctf_best_life WHERE player_id=? AND gametype_id=?`;
 
-        const result = await mysql.simpleQuery(query, [playerId, gametypeId]);
+        const result = await simpleQuery(query, [playerId, gametypeId]);
 
         if(result[0].total_matches > 0) return true;
 
@@ -1944,7 +1909,7 @@ class CTF{
             0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0)`;
 
-        return await mysql.simpleQuery(query, [playerId, gametypeId]);
+        return await simpleQuery(query, [playerId, gametypeId]);
     }
 
     async updatePlayerBestValuesSingleLife(playerId, gametypeId, stats){
@@ -2015,26 +1980,26 @@ class CTF{
             playerId, gametypeId
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
 
     async getPlayerTotals(playerId){
 
         const query = `SELECT * FROM nstats_player_ctf_totals WHERE player_id=? ORDER BY playtime DESC`;
-        return await mysql.simpleQuery(query, [playerId]);
+        return await simpleQuery(query, [playerId]);
     }
 
     async getPlayerBestValues(playerId){
 
         const query = `SELECT * FROM nstats_player_ctf_best WHERE player_id=?`;
-        return await mysql.simpleQuery(query, [playerId]);
+        return await simpleQuery(query, [playerId]);
     }
 
     async getPlayerBestSingleLifeValues(playerId){
 
         const query = `SELECT * FROM nstats_player_ctf_best_life WHERE player_id=?`;
-        return await mysql.simpleQuery(query, [playerId]);
+        return await simpleQuery(query, [playerId]);
     }
 
 
@@ -2042,7 +2007,7 @@ class CTF{
 
         const query = `SELECT COUNT(*) as total_records FROM nstats_ctf_cap_records WHERE map_id=? AND gametype_id=? AND cap_type=?`;
 
-        const result = await mysql.simpleQuery(query, [mapId, gametypeId, capType]);
+        const result = await simpleQuery(query, [mapId, gametypeId, capType]);
 
         if(result[0].total_records > 0) return true;
 
@@ -2053,14 +2018,14 @@ class CTF{
 
         const query = `INSERT INTO nstats_ctf_cap_records VALUES(NULL,?,?,?,?,?,?,?,?)`;
 
-        return await mysql.simpleQuery(query, [capId, mapId, gametypeId, matchId, travelTime, carryTime, dropTime, capType]);
+        return await simpleQuery(query, [capId, mapId, gametypeId, matchId, travelTime, carryTime, dropTime, capType]);
     }
 
     async getMapCurrentRecordTime(mapId, gametypeId, capType){
 
         const query = `SELECT travel_time FROM nstats_ctf_cap_records WHERE map_id=? AND gametype_id=? AND cap_type=?`;
 
-        const result = await mysql.simpleQuery(query, [mapId, gametypeId, capType]);
+        const result = await simpleQuery(query, [mapId, gametypeId, capType]);
 
         if(result.length > 0){
             return result[0].travel_time;
@@ -2085,7 +2050,7 @@ class CTF{
             capType
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async updateMapCapRecord(capId, mapId, matchId, gametypeId, capType, travelTime, carryTime, dropTime){
@@ -2122,7 +2087,7 @@ class CTF{
 
         const query = `SELECT * FROM nstats_ctf_cap_records WHERE gametype_id=?`;
 
-        const result = await mysql.simpleQuery(query, [gametypeId]);
+        const result = await simpleQuery(query, [gametypeId]);
 
         const soloCaps = [];
         const assistCaps = [];
@@ -2160,7 +2125,7 @@ class CTF{
 
         const query = `SELECT travel_time FROM nstats_ctf_cap_records WHERE gametype_id=? AND map_id=? AND cap_type=?`;
 
-        const result = await mysql.simpleQuery(query, [gametypeId, mapId, type]);
+        const result = await simpleQuery(query, [gametypeId, mapId, type]);
 
         if(result.length === 0) return 0;
 
@@ -2187,7 +2152,7 @@ class CTF{
         const vars = [mapId, start, perPage];
         if(gametypeId !== 0) vars.unshift(gametypeId);
 
-        const result = await mysql.simpleQuery(query, vars);
+        const result = await simpleQuery(query, vars);
 
         const capIds = new Set();
         const uniquePlayers = new Set();
@@ -2221,7 +2186,7 @@ class CTF{
             }
         }
 
-        const totalResults = await mysql.simpleQuery(totalsQuery, vars);
+        const totalResults = await simpleQuery(totalsQuery, vars);
         const overalMapRecord = await this.getMapFastestCapTime(gametypeId, mapId, (type === "solo") ? 0 : 1);
 
         return {
@@ -2240,7 +2205,7 @@ class CTF{
 
         const query = `SELECT * FROM nstats_ctf_caps WHERE id IN(?)`;
 
-        const result = await mysql.simpleQuery(query, [capIds]);
+        const result = await simpleQuery(query, [capIds]);
 
         const data = {};
 
@@ -2260,7 +2225,7 @@ class CTF{
         if(capIds.length === 0) return {"assists": {}, "uniquePlayers": []};
 
         const query = `SELECT cap_id,player_id FROM nstats_ctf_assists WHERE cap_id IN(?)`;
-        const result = await mysql.simpleQuery(query, [capIds]);
+        const result = await simpleQuery(query, [capIds]);
 
         const found = {};
 
@@ -2289,7 +2254,7 @@ class CTF{
         const start = page * perPage;
         const vars = [mapId, start, perPage];
 
-        const result = await mysql.simpleQuery(query, vars);
+        const result = await simpleQuery(query, vars);
 
         const playerIds = new Set();
 
@@ -2310,7 +2275,7 @@ class CTF{
         const start = page * perPage;
         const vars = [mapId, start, perPage];
 
-        const result = await mysql.simpleQuery(query, vars);
+        const result = await simpleQuery(query, vars);
 
         const playerIds = new Set();
 
@@ -2336,7 +2301,7 @@ class CTF{
 
         const query = (capType === "solo") ? soloQuery : assistQuery;
 
-        const result = await mysql.simpleQuery(query, [mapId]);
+        const result = await simpleQuery(query, [mapId]);
 
         return result[0].total_matches;
     }
@@ -2370,7 +2335,7 @@ class CTF{
 
         const query = `UPDATE nstats_ctf_assists SET player_id=? WHERE player_id=?`;
 
-        return await mysql.simpleQuery(query, [newId, oldId]);
+        return await simpleQuery(query, [newId, oldId]);
     }
 
     async changeCapPlayerIds(oldId, newId){
@@ -2384,7 +2349,7 @@ class CTF{
             oldId, newId
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async changeCarryPlayerIds(oldId, newId){
@@ -2392,7 +2357,7 @@ class CTF{
         const query = `UPDATE nstats_ctf_carry_times SET
         player_id = IF(player_id = ?, ?, player_id)`;
 
-        return await mysql.simpleQuery(query, [oldId, newId]);
+        return await simpleQuery(query, [oldId, newId]);
     }
 
     async changeCoverPlayerIds(oldId, newId){
@@ -2401,20 +2366,20 @@ class CTF{
         killer_id = IF(killer_id = ?, ?, killer_id),
         victim_id = IF(victim_id = ?, ?, victim_id)`;
 
-        return await mysql.simpleQuery(query, [oldId, newId, oldId, newId]);
+        return await simpleQuery(query, [oldId, newId, oldId, newId]);
     }
 
     async changeCapReturnKillPlayerIds(oldId, newId){
 
         const query = `UPDATE nstats_ctf_cr_kills SET player_id = IF(player_id = ?, ?, player_id)`;
 
-        return await mysql.simpleQuery(query, [oldId, newId]);
+        return await simpleQuery(query, [oldId, newId]);
     }
 
     async changeEventPlayerIds(oldId, newId){
 
         const query = `UPDATE nstats_ctf_events SET player = IF(player = ?, ?, player)`;
-        return await mysql.simpleQuery(query, [oldId, newId]);
+        return await simpleQuery(query, [oldId, newId]);
     }
 
     async changeFlagDeathPlayerIds(oldId, newId){
@@ -2423,7 +2388,7 @@ class CTF{
         killer_id = IF(killer_id = ?, ?, killer_id),
         victim_id = IF(victim_id = ?, ?, victim_id)`;
 
-        return await mysql.simpleQuery(query, [oldId, newId, oldId, newId]);
+        return await simpleQuery(query, [oldId, newId, oldId, newId]);
     }
 
     async changeFlagDropPlayerIds(oldId, newId){
@@ -2431,13 +2396,13 @@ class CTF{
         const query = `UPDATE nstats_ctf_flag_drops SET
         player_id = IF(player_id = ?, ?, player_id)`;
 
-        return await mysql.simpleQuery(query, [oldId, newId]);
+        return await simpleQuery(query, [oldId, newId]);
     }
 
     async changeFlagPickupsPlayerIds(oldId, newId){
 
         const query = `UPDATE nstats_ctf_flag_pickups SET player_id = IF(player_id = ?, ?, player_id)`;
-        return await mysql.simpleQuery(query, [oldId, newId]);
+        return await simpleQuery(query, [oldId, newId]);
     }
 
     async changeReturnPlayerIds(oldId, newId){
@@ -2446,7 +2411,7 @@ class CTF{
         grab_player = IF(grab_player = ?, ?, grab_player),
         return_player = IF(return_player = ?, ?, return_player)`;
 
-        return await mysql.simpleQuery(query, [oldId, newId, oldId, newId]);
+        return await simpleQuery(query, [oldId, newId, oldId, newId]);
     }
 
     async changeFlagSealsPlayerIds(oldId, newId){
@@ -2455,7 +2420,7 @@ class CTF{
         killer_id = IF(killer_id = ?, ?, killer_id),
         victim_id = IF(victim_id = ?, ?, victim_id)`;
 
-        return await mysql.simpleQuery(query, [oldId, newId, oldId, newId]);
+        return await simpleQuery(query, [oldId, newId, oldId, newId]);
     }
 
     async changeFlagSelfCoversPlayerIds(oldId, newId){
@@ -2464,7 +2429,7 @@ class CTF{
         killer_id = IF(killer_id = ?, ?, killer_id),
         victim_id = IF(victim_id = ?, ?, victim_id)`;
 
-        return await mysql.simpleQuery(query, [oldId, newId, oldId, newId]);
+        return await simpleQuery(query, [oldId, newId, oldId, newId]);
     }
     
 
@@ -2494,7 +2459,7 @@ class CTF{
             d.flag_self_cover_fail, d.best_single_self_cover, d.flag_solo_capture,
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
 
@@ -2532,7 +2497,7 @@ class CTF{
         FROM nstats_player_ctf_match
         WHERE player_id=?`;
 
-        const allTimeBest = await mysql.simpleQuery(query, [playerId]);
+        const allTimeBest = await simpleQuery(query, [playerId]);
 
         if(allTimeBest.length > 0){
             console.log(`Insert new best for player ${playerId} for gametype 0`);
@@ -2578,7 +2543,7 @@ class CTF{
         FROM nstats_player_ctf_match
         WHERE player_id=? GROUP BY gametype_id`;
 
-        const result = await mysql.simpleQuery(query, [playerId]);
+        const result = await simpleQuery(query, [playerId]);
 
         for(let i = 0; i < result.length; i++){
             console.log(`Insert new best for player ${playerId} for gametype ${result[i].gametype_id}`);
@@ -2591,7 +2556,7 @@ class CTF{
     async mergePlayerBest(oldId, newId){
 
         const query = "DELETE FROM nstats_player_ctf_best WHERE player_id IN (?)";
-        await mysql.simpleQuery(query, [newId, oldId]);
+        await simpleQuery(query, [newId, oldId]);
 
         await this.recalculatePlayerBest(newId);
     }
@@ -2615,7 +2580,7 @@ class CTF{
             d.flag_self_cover_fail, d.best_single_self_cover, d.flag_solo_capture,
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
 
@@ -2652,7 +2617,7 @@ class CTF{
         FROM nstats_player_ctf_match
         WHERE player_id=?`;
 
-        const result = await mysql.simpleQuery(query, [playerId]);
+        const result = await simpleQuery(query, [playerId]);
 
         if(result.length > 0){
             console.log(`Insert new best single life for player ${playerId} for gametype 0`);
@@ -2698,7 +2663,7 @@ class CTF{
         FROM nstats_player_ctf_match
         WHERE player_id=? GROUP BY gametype_id`;
 
-        const result = await mysql.simpleQuery(query, [playerId]);
+        const result = await simpleQuery(query, [playerId]);
 
         for(let i = 0; i < result.length; i++){
             console.log(`isnert new best single life for player ${playerId} for gametype ${result[i].gametype_id}`);
@@ -2713,7 +2678,7 @@ class CTF{
     async mergePlayerBestLife(oldId, newId){
 
         const query = "DELETE FROM nstats_player_ctf_best_life WHERE player_id IN (?)";
-        await mysql.simpleQuery(query, [newId, oldId]);
+        await simpleQuery(query, [newId, oldId]);
 
         await this.recalculatePlayerBestLife(newId);
     }
@@ -2742,7 +2707,7 @@ class CTF{
             d.flag_solo_capture
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async recalculatePlayerTotalsAllTime(newId){
@@ -2781,7 +2746,7 @@ class CTF{
         FROM nstats_player_ctf_match
         WHERE player_id=?`
 
-        const result = await mysql.simpleQuery(query, [newId]);
+        const result = await simpleQuery(query, [newId]);
 
         if(result.length > 0){
             console.log(`Inserting new playe rtotal for player ${newId} for gametype ${0}`);
@@ -2795,7 +2760,7 @@ class CTF{
 
         const deleteQuery = `DELETE FROM nstats_player_ctf_totals WHERE player_id IN (?)`;
 
-        await mysql.simpleQuery(deleteQuery, [[oldId, newId]]);
+        await simpleQuery(deleteQuery, [[oldId, newId]]);
 
 
         const query = `SELECT
@@ -2834,7 +2799,7 @@ class CTF{
         WHERE player_id=? GROUP BY gametype_id`
 
 
-        const result = await mysql.simpleQuery(query, [newId]);
+        const result = await simpleQuery(query, [newId]);
 
         for(let i = 0; i < result.length; i++){
 
@@ -2850,7 +2815,7 @@ class CTF{
 
         const query = `SELECT COUNT(*) as total_entries, match_id FROM nstats_player_ctf_match WHERE player_id=? GROUP BY match_id ORDER BY total_entries DESC`;
 
-        const result = await mysql.simpleQuery(query, [playerId]);
+        const result = await simpleQuery(query, [playerId]);
 
         const duplicateIds = [];
 
@@ -2924,7 +2889,7 @@ class CTF{
         FROM nstats_player_ctf_match
         WHERE player_id=? AND match_id=?`;
 
-        const result = await mysql.simpleQuery(query, [playerId, matchId]);
+        const result = await simpleQuery(query, [playerId, matchId]);
 
         if(result.length > 0) return result[0];
 
@@ -2935,7 +2900,7 @@ class CTF{
 
         const query = `DELETE FROM nstats_player_ctf_match WHERE match_id=? AND player_id=?`;
 
-        return await mysql.simpleQuery(query, [matchId, playerId]);
+        return await simpleQuery(query, [matchId, playerId]);
     }
 
     async insertPlayerMatchDataFromMerge(matchId, playerId, data){
@@ -2975,13 +2940,13 @@ class CTF{
             d.flag_solo_capture, d.flag_solo_capture_best
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async mergePlayerMatchData(oldId, newId, matchManager){
 
         const query = `UPDATE nstats_player_ctf_match SET player_id=? WHERE player_id=?`;
-        await mysql.simpleQuery(query, [newId, oldId]);
+        await simpleQuery(query, [newId, oldId]);
 
         const duplicateMatchIds = await this.getDuplicatePlayerMatchIds(newId);
 
@@ -3038,13 +3003,13 @@ class CTF{
 
         const query = `INSERT INTO nstats_ctf_flag_pickups (match_id, match_date, map_id, cap_id, timestamp, player_id, player_team, flag_team) VALUES ?`;
 
-        return await mysql.bulkInsert(query, vars);
+        return await bulkInsert(query, vars);
     }
 
     async bulkInsertSelfCovers(vars){
 
         const query = `INSERT INTO nstats_ctf_self_covers (match_id, match_date, map_id, cap_id, timestamp, killer_id, killer_team, victim_id) VALUES ?`;
-        return await mysql.bulkInsert(query, vars);
+        return await bulkInsert(query, vars);
     }
 
 
@@ -3054,7 +3019,7 @@ class CTF{
 
         const query = `SELECT id,grab_player,cap_player FROM nstats_ctf_caps WHERE id IN(?)`;
 
-        const result = await mysql.simpleQuery(query, [capIds]);
+        const result = await simpleQuery(query, [capIds]);
 
         const data = {};
 
@@ -3077,13 +3042,13 @@ class CTF{
 
         const query = `UPDATE nstats_ctf_caps SET gametype_id=? WHERE gametype_id=?`;
 
-        return await mysql.simpleQuery(query, [newId, oldId]);
+        return await simpleQuery(query, [newId, oldId]);
     }
 
     async changeCapRecordTableGametypes(oldId, newId){
 
         const query = `UPDATE nstats_ctf_cap_records SET gametype_id=? WHERE gametype_id=?`;
-        return await mysql.simpleQuery(query, [newId, oldId]);
+        return await simpleQuery(query, [newId, oldId]);
     }
 
 
@@ -3091,7 +3056,7 @@ class CTF{
 
         const query = `SELECT map_id,COUNT(*) as total_records FROM nstats_ctf_cap_records WHERE gametype_id=? AND cap_type=? GROUP BY map_id`;
 
-        const result = await mysql.simpleQuery(query, [gametype, capType]);
+        const result = await simpleQuery(query, [gametype, capType]);
    
         const data = [];
 
@@ -3117,7 +3082,7 @@ class CTF{
 
         const query = `SELECT id FROM nstats_ctf_cap_records WHERE gametype_id=? AND map_id=? AND cap_type=? ORDER BY travel_time ASC LIMIT 1`;
 
-        const result = await mysql.simpleQuery(query, [gametypeId, mapId, capType]);
+        const result = await simpleQuery(query, [gametypeId, mapId, capType]);
 
         if(result.length > 0){
             return result[0].id;
@@ -3138,7 +3103,7 @@ class CTF{
 
         const query = `DELETE FROM nstats_ctf_cap_records WHERE gametype_id=? AND map_id=? AND cap_type=? AND id!=?`;
 
-        return await mysql.simpleQuery(query, [gametypeId, mapId, capType, ignoreId]);
+        return await simpleQuery(query, [gametypeId, mapId, capType, ignoreId]);
     }
 
     async fixDuplicateMapCapRecordsOfType(gametypeId, capType){
@@ -3172,7 +3137,7 @@ class CTF{
 
         const query = `UPDATE nstats_player_ctf_best SET gametype_id=? WHERE gametype_id=?`;
 
-        return await mysql.simpleQuery(query, [newId, oldId]);
+        return await simpleQuery(query, [newId, oldId]);
     }
 
     async getDuplicatePlayerBestRecordIds(gametypeId, bBestLife){
@@ -3183,7 +3148,7 @@ class CTF{
 
         const query = `SELECT player_id,COUNT(*) total_results FROM ${tableName} WHERE gametype_id=? GROUP BY player_id`;
 
-        const result = await mysql.simpleQuery(query, [gametypeId]);
+        const result = await simpleQuery(query, [gametypeId]);
 
         const duplicates = [];
 
@@ -3206,7 +3171,7 @@ class CTF{
 
         const query = `DELETE FROM ${table} WHERE player_id=? AND gametype_id=?`;
 
-        return await mysql.simpleQuery(query, [playerId, gametypeId]);
+        return await simpleQuery(query, [playerId, gametypeId]);
     }
 
     async fixDuplicatePlayerBestRecords(playerId, gametypeId, bBestLife){
@@ -3248,7 +3213,7 @@ class CTF{
         MAX(flag_solo_capture) as flag_solo_capture
         FROM ${table} WHERE player_id=? AND gametype_id=?`;
 
-        const result = await mysql.simpleQuery(query, [playerId, gametypeId]);
+        const result = await simpleQuery(query, [playerId, gametypeId]);
 
         if(result.length === 0){
             new Message(`ctf.fixDuplicatePlayerBestRecords result is empty, bBestLife = ${bBestLife}`,"error");
@@ -3294,14 +3259,14 @@ class CTF{
 
         const query = `UPDATE nstats_player_ctf_match SET gametype_id=? WHERE gametype_id=?`;
 
-        return await mysql.simpleQuery(query, [newId, oldId]);
+        return await simpleQuery(query, [newId, oldId]);
     }
 
     async debugGetTotalsColumnNames(){
 
         const query = `SHOW COLUMNS FROM nstats_player_ctf_totals`;
 
-        const result = await mysql.simpleQuery(query);
+        const result = await simpleQuery(query);
 
         return result.map((c) =>{
             return c.Field;
@@ -3312,14 +3277,14 @@ class CTF{
 
         const query = `UPDATE nstats_player_ctf_totals SET gametype_id=? WHERE gametype_id=?`;
 
-        return await mysql.simpleQuery(query, [newId, oldId]);
+        return await simpleQuery(query, [newId, oldId]);
     }
 
     async getDuplicateTotalIds(gametypeId){
 
         const query = `SELECT player_id,COUNT(*) as total_results FROM nstats_player_ctf_totals WHERE gametype_id=? GROUP BY player_id`;
 
-        const result = await mysql.simpleQuery(query, [gametypeId]);
+        const result = await simpleQuery(query, [gametypeId]);
 
         const duplicates = [];
 
@@ -3339,14 +3304,14 @@ class CTF{
 
         const query = `DELETE FROM nstats_player_ctf_totals WHERE player_id=? AND gametype_id=?`;
 
-        return await mysql.simpleQuery(query, [playerId, gametypeId]);
+        return await simpleQuery(query, [playerId, gametypeId]);
     }
 
     async deletePlayerTotalDataAllGametypes(playerId){
 
         const query = `DELETE FROM nstats_player_ctf_totals WHERE player_id=?`;
 
-        return await mysql.simpleQuery(query, [playerId]);
+        return await simpleQuery(query, [playerId]);
     }
 
     async mergeTotals(gametypeId){
@@ -3390,7 +3355,7 @@ class CTF{
 
             const playerId = duplicatePlayerIds[i];
 
-            const result = await mysql.simpleQuery(query, [playerId, gametypeId]);
+            const result = await simpleQuery(query, [playerId, gametypeId]);
 
             if(result.length === 0){
                 new Message(`CTF.mergeTotals(${gametypeId}) playerId ${playerId} result = null`,"error");
@@ -3424,7 +3389,7 @@ class CTF{
 
         const query = `SELECT * FROM nstats_ctf_cap_records WHERE map_id=? AND gametype_id=? AND cap_type=? ORDER BY travel_time DESC LIMIT 1`;
 
-        const result = await mysql.simpleQuery(query, [mapId, gametypeId, capType]);
+        const result = await simpleQuery(query, [mapId, gametypeId, capType]);
 
         if(result.length === 0) return null;
 
@@ -3442,7 +3407,7 @@ class CTF{
 
         const query = `DELETE FROM nstats_ctf_cap_records WHERE map_id=? AND gametype_id=? AND cap_type=? AND id!=?`;
 
-        return await mysql.simpleQuery(query, [mapId, gametypeId, capType, rowId]);
+        return await simpleQuery(query, [mapId, gametypeId, capType, rowId]);
 
     }
 
@@ -3450,7 +3415,7 @@ class CTF{
 
         const query = `SELECT COUNT(*) as total_entries,cap_type,gametype_id FROM nstats_ctf_cap_records WHERE map_id=? GROUP BY cap_type,gametype_id`;
 
-        const result = await mysql.simpleQuery(query, [mapId]);
+        const result = await simpleQuery(query, [mapId]);
 
         for(let i = 0; i < result.length; i++){
 
@@ -3469,7 +3434,7 @@ class CTF{
 
         const getQuery = `SELECT MIN(id) as id, team, COUNT(*) as total_entries FROM nstats_maps_flags WHERE map=? GROUP BY team`;
 
-        const getResult = await mysql.simpleQuery(getQuery, [mapId]);
+        const getResult = await simpleQuery(getQuery, [mapId]);
 
         const cleanResult = getResult.filter((r) =>{
             return r.total_entries > 1;
@@ -3483,7 +3448,7 @@ class CTF{
 
             const r = cleanResult[i];
 
-            await mysql.simpleQuery(deleteQuery, [mapId, r.team, r.id]);
+            await simpleQuery(deleteQuery, [mapId, r.team, r.id]);
         }
     }
 
@@ -3514,7 +3479,7 @@ class CTF{
             const t = tables[i];
 
             const query = `UPDATE nstats_${t} SET map_id=? WHERE map_id=?`;
-            await mysql.simpleQuery(query, [newId, oldId]);
+            await simpleQuery(query, [newId, oldId]);
         }
 
         await this.mapMergeDeleteDuplicateMapCapRecords(newId);
@@ -3524,7 +3489,7 @@ class CTF{
 
         const flagQuery = `UPDATE nstats_maps_flags SET map=? WHERE map=?`;
 
-        await mysql.simpleQuery(flagQuery, [newId, oldId]);
+        await simpleQuery(flagQuery, [newId, oldId]);
 
         await this.deleteDuplicateMapFlags(newId);
 
@@ -3534,7 +3499,7 @@ class CTF{
 
         const query = `SELECT * FROM nstats_maps_flags WHERE map=?`;
 
-        return await mysql.simpleQuery(query, [mapId]);
+        return await simpleQuery(query, [mapId]);
     }
 
 
@@ -3562,7 +3527,7 @@ class CTF{
             vars.push(playerId);
         }
 
-        const result = await mysql.simpleQuery(query, vars);
+        const result = await simpleQuery(query, vars);
 
         const data = {};
 
@@ -3606,6 +3571,3 @@ class CTF{
         return data;
     }
 }
-
-
-module.exports = CTF;

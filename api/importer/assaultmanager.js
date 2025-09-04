@@ -1,7 +1,7 @@
-const Assault = require('../assault');
-const Message = require('../message');
+import Assault from "../assault.js";
+import Message from "../message.js";
 
-class AssaultManager{
+export default class AssaultManager{
 
     constructor(){
 
@@ -211,6 +211,3 @@ class AssaultManager{
         }
     }
 }
-
-
-module.exports = AssaultManager;

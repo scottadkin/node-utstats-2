@@ -1,5 +1,5 @@
-const mysql = require('./database');
-const Message = require('./message');
+import { simpleQuery } from "./database.js";
+import Message from "./message.js";
 const CTF = require('./ctf');
 const Assault = require('./assault');
 const Domination = require('./domination');
@@ -18,7 +18,7 @@ const Voices = require('./voices');
 const Winrate = require('./winrate');
 const fs = require('fs');
 
-class Gametypes{
+export default class Gametypes{
 
     constructor(){
 
@@ -28,7 +28,7 @@ class Gametypes{
     async bExists(name){
 
         const query = `SELECT COUNT(*) as total_matches FROM nstats_gametypes WHERE name=?`;
-        const result = await mysql.simpleQuery(query, [name]);
+        const result = await simpleQuery(query, [name]);
 
         if(result[0].total_matches > 0) return true;
         return false;
@@ -41,7 +41,7 @@ class Gametypes{
         if(await this.bExists(name)) throw new Error("Gametype already exists");
 
         const query = "INSERT INTO nstats_gametypes VALUES(NULL,?,0,0,0,0,0)";
-        const result = await mysql.simpleQuery(query, [name]);
+        const result = await simpleQuery(query, [name]);
 
         return result.insertId;
     }
@@ -98,7 +98,7 @@ class Gametypes{
 
         const query = `SELECT COUNT(*) as total_matches FROM nstats_gametypes WHERE id=?`;
 
-        const result = await mysql.simpleQuery(query, [id]);
+        const result = await simpleQuery(query, [id]);
 
         return result[0].total_matches !== 0;
     }
@@ -182,7 +182,7 @@ class Gametypes{
 
         const query = "SELECT name FROM nstats_gametypes WHERE id=?";
 
-        const result = await mysql.simpleQuery(query, [id]);
+        const result = await simpleQuery(query, [id]);
 
         if(result.length > 0){
             return result[0].name;
@@ -197,7 +197,7 @@ class Gametypes{
 
         const query = "SELECT id,name FROM nstats_gametypes WHERE id IN(?)";
 
-        const result = await mysql.simpleQuery(query, [ids]);
+        const result = await simpleQuery(query, [ids]);
 
         const data = {"0": "Combined"};
 
@@ -219,7 +219,7 @@ class Gametypes{
         const query = "SELECT id,name FROM nstats_gametypes ORDER BY name ASC";
      
         
-        const result = await mysql.simpleQuery(query);
+        const result = await simpleQuery(query);
         
         const data = {};
 
@@ -270,7 +270,7 @@ class Gametypes{
     
         const query = `SELECT * FROM nstats_gametypes ORDER BY name ASC`;
         
-        return await mysql.simpleQuery(query);
+        return await simpleQuery(query);
     }
 
 
@@ -278,7 +278,7 @@ class Gametypes{
 
         try{
 
-            const result = await mysql.simpleFetch("SELECT COUNT(*) as same_names FROM nstats_gametypes WHERE name=?", [name]);
+            const result = await simpleQuery("SELECT COUNT(*) as same_names FROM nstats_gametypes WHERE name=?", [name]);
 
             if(result[0].same_names > 0) return true;
 
@@ -305,21 +305,21 @@ class Gametypes{
 
     async changeMatchGametypes(oldId, newId){
 
-        await mysql.simpleUpdate("UPDATE nstats_matches SET gametype=? WHERE gametype=?", [newId, oldId]);
+        await simpleQuery("UPDATE nstats_matches SET gametype=? WHERE gametype=?", [newId, oldId]);
     }
 
     async changePlayerMatchGametypes(oldId, newId){
-        await mysql.simpleUpdate("UPDATE nstats_player_matches SET gametype=? WHERE gametype=?", [newId, oldId]);
+        await simpleQuery("UPDATE nstats_player_matches SET gametype=? WHERE gametype=?", [newId, oldId]);
     }
 
     async changePlayerTotalsGametype(oldId, newId){
 
-        await mysql.simpleUpdate("UPDATE nstats_player_totals SET gametype=? WHERE gametype=?", [newId, oldId]);
+        await simpleQuery("UPDATE nstats_player_totals SET gametype=? WHERE gametype=?", [newId, oldId]);
     }
 
     async getOldIdPlayerGametypeTotals(oldId){
 
-        return await mysql.simpleFetch("SELECT * FROM nstats_player_totals WHERE gametype=?", [oldId]);
+        return await simpleQuery("SELECT * FROM nstats_player_totals WHERE gametype=?", [oldId]);
     }
 
     async mergePlayerGametypeTotals(data, newId){
@@ -466,7 +466,7 @@ class Gametypes{
                     newId
                 ];
 
-                await mysql.simpleUpdate(query, vars);
+                await simpleQuery(query, vars);
             }
 
         }catch(err){
@@ -476,13 +476,13 @@ class Gametypes{
 
     async deleteGametypePlayerTotals(oldId){
 
-        await mysql.simpleDelete("DELETE FROM nstats_player_totals WHERE gametype=?", [oldId]);
+        await simpleQuery("DELETE FROM nstats_player_totals WHERE gametype=?", [oldId]);
     }
 
 
     async getWeaponTotals(id){
 
-        return await mysql.simpleFetch("SELECT * FROM nstats_player_weapon_totals WHERE gametype=?", [id]);
+        return await simpleQuery("SELECT * FROM nstats_player_weapon_totals WHERE gametype=?", [id]);
     }
 
 
@@ -529,7 +529,7 @@ class Gametypes{
             ];
 
 
-            await mysql.simpleUpdate(query, vars);
+            await simpleQuery(query, vars);
 
         }catch(err){
             console.trace(err);
@@ -580,7 +580,7 @@ class Gametypes{
 
     async deleteGametype(id){
 
-        await mysql.simpleDelete("DELETE FROM nstats_gametypes WHERE id=?", [id]);
+        await simpleQuery("DELETE FROM nstats_gametypes WHERE id=?", [id]);
 
     }
 
@@ -671,7 +671,7 @@ class Gametypes{
         WHERE gametype=?
         GROUP BY player_id${(bSeparateByMap) ? ",map_id" : ""}`;
 
-        const result = await mysql.simpleQuery(query, [gametypeId]);  
+        const result = await simpleQuery(query, [gametypeId]);  
 
         if(bSeparateByMap) return result;
         
@@ -684,7 +684,7 @@ class Gametypes{
 
         const query = `DELETE FROM nstats_player_totals WHERE gametype=?`;
 
-        return await mysql.simpleQuery(query, [gametypeId]);
+        return await simpleQuery(query, [gametypeId]);
     }
 
     
@@ -768,7 +768,7 @@ class Gametypes{
 
 
     async delete(id){
-        await mysql.simpleDelete("DELETE FROM nstats_gametypes WHERE id=?", [id]);
+        await simpleQuery("DELETE FROM nstats_gametypes WHERE id=?", [id]);
     }
 
 
@@ -996,7 +996,7 @@ class Gametypes{
 
         const query = "SELECT * FROM nstats_player_matches WHERE gametype=? ORDER BY match_date ASC";
 
-        return await mysql.simpleQuery(query, [gametypeId]);
+        return await simpleQuery(query, [gametypeId]);
     }
 
     async getDropDownOptions(){
@@ -1030,7 +1030,7 @@ class Gametypes{
 
             const query = `SELECT auto_merge_id FROM nstats_gametypes WHERE id=?`;
 
-            const result = await mysql.simpleQuery(query, [currentGametype]);
+            const result = await simpleQuery(query, [currentGametype]);
 
             if(result.length === 0) return currentGametype;
 
@@ -1062,7 +1062,7 @@ class Gametypes{
 
         const query = `UPDATE nstats_gametypes SET auto_merge_id=? WHERE id=?`;
 
-        const result = await mysql.simpleQuery(query, [masterGametype, targetGametype]);
+        const result = await simpleQuery(query, [masterGametype, targetGametype]);
 
         if(result.affectedRows > 0) return true;
         return false;
@@ -1085,5 +1085,3 @@ class Gametypes{
 
     }
 }
-
-module.exports = Gametypes;

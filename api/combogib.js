@@ -1,6 +1,6 @@
-const mysql = require("./database");
+import { bulkInsert, simpleQuery } from "./database.js";
 
-class Combogib{
+export default class Combogib{
 
     constructor(){}
 
@@ -18,7 +18,7 @@ class Combogib{
             best_single_insane, best_primary_spree, best_shockball_spree, best_combo_spree, 
             best_insane_spree) VALUES ?`;
         
-        return await mysql.bulkInsert(query, vars);
+        return await bulkInsert(query, vars);
     }
 
 
@@ -34,7 +34,7 @@ class Combogib{
 
         FROM nstats_match_combogib WHERE match_id=?`;
 
-        return await mysql.simpleQuery(query, [matchId]);
+        return await simpleQuery(query, [matchId]);
     }
 
 
@@ -49,7 +49,7 @@ class Combogib{
         insane_deaths,insane_efficiency,insane_kpm,best_insane_spree,best_single_insane
         FROM nstats_match_combogib WHERE match_id=? AND player_id=?`;
 
-        const result = await mysql.simpleQuery(query, [matchId, playerId]);
+        const result = await simpleQuery(query, [matchId, playerId]);
         
         if(result.length > 0){
 
@@ -68,7 +68,7 @@ class Combogib{
 
         const query = "SELECT player_id,match_id,MAX(combo_kills) as combo_kills FROM nstats_match_combogib WHERE map_id=? AND combo_kills>0 GROUP BY player_id ORDER BY combo_kills DESC LIMIT ?";
 
-        console.log(await mysql.simpleQuery(query, [mapId, limit]));
+        console.log(await simpleQuery(query, [mapId, limit]));
     }
     
     async getMapRecordDetails(playerId, mapId, type, value){
@@ -77,7 +77,7 @@ class Combogib{
 
             const query = `SELECT match_id,playtime FROM nstats_match_combogib WHERE player_id=? AND ${type}=? AND map_id=? LIMIT 1`;
 
-            const result = await mysql.simpleQuery(query, [playerId, value, mapId]);
+            const result = await simpleQuery(query, [playerId, value, mapId]);
 
             if(result.length > 0){
                 return result[0];
@@ -106,7 +106,7 @@ class Combogib{
             const query = `SELECT player_id,MAX(${recordType}) as best_value FROM nstats_match_combogib WHERE ${recordType}>0 AND map_id=?
             GROUP BY player_id ORDER BY best_value DESC LIMIT ?,?`;
 
-            const result =  await mysql.simpleQuery(query, [mapId, start, perPage]);
+            const result =  await simpleQuery(query, [mapId, start, perPage]);
             
 
             for(let i = 0; i < result.length; i++){
@@ -135,7 +135,7 @@ class Combogib{
 
             const query = `SELECT COUNT(DISTINCT player_id) as unique_players FROM nstats_match_combogib WHERE ${recordType}>0 AND map_id=?`;
 
-            const result = await mysql.simpleQuery(query, [mapId]);
+            const result = await simpleQuery(query, [mapId]);
 
             if(result.length > 0){
                 return result[0].unique_players;
@@ -153,7 +153,7 @@ class Combogib{
 
         const query = "SELECT COUNT(*) as total_rows FROM nstats_map_combogib WHERE map_id=? AND gametype_id=?";
 
-        const result = await mysql.simpleQuery(query, [mapId, gametypeId]);
+        const result = await simpleQuery(query, [mapId, gametypeId]);
 
         if(result.length > 0){
             if(result[0].total_rows > 0) return true;
@@ -202,7 +202,7 @@ class Combogib{
             primary.mostKills, primary.mostKillsPlayerId, matchId,
         ];
 
-        await mysql.simpleQuery(query, vars);
+        await simpleQuery(query, vars);
     }
 
     async updateMapTotalTable(mapId, gametypeId, matchId, playtime, combos, shockBalls, primary, insane){
@@ -322,7 +322,7 @@ class Combogib{
             mapId, gametypeId
         ];
 
-        await mysql.simpleQuery(query, vars);
+        await simpleQuery(query, vars);
     }
 
     async updateMapTotals(mapId, gametypeId, matchId, playtime, combos, shockBalls, primary, insane){
@@ -346,7 +346,7 @@ class Combogib{
 
         const query = "SELECT * FROM nstats_map_combogib WHERE map_id=? AND gametype_id=?";
 
-        const result = await mysql.simpleQuery(query, [mapId, gametypeId]);
+        const result = await simpleQuery(query, [mapId, gametypeId]);
 
         if(result.length > 0){
 
@@ -361,7 +361,7 @@ class Combogib{
 
         const query = `INSERT INTO nstats_player_combogib VALUES(NULL,?,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)`;
 
-        return await mysql.simpleQuery(query, [playerId, gametypeId, mapId]);
+        return await simpleQuery(query, [playerId, gametypeId, mapId]);
     }
 
 
@@ -369,7 +369,7 @@ class Combogib{
 
         const query = "SELECT COUNT(*) as total_matches FROM nstats_player_combogib WHERE player_id=? AND gametype_id=? AND map_id=?";
 
-        const result = await mysql.simpleQuery(query, [playerId, gametypeId, mapId]);
+        const result = await simpleQuery(query, [playerId, gametypeId, mapId]);
 
         if(result[0].total_matches > 0) return true;
 32
@@ -477,7 +477,7 @@ class Combogib{
         ];
 
 
-        await mysql.simpleQuery(query, vars);
+        await simpleQuery(query, vars);
 
         if(gametypeId !== 0){
             await this.updatePlayerTotals(playerId, 0, 0, matchId, playtime, combos, insane, shockBalls, primary);
@@ -494,7 +494,7 @@ class Combogib{
 
         const query = `SELECT * FROM nstats_player_combogib WHERE player_id=? AND gametype_id=0 AND map_id=0`;
 
-        const result = await mysql.simpleQuery(query, [playerId]);
+        const result = await simpleQuery(query, [playerId]);
 
         if(result.length > 0){
             return result[0];
@@ -612,7 +612,7 @@ class Combogib{
 
             const vars = [start, perPage];
 
-            return await mysql.simpleQuery(query, vars);
+            return await simpleQuery(query, vars);
             
         }else{
             throw new Error(`${recordType} is not a valid type for player match combogib records.`);
@@ -624,7 +624,7 @@ class Combogib{
 
         const query = "SELECT COUNT(DISTINCT player_id) as total_rows FROM nstats_player_combogib WHERE map_id=0 AND gametype_id=0";
 
-        const result = await mysql.simpleQuery(query);
+        const result = await simpleQuery(query);
 
         return result[0].total_rows;
     }
@@ -633,7 +633,7 @@ class Combogib{
 
         const query = "SELECT COUNT(*) as total_rows FROM nstats_match_combogib";
 
-        const result = await mysql.simpleQuery(query);
+        const result = await simpleQuery(query);
 
         return result[0].total_rows;
     }
@@ -659,7 +659,7 @@ class Combogib{
             
             const vars = [start, perPage];
 
-            return await mysql.simpleQuery(query, vars);
+            return await simpleQuery(query, vars);
 
         }else{
             throw new Error(`${recordType} is not a valid record type.`);
@@ -672,7 +672,7 @@ class Combogib{
         
         const query = `SELECT * FROM nstats_player_combogib WHERE player_id=?`;
 
-        return await mysql.simpleQuery(query, [playerId]);
+        return await simpleQuery(query, [playerId]);
         
     }
 
@@ -680,7 +680,7 @@ class Combogib{
 
         const query = `SELECT * FROM nstats_match_combogib WHERE player_id=? AND match_id`;
 
-        const result = await mysql.simpleQuery(query, [playerId, matchId]);
+        const result = await simpleQuery(query, [playerId, matchId]);
 
         if(result.length > 0) return result[0];
 
@@ -770,7 +770,7 @@ class Combogib{
             d.gametype_id, d.map_id
         ];
 
-        await mysql.simpleQuery(query, vars);
+        await simpleQuery(query, vars);
     }
 
     async getMapBestValues(mapId){
@@ -789,7 +789,7 @@ class Combogib{
         max_shockball_kills, max_shockball_kills_player_id ,max_combo_kills_match_id
         FROM nstats_map_combogib WHERE map_id=?`;
 
-        return await mysql.simpleQuery(query, [mapId]);
+        return await simpleQuery(query, [mapId]);
     }
 
     getValidBestColumns(){
@@ -823,7 +823,7 @@ class Combogib{
         const query = `SELECT player_id,${c} as best_value,${c}_match_id as match_id
         FROM nstats_player_combogib WHERE gametype_id=? AND map_id=? ORDER BY best_value DESC LIMIT 1`;
         
-        const result = await mysql.simpleQuery(query, [gametypeId, mapId]);
+        const result = await simpleQuery(query, [gametypeId, mapId]);
 
         if(result.length > 0) return result[0];
 
@@ -843,14 +843,14 @@ class Combogib{
 
         const query = `UPDATE nstats_map_combogib SET ${c}=?, ${c}_player_id=?, ${c}_match_id=? WHERE map_id=? AND gametype_id=?`;
 
-        await mysql.simpleQuery(query, [value, valuePlayerId, valueMatchId, mapId, gametypeId]);
+        await simpleQuery(query, [value, valuePlayerId, valueMatchId, mapId, gametypeId]);
     }
 
     async getUniqueMapGametypes(mapId){
 
         const query = "SELECT DISTINCT gametype_id FROM nstats_map_combogib WHERE map_id=? AND gametype_id!=0";
 
-        const result = await mysql.simpleQuery(query, [mapId]);
+        const result = await simpleQuery(query, [mapId]);
 
         const found = [0];
 
@@ -896,14 +896,14 @@ class Combogib{
 
         const query = "DELETE FROM nstats_match_combogib WHERE player_id=?";
 
-        await mysql.simpleQuery(query, [playerId]);
+        await simpleQuery(query, [playerId]);
     }
 
     async deletePlayerTotalData(playerId){
         
         const query = "DELETE FROM nstats_player_combogib WHERE player_id=?";
 
-        await mysql.simpleQuery(query, [playerId]);
+        await simpleQuery(query, [playerId]);
     }
 
     async deletePlayer(playerId){
@@ -950,7 +950,7 @@ class Combogib{
 
         const query = "DELETE FROM nstats_match_combogib WHERE player_id=? AND match_id=?";
 
-        await mysql.simpleQuery(query, [playerId, matchId]);
+        await simpleQuery(query, [playerId, matchId]);
 
         if(matchData !== null){
 
@@ -969,7 +969,7 @@ class Combogib{
 
         const query = "SELECT match_id,COUNT(match_id) as total_entries FROM nstats_match_combogib WHERE player_id=? GROUP BY match_id";
 
-        const result = await mysql.simpleQuery(query, [playerId]);
+        const result = await simpleQuery(query, [playerId]);
 
         const duplicates = [];
 
@@ -1077,7 +1077,7 @@ class Combogib{
         MAX(best_insane_spree) as best_insane_spree
         FROM nstats_match_combogib WHERE match_id=? AND player_id=? GROUP BY gametype_id, map_id`;
 
-        const result = await mysql.simpleQuery(query, [matchId, player]);
+        const result = await simpleQuery(query, [matchId, player]);
 
         if(result[0].playtime === null) return null;
 
@@ -1118,14 +1118,14 @@ class Combogib{
             primary.best, shockBalls.best, combos.best, insane.best
         ];
 
-        await mysql.simpleQuery(query, vars);
+        await simpleQuery(query, vars);
     }
 
     //replace all data that has the id of playerOne with playerTwo
     async mergePlayersData(playerOne, playerTwo){
 
         const matchTableQuery = `UPDATE nstats_match_combogib SET player_id=? WHERE player_id=?`;
-        await mysql.simpleQuery(matchTableQuery, [playerTwo, playerOne]);
+        await simpleQuery(matchTableQuery, [playerTwo, playerOne]);
 
         const duplicateMatchIds = await this.getDuplicatePlayerMatchIds(playerTwo);
 
@@ -1206,14 +1206,14 @@ class Combogib{
 
         const query = "DELETE FROM nstats_match_combogib WHERE player_id=? AND match_id=?";
 
-        await mysql.simpleQuery(query, [playerId, matchId]);
+        await simpleQuery(query, [playerId, matchId]);
     }
 
     async deleteMapTotalsData(mapId){
 
         const query = `DELETE FROM nstats_map_combogib WHERE map_id=?`;
 
-        return await mysql.simpleQuery(query, [mapId]);
+        return await simpleQuery(query, [mapId]);
     }
 
     async insertMergedMapTotals(mapId, gametypeId, matches, playtime, primary, shockBalls, combos, insane){
@@ -1255,14 +1255,14 @@ class Combogib{
         ];
 
 
-        await mysql.simpleQuery(query, vars);
+        await simpleQuery(query, vars);
     }
 
     async fixDuplicateMapTotals(mapId){
 
         const query = `SELECT * FROM nstats_map_combogib WHERE map_id=?`;
 
-        const result = await mysql.simpleQuery(query, [mapId]);
+        const result = await simpleQuery(query, [mapId]);
 
         const mergeTypes = [
             "matches","playtime","primary_kills",
@@ -1428,21 +1428,21 @@ class Combogib{
             d.best_shockball_spree_match_id, d.best_primary_spree, d.best_primary_spree_match_id
         ];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async deletePlayerTotalGametypeMapData(playerId, gametypeId, mapId){
 
         const query = `DELETE FROM nstats_player_combogib WHERE player_id=? AND gametype_id=? AND map_id=?`;
 
-        return await mysql.simpleQuery(query, [playerId, gametypeId, mapId]);
+        return await simpleQuery(query, [playerId, gametypeId, mapId]);
     }
 
     async fixPlayerTotal(playerId, gametypeId, mapId){
 
         const getQuery = `SELECT * FROM nstats_player_combogib WHERE player_id=? AND gametype_id=? AND map_id=?`;
 
-        const getResult = await mysql.simpleQuery(getQuery, [playerId, gametypeId, mapId]);
+        const getResult = await simpleQuery(getQuery, [playerId, gametypeId, mapId]);
 
         let totals = {};
 
@@ -1561,7 +1561,7 @@ class Combogib{
 
         const getQuery = `SELECT MIN(id) as original_row, player_id,gametype_id,map_id,COUNT(*) as total_rows FROM nstats_player_combogib GROUP BY player_id,gametype_id,map_id`;
 
-        const getResult = await mysql.simpleQuery(getQuery);
+        const getResult = await simpleQuery(getQuery);
 
         const duplicates = getResult.filter((r) =>{
             return r.total_rows > 1;
@@ -1594,11 +1594,9 @@ class Combogib{
 
             const query = `UPDATE nstats_${t} SET map_id=? WHERE map_id=?`;
 
-            await mysql.simpleQuery(query, [newId, oldId]);
+            await simpleQuery(query, [newId, oldId]);
         }
 
         await this.fixDuplicateMapTotals(newId);
     }
 }
-
-module.exports = Combogib;

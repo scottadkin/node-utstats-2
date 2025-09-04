@@ -1,9 +1,9 @@
 const config = require('../../config.json');
-const WeaponStats = require('./weaponstats');
-const Message = require("../message");
-const Functions = require("../functions");
+import WeaponStats from "./weaponstats.js";
+import Message from "../message.js";
+import { scalePlaytime, convertTimestamp } from "../functions.js";
 
-class PlayerInfo{
+export default class PlayerInfo{
 
     constructor(ids, name, masterId, gametypeId, mapId, mapGametypeId, HWID, bSpectator){
 
@@ -582,7 +582,7 @@ class PlayerInfo{
 
     teleFragKill(timestamp, bHardcore){
 
-        const difference = Functions.scalePlaytime(timestamp, bHardcore) - Functions.scalePlaytime(this.stats.teleFrags.lastKillTime, bHardcore);
+        const difference = scalePlaytime(timestamp, bHardcore) - scalePlaytime(this.stats.teleFrags.lastKillTime, bHardcore);
 
         if(difference <= config.multiKillTimeLimit){
 
@@ -620,7 +620,7 @@ class PlayerInfo{
 
     teleDiscKill(timestamp, bHardcore){
 
-        const diff = Functions.convertTimestamp(timestamp, bHardcore) - Functions.convertTimestamp(this.stats.teleFrags.discLastKillTime, bHardcore);
+        const diff = convertTimestamp(timestamp, bHardcore) - convertTimestamp(this.stats.teleFrags.discLastKillTime, bHardcore);
 
         if(diff > config.multiKillTimeLimit) this.stats.teleFrags.discKillsBestMulti = 0;
 
@@ -645,7 +645,7 @@ class PlayerInfo{
 
         timestamp = parseFloat(timestamp);
 
-        const timeDiff = Functions.scalePlaytime(timestamp, bHardcore) - Functions.scalePlaytime(this.lastKill, bHardcore);
+        const timeDiff = scalePlaytime(timestamp, bHardcore) - scalePlaytime(this.lastKill, bHardcore);
 
 
         this.updateKillDistances(distance);
@@ -939,6 +939,3 @@ class PlayerInfo{
         return 255;
     }
 }
-
-
-module.exports = PlayerInfo;

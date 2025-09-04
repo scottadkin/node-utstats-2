@@ -1,7 +1,7 @@
-const Message = require('../message');
-const Teams = require('../teams');
+import Message from "../message.js";
+import Teams from "../teams.js";
 
-class TeamsManager{
+export default class TeamsManager{
 
     constructor(){
 
@@ -75,5 +75,3 @@ class TeamsManager{
         }
     }
 }
-
-module.exports = TeamsManager;

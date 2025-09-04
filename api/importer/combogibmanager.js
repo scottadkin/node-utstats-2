@@ -1,7 +1,7 @@
-const Message = require("../message");
-const Combogib = require("../combogib");
+import Message from "../message.js";
+import Combogib from "../combogib.js";
 
-class CombogibManager{
+export default class CombogibManager{
 
     constructor(playerManager, killManager, lines, gametypeId, matchId, mapId, bIgnoreBots, matchLength){
         
@@ -993,6 +993,3 @@ class CombogibManager{
     }
 
 }
-
-
-module.exports = CombogibManager;

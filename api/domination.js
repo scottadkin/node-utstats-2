@@ -1,9 +1,7 @@
-const mysql = require('./database');
-const Promise = require('promise');
-const Message = require('./message');
-const Functions = require('./functions');
+import { simpleQuery } from "./database.js";
+import Message from "./message.js";
 
-class Domination{
+export default class Domination{
 
     constructor(){
 
@@ -14,13 +12,13 @@ class Domination{
         const query = "UPDATE nstats_matches SET team_score_0=?,team_score_1=?,team_score_2=?,team_score_3=? WHERE id=?";
         const vars = [red, blue, green, yellow, matchId];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async controlPointExists(mapId, name){
 
         const query = "SELECT COUNT(*) as total_points FROM nstats_dom_control_points WHERE map=? AND name=?";
-        const result = await mysql.simpleQuery(query, [mapId, name]);
+        const result = await simpleQuery(query, [mapId, name]);
 
         if(result[0].total_points > 0) return true;
         return false;
@@ -31,13 +29,13 @@ class Domination{
         const query = "INSERT INTO nstats_dom_control_points VALUES(NULL,?,?,?,1,?,?,?);";
         const vars = [mapId, name, points, position.x, position.y, position.z];
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
     async updateControlPointStats(mapId, name, points){
 
         const query = "UPDATE nstats_dom_control_points SET matches=matches+1, captured=captured+? WHERE map=? AND name=?";
-        return await mysql.simpleQuery(query, [points, mapId, name]);
+        return await simpleQuery(query, [points, mapId, name]);
     }
 
     async updateMapControlPoint(mapId, name, points, position){
@@ -60,290 +58,160 @@ class Domination{
     }
 
 
-    updateMatchControlPoint(matchId, mapId, name, points){
+    async updateMatchControlPoint(matchId, mapId, name, points){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "INSERT INTO nstats_dom_match_control_points VALUES(NULL,?,?,?,?)";
+        const query = "INSERT INTO nstats_dom_match_control_points VALUES(NULL,?,?,?,?)";
             
-            mysql.query(query, [matchId, mapId, name, points], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [matchId, mapId, name, points]);
     }
 
-    updateMatchDomCaps(matchId, total){
+    async updateMatchDomCaps(matchId, total){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = "UPDATE nstats_matches SET dom_caps=? WHERE id=?";
-
-            mysql.query(query, [total, matchId], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        const query = "UPDATE nstats_matches SET dom_caps=? WHERE id=?";
+        return await simpleQuery(query, [total, matchId]);        
     }
 
-    updatePlayerCapTotals(masterId, gametypeId, caps){
+    async updatePlayerCapTotals(masterId, gametypeId, caps){
 
-        return new Promise((resolve, reject) =>{
 
-            const query = `UPDATE nstats_player_totals SET dom_caps=dom_caps+?,
-            dom_caps_best = IF(dom_caps_best < ?, ?, dom_caps_best)
-            WHERE id IN(?,?)`;
+        const query = `UPDATE nstats_player_totals SET dom_caps=dom_caps+?,
+        dom_caps_best = IF(dom_caps_best < ?, ?, dom_caps_best)
+        WHERE id IN(?,?)`;
 
-            mysql.query(query, [caps, caps, caps, masterId, gametypeId], (err) =>{
-                
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [caps, caps, caps, masterId, gametypeId]);
+        
     }
 
     async updatePlayerMatchStats(rowId, caps){
 
         const query = "UPDATE nstats_player_matches SET dom_caps=? WHERE id=?";
-        return await mysql.simpleQuery(query, [caps, rowId]);
+        return await simpleQuery(query, [caps, rowId]);
     }
 
 
     async getMatchDomPoints(matchId){
 
         const query = "SELECT * FROM nstats_dom_match_control_points WHERE match_id=?";
-        return await mysql.simpleQuery(query, [matchId]);
+        return await simpleQuery(query, [matchId]);
     }
 
     async getControlPointNames(mapId){
 
         const query = "SELECT id,name FROM nstats_dom_control_points WHERE map=?";
-        const result = await mysql.simpleQuery(query, [mapId]);
+        const result = await simpleQuery(query, [mapId]);
 
         result.unshift({"id": 0, "name": "All"});
 
         return result;
     }
 
-    getMapControlPoints(map){
+    async getMapControlPoints(map){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT id,name FROM nstats_dom_control_points WHERE map=?";
+        const result = await simpleQuery(query, [map]);
 
-            const query = "SELECT id,name FROM nstats_dom_control_points WHERE map=?";
+        const data = new Map();
 
-            mysql.query(query, [map], (err, result) =>{
+        if(result !== undefined){
 
-                if(err) reject(err);
+            for(let i = 0; i < result.length; i++){
 
-                const data = new Map();
+                data.set(result[i].name, result[i].id);
+            }
+        }
 
-                if(result !== undefined){
-
-                    for(let i = 0; i < result.length; i++){
-
-                        data.set(result[i].name, result[i].id);
-                    }
-                }
-
-                resolve(data);
-            });
-        });
+        return data;
     }
 
-    insertPointCap(match, time, player, point, team){
+    async insertPointCap(match, time, player, point, team){
 
-        return new Promise((resolve, reject) =>{
+        const query = "INSERT INTO nstats_dom_match_caps VALUES(NULL,?,?,?,?,?)";
 
-            const query = "INSERT INTO nstats_dom_match_caps VALUES(NULL,?,?,?,?,?)";
-
-            mysql.query(query, [match, time, player, point, team], (err) =>{
-                
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [match, time, player, point, team]);
     }
 
-    getMatchCaps(match){
+    async getMatchCaps(match){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT time,player,point,team FROM nstats_dom_match_caps WHERE match_id=?";
 
-            const query = "SELECT time,player,point,team FROM nstats_dom_match_caps WHERE match_id=?";
-
-            mysql.query(query, [match], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
+        return await simpleQuery(query, [match]);
     }
 
 
-    insertMatchPlayerScore(match, timestamp, player, score){
+    async insertMatchPlayerScore(match, timestamp, player, score){
 
-        return new Promise((resolve, reject) =>{
+        const query = "INSERT INTO nstats_dom_match_player_score VALUES(NULL,?,?,?,?)";
 
-            const query = "INSERT INTO nstats_dom_match_player_score VALUES(NULL,?,?,?,?)";
-
-            mysql.query(query, [match, timestamp, player, score], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [match, timestamp, player, score]);
     }
 
 
-    getMatchPlayerScoreData(id){
+    async getMatchPlayerScoreData(id){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT timestamp,player,score FROM nstats_dom_match_player_score WHERE match_id=? ORDER BY timestamp ASC";
 
-            const query = "SELECT timestamp,player,score FROM nstats_dom_match_player_score WHERE match_id=? ORDER BY timestamp ASC";
-
-            mysql.query(query, [id], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
+        return await simpleQuery(query, [id]);
     }
 
-    getMapFullControlPoints(map){
+    async getMapFullControlPoints(map){
 
-        return new Promise((resolve, reject) =>{
 
-            const query = "SELECT name,matches,captured,x,y,z FROM nstats_dom_control_points WHERE map=?";
+        const query = "SELECT name,matches,captured,x,y,z FROM nstats_dom_control_points WHERE map=?";
 
-            mysql.query(query, [map], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-
-        });
+        return await simpleQuery(query, [map]);
     }
 
-    updatePlayerBestLifeCaps(gametypeId, masterId, caps){
+    async updatePlayerBestLifeCaps(gametypeId, masterId, caps){
 
-        return new Promise((resolve, reject) =>{
+        const query = `UPDATE nstats_player_totals SET 
+        dom_caps_best_life = IF(dom_caps_best_life < ?, ?, dom_caps_best_life)
+        WHERE id IN(?,?)`;
 
-            const query = `UPDATE nstats_player_totals SET 
-            dom_caps_best_life = IF(dom_caps_best_life < ?, ?, dom_caps_best_life)
-            WHERE id IN(?,?)`;
-
-            mysql.query(query, [caps, caps, gametypeId, masterId], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [caps, caps, gametypeId, masterId]);
     }
 
-    updateMatchBestLifeCaps(playerId, matchId, caps){
+    async updateMatchBestLifeCaps(playerId, matchId, caps){
 
-        return new Promise((resolve, reject) =>{
+        const query = `UPDATE nstats_player_matches SET 
+        dom_caps_best_life = IF(dom_caps_best_life < ?, ?, dom_caps_best_life)
+        WHERE player_id=? AND match_id=?`;
 
-            const query = `UPDATE nstats_player_matches SET 
-            dom_caps_best_life = IF(dom_caps_best_life < ?, ?, dom_caps_best_life)
-            WHERE player_id=? AND match_id=?`;
-
-            mysql.query(query, [caps, caps, playerId, matchId], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [caps, caps, playerId, matchId]);
     }
 
 
-    reducePointCaps(id, amount){
+    async reducePointCaps(id, amount){
 
-        return new Promise((resolve, reject) =>{
+        const query = "UPDATE nstats_dom_control_points SET captured=captured-? WHERE id=?";
 
-            const query = "UPDATE nstats_dom_control_points SET captured=captured-? WHERE id=?";
-
-            mysql.query(query, [amount, id], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [amount, id]);
     }
 
-    deleteMatchControlPoints(id){
+    async deleteMatchControlPoints(id){
 
-        return new Promise((resolve, reject) =>{
+        const query = "DELETE FROM nstats_dom_match_control_points WHERE match_id=?";
 
-            const query = "DELETE FROM nstats_dom_match_control_points WHERE match_id=?";
-
-            mysql.query(query, [id], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [id]);
     }
 
-    deletePlayerMatchScore(id){
+    async deletePlayerMatchScore(id){
 
-        return new Promise((resolve, reject) =>{
+        const query = "DELETE FROM nstats_dom_match_player_score WHERE match_id=?";
 
-            const query = "DELETE FROM nstats_dom_match_player_score WHERE match_id=?";
-
-            mysql.query(query, [id], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [id]);
     }
 
-    removePlayerMatchCaps(playerId, matchId){
+    async removePlayerMatchCaps(playerId, matchId){
 
-        return new Promise((resolve, reject) =>{
+        const query = "UPDATE nstats_dom_match_caps SET player=-1 WHERE player=? AND match_id=?";
 
-            const query = "UPDATE nstats_dom_match_caps SET player=-1 WHERE player=? AND match_id=?";
-
-            mysql.query(query, [playerId, matchId], (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
+        return await simpleQuery(query, [playerId, matchId]);
     }
 
 
     async deletePlayerMatchScore(playerId, matchId){
 
-        return await mysql.simpleDelete("DELETE FROM nstats_dom_match_player_score WHERE player=? AND match_id=?",
+        return await simpleQuery("DELETE FROM nstats_dom_match_player_score WHERE player=? AND match_id=?",
         [playerId, matchId]);
     }
 
@@ -364,23 +232,23 @@ class Domination{
 
     async changeCapPlayerId(oldId, newId){
 
-        return await mysql.simpleUpdate("UPDATE nstats_dom_match_caps SET player=? WHERE player=?", [newId, oldId]);
+        return await simpleQuery("UPDATE nstats_dom_match_caps SET player=? WHERE player=?", [newId, oldId]);
     }
 
     async changeScoreHistoryPlayerId(oldId, newId){
 
-        return await mysql.simpleUpdate("UPDATE nstats_dom_match_player_score SET player=? WHERE player=?", [newId, oldId]);
+        return await simpleQuery("UPDATE nstats_dom_match_player_score SET player=? WHERE player=?", [newId, oldId]);
     }
 
 
     async deleteAllPlayerScoreHistory(playerId){
 
-        await mysql.simpleDelete("DELETE FROM nstats_dom_match_player_score WHERE player=?", [playerId]);
+        await simpleQuery("DELETE FROM nstats_dom_match_player_score WHERE player=?", [playerId]);
     }
 
     async deleteAllPlayerMatchCaps(playerId){
 
-        await mysql.simpleDelete("DELETE FROM nstats_dom_match_caps WHERE player=?", [playerId]);
+        await simpleQuery("DELETE FROM nstats_dom_match_caps WHERE player=?", [playerId]);
     }
 
     async deletePlayer(playerId){
@@ -400,33 +268,33 @@ class Domination{
 
         if(ids.length === 0) return [];
 
-        return await mysql.simpleFetch("SELECT * FROM nstats_dom_match_caps WHERE match_id IN (?)", [ids]);
+        return await simpleQuery("SELECT * FROM nstats_dom_match_caps WHERE match_id IN (?)", [ids]);
     }
 
 
     async reduceCapsAlt(id, amount, matches){
 
-        await mysql.simpleUpdate("UPDATE nstats_dom_control_points SET captured=captured-?, matches=matches-? WHERE id=?",[amount, matches, id]);
+        await simpleQuery("UPDATE nstats_dom_control_points SET captured=captured-?, matches=matches-? WHERE id=?",[amount, matches, id]);
     }
 
     async deleteMatchesCaps(ids){
 
         if(ids.length === 0) return;
-        await mysql.simpleDelete("DELETE FROM nstats_dom_match_caps WHERE match_id IN (?)",[ids]);
+        await simpleQuery("DELETE FROM nstats_dom_match_caps WHERE match_id IN (?)",[ids]);
     }
 
     async deleteMatchesControlPoints(ids){
 
         if(ids.length === 0) return;
 
-        await mysql.simpleDelete("DELETE FROM nstats_dom_match_control_points WHERE match_id IN (?)", [ids]);
+        await simpleQuery("DELETE FROM nstats_dom_match_control_points WHERE match_id IN (?)", [ids]);
     }
 
     async deleteMatchesPlayerScores(ids){
 
         if(ids.length === 0) return;
 
-        await mysql.simpleDelete("DELETE FROM nstats_dom_match_player_score WHERE match_id IN (?)", [ids]);
+        await simpleQuery("DELETE FROM nstats_dom_match_player_score WHERE match_id IN (?)", [ids]);
     }
 
     async deleteMatches(ids){
@@ -473,7 +341,7 @@ class Domination{
 
         const query = "SELECT time,point,team FROM nstats_dom_match_caps WHERE match_id=? AND player=?";
 
-        return await mysql.simpleFetch(query, [matchId, playerId]);
+        return await simpleQuery(query, [matchId, playerId]);
     }
 
 
@@ -481,13 +349,13 @@ class Domination{
 
         const query = "SELECT player, point, COUNT(*) as total_caps FROM nstats_dom_match_caps WHERE match_id=? GROUP BY player, point";
 
-        return await mysql.simpleQuery(query, [matchId]);
+        return await simpleQuery(query, [matchId]);
     }
 
     async getMatchSinglePlayerTotalCaps(matchId, playerId){
 
         const query = "SELECT point, COUNT(*) as total_caps FROM nstats_dom_match_caps WHERE match_id=? AND player=? GROUP BY point";
-        const result =  await mysql.simpleQuery(query, [matchId, playerId]);
+        const result =  await simpleQuery(query, [matchId, playerId]);
 
         const data = {};
 
@@ -684,7 +552,7 @@ class Domination{
 
         const query = "SELECT player,point,time,team FROM nstats_dom_match_caps WHERE match_id=? ORDER BY time ASC";
 
-        const result = await mysql.simpleQuery(query, [matchId]);
+        const result = await simpleQuery(query, [matchId]);
 
         const teamData = this.createTeamGraphData(result, pointNames);
 
@@ -699,7 +567,7 @@ class Domination{
 
         const query = "SELECT player,point,time FROM nstats_dom_match_caps WHERE match_id=? ORDER BY time ASC";
 
-        const result = await mysql.simpleQuery(query, [matchId]);
+        const result = await simpleQuery(query, [matchId]);
 
         return this.createPointGraphData(result, pointNames);
       
@@ -711,7 +579,7 @@ class Domination{
         const query = `SELECT MIN(id) as id,name,COUNT(*) as total_entries,SUM(captured) as captured,SUM(matches) as matches
         FROM nstats_dom_control_points WHERE map=? GROUP BY name`;
 
-        const result = await mysql.simpleQuery(query, [mapId]);
+        const result = await simpleQuery(query, [mapId]);
 
 
         return result.filter((r) =>{
@@ -724,14 +592,14 @@ class Domination{
 
         const query = `UPDATE nstats_dom_control_points SET captured=?, matches=? WHERE id=?`;
 
-        return await mysql.simpleQuery(query, [captured, matches, rowId]);
+        return await simpleQuery(query, [captured, matches, rowId]);
     }
 
     async deleteControlPointDuplicates(ignoreId, pointName, mapId){
 
         const query = `DELETE FROM nstats_dom_control_points WHERE map=? AND name=? AND id!=?`;
 
-        return await mysql.simpleQuery(query, [mapId, pointName, ignoreId]);
+        return await simpleQuery(query, [mapId, pointName, ignoreId]);
     }
 
     async changeMapId(oldId, newId){
@@ -747,7 +615,7 @@ class Domination{
 
             const query = `UPDATE nstats_${t} SET map=? WHERE map=?`;
 
-            await mysql.simpleQuery(query, [newId, oldId]);
+            await simpleQuery(query, [newId, oldId]);
         }
 
         const duplicates = await this.getDuplicateControlPoints(newId);
@@ -761,6 +629,3 @@ class Domination{
         }
     }
 }
-
-
-module.exports = Domination;

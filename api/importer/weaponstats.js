@@ -1,4 +1,4 @@
-class WeaponStats{
+export default class WeaponStats{
 
     constructor(name){
 
@@ -117,5 +117,3 @@ class WeaponStats{
         }
     }
 }
-
-module.exports = WeaponStats;

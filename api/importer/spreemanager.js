@@ -1,7 +1,7 @@
-const Sprees = require("../sprees");
+import Sprees from "../sprees.js";
 
 
-class SpreeManager{
+export default class SpreeManager{
 
     constructor(matchStart){
 
@@ -37,5 +37,3 @@ class SpreeManager{
         }
     }
 }
-
-module.exports = SpreeManager;

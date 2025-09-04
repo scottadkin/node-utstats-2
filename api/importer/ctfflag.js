@@ -1,6 +1,6 @@
-const Message =  require("../message");
+import Message from "../message.js";
 
-class CTFFlag{
+export default class CTFFlag{
 
     constructor(ctfManager, playerManager, killManager, gametypeId, matchId, matchDate, mapId, team, totalTeams){
 
@@ -824,5 +824,3 @@ class CTFFlag{
         }
     }
 }
-
-module.exports = CTFFlag;
