@@ -1,15 +1,14 @@
+import Message from "./api/message.js";
+import fs from "fs";
+import { generateRandomString } from "./api/functions";
+import mysql from "mysql2/promise";
+import config from "./config.json" with {"type": "json"};
 
-const Message = require('./api/message');
-const fs = require('fs');
-const Functions = require('./api/functions');
-const config = require('./config.json');
 
-const mysqlObject = require('mysql');
-
-let mysql = mysqlObject.createPool({
+const mysqlObject = mysql.createPool({
     "host": config.mysql.host,
     "user": config.mysql.user,
-    "password": config.mysql.password
+    "password": config.mysql.password,
 });
 
 
@@ -1804,7 +1803,7 @@ const queries = [
 
         mysql.end();
 
-        const seed = Functions.generateRandomString(10000);
+        const seed = generateRandomString(10000);
 
 
         const fileContents = `module.exports = () => {  return \`${seed}\`;}`;

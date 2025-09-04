@@ -118,7 +118,9 @@ export default class PingManager{
                 }
             }
 
-            await this.pings.bulkInsert(insertVars);
+            if(insertVars.length > 0){
+                await this.pings.bulkInsert(insertVars);
+            }
 
             new Message(`Inserted all player ping data.`,'pass');
 

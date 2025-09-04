@@ -1,12 +1,12 @@
-const mysql = require("./api/database");
-const CTF = require("./api/ctf");
-const Message = require("./api/message");
+import { simpleQuery } from "./api/database.js";
+import CTF from "./api/ctf.js";
+import Message from "./api/message.js";
 
 async function getAllPlayerIds(){
 
     const query = `SELECT DISTINCT player_id FROM nstats_player_ctf_match`;
 
-    const result = await mysql.simpleQuery(query);
+    const result = await simpleQuery(query);
 
     return result.map((r) =>{
         return r.player_id;

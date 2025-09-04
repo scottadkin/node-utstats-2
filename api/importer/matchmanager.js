@@ -492,6 +492,7 @@ export default class MatchManager{
             }
 
         }catch(err){
+            
             console.trace(err);
         }
     }

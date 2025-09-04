@@ -1,5 +1,5 @@
-const mysql = require("./api/database");
-const Message = require("./api/message");
+import { simpleQuery } from "./api/database.js";
+import Message from "./api/message.js";
 
 
 (async () =>{
@@ -69,7 +69,7 @@ const Message = require("./api/message");
             const q = queries[i];
             new Message(`Performed query #${i+1}: ${q}`,"pass");
 
-            await mysql.simpleQuery(q);
+            await simpleQuery(q);
 
         }catch(err){
             new Message(err,"error");

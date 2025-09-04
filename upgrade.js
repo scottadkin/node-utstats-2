@@ -1,7 +1,7 @@
-const mysql = require('./api/database');
-const Message = require('./api/message');
-const config = require('./config.json');
-const Players = require("./api/players");
+import { simpleQuery } from "./api/database.js";
+import Message from "./api/message.js";
+import config from "./config.json" with {"type": "json"}
+import Players from "./api/players.js";
 
 
 async function columnExists(table, column){
@@ -11,7 +11,7 @@ async function columnExists(table, column){
 
     const vars = [config.mysql.database, table, column];
     
-    const result = await mysql.simpleQuery(query, vars);
+    const result = await simpleQuery(query, vars);
 
     if(result.length > 0){
 
@@ -32,7 +32,7 @@ async function alterTable(table, column, datatype, after){
 
     const query = `ALTER TABLE ${table} ADD COLUMN ${column} ${datatype} ${after}`;
 
-    await mysql.simpleQuery(query);
+    await simpleQuery(query);
     new Message(query, "pass");
 }
 
@@ -41,21 +41,21 @@ async function changeColumnName(table, oldName, newName){
     //RENAME COLUMN old_column_name TO new_column_name;
     const query = `ALTER TABLE ${table} RENAME COLUMN ${oldName} TO ${newName}`;
 
-    await mysql.simpleQuery(query);
+    await simpleQuery(query);
 }
 
 async function changeColumnType(table, columnName, newColumnType){
 
     const query = `ALTER TABLE ${table} MODIFY ${columnName} ${newColumnType}`;
 
-    await mysql.simpleQuery(query);
+    await simpleQuery(query);
 }
 
 async function bSettingExist(category, name){
 
     const query = `SELECT COUNT(*) as total_rows FROM nstats_site_settings WHERE category=? AND name=?`;
 
-    const result = await mysql.simpleQuery(query, [category, name]);
+    const result = await simpleQuery(query, [category, name]);
 
     if(result[0].total_rows > 0) return true;
 
@@ -132,7 +132,7 @@ async function createPlayerWeaponBest(){
         damage bigint NOT NULL,
       PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`;
 
-    return await mysql.simpleQuery(query);
+    return await simpleQuery(query);
 }
 
 async function addTeleFrags(){
@@ -216,7 +216,7 @@ async function createTeleFragTables(){
 
     for(let i = 0; i < queries.length; i++){
         const query = queries[i];
-        await mysql.simpleQuery(query);
+        await simpleQuery(query);
     }
 }
 
@@ -225,55 +225,55 @@ async function updateSiteSettings(){
     const query = `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","Display Telefrag Stats","true",18)`;
 
     if(!await bSettingExist("Match Pages", "Display Telefrag Stats")){
-        await mysql.simpleQuery(query);
+        await simpleQuery(query);
     }
 
     const query2 = `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Telefrag Stats","true",10)`;
 
     if(!await bSettingExist("Player Pages", "Display Telefrag Stats")){
-        await mysql.simpleQuery(query2);
+        await simpleQuery(query2);
     }
 
     const query3 = `INSERT INTO nstats_site_settings VALUES(NULL,"Home","Popular Countries Display Type",0,999999)`;
 
     if(!await bSettingExist("Home", "Popular Countries Display Type")){
-        await mysql.simpleQuery(query3);
+        await simpleQuery(query3);
     }
 
     const query4 = `INSERT INTO nstats_site_settings VALUES(NULL,"Home","Popular Countries Display Limit",5,999999)`;
 
     if(!await bSettingExist("Home", "Popular Countries Display Limit")){
-        await mysql.simpleQuery(query4);
+        await simpleQuery(query4);
     }
 
     const query5 = `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Map Stats","true",999999)`;
 
     if(!await bSettingExist("Player Pages", "Display Map Stats")){
-        await mysql.simpleQuery(query5);
+        await simpleQuery(query5);
     }
 
     const query6 = `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","Display Win Rates","true",999995)`;
 
     if(!await bSettingExist("Player Pages", "Display Win Rates")){
-        await mysql.simpleQuery(query6);
+        await simpleQuery(query6);
     }
 
     const query7 = `INSERT INTO nstats_site_settings VALUES(NULL,"Servers Page","Default Display Type",0,0)`;
 
     if(!await bSettingExist("Servers Pages", "Default Display Type")){
-        await mysql.simpleQuery(query7);
+        await simpleQuery(query7);
     }
 
     const query8 = `INSERT INTO nstats_site_settings VALUES(NULL,"Rankings","Default Min Playtime","3","0")`;
 
     if(!await bSettingExist("Rankings", "Default Min Playtime")){
-        await mysql.simpleQuery(query8);
+        await simpleQuery(query8);
     }
 
     const query9 = `INSERT INTO nstats_site_settings VALUES(NULL,"Rankings","Default Last Active","90","0")`;
 
     if(!await bSettingExist("Rankings", "Default Last Active")){
-        await mysql.simpleQuery(query9);
+        await simpleQuery(query9);
     }
 }
 
@@ -314,7 +314,7 @@ async function createMapItemTables(){
     for(let i = 0; i < queries.length; i++){
 
         const q = queries[i];
-        await mysql.simpleQuery(q);
+        await simpleQuery(q);
     }
   
 }
@@ -383,7 +383,7 @@ async function createQueryTables(){
     for(let i = 0; i < queries.length; i++){
 
         const q = queries[i];
-        await mysql.simpleQuery(q);
+        await simpleQuery(q);
     }
 }
 
@@ -447,7 +447,7 @@ async function fixACETables(){
 
 
 
-        await mysql.simpleQuery( `CREATE TABLE IF NOT EXISTS nstats_hwid_to_name(
+        await simpleQuery( `CREATE TABLE IF NOT EXISTS nstats_hwid_to_name(
         id int(11) NOT NULL AUTO_INCREMENT,
         hwid varchar(32) NOT NULL,
         player_name varchar(30) NOT NULL,

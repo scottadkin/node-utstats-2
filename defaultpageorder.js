@@ -1,5 +1,5 @@
-const mysql = require("./api/database");
-const Message = require("./api/message");
+import { simpleQuery } from "./api/database.js";
+import Message from "./api/message.js";
 
 new Message(`Setting Default Page orders`,"note");
 
@@ -121,13 +121,13 @@ const queries = [
     try{
         new Message(`Reset to default page order settings.`,"note");
 
-        await mysql.simpleQuery("DELETE FROM nstats_site_settings");
+        await simpleQuery("DELETE FROM nstats_site_settings");
 
         for(let i = 0; i < queries.length; i++){
 
             const q = queries[i];
 
-            await mysql.simpleQuery(q);
+            await simpleQuery(q);
             new Message(`Query ${i+1} out of ${queries.length} completed.`,"pass");
 
 

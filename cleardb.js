@@ -1,4 +1,4 @@
-const mysql = require('./api/database');
+import { simpleQuery } from "./api/database.js";
 const Message = require("./api/message");
 
 const prefix = "nstats_";
@@ -92,7 +92,7 @@ const tables = [
 
             const query = `TRUNCATE ${prefix}${t}`;
 
-            await mysql.simpleQuery(query);
+            await simpleQuery(query);
             new Message(query, "pass");
         }
 

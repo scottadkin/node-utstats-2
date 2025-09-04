@@ -128,6 +128,7 @@ async function main(){
                     await startNewImport(ftpServers[currentServerIndex]);
 
                 }catch(err){
+                    console.trace(err);
                     new Message(err.toString(),"error");
                 }
 

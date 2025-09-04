@@ -1,4 +1,4 @@
-import { simpleQuery } from "./database.js";
+import { simpleQuery, updateReturnAffectedRows } from "./database.js";
 import Message from "./message.js";
 import CTF from "./ctf.js";
 import Assault from "./assault.js";
@@ -46,51 +46,36 @@ export default class Gametypes{
         return result.insertId;
     }
 
-    getIdByName(name){
+    async getIdByName(name){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT id FROM nstats_gametypes WHERE name=? LIMIT 1";
 
-            const query = "SELECT id FROM nstats_gametypes WHERE name=? LIMIT 1";
+        const result = await simpleQuery(query, [name]);
 
-            mysql.query(query, [name], (err, result) =>{
 
-                if(err) reject(err);
+        if(result[0] !== undefined){
+            return result[0].id;
+        }
 
-                if(result[0] !== undefined){
-                    resolve(result[0].id);
-                }
-
-                resolve(null);
-
-            });
-        });
+        return null;
+        
     }
 
-    updateQuery(id, date, playtime){
+    async updateQuery(id, date, playtime){
 
-        return new Promise((resolve, reject) =>{
-
-            const query = `UPDATE nstats_gametypes SET 
+        const query = `UPDATE nstats_gametypes SET 
             first = IF(first > ? OR first = 0, ?, first),
             last = IF(last > ?, last, ?),
             playtime=playtime+?,
             matches=matches+1
             WHERE id=?`;
 
-            const vars = [date,date,date,date,playtime,id];
+        const vars = [date,date,date,date,playtime,id];
 
-            mysql.query(query, vars, (err, result) =>{
+        const result = await updateReturnAffectedRows(query, vars);
 
-                if(err) reject(err);
-
-                if(result.affectedRows > 0){
-                    resolve(true);
-                }
-
-                resolve(false);
-
-            });
-        });
+        return result > 0;
+        
     }
 
 
@@ -232,38 +217,19 @@ export default class Gametypes{
     }
 
 
-    getMostPlayed(limit){
+    async getMostPlayed(limit){
 
-        return new Promise((resolve, reject) =>{
+   
+        const query = "SELECT * FROM nstats_gametypes ORDER BY matches DESC LIMIT ?";
 
-            const query = "SELECT * FROM nstats_gametypes ORDER BY matches DESC LIMIT ?";
-
-            mysql.query(query, [limit], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    resolve(result);
-                }
-
-                resolve([]);
-            });
-        });
+        return await simpleQuery(query, [limit]);
     }
 
-    reduceMatchStats(gametype, playtime){
+    async reduceMatchStats(gametype, playtime){
 
-        return new Promise((resolve, reject) =>{
+        const query = "UPDATE nstats_gametypes SET matches=matches-1, playtime=playtime-? WHERE id=?";
 
-            const query = "UPDATE nstats_gametypes SET matches=matches-1, playtime=playtime-? WHERE id=?";
-
-            mysql.query(query, [playtime, gametype], (err) =>{
-
-                if(err) reject(err);
-
-                resolve([]);
-            });
-        });
+        return await simpleQuery(query, [playtime, gametype]);
     }
 
     async getAll(){
