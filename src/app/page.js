@@ -9,6 +9,9 @@ import Screenshot from "../../components/Screenshot";
 import { cleanMapName, removeUnr } from "../../api/generic.mjs";
 import Faces from "../../api/faces";
 import Maps from "../../api/maps";
+import HomeMostPlayedGametypes from "../../components/HomeMostPlayedGametypes";
+import Gametypes from "../../api/gametypes";
+import HomeTopMaps from "../../components/HomeTopMaps";
 
 export default async function Page(){
 
@@ -27,11 +30,10 @@ export default async function Page(){
     const pageSettings = await siteSettings.getCategorySettings("Home");
     const pageOrder = await siteSettings.getCategoryOrder("Home");
     
-
-
     const matchManager = new Matches();
     const playerManager = new Players();
     const mapManager = new Maps();
+    const gametypeManager = new Gametypes();
 
     const elems = [];
 
@@ -98,15 +100,44 @@ export default async function Page(){
         }
     }
 
+    if(pageSettings["Display Most Played Gametypes"] === "true"){
+        
+        const gametypeStats = await gametypeManager.getMostPlayed(5);
+
+         const imageGametypeNames = [];
+
+		for(let i = 0; i < gametypeStats.length; i++){
+			imageGametypeNames.push(gametypeStats[i].name.replace(/ /ig,"").replace(/tournament/ig, "").toLowerCase());
+		}
+
+        const gametypeImages = gametypeManager.getMatchingImages(imageGametypeNames, false);
+
+        elems[pageOrder["Display Most Played Gametypes"]] = <div key="gametypes" className="default">
+            <HomeMostPlayedGametypes data={gametypeStats} images={gametypeImages}/>
+        </div>
+    }
+
+
+    if(pageSettings["Display Most Played Maps"] === "true"){
+
+        const mostPlayedMaps = await mapManager.getMostPlayed(4);
+
+        const mapNames = [];
+
+        for(let i = 0; i < mostPlayedMaps.length; i++){
+
+            const m = mostPlayedMaps[i];
+            mapNames.push(m.name);  
+        }
+
+        const mapImages = await mapManager.getImages(mapNames);
+
+        elems[pageOrder["Display Most Played Maps"]] = <div className="default" key="top-maps">
+            <HomeTopMaps maps={mostPlayedMaps} images={mapImages}/>
+        </div>;
+    }
     
 
-    
-
-    
-
-
-
-    //console.log(await getObjectName("maps", [1,2,3,4]));
 
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		

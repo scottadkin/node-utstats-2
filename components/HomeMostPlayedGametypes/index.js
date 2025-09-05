@@ -2,10 +2,8 @@ import styles from './HomeMostPlayedGametypes.module.css';
 import { toPlaytime, convertTimestamp } from '../../api/generic.mjs';
 import Link from 'next/link';
 
-const HomeMostPlayedGametypes = ({data, images, host}) =>{
+const HomeMostPlayedGametypes = ({data, images}) =>{
     
-    data = JSON.parse(data);
-
     const elems = [];
 
     const defaultImage = "default.jpg";
@@ -40,7 +38,7 @@ const HomeMostPlayedGametypes = ({data, images, host}) =>{
         elems.push(<Link href={`/matches?gametype=${d.id}`} key={i}>
             <div className={styles.box}>
                 <div className={styles.name}>{d.name}</div>
-                <div className={styles.image}><img src={`${host}/images/gametypes/${currentImage}`} alt="image" className="thumb-sshot"/></div>
+                <div className={styles.image}><img src={`/images/gametypes/${currentImage}`} alt="image" className="thumb-sshot"/></div>
                 <div className={styles.info}>
                     Playtime <span className="playtime">{toPlaytime(d.playtime)}</span><br/>
                     {d.matches} Matches<br/> 
