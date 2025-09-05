@@ -3,16 +3,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node server.js",
+    "dev": "next dev",
     "build": "next build",
-    "start": "node server.js production",
+    "start": "node start",
     "lint": "next lint"
   },
   "dependencies": {
     "archiver": "^5.3.1",
     "cookie": "^0.4.1",
     "encoding-japanese": "^2.0.0",
-    "express": "^4.17.2",
     "formidable": "^2.1.1",
     "ftp": "^0.3.10",
     "geoip-country": "^4.2.3",
@@ -22,7 +21,6 @@
     "md5": "^2.3.0",
     "mysql2": "^3.14.4",
     "next": "^15.5.2",
-    "promise": "^8.1.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "sha.js": "^2.4.11",

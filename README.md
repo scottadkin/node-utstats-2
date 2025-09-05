@@ -33,7 +33,7 @@ Unreal Tournament stats tracking website using node.js and mysql.
 - Thanks to **Krull0r** for the Monster Icons.
 
 # Requirements
-- Node.js 14.17 or greater.
+- Node.js 18.18 or greater.
 - Mysql
 
 # Install
