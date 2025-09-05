@@ -30,11 +30,13 @@ export default async function Page(){
     let matchesData = [];
 
     if(pageSettings["Display Recent Matches"] === "true"){
-
 		matchesData = await matchManager.getRecent(0, pageSettings["Recent Matches To Display"], 0, playerManager);
 	}
 
     console.log(matchesData);
+
+
+    //console.log(await getObjectName("maps", [1,2,3,4]));
 
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		

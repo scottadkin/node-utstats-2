@@ -1,6 +1,6 @@
 import Player from "./player.js";
 import { simpleQuery, bulkInsert } from "./database.js";
-import { removeIps, setIdNames, getUniqueValues } from "./functions.js";
+import { removeIps, setIdNames, getUniqueValues } from "./generic.mjs";
 import Matches from "./matches.js";
 import Assault from "./assault.js";
 import CTF from "./ctf.js";

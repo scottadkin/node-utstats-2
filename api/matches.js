@@ -16,7 +16,7 @@ import Rankings from "./rankings.js";
 import Servers from "./servers.js";
 import Voices from "./voices.js";
 import WinRate from "./winrate.js";
-import { setIdNames, getUniqueValues } from "./functions.js";
+import { getObjectName, getUniqueValues, setIdNames } from "./generic.mjs";
 import { deleteFromDatabase as logsDeleteFromDatabase } from "./logs.js";
 import MonsterHunt from "./monsterhunt.js";
 import SiteSettings from "./sitesettings.js";
@@ -137,6 +137,18 @@ export default class Matches{
         if(gametype !== 0) vars.unshift(gametype);
 
         const result = await simpleQuery(query, vars);
+
+        const mgsIds = getUniqueMGS(result);
+   
+
+        const serverNames = await getObjectName("servers", mgsIds.servers);
+        const gametypeNames = await getObjectName("gametypes", mgsIds.gametypes);
+        const mapNames = await getObjectName("maps", mgsIds.maps);
+
+
+        setIdNames(result, serverNames, "server", "serverName");
+        setIdNames(result, gametypeNames, "gametype", "gametypeName");
+        setIdNames(result, mapNames, "map", "mapName");
         
         const dmWinners = new Set(result.map(r => r.dm_winner));
 
@@ -1781,5 +1793,29 @@ export default class Matches{
 
         return await simpleQuery(query, [newId, oldId]);
     }
+}
 
+/**
+ * Get all unique map ids, gametype ids, server ids from an array of match results
+ */
+export function getUniqueMGS(matches){
+
+    const serverIds = new Set();
+    const gametypeIds = new Set();
+    const mapIds = new Set();
+
+    for(let i = 0; i < matches.length; i++){
+
+        const {server, gametype, map} = matches[i];
+
+        serverIds.add(server);
+        gametypeIds.add(gametype);
+        mapIds.add(map);
+    }
+    
+    return {
+        "servers": [...serverIds],
+        "gametypes": [...gametypeIds],
+        "maps": [...mapIds]
+    };
 }

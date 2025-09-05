@@ -5,7 +5,7 @@ import styles from './Nav.module.css';
 
 function Nav({session, settings}){
 
-    const router = useRouter();
+    //const router = useRouter();
 
     if(typeof session === "string"){
         session = JSON.parse(session);

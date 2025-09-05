@@ -96,41 +96,6 @@ export function getTeamName(team, bIgnoreTeam){
     }
 }
 
-
-export function removeIps(data){
-
-    if(data !== undefined){
-
-        if(data !== null){
-
-            for(let i = 0; i < data.length; i++){
-
-                if(data[i].ip !== undefined){
-                    delete data[i].ip;
-                }
-            }
-        }
-    }
-
-    return data;
-}
-
-
-
-export function getUniqueValues(data, key){
-
-    const found = [];
-
-    for(let i = 0; i < data.length; i++){
-
-        if(found.indexOf(data[i][key]) === -1){
-            found.push(data[i][key]);
-        }
-    }
-
-    return found;
-}
-
 export function getUniqueValuesMultipleKeys(data, keys){
 
     const found = [];
@@ -150,28 +115,6 @@ export function getUniqueValuesMultipleKeys(data, keys){
     } 
 
     return found;
-}
-
-/**
- * Modify an array of objects by inserting a new key into each object with the ids matching value
- * @param {*} data Array of Objects to modify
- * @param {*} names Object/Array of id -> name pairs, e.g {"1": 'a name'}
- * @param {*} key What key holds the data for the id we need e.g a[key]
- * @param {*} newKey What key to create with the matching id's name e.g a[newKey]=value
- */
-export function setIdNames(data, names, key, newKey){
-
-    for(let i = 0; i < data.length; i++){
-
-        const d = data[i];
-        const currentId = d[key];
-
-        if(names[currentId] !== undefined){
-            d[newKey] = names[currentId];
-        }else{
-            d[newKey] = 'Not Found';
-        }
-    }
 }
 
 

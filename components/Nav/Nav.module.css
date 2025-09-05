@@ -3,6 +3,7 @@
 	top:0;
 	width:100%;
 	z-index: 999999;
+	text-align: center;
 }
 
 .header{
@@ -20,8 +21,8 @@
 
 .nl{
 	display:inline-block;
-	font-size:14px;
-	padding:7px 10px;
+	font-size:15px;
+	padding:10px 10px;
 	transition:color 0.25s;
 }
 
@@ -35,4 +36,5 @@
 
 .selected{
 	color:yellow;
+	border-bottom:1px solid yellow;
 }

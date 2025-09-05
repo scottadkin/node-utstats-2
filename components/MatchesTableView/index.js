@@ -91,19 +91,13 @@ function createRows(matches){
 
 export default function MatchesTableView({data}){
 
-
     const matches = data;
 
     const rows = createRows(matches);
 
-    // if(matches.length === 0){
-        //   return null;//;(<div className="not-found">There are no matches meeting your search requirements.</div>);
-    //}
-
     if(rows.length === 0){
         rows.push(<tr key="000"><td colSpan={7}>No Data</td></tr>);
     }
-
 
     let finalHeader = null;
 
