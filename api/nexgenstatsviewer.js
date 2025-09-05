@@ -1,8 +1,8 @@
-const mysql = require('./database');
-const Player = require('./player');
-const Functions = require('./functions');
+import { simpleQuery, updateReturnAffectedRows, insertReturnInsertId } from "./database.js";
+import Player from "./player.js";
+import { getPlayer } from "./generic.mjs";
 
-class NexgenStatsViewer{
+export default class NexgenStatsViewer{
 
     constructor(){
 
@@ -39,7 +39,7 @@ class NexgenStatsViewer{
             }
         }
 
-        const data = await mysql.simpleFetch(query);
+        const data = await simpleQuery(query);
 
         for(let i = 0; i < data.length; i++){
 
@@ -60,7 +60,7 @@ class NexgenStatsViewer{
         const query = `SELECT player_id,ranking as value,ranking_change FROM nstats_ranking_player_current 
             WHERE gametype=? ORDER BY ranking DESC LIMIT ?`;
 
-        return await mysql.simpleFetch(query, [gametype, amount]);
+        return await simpleQuery(query, [gametype, amount]);
     }
 
     async setPlayerData(data){
@@ -89,7 +89,7 @@ class NexgenStatsViewer{
 
                 d = data[i];
 
-                currentPlayer = Functions.getPlayer(players, d.player_id);
+                currentPlayer = getPlayer(players, d.player_id);
 
                 d.playerName = currentPlayer.name;
                 d.playerCountry = currentPlayer.country;
@@ -179,7 +179,7 @@ class NexgenStatsViewer{
             settings.id
         ];
 
-        await mysql.simpleUpdate(query, vars);
+        await simpleQuery(query, vars);
     }
 
     async updateSettings(settings){
@@ -205,7 +205,7 @@ class NexgenStatsViewer{
 
         const query = "DELETE FROM nstats_nexgen_stats_viewer WHERE id=?";
 
-        const result = await mysql.updateReturnAffectedRows(query, [id]);
+        const result = await updateReturnAffectedRows(query, [id]);
 
         if(result === 0){
             return false;
@@ -228,7 +228,7 @@ class NexgenStatsViewer{
             data.enabled
         ];
 
-        return await mysql.insertReturnInsertId(query, vars)
+        return await insertReturnInsertId(query, vars)
               
     }
 
@@ -253,7 +253,7 @@ class NexgenStatsViewer{
         const query = `SELECT player_id,${this.validTypes[type].column} as totals FROM nstats_player_totals
         WHERE gametype=? ORDER BY ${this.validTypes[type].column} DESC LIMIT ?`;
 
-        const data = await mysql.simpleFetch(query, [gametype, players]);
+        const data = await simpleQuery(query, [gametype, players]);
 
         await this.setPlayerData(data);
 
@@ -267,7 +267,7 @@ class NexgenStatsViewer{
         FROM nstats_player_totals WHERE gametype=? 
         GROUP BY(player_id) ORDER BY totals DESC LIMIT ?`;
 
-        const data = await mysql.simpleFetch(query, [gametype, players]);
+        const data = await simpleQuery(query, [gametype, players]);
 
         await this.setPlayerData(data);
 
@@ -281,7 +281,7 @@ class NexgenStatsViewer{
         FROM nstats_player_totals WHERE gametype=?
         GROUP BY(player_id) ORDER BY totals DESC LIMIT ?`;
 
-        const data = await mysql.simpleFetch(query, [gametype, players]);
+        const data = await simpleQuery(query, [gametype, players]);
 
         await this.setPlayerData(data);
 
@@ -318,6 +318,3 @@ class NexgenStatsViewer{
         return this.validTypes;
     }
 }
-
-
-module.exports = NexgenStatsViewer;

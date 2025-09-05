@@ -1,12 +1,12 @@
-const mysql = require("./database");
-const fs = require("fs");
-const archiver = require('archiver');
+import { simpleQuery } from "./database.js";
+import fs from "fs";
+import archiver from "archiver";
 
 
 
 
 
-class Backup{
+export default class Backup{
 
     constructor(){
 
@@ -165,7 +165,7 @@ class Backup{
 
         const query = `SELECT * FROM nstats_player_totals`;
 
-        const result = await mysql.simpleQuery(query);
+        const result = await simpleQuery(query);
 
         console.log(result);
 
@@ -191,7 +191,7 @@ class Backup{
 
         const query = `SELECT * FROM ${table} ORDER BY id ASC`;
 
-        const result = await mysql.simpleQuery(query);
+        const result = await simpleQuery(query);
         if(result.length === 0) return null;
 
         const keys = Object.keys(result[0])
@@ -226,7 +226,7 @@ class Backup{
         const query = `SELECT table_name as name FROM information_schema.tables
         WHERE table_schema = 'node_utstats_2';`;
 
-        const result = await mysql.simpleQuery(query);
+        const result = await simpleQuery(query);
 
         const data = [];
 
@@ -271,7 +271,7 @@ class Backup{
 
             const query = `TRUNCATE ${t}`;
             console.log(`Starting query "${query}"`);
-            await mysql.simpleQuery(query);
+            await simpleQuery(query);
             console.log(`Query passed: "${query}"`);
             
         }
@@ -316,7 +316,7 @@ class Backup{
                 let end = (data.length < offset + maxRowsPerQuery) ? data.length : offset + maxRowsPerQuery;
                 //console.log(data.slice(offset, end).length);
 
-                await mysql.simpleQuery(query, [data.slice(offset, end)]);
+                await simpleQuery(query, [data.slice(offset, end)]);
 
                 offset += maxRowsPerQuery;
             }
@@ -384,5 +384,3 @@ class Backup{
     }
 
 }
-
-module.exports = Backup;

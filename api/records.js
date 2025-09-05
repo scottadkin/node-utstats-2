@@ -1,7 +1,7 @@
-const mysql = require("./database");
-const Players = require("./players");
+import { simpleQuery } from "./database.js";
+import Players from "./players.js";
 
-class Records{
+export default class Records{
 
     constructor(){
 
@@ -163,7 +163,7 @@ class Records{
 
         const query = `Show columns from nstats_player_matches`;
 
-        const result = await mysql.simpleQuery(query);
+        const result = await simpleQuery(query);
 
         return result.map((r) =>{
             return r.Field;
@@ -207,7 +207,7 @@ class Records{
 
         const query = `SELECT COUNT(*) as total_matches FROM nstats_player_totals WHERE gametype=? AND map=?`;
 
-        const result = await mysql.simpleQuery(query, [gametype, map]);
+        const result = await simpleQuery(query, [gametype, map]);
 
         return result[0].total_matches;
     }
@@ -226,8 +226,8 @@ class Records{
 
         const vars = [map, start, perPage];
 
-        const result = await mysql.simpleQuery(`${normalSelect}${query}${orderBy}`, vars);
-        const totalResults = await mysql.simpleQuery(`${totalSelect}${query}`, vars);
+        const result = await simpleQuery(`${normalSelect}${query}${orderBy}`, vars);
+        const totalResults = await simpleQuery(`${totalSelect}${query}`, vars);
 
 
         if(map !== 0){
@@ -263,8 +263,8 @@ class Records{
 
         const vars = [gametype, map, start, perPage];
 
-        const result = await mysql.simpleQuery(`${normalSelect}${query}${orderBy}`, vars);
-        const totalResults = await mysql.simpleQuery(`${totalSelect}${query}`, vars);
+        const result = await simpleQuery(`${normalSelect}${query}${orderBy}`, vars);
+        const totalResults = await simpleQuery(`${totalSelect}${query}`, vars);
 
         const playerIds = [...new Set(result.map((r) =>{
             return r.player_id;
@@ -333,8 +333,8 @@ class Records{
 
         const vars = [start, perPage];
 
-        const totalResults = await mysql.simpleQuery(`${totalSelect}${query}`, vars);
-        const result = await mysql.simpleQuery(`${normalSelect}${query}${orderBy}`, vars);
+        const totalResults = await simpleQuery(`${totalSelect}${query}`, vars);
+        const result = await simpleQuery(`${normalSelect}${query}${orderBy}`, vars);
 
         const playerIds = [...new Set(result.map((r) =>{
             return r.player_id;
@@ -379,9 +379,9 @@ class Records{
 
         query = `${query}${whereString}`;
 
-        const totalResults = await mysql.simpleQuery(`${totalSelect}${query}`, [...vars, start, perPage]);
+        const totalResults = await simpleQuery(`${totalSelect}${query}`, [...vars, start, perPage]);
 
-        const result = await mysql.simpleQuery(`${normalSelect}${query}${orderByString}`, [...vars, start, perPage]);
+        const result = await simpleQuery(`${normalSelect}${query}${orderByString}`, [...vars, start, perPage]);
 
         const playerIds = [...new Set(result.map((r) =>{
             return r.player_id;
@@ -443,5 +443,3 @@ class Records{
         
     }
 }
-
-module.exports = Records;

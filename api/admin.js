@@ -1,11 +1,11 @@
-const mysql = require("./database");
-const fs = require('fs');
-const Maps = require('./maps');
-const User = require('./user');
-const Matches = require('./matches');
-const Winrates = require('./winrate');
+import { simpleQuery, insertReturnInsertId, updateReturnAffectedRows } from "./database.js";
+import fs from "fs";
+import Maps from "./maps.js";
+import User from "./user.js";
+import Matches from "./matches.js";
+import WinRate from "./winrate.js";
 
-class Admin{
+export default class Admin{
 
     constructor(){
 
@@ -117,7 +117,7 @@ class Admin{
             }
 
 
-            const winrateManager = new Winrates();
+            const winrateManager = new WinRate();
 
             for(let i = 0; i < affectedGametypes.length; i++){
 
@@ -135,7 +135,7 @@ class Admin{
 
         const query = "SELECT * FROM nstats_ftp ORDER BY id ASC";
 
-        return await mysql.simpleFetch(query);
+        return await simpleQuery(query);
     }
 
     async updateFTPServer(id, name, host, port, user, password, folder, deleteAfterImport, deleteTmpFiles, ignoreBots, ignoreDuplicates,
@@ -189,7 +189,7 @@ class Admin{
         ];
 
 
-        return await mysql.updateReturnAffectedRows(query, vars);
+        return await simpleQueryupdateReturnAffectedRows(query, vars);
     }
 
 
@@ -235,14 +235,14 @@ class Admin{
             bUseACEPlayerHWID
         ];
 
-        return await mysql.insertReturnInsertId(query, vars);
+        return await insertReturnInsertId(query, vars);
     }
 
     async deleteFTPServer(id){
 
         const query = "DELETE FROM nstats_ftp WHERE id=?";
 
-        return await mysql.updateReturnAffectedRows(query, [id]);
+        return await updateReturnAffectedRows(query, [id]);
     }
 
 
@@ -250,7 +250,7 @@ class Admin{
 
         const query = "SELECT * FROM nstats_logs_folder";
 
-        return await mysql.simpleQuery(query);
+        return await simpleQuery(query);
     }
 
 
@@ -265,7 +265,7 @@ class Admin{
         use_ace_player_hwid=? 
         WHERE id > -1`;
 
-        await mysql.simpleQuery(query, [bIgnoreBots, bIgnoreDuplicates, minPlayers, minPlaytime, bImportAce, bUseACEPlayerHWID]);
+        await simpleQuery(query, [bIgnoreBots, bIgnoreDuplicates, minPlayers, minPlaytime, bImportAce, bUseACEPlayerHWID]);
     }
 
 
@@ -358,11 +358,8 @@ class Admin{
             const t = tables[i];
 
             const query = `TRUNCATE ${prefix}${t}`;
-            await mysql.simpleQuery(query);
+            await simpleQuery(query);
         }
 
     }
 }
-
-
-module.exports = Admin;

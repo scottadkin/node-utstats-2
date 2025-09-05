@@ -1,12 +1,11 @@
-const mysql = require('./database');
-const Promise = require('promise');
-const User = require('./user');
-const cookie = require('cookie');
-const Message = require('./message');
+import { simpleQuery } from "./database.js";
+import User from "./user.js";
+//const cookie = require('cookie');
+import cookie from "cookie";
 
 
 
-class Session{
+export default class Session{
 
     constructor(ip, cookies){
 
@@ -82,25 +81,15 @@ class Session{
         }
     }
 
-    getUserId(hash){
+    async getUserId(hash){
 
-        return new Promise((resolve, reject) =>{
+        const query = "SELECT user FROM nstats_sessions WHERE hash=?";
 
-            const query = "SELECT user FROM nstats_sessions WHERE hash=?";
+        const result = await simpleQuery(query, [hash]);
 
-            mysql.query(query, [hash], (err, result) =>{
-
-                if(err) reject(err);
-
-                if(result !== undefined){
-                    if(result.length > 0){
-                        resolve(result[0].user);
-                    }
-                }
-
-                resolve(null);
-            });
-        });
+        if(result.length > 0){
+            return result[0].user;
+        } 
     }
 
     async bUserAdmin(){
@@ -135,5 +124,3 @@ class Session{
     }
 }
 
-
-export default Session;

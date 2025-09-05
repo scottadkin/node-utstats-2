@@ -1,11 +1,13 @@
-const mysql = require('./database');
-const shajs = require('sha.js');
-const cookie = require('cookie');
-const Functions  = require('./functions');
-const salt = require('../salt');
-const Message = require('./message');
+import { simpleQuery } from "./database.js";
+import shajs from "sha.js";
+//const shajs = require('sha.js');
+//const cookie = require('cookie');
+import cookie from "cookie";
+import { generateRandomString } from "./functions.js";
+import salt from "../salt.js";
+import Message from "./message.js";
 
-class User{
+export default class User{
 
     constructor(){
 
@@ -21,7 +23,7 @@ class User{
 
 
         const query = "SELECT COUNT(*) as total_users FROM nstats_users WHERE name=?";
-        const result = await mysql.simpleFetch(query, [name]);
+        const result = await simpleQuery(query, [name]);
 
         if(result.length > 0){
             if(result[0].total_users > 0) return true;
@@ -56,7 +58,7 @@ class User{
 
         const query = "SELECT COUNT(*) as total_results FROM nstats_users WHERE name=? AND activated=1";
 
-        const result = await mysql.simpleFetch(query, username);
+        const result = await simpleQuery(query, username);
 
         if(result.length > 0){
             if(result[0].total_results > 0) return true;
@@ -73,7 +75,7 @@ class User{
 
         const query = "SELECT COUNT(*) as total_users FROM nstats_users WHERE name=? AND password=?";
         
-        const result = await mysql.simpleFetch(query, [username, password]);
+        const result = await simpleQuery(query, [username, password]);
 
         if(result.length > 0){
             if(result[0].total_users > 0) return true;
@@ -86,7 +88,7 @@ class User{
     async getUserId(name){
 
         const query = "SELECT id FROM nstats_users WHERE name=? ORDER BY id ASC LIMIT 1";
-        const result = await mysql.simpleFetch(query, [name]);
+        const result = await simpleQuery(query, [name]);
 
         if(result.length > 0) return result[0].id;
 
@@ -98,7 +100,7 @@ class User{
 
         try{
 
-            const result = await mysql.simpleFetch("SELECT COUNT(*) as total_users FROM nstats_users");
+            const result = await simpleQuery("SELECT COUNT(*) as total_users FROM nstats_users");
             return result[0].total_users;
 
         }catch(err){
@@ -129,7 +131,7 @@ class User{
 
             const vars = [username, passwordHash, now, ip];
 
-            await mysql.simpleInsert(query, vars);
+            await simpleQuery(query, vars);
 
             return totalUsers;
 
@@ -254,7 +256,7 @@ class User{
 
         let hash = "";
   
-        const string = Functions.generateRandomString(100);
+        const string = generateRandomString(100);
 
         hash = shajs('sha256').update(string).digest("hex");
 
@@ -267,7 +269,7 @@ class User{
         const query = "INSERT INTO nstats_sessions VALUES(NULL,?,?,?,?,?,?)";
         const now = Math.floor(Date.now() * 0.001);
 
-        await mysql.simpleInsert(query, [date, name, hash, now, expires, ip]);
+        await simpleQuery(query, [date, name, hash, now, expires, ip]);
     }
 
 
@@ -275,7 +277,7 @@ class User{
 
         const query = "SELECT * FROM nstats_sessions WHERE hash=? ORDER BY date DESC LIMIT 1";
 
-        const result = await mysql.simpleFetch(query, [hash]);
+        const result = await simpleQuery(query, [hash]);
 
         if(result.length === 0) return null;
         return result[0];
@@ -288,7 +290,7 @@ class User{
 
         const query = "UPDATE nstats_sessions SET expires=? WHERE hash=?";
 
-        await mysql.simpleInsert(query, [expires, hash]);
+        await simpleQuery(query, [expires, hash]);
 
     }
 
@@ -296,7 +298,7 @@ class User{
 
         const query = "DELETE FROM nstats_sessions WHERE hash=?";
 
-        await mysql.simpleDelete(query, [hash]);
+        await simpleQuery(query, [hash]);
 
     }
 
@@ -308,7 +310,7 @@ class User{
 
         const now = Math.floor(Date.now() * 0.001);
 
-        await mysql.simpleUpdate(query, [now, ip, user]);
+        await simpleQuery(query, [now, ip, user]);
 
     }
 
@@ -318,14 +320,14 @@ class User{
 
         const now = Math.floor(Date.now() * 0.001);
 
-        await mysql.simpleUpdate(query, [now, user]);
+        await simpleQuery(query, [now, user]);
 
     }
 
     async bUserActivatedById(userId){
 
         const query = "SELECT COUNT(*) as activated_accounts FROM nstats_users WHERE id=? AND activated=1";
-        const result = await mysql.simpleFetch(query, [userId]);
+        const result = await simpleQuery(query, [userId]);
 
         if(result.length > 0){
             if(result[0].activated_accounts > 0) return true;
@@ -405,7 +407,7 @@ class User{
     async bAdmin(user){
 
         const query = "SELECT COUNT(*) as total_users FROM nstats_users WHERE id=? AND admin=1";
-        const result = await mysql.simpleFetch(query, [user]);
+        const result = await simpleQuery(query, [user]);
 
         if(result.length > 0){
             if(result[0].total_users > 0) return true;
@@ -419,7 +421,7 @@ class User{
     async adminGetAll(){
 
         const query = "SELECT id,name,joined,activated,logins,admin,last_login,last_active,last_ip,banned,upload_images FROM nstats_users ORDER BY name ASC";
-        return await mysql.simpleFetch(query);
+        return await simpleQuery(query);
         
     }
 
@@ -427,7 +429,7 @@ class User{
     async activateAccount(id){
 
         const query = "UPDATE nstats_users SET activated=1 WHERE id=?";
-        await mysql.simpleUpdate(query, [id]);
+        await simpleQuery(query, [id]);
 
     }
     
@@ -435,7 +437,7 @@ class User{
     async bBanned(userId){
 
         const query = "SELECT COUNT(*) as total_users FROM nstats_users WHERE id=? AND banned=1";
-        const result = await mysql.simpleFetch(query, [userId]);
+        const result = await simpleQuery(query, [userId]);
 
         if(result.length > 0){
             if(result[0].total_users > 0) return true;
@@ -448,21 +450,21 @@ class User{
     async changeAdminPermission(id, value){
 
         const query = "UPDATE nstats_users SET admin=? WHERE id=?";
-        await mysql.simpleUpdate(query, [value, id]);
+        await simpleQuery(query, [value, id]);
    
     }
 
     async changeImagesPermission(id, value){
 
         const query = "UPDATE nstats_users SET upload_images=? WHERE id=?";
-        await mysql.simpleUpdate(query, [value, id]);
+        await simpleQuery(query, [value, id]);
    
     }
 
     async bUploadImages(id){
 
         const query = "SELECT COUNT(*) as total_users FROM nstats_users WHERE id=? AND upload_images=1";
-        const result = await mysql.simpleFetch(query, [id]);
+        const result = await simpleQuery(query, [id]);
 
         if(result.length > 0){
             if(result[0].total_users > 0) return true;
@@ -475,7 +477,7 @@ class User{
     async changeBanValue(id, value){
 
         const query = "UPDATE nstats_users SET banned=? WHERE id=?";
-        await mysql.simpleUpdate(query, [value, id]);
+        await simpleQuery(query, [value, id]);
 
     }
 
@@ -483,9 +485,6 @@ class User{
     async deleteExpiredSessions(){
 
         const now = Math.floor(Date.now() * 0.001) + 1;
-        return await mysql.simpleDelete("DELETE FROM nstats_sessions WHERE expires < ?", [now]);
+        return await simpleQuery("DELETE FROM nstats_sessions WHERE expires < ?", [now]);
     }
 }
-
-
-module.exports = User;

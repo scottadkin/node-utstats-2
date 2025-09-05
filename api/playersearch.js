@@ -1,7 +1,7 @@
-import mysql from "./database";
+import { simpleQuery } from "./database.js";
 import { cleanInt } from "./generic.mjs";
 
-class PlayerSearch{
+export default class PlayerSearch{
 
     constructor(){}
 
@@ -93,8 +93,8 @@ class PlayerSearch{
         const normalQuery = this.createSearchQuery(name, page, perPage, country, activeRange, sortBy, order, false);
         const totalQuery = this.createSearchQuery(name, page, perPage, country, activeRange, sortBy, order, true);
 
-        const normalResult = await mysql.simpleQuery(normalQuery.query, normalQuery.vars);
-        const totalResult = await mysql.simpleQuery(totalQuery.query, totalQuery.vars);
+        const normalResult = await simpleQuery(normalQuery.query, normalQuery.vars);
+        const totalResult = await simpleQuery(totalQuery.query, totalQuery.vars);
 
         return {
             "totalMatches": totalResult[0].total_matches,
@@ -106,10 +106,8 @@ class PlayerSearch{
 
         const totalQuery = this.createSearchQuery(name, page, perPage, country, activeRange, sortBy, order, true);
 
-        const totalResult = await mysql.simpleQuery(totalQuery.query, totalQuery.vars);
+        const totalResult = await simpleQuery(totalQuery.query, totalQuery.vars);
 
         return totalResult[0].total_matches;
     }
 }
-
-export default PlayerSearch;

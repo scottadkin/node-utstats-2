@@ -1,9 +1,10 @@
-const mysql = require('./database');
-const Message = require('./message');
-const geo = require('geoip-lite');
-const countries = require('./countries');
+import { simpleQuery, updateReturnAffectedRows } from "./database.js";
+import Message from "./message.js";
+import geo from "geoip-lite";
+//const geo = require('geoip-lite');
+import Countries from "./countries.js";
 
-class Analytics{
+export default class Analytics{
 
     constructor(){}
 
@@ -12,7 +13,7 @@ class Analytics{
 
         const query = "INSERT INTO nstats_visitors VALUES(NULL,?,?,?,1)";
 
-        await mysql.simpleQuery(query, [ip, date, date]);
+        await simpleQuery(query, [ip, date, date]);
     }
 
     static async updateVisitorHistory(ip, date){
@@ -30,7 +31,7 @@ class Analytics{
 
             const query = "UPDATE nstats_visitors SET last=?,total=total+1 WHERE ip=?";
 
-            const changed = await mysql.updateReturnAffectedRows(query, vars);
+            const changed = await updateReturnAffectedRows(query, vars);
 
             if(changed === 0){
                 await this.insertNewVisitor(ip, date);
@@ -45,7 +46,7 @@ class Analytics{
 
         const query = "INSERT INTO nstats_visitors_countries VALUES(NULL,?,?,?,?,1)";
 
-        await mysql.simpleQuery(query, [code, country, date, date]);
+        await simpleQuery(query, [code, country, date, date]);
     }
 
     static async updateVisitorCountryHistory(countryData, date){
@@ -57,7 +58,7 @@ class Analytics{
             
             const query = "UPDATE nstats_visitors_countries SET last=?,total=total+1 WHERE code=?";
 
-            const changed = await mysql.updateReturnAffectedRows(query, [date, code]);
+            const changed = await updateReturnAffectedRows(query, [date, code]);
 
             if(changed === 0){
                 await this.insertNewCountry(code, country, date);
@@ -72,7 +73,7 @@ class Analytics{
 
         const query = "INSERT INTO nstats_user_agents VALUES(NULL,?,?,?,?,1)";
 
-        await mysql.simpleQuery(query, [system, platform, date, date]);
+        await simpleQuery(query, [system, platform, date, date]);
     }
 
     static findBrowserName(agent){
@@ -153,7 +154,7 @@ class Analytics{
 
             const browser = this.findBrowserName(agent);
 
-            const changedRows = await mysql.updateReturnAffectedRows(query, [now, system, browser]);
+            const changedRows = await updateReturnAffectedRows(query, [now, system, browser]);
 
 
             if(changedRows === 0){
@@ -177,7 +178,7 @@ class Analytics{
 
         const now = Math.floor(Date.now() * 0.001);
 
-        await mysql.simpleQuery(query, [ip, now]);
+        await simpleQuery(query, [ip, now]);
 
         await this.updateVisitorHistory(ip, now);
         
@@ -185,7 +186,7 @@ class Analytics{
 
         if(iplookup !== null){
 
-            const countryData = countries(iplookup.country);
+            const countryData = Countries(iplookup.country);
 
             await this.updateVisitorCountryHistory(countryData, now);
 
@@ -201,7 +202,7 @@ class Analytics{
 
         const query = "SELECT code,country,first,last,total FROM nstats_visitors_countries ORDER BY total DESC";
 
-        return await mysql.simpleQuery(query);
+        return await simpleQuery(query);
     }
 
     async getIpsByHits(limit, bIgnoreLocalHost){
@@ -210,7 +211,7 @@ class Analytics{
 
         const query = "SELECT ip,first,last,total FROM nstats_visitors ORDER BY total DESC LIMIT ?";
 
-        const result = await mysql.simpleQuery(query, [limit]);
+        const result = await simpleQuery(query, [limit]);
 
         if(!bIgnoreLocalHost) return result;
 
@@ -247,7 +248,7 @@ class Analytics{
 
         const query = "SELECT COUNT(*) as total_hits FROM nstats_hits WHERE date >= ? AND date <= ?";
 
-        const total = await mysql.simpleQuery(query, [start, end]);
+        const total = await simpleQuery(query, [start, end]);
 
         return total[0].total_hits;
     }
@@ -258,7 +259,7 @@ class Analytics{
 
         const query = "SELECT COUNT(*) as hits FROM nstats_hits WHERE date >= ? AND date <= ? GROUP BY (ip)";
 
-        const data = await mysql.simpleQuery(query, [start, end]);
+        const data = await simpleQuery(query, [start, end]);
 
         let returning = 0;
 
@@ -291,7 +292,7 @@ class Analytics{
     async getUserAgents(){
 
         const query = "SELECT system_name,browser,first,last,total FROM nstats_user_agents ORDER BY total DESC";
-        return await mysql.simpleQuery(query);
+        return await simpleQuery(query);
     }
 
 
@@ -299,7 +300,7 @@ class Analytics{
 
         const query = `SELECT SUM(total) as total_hits FROM nstats_visitors_countries`;
 
-        const result = await mysql.simpleQuery(query);
+        const result = await simpleQuery(query);
 
         return result[0].total_hits;
     }
@@ -311,7 +312,7 @@ class Analytics{
 
         const query = `SELECT ip,date FROM nstats_hits WHERE date>=? AND date<=? ORDER BY date ASC`;
 
-        const result = await mysql.simpleQuery(query, [now - range, now]);
+        const result = await simpleQuery(query, [now - range, now]);
 
         const totalHits = {
             "hour": 0,
@@ -449,6 +450,3 @@ class Analytics{
         return {"graphData": graphData, "totalHits": totalHits};
     }
 }
-
-
-module.exports = Analytics;

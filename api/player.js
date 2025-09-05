@@ -1,5 +1,4 @@
 import { simpleQuery, bulkInsert } from "./database.js";
-import Message from "./message.js";
 import { setValueIfUndefined, calculateKillEfficiency, removeIps } from "./functions.js";
 import CountriesManager from "./countriesmanager.js";
 import Assault from "./assault.js";

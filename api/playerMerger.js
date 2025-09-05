@@ -1,13 +1,13 @@
-const mysql = require("./database");
-const Message = require("./message");
-const Players = require("./players");
-const Rankings = require("./rankings");
-const WinRate = require("./winrate");
+import { simpleQuery } from "./database.js";
+import Message from "./message.js";
+import Players from "./players.js";
+import Rankings from "./rankings.js";
+import WinRate from "./winrate.js";
 
 /**
  * Maybe this time I get it right...
  */
-class PlayerMerger{
+export default class PlayerMerger{
 
     constructor(oldId, newId, hwid){
 
@@ -25,7 +25,7 @@ class PlayerMerger{
 
         const matchQuery = `SELECT * FROM nstats_player_matches WHERE hwid=?`;
 
-        const matchData = await mysql.simpleQuery(matchQuery, [this.hwid]);
+        const matchData = await simpleQuery(matchQuery, [this.hwid]);
 
 
         const targetMatches = [];
@@ -46,7 +46,7 @@ class PlayerMerger{
 
 
         const query = `UPDATE nstats_player_matches SET player_id=? WHERE hwid=?`;
-        await mysql.simpleQuery(query, [this.newId, this.hwid]);
+        await simpleQuery(query, [this.newId, this.hwid]);
 
         //console.log(affectedPlayerIds);
 
@@ -118,7 +118,7 @@ class PlayerMerger{
     /*async recalcPlayerTotalsFromMatchData(playerId, playerName){
 
         const getQuery = `SELECT * FROM nstats_player_matches WHERE player_id=?`;
-        const result = await mysql.simpleQuery(getQuery, [playerId]);
+        const result = await simpleQuery(getQuery, [playerId]);
 
         console.log(result);
 
@@ -212,7 +212,7 @@ class PlayerMerger{
             vars = [newId, oldId, matchId];
         }
 
-        return await mysql.simpleQuery(query, vars);
+        return await simpleQuery(query, vars);
     }
 
 
@@ -442,7 +442,7 @@ class PlayerMerger{
 
             new Message(`Delete old data from table ${t}.`,"note");
 
-            await mysql.simpleQuery(`DELETE FROM nstats_${t} WHERE player_id=?`, [playerId]);
+            await simpleQuery(`DELETE FROM nstats_${t} WHERE player_id=?`, [playerId]);
             new Message(`Deleted old data from table ${t}.`,"pass");
         }
     }
@@ -475,7 +475,7 @@ class PlayerMerger{
         }
 
         new Message(`Start inserting new player ctf totals(${totalInsertVars.length} rows).`,"note");
-        await mysql.bulkInsert(totalsQuery, totalInsertVars);
+        await bulkInsert(totalsQuery, totalInsertVars);
         new Message(`Finished inserting new player ctf totals.`,"pass");
 
         const bestQuery = `INSERT INTO nstats_player_ctf_best (
@@ -503,7 +503,7 @@ class PlayerMerger{
         }
 
         new Message(`Start inserting new player ctf best values(${bestInsertVars.length} rows).`,"note");
-        await mysql.bulkInsert(bestQuery, bestInsertVars);
+        await bulkInsert(bestQuery, bestInsertVars);
         new Message(`Finished inserting new player ctf best values.`,"pass");
 
 
@@ -532,7 +532,7 @@ class PlayerMerger{
         }
 
         new Message(`Start inserting new player ctf best life values(${bestLifeInsertVars.length} rows).`,"note");
-        await mysql.bulkInsert(bestLifeQuery, bestLifeInsertVars);
+        await bulkInsert(bestLifeQuery, bestLifeInsertVars);
         new Message(`Finished inserting new player ctf best life values.`,"pass");
 
 
@@ -545,7 +545,7 @@ class PlayerMerger{
 
         const matchQuery = `SELECT * FROM nstats_player_ctf_match WHERE player_id=?`;
 
-        const matchResult = await mysql.simpleQuery(matchQuery, [playerId]);
+        const matchResult = await simpleQuery(matchQuery, [playerId]);
 
         const totals = this.recalCTFPlayerTotals(matchResult);
         const best = this.recalCTFBest(matchResult);
@@ -561,7 +561,7 @@ class PlayerMerger{
 
         const query = `SELECT * FROM nstats_player_ctf_match WHERE player_id=?`;
 
-        const result = await mysql.simpleQuery(query, newId);
+        const result = await simpleQuery(query, newId);
 
         const mergeTypes = [
             "playtime",
@@ -655,7 +655,7 @@ class PlayerMerger{
         }
 
         const deleteQuery = `DELETE FROM nstats_player_ctf_match WHERE player_id=?`;
-        await mysql.simpleQuery(deleteQuery, [newId]);
+        await simpleQuery(deleteQuery, [newId]);
 
         const insertQuery = `INSERT INTO nstats_player_ctf_match (
             player_id,
@@ -791,7 +791,7 @@ class PlayerMerger{
             ])
         }
 
-        await mysql.bulkInsert(insertQuery, insertVars);
+        await bulkInsert(insertQuery, insertVars);
 
     }
 
@@ -927,7 +927,7 @@ class PlayerMerger{
             }
 
 
-            await mysql.simpleQuery(`UPDATE nstats_${table} ${query}`, vars);
+            await simpleQuery(`UPDATE nstats_${table} ${query}`, vars);
         }
 
         
@@ -961,7 +961,7 @@ class PlayerMerger{
                 query += ` AND match_id=?`;
             }
 
-            await mysql.simpleQuery(query, vars);
+            await simpleQuery(query, vars);
         }
 
         new Message(`Merge dom tables.`,"pass");
@@ -983,7 +983,7 @@ class PlayerMerger{
             vars = [oldId, matchId, newId, oldId, matchId, newId];
         }
 
-        await mysql.simpleQuery(query, vars);
+        await simpleQuery(query, vars);
         new Message(`Merge headshots table`, "pass");
     }
 
@@ -993,7 +993,7 @@ class PlayerMerger{
 
         const query = `SELECT MIN(date) as first_date, MAX(date) as last_date FROM nstats_matches WHERE id IN(?)`;
 
-        const result = await mysql.simpleQuery(query, [matchIds]);
+        const result = await simpleQuery(query, [matchIds]);
 
         return {
             "first": result[0].first_date,
@@ -1007,7 +1007,7 @@ class PlayerMerger{
 
         const query = `SELECT id,date FROM nstats_matches WHERE id IN(?)`;
 
-        const result = await mysql.simpleQuery(query, [matchIds]);
+        const result = await simpleQuery(query, [matchIds]);
 
         const data = {};
 
@@ -1023,7 +1023,7 @@ class PlayerMerger{
 
         const getQuery = `SELECT match_id,item,uses FROM nstats_items_match WHERE player_id=?`;
 
-        const result = await mysql.simpleQuery(getQuery, [playerId]);
+        const result = await simpleQuery(getQuery, [playerId]);
 
         const totals = {};
 
@@ -1063,7 +1063,7 @@ class PlayerMerger{
     async fixItemTotals(playerId){
 
         const deleteOldQuery = `DELETE FROM nstats_items_player WHERE player=?`;
-        await mysql.simpleQuery(deleteOldQuery, [playerId]);
+        await simpleQuery(deleteOldQuery, [playerId]);
 
         const newTotals = await this.recalcItemTotals(playerId);
 
@@ -1080,7 +1080,7 @@ class PlayerMerger{
             player,item,first,last,uses,matches
         ) VALUES ?`;
 
-        await mysql.bulkInsert(totalsQuery, totalInsertVars);
+        await bulkInsert(totalsQuery, totalInsertVars);
     }
 
     async mergeItems(oldId, newId, matchId){
@@ -1097,7 +1097,7 @@ class PlayerMerger{
             matchVars.push(matchId);
         }
 
-        await mysql.simpleQuery(matchQuery, matchVars);
+        await simpleQuery(matchQuery, matchVars);
 
         await this.fixItemTotals(newId);
 
@@ -1122,7 +1122,7 @@ class PlayerMerger{
             vars = [oldId, matchId, newId, oldId, matchId, newId];
         }
         
-        await mysql.simpleQuery(query, vars);
+        await simpleQuery(query, vars);
 
         new Message(`Merge kill tables`, "pass");
     }
@@ -1132,7 +1132,7 @@ class PlayerMerger{
 
         const getQuery = `SELECT * FROM nstats_player_combogib WHERE player_id=?`;
 
-        const result = await mysql.simpleQuery(getQuery, [this.newId]);
+        const result = await simpleQuery(getQuery, [this.newId]);
 
         const mergeTypes = [
             "total_matches",
@@ -1227,7 +1227,7 @@ class PlayerMerger{
         }
 
         const deleteQuery = `DELETE FROM nstats_player_combogib WHERE player_id=?`;
-        await mysql.simpleQuery(deleteQuery, [this.newId]);
+        await simpleQuery(deleteQuery, [this.newId]);
 
 
         const insertVars = [];
@@ -1268,7 +1268,7 @@ class PlayerMerger{
             best_shockball_spree, best_shockball_spree_match_id, best_primary_spree, best_primary_spree_match_id
         ) VALUES ?`;
 
-        await mysql.bulkInsert(insertQuery, insertVars);
+        await bulkInsert(insertQuery, insertVars);
     }
 
 
@@ -1374,7 +1374,7 @@ class PlayerMerger{
 
         const getQuery = `SELECT * FROM nstats_match_combogib WHERE player_id=?`;
 
-        const result = await mysql.simpleQuery(getQuery, [playerId]);
+        const result = await simpleQuery(getQuery, [playerId]);
     
         const totals = {};
 
@@ -1416,7 +1416,7 @@ class PlayerMerger{
         
 
         const deleteQuery = `DELETE FROM nstats_player_combogib WHERE player_id=?`;
-        await mysql.simpleQuery(deleteQuery, [playerId]);
+        await simpleQuery(deleteQuery, [playerId]);
 
 
         const insertQuery = `INSERT INTO nstats_player_combogib (
@@ -1524,7 +1524,7 @@ class PlayerMerger{
             }
         }
 
-        await mysql.bulkInsert(insertQuery, insertVars);
+        await bulkInsert(insertQuery, insertVars);
     }
 
     async mergeCombogib(oldId, newId, matchId){
@@ -1562,7 +1562,7 @@ class PlayerMerger{
             oldId, newId,
         ];
 
-        await mysql.simpleQuery(mapQuery, mapVars);
+        await simpleQuery(mapQuery, mapVars);
 
 
         let matchQuery = `UPDATE nstats_match_combogib SET player_id=? WHERE player_id=?`;
@@ -1573,7 +1573,7 @@ class PlayerMerger{
             matchVars.push(matchId);
         }
 
-        await mysql.simpleQuery(matchQuery, matchVars);
+        await simpleQuery(matchQuery, matchVars);
 
         if(bMatch){
             await this.recalcComboTotals(oldId);
@@ -1608,7 +1608,7 @@ class PlayerMerger{
                 vars.push(matchId);
             }
 
-            await mysql.simpleQuery(query, vars);
+            await simpleQuery(query, vars);
         }
 
         new Message(`Merge misc player match tables`,"pass");
@@ -1621,7 +1621,7 @@ class PlayerMerger{
 
         const getQuery = `SELECT * FROM nstats_monsters_player_match WHERE player=?`;
 
-        const result = await mysql.simpleQuery(getQuery, [playerId]);
+        const result = await simpleQuery(getQuery, [playerId]);
 
         const totals = {};
 
@@ -1645,7 +1645,7 @@ class PlayerMerger{
         }
 
         const deleteQuery = `DELETE FROM nstats_monsters_player_totals WHERE player=?`;
-        await mysql.simpleQuery(deleteQuery, [playerId]);
+        await simpleQuery(deleteQuery, [playerId]);
 
         const insertQuery = `INSERT INTO nstats_monsters_player_totals (
             player,
@@ -1669,7 +1669,7 @@ class PlayerMerger{
             ]);
         }
 
-        await mysql.bulkInsert(insertQuery, insertVars);
+        await bulkInsert(insertQuery, insertVars);
     }
 
     async mergeMonsterTables(oldId, newId, matchId){
@@ -1698,7 +1698,7 @@ class PlayerMerger{
             }
 
             
-            await mysql.simpleQuery(query, vars);
+            await simpleQuery(query, vars);
         }
 
 
@@ -1713,7 +1713,7 @@ class PlayerMerger{
 
         const query = `DELETE FROM nstats_player_maps WHERE player=?`;
 
-        await mysql.simpleQuery(query, [playerId]);
+        await simpleQuery(query, [playerId]);
     }
 
     async recalcMapTotals(playerId){
@@ -1722,7 +1722,7 @@ class PlayerMerger{
 
         const query = `SELECT match_id,player_id,playtime,map_id,match_date FROM nstats_player_matches WHERE player_id=?`;
 
-        const result = await mysql.simpleQuery(query, [playerId]);
+        const result = await simpleQuery(query, [playerId]);
 
         await this.deleteCurrentMapTotals(playerId);
 
@@ -1791,7 +1791,7 @@ class PlayerMerger{
             longest, longest_id
         ) VALUES ?`;
 
-        await mysql.bulkInsert(insertQuery, insertVars);
+        await bulkInsert(insertQuery, insertVars);
 
         new Message(`Merge player maps table`, "pass");
     }
@@ -1801,7 +1801,7 @@ class PlayerMerger{
 
         const getQuery = `SELECT * FROM nstats_player_matches WHERE player_id=?`;
 
-        const data = await mysql.simpleQuery(getQuery, [playerId]);
+        const data = await simpleQuery(getQuery, [playerId]);
 
         const mergeTypes = [
             "playtime",              "team_0_playtime",
@@ -1933,7 +1933,7 @@ class PlayerMerger{
         }
  
         const deleteQuery = `DELETE FROM nstats_player_matches WHERE player_id=?`;
-        await mysql.simpleQuery(deleteQuery, [playerId]);
+        await simpleQuery(deleteQuery, [playerId]);
 
         const rows = Object.values(totals);
      
@@ -2006,7 +2006,7 @@ class PlayerMerger{
             ]);
         }
 
-        await mysql.bulkInsert(insertQuery, insertVars);
+        await bulkInsert(insertQuery, insertVars);
 
     }
 
@@ -2024,7 +2024,7 @@ class PlayerMerger{
             vars.push(matchId);
         }
 
-        await mysql.simpleQuery(query, vars);
+        await simpleQuery(query, vars);
 
         await this.fixDuplicatePlayerMatchData(newId);
 
@@ -2096,7 +2096,7 @@ class PlayerMerger{
 
         const query = `DELETE FROM nstats_player_telefrags WHERE player_id=?`;
 
-        return await mysql.simpleQuery(query, [playerId]);
+        return await simpleQuery(query, [playerId]);
     }
 
 
@@ -2128,7 +2128,7 @@ class PlayerMerger{
             }
         }
 
-        await mysql.bulkInsert(query, insertVars);
+        await bulkInsert(query, insertVars);
     }
 
     async recalcPlayerTeleFragTotals(playerId){
@@ -2137,7 +2137,7 @@ class PlayerMerger{
         telefrag_best_multi,tele_disc_kills,tele_disc_deaths,tele_disc_best_spree,tele_disc_best_multi
         FROM nstats_player_matches WHERE player_id=?`;
 
-        const result = await mysql.simpleQuery(query, [playerId]);
+        const result = await simpleQuery(query, [playerId]);
 
         //gametype and maps for the totals table
 
@@ -2210,7 +2210,7 @@ class PlayerMerger{
             vars = [oldId, matchId, newId, oldId, matchId, newId];
         }
 
-        await mysql.simpleQuery(query, vars);
+        await simpleQuery(query, vars);
 
 
         await this.recalcPlayerTeleFragTotals(oldId);
@@ -2234,7 +2234,7 @@ class PlayerMerger{
             vars = [oldId, matchId, newId, oldId, matchId, newId];
         }
 
-        await mysql.simpleQuery(query, vars);
+        await simpleQuery(query, vars);
         new Message("Merge sprees table", "pass");
     }
 
@@ -2385,7 +2385,7 @@ class PlayerMerger{
 
         const query = `SELECT * FROM nstats_player_matches WHERE player_id=?`;
 
-        const result = await mysql.simpleQuery(query, [playerId]);
+        const result = await simpleQuery(query, [playerId]);
 
 
         const totals = {};
@@ -2418,7 +2418,7 @@ class PlayerMerger{
 
         const query = `SELECT name FROM nstats_player_totals WHERE id=?`;
 
-        const result = await mysql.simpleQuery(query, [playerId]);
+        const result = await simpleQuery(query, [playerId]);
 
         if(result.length > 0) return result[0].name;
 
@@ -2585,7 +2585,7 @@ class PlayerMerger{
             playerId
         ];
 
-        await mysql.simpleQuery(query, vars);
+        await simpleQuery(query, vars);
 
         new Message(`Updating master profile stats`,"pass");   
     }
@@ -2594,7 +2594,7 @@ class PlayerMerger{
 
         const query = `DELETE FROM nstats_player_totals WHERE id=?`;
 
-        await mysql.simpleQuery(query, [playerId]);
+        await simpleQuery(query, [playerId]);
     }
 
 
@@ -2603,7 +2603,7 @@ class PlayerMerger{
 
         const query = `DELETE FROM nstats_player_totals WHERE player_id=?`;
 
-        return await mysql.simpleQuery(query, [playerId]);
+        return await simpleQuery(query, [playerId]);
     }
 
 
@@ -2655,7 +2655,7 @@ class PlayerMerger{
                 ];
 
 
-                await mysql.simpleQuery(query, vars);
+                await simpleQuery(query, vars);
             }
         }
     }
@@ -2669,7 +2669,7 @@ class PlayerMerger{
         //for everything other than master profile(id=x and player_id=0)
         //const updateQuery = `UPDATE nstats_player_totals SET player_id=?,name=? WHERE player_id=?`;
 
-        //await mysql.simpleQuery(updateQuery, [newId, playerName, oldId]);
+        //await simpleQuery(updateQuery, [newId, playerName, oldId]);
 
         const newTotals = await this.createNewPlayerTotals(newId);
 
@@ -2704,7 +2704,7 @@ class PlayerMerger{
         MAX(carrier_kills_best) as carrier_kills_best_life
         FROM nstats_powerups_player_match WHERE player_id=? GROUP BY powerup_id,gametype_id`;
     
-        const result = await mysql.simpleQuery(query, [playerId]);
+        const result = await simpleQuery(query, [playerId]);
     
         const insertVars = [];
 
@@ -2743,14 +2743,14 @@ class PlayerMerger{
             total_carrier_kills, carrier_kills_best, carrier_kills_single_life
         ) VALUES ?`;
 
-        await mysql.bulkInsert(insertQuery, insertVars);
+        await bulkInsert(insertQuery, insertVars);
     }
 
     async deleteOldPowerups(oldId, newId){
 
         const query = `DELETE FROM nstats_powerups_player_totals WHERE player_id IN (?)`;
 
-        await mysql.simpleQuery(query, [[newId, oldId]]);
+        await simpleQuery(query, [[newId, oldId]]);
     }
 
     async mergePowerups(oldId, newId, matchId){
@@ -2775,7 +2775,7 @@ class PlayerMerger{
                 vars.push(matchId);
             }
 
-            await mysql.simpleQuery(query, vars);
+            await simpleQuery(query, vars);
         }
 
 
@@ -2812,7 +2812,7 @@ class PlayerMerger{
 
         const query = `DELETE FROM nstats_player_weapon_totals WHERE player_id IN (?)`;
 
-        await mysql.simpleQuery(query, [[newId, oldId]]);
+        await simpleQuery(query, [[newId, oldId]]);
     }
 
     async recalcWeaponTotals(playerId){
@@ -2833,7 +2833,7 @@ class PlayerMerger{
         WHERE player_id=?
         GROUP BY weapon_id`;
 
-        const result = await mysql.simpleQuery(query, [playerId]);
+        const result = await simpleQuery(query, [playerId]);
 
         const insertVars = [];
 
@@ -2879,7 +2879,7 @@ class PlayerMerger{
             efficiency,accuracy,shots,hits,damage,matches
         ) VALUES ?`;
 
-        await mysql.bulkInsert(insertQuery, insertVars);
+        await bulkInsert(insertQuery, insertVars);
     }
 
     async mergeWeapons(oldId, newId, matchId){
@@ -2895,7 +2895,7 @@ class PlayerMerger{
              query += ` AND match_id=?`;
              vars.push(matchId);
         }
-        await mysql.simpleQuery(query, vars);
+        await simpleQuery(query, vars);
 
         await this.deleteOldWeaponTotals(oldId, newId);
 
@@ -2962,10 +2962,8 @@ class PlayerMerger{
             max_win_streak,max_draw_streak,max_lose_streak
         ) VALUES ?`;
 
-        await mysql.bulkInsert(insertQuery, insertVars);
+        await bulkInsert(insertQuery, insertVars);
 
         new Message(`Merge player winrates`,"pass");
     }
 }
-
-module.exports = PlayerMerger;
