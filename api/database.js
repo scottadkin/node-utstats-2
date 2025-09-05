@@ -12,7 +12,7 @@ export async function simpleQuery(query, vars){
 
     if(vars === undefined) vars = [];
 
-    const [result, fields] = await Database.execute(query, vars);
+    const [result, fields] = await Database.query(query, vars);
     
     return result;
 }
@@ -33,7 +33,9 @@ export async function insertReturnInsertId(query, vars){
     return data.insertId;
 }
 
-
+export function mysqlEscape(value){
+    return Database.escape(value);
+}
 
 export async function bulkInsert(query, vars, maxPerInsert){
 
@@ -43,17 +45,21 @@ export async function bulkInsert(query, vars, maxPerInsert){
 
     let startIndex = 0;
 
-    if(vars.length < maxPerInsert){
-        await simpleQuery(query, [vars]);
-        return;
-    }
+    try{
+        if(vars.length < maxPerInsert){
+            await simpleQuery(query, [vars]);
+            return;
+        }
 
-    while(startIndex < vars.length){
+        while(startIndex < vars.length){
 
-        const end = (startIndex + maxPerInsert > vars.length) ? vars.length : startIndex + maxPerInsert;
-        const currentVars = vars.slice(startIndex, end);
-        await simpleQuery(query, [currentVars]);
-        startIndex += maxPerInsert;
+            const end = (startIndex + maxPerInsert > vars.length) ? vars.length : startIndex + maxPerInsert;
+            const currentVars = vars.slice(startIndex, end);
+            await simpleQuery(query, [currentVars]);
+            startIndex += maxPerInsert;
+        }
+    }catch(err){
+        console.trace(err);
     }
 
     return;

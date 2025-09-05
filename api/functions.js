@@ -205,8 +205,8 @@ export function removeUnr(name){
 
 export function cleanMapName(name){
 
-    name = this.removeUnr(name);
-    name = this.removeMapGametypePrefix(name);
+    name = removeUnr(name);
+    name = removeMapGametypePrefix(name);
 
     name = name.replace(/[\[\]\'\`]/ig,"");
 
@@ -437,7 +437,7 @@ export function convertTimestamp (timestamp, noDayName, noTime){
     let dayNameString = "";
 
     if(!noDayName){
-        dayNameString = `${this.getDayName(dayName)} `;
+        dayNameString = `${getDayName(dayName)} `;
     }
     
     let timeString = "";
@@ -446,7 +446,7 @@ export function convertTimestamp (timestamp, noDayName, noTime){
         timeString = ` ${hour}:${minute}`;
     }
 
-    return `${dayNameString}${day}${this.getOrdinal(day)} ${this.getMonthName(month)} ${year}${timeString}`;
+    return `${dayNameString}${day}${getOrdinal(day)} ${getMonthName(month)} ${year}${timeString}`;
 
 }
 
@@ -526,7 +526,7 @@ export function generateRandomString(length){
 
     for(let i = 0; i < length; i++){
 
-        string += this.generateRandomChar();
+        string += generateRandomChar();
     }
 
     return string;
