@@ -1,5 +1,3 @@
-import { simpleQuery } from "./database.js";
-
 export function fart(){
     return "Fart Noise";
 }
@@ -672,44 +670,6 @@ export function cleanInt(input, min, max, defaultMin, defaultMax){;
 }
 
 
-/**
- * 
- * @param {*} type map, server, gametype
- * @param {*} ids array of 1 or more ids to get the names
- */
-export async function getObjectName(type, ids){
-
-    if(ids.length === 0) return {};
- 
-    const validTypes = [
-        "maps", 
-        "gametypes",
-        "servers"
-    ];
-
-    type = type.toLowerCase();
-
-    const index = validTypes.indexOf(type);
-
-    if(index === -1) throw new Error(`${type} is not a valid type for getObjectName`);
-
-    const query = `SELECT id,name FROM nstats_${validTypes[index]} WHERE id IN (?)`;
-
-    const result = await simpleQuery(query, [ids]);
-    console.log(result);
-
-    const data = {};
-
-    for(let i = 0; i < result.length; i++){
-
-        const {id, name} = result[i];
-
-        data[id] = (type === "maps") ? removeUnr(name) : name;
-    }
-
-    return data;
-}
-
 export function getUniqueValues(data, key){
 
     const found = [];
@@ -763,4 +723,17 @@ export function removeIps(data){
     }
 
     return data;
+}
+
+export function utDate(input){
+
+
+    const year = input.slice(0,4);
+    const month = input.slice(4,6);
+    const day = input.slice(6,8);
+    const hour = input.slice(8,10);
+    const minute = input.slice(10,12);
+    const seconds = input.slice(12,14);
+
+    return Math.floor(new Date(year, month - 1, day, hour, minute, seconds) * 0.001);
 }

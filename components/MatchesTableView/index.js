@@ -2,7 +2,7 @@ import Link from 'next/link';
 import MatchResultSmall from '../MatchResultSmall/';
 import Table2 from '../Table2/';
 import Playtime from '../Playtime';
-import { convertTimestamp } from '../../api/generic.mjs';
+import { convertTimestamp, removeUnr } from '../../api/generic.mjs';
 
 function getMatchResult(matchData){
 
@@ -68,7 +68,7 @@ function createRows(matches){
             
             <td><Link href={url}>{convertTimestamp(m.date, true)}</Link></td>
             <td><Link href={url}>{m.gametypeName}</Link></td>
-            <td><Link href={url}>{m.mapName}</Link></td>
+            <td><Link href={url}>{removeUnr(m.mapName)}</Link></td>
             <td><Link href={url}>{m.players}</Link></td>
             <td className="playtime"><Link href={url}><Playtime timestamp={m.playtime} /></Link></td>
             <td className="padding-0"><MatchResultSmall 

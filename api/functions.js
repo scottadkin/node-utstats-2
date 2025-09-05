@@ -146,15 +146,6 @@ export function removeUnr(name){
     return name;
 }
 
-export function cleanMapName(name){
-
-    name = removeUnr(name);
-    name = removeMapGametypePrefix(name);
-
-    name = name.replace(/[\[\]\'\`]/ig,"");
-
-    return name;
-}
 
 export function setSafeInt(value, defaultValue, minValue, maxValue){
 
@@ -490,18 +481,6 @@ export function removeExtension(input){
 }
 
 
-export function utDate(input){
-
-
-    const year = input.slice(0,4);
-    const month = input.slice(4,6);
-    const day = input.slice(6,8);
-    const hour = input.slice(8,10);
-    const minute = input.slice(10,12);
-    const seconds = input.slice(12,14);
-
-    return Math.floor(new Date(year, month - 1, day, hour, minute, seconds) * 0.001);
-}
 
 export function createMapOGLink(image){
 

@@ -1,16 +1,17 @@
+"use client"
 import styles from './Screenshot.module.css'
 import {useEffect, useRef} from "react";
-import Functions from '../../api/functions';
+import { utDate } from '../../api/generic.mjs';
 
 class MatchScreenshot{
 
-    constructor(canvas, image, map, players, teams, matchData, serverName, gametype, faces, highlight, bHome, bClassic, host, abortController){
+    constructor(canvas, image, map, players, teams, matchData, serverName, gametype, faces, highlight, bHome, bClassic, abortController){
         
         try{
             
             this.canvas = canvas;
             this.context = this.canvas.getContext("2d");
-            this.host = host;
+            //this.host = host;
             this.bHome = bHome;
             this.bClassic = false;
             if(bClassic !== undefined){
@@ -295,7 +296,7 @@ class MatchScreenshot{
 
     getDate(){
 
-        let date = (!this.bClassic) ? this.matchData.date * 1000 : Functions.utDate(this.matchData.time) * 1000;
+        let date = (!this.bClassic) ? this.matchData.date * 1000 : utDate(this.matchData.time) * 1000;
 
 
         const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -1375,7 +1376,8 @@ class MatchScreenshot{
 
 
 
-const Screenshot = ({host, map, totalTeams, players, image, matchData, serverName, gametype, faces, highlight, bHome, bClassic}) =>{
+const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gametypeName, faces, highlight, bHome, bClassic}) =>{
+
 
     const sshot = useRef(null);
 
@@ -1395,19 +1397,18 @@ const Screenshot = ({host, map, totalTeams, players, image, matchData, serverNam
             totalTeams, 
             matchData, 
             serverName, 
-            gametype, 
+            gametypeName, 
             faces,
             highlight,
             bHome,
             bClassic,
-            host,
             controller
         );
 
         return () =>{
             controller.abort();
         }
-    },[host, map, totalTeams, players, image, matchData, serverName, gametype, faces, highlight, bHome, bClassic]);
+    },[map, totalTeams, players, image, matchData, serverName, gametypeName, faces, highlight, bHome, bClassic]);
     
 
 

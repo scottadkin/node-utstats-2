@@ -1,7 +1,7 @@
 import {simpleQuery} from "./database.js";
 import Message from "./message.js";
 import fs from "fs";
-import {cleanMapName} from "./functions.js";
+import {cleanMapName} from "./generic.mjs";
 
 export default class Maps{
     
