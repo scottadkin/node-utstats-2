@@ -1,11 +1,10 @@
-import React from "react";
 import styles from "./Playtime.module.css";
-import Functions from "../../api/functions";
+import { toPlaytime } from "../../api/generic.mjs";
 
 
-export default function Playtime(){
+export default function Playtime({timestamp}){
 
     return <div className={styles.wrapper}>
-        {Functions.toPlaytime(this.props.timestamp)}
+        {toPlaytime(timestamp)}
     </div>
 }

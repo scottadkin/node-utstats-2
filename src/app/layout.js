@@ -1,9 +1,5 @@
-import Footer from "../../components/Footer";
-import Nav from "../../components/Nav";
-import SiteSettings from "../../api/sitesettings";
-import Session from "../../api/session";
-import { cookies, headers } from "next/headers";
 import "../../styles/globals.css";
+import Footer from "../../components/Footer";
 
 export const metadata = {
 	title: 'Next.js',
@@ -12,33 +8,15 @@ export const metadata = {
 
 export default async function RootLayout({ children }) {
 
-	const cookieStore = await cookies();
-	const header = await headers();
-	const cookiesData = cookieStore.getAll();
 
-	const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0]
-	
-	const session = new Session(ip, JSON.stringify(cookiesData));
-
-	await session.load();
-	const siteSettings = new SiteSettings();
-	const navSettings = await siteSettings.getCategorySettings("Navigation");
-	const sessionSettings = JSON.stringify(session.settings);
 
 return (
 	<html lang="en">
 		<body>
 			<main>
-				<Nav settings={navSettings} session={sessionSettings}/>		
-				<div id="content">
-					<div className="default">	
-					{"message"}	
-					</div>
-					{children}
-				</div>
-				<Footer session={sessionSettings}/>
-				</main> 
-			
+				{children}
+				<Footer/>
+			</main>	
 		</body>
 	</html>
 	)

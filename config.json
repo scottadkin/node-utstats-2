@@ -15,7 +15,7 @@
         "port": 3306,
         "user": "root",
         "password": "",
-        "database": "node_utstats_2"
+        "database": "node_utstats_2_15_x"
     },
     "logFilePrefix": "unreal.nglog.",
     "importedLogsFolder": "Logs",

@@ -4,25 +4,25 @@ import Session from "../../api/session";
 import Matches from "../../api/matches";
 import Players from "../../api/players";
 import MatchesTableView from "../../components/MatchesTableView";
+import Nav from "../../components/Nav";
 
 export default async function Page(){
 
     const cookieStore = await cookies();
-	const header = await headers();
-	const cookiesData = cookieStore.getAll();
+    const header = await headers();
+    const cookiesData = cookieStore.getAll();
 
-	const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0]
-
-    const siteSettings = new SiteSettings();
-
-	const pageSettings = await siteSettings.getCategorySettings("Home");
-	const pageOrder = await siteSettings.getCategoryOrder("Home");
-
-    console.log(pageSettings);
-
+    const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0]
+    
     const session = new Session(ip, JSON.stringify(cookiesData));
 
-	await session.load();
+    await session.load();
+    const siteSettings = new SiteSettings();
+    const navSettings = await siteSettings.getCategorySettings("Navigation");
+    const sessionSettings = JSON.stringify(session.settings);
+    const pageSettings = await siteSettings.getCategorySettings("Home");
+
+    console.log(pageSettings);
 
     const matchManager = new Matches();
     const playerManager = new Players();
@@ -36,9 +36,14 @@ export default async function Page(){
 
     console.log(matchesData);
 
-    return <div>
-
-        home page
-        <MatchesTableView data={matchesData}/>
-    </div>;
+    return <main>
+        <Nav settings={navSettings} session={sessionSettings}/>		
+        <div id="content">
+            <div className="default">	
+            {"message"}	
+            </div>
+            home page
+            <MatchesTableView data={matchesData}/>
+        </div>   
+    </main>; 
 }

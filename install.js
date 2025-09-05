@@ -1,11 +1,11 @@
 import Message from "./api/message.js";
 import fs from "fs";
-import { generateRandomString } from "./api/functions";
+import { generateRandomString } from "./api/functions.js";
 import mysql from "mysql2/promise";
 import config from "./config.json" with {"type": "json"};
 
 
-const mysqlObject = mysql.createPool({
+let mysqlObject = mysql.createPool({
     "host": config.mysql.host,
     "user": config.mysql.user,
     "password": config.mysql.password,
@@ -182,7 +182,7 @@ const queries = [
         distance_to_cap float NOT NULL,
         distance_to_enemy_base float NOT NULL,
       PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-      `CREATE TABLE nstats_ctf_flag_drops (
+      `CREATE TABLE IF NOT EXISTS nstats_ctf_flag_drops (
         id int NOT NULL AUTO_INCREMENT,
         match_id int NOT NULL,
         match_date int NOT NULL,
@@ -198,7 +198,7 @@ const queries = [
         position_z float NOT NULL,
         time_dropped float NOT NULL,
         PRIMARY KEY(id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-      `CREATE TABLE nstats_ctf_flag_pickups (
+      `CREATE TABLE IF NOT EXISTS nstats_ctf_flag_pickups (
         id int NOT NULL AUTO_INCREMENT,
         match_id int NOT NULL,
         match_date int NOT NULL,
@@ -209,7 +209,7 @@ const queries = [
         player_team int NOT NULL,
         flag_team int NOT NULL,
         PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-        `CREATE TABLE nstats_ctf_cr_kills (
+        `CREATE TABLE IF NOT EXISTS nstats_ctf_cr_kills (
           id int NOT NULL AUTO_INCREMENT,
           match_id int NOT NULL,
           match_date int NOT NULL,
@@ -1484,7 +1484,7 @@ const queries = [
         display_name varchar(100) NOT NULL,
         PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
-      `CREATE TABLE nstats_powerups_carry_times (
+      `CREATE TABLE IF NOT EXISTS  nstats_powerups_carry_times (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
         match_date int(11) NOT NULL,
@@ -1497,7 +1497,7 @@ const queries = [
         end_reason int(1) NOT NULL,
         PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
-        `CREATE TABLE nstats_powerups_player_match (
+        `CREATE TABLE IF NOT EXISTS nstats_powerups_player_match (
           id int NOT NULL AUTO_INCREMENT,
           match_id int NOT NULL,
           match_date int NOT NULL,
@@ -1518,7 +1518,7 @@ const queries = [
           carrier_kills_best int NOT NULL,
           PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
-          `CREATE TABLE nstats_powerups_player_totals (
+          `CREATE TABLE IF NOT EXISTS nstats_powerups_player_totals (
             id int NOT NULL AUTO_INCREMENT,
             player_id int NOT NULL,
             gametype_id int NOT NULL,
@@ -1765,21 +1765,14 @@ const queries = [
 ];
 
 
+async function basicQuery(query){
+	return await mysqlObject.query(query);
+} 
+
 (async () =>{
 
 
-    const basicQuery = (query) =>{
-
-        return new Promise((resolve, reject) =>{
-
-            mysql.query(query, (err) =>{
-
-                if(err) reject(err);
-
-                resolve();
-            });
-        });
-    }   
+      
 
     try{
         
@@ -1789,8 +1782,8 @@ const queries = [
             await basicQuery(queries[i]);
 
             if(i === 0){
-                mysql.end();
-                mysql = mysqlObject.createPool({
+                mysqlObject.releaseConnection();
+                mysqlObject = mysql.createPool({
                     "host": config.mysql.host,
                     "user": config.mysql.user,
                     "password": config.mysql.password,
@@ -1801,12 +1794,12 @@ const queries = [
         
         }
 
-        mysql.end();
+        mysqlObject.releaseConnection();
 
         const seed = generateRandomString(10000);
 
 
-        const fileContents = `module.exports = () => {  return \`${seed}\`;}`;
+        const fileContents = `export default function (){  return \`${seed}\`;}`;
 
         fs.writeFileSync("./salt.js", fileContents);
 

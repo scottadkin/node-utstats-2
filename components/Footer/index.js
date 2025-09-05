@@ -1,14 +1,8 @@
-import CookieBanner from '../CookieBanner/';
 
-function Footer({session}){
+function Footer({}){
 
-    if(typeof session === "string"){
-        session = JSON.parse(session);
-    }
-    
     return (
         <div>
-            <CookieBanner session={session}/>
             <footer>
                 Node UTStats 2.15.X &copy; 2021-2025 <a className="yellow" href="https://github.com/scottadkin">Scott Adkin</a><br/>
                 <span className="yellow">Original UTStats &copy; 2005 azazel, )°DoE°(-AnthraX and toa</span><br/>
