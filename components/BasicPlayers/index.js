@@ -1,14 +1,11 @@
 import Link from 'next/link';
 import CountryFlag from '../CountryFlag';
 import styles from './AddictedPlayers.module.css';
-import Functions from '../../api/functions';
+import { convertTimestamp } from '../../api/generic.mjs';
 import Image from 'next/image';
 import Playtime from '../Playtime';
 
 const BasicPlayers = ({title, players, faceFiles, host}) =>{
-
-    players = JSON.parse(players);
-    faceFiles = JSON.parse(faceFiles);
 
     const elems = [];
 
@@ -29,8 +26,8 @@ const BasicPlayers = ({title, players, faceFiles, host}) =>{
                 <div className={styles.name}><CountryFlag country={p.country} host={host}/> {p.name}</div>
                 <Image className={`${styles.face} center`} width={64} height={64} src={`/images/faces/${currentFace.name}.png`} alt="face"/>
                 <div className={styles.info}>
-                    Last Match {Functions.convertTimestamp(p.last, true)}<br/>
-                    First Match {Functions.convertTimestamp(p.first, true)}<br/>
+                    Last Match {convertTimestamp(p.last, true)}<br/>
+                    First Match {convertTimestamp(p.first, true)}<br/>
                     Playtime <Playtime timestamp={p.playtime}/><br/>
                     {p.matches} Matches
                 </div>

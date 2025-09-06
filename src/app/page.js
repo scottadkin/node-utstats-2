@@ -6,7 +6,7 @@ import Players from "../../api/players";
 import MatchesTableView from "../../components/MatchesTableView";
 import Nav from "../../components/Nav";
 import Screenshot from "../../components/Screenshot";
-import { cleanMapName, removeUnr } from "../../api/generic.mjs";
+import { cleanMapName, removeUnr, getUniqueValues } from "../../api/generic.mjs";
 import Faces from "../../api/faces";
 import Maps from "../../api/maps";
 import HomeMostPlayedGametypes from "../../components/HomeMostPlayedGametypes";
@@ -15,6 +15,8 @@ import HomeTopMaps from "../../components/HomeTopMaps";
 import PopularCountries from "../../components/PopularCountries";
 import CountriesManager from "../../api/countriesmanager";
 import HomeGeneralStats from "../../components/HomeGeneralStats";
+import BasicPlayers from "../../components/BasicPlayers";
+import MostUsedFaces from "../../components/MostUsedFaces";
 
 export default async function Page(){
 
@@ -37,6 +39,7 @@ export default async function Page(){
     const playerManager = new Players();
     const mapManager = new Maps();
     const gametypeManager = new Gametypes();
+    const faceManager = new Faces();
 
     const elems = [];
 
@@ -81,7 +84,7 @@ export default async function Page(){
                 }
             }
 
-            const faceManager = new Faces();
+            
 
             const latestFaces = await faceManager.getFacesWithFileStatuses(playerFaces);
 
@@ -164,8 +167,45 @@ export default async function Page(){
 	}
 
 
-    console.log(pageSettings);
-    
+    if(pageSettings["Display Recent Players"] === "true"){
+
+        const recentPlayersData = await playerManager.getRecentPlayers(5);
+
+        const faceIds = new Set([...recentPlayersData.map((d) =>{ return d.face; })]);
+        
+        const faceFiles = await faceManager.getFacesWithFileStatuses([...faceIds]);
+
+        elems[pageOrder["Display Recent Players"]] = <div className="default"key={"recent-players"} ><BasicPlayers 
+            title="Recent Players" 
+            players={recentPlayersData} 
+            faceFiles={faceFiles}
+        /></div>;
+    }
+
+
+    if(pageSettings["Display Addicted Players"] === "true"){
+
+        const addictedPlayersData = await playerManager.getAddictedPlayers(5);
+
+        const faceIds = new Set([...addictedPlayersData.map((d) =>{ return d.face; })]);
+        
+        const faceFiles = await faceManager.getFacesWithFileStatuses([...faceIds]);
+
+        elems[pageOrder["Display Addicted Players"]] = <div className="default" key={"addicted-players"}><BasicPlayers 
+            title="Addicted Players" 
+            players={addictedPlayersData} 
+            faceFiles={faceFiles}
+        /></div>;
+    }
+
+    if(pageSettings["Display Most Used Faces"] === "true"){
+
+        const mostUsedFaces = await faceManager.getMostUsed(5);
+        const faceIds = new Set([...mostUsedFaces.map((d) =>{ return d.id; })]);
+        const faceFiles = await faceManager.getFacesWithFileStatuses([...faceIds]);
+
+        elems[pageOrder["Display Most Used Faces"]] = <MostUsedFaces key={"faces"} data={mostUsedFaces} images={faceFiles} />;
+    }
 
 
     return <main>

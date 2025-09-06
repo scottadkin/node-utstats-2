@@ -1,23 +1,16 @@
-import Functions from '../../api/functions';
+import { convertTimestamp } from '../../api/generic.mjs';
 import styles from './MostUsedFaces.module.css';
 import Image from 'next/image';
 
-const MostUsedFaces = ({data, images, host}) =>{
-
-
-    data = JSON.parse(data);
-    images = JSON.parse(images);
+const MostUsedFaces = ({data, images}) =>{
 
     const elems = [];
 
-    let currentImage = 0;
-    let d = 0;
-
     for(let i = 0; i < data.length; i++){
 
-        d = data[i];
+        const d = data[i];
 
-        currentImage = images[d.id];
+        let currentImage = images[d.id];
 
         if(currentImage === undefined) currentImage = {"name": "faceless"};
 
@@ -26,8 +19,8 @@ const MostUsedFaces = ({data, images, host}) =>{
             <div className={styles.inner}>
                 <div>
                     Used {d.uses} times<br/>
-                    First Used {Functions.convertTimestamp(d.first, true)}<br/>
-                    Last Used {Functions.convertTimestamp(d.last, true)}<br/>
+                    First Used {convertTimestamp(d.first, true)}<br/>
+                    Last Used {convertTimestamp(d.last, true)}<br/>
                 </div>
             </div>
         </div>);
@@ -35,7 +28,7 @@ const MostUsedFaces = ({data, images, host}) =>{
 
     if(elems.length === 0) return null;
 
-    return <div className="m-bottom-10">
+    return <div className="default m-bottom-10">
         <div className="default-header">Most Used Faces</div>
         {elems}
     </div>
