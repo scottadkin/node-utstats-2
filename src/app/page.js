@@ -14,6 +14,7 @@ import Gametypes from "../../api/gametypes";
 import HomeTopMaps from "../../components/HomeTopMaps";
 import PopularCountries from "../../components/PopularCountries";
 import CountriesManager from "../../api/countriesmanager";
+import HomeGeneralStats from "../../components/HomeGeneralStats";
 
 export default async function Page(){
 
@@ -148,8 +149,6 @@ export default async function Page(){
         
         const countryData = await cm.getMostPopular(parseInt(pageSettings["Popular Countries Display Limit"]));
 
-        console.log(countryData);
-
         elems[pageOrder["Display Most Popular Countries"]] = <PopularCountries key="pc" 
             totalPlayers={totalPlayers}
             settings={{
@@ -158,6 +157,13 @@ export default async function Page(){
             data={countryData}
         />
     }
+
+    if(pageSettings["Display Recent Matches & Player Stats"] === "true"){
+		//elems[pageOrder["Display Recent Matches & Player Stats"]] = <CalendarThing key="player-match-heatmap"/>
+		elems[pageOrder["Display Recent Matches & Player Stats"]] = <HomeGeneralStats key="general-stats" />;	
+	}
+
+
     console.log(pageSettings);
     
 

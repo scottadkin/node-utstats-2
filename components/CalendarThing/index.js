@@ -1,6 +1,7 @@
+"use client"
 import { useReducer, useEffect } from "react";
 import styles from "./CalendarThing.module.css";
-import Functions from "../../api/functions";
+import { getMonthName,  getOrdinal, getDayName} from "../../api/generic.mjs";
 import HeatMapBlock from "../HeatMapBlock";
 import Loading from "../Loading";
 
@@ -129,7 +130,7 @@ const renderHeatMap = (state, year, month, currentMonth, type) =>{
     const currentDate = now.getDate();
     const daysInMonth = new Date(state.year, state.month + 1, 0).getDate();
     
-    const monthName = Functions.getMonthName(currentMonth.getMonth(), true);
+    const monthName = getMonthName(currentMonth.getMonth(), true);
     const fullYear = currentMonth.getFullYear();
 
     const data = getData(state, type);
@@ -150,7 +151,7 @@ const renderHeatMap = (state, year, month, currentMonth, type) =>{
             bHighlight = true; 
         }
 
-        const ordinal = Functions.getOrdinal(i + 1);
+        const ordinal = getOrdinal(i + 1);
 
         const day = new Date(state.year, state.month, i + 1);
 
@@ -168,7 +169,7 @@ const renderHeatMap = (state, year, month, currentMonth, type) =>{
                 bHighlight={bHighlight} 
                 value={data[i]} 
                 maxValue={max} 
-                mTitle={`${Functions.getDayName(day.getDay())} ${i + 1}${ordinal} ${monthName} ${fullYear}`}
+                mTitle={`${getDayName(day.getDay())} ${i + 1}${ordinal} ${monthName} ${fullYear}`}
                 mText={mText}
             >
                 {i+1}
@@ -224,7 +225,7 @@ const CalendarThing = () =>{
     return <>
             <div className={styles.wrapper}>
             <div className={styles.date}>
-                {Functions.getMonthName(currentMonth.getMonth(), true)} {currentMonth.getFullYear()}
+                {getMonthName(currentMonth.getMonth(), true)} {currentMonth.getFullYear()}
             </div>
             <div className={styles.buttons}>
                 <div className={styles.button} onClick={() => {dispatch({"type": "previousMonth"})}}>
