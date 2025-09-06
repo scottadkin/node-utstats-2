@@ -12,6 +12,8 @@ import Maps from "../../api/maps";
 import HomeMostPlayedGametypes from "../../components/HomeMostPlayedGametypes";
 import Gametypes from "../../api/gametypes";
 import HomeTopMaps from "../../components/HomeTopMaps";
+import PopularCountries from "../../components/PopularCountries";
+import CountriesManager from "../../api/countriesmanager";
 
 export default async function Page(){
 
@@ -39,6 +41,9 @@ export default async function Page(){
 
     let mapImages = [];
     let matchesData = [];
+
+    
+	const totalPlayers = await playerManager.getTotalPlayers();
 
    // let uniqueMapNames = new Set();
 
@@ -136,6 +141,24 @@ export default async function Page(){
             <HomeTopMaps maps={mostPlayedMaps} images={mapImages}/>
         </div>;
     }
+
+    if(pageSettings["Display Most Popular Countries"]){
+
+        const cm = new CountriesManager();
+        
+        const countryData = await cm.getMostPopular(parseInt(pageSettings["Popular Countries Display Limit"]));
+
+        console.log(countryData);
+
+        elems[pageOrder["Display Most Popular Countries"]] = <PopularCountries key="pc" 
+            totalPlayers={totalPlayers}
+            settings={{
+                "Popular Countries Display Type": pageSettings["Popular Countries Display Type"]
+            }}
+            data={countryData}
+        />
+    }
+    console.log(pageSettings);
     
 
 
