@@ -18,6 +18,16 @@ import HomeGeneralStats from "../../components/HomeGeneralStats";
 import BasicPlayers from "../../components/BasicPlayers";
 import MostUsedFaces from "../../components/MostUsedFaces";
 
+export async function generateMetadata({ params, searchParams }, parent) {
+
+ 
+  return {
+    "title": "Node UTStats 2",
+    "description": "Welcome to Node UTStats 2, view various stats for players,matches,maps,records and more!",
+    "keywords": ["home" , "welcome", "utstats", "node"],
+  }
+}
+
 export default async function Page(){
 
     const cookieStore = await cookies();
