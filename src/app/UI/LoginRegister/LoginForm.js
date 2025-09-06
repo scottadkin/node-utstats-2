@@ -1,88 +1,30 @@
-"use client";
+"use client"
 import styles from "../../../../styles/Login.module.css";
-import { useReducer } from "react";
 import { loginUser } from "../../actions";
-import { useRouter } from "next/navigation";
+import { useActionState } from "react";
+import ErrorMessage from "../../../../components/ErrorMessage";
 
-/*async function login(e, state){
 
-    console.log(e);
-    e.preventDefault();
+export default function LoginForm(){
 
-    const username = e.target.username.value;
-    const password = e.target.password.value;
-    const mode = state.mode;
-
-    let password2 = "";
-
-    if(mode === "register"){
-        password2 = e.target.password2.value;
-    }
-
-    const res = await fetch(`/api/login`, {
-
-        body: JSON.stringify({
-            "username": username,
-            "password": password,
-            "password2": password2,
-            "mode": mode
-        }),
-        headers: {
-            "Content-Type": "application/json"
-        },
-        method: "POST"
+    const [state, formAction] = useActionState(loginUser, {
+        "errors": []
     });
 
-    const result = await res.json();
-    
-    const errors = [];
+    let errorElems = null;
 
-    if(result.errors.length > 0){
-
-        for(let i = 0; i < result.errors.length; i++){
-
-            errors.push(result.errors[i]);
-        }
+    if(state.errors.length > 0){
+        errorElems = state.errors.map((e,i) =>{
+             return <div key={`error-${i}`}>{e}</div>
+        });
     }
-
-    if(errors.length === 0){
-
-        if(mode !== 1){
-
-            window.location.replace("/?loggedin");
-        }else{
-
-            if(result.bAutoLogin){
-                window.location.replace("/?loggedin=potato");
-            }else{
-                window.location.replace("/?registered");
-            }
-        }
-      
-    }
-
-    //this.setState({"errors": errors});
-}*/
-
-function renderLoginForm(){
-
-    const router = useRouter();
-
-    //const login = loginUser.bind(null, {"test": "a"});
 
     return <div className={`${styles.form} form`}>
-        <form action={async (e) =>{
-            
-            //console.log(await loginUser(e));
-            const result = await loginUser(e);
-            console.log(result);
-            if(result.errors.length === 0){
-                router.push("/#loggedin");
-            }
-        }}>
+        <ErrorMessage title="Failed To Login" text={errorElems}/>
+        <form action={formAction}>
             <div className="select-row">
                 <div className="select-label">Username</div>
-                <input type="text" className="default-textbox" id="username" name="username" placeholder="Username..."/>
+                <input type="text" defaultValue={state?.username} className="default-textbox" id="username" name="username" placeholder="Username..."/>
             </div>
             <div className="select-row">
                 <div className="select-label">Password</div>
@@ -91,15 +33,5 @@ function renderLoginForm(){
             <input type="hidden" className="default-textbox" id="mode" name="mode" value="0"/>
             <input className="search-button" type="submit" id="submit" name="submit" value="Login"/>
         </form>
-    </div>
-}
-
-export default function LoginRegisterForms(){
-
-
-
-    return <div className="default">
-        <div className="default-header">Login/Register</div>
-        {renderLoginForm()}
     </div>
 }

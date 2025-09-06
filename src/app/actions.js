@@ -1,11 +1,12 @@
 "use server"
 import { cookies } from "next/headers";
 import User from "../../api/user";
+import { redirect } from "next/navigation";
 
 const MAX_COOKIE_AGE = ((60 * 60) * 24) * 365;
 
 
-export async function loginUser(formData){
+export async function loginUser(previousState, formData){
 
     const cookieStore = await cookies();
     const userManager = new User();
@@ -24,7 +25,7 @@ export async function loginUser(formData){
 
     if(result.errors.length !== 0 || !result.bPassed){
 
-        return {"errors": result.errors};
+        return {"errors": result.errors, "username": rawFormData.username};
     }
 
     console.log(rawFormData);
@@ -47,5 +48,36 @@ export async function loginUser(formData){
         "sameSite": "strict"
     });
 
-    return {"errors": [], "sid": "result.hash"};
+    redirect("/#loggedin");
+    //return {"errors": [], "sid": "result.hash"};
+}
+
+
+export async function registerUser(previousState, formData){
+
+    const userManager = new User();
+
+    const rawFormData = {
+        "username": formData.get("username"),
+        "password": formData.get("password"),
+        "password2": formData.get("password2")
+    }
+
+    let ip = "";
+        
+    const result = await userManager.register(rawFormData.username, rawFormData.password, rawFormData.password2, ip);
+
+    if(result.errors.length !== 0 || !result.bPassed){
+
+        return {"errors": result.errors};
+
+    }
+
+    if(result.bAutoLogin){
+
+        await login(username, password, ip);
+
+    }else{
+        return {"errors": [], "bPassed": true};
+    }
 }

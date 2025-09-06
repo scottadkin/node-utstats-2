@@ -1,6 +1,6 @@
 import Tab from "../Tab";
 
-const Tabs = ({options, selectedValue, changeSelected}) =>{
+export default function Tabs({options, selectedValue, changeSelected}){
 
     const elems = [];
 
@@ -21,5 +21,3 @@ const Tabs = ({options, selectedValue, changeSelected}) =>{
         {elems}
     </div>
 }
-
-export default Tabs;
