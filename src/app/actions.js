@@ -55,6 +55,18 @@ export async function loginUser(previousState, formData){
 }
 
 
+export async function logoutUser(){
+
+    const header = await headers();
+    const cookieStore = await cookies();
+
+    console.log(cookieStore.getAll());
+
+    cookieStore.delete("sid");
+    cookieStore.delete("displayName");
+}
+
+
 export async function registerUser(previousState, formData){
 
     const userManager = new User();
