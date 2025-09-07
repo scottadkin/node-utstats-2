@@ -1,11 +1,9 @@
 "use client";
-import styles from "../../../../styles/Login.module.css";
-import { loginUser, registerUser } from "../../actions";
-import { useRouter } from "next/navigation";
 import ErrorMessage from "../../../../components/ErrorMessage";
 import { useReducer } from "react";
 import Tabs from "../../../../components/Tabs";
 import LoginForm from "./LoginForm";
+import RegisterForm from "./RegisterForm";
 
 function reducer(state, action){
 
@@ -27,24 +25,6 @@ function reducer(state, action){
 
     return state;
 }
-
-/**async (e) =>{
-            
-            dispatch({"type": "set-error", "title": null, "text": null});
-            const result = await loginUser(e);
-
-            if(result.errors.length === 0){
-                router.push("/#loggedin");
-            }else{
-
-                let errorElems = result.errors.map((r, i) =>{
-                    return <div key={`error-${i}`}>{r}</div>
-                });
-
-                dispatch({"type": "set-error", "title": "Failed To Login", "text": errorElems});
-            }
-        } */
-
 
 
 export default function LoginRegisterForms(){
@@ -73,7 +53,9 @@ export default function LoginRegisterForms(){
             ]
         }/>
         <ErrorMessage text={state.errorText} title={state.errorTitle}/>
-        <LoginForm />
+
+        {(state.mode === "login") ? <LoginForm /> : <RegisterForm />}
+        
         
     </div>
 }
