@@ -1,0 +1,38 @@
+import Link from 'next/link';
+import CountryFlag from '../CountryFlag';
+import styles from './BasicPlayers.module.css';
+import { convertTimestamp, toPlaytime } from '../../../../api/generic.mjs';
+import Image from 'next/image';
+
+export default function BasicPlayers({title, players, faceFiles, host}){
+
+    const elems = [];
+
+    for(let i = 0; i < players.length; i++){
+
+        const p = players[i];
+
+        let currentFace = faceFiles[p.face];
+
+        if(currentFace === undefined) currentFace = {"name": "faceless" };
+
+        elems.push(<Link key={i} href={`/player/${p.id}`}>
+            <div className={`${styles.player} center`}>
+                <div className={styles.name}><CountryFlag country={p.country} host={host}/> {p.name}</div>
+                <Image className={`${styles.face} center`} width={64} height={64} src={`/images/faces/${currentFace.name}.png`} alt="face"/>
+                <div className={styles.info}>
+                    Last Match {convertTimestamp(p.last, true)}<br/>
+                    First Match {convertTimestamp(p.first, true)}<br/>
+                    Playtime {toPlaytime(p.playtime)}<br/>
+                    {p.matches} Matches
+                </div>
+            </div>
+            
+        </Link>);
+    }
+
+    return <div className={`${styles.wrapper} m-bottom-10`}>
+        <div className="default-header">{title}</div>
+        {elems}
+    </div>
+}

@@ -3,19 +3,19 @@ import { cookies, headers } from "next/headers";
 import Session from "../../api/session";
 import Matches from "../../api/matches";
 import Players from "../../api/players";
-import MatchesTableView from "../../components/MatchesTableView";
+import MatchesTableView from "./UI/MatchesTableView";
 import Nav from "./UI/Nav";
 import Screenshot from "../../components/Screenshot";
 import { cleanMapName, removeUnr, getUniqueValues } from "../../api/generic.mjs";
 import Faces from "../../api/faces";
 import Maps from "../../api/maps";
-import HomeMostPlayedGametypes from "../../components/HomeMostPlayedGametypes";
+import HomeMostPlayedGametypes from "./UI/Home/HomeMostPlayedGametypes";
 import Gametypes from "../../api/gametypes";
-import HomeTopMaps from "../../components/HomeTopMaps";
-import PopularCountries from "../../components/PopularCountries";
+import HomeTopMaps from "./UI/Home/HomeTopMaps/HomeTopMaps";
+import PopularCountries from "./UI/Home/PopularCountries";
 import CountriesManager from "../../api/countriesmanager";
-import HomeGeneralStats from "../../components/HomeGeneralStats";
-import BasicPlayers from "../../components/BasicPlayers";
+import HomeGeneralStats from "./UI/Home/HomeGeneralStats";
+import BasicPlayers from "./UI/Home/BasicPlayers";
 import MostUsedFaces from "../../components/MostUsedFaces";
 
 export async function generateMetadata({ params, searchParams }, parent) {
@@ -221,9 +221,7 @@ export default async function Page(){
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
         <div id="content">
-     
-            {elems}
-            
+            {elems}      
         </div>   
     </main>; 
 }

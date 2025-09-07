@@ -3,6 +3,7 @@ import Tabs from "../Tabs";
 import { useState } from "react";
 import { BasicTable } from "../Tables/Tables";
 import { convertTimestamp, toPlaytime } from "../../../../api/generic.mjs";
+import { ServerDefaultView } from "./ServerDefaultView";
 
 export default function ServerList({mapImages, mapNames, servers}){
 

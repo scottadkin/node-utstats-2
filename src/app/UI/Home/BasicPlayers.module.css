@@ -1,0 +1,34 @@
+.wrapper{
+    text-align:center;
+}
+
+.player{
+    display:inline-block;
+    background-color:var(--color-1);
+    background:linear-gradient(to bottom right, var(--color-3a), var(--color-1a));
+    width:250px;
+    margin-right:10px;
+    margin-bottom:10px;
+    transition: all 0.5s;
+    border:1px solid var(--border-color-3);
+
+}
+
+
+.face{
+    display:block;
+    margin-bottom:10px;
+    border:1px solid var(--border-color-1);
+}
+
+.name{
+    font-size:16px;
+    padding:10px;
+}
+
+.info{
+    font-size:12px;
+    line-height:24px;
+    padding-bottom:5px;
+    color:var(--color-6);
+}

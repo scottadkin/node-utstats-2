@@ -1,0 +1,24 @@
+.wrapper{
+    width:var(--width-1);
+}
+
+.box{
+    background-color:var(--color-8);
+    width:350px;
+    display:inline-block;
+    margin-right:5px;
+    margin-bottom:5px;
+    
+}
+
+.name{
+    padding:10px;
+    font-size:14px;
+}
+
+.info{
+    font-size:12px;
+    line-height:24px;
+    color:var(--color-6);
+    padding-bottom:5px;
+}
