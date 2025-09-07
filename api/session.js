@@ -1,8 +1,5 @@
 import { simpleQuery } from "./database.js";
 import User from "./user.js";
-//const cookie = require('cookie');
-import cookie from "cookie";
-
 
 
 export default class Session{
@@ -11,22 +8,18 @@ export default class Session{
 
         this.userIp = ip;
 
-        
-
         this.user = new User();
-        this.rawCookies = "";
 
-        if(cookies !== undefined){
-            this.rawCookies = cookies;
-            this.cookies = cookie.parse(cookies);
-        }else{
-            this.cookies = {};
+        this.cookies = [];
+
+        for(const cookie of Object.values(cookies)){
+
+            this.cookies[cookie.name] = cookie.value;
         }
 
+        console.log(this.cookies);
 
         this.userIp = -1;
-
-
 
         this.settings = {
             "bUploadImages": false,
@@ -63,15 +56,11 @@ export default class Session{
 
         try{
 
-            const bLoggedIn = await this.user.bLoggedIn(this.rawCookies, this.userIp);
-
-            //new Message(`Session.load() bLoggedIn = ${bLoggedIn}`, "note");
+            const bLoggedIn = await this.user.bLoggedIn(this.cookies, this.userIp);
 
             this.settings.bLoggedIn = bLoggedIn;
 
             this.settings.bAdmin = await this.bUserAdmin();
-
-            //new Message(`Session bAdmin = ${this.settings.bAdmin}`, "note");
 
 
         }catch(err){

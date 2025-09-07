@@ -1,4 +1,4 @@
-import Nav from "../../../components/Nav";
+import Nav from "../UI/Nav";
 import SiteSettings from "../../../api/sitesettings";
 import Session from "../../../api/session";
 import { headers, cookies } from "next/headers";

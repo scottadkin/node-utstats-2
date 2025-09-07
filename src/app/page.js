@@ -4,7 +4,7 @@ import Session from "../../api/session";
 import Matches from "../../api/matches";
 import Players from "../../api/players";
 import MatchesTableView from "../../components/MatchesTableView";
-import Nav from "../../components/Nav";
+import Nav from "./UI/Nav";
 import Screenshot from "../../components/Screenshot";
 import { cleanMapName, removeUnr, getUniqueValues } from "../../api/generic.mjs";
 import Faces from "../../api/faces";
@@ -36,12 +36,12 @@ export default async function Page(){
 
     const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0]
     
-    const session = new Session(ip, JSON.stringify(cookiesData));
+    const session = new Session(ip, cookiesData);
 
     await session.load();
     const siteSettings = new SiteSettings();
     const navSettings = await siteSettings.getCategorySettings("Navigation");
-    const sessionSettings = JSON.stringify(session.settings);
+    const sessionSettings = session.settings;
     const pageSettings = await siteSettings.getCategorySettings("Home");
     const pageOrder = await siteSettings.getCategoryOrder("Home");
     

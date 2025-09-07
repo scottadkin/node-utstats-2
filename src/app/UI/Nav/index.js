@@ -5,20 +5,13 @@ import styles from './Nav.module.css';
 
 function Nav({session, settings}){
 
-    //const router = useRouter();
-
-    if(typeof session === "string"){
-        session = JSON.parse(session);
-    }
-
-    
-    //console.log(session);
-
     let displayName = "NOT FOUND";
 
     if(session.displayName !== undefined){
         displayName = session.displayName;
     }
+    console.log(session);
+    console.log(displayName);
 
     let order = [];
     

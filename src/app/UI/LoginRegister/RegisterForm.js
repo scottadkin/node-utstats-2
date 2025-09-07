@@ -37,7 +37,7 @@ export default function RegisterForm(){
                 <input type="password" className="default-textbox" id="password2" name="password2" placeholder="Password..."/>
             </div>
             <input type="hidden" className="default-textbox" id="mode" name="mode" value="0"/>
-            <input className="search-button" type="submit" id="submit" name="submit" value="Login"/>
+            <input className="search-button" type="submit" id="submit" name="submit" value="Register"/>
         </form>
     </div>
 }

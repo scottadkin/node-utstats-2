@@ -344,8 +344,6 @@ export default class User{
             if(ip === undefined) ip = "Unknown";
 
             if(cookies === undefined) return false;
-            
-            cookies = cookie.parse(cookies);
 
             let sid = -1;
 
