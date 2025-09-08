@@ -3,16 +3,12 @@ import Tabs from "../Tabs";
 import { useState } from "react";
 import { BasicTable } from "../Tables/Tables";
 import { convertTimestamp, toPlaytime } from "../../../../api/generic.mjs";
-import { ServerDefaultView } from "./ServerDefaultView";
+import  ServerDefaultView from "./ServerDefaultView";
 
-export default function ServerList({mapImages, mapNames, servers}){
 
-    const [display, setDisplay] = useState("table"); 
+function renderTable(display, servers){
 
-    const tabOptions = [
-        {"name": "Default View", "value": "default"},
-        {"name": "Table View", "value": "table"},
-    ];
+    if(display !== "table") return null;
 
     const rows = servers.map((r) =>{
         return [
@@ -25,11 +21,34 @@ export default function ServerList({mapImages, mapNames, servers}){
         ];
     });
 
-    return <>
-        <Tabs options={tabOptions} selectedValue={display} changeSelected={setDisplay} />
-        <BasicTable 
+    return <BasicTable 
         headers={["Name", "Address", "First Match", "Last Match", "Total Matches", "Playtime"]} 
         columnStyles={["text-left", null, "playtime", "playtime", null, "playtime"]}
-        rows={rows}/>
+        rows={rows}
+    />;
+}
+
+function renderDefault(display, servers, mapImages, mapNames){
+
+    if(display !== "default") return null;
+
+    return servers.map((s, i) =>{
+        return <ServerDefaultView key={i} mapImages={mapImages} mapNames={mapNames} data={s}/>
+    });
+}
+
+export default function ServerList({mapImages, mapNames, servers}){
+
+    const [display, setDisplay] = useState("default"); 
+
+    const tabOptions = [
+        {"name": "Default View", "value": "default"},
+        {"name": "Table View", "value": "table"},
+    ];
+
+    return <>
+        <Tabs options={tabOptions} selectedValue={display} changeSelected={setDisplay} />
+        {renderTable(display, servers)}
+        {renderDefault(display, servers, mapImages, mapNames)}
     </>
 }

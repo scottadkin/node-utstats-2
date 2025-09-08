@@ -16,7 +16,6 @@ export default function ServerDefaultView({mapImages, mapNames, data}){
         }
 
         return "default";
-
     }
 
     const mapName = mapNames[data.last_map_id] ?? "Not Found";
@@ -26,8 +25,8 @@ export default function ServerDefaultView({mapImages, mapNames, data}){
     let passwordElem = null;
 
     if(d.password !== ""){
-        password = `?password=${d.password}`;
 
+        password = `?password=${d.password}`;
         passwordElem = <span className={styles.password}>?password={d.password}</span>
     }
 
@@ -40,6 +39,7 @@ export default function ServerDefaultView({mapImages, mapNames, data}){
                 <span className="yellow">Join the server</span> {d.ip}:{d.port}{passwordElem}
             </div>
         </a>;
+
     }else{
 
         joinElem = <a href={`unreal://${d.ip}:${d.port}${password}`}>
@@ -47,51 +47,44 @@ export default function ServerDefaultView({mapImages, mapNames, data}){
                 Can&apos;t join server no address set
             </div>
         </a>
-
     }
 
     return <div className={styles.wrapper}>
-            <Link href={`/server/${d.id}`}>
-                
-                    <div className={`${styles.title} ellipsis`}>
-                        <CountryFlag country={d.country}/>
-                        {d.name}
-                    </div>
-                
-            </Link>
-            <Link href={`/match/${d.last_match_id}`}>
-                
-                    <div className={styles.last}>
-                        <div className={styles.row}>
-                            <div>Last Match</div>
-                            <div>{mapName}</div>
-                        </div>
-                        <div className={styles.date}>
-                            {convertTimestamp(d.last, true)}
-                        </div>
-                    </div>
-                
-            </Link>
-            <div className={styles.image}>
-                <img src={`/images/maps/thumbs/${mapImage}.jpg`} alt="image"/>
-            </div>
-            <div className={styles.info}>
+        <Link href={`/server/${d.id}`}>       
+            <div className={`${styles.title} ellipsis`}>
+                <CountryFlag country={d.country}/>
+                {d.name}
+            </div>      
+        </Link>
+        <Link href={`/match/${d.last_match_id}`}>   
+            <div className={styles.last}>
                 <div className={styles.row}>
-                    <div>Total Matches</div>
-                    <div>{d.matches}</div>
+                    <div>Last Match</div>
+                    <div>{mapName}</div>
                 </div>
-                <div className={styles.row}>
-                    <div>Total Playtime</div>
-                    <div>{toPlaytime(d.playtime)}</div>
+                <div className={styles.date}>
+                    {convertTimestamp(d.last, true)}
                 </div>
-            </div>
-            <Link href={`/matches/?server=${d.id}`}>
-                
-                    <div className={`${styles.recent} ellipsis`}>
-                        View Recent Matches
-                    </div>
-                
-            </Link>
-            {joinElem}
+            </div>     
+        </Link>
+        <div className={styles.image}>
+            <img src={`/images/maps/${mapImage}.jpg`} alt="image"/>
         </div>
+        <div className={styles.info}>
+            <div className={styles.row}>
+                <div>Total Matches</div>
+                <div>{d.matches}</div>
+            </div>
+            <div className={styles.row}>
+                <div>Total Playtime</div>
+                <div>{toPlaytime(d.playtime)}</div>
+            </div>
+        </div>
+        <Link href={`/matches/?server=${d.id}`}> 
+            <div className={`${styles.recent} ellipsis`}>
+                View Recent Matches
+            </div>       
+        </Link>
+        {joinElem}
+    </div>;
 }
