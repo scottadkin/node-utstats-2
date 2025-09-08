@@ -435,7 +435,7 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	width:95%;
 	height:36px;
 	line-height:24px;
-	max-width:300px;
+	max-width:90%;
 	position:relative;
 }
 
@@ -443,7 +443,7 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	background-color:var(--color-9);
 }
 
-.select-label, .form-label{
+.select-label, label{
 	color:white;
 	width:95%;
 	font-size:16px;

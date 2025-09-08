@@ -32,10 +32,42 @@ export async function getObjectName(type, ids){
     for(let i = 0; i < result.length; i++){
 
         const {id, name} = result[i];
-
         data[id] = name;
     }
 
-    return data;
-    
+    return data; 
+}
+
+/**
+ * Get all id,name pairs for servers, gametypes, maps
+ * @param {*} type 
+ * @returns 
+ */
+export async function getAllObjectNames(type){
+
+    const validTypes = [
+        "maps", 
+        "gametypes",
+        "servers"
+    ];
+
+    type = type.toLowerCase();
+
+    const index = validTypes.indexOf(type);
+
+    if(index === -1) throw new Error(`${type} is not a valid type for getAllObjectNames`);
+
+    const query = `SELECT id,name FROM nstats_${validTypes[index]} WHERE id >-1`;
+
+    const result = await simpleQuery(query);
+
+    const data = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const {id, name} = result[i];
+        data[id] = name;
+    }
+
+    return data; 
 }
