@@ -1,40 +1,6 @@
 "use client"
-import { useReducer } from "react";
-import Tabs from "../Tabs/";
 import { removeUnr } from "../../../../api/generic.mjs";
-
-
-function reducer(state, action){
-
-    switch(action.type){
-        case "set-server": {
-            return {
-                ...state,
-                "selectedServer": action.value
-            }
-        }
-        case "set-gametype": {
-            return {
-                ...state,
-                "selectedGametype": action.value
-            }
-        }
-        case "set-map": {
-            return {
-                ...state,
-                "selectedMap": action.value
-            }
-        }
-        case "set-per-page": {
-            return {
-                ...state,
-                "perPage": parseInt(action.value)
-            }
-        }
-    }
-
-    return state;
-}
+import { useRouter } from "next/navigation";
 
 
 function getPerPageOptions(){
@@ -49,23 +15,13 @@ function getPerPageOptions(){
     ];
 }
 
-export default function SearchForm({serverNames, gametypeNames, mapNames}){
+export default function SearchForm({selectedServer, selectedGametype, 
+    selectedMap, displayMode, serverNames, gametypeNames, mapNames,
+    perPage
+}){
 
-    const [state, dispatch] = useReducer(reducer, {
-        "selectedServer": 0,
-        "selectedGametype": 0,
-        "selectedMap": 0,
-        "displayMode": "",
-        "perPage": 5,
-        "images": {},
-        "totalMatches": 0,
-        "data": []
-    });
+    const router = useRouter();
 
-    const tabOptions = [
-        {"value": "0", "displayValue": "Default View"},
-        {"value": "1", "displayValue": "Table View"},
-    ];
 
     const serverOptions = [
         <option key="0" value="0">Any</option>
@@ -95,24 +51,24 @@ export default function SearchForm({serverNames, gametypeNames, mapNames}){
     return <div className="form m-bottom-25">
         <div className="form-row">
             <label htmlFor="server">Server</label>
-            <select className="default-select" value={state.selectedServer} onChange={(e) =>{
-                dispatch({"type": "set-server", "value": e.target.value});
+            <select className="default-select" value={selectedServer} onChange={(e) =>{
+                router.push(`/matches/?server=${e.target.value}&gametype=${selectedGametype}&map=${selectedMap}&displayMode=${displayMode}&pp=${perPage}`);
             }}>
                {serverOptions}
             </select>
         </div>
         <div className="form-row">
             <label htmlFor="gametype">Gametype</label>
-            <select className="default-select" value={state.selectedGametype} onChange={(e) =>{
-                dispatch({"type": "set-gametype", "value": e.target.value});
+            <select className="default-select" value={selectedGametype} onChange={(e) =>{
+                router.push(`/matches/?server=${selectedGametype}&gametype=${e.target.value}&map=${selectedMap}&displayMode=${displayMode}&pp=${perPage}`);
             }}>
                {gametypeOptions}
             </select>
         </div>
         <div className="form-row">
             <label htmlFor="map">Map</label>
-            <select className="default-select" value={state.selectedMap} onChange={(e) =>{
-                dispatch({"type": "set-map", "value": e.target.value});
+            <select className="default-select" value={selectedMap} onChange={(e) =>{
+                router.push(`/matches/?server=${selectedGametype}&gametype=${selectedGametype}&map=${e.target.value}&displayMode=${displayMode}&pp=${perPage}`);
             }}>
                {mapOptions}
             </select>
@@ -120,28 +76,22 @@ export default function SearchForm({serverNames, gametypeNames, mapNames}){
 
         <div className="form-row">
             <label htmlFor="map">Results Per Page</label>
-            <select className="default-select" value={state.perPage} onChange={(e) =>{
-                dispatch({"type": "set-per-page", "value": e.target.value});
+            <select className="default-select" value={perPage} onChange={(e) =>{
+                router.push(`/matches/?server=${selectedGametype}&gametype=${selectedGametype}&map=${selectedMap}&displayMode=${displayMode}&pp=${e.target.value}`);
             }}>
                {getPerPageOptions()}
             </select>
         </div>
-    </div>
 
-    /*return <div key="s-f" className="form m-bottom-25">
-        <DropDown 
-            dName="Results Per Page" 
-            fName="perPage" 
-            originalValue={state.perPage.toString()} 
-            data={getPerPageData()} 
-            changeSelected={changeSelected}
-        />
-        <DropDown 
-            dName="Display Style" 
-            fName="displayMode" 
-            originalValue={state.displayMode.toString()} 
-            data={getDisplayModeData()} 
-            changeSelected={changeSelected}
-        />
-    </div>;*/
+        <div className="form-row">
+            <label htmlFor="map">Display Mode</label>
+            <select className="default-select" value={displayMode} onChange={(e) =>{
+                router.push(`/matches/?server=${selectedGametype}&gametype=${selectedGametype}&map=${selectedMap}&displayMode=${e.target.value}&pp=${perPage}`);
+            }}>
+               <option value="default">Default</option>
+               <option value="table">Table</option>
+            </select>
+        </div>
+        
+    </div>
 }

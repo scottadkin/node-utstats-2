@@ -11,6 +11,12 @@ export default async function Page({ searchParams}){
     const query = await searchParams;
     console.log(query);
 
+    let selectedServer = (query.server !== undefined) ? parseInt(query.server) : 0;
+    let selectedGametype = (query.gametype !== undefined) ? parseInt(query.gametype) : 0;
+    let selectedMap = (query.map !== undefined) ? parseInt(query.map) : 0;
+    let displayMode = query.displayMode ?? "default";
+    
+
     const header = await headers();
 
     const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0];
@@ -28,6 +34,7 @@ export default async function Page({ searchParams}){
     const pageSettings = await siteSettings.getCategorySettings("Matches Page");
 
     const defaultPerPage = pageSettings["Default Display Per Page"];
+    let perPage = (query.pp !== undefined) ? parseInt(query.pp) : defaultPerPage;
 
     const serverNames = await getAllObjectNames("servers");
     const gametypeNames = await getAllObjectNames("gametypes");
@@ -39,7 +46,16 @@ export default async function Page({ searchParams}){
      
             <div className="default">
                 <div className="default-header">Matches</div>
-                <SearchForm serverNames={serverNames} gametypeNames={gametypeNames} mapNames={mapNames}/>
+                <SearchForm 
+                    selectedServer={selectedServer}
+                    selectedGametype={selectedGametype}
+                    selectedMap={selectedMap}
+                    displayMode={displayMode}
+                    serverNames={serverNames} 
+                    gametypeNames={gametypeNames} 
+                    perPage={perPage}
+                    mapNames={mapNames}
+                />
             </div>
         </div>   
     </main>; 
