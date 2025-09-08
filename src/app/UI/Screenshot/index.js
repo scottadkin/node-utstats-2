@@ -1,7 +1,7 @@
 "use client"
 import styles from './Screenshot.module.css'
 import {useEffect, useRef} from "react";
-import { utDate } from '../../api/generic.mjs';
+import { utDate } from '../../../../api/generic.mjs';
 
 class MatchScreenshot{
 

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import MatchResultSmall from './MatchResultSmall';
-import Table2 from '../Table2/';
-import { convertTimestamp, removeUnr, toPlaytime } from '../../api/generic.mjs';
+import { convertTimestamp, removeUnr, toPlaytime } from "../../../api/generic.mjs";
+import { BasicTable } from "../UI/Tables/Tables";
 
 function getMatchResult(matchData){
 
@@ -59,31 +59,35 @@ function createRows(matches){
                 colorClass = "team-yellow";
             } 
 
-            resultElem = <td className={colorClass}>{string}</td>;
+            resultElem = string;
         }
 
         // <td><Link href={url}><a>{m.serverName}</a></Link></td>
-        rows.push(<tr key={`matches-row-${i}`}>
-            
-            <td><Link href={url}>{convertTimestamp(m.date, true)}</Link></td>
-            <td><Link href={url}>{m.gametypeName}</Link></td>
-            <td><Link href={url}>{removeUnr(m.mapName)}</Link></td>
-            <td><Link href={url}>{m.players}</Link></td>
-            <td className="playtime"><Link href={url}>{toPlaytime(m.playtime)}</Link></td>
-            <td className="padding-0"><MatchResultSmall 
-                totalTeams={m.total_teams} 
-                dmWinner={m.dmWinner} 
-                dmScore={m.dm_score} 
-                redScore={Math.floor(m.team_score_0)}
-                blueScore={Math.floor(m.team_score_1)}
-                greenScore={Math.floor(m.team_score_2)}
-                yellowScore={Math.floor(m.team_score_3)}
-                bMonsterHunt={m.mh}
-                endReason={m.end_type}
-                />
-            </td>
-            {resultElem}
-        </tr>);
+
+        const row = [
+        <Link href={url}>{convertTimestamp(m.date, true)}</Link>,
+        <Link href={url}>{m.gametypeName}</Link>,
+        <Link href={url}>{removeUnr(m.mapName)}</Link>,
+        <Link href={url}>{m.players}</Link>,
+        <Link href={url}>{toPlaytime(m.playtime)}</Link>,
+        <MatchResultSmall 
+            totalTeams={m.total_teams} 
+            dmWinner={m.dmWinner} 
+            dmScore={m.dm_score} 
+            redScore={Math.floor(m.team_score_0)}
+            blueScore={Math.floor(m.team_score_1)}
+            greenScore={Math.floor(m.team_score_2)}
+            yellowScore={Math.floor(m.team_score_3)}
+            bMonsterHunt={m.mh}
+            endReason={m.end_type}
+        />];
+
+        if(resultElem !== null){
+            row.push(resultElem);
+        }
+
+        rows.push(row);
+
     }
     return rows;
 }
@@ -107,17 +111,16 @@ export default function MatchesTableView({data}){
         }
     }
 
-    return <Table2 width={1}>
-            <tr>
-                <th>Date</th>
-                <th>Gametype</th>
-                <th>Map</th>               
-                <th>Players</th>
-                <th>Playtime</th>
-                <th>Result</th>
-                {finalHeader}
-            </tr>
-            {rows}
-        </Table2>
+    const tableHeaders = [
+        "Date", "Gametype", "Map", "Players", "Playtime", "Match Result", finalHeader
+    ];
+
+    return <BasicTable 
+        width={1} 
+        headers={tableHeaders} 
+        rows={rows} 
+        columnStyles={[null, null, null, null, "playtime", "padding-0", null]}
+    />
+
     
 }

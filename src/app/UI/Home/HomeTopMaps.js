@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import styles from './HomeTopMaps.module.css';
 import Image from 'next/image';
-import { utDate, cleanMapName, removeUnr, convertTimestamp, toPlaytime } from '../../../../../api/generic.mjs';
+import { utDate, cleanMapName, removeUnr, convertTimestamp, toPlaytime } from "../../../../api/generic.mjs";
 
 const HomeTopMaps = ({maps, images}) =>{
 

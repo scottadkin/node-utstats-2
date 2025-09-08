@@ -1,7 +1,7 @@
 "use client"
 import { useReducer, useEffect } from "react";
 import styles from "./CalendarThing.module.css";
-import { getMonthName,  getOrdinal, getDayName} from "../../api/generic.mjs";
+import { getMonthName,  getOrdinal, getDayName} from "../../../../api/generic.mjs";
 import HeatMapBlock from "../HeatMapBlock";
 import Loading from "../Loading";
 

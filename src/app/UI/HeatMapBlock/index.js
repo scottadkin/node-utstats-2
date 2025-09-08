@@ -12,7 +12,7 @@ const renderMouseOver = (bDisplay, setbDisplay, title, text) =>{
     </div>
 }
 
-const HeatMapBlock = ({value, maxValue, children, bHighlight, mTitle, mText}) =>{
+export default function HeatMapBlock({value, maxValue, children, bHighlight, mTitle, mText}){
 
     const [bDisplay, setbDisplay] = useState(false);
 
@@ -46,6 +46,3 @@ const HeatMapBlock = ({value, maxValue, children, bHighlight, mTitle, mText}) =>
             {renderMouseOver(bDisplay, setbDisplay, mTitle, mText)}
         </div>;
 }
-
-
-export default HeatMapBlock;
