@@ -18,6 +18,35 @@ import Voices from "./voices.js";
 import WinRate from "./winrate.js";
 import fs from "fs";
 
+export async function getGametypeNames(ids){
+
+    if(ids.length === 0) return {};
+
+    const query = "SELECT id,name FROM nstats_gametypes WHERE id IN(?)";
+
+    const result = await simpleQuery(query, [ids]);
+
+    const data = {"0": "Combined"};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        data[r.id] = r.name;
+    }
+
+    return data;
+}
+
+export async function getGametypeName(id){
+
+    const result = await getGametypeNames([id]);
+
+    if(result[id] !== undefined) return result[id];
+
+    return "Not Found";
+}
+
 export default class Gametypes{
 
     constructor(){
@@ -165,35 +194,12 @@ export default class Gametypes{
 
     async getName(id){
 
-        const query = "SELECT name FROM nstats_gametypes WHERE id=?";
-
-        const result = await simpleQuery(query, [id]);
-
-        if(result.length > 0){
-            return result[0].name;
-        }
-
-        return "Not Found";
+        return await getGametypeName(id);
     }
 
     async getNames(ids){
 
-        if(ids.length === 0) return {};
-
-        const query = "SELECT id,name FROM nstats_gametypes WHERE id IN(?)";
-
-        const result = await simpleQuery(query, [ids]);
-
-        const data = {"0": "Combined"};
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-
-            data[r.id] = r.name;
-        }
-
-        return data;
+        return await getGametypeNames(ids);
 
     }
 

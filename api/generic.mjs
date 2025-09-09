@@ -737,3 +737,27 @@ export function utDate(input){
 
     return Math.floor(new Date(year, month - 1, day, hour, minute, seconds) * 0.001);
 }
+
+export function calculateKillEfficiency(kills, deaths){
+    
+    if(kills === 0) return 0;
+    if(deaths === 0 && kills > 0) return 100;
+    
+    return (kills / (kills + deaths)) * 100;
+}
+
+//default value is optional
+export function setValueIfUndefined(input, defaultValue){
+
+    if(defaultValue === undefined) defaultValue = 0;
+
+    if(input !== undefined){
+        if(input === null){
+            return defaultValue;
+        }
+    }
+    
+    if(input === undefined) return defaultValue;
+
+    return input;
+}

@@ -30,6 +30,10 @@ export function BasicTable({headers, rows, width, columnStyles}){
         rowElems.push(<tr key={`r-${i}`}>{currentRow}</tr>);
     }
 
+    if(rowElems.length === 0){
+        rowElems.push(<tr key="none"><td colSpan={headers.length}>No Data</td></tr>);
+    }
+
     return <table className={`basic-table t-width-${width}`}>
         <tbody>
             {(headerElems.length > 0) ? <tr>{headerElems}</tr> : null}

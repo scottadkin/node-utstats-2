@@ -1,6 +1,6 @@
 //generic function that can only be called serverside mysql stuff basically
 
-import { simpleQuery } from "./database";
+import { simpleQuery } from "./database.js";
 
 /**
  * 

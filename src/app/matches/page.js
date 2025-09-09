@@ -5,23 +5,55 @@ import Nav from "../UI/Nav";
 import SearchForm from "../UI/Matches/SearchForm";
 import { getAllObjectNames } from "../../../api/genericServerSide.mjs";
 import MatchesDefaultView from "../UI/MatchesDefaultView";
+import MatchesTableView from "../UI/MatchesTableView";
 import Matches from "../../../api/matches";
 import Players from "../../../api/players";
 import Maps from "../../../api/maps";
+import { getMapName } from "../../../api/maps";
+import { getServerName } from "../../../api/servers";
+import { getGametypeName } from "../../../api/gametypes";
 import Pagination from "../UI/Pagination";
 
-export default async function Page({ searchParams}){
-
-
-    const query = await searchParams;
-    console.log(query);
+function setQueryStuff(query){
 
     let selectedServer = (query.server !== undefined) ? parseInt(query.server) : 0;
     let selectedGametype = (query.gametype !== undefined) ? parseInt(query.gametype) : 0;
     let selectedMap = (query.map !== undefined) ? parseInt(query.map) : 0;
     let displayMode = query.displayMode ?? "default";
     let page = (query.page !== undefined) ? parseInt(query.page) : 1;
+
+    displayMode = displayMode.toLowerCase();
+
+    return {selectedServer, selectedGametype, selectedMap, displayMode, page};
+
+}
+
+export async function generateMetadata({ params, searchParams }, parent) {
+
+    const query = await searchParams;
+
+    const {selectedServer, selectedGametype, selectedMap, displayMode, page} = setQueryStuff(query);
+
+
+
+    const serverName = (selectedServer !== 0) ? await getServerName(selectedServer) : "";
+    const gametypeName = (selectedGametype !== 0) ? await getGametypeName(selectedGametype) : "";
+    const mapName = (selectedMap !== 0) ? await getMapName(selectedMap) : "";
     
+    console.log(gametypeName);
+    return {
+        "title": "Matches - Node UTStats 2",
+        "description": "Search for matches played on our Unreal Tournament Servers.",
+        "keywords": ["search", "utstats", "node", "matches"],
+    }
+}
+
+export default async function Page({ searchParams}){
+
+
+    const query = await searchParams;
+
+    const {selectedServer, selectedGametype, selectedMap, displayMode, page} = setQueryStuff(query);
 
     const header = await headers();
 
@@ -62,7 +94,12 @@ export default async function Page({ searchParams}){
     const dmWinnerPlayers = await playerManager.getNamesByIds([...dmWinners], true);
 
     const mapManager = new Maps();
-    const mapImages = await mapManager.getImages(Object.values(mapNames));
+    let mapImages = {};
+
+    if(displayMode === "default"){
+        mapImages = await mapManager.getImages(Object.values(mapNames));
+    }
+
 
     for(let i = 0; i < data.length; i++){
 
@@ -103,7 +140,8 @@ export default async function Page({ searchParams}){
                     mapNames={mapNames}
                 />
                 <Pagination currentPage={page} results={totalMatches} perPage={perPage} url={pURL} />
-                <MatchesDefaultView data={data} images={mapImages}/>
+                {(displayMode === "table") ? <MatchesTableView data={data}/> : null }
+                {(displayMode === "default") ? <MatchesDefaultView data={data} images={mapImages}/> : null }
                 <Pagination currentPage={page} results={totalMatches} perPage={perPage} url={pURL} />
             </div>
             

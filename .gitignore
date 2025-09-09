@@ -17,6 +17,7 @@ ooper_ddns_net.der
 ooper_ddns_net.pem
 config.json
 salt.js
+/_pages
 
 # production
 /build
@@ -38,3 +39,4 @@ yarn-error.log*
 
 # vercel
 .vercel
+

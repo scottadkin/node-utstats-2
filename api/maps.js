@@ -1,7 +1,35 @@
 import {simpleQuery} from "./database.js";
 import Message from "./message.js";
 import fs from "fs";
-import {cleanMapName} from "./generic.mjs";
+import {cleanMapName, removeUnr} from "./generic.mjs";
+
+export async function getMapNamesById(ids){
+
+    if(ids.length === 0) return {};
+
+    const query = `SELECT id,name FROM nstats_maps WHERE id IN(?)`;
+
+    const result = await simpleQuery(query, [ids]);
+
+    const data = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const {id, name} = result[i];
+        data[id] = removeUnr(name);
+    }
+
+    return data;
+}
+
+export async function getMapName(id){
+
+    const result = await getMapNamesById([id]);
+
+    if(result[id] === undefined) return "Not Found";
+
+    return result[id];
+}
 
 export default class Maps{
     
@@ -124,7 +152,7 @@ export default class Maps{
 
                 if(autoMergeId !== 0){
 
-                    const newName = await this.getName(autoMergeId);
+                    const newName = await getMapName(autoMergeId);
 
                     new Message(`${name} has been set to import as ${newName}.unr`,"note");
 
@@ -187,7 +215,7 @@ export default class Maps{
             if(result === null) return lastId;
             if(result.import_as_id === 0) return result.id;
 
-            currentName = `${await this.getName(result.import_as_id)}.unr`;
+            currentName = `${await getMapName(result.import_as_id)}.unr`;
 
 
             lastId = result.import_as_id;
@@ -200,6 +228,7 @@ export default class Maps{
 
     async getName(id){
 
+        return await getMapName(id);
         const query = "SELECT name FROM nstats_maps WHERE id=?";
         const result = await simpleQuery(query, [id]);
 
@@ -353,20 +382,7 @@ export default class Maps{
 
     async getNames(ids){
 
-        if(ids.length === 0) return {};
-
-        const data = {};
-        const query = "SELECT id,name FROM nstats_maps WHERE id IN(?)";
-
-        const result = await simpleQuery(query, [ids]);
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-            data[r.id] = this.removeUnr(r.name);
-        }
-
-        return data;
+        return await getMapNamesById(ids);
     }
 
     async getTotalResults(name){
@@ -1249,3 +1265,5 @@ export default class Maps{
     
     }
 }
+
+

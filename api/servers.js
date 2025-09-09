@@ -1,5 +1,33 @@
 import { simpleQuery, bulkInsert } from "./database.js";
 
+export async function getServerNames(ids){
+
+    if(ids.length === 0) return [];
+
+    const query = "SELECT id,name FROM nstats_servers WHERE id IN(?)";
+    const result = await simpleQuery(query, [ids]);
+
+    const data = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        data[r.id] = r.name;
+    }
+
+    return data;
+}
+
+export async function getServerName(id){
+
+    const result = await getServerNames([id]);
+
+    if(result[id] !== undefined) return result[id];
+
+    return "Server not found";
+}
+
 
 export default class Servers{
 
@@ -167,34 +195,12 @@ export default class Servers{
 
     async getName(id){
 
-        const query = "SELECT name FROM nstats_servers WHERE id=?";
-
-        const result = await simpleQuery(query, [id]);
-
-        if(result.length > 0){
-            return result[0].name;
-        }
-
-        return "Server not found";
+        return await getServerName(id);
     }
 
     async getNames(ids){
 
-        if(ids.length === 0) return [];
-
-        const query = "SELECT id,name FROM nstats_servers WHERE id IN(?)";
-        const result = await simpleQuery(query, [ids]);
-
-        const data = {};
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-
-            data[r.id] = r.name;
-        }
-
-        return data;
+        return await getServerNames(ids);
     }
 
     async getAllNames(){

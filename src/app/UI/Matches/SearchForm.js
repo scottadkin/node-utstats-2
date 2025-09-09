@@ -91,7 +91,6 @@ export default function SearchForm({selectedServer, selectedGametype,
                <option value="default">Default</option>
                <option value="table">Table</option>
             </select>
-        </div>
-        
+        </div>    
     </div>
 }

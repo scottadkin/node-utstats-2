@@ -1,5 +1,5 @@
 import { simpleQuery, bulkInsert } from "./database.js";
-import { setValueIfUndefined, calculateKillEfficiency, removeIps } from "./functions.js";
+import { setValueIfUndefined, calculateKillEfficiency, removeIps } from "./generic.mjs";
 import CountriesManager from "./countriesmanager.js";
 import Assault from "./assault.js";
 import CTF from "./ctf.js";
