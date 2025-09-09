@@ -4,6 +4,11 @@ import { headers, cookies } from "next/headers";
 import Nav from "../UI/Nav";
 import SearchForm from "../UI/Matches/SearchForm";
 import { getAllObjectNames } from "../../../api/genericServerSide.mjs";
+import MatchesDefaultView from "../UI/MatchesDefaultView";
+import Matches from "../../../api/matches";
+import Players from "../../../api/players";
+import Maps from "../../../api/maps";
+import Pagination from "../UI/Pagination";
 
 export default async function Page({ searchParams}){
 
@@ -15,6 +20,7 @@ export default async function Page({ searchParams}){
     let selectedGametype = (query.gametype !== undefined) ? parseInt(query.gametype) : 0;
     let selectedMap = (query.map !== undefined) ? parseInt(query.map) : 0;
     let displayMode = query.displayMode ?? "default";
+    let page = (query.page !== undefined) ? parseInt(query.page) : 1;
     
 
     const header = await headers();
@@ -40,6 +46,46 @@ export default async function Page({ searchParams}){
     const gametypeNames = await getAllObjectNames("gametypes");
     const mapNames = await getAllObjectNames("maps");
 
+    const matchManager = new Matches();
+    const data = await matchManager.searchMatches(selectedServer, selectedGametype, selectedMap, page - 1, perPage);
+
+    const dmWinners = new Set();
+
+    for(let i = 0; i < data.length; i++){
+
+        if(data[i].dm_winner !== 0){
+            dmWinners.add(data[i].dm_winner);
+        }
+    }
+
+    const playerManager = new Players();
+    const dmWinnerPlayers = await playerManager.getNamesByIds([...dmWinners], true);
+
+    const mapManager = new Maps();
+    const mapImages = await mapManager.getImages(Object.values(mapNames));
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        d.mapName = mapNames[d.map] ?? "Not Found";
+        d.gametypeName = gametypeNames[d.gametype] ?? "Not Found"; 
+        d.serverName = serverNames[d.server] ?? "Not Found";
+
+        if(d.dm_winner !== 0){
+            
+            if(dmWinnerPlayers[d.dm_winner] !== undefined){
+                d.dmWinner = dmWinnerPlayers[d.dm_winner];
+            }else{
+                d.dmWinner = {"name": "Not Found", "country": "xx"};
+            }
+        }
+    }
+
+    const totalMatches = await matchManager.getSearchTotalResults(selectedServer, selectedGametype, selectedMap);
+
+    const pURL = `/matches?server=${selectedServer}&gametype=${selectedGametype}&map=${selectedMap}&pp=${perPage}&displayMode=${displayMode}&page=`;
+
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
         <div id="content">
@@ -56,7 +102,11 @@ export default async function Page({ searchParams}){
                     perPage={perPage}
                     mapNames={mapNames}
                 />
+                <Pagination currentPage={page} results={totalMatches} perPage={perPage} url={pURL} />
+                <MatchesDefaultView data={data} images={mapImages}/>
+                <Pagination currentPage={page} results={totalMatches} perPage={perPage} url={pURL} />
             </div>
+            
         </div>   
     </main>; 
 }

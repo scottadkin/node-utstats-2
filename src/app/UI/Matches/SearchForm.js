@@ -60,7 +60,7 @@ export default function SearchForm({selectedServer, selectedGametype,
         <div className="form-row">
             <label htmlFor="gametype">Gametype</label>
             <select className="default-select" value={selectedGametype} onChange={(e) =>{
-                router.push(`/matches/?server=${selectedGametype}&gametype=${e.target.value}&map=${selectedMap}&displayMode=${displayMode}&pp=${perPage}`);
+                router.push(`/matches/?server=${selectedServer}&gametype=${e.target.value}&map=${selectedMap}&displayMode=${displayMode}&pp=${perPage}`);
             }}>
                {gametypeOptions}
             </select>
@@ -68,7 +68,7 @@ export default function SearchForm({selectedServer, selectedGametype,
         <div className="form-row">
             <label htmlFor="map">Map</label>
             <select className="default-select" value={selectedMap} onChange={(e) =>{
-                router.push(`/matches/?server=${selectedGametype}&gametype=${selectedGametype}&map=${e.target.value}&displayMode=${displayMode}&pp=${perPage}`);
+                router.push(`/matches/?server=${selectedServer}&gametype=${selectedGametype}&map=${e.target.value}&displayMode=${displayMode}&pp=${perPage}`);
             }}>
                {mapOptions}
             </select>
@@ -77,7 +77,7 @@ export default function SearchForm({selectedServer, selectedGametype,
         <div className="form-row">
             <label htmlFor="map">Results Per Page</label>
             <select className="default-select" value={perPage} onChange={(e) =>{
-                router.push(`/matches/?server=${selectedGametype}&gametype=${selectedGametype}&map=${selectedMap}&displayMode=${displayMode}&pp=${e.target.value}`);
+                router.push(`/matches/?server=${selectedServer}&gametype=${selectedGametype}&map=${selectedMap}&displayMode=${displayMode}&pp=${e.target.value}`);
             }}>
                {getPerPageOptions()}
             </select>
@@ -86,7 +86,7 @@ export default function SearchForm({selectedServer, selectedGametype,
         <div className="form-row">
             <label htmlFor="map">Display Mode</label>
             <select className="default-select" value={displayMode} onChange={(e) =>{
-                router.push(`/matches/?server=${selectedGametype}&gametype=${selectedGametype}&map=${selectedMap}&displayMode=${e.target.value}&pp=${perPage}`);
+                router.push(`/matches/?server=${selectedServer}&gametype=${selectedGametype}&map=${selectedMap}&displayMode=${e.target.value}&pp=${perPage}`);
             }}>
                <option value="default">Default</option>
                <option value="table">Table</option>

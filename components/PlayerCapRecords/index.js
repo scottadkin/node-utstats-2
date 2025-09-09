@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-import Table2 from '../Table2';
-import Functions from '../../api/functions';
+import Table2 from '../../../../components/Table2';
+import Functions from '../../../../api/functions';
 
 
 class PlayerCapRecords extends React.Component{
