@@ -3,16 +3,15 @@ import SiteSettings from "../../../api/sitesettings";
 import { headers, cookies } from "next/headers";
 import Nav from "../UI/Nav";
 import SearchForm from "../UI/Matches/SearchForm";
-import { getAllObjectNames } from "../../../api/genericServerSide.mjs";
+import { getAllObjectNames, getSingleObjectName } from "../../../api/genericServerSide.mjs";
 import MatchesDefaultView from "../UI/MatchesDefaultView";
 import MatchesTableView from "../UI/MatchesTableView";
 import Matches from "../../../api/matches";
 import Players from "../../../api/players";
 import Maps from "../../../api/maps";
-import { getMapName } from "../../../api/maps";
-import { getServerName } from "../../../api/servers";
-import { getGametypeName } from "../../../api/gametypes";
 import Pagination from "../UI/Pagination";
+import { removeUnr } from "../../../api/generic.mjs";
+
 
 function setQueryStuff(query){
 
@@ -34,17 +33,53 @@ export async function generateMetadata({ params, searchParams }, parent) {
 
     const {selectedServer, selectedGametype, selectedMap, displayMode, page} = setQueryStuff(query);
 
+    const serverName = (selectedServer !== 0) ? await getSingleObjectName("servers", selectedServer) : "";
+    const gametypeName = (selectedGametype !== 0) ? await getSingleObjectName("gametypes", selectedGametype) : "";
+    const mapName = (selectedMap !== 0) ? removeUnr(await getSingleObjectName("maps", selectedMap)) : "";
 
+    let title = "";
+    let description = "";
+    const keywords = ["search", "utstats", "node", "matches"];
 
-    const serverName = (selectedServer !== 0) ? await getServerName(selectedServer) : "";
-    const gametypeName = (selectedGametype !== 0) ? await getGametypeName(selectedGametype) : "";
-    const mapName = (selectedMap !== 0) ? await getMapName(selectedMap) : "";
-    
-    console.log(gametypeName);
+    if(serverName !== "" || gametypeName !== "" || mapName !== ""){
+
+        if(serverName !== ""){
+            description = `on the server ${serverName}`;
+            title = serverName;
+            keywords.push(serverName);
+        }
+
+        if(gametypeName !== ""){
+
+            if(description !== "") description += `, `;
+            if(title !== "") title += ` - `;
+            title += gametypeName;
+
+            description += `with the gametype ${gametypeName}`;
+            keywords.push(gametypeName);
+        }
+
+        if(mapName !== ""){
+            if(description !== "") description += `, `;
+            if(title !== "") title += ` - `;
+            title += mapName;
+            description += `on the map ${mapName}`;
+            keywords.push(mapName);
+        }
+
+        description = `Match search for games played ${description}`;
+
+        title = `${title} Match Search`;
+    }
+
+    if(title === ""){
+        title = "Recent Matches";
+    }
+
     return {
-        "title": "Matches - Node UTStats 2",
+        "title": `${title} - Node UTStats 2`,
         "description": "Search for matches played on our Unreal Tournament Servers.",
-        "keywords": ["search", "utstats", "node", "matches"],
+        "keywords": keywords,
     }
 }
 

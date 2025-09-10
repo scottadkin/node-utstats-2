@@ -38,6 +38,16 @@ export async function getObjectName(type, ids){
     return data; 
 }
 
+
+export async function getSingleObjectName(type, id){
+
+    const result = await getObjectName(type, [id]);
+
+    if(result[id] !== undefined) return result[id];
+
+    return "Not Found";
+}
+
 /**
  * Get all id,name pairs for servers, gametypes, maps
  * @param {*} type 

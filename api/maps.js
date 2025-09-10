@@ -2,34 +2,8 @@ import {simpleQuery} from "./database.js";
 import Message from "./message.js";
 import fs from "fs";
 import {cleanMapName, removeUnr} from "./generic.mjs";
+import { getObjectName } from "./genericServerSide.mjs";
 
-export async function getMapNamesById(ids){
-
-    if(ids.length === 0) return {};
-
-    const query = `SELECT id,name FROM nstats_maps WHERE id IN(?)`;
-
-    const result = await simpleQuery(query, [ids]);
-
-    const data = {};
-
-    for(let i = 0; i < result.length; i++){
-
-        const {id, name} = result[i];
-        data[id] = removeUnr(name);
-    }
-
-    return data;
-}
-
-export async function getMapName(id){
-
-    const result = await getMapNamesById([id]);
-
-    if(result[id] === undefined) return "Not Found";
-
-    return result[id];
-}
 
 export default class Maps{
     
@@ -228,13 +202,7 @@ export default class Maps{
 
     async getName(id){
 
-        return await getMapName(id);
-        const query = "SELECT name FROM nstats_maps WHERE id=?";
-        const result = await simpleQuery(query, [id]);
-
-        if(result.length === 0) return "Not Found";
-
-        return this.removeUnr(result[0].name);
+        return await getObjectName("maps", id);
 
     }
 
@@ -382,7 +350,7 @@ export default class Maps{
 
     async getNames(ids){
 
-        return await getMapNamesById(ids);
+        return await getObjectName("maps", ids);
     }
 
     async getTotalResults(name){

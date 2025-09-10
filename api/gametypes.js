@@ -17,35 +17,8 @@ import Servers from "./servers.js";
 import Voices from "./voices.js";
 import WinRate from "./winrate.js";
 import fs from "fs";
+import { getObjectName } from "./genericServerSide.mjs";
 
-export async function getGametypeNames(ids){
-
-    if(ids.length === 0) return {};
-
-    const query = "SELECT id,name FROM nstats_gametypes WHERE id IN(?)";
-
-    const result = await simpleQuery(query, [ids]);
-
-    const data = {"0": "Combined"};
-
-    for(let i = 0; i < result.length; i++){
-
-        const r = result[i];
-
-        data[r.id] = r.name;
-    }
-
-    return data;
-}
-
-export async function getGametypeName(id){
-
-    const result = await getGametypeNames([id]);
-
-    if(result[id] !== undefined) return result[id];
-
-    return "Not Found";
-}
 
 export default class Gametypes{
 
@@ -194,13 +167,12 @@ export default class Gametypes{
 
     async getName(id){
 
-        return await getGametypeName(id);
+        return await getObjectName("gametypes", [id]);
     }
 
     async getNames(ids){
 
-        return await getGametypeNames(ids);
-
+        return await getObjectName("gametypes", ids);
     }
 
 
