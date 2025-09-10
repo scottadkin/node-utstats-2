@@ -6,7 +6,7 @@ import Footer from "../components/Footer";
 import Nav from "../components/Nav";
 import { useReducer, useEffect } from "react";
 import { useRouter } from "next/router";
-import CountriesListDropDown from "../components/CountriesListDropDown";
+import CountriesListDropDown from "../src/app/UI/CountriesListDropDown";
 import PerPageDropDown from "../components/PerPageDropDown";
 import DropDown from "../components/DropDown";
 import NotificationsCluster from "../components/NotificationsCluster";
@@ -17,7 +17,7 @@ import CustomTable from "../components/CustomTable";
 import CountryFlag from "../components/CountryFlag";
 import Link from "next/link";
 import Pagination from "../components/Pagination";
-import PlayerSearch from "../api/playersearch";
+import PlayerSearch from "../src/app/lib/playersearch";
 import Countires from "../api/countries";
 
 const setOrder = (newSortBy, oldSortBy, currentOrder) =>{

@@ -6,12 +6,12 @@ import Session from "../api/session";
 import SiteSettings from "../api/sitesettings";
 import Analytics from "../api/analytics";
 import Servers from "../api/servers";
-import Table2 from "../components/Table2";
 import Loading from "../components/Loading";
 import Functions from "../api/functions";
-import InteractiveTable from "../components/InteractiveTable";
+import InteractiveTable from "../src/app/UI/InteractiveTable";
 import ServerDefaultView from "../components/ServerDefaultView";
 import Maps from "../api/maps";
+import { BasicTable } from "../src/app/UI/Tables/Tables";
 
 class ServersPage extends React.Component{
 
@@ -56,17 +56,19 @@ class ServersPage extends React.Component{
             </tr>);
         }
 
-        return <Table2 width={1} key="basic">
-            <tr>
-                <th>Name</th>
-                <th>IP:Port</th>
-                <th>First Match</th>
-                <th>Last Match</th>
-                <th>Total Matches</th>
-                <th>Total Playtime</th>
-            </tr>
-            {rows}
-        </Table2>
+        return <BasicTable 
+            width={1} 
+            headers={[
+                "Name",
+                "IP:Port",
+                "First Match",
+                "Last Match",
+                "Total Matches",
+                "Total Playtime"
+            ]}
+            rows={rows}
+        />;
+
     }
 
 

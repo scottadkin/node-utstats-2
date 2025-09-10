@@ -1,4 +1,4 @@
-import PlayerSearch from "../../api/playersearch";
+import PlayerSearch from "../../src/app/lib/playersearch";
 import { cleanInt } from "../../api/generic.mjs";
 
 export default async function handler(req, res){

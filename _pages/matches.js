@@ -1,7 +1,7 @@
 import DefaultHead from "../components/defaulthead";
 import Nav from "../components/Nav";
 import Footer from "../components/Footer";
-import {React, useEffect, useReducer} from "react";
+import {useEffect, useReducer} from "react";
 import Session from "../api/session";
 import SiteSettings from "../api/sitesettings";
 import Analytics from "../api/analytics";
@@ -10,8 +10,8 @@ import ErrorMessage from "../components/ErrorMessage";
 import ErrorPage from "./ErrorPage";
 import DropDown from "../components/DropDown";
 import MatchesTableView from "../components/MatchesTableView";
-import MatchesDefaultView from "../components/MatchesDefaultView";
-import Pagination from "../components/Pagination";
+import MatchesDefaultView from "../src/app/UI/MatchesDefaultView";
+import Pagination from "../src/app/UI/Pagination";
 import Functions from "../api/functions";
 import Servers from "../api/servers"
 import Gametypes from "../api/gametypes";

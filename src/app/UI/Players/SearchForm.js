@@ -30,10 +30,12 @@ export default function SearchForm({name, country, active, sortBy, perPage}){
 
     const router = useRouter();
 
-    return <form className="form">
+    return <form className="form" onSubmit={(e) =>{
+        e.preventDefault();
+    }}>
         <div className="form-row">
             <label htmlFor="name">Name</label>
-            <input className="default-textbox" placeholder="player name..." type="text" id="name" onChange={(e) =>{
+            <input className="default-textbox" defaultValue={name} placeholder="player name..." type="text" id="name" onChange={(e) =>{
                 router.push(`/players?name=${e.target.value}&country=${country}&active=${active}&sb=${sortBy}&pp=${perPage}`);
             }}/>
         </div>
@@ -45,7 +47,7 @@ export default function SearchForm({name, country, active, sortBy, perPage}){
         </div>
         <div className="form-row">
             <label htmlFor="active">Active</label>
-            <select id="active" defaultValue={active} className="default-select"  onChange={(e) =>{
+            <select id="active" defaultValue={active} className="default-select" onChange={(e) =>{
                 router.push(`/players?name=${name}&country=${country}&active=${e.target.value}&sb=${sortBy}&pp=${perPage}`);
             }}>
                 <option value="0">All Time</option>

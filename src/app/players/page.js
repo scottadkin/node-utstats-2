@@ -3,17 +3,30 @@ import SiteSettings from "../../../api/sitesettings";
 import Session from "../../../api/session";
 import Nav from "../UI/Nav";
 import SearchForm from "../UI/Players/SearchForm";
+import { cleanInt, convertTimestamp, toPlaytime } from "../../../api/generic.mjs";
+import PlayerSearch from "../lib/playersearch";
+import {BasicTable} from "../UI/Tables/Tables";
+import CountryFlag from "../UI/CountryFlag";
+import Pagination from "../UI/Pagination";
 
 
 function setQueryStuff(query){
 
-    const selectedCountry = query.country ?? "";
+    const selectedCountry = (query.country !== undefined) ? query.country.toLowerCase() : "";
     const selectedActive = (query.active !== undefined) ? parseInt(query.active) : 0;
     const selectedName = (query.name !== undefined) ? query.name : "";
     const perPage = (query.pp !== undefined) ? query.pp : 25;
-    const page = (query.page !== undefined) ? cleanInt(query.page, 1, null) : 1;
+    let page = (query.page !== undefined) ? cleanInt(query.page, 1, null) : 1;
     const sortBy = (query.sb !== undefined) ? query.sb : "name";
     const order = (query.o !== undefined) ? query.o.toLowerCase() : "asc";
+
+     if(page !== page){
+        page = 1;
+    }
+
+    page--;
+
+    if(page < 0) page = 0;
     
     return {selectedCountry, selectedActive, selectedName, perPage, page, sortBy, order};
 }
@@ -26,6 +39,8 @@ export default async function Page({searchParams}){
 
     const query = await searchParams;
 
+    console.log(query);
+
     const {selectedCountry, selectedActive, selectedName, perPage, page, sortBy, order} = setQueryStuff(query);
 
 	const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0]
@@ -36,6 +51,21 @@ export default async function Page({searchParams}){
 	const siteSettings = new SiteSettings();
 	const navSettings = await siteSettings.getCategorySettings("Navigation");
 	const sessionSettings = JSON.stringify(session.settings);
+
+
+    const p = new PlayerSearch();
+    
+    const {data, totalMatches} = await p.defaultSearch(selectedName, page, perPage, selectedCountry, selectedActive, sortBy, order);
+
+    const tableHeaders = [
+        "Name", "Last Active", "Playtime", "Matches", "Kills", "score"
+    ];
+
+    const tableStyles = [
+        "text-left", "playtime", "playtime", null, null, null
+    ];
+
+    const pURL = `/players?name=${selectedName}&country=${selectedCountry}&active=${selectedActive}&sb=${sortBy}&pp=${perPage}&page=`;
 
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
@@ -50,6 +80,21 @@ export default async function Page({searchParams}){
                     sortBy={sortBy}
                     order={order}
                 />
+            </div>
+            
+            <div className="default">
+                <Pagination currentPage={page + 1} results={totalMatches} perPage={perPage} url={pURL}/>
+                <BasicTable headers={tableHeaders} columnStyles={tableStyles} rows={[...data.map((s) =>{
+                    return [
+                        <><CountryFlag country={s.country}/>{s.name}</>,
+                        convertTimestamp(s.last, true),
+                        toPlaytime(s.playtime),
+                        s.matches,
+                        s.kills,
+                        s.score
+                    ];
+                })]}/>
+                <Pagination currentPage={page + 1} results={totalMatches} perPage={perPage} url={pURL}/>
             </div>
         </div>   
     </main>; 
