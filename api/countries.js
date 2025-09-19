@@ -236,7 +236,7 @@ const flags =  {
     "TZ": "Tanzania, United Republic of",
     "UA": "Ukraine",
     "UG": "Uganda",
-    "UK": "United Kingdom",
+    //"UK": "United Kingdom",
     "UM": "US Minor Outlying Islands",
     "US": "United States of America",
     "UY": "Uruguay",
@@ -275,5 +275,29 @@ export default function Countires(code){
     }
 
     return {"code": code, "country": flags[code]};
+}
 
+
+export function orderedCountriesArray(){
+
+    const countries = [];
+
+    for(const [code, name] of Object.entries(flags)){
+        countries.push({code, name});
+    }
+
+    countries.sort((a, b) =>{
+
+        a = a.name.toLowerCase();
+        b = b.name.toLowerCase();
+
+        if(a < b){
+            return -1;
+        }else if(a > b){
+            return 1;
+        }
+        return 0;
+    });
+
+    return countries;
 }

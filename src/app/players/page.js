@@ -38,9 +38,7 @@ export default async function Page({searchParams}){
 	const cookiesData = cookieStore.getAll();
 
     const query = await searchParams;
-
-    console.log(query);
-
+   
     const {selectedCountry, selectedActive, selectedName, perPage, page, sortBy, order} = setQueryStuff(query);
 
 	const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0]
