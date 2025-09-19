@@ -314,6 +314,7 @@ export default class Rankings{
             data.push({"data": result, "id": id});
         }
 
+        console.log(data);
 
         return data;
     }
