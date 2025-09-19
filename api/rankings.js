@@ -332,13 +332,6 @@ export default class Rankings{
 
     }
 
-    async getDetailedSettings(){
-
-        const query = "SELECT name,display_name,description,value FROM nstats_ranking_values";
-        return await simpleQuery(query);
-    }
-
-
     async getPlayerRankings(playerId){
 
         const query = "SELECT gametype,matches,playtime,ranking,ranking_change FROM nstats_ranking_player_current WHERE player_id=?";
@@ -697,4 +690,9 @@ export default class Rankings{
             await simpleQuery(query, [last, player, gametype]);
         } 
     }
+}
+
+export async function getDetailedSettings(){
+    const query = "SELECT name,display_name,description,value FROM nstats_ranking_values";
+    return await simpleQuery(query);
 }
