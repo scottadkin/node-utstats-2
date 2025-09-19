@@ -8,6 +8,7 @@ import PlayerSearch from "../lib/playersearch";
 import {BasicTable} from "../UI/Tables/Tables";
 import CountryFlag from "../UI/CountryFlag";
 import Pagination from "../UI/Pagination";
+import Link from "next/link";
 
 
 function setQueryStuff(query){
@@ -29,6 +30,15 @@ function setQueryStuff(query){
     if(page < 0) page = 0;
     
     return {selectedCountry, selectedActive, selectedName, perPage, page, sortBy, order};
+}
+
+export async function generateMetadata({ params, searchParams }, parent) {
+    
+    return {
+        "title": "Player Search - Node UTStats 2",
+        "description": "Search for a player",
+        "keywords": ["player", "search", "utstats", "node"],
+    }
 }
 
 export default async function Page({searchParams}){
@@ -83,13 +93,16 @@ export default async function Page({searchParams}){
             <div className="default">
                 <Pagination currentPage={page + 1} results={totalMatches} perPage={perPage} url={pURL}/>
                 <BasicTable headers={tableHeaders} columnStyles={tableStyles} rows={[...data.map((s) =>{
+
+                    const url = `/player/${s.id}`;
+            
                     return [
-                        <><CountryFlag country={s.country}/>{s.name}</>,
-                        convertTimestamp(s.last, true),
-                        toPlaytime(s.playtime),
-                        s.matches,
-                        s.kills,
-                        s.score
+                        <Link href={url}><CountryFlag country={s.country}/>{s.name}</Link>,
+                        <Link href={url}>{convertTimestamp(s.last, true)}</Link>,
+                        <Link href={url}>{toPlaytime(s.playtime)}</Link>,
+                        <Link href={url}>{s.matches}</Link>,
+                        <Link href={url}>{s.kills}</Link>,
+                       <Link href={url}>{s.score}</Link>
                     ];
                 })]}/>
                 <Pagination currentPage={page + 1} results={totalMatches} perPage={perPage} url={pURL}/>

@@ -1,5 +1,4 @@
 "use client"
-//import Countires from "../../../../api/countries";
 import { orderedCountriesArray } from "../../../../api/countries";
 import { useRouter } from "next/navigation";
 

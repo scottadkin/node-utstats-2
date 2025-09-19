@@ -8,11 +8,11 @@ import ServerList from "../UI/Servers/ServerList";
 
 export async function generateMetadata({ params, searchParams }, parent) {
     
-  return {
-    "title": "Servers - Node UTStats 2",
-    "description": "View information about our servers",
-    "keywords": ["servers", "utstats", "node"],
-  }
+    return {
+        "title": "Servers - Node UTStats 2",
+        "description": "View information about our servers",
+        "keywords": ["servers", "utstats", "node"],
+    }
 }
 
 export default async function Page(){
