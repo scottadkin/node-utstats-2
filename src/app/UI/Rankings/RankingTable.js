@@ -3,6 +3,7 @@ import Link from "next/link";
 import CountryFlag from "../CountryFlag";
 import { getOrdinal, toPlaytime, convertTimestamp } from "../../../../api/generic.mjs";
 import Image from "next/image";
+import { BasicMouseOver } from "../MouseOver";
 
 
 //TODO: Add mouse over info for ranking change icon, display ranking change value from recent match
@@ -25,12 +26,20 @@ export default function RankingTable({title, data, page, perPage}){
             icon = "down.png";
         }
 
+        let mouseText = "No change";
+
+        if(change > 0){
+            mouseText = `Gained ${change} points in latest match.`;
+        }else if(change < 0){
+            mouseText = `Lost ${change} points in latest match.`;
+        }
+
         return [
             `${place}${getOrdinal(place)}`,
             <Link href={`/player/${d.player_id}`}><CountryFlag country={d.country}/>{d.playerName}</Link>,
             convertTimestamp(d.last_active, true),
             toPlaytime(d.playtime),
-            <>{d.ranking} <Image src={`/images/${icon}`} alt="icon" width={12} height={12}/></>
+            <BasicMouseOver text={mouseText}>{d.ranking} <Image src={`/images/${icon}`} alt="icon" width={12} height={12}/></BasicMouseOver>
         ];
     });
 

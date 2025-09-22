@@ -821,3 +821,12 @@ input[type="range"]{
 .max-width-1{
 	max-width:var(--max-width-1);
 }
+
+.basic-mouse-over{
+	position:absolute;
+	background-color:var(--color-3);
+	border:1px solid var(--border-color-1);
+	padding:5px;
+	color:white;
+	font-size:12px;
+}
