@@ -1,30 +1,57 @@
 import { simpleQuery } from "./database.js";
 import Message from "./message.js";
+import { getAllGametypeNames } from "./gametypes.js";
+import { getBasicPlayersByIds } from "./players.js";
+
+const validLastActive =  {
+    "1": 60 * 60 * 24,
+    "7": 60 * 60 * 24 * 7,
+    "28": 60 * 60 * 24 * 28,
+    "90": 60 * 60 * 24 * 90,
+    "365": 60 * 60 * 24 * 365,
+    "0": Number.MAX_SAFE_INTEGER
+};
+
+const validMinPlaytimes = {
+    "0": 0,
+    "1": 60 * 60,
+    "2": 60 * 60 * 2,
+    "3": 60 * 60 * 3,
+    "6": 60 * 60 * 6,
+    "12": 60 * 60 * 12,
+    "24": 60 * 60 * 24,
+    "48": 60 * 60 * 48
+};
+
+function sanitizeLastActive(lastActive){
+
+    const now = Math.ceil(Date.now() * 0.001);
+
+    let limit = 0;
+
+    if(validLastActive[lastActive] !== undefined){
+
+        limit = now - validLastActive[lastActive];
+        if(limit < 0) limit = 0;
+    }
+
+    return limit;
+}
+
+function sanitizeMinPlaytime(minPlaytime){
+
+    let limit = 0;
+
+    if(validMinPlaytimes[minPlaytime] !== undefined){
+        limit = validMinPlaytimes[minPlaytime];
+    }
+
+    return limit;
+}
 
 export default class Rankings{
 
-    constructor(){
-
-        this.validLastActive = {
-            "1": 60 * 60 * 24,
-            "7": 60 * 60 * 24 * 7,
-            "28": 60 * 60 * 24 * 28,
-            "90": 60 * 60 * 24 * 90,
-            "365": 60 * 60 * 24 * 365,
-            "0": Number.MAX_SAFE_INTEGER
-        };
-
-        this.validMinPlaytimes = {
-            "0": 0,
-            "1": 60 * 60,
-            "2": 60 * 60 * 2,
-            "3": 60 * 60 * 3,
-            "6": 60 * 60 * 6,
-            "12": 60 * 60 * 12,
-            "24": 60 * 60 * 24,
-            "48": 60 * 60 * 48
-        };
-    }
+    constructor(){ }
 
     async init(){
 
@@ -254,32 +281,6 @@ export default class Rankings{
         return score;
     }
 
-    sanitizeLastActive(lastActive){
-
-        const now = Math.ceil(Date.now() * 0.001);
-
-        let limit = 0;
-
-        if(this.validLastActive[lastActive] !== undefined){
-
-            limit = now - this.validLastActive[lastActive];
-            if(limit < 0) limit = 0;
-        }
-
-        return limit;
-    }
-
-    sanitizeMinPlaytime(minPlaytime){
-
-        let limit = 0;
-   
-        if(this.validMinPlaytimes[minPlaytime] !== undefined){
-            limit = this.validMinPlaytimes[minPlaytime];
-        }
-
-        return limit;
-    }
-
     async getData(gametypeId, page, perPage, lastActive, minPlaytime){
 
         page = parseInt(page);
@@ -292,8 +293,8 @@ export default class Rankings{
 
         const start = page * perPage;
 
-        let limit = this.sanitizeLastActive(lastActive);
-        minPlaytime = this.sanitizeMinPlaytime(minPlaytime);
+        let limit = sanitizeLastActive(lastActive);
+        minPlaytime = sanitizeMinPlaytime(minPlaytime);
 
         const query = "SELECT * FROM nstats_ranking_player_current WHERE gametype=? AND last_active>=? AND playtime>=? ORDER BY ranking DESC LIMIT ?,?";
 
@@ -322,8 +323,8 @@ export default class Rankings{
 
     async getTotalPlayers(gametypeId, lastActive, minPlaytime){
 
-        const limit = this.sanitizeLastActive(lastActive);
-        minPlaytime = this.sanitizeMinPlaytime(minPlaytime);
+        const limit = sanitizeLastActive(lastActive);
+        minPlaytime = sanitizeMinPlaytime(minPlaytime);
 
         const query = "SELECT COUNT(*) as total_players FROM nstats_ranking_player_current WHERE gametype=? AND last_active>=? AND playtime>=?";
 
@@ -696,4 +697,56 @@ export default class Rankings{
 export async function getDetailedSettings(){
     const query = "SELECT name,display_name,description,value FROM nstats_ranking_values";
     return await simpleQuery(query);
+}
+
+
+
+export async function getTopPlayersEveryGametype(maxPlayers, lastActive, minPlaytime){
+
+    const gametypes = await getAllGametypeNames();
+
+    console.log(lastActive, minPlaytime);
+    lastActive = sanitizeLastActive(lastActive);
+    minPlaytime = sanitizeMinPlaytime(minPlaytime);
+
+    console.log(lastActive, minPlaytime);
+
+    const gametypeIds = Object.keys(gametypes);
+   
+    const data = {};
+
+    const query = `SELECT player_id,matches,playtime,ranking,ranking_change,last_active FROM nstats_ranking_player_current
+    WHERE gametype=? ORDER BY ranking DESC LIMIT ?`;
+
+    const uniquePlayerIds = new Set();
+
+    for(let i = 0; i < gametypeIds.length; i++){
+
+        const id = gametypeIds[i];
+
+        const result = await simpleQuery(query, [id, maxPlayers]);
+
+        for(let x = 0; x < result.length; x++){
+            uniquePlayerIds.add(result[x].player_id);
+        }
+
+        data[id] = result;
+    }
+
+    const playerInfo = await getBasicPlayersByIds([...uniquePlayerIds]);
+
+    for(const [key, value] of Object.entries(data)){
+
+        for(let i = 0; i < value.length; i++){
+
+            const v = value[i];
+
+            const currentPlayer = playerInfo?.[v.player_id] ?? {"name": "Not Found", "country": "xx"};
+
+            v.playerName = currentPlayer.name;
+            v.country = currentPlayer.country;
+        }
+    }
+
+    return data;
 }

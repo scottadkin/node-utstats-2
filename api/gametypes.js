@@ -19,6 +19,22 @@ import WinRate from "./winrate.js";
 import fs from "fs";
 import { getObjectName } from "./genericServerSide.mjs";
 
+export async function getAllGametypeNames(){
+    
+    const query = "SELECT id,name FROM nstats_gametypes ORDER BY name ASC";
+     
+    
+    const result = await simpleQuery(query);
+    
+    const data = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        data[result[i].id] = result[i].name
+    }
+
+    return data;
+}
 
 export default class Gametypes{
 
@@ -179,19 +195,7 @@ export default class Gametypes{
     async getAllNames(){
 
   
-        const query = "SELECT id,name FROM nstats_gametypes ORDER BY name ASC";
-     
-        
-        const result = await simpleQuery(query);
-        
-        const data = {};
-
-        for(let i = 0; i < result.length; i++){
-
-            data[result[i].id] = result[i].name
-        }
-
-        return data;
+        return await getAllGametypeNames();
     }
 
 

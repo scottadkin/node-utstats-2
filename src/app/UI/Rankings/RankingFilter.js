@@ -31,7 +31,7 @@ export default function RankingFilter({settings, lastActive, minPlaytime}){
             <div className="form-row">
                 <label htmlFor="active">Active Within</label>
                 <select id="active" defaultValue={lastActive} className="default-select" onChange={(e) =>{
-                    router.push(`/rankings/0?lastActive=${e.target.value}&lastActive=${minPlaytime}`);
+                    router.push(`/rankings/0?lastActive=${e.target.value}&minPlaytime=${minPlaytime}`);
                 }}>
                     {activeOptions.map((a, i) =>{
                         return <option key={i} value={a.value}>{a.name}</option>;

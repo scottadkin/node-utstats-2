@@ -9,6 +9,7 @@ import Rankings from "../../../../api/rankings";
 import Gametypes from "../../../../api/gametypes";
 import Maps from "../../../../api/maps";
 import Players from "../../../../api/players";
+import { getTopPlayersEveryGametype } from "../../../../api/rankings";
 
 export async function generateMetadata({ params, searchParams }, parent) {
     
@@ -47,27 +48,28 @@ function setQuery(query, pageSettings){
     }
 
     const DEFAULT_ACTIVE = pageSettings["Default Last Active"];
-    console.log(DEFAULT_ACTIVE);
-    const DEFAULT_MIN_PLAYTIME = pageSettings["Default Min Playtime"];
+    const DEFAULT_MIN_PLAYTIME = parseInt(pageSettings["Default Min Playtime"]);
+
 
     let lastActive = (query.lastActive !== undefined) ? parseInt(query.lastActive) : DEFAULT_ACTIVE;
 
     if(lastActive !== lastActive) lastActive = DEFAULT_ACTIVE;
     lastActive = lastActive.toString();
 
+
     let minPlaytime = (query.minPlaytime !== undefined) ? parseInt(query.minPlaytime) : DEFAULT_MIN_PLAYTIME;
+
     if(minPlaytime !== minPlaytime) minPlaytime = DEFAULT_MIN_PLAYTIME;
     minPlaytime = minPlaytime.toString();
-
 
     return {page, perPage, minPlaytime, lastActive, gametype};
 }
 
-export default async function Page({params}){
+export default async function Page({searchParams}){
 
     const header = await headers();
 
-    const query = await params;
+    const query = await searchParams;
 
     console.log(query);
 
@@ -104,7 +106,7 @@ export default async function Page({params}){
 
     let {page, perPage, minPlaytime, lastActive, gametype} = setQuery(query, pageSettings);
 
-    let data = [];
+    let data = {};
 
     if(gametype === 0){
 
@@ -116,12 +118,13 @@ export default async function Page({params}){
         //CHANGE TO LAST ACTIVE GAMETYPE INSTEAD OF DISPLAYING ALL
 
        // data = await rankingManager.getMultipleGametypesData(gametypeIds, perPage, lastActive, minPlaytime);
+        data = await getTopPlayersEveryGametype(5, lastActive, minPlaytime);
         
     }else{
-        data.push({"id": gametype, "data": await rankingManager.getData(gametype, page, perPage, lastActive, minPlaytime)});
+       // data.push({"id": gametype, "data": await rankingManager.getData(gametype, page, perPage, lastActive, minPlaytime)});
     }
 
-
+    //console.log(data);
 
 
     return <main>

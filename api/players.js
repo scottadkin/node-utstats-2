@@ -3549,3 +3549,24 @@ export default class Players{
         return await simpleQuery(query);
     }
 }
+
+
+export async function getBasicPlayersByIds(playerIds){
+
+    if(playerIds.length === 0) return {};
+
+    const query = `SELECT id,name,country FROM nstats_player_totals WHERE id IN (?)`;
+
+    const result = await simpleQuery(query, [playerIds]);
+
+    const data = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const {id, name, country} = result[i];
+        data[id] = {name, country};
+    }
+
+    return data;
+
+}
