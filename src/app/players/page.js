@@ -9,6 +9,7 @@ import {BasicTable} from "../UI/Tables/Tables";
 import CountryFlag from "../UI/CountryFlag";
 import Pagination from "../UI/Pagination";
 import Link from "next/link";
+import { getCountryName } from "../../../api/countries";
 
 
 function setQueryStuff(query){
@@ -34,9 +35,65 @@ function setQueryStuff(query){
 
 export async function generateMetadata({ params, searchParams }, parent) {
     
+    const query = await searchParams;
+
+    let name = query?.name ?? "";
+    let country = query?.country ?? "";
+    let searchBy = query?.sb ?? "";
+    let active = query?.active ?? "";
+    let order = query.o ?? "desc";
+    order = order.toLowerCase();
+
+    if(country !== "") country = getCountryName(country);
+
+    if(searchBy !== ""){
+
+        searchBy = searchBy.toLowerCase();
+       
+        switch(searchBy){
+            case "name": { searchBy = "Name" } break;
+            case "playtime": { searchBy = "Playtime" } break;
+            case "matches": { searchBy = "Matches Played" } break;
+            case "score": { searchBy = "Score" } break;
+            case "kills": { searchBy = "Kills" } break;
+            case "last": { searchBy = "Last Active" } break;
+        }
+    }
+
+    if(active !== ""){
+
+        switch(active){
+            case "1": { active = "Past 24 Hours" } break;
+            case "2": { active = "Past 7 Days" } break;
+            case "3": { active = "Past 28 Days" } break;
+            case "4": { active = "Past Year" } break;
+        }
+    }
+
+    let title = "Players";
+    let desc = "Search for a player";
+
+    if(country !== ""){
+        title = `Players From ${country} Search`;
+        desc += ` from the country ${country}`
+    }
+
+    if(name !== ""){
+        title = `"${name}" Player Search`;
+        desc += ` with a name containing ${name}`;
+    }
+
+    if(active !== ""){
+        desc += `, active within the ${active}`;
+    }
+
+    if(searchBy !== ""){
+        desc += `, order by ${searchBy} ${(order === "desc") ? "descending" : "ascending"} order`;
+    }
+
     return {
-        "title": "Player Search - Node UTStats 2",
-        "description": "Search for a player",
+        "title": `${title} - Node UTStats 2`,
+        "description": `${desc}.`,
         "keywords": ["player", "search", "utstats", "node"],
     }
 }
@@ -102,7 +159,7 @@ export default async function Page({searchParams}){
                         <Link href={url}>{toPlaytime(s.playtime)}</Link>,
                         <Link href={url}>{s.matches}</Link>,
                         <Link href={url}>{s.kills}</Link>,
-                       <Link href={url}>{s.score}</Link>
+                        <Link href={url}>{s.score}</Link>
                     ];
                 })]}/>
                 <Pagination currentPage={page + 1} results={totalMatches} perPage={perPage} url={pURL}/>

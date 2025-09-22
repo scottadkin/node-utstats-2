@@ -301,3 +301,13 @@ export function orderedCountriesArray(){
 
     return countries;
 }
+
+
+export function getCountryName(code){
+
+    code = code.toUpperCase();
+
+    if(flags[code] !== undefined) return flags[code];
+
+    return "Not Found";
+}
