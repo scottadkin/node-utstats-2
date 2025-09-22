@@ -2,27 +2,7 @@
 import RankingsExplained from "./RankingsExplained";
 import { useRouter } from "next/navigation";
 
-const activeOptions = [
-    {"value": "0", "name": "No Limit"},
-    {"value": "1", "name": "Past 1 Day"},
-    {"value": "7", "name": "Past 7 Days"},
-    {"value": "28", "name": "Past 28 Days"},
-    {"value": "90", "name": "Past 90 Days"},
-    {"value": "365", "name": "Past 365 Days"}
-];
-
-const playtimeOptions = [
-    {"value": "0", "name": "No Limit"},
-    {"value": "1", "name": "1 Hour"},
-    {"value": "2", "name": "2 Hours"},
-    {"value": "3", "name": "3 Hours"},
-    {"value": "6", "name": "6 Hours"},
-    {"value": "12", "name": "12 Hours"},
-    {"value": "24", "name": "24 Hours"},
-    {"value": "48", "name": "48 Hours"}
-];
-
-export default function RankingFilter({settings, lastActive, minPlaytime, gametypeId}){
+export default function RankingFilter({settings, lastActive, minPlaytime, gametypeId, activeOptions, playtimeOptions}){
 
     const router = useRouter();
 

@@ -3,16 +3,29 @@ import Session from "../../../../api/session";
 import SiteSettings from "../../../../api/sitesettings";
 import Nav from "../../UI/Nav";
 import RankingFilter from "../../UI/Rankings/RankingFilter";
-import {getDetailedSettings, getTotalRankingEntries} from "../../../../api/rankings";
-import { getTopPlayersEveryGametype, getRankingData} from "../../../../api/rankings";
+import {getDetailedSettings, getTotalRankingEntries, getTopPlayersEveryGametype, getRankingData, playtimeOptions, activeOptions} from "../../../../api/rankings";
 import RankingTable from "../../UI/Rankings/RankingTable";
-import { getAllObjectNames } from "../../../../api/genericServerSide.mjs";
+import { getAllObjectNames, getObjectName } from "../../../../api/genericServerSide.mjs";
 
 export async function generateMetadata({ params, searchParams }, parent) {
-    
+
+
+    //const query = await searchParams;
+    const p = await params;
+
+    let gametype = "Player";
+    let desc = "View player rankings for our played gametypes.";
+
+    if(p.id !== "0"){
+        gametype = await getObjectName("gametypes", [p.id]);
+
+        gametype = (gametype[p.id] !== undefined) ? gametype[p.id] : "Not Found";
+        desc = `View player rankings for the gametype ${gametype}.`
+    }
+
     return {
-        "title": "Player Rankings - Node UTStats 2",
-        "description": "View player rankings for various gametypes and time frames.",
+        "title": `${gametype} Rankings - Node UTStats 2`,
+        "description": desc,
         "keywords": ["ranking", "players", "utstats", "node"],
     }
 }
@@ -159,7 +172,9 @@ export default async function Page({params, searchParams}){
         <div id="content">
             <div className="default">
                 <div className="default-header">Rankings</div>
-                <RankingFilter gametypeId={gametype} settings={rankingSettings} lastActive={lastActive} minPlaytime={minPlaytime}/>
+                <RankingFilter playtimeOptions={playtimeOptions} activeOptions={activeOptions} gametypeId={gametype} 
+                    settings={rankingSettings} lastActive={lastActive} minPlaytime={minPlaytime}
+                />
             </div>
             {elems}
             

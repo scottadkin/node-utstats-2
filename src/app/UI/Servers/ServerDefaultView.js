@@ -1,7 +1,7 @@
 import styles from "./ServerDefaultView.module.css";
 import CountryFlag from "../CountryFlag";
 import Link from "next/link";
-import { cleanMapName, convertTimestamp, toPlaytime } from "../../../../api/generic.mjs";
+import { cleanMapName, convertTimestamp, removeUnr, toPlaytime } from "../../../../api/generic.mjs";
 
 export default function ServerDefaultView({mapImages, mapNames, data}){
 
@@ -60,7 +60,7 @@ export default function ServerDefaultView({mapImages, mapNames, data}){
             <div className={styles.last}>
                 <div className={styles.row}>
                     <div>Last Match</div>
-                    <div>{mapName}</div>
+                    <div>{removeUnr(mapName)}</div>
                 </div>
                 <div className={styles.date}>
                     {convertTimestamp(d.last, true)}
