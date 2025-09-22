@@ -1,6 +1,6 @@
 import Tabs from "../Tabs";
 import { useState } from "react";
-import {BasicTable} from "../Tables/Tables";
+import {BasicTable} from "../Tables";
 
 export default function RankingsExplained({settings}){
 

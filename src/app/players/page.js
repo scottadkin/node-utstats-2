@@ -5,7 +5,7 @@ import Nav from "../UI/Nav";
 import SearchForm from "../UI/Players/SearchForm";
 import { cleanInt, convertTimestamp, toPlaytime } from "../../../api/generic.mjs";
 import PlayerSearch from "../lib/playersearch";
-import {BasicTable} from "../UI/Tables/Tables";
+import {BasicTable} from "../UI/Tables/";
 import CountryFlag from "../UI/CountryFlag";
 import Pagination from "../UI/Pagination";
 import Link from "next/link";

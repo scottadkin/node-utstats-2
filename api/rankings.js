@@ -705,11 +705,8 @@ export async function getTopPlayersEveryGametype(maxPlayers, lastActive, minPlay
 
     const gametypes = await getAllGametypeNames();
 
-    console.log(lastActive, minPlaytime);
     lastActive = sanitizeLastActive(lastActive);
     minPlaytime = sanitizeMinPlaytime(minPlaytime);
-
-    console.log(lastActive, minPlaytime);
 
     const gametypeIds = Object.keys(gametypes);
    
@@ -735,7 +732,7 @@ export async function getTopPlayersEveryGametype(maxPlayers, lastActive, minPlay
 
     const playerInfo = await getBasicPlayersByIds([...uniquePlayerIds]);
 
-    for(const [key, value] of Object.entries(data)){
+    for(const value of Object.values(data)){
 
         for(let i = 0; i < value.length; i++){
 

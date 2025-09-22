@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import MatchResultSmall from './MatchResultSmall';
 import { toPlaytime, convertTimestamp, removeUnr } from '../../../api/generic.mjs';
-import { BasicTable } from "./Tables/Tables";
+import { BasicTable } from "./Tables/";
 
 function getMatchResult(matchData){
 

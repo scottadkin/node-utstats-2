@@ -4,12 +4,9 @@ import SiteSettings from "../../../../api/sitesettings";
 import Nav from "../../UI/Nav";
 import RankingFilter from "../../UI/Rankings/RankingFilter";
 import {getDetailedSettings} from "../../../../api/rankings";
-import { setIdNames } from "../../../../api/generic.mjs";
-import Rankings from "../../../../api/rankings";
 import Gametypes from "../../../../api/gametypes";
-import Maps from "../../../../api/maps";
-import Players from "../../../../api/players";
 import { getTopPlayersEveryGametype } from "../../../../api/rankings";
+import RankingTable from "../../UI/Rankings/RankingTable";
 
 export async function generateMetadata({ params, searchParams }, parent) {
     
@@ -21,12 +18,12 @@ export async function generateMetadata({ params, searchParams }, parent) {
 }
 
 
-function setQuery(query, pageSettings){
+function setQuery(query, params, pageSettings){
 
     let page = 1;
     let perPage = 25;
 
-    let gametype = parseInt(query.id);
+    let gametype = parseInt(params.id);
 
     if(gametype !== 0){
 
@@ -65,13 +62,12 @@ function setQuery(query, pageSettings){
     return {page, perPage, minPlaytime, lastActive, gametype};
 }
 
-export default async function Page({searchParams}){
+export default async function Page({params, searchParams}){
 
     const header = await headers();
 
     const query = await searchParams;
-
-    console.log(query);
+    const p = await params;
 
     const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0];
 
@@ -91,9 +87,7 @@ export default async function Page({searchParams}){
     const pageSettings = await siteSettings.getCategorySettings("rankings");
 
 
-    const rankingManager = new Rankings();
     const gametypeManager = new Gametypes();
-    const playerManager = new Players();
 
     const gametypeNames = await gametypeManager.getAllNames();
 
@@ -104,9 +98,9 @@ export default async function Page({searchParams}){
         gametypeIds.push(parseInt(key));
     }
 
-    let {page, perPage, minPlaytime, lastActive, gametype} = setQuery(query, pageSettings);
+    let {page, perPage, minPlaytime, lastActive, gametype} = setQuery(query, p, pageSettings);
 
-    let data = {};
+    const elems = [];
 
     if(gametype === 0){
 
@@ -115,16 +109,20 @@ export default async function Page({searchParams}){
             perPage = parseInt(pageSettings["Rankings Per Page (Individual)"]);
         }
 
-        //CHANGE TO LAST ACTIVE GAMETYPE INSTEAD OF DISPLAYING ALL
+        const data = await getTopPlayersEveryGametype(perPage, lastActive, minPlaytime);
 
-       // data = await rankingManager.getMultipleGametypesData(gametypeIds, perPage, lastActive, minPlaytime);
-        data = await getTopPlayersEveryGametype(5, lastActive, minPlaytime);
+        for(const [gametypeId, rankings] of Object.entries(data)){
+      
+            elems.push(<RankingTable key={gametypeId} title={gametypeNames[gametypeId]} data={rankings}/>);
+        }
+
         
     }else{
        // data.push({"id": gametype, "data": await rankingManager.getData(gametype, page, perPage, lastActive, minPlaytime)});
     }
 
     //console.log(data);
+
 
 
     return <main>
@@ -134,6 +132,7 @@ export default async function Page({searchParams}){
                 <div className="default-header">Rankings</div>
                 <RankingFilter settings={rankingSettings} lastActive={lastActive} minPlaytime={minPlaytime}/>
             </div>
+            {elems}
             
         </div>   
     </main>; 
