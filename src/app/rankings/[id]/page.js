@@ -3,7 +3,7 @@ import Session from "../../../../api/session";
 import SiteSettings from "../../../../api/sitesettings";
 import Nav from "../../UI/Nav";
 import RankingFilter from "../../UI/Rankings/RankingFilter";
-import {getDetailedSettings} from "../../../../api/rankings";
+import {getDetailedSettings, getTotalRankingEntries} from "../../../../api/rankings";
 import { getTopPlayersEveryGametype, getRankingData} from "../../../../api/rankings";
 import RankingTable from "../../UI/Rankings/RankingTable";
 import { getAllObjectNames } from "../../../../api/genericServerSide.mjs";
@@ -118,13 +118,35 @@ export default async function Page({params, searchParams}){
             const {id, name} = gametypeNames[i];
 
             if(data[id] === undefined) continue;
-            elems.push(<RankingTable key={id} gametypeId={id} title={name} data={data[id]} bDisplayViewAll={true}/>);
+
+            elems.push(<RankingTable 
+                key={id} 
+                gametypeId={id} 
+                title={name} 
+                data={data[id]} 
+                page={page}
+                perPage={perPage}
+                bDisplayViewAll={true} 
+                lastActive={lastActive} 
+                minPlaytime={minPlaytime} 
+            />);
         }
 
         
     }else{
         const data = await getRankingData(gametype, page, perPage, lastActive, minPlaytime);
-        console.log(data);
+        const totalResults = await getTotalRankingEntries(gametype, lastActive, minPlaytime);
+        elems.push(<RankingTable 
+            results={totalResults} 
+            key={gametype} 
+            page={page}
+            perPage={perPage}
+            gametypeId={gametype} 
+            lastActive={lastActive} 
+            minPlaytime={minPlaytime} 
+            title={gametypes[gametype]} 
+            data={data} 
+        />);
        // data.push({"id": gametype, "data": await rankingManager.getData(gametype, page, perPage, lastActive, minPlaytime)});
     }
 
@@ -137,7 +159,7 @@ export default async function Page({params, searchParams}){
         <div id="content">
             <div className="default">
                 <div className="default-header">Rankings</div>
-                <RankingFilter settings={rankingSettings} lastActive={lastActive} minPlaytime={minPlaytime}/>
+                <RankingFilter gametypeId={gametype} settings={rankingSettings} lastActive={lastActive} minPlaytime={minPlaytime}/>
             </div>
             {elems}
             

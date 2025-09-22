@@ -22,7 +22,7 @@ const playtimeOptions = [
     {"value": "48", "name": "48 Hours"}
 ];
 
-export default function RankingFilter({settings, lastActive, minPlaytime}){
+export default function RankingFilter({settings, lastActive, minPlaytime, gametypeId}){
 
     const router = useRouter();
 
@@ -31,7 +31,7 @@ export default function RankingFilter({settings, lastActive, minPlaytime}){
             <div className="form-row">
                 <label htmlFor="active">Active Within</label>
                 <select id="active" defaultValue={lastActive} className="default-select" onChange={(e) =>{
-                    router.push(`/rankings/0?lastActive=${e.target.value}&minPlaytime=${minPlaytime}`);
+                    router.push(`/rankings/${gametypeId}?lastActive=${e.target.value}&minPlaytime=${minPlaytime}`);
                 }}>
                     {activeOptions.map((a, i) =>{
                         return <option key={i} value={a.value}>{a.name}</option>;
@@ -41,7 +41,7 @@ export default function RankingFilter({settings, lastActive, minPlaytime}){
             <div className="form-row">
                 <label htmlFor="playtime">Min Playtime</label>
                 <select id="playtime" className="default-select" defaultValue={minPlaytime} onChange={(e) =>{
-                    router.push(`/rankings/0?lastActive=${lastActive}&minPlaytime=${e.target.value}`);
+                    router.push(`/rankings/${gametypeId}?lastActive=${lastActive}&minPlaytime=${e.target.value}`);
                 }}>
                     {playtimeOptions.map((p, i) =>{
                         return <option key={i} value={p.value}>{p.name}</option>;

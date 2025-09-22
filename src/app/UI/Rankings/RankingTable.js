@@ -4,10 +4,10 @@ import CountryFlag from "../CountryFlag";
 import { getOrdinal, toPlaytime, convertTimestamp } from "../../../../api/generic.mjs";
 import Image from "next/image";
 import { BasicMouseOver } from "../MouseOver";
+import Pagination from "../Pagination";
 
 
-//TODO: Add mouse over info for ranking change icon, display ranking change value from recent match
-export default function RankingTable({title, gametypeId, data, page, perPage, bDisplayViewAll}){
+export default function RankingTable({title, gametypeId, data, page, perPage, bDisplayViewAll, results, lastActive, minPlaytime}){
 
     if(page === undefined) page = 1;
     if(perPage === undefined) perPage = 1;
@@ -15,7 +15,7 @@ export default function RankingTable({title, gametypeId, data, page, perPage, bD
 
     const rows = data.map((d, i) =>{
 
-        const place = i + perPage * page;
+        const place = i + 1 + perPage * (page - 1);
 
         let icon = "nochange.png";
 
@@ -44,6 +44,8 @@ export default function RankingTable({title, gametypeId, data, page, perPage, bD
         ];
     });
 
+    const pURL = `/rankings/${gametypeId}?lastActive=${lastActive}&minPlaytime=${minPlaytime}&page=`;
+
     return <div className="default">
         <div className="default-header">{title}</div>
         <BasicTable width={4} headers={[
@@ -54,6 +56,7 @@ export default function RankingTable({title, gametypeId, data, page, perPage, bD
                 "place", "text-left", "playtime", "playtime", null
             ]}
         />
-        {(bDisplayViewAll) ? <Link href={`/rankings/${gametypeId}`}><div className="view-all">View All <b>{title}</b> Rankings</div></Link> : null}
+        {(bDisplayViewAll) ? <Link href={`/rankings/${gametypeId}?lastActive=0&minPlaytime=0`}><div className="view-all">View All <b>{title}</b> Rankings</div></Link> : null}
+        {(!bDisplayViewAll) ? <Pagination currentPage={page} results={results} perPage={perPage} url={pURL} /> : ""}
     </div>
 }

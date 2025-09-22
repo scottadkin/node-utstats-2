@@ -728,6 +728,18 @@ export async function getTopPlayersEveryGametype(maxPlayers, lastActive, minPlay
     return data;
 }
 
+export async function getTotalRankingEntries(gametypeId, lastActive, minPlaytime){
+
+    const limit = sanitizeLastActive(lastActive);
+    minPlaytime = sanitizeMinPlaytime(minPlaytime);
+
+    const query = "SELECT COUNT(*) as total_rows FROM nstats_ranking_player_current WHERE gametype=? AND last_active>=? AND playtime>=?";
+
+    const result = await simpleQuery(query, [gametypeId, limit, minPlaytime]);
+
+    return result[0].total_rows;
+}
+
 export async function getRankingData(gametypeId, page, perPage, lastActive, minPlaytime){
 
     page = parseInt(page);
@@ -735,6 +747,9 @@ export async function getRankingData(gametypeId, page, perPage, lastActive, minP
 
     if(page !== page) page = 1;
     if(perPage !== perPage) perPage = 25;
+
+    gametypeId = parseInt(gametypeId);
+    if(gametypeId !== gametypeId) throw new Error(`gametypeId must be a valid integer`);
 
     page--;
 
@@ -745,5 +760,24 @@ export async function getRankingData(gametypeId, page, perPage, lastActive, minP
 
     const query = "SELECT * FROM nstats_ranking_player_current WHERE gametype=? AND last_active>=? AND playtime>=? ORDER BY ranking DESC LIMIT ?,?";
 
-    return await simpleQuery(query, [gametypeId, limit, minPlaytime, start, perPage]);
+    const result = await simpleQuery(query, [gametypeId, limit, minPlaytime, start, perPage]);
+
+    const playerIds = [...new Set([...result.map((r) =>{
+        return r.player_id;
+    })])]
+
+    const playerInfo = await getBasicPlayersByIds([...playerIds]);
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        const currentPlayer = playerInfo?.[r.player_id] ?? {"name": "Not Found", "country": "xx"};
+
+        r.playerName = currentPlayer.name;
+        r.country = currentPlayer.country;
+
+    }
+
+    return result;
 }

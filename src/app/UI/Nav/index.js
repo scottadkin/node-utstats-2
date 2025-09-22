@@ -136,8 +136,7 @@ function Nav({session, settings}){
 
         if(pathName === links[i].url.toLowerCase()){
 
-            bCurrent = true;
-
+             bCurrent = true;
         }
 
         let onClickFunction = null;
