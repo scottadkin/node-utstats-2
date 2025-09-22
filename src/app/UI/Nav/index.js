@@ -6,12 +6,12 @@ import { logoutUser } from '../../actions';
 
 const urls = {
     "Display Home": {"text": "Home", "url": "/"},
-    "Display Matches": {"text": "Matches", "url": "/matches", "alt": ["/match/[id]","/pmatch/[match]"]},
-    "Display Servers": {"text": "Servers", "url": "/servers", "alt": ["/servers/[id]", "/server/[id]"]},
-    "Display Players": {"text": "Players", "url": "/players", "alt": ["/player/[id]"]},
-    "Display Rankings":{"text": "Rankings", "url": "/rankings/0", "alt": ["/rankings/[id]"]},
-    "Display Records": {"text": "Records", "url": "/records", "alt": ["/ctfcaps"]},
-    "Display Maps": {"text": "Maps", "url": "/maps", "alt": ["/map/[id]"]},
+    "Display Matches": {"text": "Matches", "url": "/matches", "reg": /^\/(?:match|pmatch).+$/i},
+    "Display Servers": {"text": "Servers", "url": "/servers", "reg": /^\/server.+$/i},
+    "Display Players": {"text": "Players", "url": "/players", "reg": /^\/player.+$/i,},
+    "Display Rankings":{"text": "Rankings", "url": "/rankings", "reg": /^\/rankings\/.+$/i},
+    "Display Records": {"text": "Records", "url": "/records", "reg": /^\/(?:records|ctfcaps).+$/i},
+    "Display Maps": {"text": "Maps", "url": "/maps", "reg": /^\/map\/.+$/i},
     "Display Admin": {"text": "Admin", "url": "/admin"},
     "Display ACE": {"text": "ACE", "url": "/ace"},
     "Display Login/Logout": {"text": "Login/Register", "url": "/login"},    
@@ -101,7 +101,6 @@ function Nav({session, settings}){
                     links[order[key]] = {
                         "url": value.url,
                         "text": value.text,
-                        "alt": value.alt
                     };
                 }
 
@@ -110,8 +109,11 @@ function Nav({session, settings}){
                 links[order[key]] = {
                     "url": value.url,
                     "text": value.text,
-                    "alt": value.alt
                 };
+
+                if(value.reg !== undefined){
+                    links[order[key]].reg = value.reg;
+                }
             }
         }
     }
@@ -124,21 +126,18 @@ function Nav({session, settings}){
         
         let bCurrent = false;
 
+        if(links[i].reg !== undefined){
+
+            if(links[i].reg.test(pathName)){
+       
+                bCurrent = true;
+            }
+        }
+
         if(pathName === links[i].url.toLowerCase()){
 
             bCurrent = true;
 
-        }else{
-
-            if(links[i].alt !== undefined){
-
-                for(let x = 0; x < links[i].alt.length; x++){
-                    
-                    if(pathName === links[i].alt[x].toLowerCase()){
-                        bCurrent = true;
-                    }
-                }
-            }
         }
 
         let onClickFunction = null;

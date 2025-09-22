@@ -7,10 +7,11 @@ import { BasicMouseOver } from "../MouseOver";
 
 
 //TODO: Add mouse over info for ranking change icon, display ranking change value from recent match
-export default function RankingTable({title, data, page, perPage}){
+export default function RankingTable({title, gametypeId, data, page, perPage, bDisplayViewAll}){
 
     if(page === undefined) page = 1;
     if(perPage === undefined) perPage = 1;
+    if(bDisplayViewAll === undefined) bDisplayViewAll = false;
 
     const rows = data.map((d, i) =>{
 
@@ -53,5 +54,6 @@ export default function RankingTable({title, data, page, perPage}){
                 "place", "text-left", "playtime", "playtime", null
             ]}
         />
+        {(bDisplayViewAll) ? <Link href={`/rankings/${gametypeId}`}><div className="view-all">View All <b>{title}</b> Rankings</div></Link> : null}
     </div>
 }

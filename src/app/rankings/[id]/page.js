@@ -4,7 +4,7 @@ import SiteSettings from "../../../../api/sitesettings";
 import Nav from "../../UI/Nav";
 import RankingFilter from "../../UI/Rankings/RankingFilter";
 import {getDetailedSettings} from "../../../../api/rankings";
-import { getTopPlayersEveryGametype } from "../../../../api/rankings";
+import { getTopPlayersEveryGametype, getRankingData} from "../../../../api/rankings";
 import RankingTable from "../../UI/Rankings/RankingTable";
 import { getAllObjectNames } from "../../../../api/genericServerSide.mjs";
 
@@ -118,11 +118,13 @@ export default async function Page({params, searchParams}){
             const {id, name} = gametypeNames[i];
 
             if(data[id] === undefined) continue;
-            elems.push(<RankingTable key={id} title={name} data={data[id]}/>);
+            elems.push(<RankingTable key={id} gametypeId={id} title={name} data={data[id]} bDisplayViewAll={true}/>);
         }
 
         
     }else{
+        const data = await getRankingData(gametype, page, perPage, lastActive, minPlaytime);
+        console.log(data);
        // data.push({"id": gametype, "data": await rankingManager.getData(gametype, page, perPage, lastActive, minPlaytime)});
     }
 

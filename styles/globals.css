@@ -37,6 +37,8 @@
 	--margin-1:25px;
 	--textbox-max-width-1:290px;
 	--textbox-width-1:90%;
+	--padding-1:5px;
+	--font-small:12px;
 }
 
 .color3{
@@ -98,9 +100,7 @@ footer{
 
 
 .default{
-	padding-top:10px;
 	text-align:center;
-	padding-bottom:25px;
 	color:white;
 }
 
@@ -826,7 +826,15 @@ input[type="range"]{
 	position:absolute;
 	background-color:var(--color-3);
 	border:1px solid var(--border-color-1);
-	padding:5px;
+	padding:var(--padding-1);
 	color:white;
-	font-size:12px;
+	font-size:var(--font-small)
+}
+
+.view-all{
+	background-color:var(--color-3);
+	color:white;
+	margin-top:var(--margin-1);
+	font-size:var(--font-small);
+	padding:var(--padding-1);
 }

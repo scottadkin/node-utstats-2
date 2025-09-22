@@ -281,27 +281,7 @@ export default class Rankings{
         return score;
     }
 
-    async getData(gametypeId, page, perPage, lastActive, minPlaytime){
-
-        page = parseInt(page);
-        perPage = parseInt(perPage);
-
-        if(page !== page) page = 1;
-        if(perPage !== perPage) perPage = 25;
-
-        page--;
-
-        const start = page * perPage;
-
-        let limit = sanitizeLastActive(lastActive);
-        minPlaytime = sanitizeMinPlaytime(minPlaytime);
-
-        const query = "SELECT * FROM nstats_ranking_player_current WHERE gametype=? AND last_active>=? AND playtime>=? ORDER BY ranking DESC LIMIT ?,?";
-
-        return await simpleQuery(query, [gametypeId, limit, minPlaytime, start, perPage]);
-    }
-
-    async getMultipleGametypesData(gametypeIds, perPage, lastActive, minPlaytime){
+    /*async getMultipleGametypesData(gametypeIds, perPage, lastActive, minPlaytime){
 
         if(gametypeIds.length === 0) return [];
 
@@ -318,7 +298,7 @@ export default class Rankings{
         console.log(data);
 
         return data;
-    }
+    }*/
 
 
     async getTotalPlayers(gametypeId, lastActive, minPlaytime){
@@ -746,4 +726,24 @@ export async function getTopPlayersEveryGametype(maxPlayers, lastActive, minPlay
     }
 
     return data;
+}
+
+export async function getRankingData(gametypeId, page, perPage, lastActive, minPlaytime){
+
+    page = parseInt(page);
+    perPage = parseInt(perPage);
+
+    if(page !== page) page = 1;
+    if(perPage !== perPage) perPage = 25;
+
+    page--;
+
+    const start = page * perPage;
+
+    let limit = sanitizeLastActive(lastActive);
+    minPlaytime = sanitizeMinPlaytime(minPlaytime);
+
+    const query = "SELECT * FROM nstats_ranking_player_current WHERE gametype=? AND last_active>=? AND playtime>=? ORDER BY ranking DESC LIMIT ?,?";
+
+    return await simpleQuery(query, [gametypeId, limit, minPlaytime, start, perPage]);
 }
