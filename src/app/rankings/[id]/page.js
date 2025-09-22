@@ -4,9 +4,9 @@ import SiteSettings from "../../../../api/sitesettings";
 import Nav from "../../UI/Nav";
 import RankingFilter from "../../UI/Rankings/RankingFilter";
 import {getDetailedSettings} from "../../../../api/rankings";
-import Gametypes from "../../../../api/gametypes";
 import { getTopPlayersEveryGametype } from "../../../../api/rankings";
 import RankingTable from "../../UI/Rankings/RankingTable";
+import { getAllObjectNames } from "../../../../api/genericServerSide.mjs";
 
 export async function generateMetadata({ params, searchParams }, parent) {
     
@@ -16,7 +16,6 @@ export async function generateMetadata({ params, searchParams }, parent) {
         "keywords": ["ranking", "players", "utstats", "node"],
     }
 }
-
 
 function setQuery(query, params, pageSettings){
 
@@ -83,21 +82,24 @@ export default async function Page({params, searchParams}){
 
     const rankingSettings = await getDetailedSettings();
 
-
     const pageSettings = await siteSettings.getCategorySettings("rankings");
 
+    const gametypes = await getAllObjectNames("gametypes");
 
-    const gametypeManager = new Gametypes();
+    const gametypeNames = [];
 
-    const gametypeNames = await gametypeManager.getAllNames();
-
-    const gametypeIds = [];
-
-    for(const key of Object.keys(gametypeNames)){
-
-        gametypeIds.push(parseInt(key));
+    for(const [id, name] of Object.entries(gametypes)){
+        gametypeNames.push({id, name});
     }
 
+    gametypeNames.sort((a, b) =>{
+        a = a.name.toLowerCase();
+        b = b.name.toLowerCase();
+        if(a < b) return -1;
+        if(a > b) return 1;
+        return 0;
+    });
+    
     let {page, perPage, minPlaytime, lastActive, gametype} = setQuery(query, p, pageSettings);
 
     const elems = [];
@@ -105,15 +107,18 @@ export default async function Page({params, searchParams}){
     if(gametype === 0){
 
         //get all gametypes top 10 ect
-        if(gametypeIds.length <= 1){
+        if(Object.keys(gametypes).length <= 1){
             perPage = parseInt(pageSettings["Rankings Per Page (Individual)"]);
         }
 
         const data = await getTopPlayersEveryGametype(perPage, lastActive, minPlaytime);
 
-        for(const [gametypeId, rankings] of Object.entries(data)){
-      
-            elems.push(<RankingTable key={gametypeId} title={gametypeNames[gametypeId]} data={rankings}/>);
+        for(let i = 0; i < gametypeNames.length; i++){
+
+            const {id, name} = gametypeNames[i];
+
+            if(data[id] === undefined) continue;
+            elems.push(<RankingTable key={id} title={name} data={data[id]}/>);
         }
 
         

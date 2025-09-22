@@ -67,7 +67,7 @@ export async function getAllObjectNames(type){
 
     if(index === -1) throw new Error(`${type} is not a valid type for getAllObjectNames`);
 
-    const query = `SELECT id,name FROM nstats_${validTypes[index]} WHERE id >-1`;
+    const query = `SELECT id,name FROM nstats_${validTypes[index]}`;
 
     const result = await simpleQuery(query);
 
