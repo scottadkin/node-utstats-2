@@ -714,7 +714,7 @@ export async function getTopPlayersEveryGametype(maxPlayers, lastActive, minPlay
     const data = {};
 
     const query = `SELECT player_id,matches,playtime,ranking,ranking_change,last_active FROM nstats_ranking_player_current
-    WHERE gametype=? ORDER BY ranking DESC LIMIT ?`;
+    WHERE gametype=? AND last_active >=? AND playtime>=? ORDER BY ranking DESC LIMIT ?`;
 
     const uniquePlayerIds = new Set();
 
@@ -722,7 +722,7 @@ export async function getTopPlayersEveryGametype(maxPlayers, lastActive, minPlay
 
         const id = gametypeIds[i];
 
-        const result = await simpleQuery(query, [id, maxPlayers]);
+        const result = await simpleQuery(query, [id, lastActive, minPlaytime, maxPlayers]);
 
         for(let x = 0; x < result.length; x++){
             uniquePlayerIds.add(result[x].player_id);
