@@ -50,6 +50,6 @@ export default function MatchesDefaultView({data, images}){
     
     }
 
-    return <div>{elems}</div>
+    return <div className="t-width-1 center">{elems}</div>
     
 }

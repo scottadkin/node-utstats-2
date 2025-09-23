@@ -51,8 +51,7 @@ export default async function Page(){
             <div className="default">
                 <div className="default-header">Servers</div>
                 <ServerList mapImages={mapImages} mapNames={mapNames} servers={serverList}/>
-            </div>
-            
+            </div>    
         </div>   
     </main>; 
 }

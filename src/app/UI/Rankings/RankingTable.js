@@ -56,7 +56,7 @@ export default function RankingTable({title, gametypeId, data, page, perPage, bD
                 "place", "text-left", "playtime", "playtime", null
             ]}
         />
-        {(bDisplayViewAll) ? <Link href={`/rankings/${gametypeId}?lastActive=0&minPlaytime=0`}><div className="view-all">View All <b>{title}</b> Rankings</div></Link> : null}
+        {(bDisplayViewAll) ? <Link href={`/rankings/${gametypeId}?lastActive=${lastActive}&minPlaytime=${minPlaytime}`}><div className="view-all">View All <b>{title}</b> Rankings</div></Link> : null}
         {(!bDisplayViewAll) ? <Pagination currentPage={page} results={results} perPage={perPage} url={pURL} /> : ""}
     </div>
 }
