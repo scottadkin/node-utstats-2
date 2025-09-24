@@ -5,7 +5,7 @@ import CountryFlag from "../CountryFlag";
 import { convertTimestamp, getOrdinal, toPlaytime } from "../../../../api/generic.mjs";
 import Pagination from "../Pagination";
 
-export function PlayerTotalsTable({type, data, page, perPage, totalResults, selectedGametype, selectedMap}){
+export function PlayerTotalsTable({type, typeTitle, data, page, perPage, totalResults, selectedGametype, selectedMap}){
 
     const headers = [
         "Place",
@@ -13,10 +13,22 @@ export function PlayerTotalsTable({type, data, page, perPage, totalResults, sele
         "Last Match",
         "Matches",
         "Playtime",
-        type
+        typeTitle
     ];
 
-    console.log(data);
+
+    const playtimeTypes = [
+        "team_0_playtime",
+        "team_1_playtime",
+        "team_2_playtime",
+        "team_3_playtime",
+        "spec_playtime",
+        "playtime",
+        "amp_time",
+        "invisibility_time",
+        "fastest_kill",
+        "slowest_kill",
+    ];
 
     const styles = [
         "place",
@@ -24,7 +36,7 @@ export function PlayerTotalsTable({type, data, page, perPage, totalResults, sele
         "playtime",
         null,
         "playtime", 
-        (type === "playtime") ? "playtime" : null
+        (playtimeTypes.indexOf(type) !== -1) ? "playtime" : null
 
     ];
 
@@ -40,7 +52,7 @@ export function PlayerTotalsTable({type, data, page, perPage, totalResults, sele
 
                 let value = d.tvalue;
 
-                if(type === "playtime"){
+                if(playtimeTypes.indexOf(type) !== -1){
                     value = toPlaytime(value);
                 }
 

@@ -2,7 +2,8 @@ import Nav from "../../UI/Nav";
 import Session from "../../../../api/session";
 import SiteSettings from "../../../../api/sitesettings";
 import { headers, cookies } from "next/headers";
-import { validPlayerTotalTypes, totalPerPageOptions, validPlayerMatchTypes, getPlayerTotalRecords, bValidPlayerType, bValidTotalType } from "../../../../api/records";
+import { validPlayerTotalTypes, totalPerPageOptions, validPlayerMatchTypes, 
+    getPlayerTotalRecords, bValidPlayerType, bValidTotalType, getTypeName as getPlayerTypeName } from "../../../../api/records";
 import SearchForm from "../../UI/Records/SearchForm";
 import { getAllObjectNames } from "../../../../api/genericServerSide.mjs";
 import { PlayerTotalsTable } from "../../UI/Records/PlayerTables";
@@ -71,12 +72,16 @@ export default async function Page({params, searchParams}){
 
     let types = [];
     let data = {"data": [], "totalResults": 0};
+    let typeTitle = "";
 
     if(cat === "player-totals"){
         types = validPlayerTotalTypes;
         data = await getPlayerTotalRecords(selectedType, selectedGametype, selectedMap, page, selectedPerPage);
+        typeTitle = getPlayerTypeName(cat, selectedType);
+
     }else if(cat === "player-match"){
         types = validPlayerMatchTypes;
+        typeTitle = getPlayerTypeName(cat, selectedType);
     }
 
     return <main>
@@ -99,15 +104,14 @@ export default async function Page({params, searchParams}){
          
             <PlayerTotalsTable 
                 type={selectedType} 
+                typeTitle={typeTitle}
                 data={data} 
                 page={page} 
                 perPage={selectedPerPage} 
                 totalResults={data.totalResults}
                 selectedGametype={selectedGametype}
                 selectedMap={selectedMap}
-            /> 
-            
-        </div>  
-        
+            />    
+        </div>      
     </main>; 
 }

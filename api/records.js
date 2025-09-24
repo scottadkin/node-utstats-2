@@ -396,3 +396,22 @@ export async function getPlayerMatchRecords(gametypeId, mapId, cat, page, perPag
     return {"data": result, "totalResults": result.totalResults };
     
 }
+
+/**
+ * 
+ * @param {*} cat player-totals or player-matches
+ * @param {*} name column name
+ * @returns 
+ */
+export function getTypeName(cat, name){
+
+    const entries = (cat === "player-totals") ? validPlayerTotalTypes : validPlayerMatchTypes;
+
+    for(let i = 0; i < entries.length; i++){
+
+        const {value, displayValue} = entries[i];
+        if(value === name) return displayValue;
+    }
+
+    return "Not Found";
+}
