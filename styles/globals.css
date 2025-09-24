@@ -455,7 +455,7 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	max-width:var(--textbox-max-width-1);
 	width:var(--textbox-width-1);
 	background-color:var(--color-3a);
-	font-size:18px;
+	font-size:16px;
 	font-weight:300;
 	padding:5px;
 	border:1px solid var(--border-color-3);

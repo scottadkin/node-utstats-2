@@ -53,7 +53,7 @@ export async function getSingleObjectName(type, id){
  * @param {*} type 
  * @returns 
  */
-export async function getAllObjectNames(type){
+export async function getAllObjectNames(type, bReturnArray){
 
     const validTypes = [
         "maps", 
@@ -67,9 +67,23 @@ export async function getAllObjectNames(type){
 
     if(index === -1) throw new Error(`${type} is not a valid type for getAllObjectNames`);
 
+    if(bReturnArray === undefined) bReturnArray = false;
+
     const query = `SELECT id,name FROM nstats_${validTypes[index]}`;
 
     const result = await simpleQuery(query);
+
+    if(bReturnArray){
+
+        result.sort((a, b) =>{
+            a = a.name.toLowerCase();
+            b = b.name.toLowerCase();
+            if(a < b) return -1;
+            if(a > b) return 1;
+            return 0
+        });
+        return result;
+    }
 
     const data = {};
 

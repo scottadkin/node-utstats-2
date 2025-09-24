@@ -10,7 +10,7 @@ const urls = {
     "Display Servers": {"text": "Servers", "url": "/servers", "reg": /^\/server.+$/i},
     "Display Players": {"text": "Players", "url": "/players", "reg": /^\/player.+$/i,},
     "Display Rankings":{"text": "Rankings", "url": "/rankings/0", "reg": /^\/rankings\/.+$/i},
-    "Display Records": {"text": "Records", "url": "/records", "reg": /^\/(?:records|ctfcaps).+$/i},
+    "Display Records": {"text": "Records", "url": "/records/player-totals", "reg": /^\/(?:records|ctfcaps).+$/i},
     "Display Maps": {"text": "Maps", "url": "/maps", "reg": /^\/map\/.+$/i},
     "Display Admin": {"text": "Admin", "url": "/admin"},
     "Display ACE": {"text": "ACE", "url": "/ace"},

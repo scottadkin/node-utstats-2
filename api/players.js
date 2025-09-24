@@ -2781,22 +2781,7 @@ export default class Players{
 
     async getCountries(playerIds){
 
-        if(playerIds.length === 0) return {};
-
-        const query = `SELECT id,country FROM nstats_player_totals WHERE id IN(?)`;
-
-        const result = await simpleQuery(query, [playerIds]);
-
-        const obj = {};
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-
-            obj[r.id] = r.country;
-        }
-
-        return obj;
+        return await getPlayersCountries(playerIds);
     }
     
 
@@ -3568,5 +3553,24 @@ export async function getBasicPlayersByIds(playerIds){
     }
 
     return data;
+}
 
+export async function getPlayersCountries(playerIds){
+
+    if(playerIds.length === 0) return {};
+
+    const query = `SELECT id,country FROM nstats_player_totals WHERE id IN(?)`;
+
+    const result = await simpleQuery(query, [playerIds]);
+
+    const obj = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        obj[r.id] = r.country;
+    }
+
+    return obj;
 }
