@@ -1,5 +1,5 @@
 import { simpleQuery } from "./database.js";
-import {getBasicPlayersByIds} from "./players.js";
+import {getBasicPlayersByIds, getPlayersCountries} from "./players.js";
 import {getPlayer} from "./generic.mjs";
 
 export const validPlayerTotalTypes = [
@@ -192,9 +192,7 @@ export async function getTotalGametypeMapEntries(gametype, map){
 async function getPlayerTotalAllGametypes(map, type, start, perPage){
 
 
-    const idBit = (map === 0) ? "id as player_id,country" : "player_id";
-
-    const normalSelect = `SELECT name,${idBit},matches,last,playtime,${type} as tvalue`;
+    const normalSelect = `SELECT name,id as player_id,country,matches,last,playtime,${type} as tvalue`;
     const totalSelect = `SELECT COUNT(*) as total_results`;
 
     const query = ` FROM nstats_player_totals WHERE gametype=0 AND map=? ${(type !== "spec_playtime") ? "AND playtime>0" : ""}`;
@@ -227,7 +225,7 @@ async function getPlayerTotalAllGametypes(map, type, start, perPage){
 }
 
 
-export async function getPlayerTotalSingleGametypes(gametype, map, type, start, perPage){
+async function getPlayerTotalSingleGametype(gametype, map, type, start, perPage){
 
     const normalSelect = `SELECT player_id,name,matches,last,playtime,${type} as tvalue`;
     const totalSelect = `SELECT COUNT(*) as total_matches`;
@@ -261,6 +259,8 @@ export async function getPlayerTotalRecords(type, gametype, map, page, perPage){
 
     page = page - 1;
 
+    gametype = parseInt(gametype);
+
     type = type.toLowerCase();
 
     if(!bValidTotalType(type)) throw new Error(`${type} is not a valid player total record type.`);
@@ -281,9 +281,8 @@ export async function getPlayerTotalRecords(type, gametype, map, page, perPage){
     
     if(gametype === 0){
         result = await getPlayerTotalAllGametypes(map, type, start, perPage);
-        
     }else{
-        result = await getPlayerTotalSingleGametypes(gametype, map, type, start, perPage);
+        result = await getPlayerTotalSingleGametype(gametype, map, type, start, perPage);
     }
 
     return {
