@@ -631,13 +631,12 @@ async function getPlayerCTFMatchData(gametypeId, mapId, cat, start, perPage){
     const vars = [];
 
     if(gametypeId !== 0){
-        where = ",AND gametype_id=?";
+        where += " AND gametype_id=?";
         vars.push(gametypeId);
     }
 
     if(mapId !== 0){
-        where += ", AND ";
-        where += "map_id=?";
+        where += " AND map_id=?";
         vars.push(mapId);
     }
 
@@ -656,13 +655,12 @@ async function getPlayerCTFMatchDataTotalResults(gametypeId, mapId, cat){
     const vars = [];
 
     if(gametypeId !== 0){
-        where = ",AND gametype_id=?";
+        where += " AND gametype_id=?";
         vars.push(gametypeId);
     }
 
     if(mapId !== 0){
-        where += ", AND ";
-        where += "map_id=?";
+        where += " AND map_id=?";
         vars.push(mapId);
     }
 
