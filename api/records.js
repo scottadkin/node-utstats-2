@@ -175,8 +175,38 @@ export const validPlayerCTFTotalTypes = [
     {"value": "flag_self_cover", "displayValue": "Flag Self Cover"},
     {"value": "flag_self_cover_pass", "displayValue": "Flag Self Cover Pass"},
     {"value": "flag_self_cover_fail", "displayValue": "Flag Self Cover Fail"},
-    {"value": "best_single_self_cover", "displayValue": "Best Single Self Cover"},
-    
+    {"value": "best_single_self_cover", "displayValue": "Best Single Self Cover"}, 
+];
+
+export const validPlayerCTFMatchTypes = [
+    {"value": "flag_capture", "displayValue": "Flag Capture"},
+    {"value": "flag_solo_capture", "displayValue": "Flag Solo Capture"},
+    {"value": "flag_assist", "displayValue": "Flag Assist"},
+    {"value": "flag_return", "displayValue": "Flag Return"},
+    {"value": "flag_return_base", "displayValue": "Flag Return Base"},
+    {"value": "flag_return_mid", "displayValue": "Flag Return Mid"},
+    {"value": "flag_return_enemy_base", "displayValue": "Flag Return Enemy Base"},
+    {"value": "flag_return_save", "displayValue": "Flag Return Close Save"},
+    {"value": "flag_dropped", "displayValue": "Flag Dropped"},
+    {"value": "flag_kill", "displayValue": "Flag Kill"},
+    {"value": "flag_suicide", "displayValue": "Flag Suicide"},
+    {"value": "flag_seal", "displayValue": "Flag Seal"},
+    {"value": "flag_seal_pass", "displayValue": "Flag Seal Pass"},
+    {"value": "flag_seal_fail", "displayValue": "Flag Seal Fail"},
+    {"value": "best_single_seal", "displayValue": "Best Flag Seal"},
+    {"value": "flag_cover", "displayValue": "Flag Cover"},
+    {"value": "flag_cover_pass", "displayValue": "Flag Cover Pass"},
+    {"value": "flag_cover_fail", "displayValue": "Flag Cover Failed"},
+    {"value": "flag_cover_multi", "displayValue": "Flag Multi Cover"},
+    {"value": "flag_cover_spree", "displayValue": "Flag Cover Spree"},
+    {"value": "best_single_cover", "displayValue": "Best Single Cover"},
+    {"value": "flag_carry_time", "displayValue": "Flag Carry Time"},
+    {"value": "flag_taken", "displayValue": "Flag Taken"},
+    {"value": "flag_pickup", "displayValue": "Flag Pickup"},
+    {"value": "flag_self_cover", "displayValue": "Flag Self Cover"},
+    {"value": "flag_self_cover_pass", "displayValue": "Flag Self Cover Pass"},
+    {"value": "flag_self_cover_fail", "displayValue": "Flag Self Cover Fail"},
+    {"value": "best_single_self_cover", "displayValue": "Best Single Self Cover"}, 
 ];
 
 export function bValidTotalType(value){
@@ -206,6 +236,17 @@ export function bValidPlayerCTFTotalType(value){
     for(let i = 0; i < validPlayerCTFTotalTypes.length; i++){
 
         const t = validPlayerCTFTotalTypes[i];
+        if(t.value === value) return true;
+    }
+
+    return false;
+}
+
+export function bValidPlayerCTFMatchType(value){
+
+    for(let i = 0; i < validPlayerCTFMatchTypes.length; i++){
+
+        const t = validPlayerCTFMatchTypes[i];
         if(t.value === value) return true;
     }
 
@@ -582,6 +623,107 @@ export async function getPlayerCTFTotalRecords(gametypeId, mapId, cat, page, per
     return result;
 }
 
+async function getPlayerCTFMatchData(gametypeId, mapId, cat, start, perPage){
+
+    let query = `SELECT player_id,match_id,match_date,gametype_id,map_id,playtime,${cat} as tvalue FROM nstats_player_ctf_match`;
+
+    let where = `WHERE ${cat}>0`;
+    const vars = [];
+
+    if(gametypeId !== 0){
+        where = ",AND gametype_id=?";
+        vars.push(gametypeId);
+    }
+
+    if(mapId !== 0){
+        where += ", AND ";
+        where += "map_id=?";
+        vars.push(mapId);
+    }
+
+    query = `${query} ${where} ORDER BY tvalue DESC LIMIT ?, ?`;
+    vars.push(start);
+    vars.push(perPage);
+
+    return await simpleQuery(query, vars);  
+}
+
+async function getPlayerCTFMatchDataTotalResults(gametypeId, mapId, cat){
+
+    let query = `SELECT COUNT(*) as total_rows FROM nstats_player_ctf_match`;
+
+    let where = `WHERE ${cat}>0`;
+    const vars = [];
+
+    if(gametypeId !== 0){
+        where = ",AND gametype_id=?";
+        vars.push(gametypeId);
+    }
+
+    if(mapId !== 0){
+        where += ", AND ";
+        where += "map_id=?";
+        vars.push(mapId);
+    }
+
+    query = `${query} ${where}`;
+
+
+    const result = await simpleQuery(query, vars);  
+    return result[0].total_rows;
+}
+
+export async function getPlayerCTFMatchRecords(gametypeId, mapId, cat, page, perPage){
+
+    if(!bValidPlayerCTFMatchType(cat)) throw new Error(`Not a valid playerCTFMatchRecordType`);
+
+    gametypeId = parseInt(gametypeId);
+    mapId = parseInt(mapId);
+
+    if(gametypeId !== gametypeId) gametypeId = 0;
+    if(mapId !== mapId) mapId = 0;
+
+    page--;
+    page = sanatizePage(page);
+    perPage = sanatizePerPage(perPage);
+
+    let start = page * perPage;
+
+    const data = await getPlayerCTFMatchData(gametypeId, mapId, cat, start, perPage);
+
+    const playerIds = new Set();
+    const gametypeIds = new Set();
+    const mapIds = new Set();
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        playerIds.add(d.player_id);
+        gametypeIds.add(d.gametype_id);
+        mapIds.add(d.map_id);
+    }
+
+    const playersInfo = await getBasicPlayersByIds([...playerIds]);
+    const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
+    const mapNames = await getObjectName("maps", [...mapIds]);
+
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+        d.gametypeName = gametypeNames[d.gametype_id] ?? "Not Found";
+        d.mapName = mapNames[d.map_id] ?? "Not Found";
+        const player = getPlayer(playersInfo, d.player_id ,true);
+        d.playerName = player.name;
+        d.country = player.country
+    }
+
+    const totalResults = await getPlayerCTFMatchDataTotalResults(gametypeId, mapId, cat);
+
+    return {data, totalResults};
+}
+
 /**
  * 
  * @param {*} cat player-totals,player-matches,player_ctf_totals...
@@ -596,6 +738,7 @@ export function getTypeName(cat, name){
         case "player-totals": { entries = validPlayerTotalTypes; } break;
         case "player-match": { entries = validPlayerMatchTypes; } break;
         case "player-ctf-totals": { entries = validPlayerCTFTotalTypes; } break;
+        case "player-ctf-match": { entries = validPlayerCTFMatchTypes; } break;
     }
 
     for(let i = 0; i < entries.length; i++){

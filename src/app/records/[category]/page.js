@@ -4,7 +4,8 @@ import SiteSettings from "../../../../api/sitesettings";
 import { headers, cookies } from "next/headers";
 import { validPlayerTotalTypes, totalPerPageOptions, validPlayerMatchTypes, validPlayerCTFTotalTypes, 
     getPlayerTotalRecords, bValidPlayerType, bValidTotalType, bValidPlayerCTFTotalType,
-    getTypeName, getPlayerMatchRecords, getPlayerCTFTotalRecords } from "../../../../api/records";
+    getTypeName, getPlayerMatchRecords, getPlayerCTFTotalRecords, validPlayerCTFMatchTypes, 
+    bValidPlayerCTFMatchType, getPlayerCTFMatchRecords } from "../../../../api/records";
 import SearchForm from "../../UI/Records/SearchForm";
 import { getAllObjectNames } from "../../../../api/genericServerSide.mjs";
 import { PlayerTotalsTable, PlayerMatchTable } from "../../UI/Records/PlayerTables";
@@ -12,12 +13,14 @@ import { PlayerTotalsTable, PlayerMatchTable } from "../../UI/Records/PlayerTabl
 const DEFAULT_PLAYER_TOTALS_TYPE = "kills";
 const DEFAULT_PLAYER_MATCH_TYPE = "kills";
 const DEFAULT_PLAYER_CTF_TOTALS_TYPE = "flag_capture";
+const DEFAULT_PLAYER_CTF_MATCH_TYPE = "flag_capture";
 
 const TITLES = {
     "player-totals": "Player Totals",
     "player-match": "Player Match",
     "player-ctf-totals": "Player CTF Totals",
     "player-ctf-match": "Player CTF Match",
+    "player-ctf-single-life": "Player CTF Single Life",
     "ctf-caps": "CTF Cap Records",
 };
 
@@ -60,6 +63,10 @@ export default async function Page({params, searchParams}){
         selectedType = DEFAULT_PLAYER_CTF_TOTALS_TYPE;
     }
 
+    if(cat === "player-ctf-match" && !bValidPlayerCTFMatchType(selectedType)){
+        selectedType = DEFAULT_PLAYER_CTF_MATCH_TYPE;
+    }
+
     page = parseInt(page);
 
     if(page !== page) page = 1;
@@ -81,7 +88,7 @@ export default async function Page({params, searchParams}){
 
     let types = [];
     let data = {"data": [], "totalResults": 0};
-    let typeTitle = "";
+    let typeTitle = "Unknown";
     let elems = [];
 
     if(cat === "player-totals"){
@@ -136,6 +143,24 @@ export default async function Page({params, searchParams}){
             selectedGametype={selectedGametype}
             selectedMap={selectedMap}
         />;  
+
+    }else if(cat === "player-ctf-match"){
+
+        types = validPlayerCTFMatchTypes;
+        typeTitle = getTypeName(cat, selectedType);
+        data = await getPlayerCTFMatchRecords(selectedGametype, selectedMap, selectedType, page, selectedPerPage);
+
+        elems = <PlayerMatchTable 
+            type={selectedType} 
+            typeTitle={typeTitle}
+            data={data} 
+            page={page} 
+            perPage={selectedPerPage} 
+            totalResults={data.totalResults}
+            selectedGametype={selectedGametype}
+            selectedMap={selectedMap}
+            bCTF={true}
+        />; 
     }
 
 

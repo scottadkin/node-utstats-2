@@ -107,7 +107,9 @@ export function PlayerTotalsTable({type, typeTitle, data, page, perPage, totalRe
 }
 
 
-export function PlayerMatchTable({type, typeTitle, data, page, perPage, totalResults, selectedGametype, selectedMap}){
+export function PlayerMatchTable({type, typeTitle, data, page, perPage, totalResults, selectedGametype, selectedMap, bCTF}){
+
+    if(bCTF === undefined) bCTF = false;
 
     const headers = [
         "Place", "Player", "Date", "Gametype","Map", "Playtime", typeTitle
@@ -123,7 +125,7 @@ export function PlayerMatchTable({type, typeTitle, data, page, perPage, totalRes
         (playtimeTypes.indexOf(type) !== -1) ? "playtime" : null
     ];
 
-    const pURL = `/records/player-match/?type=${type}&g=${selectedGametype}&m=${selectedMap}&pp=${perPage}&page=`;
+    const pURL = `/records/${(bCTF) ? "player-ctf-match" : "player-match"}/?type=${type}&g=${selectedGametype}&m=${selectedMap}&pp=${perPage}&page=`;
 
     return <div className="default">
         <BasicTable width={1} headers={headers} columnStyles={styles} rows={

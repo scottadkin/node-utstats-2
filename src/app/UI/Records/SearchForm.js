@@ -30,6 +30,7 @@ export default function SearchForm({cat, perPageTypes, types, gametypeNames,
         {"name": "Player Match Records", "value": "player-match"},
         {"name": "Player CTF Total Records", "value": "player-ctf-totals"},
         {"name": "Player CTF Match Records", "value": "player-ctf-match"},
+        {"name": "Player CTF Single Life Records", "value": "player-ctf-single-life"},
         {"name": "CTF Cap Records", "value": "ctf-caps"},
     ];
     const router = useRouter();
