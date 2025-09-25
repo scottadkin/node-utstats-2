@@ -18,18 +18,28 @@ const playtimeTypes = [
     "slowest_kill",
 ];
 
-export function PlayerTotalsTable({type, typeTitle, data, page, perPage, totalResults, selectedGametype, selectedMap}){
+export function PlayerTotalsTable({type, typeTitle, data, page, perPage, totalResults, selectedGametype, selectedMap, bCTF}){
 
-    const headers = [
+    if(bCTF === undefined) bCTF = false;
+
+    const generalHeaders = [
         "Place",
         "Player",
         "Last Match",
         "Matches",
         "Playtime",
         typeTitle
+    ]
+
+    const ctfHeaders = [
+        "Place",
+        "Player",
+        "Matches",
+        "Playtime",
+        typeTitle
     ];
 
-    const styles = [
+    const generalStyles = [
         "place",
         "text-left",
         "playtime",
@@ -38,8 +48,20 @@ export function PlayerTotalsTable({type, typeTitle, data, page, perPage, totalRe
         (playtimeTypes.indexOf(type) !== -1) ? "playtime" : null
     ];
 
+    const ctfStyles = [
+        "place",
+        "text-left",
+        null,
+        "playtime", 
+        (playtimeTypes.indexOf(type) !== -1) ? "playtime" : null
+    ];
 
-    const pURL = `/records/player-totals/?type=${type}&g=${selectedGametype}&m=${selectedMap}&pp=${perPage}&page=`;
+
+    const headers = (bCTF) ? ctfHeaders : generalHeaders;
+    const styles = (bCTF) ? ctfStyles : generalStyles;
+
+
+    const pURL = `/records/${(bCTF) ? "player-ctf-totals" : "player-totals"}/?type=${type}&g=${selectedGametype}&m=${selectedMap}&pp=${perPage}&page=`;
 
     return <div className="default">
         <BasicTable width={1} headers={headers} columnStyles={styles} rows={
@@ -54,17 +76,30 @@ export function PlayerTotalsTable({type, typeTitle, data, page, perPage, totalRe
                     value = toPlaytime(value);
                 }
 
-                return [
-                    `${place}${getOrdinal(place)}`,
-                    <Link href={url}>
-                        <CountryFlag country={d.country}/>
-                        {d.name}
-                    </Link>,
-                    <Link href={url}>{convertTimestamp(d.last,true)}</Link>,
-                    <Link href={url}>{d.matches}</Link>,
-                    <Link href={url}>{toPlaytime(d.playtime)}</Link>,
-                    <Link href={url}>{value}</Link>
-                ];
+                if(!bCTF){
+                    return [
+                        `${place}${getOrdinal(place)}`,
+                        <Link href={url}>
+                            <CountryFlag country={d.country}/>
+                            {d.name}
+                        </Link>,
+                        <Link href={url}>{convertTimestamp(d.last,true)}</Link>,
+                        <Link href={url}>{d.matches}</Link>,
+                        <Link href={url}>{toPlaytime(d.playtime)}</Link>,
+                        <Link href={url}>{value}</Link>
+                    ];
+                }else{
+                    return [
+                        `${place}${getOrdinal(place)}`,
+                        <Link href={url}>
+                            <CountryFlag country={d.country}/>
+                            {d.name}
+                        </Link>,
+                        <Link href={url}>{d.total_matches}</Link>,
+                        <Link href={url}>{toPlaytime(d.playtime)}</Link>,
+                        <Link href={url}>{value}</Link>
+                    ];
+                }
             })
         }/>
         <Pagination currentPage={page} perPage={perPage} results={totalResults} url={pURL}/>

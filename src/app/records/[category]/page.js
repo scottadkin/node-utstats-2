@@ -123,8 +123,19 @@ export default async function Page({params, searchParams}){
 
         types = validPlayerCTFTotalTypes;
         typeTitle = getTypeName(cat, selectedType);
-        data = await getPlayerCTFTotalRecords(selectedGametype, selectedType, page, selectedPerPage);
-        console.log(data);
+        data = await getPlayerCTFTotalRecords(selectedGametype, selectedMap, selectedType, page, selectedPerPage);
+
+        elems = <PlayerTotalsTable 
+            bCTF={true}
+            type={selectedType} 
+            typeTitle={typeTitle}
+            data={data} 
+            page={page} 
+            perPage={selectedPerPage} 
+            totalResults={data.totalResults}
+            selectedGametype={selectedGametype}
+            selectedMap={selectedMap}
+        />;  
     }
 
 

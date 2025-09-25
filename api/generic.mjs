@@ -763,3 +763,40 @@ export function setValueIfUndefined(input, defaultValue){
 }
 
 
+export function sanatizePerPage(value, defaultValue){
+
+    const MIN_PER_PAGE = 5;
+    const MAX_PER_PAGE = 100;
+    const DEFAULT_PER_PAGE = 25;
+
+    if(defaultValue === undefined){
+
+        defaultValue = DEFAULT_PER_PAGE;
+
+    }else{
+
+        defaultValue = parseInt(defaultValue);
+        if(defaultValue !== defaultValue) defaultValue = DEFAULT_PER_PAGE;
+        if(defaultValue < MIN_PER_PAGE) defaultValue = MIN_PER_PAGE;
+        if(defaultValue > MAX_PER_PAGE) defaultValue = MAX_PER_PAGE;
+    }
+
+    value = parseInt(value);
+
+    if(value !== value) value = DEFAULT_PER_PAGE;
+
+    if(value < MIN_PER_PAGE) value = MIN_PER_PAGE;
+    if(value > MAX_PER_PAGE) value = MAX_PER_PAGE;
+
+    return value;
+}
+
+export function sanatizePage(value){
+
+    value = parseInt(value);
+    if(value !== value) return 0;
+
+    if(value < 0) return 0;
+    
+    return value;
+}

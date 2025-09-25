@@ -1,6 +1,6 @@
 import { simpleQuery } from "./database.js";
 import {getBasicPlayersByIds, getPlayersCountries} from "./players.js";
-import {getPlayer} from "./generic.mjs";
+import {getPlayer, sanatizePage, sanatizePerPage} from "./generic.mjs";
 import { getObjectName } from "./genericServerSide.mjs";
 
 export const validPlayerTotalTypes = [
@@ -311,10 +311,7 @@ export async function getPlayerTotalRecords(type, gametype, map, page, perPage){
     if(!bValidTotalType(type)) throw new Error(`${type} is not a valid player total record type.`);
     perPage = cleanPerPage(perPage);
 
-    page = parseInt(page);
-
-    if(page !== page) page = 0;
-    if(page < 0) page = 0;
+    page = sanatizePage(page);
 
     let start = perPage * page;
     if(start < 0) start = 0;
@@ -414,7 +411,7 @@ export async function getPlayerMatchRecords(gametypeId, mapId, cat, page, perPag
     mapId = parseInt(mapId);
 
     page = page - 1;
-    if(page < 0) page = 0;
+    page = sanatizePage(page);
 
     const DEFAULT_PER_PAGE = 25;
 
@@ -463,13 +460,126 @@ export async function getPlayerMatchRecords(gametypeId, mapId, cat, page, perPag
 }
 
 
-export async function getPlayerCTFTotalRecords(gametypeId, cat, page, perPage){
+//gametypeId === 0 && mapId === 0
+async function getPlayerCTFTotalAny(cat, start, perPage){
+
+    const query = `SELECT player_id,total_matches,playtime,${cat} as tvalue FROM nstats_player_ctf_totals 
+    WHERE gametype_id=0 AND map_id=0 AND playtime>0 ORDER BY tvalue DESC LIMIT ?, ?`;
+ 
+    const data =  await simpleQuery(query, [start, perPage]);
+
+    const countQuery = `SELECT COUNT(*) as total_rows FROM nstats_player_ctf_totals 
+    WHERE gametype_id=0 AND map_id=0 AND playtime>0`;
+
+    const totals = await simpleQuery(countQuery);
+
+    return {data, "totalResults": totals[0].total_rows};
+}
+
+//gametypeId !== 0 && mapId !== 0
+async function getPlayerCTFTotalGametypeMap(gametypeId, mapId, cat, start, perPage){
+
+    const query = `SELECT player_id,gametype_id,total_matches,map_id,playtime,${cat} as tvalue FROM nstats_player_ctf_totals 
+    WHERE gametype_id=? AND map_id=? AND playtime>0 ORDER BY tvalue DESC LIMIT ?, ?`;
+ 
+    const data = await simpleQuery(query, [gametypeId, mapId, start, perPage]);
+
+    const countQuery = `SELECT COUNT(*) as total_rows FROM nstats_player_ctf_totals 
+    WHERE gametype_id=? AND map_id=? AND playtime>0`;
+
+    const totals = await simpleQuery(countQuery, [gametypeId, mapId]);
+
+    return {data, "totalResults": totals[0].total_rows};
+}
+
+//gametypeId !== 0 && mapId === 0
+async function getPlayerCTFTotalGametype(gametypeId, cat, start, perPage){
+
+    const query = `SELECT player_id,gametype_id,map_id,total_matches,playtime,${cat} as tvalue FROM nstats_player_ctf_totals 
+    WHERE gametype_id=? AND map_id=0 AND playtime>0 ORDER BY tvalue DESC LIMIT ?, ?`;
+
+    const data = await simpleQuery(query, [gametypeId, start, perPage]);
+
+    const countQuery = `SELECT COUNT(*) as total_rows FROM nstats_player_ctf_totals 
+    WHERE gametype_id=? AND map_id=0 AND playtime>0`;
+
+    const totals = await simpleQuery(countQuery, [gametypeId]);
+
+    return {data, "totalResults": totals[0].total_rows};
+}
+
+//gametypeId === 0 && mapId !== 0
+async function getPlayerCTFTotalMap(mapId, cat, start, perPage){
+
+    const query = `SELECT player_id,gametype_id,map_id,total_matches,playtime,${cat} as tvalue FROM nstats_player_ctf_totals 
+    WHERE map_id=? AND gametype_id=0 AND playtime>0 ORDER BY tvalue DESC LIMIT ?, ?`;
+ 
+    const data = await simpleQuery(query, [mapId, start, perPage]);
+
+    const countQuery = `SELECT COUNT(*) as total_rows FROM nstats_player_ctf_totals 
+    WHERE gametype_id=0 AND map_id=? AND playtime>0`;
+
+    const totals = await simpleQuery(countQuery, [mapId]);
+
+    return {data, "totalResults": totals[0].total_rows};
+}
+
+export async function getPlayerCTFTotalRecords(gametypeId, mapId, cat, page, perPage){
 
     if(!bValidPlayerCTFTotalType(cat)) throw new Error(`Not a valid Player CTF Total Record`);
 
-    const query = `SELECT player_id,gametype_id,playtime,${cat} as tvalue FROM nstats_player_ctf_totals 
-    WHERE gametype_id=? ORDER BY tvalue DESC LIMIT ?, ?`;
+    gametypeId = parseInt(gametypeId);
+    mapId = parseInt(mapId);
 
+    if(gametypeId !== gametypeId) gametypeId = 0;
+    if(mapId !== mapId) mapId = 0;
+
+    page--;
+    page = sanatizePage(page);
+    perPage = sanatizePerPage(perPage);
+
+    let start = page * perPage; 
+
+    let result = [];
+
+    if(gametypeId !== 0 && mapId !== 0){
+        result = await getPlayerCTFTotalGametypeMap(gametypeId, mapId, cat, start, perPage);
+    }else if(gametypeId === 0 && mapId === 0){
+        result = await getPlayerCTFTotalAny(cat, start, perPage);
+    }else if(gametypeId !== 0 && mapId === 0){
+        result = await getPlayerCTFTotalGametype(gametypeId, cat, start, perPage);
+    }else if(gametypeId === 0 && mapId !== 0){
+        result = await getPlayerCTFTotalMap(mapId, cat, start, perPage);
+    }
+
+    const uniqueGametypes = new Set();
+    const uniqueMaps = new Set();
+    const uniquePlayers = new Set();
+
+    for(let i = 0; i < result.data.length; i++){
+
+        const r = result.data[i];
+
+        uniqueGametypes.add(r.gametype_id);
+        uniqueMaps.add(r.map_id);
+        uniquePlayers.add(r.player_id);
+    }
+
+    const playersInfo = await getBasicPlayersByIds([...uniquePlayers]);
+    const gametypeNames = await getObjectName("gametypes", [...uniqueGametypes]);
+    const mapNames = await getObjectName("maps", [...uniqueMaps]);
+
+    for(let i = 0; i < result.data.length; i++){
+
+        const r = result.data[i];
+        const p = getPlayer(playersInfo, r.player_id, true);
+        r.name = p.name;
+        r.country = p.country;
+        r.gametypeName = gametypeNames[r.gametype_id] ?? "Not Found";
+        r.mapName = mapNames[r.map_id] ?? "Not Found";
+    }
+
+    return result;
 }
 
 /**
