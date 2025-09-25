@@ -1,3 +1,5 @@
+console.log(`Not for 2.15 & above`);
+process.exit();
 import { simpleQuery } from "./api/database.js";
 import Message from "./api/message.js";
 import config from "./config.json" with {"type": "json"}

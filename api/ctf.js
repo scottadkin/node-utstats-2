@@ -1796,32 +1796,32 @@ export default class CTF{
         return {"kills": killsByTimestamp, "suicides": suicidesByTimestamp};
     }
 
-    async bPlayerBestValuesExist(playerId, gametypeId){
+    async bPlayerBestValuesExist(playerId, gametypeId, mapId){
 
-        const query = `SELECT COUNT(*) as total_matches FROM nstats_player_ctf_best WHERE player_id=? AND gametype_id=?`;
+        const query = `SELECT COUNT(*) as total_matches FROM nstats_player_ctf_best WHERE player_id=? AND gametype_id=? AND map_id=?`;
 
-        const result = await simpleQuery(query, [playerId, gametypeId]);
+        const result = await simpleQuery(query, [playerId, gametypeId, mapId]);
 
         if(result[0].total_matches > 0) return true;
 
         return false;
     }
 
-    async createPlayerBestValues(playerId, gametypeId){
+    async createPlayerBestValues(playerId, gametypeId, mapId){
 
-        const query = `INSERT INTO nstats_player_ctf_best VALUES(NULL,?,?,
+        const query = `INSERT INTO nstats_player_ctf_best VALUES(NULL,?,?,?,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0)`;
 
-        return await simpleQuery(query, [playerId, gametypeId]);
+        return await simpleQuery(query, [playerId, gametypeId, mapId]);
     }
 
-    async updatePlayerBestValues(playerId, gametypeId, stats){
+    async updatePlayerBestValues(playerId, gametypeId, mapId, stats){
 
-        if(!await this.bPlayerBestValuesExist(playerId, gametypeId)){
+        if(!await this.bPlayerBestValuesExist(playerId, gametypeId, mapId)){
 
-            await this.createPlayerBestValues(playerId, gametypeId);
+            await this.createPlayerBestValues(playerId, gametypeId, mapId);
         }
 
         const query = `UPDATE nstats_player_ctf_best SET
@@ -1853,7 +1853,7 @@ export default class CTF{
         flag_self_cover_fail = IF(flag_self_cover_fail < ?, ?, flag_self_cover_fail),
         best_single_self_cover = IF(best_single_self_cover < ?, ?, best_single_self_cover),
         flag_solo_capture = IF(flag_solo_capture < ?, ?, flag_solo_capture)
-        WHERE player_id=? AND gametype_id=?`;
+        WHERE player_id=? AND gametype_id=? AND map_id=?`;
 
         const vars = [
             stats.assist.total, stats.assist.total,
@@ -1884,39 +1884,39 @@ export default class CTF{
             stats.selfCoverFail.total, stats.selfCoverFail.total,
             stats.bestSingleSelfCover, stats.bestSingleSelfCover,
             stats.soloCapture.total, stats.soloCapture.total,
-            playerId, gametypeId
+            playerId, gametypeId, mapId
         ];
 
         return await simpleQuery(query, vars);
     }
 
 
-    async bPlayerBestValuesSingleLifeExist(playerId, gametypeId){
+    async bPlayerBestValuesSingleLifeExist(playerId, gametypeId, mapId){
 
-        const query = `SELECT COUNT(*) as total_matches FROM nstats_player_ctf_best_life WHERE player_id=? AND gametype_id=?`;
+        const query = `SELECT COUNT(*) as total_matches FROM nstats_player_ctf_best_life WHERE player_id=? AND gametype_id=? AND map_id=?`;
 
-        const result = await simpleQuery(query, [playerId, gametypeId]);
+        const result = await simpleQuery(query, [playerId, gametypeId, mapId]);
 
         if(result[0].total_matches > 0) return true;
 
         return false;
     }
 
-    async createPlayerBestValuesSingleLife(playerId, gametypeId){
+    async createPlayerBestValuesSingleLife(playerId, gametypeId, mapId){
 
-        const query = `INSERT INTO nstats_player_ctf_best_life VALUES(NULL,?,?,
+        const query = `INSERT INTO nstats_player_ctf_best_life VALUES(NULL,?,?,?,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0)`;
 
-        return await simpleQuery(query, [playerId, gametypeId]);
+        return await simpleQuery(query, [playerId, gametypeId, mapId]);
     }
 
-    async updatePlayerBestValuesSingleLife(playerId, gametypeId, stats){
+    async updatePlayerBestValuesSingleLife(playerId, gametypeId, mapId, stats){
 
-        if(!await this.bPlayerBestValuesSingleLifeExist(playerId, gametypeId)){
+        if(!await this.bPlayerBestValuesSingleLifeExist(playerId, gametypeId, mapId)){
 
-            await this.createPlayerBestValuesSingleLife(playerId, gametypeId);
+            await this.createPlayerBestValuesSingleLife(playerId, gametypeId, mapId);
         }
 
         const query = `UPDATE nstats_player_ctf_best_life SET
@@ -1947,7 +1947,7 @@ export default class CTF{
         flag_self_cover_fail = IF(flag_self_cover_fail < ?, ?, flag_self_cover_fail),
         best_single_self_cover = IF(best_single_self_cover < ?, ?, best_single_self_cover),
         flag_solo_capture = IF(flag_solo_capture < ?, ?, flag_solo_capture)
-        WHERE player_id=? AND gametype_id=?`;
+        WHERE player_id=? AND gametype_id=? AND map_id=?`;
 
         const vars = [
             stats.assist.bestLife, stats.assist.bestLife,
@@ -1977,7 +1977,7 @@ export default class CTF{
             stats.selfCoverFail.bestLife, stats.selfCoverFail.bestLife,
             stats.bestSingleSelfCover, stats.bestSingleSelfCover,
             stats.soloCapture.bestLife, stats.soloCapture.bestLife,
-            playerId, gametypeId
+            playerId, gametypeId, mapId
         ];
 
         return await simpleQuery(query, vars);

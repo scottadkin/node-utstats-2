@@ -414,8 +414,8 @@ export default class MatchManager{
 
                 await this.CTFManager.insertPlayerMatchData(this.serverId, this.mapInfo.mapId, this.gametype.currentMatchGametype);
                 await this.CTFManager.updatePlayerTotals(this.serverId, this.mapInfo.mapId, this.gametype.currentMatchGametype);
-                await this.CTFManager.updatePlayerBestValues(this.gametype.currentMatchGametype);
-                await this.CTFManager.updatePlayerBestValuesSingleLife(this.gametype.currentMatchGametype);
+                await this.CTFManager.updatePlayerBestValues(this.gametype.currentMatchGametype, this.mapInfo.mapId);
+                await this.CTFManager.updatePlayerBestValuesSingleLife(this.gametype.currentMatchGametype, this.mapInfo.mapId);
                 await this.CTFManager.updateMapCapRecord(this.mapInfo.mapId, this.gametype.currentMatchGametype);
                 await this.CTFManager.insertEvents();
                 await this.CTFManager.insertCarryTimes();

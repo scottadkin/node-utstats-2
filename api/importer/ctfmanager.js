@@ -1112,27 +1112,35 @@ export default class CTFManager{
         }
     }
 
-    async updatePlayerBestValues(gametypeId){
+    async updatePlayerBestValues(gametypeId, mapId){
 
         for(let i = 0; i < this.playerManager.players.length; i++){
 
             const p = this.playerManager.players[i];
             //combined totals
-            await this.ctf.updatePlayerBestValues(p.masterId, 0, p.stats.ctfNew);
+            await this.ctf.updatePlayerBestValues(p.masterId, 0, 0, p.stats.ctfNew);
             //gametype totals
-            await this.ctf.updatePlayerBestValues(p.masterId, gametypeId, p.stats.ctfNew);
+            await this.ctf.updatePlayerBestValues(p.masterId, gametypeId, 0, p.stats.ctfNew);
+            //map Totals
+            await this.ctf.updatePlayerBestValues(p.masterId, 0, mapId, p.stats.ctfNew);
+            //map + gametype Totals
+            await this.ctf.updatePlayerBestValues(p.masterId, gametypeId, mapId, p.stats.ctfNew);
         }
     }
 
-    async updatePlayerBestValuesSingleLife(gametypeId){
+    async updatePlayerBestValuesSingleLife(gametypeId, mapId){
 
         for(let i = 0; i < this.playerManager.players.length; i++){
 
             const p = this.playerManager.players[i];
             //combined totals
-            await this.ctf.updatePlayerBestValuesSingleLife(p.masterId, 0, p.stats.ctfNew);
+            await this.ctf.updatePlayerBestValuesSingleLife(p.masterId, 0, 0, p.stats.ctfNew);
             //gametype totals
-            await this.ctf.updatePlayerBestValuesSingleLife(p.masterId, gametypeId, p.stats.ctfNew);
+            await this.ctf.updatePlayerBestValuesSingleLife(p.masterId, gametypeId, 0, p.stats.ctfNew);
+            //map totals
+            await this.ctf.updatePlayerBestValuesSingleLife(p.masterId, 0, mapId, p.stats.ctfNew);
+            //map & gametype totals
+            await this.ctf.updatePlayerBestValuesSingleLife(p.masterId, gametypeId, mapId, p.stats.ctfNew);
         }
     }
     
