@@ -1,6 +1,7 @@
 import { simpleQuery } from "./database.js";
 import {getBasicPlayersByIds, getPlayersCountries} from "./players.js";
 import {getPlayer} from "./generic.mjs";
+import { getObjectName } from "./genericServerSide.mjs";
 
 export const validPlayerTotalTypes = [
     //{"value": "first","displayValue": "First Match" },
@@ -409,8 +410,17 @@ export async function getPlayerMatchRecords(gametypeId, mapId, cat, page, perPag
 
     if(!bValidPlayerType(cat)) throw new Error(`${cat} is not a valid player record type.`);
 
+    gametypeId = parseInt(gametypeId);
+    mapId = parseInt(mapId);
+
     page = page - 1;
     if(page < 0) page = 0;
+
+    const DEFAULT_PER_PAGE = 25;
+
+    perPage = parseInt(perPage);
+    if(perPage !== perPage) perPage = DEFAULT_PER_PAGE;
+    if(perPage < 5 || perPage > 100) perPage = DEFAULT_PER_PAGE;
 
     const start = page * perPage;
     
@@ -425,19 +435,31 @@ export async function getPlayerMatchRecords(gametypeId, mapId, cat, page, perPag
     if(result === null) return null;
 
     const playersInfo = await getBasicPlayersByIds(result.playerIds);
-    getPlayer(result.data, playersInfo);
-
-    
-    result.mapIds = [...new Set(result.data.map((r) =>{
+  
+    const mapIds = [...new Set(result.data.map((r) =>{
         return r.map_id;
     }))];
 
 
-    result.gametypeIds = [...new Set(result.data.map((r) =>{
+    const gametypeIds = [...new Set(result.data.map((r) =>{
         return r.gametype;
     }))];
 
-    return {"data": result, "totalResults": result.totalResults };
+    const gametypeNames = await getObjectName("gametypes", gametypeIds);
+    const mapNames = await getObjectName("maps", mapIds);
+
+
+    for(let i = 0; i < result.data.length; i++){
+
+        const d = result.data[i];
+        const p = getPlayer(playersInfo, d.player_id, true);
+        d.playerName = p.name;
+        d.country = p.country;
+        d.gametypeName = gametypeNames[d.gametype] ?? "Not Found";
+        d.mapName = mapNames[d.map_id] ?? "Not Found";
+    }
+
+    return {"data": result.data, "totalResults": result.totalResults };
     
 }
 

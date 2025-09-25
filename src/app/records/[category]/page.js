@@ -4,10 +4,10 @@ import SiteSettings from "../../../../api/sitesettings";
 import { headers, cookies } from "next/headers";
 import { validPlayerTotalTypes, totalPerPageOptions, validPlayerMatchTypes, validPlayerCTFTotalTypes, 
     getPlayerTotalRecords, bValidPlayerType, bValidTotalType, bValidPlayerCTFTotalType,
-    getTypeName } from "../../../../api/records";
+    getTypeName, getPlayerMatchRecords } from "../../../../api/records";
 import SearchForm from "../../UI/Records/SearchForm";
 import { getAllObjectNames } from "../../../../api/genericServerSide.mjs";
-import { PlayerTotalsTable } from "../../UI/Records/PlayerTables";
+import { PlayerTotalsTable, PlayerMatchTable } from "../../UI/Records/PlayerTables";
 
 const DEFAULT_PLAYER_TOTALS_TYPE = "kills";
 const DEFAULT_PLAYER_MATCH_TYPE = "kills";
@@ -82,6 +82,7 @@ export default async function Page({params, searchParams}){
     let types = [];
     let data = {"data": [], "totalResults": 0};
     let typeTitle = "";
+    let elems = [];
 
     if(cat === "player-totals"){
 
@@ -89,17 +90,41 @@ export default async function Page({params, searchParams}){
         data = await getPlayerTotalRecords(selectedType, selectedGametype, selectedMap, page, selectedPerPage);
         typeTitle = getTypeName(cat, selectedType);
 
+        elems = <PlayerTotalsTable 
+            type={selectedType} 
+            typeTitle={typeTitle}
+            data={data} 
+            page={page} 
+            perPage={selectedPerPage} 
+            totalResults={data.totalResults}
+            selectedGametype={selectedGametype}
+            selectedMap={selectedMap}
+        />;  
+
 
     }else if(cat === "player-match"){
 
         types = validPlayerMatchTypes;
         typeTitle = getTypeName(cat, selectedType);
+        data = await getPlayerMatchRecords(selectedGametype, selectedMap, selectedType, page, selectedPerPage);
+
+        elems = <PlayerMatchTable 
+            type={selectedType} 
+            typeTitle={typeTitle}
+            data={data} 
+            page={page} 
+            perPage={selectedPerPage} 
+            totalResults={data.totalResults}
+            selectedGametype={selectedGametype}
+            selectedMap={selectedMap}
+        />;  
 
     }else if(cat === "player-ctf-totals"){
 
         types = validPlayerCTFTotalTypes;
         typeTitle = getTypeName(cat, selectedType);
     }
+
 
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
@@ -119,16 +144,7 @@ export default async function Page({params, searchParams}){
             /> 
             </div>   
          
-            <PlayerTotalsTable 
-                type={selectedType} 
-                typeTitle={typeTitle}
-                data={data} 
-                page={page} 
-                perPage={selectedPerPage} 
-                totalResults={data.totalResults}
-                selectedGametype={selectedGametype}
-                selectedMap={selectedMap}
-            />    
+            {elems} 
         </div>      
     </main>; 
 }
