@@ -1546,6 +1546,7 @@ const queries = [
               id int NOT NULL AUTO_INCREMENT,
               player_id int NOT NULL,
               gametype_id int NOT NULL,
+              map_id int NOT NULL,
               total_matches int NOT NULL,      
               playtime float NOT NULL,
               flag_assist INT(11) NOT NULL,

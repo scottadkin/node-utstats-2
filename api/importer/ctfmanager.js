@@ -1099,9 +1099,14 @@ export default class CTFManager{
             const stats = p.stats.ctfNew;
 
             //combined totals
-            await this.ctf.updatePlayerTotals(p.masterId, 0, playtime, stats);
+            await this.ctf.updatePlayerTotals(p.masterId, 0, 0, playtime, stats);
             //gametype totals
-            await this.ctf.updatePlayerTotals(p.masterId, gametypeId, playtime, stats);
+            await this.ctf.updatePlayerTotals(p.masterId, gametypeId, 0, playtime, stats);
+            //map totals
+            await this.ctf.updatePlayerTotals(p.masterId, 0, mapId, playtime, stats);
+            //map and gametype ids
+            await this.ctf.updatePlayerTotals(p.masterId, gametypeId, mapId, playtime, stats);
+
 
             //console.log(p.stats.ctfNew);
         }

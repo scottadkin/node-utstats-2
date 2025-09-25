@@ -17,31 +17,31 @@ export default class CTF{
         this.covers = [];
     }
 
-    async bPlayerTotalsExist(playerId, gametypeId){
+    async bPlayerTotalsExist(playerId, gametypeId, mapId){
 
-        const query = `SELECT COUNT(*) as total_matches FROM nstats_player_ctf_totals WHERE player_id=? AND gametype_id=?`;
+        const query = `SELECT COUNT(*) as total_matches FROM nstats_player_ctf_totals WHERE player_id=? AND gametype_id=? AND map_id=?`;
 
-        const result = await simpleQuery(query, [playerId, gametypeId]);
+        const result = await simpleQuery(query, [playerId, gametypeId, mapId]);
 
         if(result[0].total_matches > 0) return true;
 
         return false;
     }
 
-    async createPlayerTotals(playerId, gametypeId){
+    async createPlayerTotals(playerId, gametypeId, mapId){
 
         const query = `INSERT INTO nstats_player_ctf_totals VALUES(NULL,?,?,
-            0,0,0,0,0,0,0,0,0,0,
+            ?,0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0)`;
 
-        return await simpleQuery(query, [playerId, gametypeId]);
+        return await simpleQuery(query, [playerId, gametypeId, mapId]);
     }
 
-    async updatePlayerTotals(playerId, gametypeId, playtime, stats){
+    async updatePlayerTotals(playerId, gametypeId, mapId, playtime, stats){
 
-        if(!await this.bPlayerTotalsExist(playerId, gametypeId)){
-            await this.createPlayerTotals(playerId, gametypeId);
+        if(!await this.bPlayerTotalsExist(playerId, gametypeId, mapId)){
+            await this.createPlayerTotals(playerId, gametypeId, mapId);
         }
 
         const query = `UPDATE nstats_player_ctf_totals SET
@@ -75,7 +75,7 @@ export default class CTF{
         flag_self_cover_fail=flag_self_cover_fail+?,
         best_single_self_cover = IF(best_single_self_cover < ?, ?, best_single_self_cover),
         flag_solo_capture=flag_solo_capture+?
-        WHERE player_id=? AND gametype_id=?`;
+        WHERE player_id=? AND gametype_id=? AND map_id=?`;
 
 
         //29th?
@@ -110,7 +110,7 @@ export default class CTF{
             stats.bestSingleSelfCover, stats.bestSingleSelfCover,
             stats.soloCapture.total,
 
-            playerId, gametypeId
+            playerId, gametypeId, mapId
         ];
 
         await simpleQuery(query, vars);

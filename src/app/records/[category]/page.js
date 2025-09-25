@@ -4,7 +4,7 @@ import SiteSettings from "../../../../api/sitesettings";
 import { headers, cookies } from "next/headers";
 import { validPlayerTotalTypes, totalPerPageOptions, validPlayerMatchTypes, validPlayerCTFTotalTypes, 
     getPlayerTotalRecords, bValidPlayerType, bValidTotalType, bValidPlayerCTFTotalType,
-    getTypeName, getPlayerMatchRecords } from "../../../../api/records";
+    getTypeName, getPlayerMatchRecords, getPlayerCTFTotalRecords } from "../../../../api/records";
 import SearchForm from "../../UI/Records/SearchForm";
 import { getAllObjectNames } from "../../../../api/genericServerSide.mjs";
 import { PlayerTotalsTable, PlayerMatchTable } from "../../UI/Records/PlayerTables";
@@ -123,6 +123,8 @@ export default async function Page({params, searchParams}){
 
         types = validPlayerCTFTotalTypes;
         typeTitle = getTypeName(cat, selectedType);
+        data = await getPlayerCTFTotalRecords(selectedGametype, selectedType, page, selectedPerPage);
+        console.log(data);
     }
 
 

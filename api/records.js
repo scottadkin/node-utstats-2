@@ -459,8 +459,17 @@ export async function getPlayerMatchRecords(gametypeId, mapId, cat, page, perPag
         d.mapName = mapNames[d.map_id] ?? "Not Found";
     }
 
-    return {"data": result.data, "totalResults": result.totalResults };
-    
+    return {"data": result.data, "totalResults": result.totalResults };  
+}
+
+
+export async function getPlayerCTFTotalRecords(gametypeId, cat, page, perPage){
+
+    if(!bValidPlayerCTFTotalType(cat)) throw new Error(`Not a valid Player CTF Total Record`);
+
+    const query = `SELECT player_id,gametype_id,playtime,${cat} as tvalue FROM nstats_player_ctf_totals 
+    WHERE gametype_id=? ORDER BY tvalue DESC LIMIT ?, ?`;
+
 }
 
 /**
