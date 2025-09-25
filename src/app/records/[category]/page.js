@@ -5,7 +5,8 @@ import { headers, cookies } from "next/headers";
 import { validPlayerTotalTypes, totalPerPageOptions, validPlayerMatchTypes, validPlayerCTFTotalTypes, 
     getPlayerTotalRecords, bValidPlayerType, bValidTotalType, bValidPlayerCTFTotalType,
     getTypeName, getPlayerMatchRecords, getPlayerCTFTotalRecords, validPlayerCTFMatchTypes, 
-    bValidPlayerCTFMatchType, getPlayerCTFMatchRecords } from "../../../../api/records";
+    bValidPlayerCTFMatchType, getPlayerCTFMatchRecords, validPlayerCTFSingleLifeTypes, 
+    bValidPlayerCTFSingleLifeType, getPlayerCTFSingleLifeRecords } from "../../../../api/records";
 import SearchForm from "../../UI/Records/SearchForm";
 import { getAllObjectNames } from "../../../../api/genericServerSide.mjs";
 import { PlayerTotalsTable, PlayerMatchTable } from "../../UI/Records/PlayerTables";
@@ -14,6 +15,7 @@ const DEFAULT_PLAYER_TOTALS_TYPE = "kills";
 const DEFAULT_PLAYER_MATCH_TYPE = "kills";
 const DEFAULT_PLAYER_CTF_TOTALS_TYPE = "flag_capture";
 const DEFAULT_PLAYER_CTF_MATCH_TYPE = "flag_capture";
+const DEFAULT_PLAYER_CTF_SINGLE_LIFE_TYPE = "flag_capture_best";
 
 const TITLES = {
     "player-totals": "Player Totals",
@@ -65,6 +67,10 @@ export default async function Page({params, searchParams}){
 
     if(cat === "player-ctf-match" && !bValidPlayerCTFMatchType(selectedType)){
         selectedType = DEFAULT_PLAYER_CTF_MATCH_TYPE;
+    }
+
+    if(cat === "player-ctf-single-life" && !bValidPlayerCTFSingleLifeType(selectedType)){
+        selectedType = DEFAULT_PLAYER_CTF_SINGLE_LIFE_TYPE;
     }
 
     page = parseInt(page);
@@ -160,6 +166,25 @@ export default async function Page({params, searchParams}){
             selectedGametype={selectedGametype}
             selectedMap={selectedMap}
             bCTF={true}
+        />; 
+
+    }else if(cat === "player-ctf-single-life"){
+
+        types = validPlayerCTFSingleLifeTypes;
+        typeTitle = getTypeName(cat, selectedType);
+        data = await getPlayerCTFSingleLifeRecords(selectedGametype, selectedMap, selectedType, page, selectedPerPage);
+
+        elems = <PlayerMatchTable 
+            type={selectedType} 
+            typeTitle={typeTitle}
+            data={data} 
+            page={page} 
+            perPage={selectedPerPage} 
+            totalResults={data.totalResults}
+            selectedGametype={selectedGametype}
+            selectedMap={selectedMap}
+            bCTF={true}
+            bSingleLifeCTF={true}
         />; 
     }
 

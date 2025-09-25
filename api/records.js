@@ -209,48 +209,81 @@ export const validPlayerCTFMatchTypes = [
     {"value": "best_single_self_cover", "displayValue": "Best Single Self Cover"}, 
 ];
 
-export function bValidTotalType(value){
 
-    for(let i = 0; i < validPlayerTotalTypes.length; i++){
+export const validPlayerCTFSingleLifeTypes = [
+    {"value": "flag_capture_best", "displayValue": "Flag Capture"},
+    {"value": "flag_solo_capture_best", "displayValue": "Flag Solo Capture"},
+    {"value": "flag_assist_best", "displayValue": "Flag Assist"},
+    {"value": "flag_return_best", "displayValue": "Flag Return"},
+    {"value": "flag_return_base_best", "displayValue": "Flag Return Base"},
+    {"value": "flag_return_mid_best", "displayValue": "Flag Return Mid"},
+    {"value": "flag_return_enemy_base_best", "displayValue": "Flag Return Enemy Base"},
+    {"value": "flag_return_save_best", "displayValue": "Flag Return Close Save"},
+    {"value": "flag_dropped_best", "displayValue": "Flag Dropped"},
+    {"value": "flag_kill_best", "displayValue": "Flag Kill"},
+    {"value": "flag_seal_best", "displayValue": "Flag Seal"},
+    {"value": "flag_seal_pass_best", "displayValue": "Flag Seal Pass"},
+    {"value": "flag_seal_fail_best", "displayValue": "Flag Seal Fail"},
+    {"value": "best_single_seal", "displayValue": "Best Flag Seal"},
+    {"value": "flag_cover_best", "displayValue": "Flag Cover"},
+    {"value": "flag_cover_pass_best", "displayValue": "Flag Cover Pass"},
+    {"value": "flag_cover_fail_best", "displayValue": "Flag Cover Failed"},
+    {"value": "flag_cover_multi_best", "displayValue": "Flag Multi Cover"},
+    {"value": "flag_cover_spree_best", "displayValue": "Flag Cover Spree"},
+    {"value": "best_single_cover", "displayValue": "Best Single Cover"},
+    {"value": "flag_carry_time_best", "displayValue": "Flag Carry Time"},
+    {"value": "flag_taken_best", "displayValue": "Flag Taken"},
+    {"value": "flag_pickup_best", "displayValue": "Flag Pickup"},
+    {"value": "flag_self_cover_best", "displayValue": "Flag Self Cover"},
+    {"value": "flag_self_cover_pass_best", "displayValue": "Flag Self Cover Pass"},
+    {"value": "flag_self_cover_fail_best", "displayValue": "Flag Self Cover Fail"},
+    {"value": "best_single_self_cover", "displayValue": "Best Single Self Cover"}, 
+];
 
-        const t = validPlayerTotalTypes[i];
-        if(t.value === value) return true;
+
+function bValidType(cat, value){
+    
+    let values = [];
+
+    switch(cat){
+        case "player-totals": { values = validPlayerTotalTypes; } break;
+        case "player-match": { values = validPlayerMatchTypes; } break;
+        case "player-ctf-totals": { values = validPlayerCTFTotalTypes; } break;
+        case "player-ctf-match": { values = validPlayerCTFMatchTypes; } break;
+        case "player-ctf-single-life": { values = validPlayerCTFSingleLifeTypes; } break;
+    }
+
+    for(let i = 0; i < values.length; i++){
+
+        const v = values[i];
+        if(v.value === value) return true;
     }
 
     return false;
+}
+
+export function bValidTotalType(value){
+
+    return bValidType("player-totals", value);
 }
 
 export function bValidPlayerType(value){
 
-    for(let i = 0; i < validPlayerMatchTypes.length; i++){
-
-        const t = validPlayerMatchTypes[i];
-        if(t.value === value) return true;
-    }
-
-    return false;
+    return bValidType("player-match", value);
 }
 
 export function bValidPlayerCTFTotalType(value){
 
-    for(let i = 0; i < validPlayerCTFTotalTypes.length; i++){
-
-        const t = validPlayerCTFTotalTypes[i];
-        if(t.value === value) return true;
-    }
-
-    return false;
+    return bValidType("player-ctf-totals", value);
 }
 
 export function bValidPlayerCTFMatchType(value){
 
-    for(let i = 0; i < validPlayerCTFMatchTypes.length; i++){
+    return bValidType("player-ctf-match", value);
+}
 
-        const t = validPlayerCTFMatchTypes[i];
-        if(t.value === value) return true;
-    }
-
-    return false;
+export function bValidPlayerCTFSingleLifeType(value){
+    return bValidType("player-ctf-single-life", value);
 }
 
 export function cleanPerPage(perPage){
@@ -565,6 +598,29 @@ async function getPlayerCTFTotalMap(mapId, cat, start, perPage){
     return {data, "totalResults": totals[0].total_rows};
 }
 
+/**
+ * get unique players, gametypes, maps from player_totals_ctf table results
+ * @param {*} data 
+ * @returns 
+ */
+function getUniqueCTFValues(data){
+
+    const uniqueGametypes = new Set();
+    const uniqueMaps = new Set();
+    const uniquePlayers = new Set();
+
+    for(let i = 0; i < data.length; i++){
+
+        const r = data[i];
+
+        uniqueGametypes.add(r.gametype_id);
+        uniqueMaps.add(r.map_id);
+        uniquePlayers.add(r.player_id);
+    }
+
+    return {uniqueGametypes, uniqueMaps, uniquePlayers};
+}
+
 export async function getPlayerCTFTotalRecords(gametypeId, mapId, cat, page, perPage){
 
     if(!bValidPlayerCTFTotalType(cat)) throw new Error(`Not a valid Player CTF Total Record`);
@@ -581,7 +637,7 @@ export async function getPlayerCTFTotalRecords(gametypeId, mapId, cat, page, per
 
     let start = page * perPage; 
 
-    let result = [];
+    let result = {"data": [], "totalResults": 0};
 
     if(gametypeId !== 0 && mapId !== 0){
         result = await getPlayerCTFTotalGametypeMap(gametypeId, mapId, cat, start, perPage);
@@ -593,18 +649,7 @@ export async function getPlayerCTFTotalRecords(gametypeId, mapId, cat, page, per
         result = await getPlayerCTFTotalMap(mapId, cat, start, perPage);
     }
 
-    const uniqueGametypes = new Set();
-    const uniqueMaps = new Set();
-    const uniquePlayers = new Set();
-
-    for(let i = 0; i < result.data.length; i++){
-
-        const r = result.data[i];
-
-        uniqueGametypes.add(r.gametype_id);
-        uniqueMaps.add(r.map_id);
-        uniquePlayers.add(r.player_id);
-    }
+    const {uniqueGametypes, uniqueMaps, uniquePlayers} = getUniqueCTFValues(result.data);
 
     const playersInfo = await getBasicPlayersByIds([...uniquePlayers]);
     const gametypeNames = await getObjectName("gametypes", [...uniqueGametypes]);
@@ -627,7 +672,7 @@ async function getPlayerCTFMatchData(gametypeId, mapId, cat, start, perPage){
 
     let query = `SELECT player_id,match_id,match_date,gametype_id,map_id,playtime,${cat} as tvalue FROM nstats_player_ctf_match`;
 
-    let where = `WHERE ${cat}>0`;
+    let where = `WHERE ${cat}>0 AND playtime>0`;
     const vars = [];
 
     if(gametypeId !== 0){
@@ -641,8 +686,7 @@ async function getPlayerCTFMatchData(gametypeId, mapId, cat, start, perPage){
     }
 
     query = `${query} ${where} ORDER BY tvalue DESC LIMIT ?, ?`;
-    vars.push(start);
-    vars.push(perPage);
+    vars.push(start, perPage);
 
     return await simpleQuery(query, vars);  
 }
@@ -651,7 +695,7 @@ async function getPlayerCTFMatchDataTotalResults(gametypeId, mapId, cat){
 
     let query = `SELECT COUNT(*) as total_rows FROM nstats_player_ctf_match`;
 
-    let where = `WHERE ${cat}>0`;
+    let where = `WHERE ${cat}>0 AND playtime>0`;
     const vars = [];
 
     if(gametypeId !== 0){
@@ -689,22 +733,11 @@ export async function getPlayerCTFMatchRecords(gametypeId, mapId, cat, page, per
 
     const data = await getPlayerCTFMatchData(gametypeId, mapId, cat, start, perPage);
 
-    const playerIds = new Set();
-    const gametypeIds = new Set();
-    const mapIds = new Set();
+    const {uniqueGametypes, uniqueMaps, uniquePlayers} = getUniqueCTFValues(data);
 
-    for(let i = 0; i < data.length; i++){
-
-        const d = data[i];
-
-        playerIds.add(d.player_id);
-        gametypeIds.add(d.gametype_id);
-        mapIds.add(d.map_id);
-    }
-
-    const playersInfo = await getBasicPlayersByIds([...playerIds]);
-    const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
-    const mapNames = await getObjectName("maps", [...mapIds]);
+    const playersInfo = await getBasicPlayersByIds([...uniquePlayers]);
+    const gametypeNames = await getObjectName("gametypes", [...uniqueGametypes]);
+    const mapNames = await getObjectName("maps", [...uniqueMaps]);
 
 
     for(let i = 0; i < data.length; i++){
@@ -722,6 +755,91 @@ export async function getPlayerCTFMatchRecords(gametypeId, mapId, cat, page, per
     return {data, totalResults};
 }
 
+async function getPlayerSingleLifeData(gametypeId, mapId, cat, start, perPage){
+
+    let query = `SELECT player_id,match_id,match_date,playtime,gametype_id,map_id,${cat} as tvalue FROM nstats_player_ctf_match`;
+
+    let where = `WHERE ${cat}> 0 AND playtime>0`;
+    const vars = [];
+
+    if(gametypeId !== 0){
+        where += ` AND gametype_id=?`;
+        vars.push(gametypeId);
+    }
+
+    if(mapId !== 0){
+        where += ` AND map_id=?`;
+        vars.push(mapId);
+    }
+
+    query = `${query} ${where} ORDER BY tvalue DESC LIMIT ?, ?`
+    vars.push(start, perPage);
+
+    return await simpleQuery(query, vars);
+}
+
+async function getPlayerSingleLifeTotalPossible(gametypeId, mapId, cat){
+
+    let query = `SELECT COUNT(*) as total_rows FROM nstats_player_ctf_match`;
+
+    let where = `WHERE ${cat}> 0 AND playtime>0`;
+    const vars = [];
+
+    if(gametypeId !== 0){
+        where += ` AND gametype_id=?`;
+        vars.push(gametypeId);
+    }
+
+    if(mapId !== 0){
+        where += ` AND map_id=?`;
+        vars.push(mapId);
+    }
+
+    query = `${query} ${where}`;
+ 
+    const result = await simpleQuery(query, vars);
+    
+    return result[0].total_rows;
+}
+
+export async function getPlayerCTFSingleLifeRecords(gametypeId, mapId, cat, page, perPage){
+
+    if(!bValidPlayerCTFSingleLifeType(cat)) throw new Error(`Not a valid playerCTFSingleLifeRecordType`);
+
+    gametypeId = parseInt(gametypeId);
+    mapId = parseInt(mapId);
+
+    if(gametypeId !== gametypeId) gametypeId = 0;
+    if(mapId !== mapId) mapId = 0;
+
+    page--;
+    page = sanatizePage(page);
+    perPage = sanatizePerPage(perPage);
+
+    let start = page * perPage;
+
+    const result = await getPlayerSingleLifeData(gametypeId, mapId, cat, start, perPage);
+    const totalResults = await getPlayerSingleLifeTotalPossible(gametypeId, mapId, cat);
+
+    const {uniqueGametypes, uniqueMaps, uniquePlayers} = getUniqueCTFValues(result);
+
+    const playersInfo = await getBasicPlayersByIds([...uniquePlayers]);
+    const gametypeNames = await getObjectName("gametypes", [...uniqueGametypes]);
+    const mapNames = await getObjectName("maps", [...uniqueMaps]);
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        r.gametypeName = gametypeNames[r.gametype_id] ?? "Not Found";
+        r.mapName = mapNames[r.map_id] ?? "Not Found";
+        const player = getPlayer(playersInfo, r.player_id ,true);
+        r.playerName = player.name;
+        r.country = player.country
+    }
+
+    return {"data": result, totalResults};
+}
+
 /**
  * 
  * @param {*} cat player-totals,player-matches,player_ctf_totals...
@@ -737,6 +855,7 @@ export function getTypeName(cat, name){
         case "player-match": { entries = validPlayerMatchTypes; } break;
         case "player-ctf-totals": { entries = validPlayerCTFTotalTypes; } break;
         case "player-ctf-match": { entries = validPlayerCTFMatchTypes; } break;
+        case "player-ctf-single-life": { entries = validPlayerCTFSingleLifeTypes; } break;
     }
 
     for(let i = 0; i < entries.length; i++){
