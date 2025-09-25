@@ -67,7 +67,7 @@ export const validPlayerTotalTypes = [
     {"value": "mh_kills_best","displayValue": "Monsterhunt Kills Best" },
     {"value": "mh_deaths","displayValue": "Monsterhunt Deaths" },
     {"value": "mh_deaths_worst","displayValue": "Monsterhunt Deaths Worst" }
-    ];
+];
 
 
 export const totalPerPageOptions = [  
@@ -147,11 +147,43 @@ export const validPlayerMatchTypes = [
     {"value": "tele_disc_best_multi", "displayValue": "Translocator Discs Best Multi"}
 ];
 
+export const validPlayerCTFTotalTypes = [
+    {"value": "flag_capture", "displayValue": "Flag Capture"},
+    {"value": "flag_solo_capture", "displayValue": "Flag Solo Capture"},
+    {"value": "flag_assist", "displayValue": "Flag Assist"},
+    {"value": "flag_return", "displayValue": "Flag Return"},
+    {"value": "flag_return_base", "displayValue": "Flag Return Base"},
+    {"value": "flag_return_mid", "displayValue": "Flag Return Mid"},
+    {"value": "flag_return_enemy_base", "displayValue": "Flag Return Enemy Base"},
+    {"value": "flag_return_save", "displayValue": "Flag Return Close Save"},
+    {"value": "flag_dropped", "displayValue": "Flag Dropped"},
+    {"value": "flag_kill", "displayValue": "Flag Kill"},
+    {"value": "flag_suicide", "displayValue": "Flag Suicide"},
+    {"value": "flag_seal", "displayValue": "Flag Seal"},
+    {"value": "flag_seal_pass", "displayValue": "Flag Seal Pass"},
+    {"value": "best_single_seal", "displayValue": "Best Flag Seal"},
+    {"value": "flag_cover", "displayValue": "Flag Cover"},
+    {"value": "flag_cover_pass", "displayValue": "Flag Cover Pass"},
+    {"value": "flag_cover_fail", "displayValue": "Flag Cover Failed"},
+    {"value": "flag_cover_multi", "displayValue": "Flag Multi Cover"},
+    {"value": "flag_cover_spree", "displayValue": "Flag Cover Spree"},
+    {"value": "best_single_cover", "displayValue": "Best Single Cover"},
+    {"value": "flag_carry_time", "displayValue": "Flag Carry Time"},
+    {"value": "flag_taken", "displayValue": "Flag Taken"},
+    {"value": "flag_pickup", "displayValue": "Flag Pickup"},
+    {"value": "flag_self_cover", "displayValue": "Flag Self Cover"},
+    {"value": "flag_self_cover_pass", "displayValue": "Flag Self Cover Pass"},
+    {"value": "flag_self_cover_fail", "displayValue": "Flag Self Cover Fail"},
+    {"value": "best_single_self_cover", "displayValue": "Best Single Self Cover"},
+    
+];
+
 export function bValidTotalType(value){
 
-    for(const option of Object.values(validPlayerTotalTypes)){
+    for(let i = 0; i < validPlayerTotalTypes.length; i++){
 
-        if(option.value === value) return true;
+        const t = validPlayerTotalTypes[i];
+        if(t.value === value) return true;
     }
 
     return false;
@@ -159,9 +191,21 @@ export function bValidTotalType(value){
 
 export function bValidPlayerType(value){
 
-    for(const option of Object.values(validPlayerMatchTypes)){
+    for(let i = 0; i < validPlayerMatchTypes.length; i++){
 
-        if(option.value === value) return true;
+        const t = validPlayerMatchTypes[i];
+        if(t.value === value) return true;
+    }
+
+    return false;
+}
+
+export function bValidPlayerCTFTotalType(value){
+
+    for(let i = 0; i < validPlayerCTFTotalTypes.length; i++){
+
+        const t = validPlayerCTFTotalTypes[i];
+        if(t.value === value) return true;
     }
 
     return false;
@@ -399,13 +443,19 @@ export async function getPlayerMatchRecords(gametypeId, mapId, cat, page, perPag
 
 /**
  * 
- * @param {*} cat player-totals or player-matches
+ * @param {*} cat player-totals,player-matches,player_ctf_totals...
  * @param {*} name column name
  * @returns 
  */
 export function getTypeName(cat, name){
 
-    const entries = (cat === "player-totals") ? validPlayerTotalTypes : validPlayerMatchTypes;
+    let entries = [];
+
+    switch(cat){
+        case "player-totals": { entries = validPlayerTotalTypes; } break;
+        case "player-match": { entries = validPlayerMatchTypes; } break;
+        case "player-ctf-totals": { entries = validPlayerCTFTotalTypes; } break;
+    }
 
     for(let i = 0; i < entries.length; i++){
 

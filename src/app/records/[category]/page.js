@@ -2,18 +2,23 @@ import Nav from "../../UI/Nav";
 import Session from "../../../../api/session";
 import SiteSettings from "../../../../api/sitesettings";
 import { headers, cookies } from "next/headers";
-import { validPlayerTotalTypes, totalPerPageOptions, validPlayerMatchTypes, 
-    getPlayerTotalRecords, bValidPlayerType, bValidTotalType, getTypeName as getPlayerTypeName } from "../../../../api/records";
+import { validPlayerTotalTypes, totalPerPageOptions, validPlayerMatchTypes, validPlayerCTFTotalTypes, 
+    getPlayerTotalRecords, bValidPlayerType, bValidTotalType, bValidPlayerCTFTotalType,
+    getTypeName } from "../../../../api/records";
 import SearchForm from "../../UI/Records/SearchForm";
 import { getAllObjectNames } from "../../../../api/genericServerSide.mjs";
 import { PlayerTotalsTable } from "../../UI/Records/PlayerTables";
 
 const DEFAULT_PLAYER_TOTALS_TYPE = "kills";
 const DEFAULT_PLAYER_MATCH_TYPE = "kills";
+const DEFAULT_PLAYER_CTF_TOTALS_TYPE = "flag_capture";
 
 const TITLES = {
     "player-totals": "Player Totals",
-    "player-match": "Player Match"
+    "player-match": "Player Match",
+    "player-ctf-totals": "Player CTF Totals",
+    "player-ctf-match": "Player CTF Match",
+    "ctf-caps": "CTF Cap Records",
 };
 
 export async function generateMetadata({ params, searchParams }, parent) {
@@ -51,6 +56,10 @@ export default async function Page({params, searchParams}){
         selectedType = DEFAULT_PLAYER_MATCH_TYPE;
     }
 
+    if(cat === "player-ctf-totals" && !bValidPlayerCTFTotalType(selectedType)){
+        selectedType = DEFAULT_PLAYER_CTF_TOTALS_TYPE;
+    }
+
     page = parseInt(page);
 
     if(page !== page) page = 1;
@@ -75,13 +84,21 @@ export default async function Page({params, searchParams}){
     let typeTitle = "";
 
     if(cat === "player-totals"){
+
         types = validPlayerTotalTypes;
         data = await getPlayerTotalRecords(selectedType, selectedGametype, selectedMap, page, selectedPerPage);
-        typeTitle = getPlayerTypeName(cat, selectedType);
+        typeTitle = getTypeName(cat, selectedType);
+
 
     }else if(cat === "player-match"){
+
         types = validPlayerMatchTypes;
-        typeTitle = getPlayerTypeName(cat, selectedType);
+        typeTitle = getTypeName(cat, selectedType);
+
+    }else if(cat === "player-ctf-totals"){
+
+        types = validPlayerCTFTotalTypes;
+        typeTitle = getTypeName(cat, selectedType);
     }
 
     return <main>
