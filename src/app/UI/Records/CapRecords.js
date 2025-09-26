@@ -64,13 +64,12 @@ function renderAssistsTable(mode, caps){
 
         const assistedElems = c.assistPlayers.map((p) =>{
 
-            return <Link href={`/player/${p.id}`}>
+            return <Link key={p.id} href={`/player/${p.id}`}>
                 <CountryFlag country={p.country}/>
                 {p.name}&nbsp;
             </Link>
         });
-        console.log(c.assistPlayers);
-
+        
         return [
             <Link href={`/map/${c.map_id}`}>{removeUnr(c.mapName)}</Link>,
             convertTimestamp(c.date, true),

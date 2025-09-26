@@ -10,8 +10,9 @@ import { validPlayerTotalTypes, totalPerPageOptions, validPlayerMatchTypes, vali
 import SearchForm from "../../UI/Records/SearchForm";
 import { getAllObjectNames } from "../../../../api/genericServerSide.mjs";
 import { PlayerTotalsTable, PlayerMatchTable } from "../../UI/Records/PlayerTables";
-import { getAllMapCapRecords } from "../../../../api/ctf";
+import { getAllMapCapRecords, getMapCapEntries } from "../../../../api/ctf";
 import CapRecords from "../../UI/Records/CapRecords";
+import MapCaps from "../../UI/Records/MapCaps";
 
 const DEFAULT_PLAYER_TOTALS_TYPE = "kills";
 const DEFAULT_PLAYER_MATCH_TYPE = "kills";
@@ -25,7 +26,7 @@ const TITLES = {
     "player-ctf-totals": "Player CTF Totals",
     "player-ctf-match": "Player CTF Match",
     "player-ctf-single-life": "Player CTF Single Life",
-    "ctf-caps": "CTF Cap Records",
+    "ctf-caps": "CTF Cap",
 };
 
 export async function generateMetadata({ params, searchParams }, parent) {
@@ -191,12 +192,26 @@ export default async function Page({params, searchParams}){
 
     }else if(cat === "ctf-caps"){
 
-        const assistCaps = await getAllMapCapRecords("assist", selectedGametype);
-        const soloCaps = await getAllMapCapRecords("solo", selectedGametype);
+
+        if(selectedMap === "0"){
+
+            const assistCaps = await getAllMapCapRecords("assist", selectedGametype);
+            const soloCaps = await getAllMapCapRecords("solo", selectedGametype);
+
+            elems = <CapRecords soloCaps={soloCaps} assistCaps={assistCaps}/>;
+
+        }else{
+            console.log("Goldfish noise");
+
+            const soloCaps = await getMapCapEntries("solo", selectedMap, selectedGametype);
+            const assistCaps = await getMapCapEntries("assist", selectedMap, selectedGametype);
+
+            elems = <MapCaps selectedGametype={selectedGametype} soloCaps={soloCaps} assistCaps={assistCaps}/>
+        }
 
         //console.log(assistCaps);
 
-        elems = <CapRecords soloCaps={soloCaps} assistCaps={assistCaps}/>;
+        
     }
 
 

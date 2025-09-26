@@ -3534,6 +3534,27 @@ async function getCapRecordsData(capType, gametypeId){
     return await simpleQuery(query, vars);
 }
 
+function getUniqueValuesFromCapRecords(data){
+
+    const gametypeIds = new Set();
+    const mapIds = new Set();
+    const capIds = new Set();
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+        gametypeIds.add(d.gametype_id);
+        mapIds.add(d.map_id);
+        capIds.add(d.cap_id);
+    }
+
+    return {
+        "gametypeIds": [...gametypeIds], 
+        "mapIds": [...mapIds], 
+        "capIds": [...capIds]
+    };
+}
+
 export async function getAllMapCapRecords(type, gametypeId){
 
     type = type.toLowerCase();
@@ -3545,22 +3566,12 @@ export async function getAllMapCapRecords(type, gametypeId){
 
     const result = await getCapRecordsData(capType, gametypeId);
 
-    const gametypeIds = new Set();
-    const mapIds = new Set();
-    const capIds = new Set();
+    const {gametypeIds, mapIds, capIds} = getUniqueValuesFromCapRecords(result);
 
-    for(let i = 0; i < result.length; i++){
+    const gametypeNames = await getObjectName("gametypes", gametypeIds);
+    const mapNames = await getObjectName("maps", mapIds);
 
-        const r = result[i];
-        gametypeIds.add(r.gametype_id);
-        mapIds.add(r.map_id);
-        capIds.add(r.cap_id);
-    }
-
-    const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
-    const mapNames = await getObjectName("maps", [...mapIds]);
-
-    const capInfo = await getCapsBasicInfo([...capIds]);
+    const capInfo = await getCapsBasicInfo(capIds);
 
 
     const playerIds = new Set();
@@ -3639,4 +3650,73 @@ export async function getAllMapCapRecords(type, gametypeId){
     });
 
     return result;
+}
+
+export async function getMapCapEntries(type, mapId, gametypeId){
+
+    mapId = parseInt(mapId);
+    gametypeId = parseInt(gametypeId);
+
+    let query = `SELECT id,match_id,gametype_id,match_date,travel_time,cap_player,grab_player FROM nstats_ctf_caps WHERE map_id=?`;
+    //wehre total drops=0 for solo and drops>0 for assist
+    let where = "";
+
+    if(type === "solo"){      
+        where = ` AND total_drops=0`;
+    }else if(type === "assist"){
+        where = ` AND total_drops>0`;
+    }
+
+    const vars = [mapId];
+
+    if(gametypeId !== 0){
+        where += ` AND gametype_id=?`;
+        vars.push(gametypeId);
+    }
+
+
+    query = `${query} ${where} ORDER BY travel_time ASC`;
+
+    const result = await simpleQuery(query, vars);
+
+    console.log(query);
+    console.log(result);
+
+    const gametypeIds = new Set();
+    const playerIds = new Set();
+    const capIds = new Set();
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        gametypeIds.add(r.gametype_id);
+        playerIds.add(r.grab_player);
+        playerIds.add(r.cap_player);
+        capIds.add(r.id);
+    }
+
+    const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
+    console.log(gametypeNames);
+    const playersInfo = await getBasicPlayersByIds([...playerIds]);
+
+    console.log(playersInfo);
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        r.grabPlayer = getPlayer(playersInfo, r.grab_player, true);
+        //r.grabPlayer.id = r.grab_player;
+        r.capPlayer = getPlayer(playersInfo, r.cap_player, true);
+        //r.capPlayer.id = r.cap_player;
+        
+        r.gametypeName = gametypeNames[r.gametype_id] ?? "Not Found";
+
+        console.log(r);
+    }
+
+
+    return result;
+
 }
