@@ -1,6 +1,8 @@
 import { simpleQuery, bulkInsert } from "./database.js";
 import Message from "./message.js";
-import { getTeamName } from "./functions.js";
+import { getTeamName, getPlayer } from "./generic.mjs";
+import { getObjectName } from "./genericServerSide.mjs";
+import { getBasicPlayersByIds } from "./players.js";
 
 export default class CTF{
 
@@ -2079,48 +2081,6 @@ export default class CTF{
         }
     }
 
-
-    //if gametypeId is undefined or 0 just get all time best time
-    async getAllMapRecords(gametypeId){
-
-        if(gametypeId === undefined) gametypeId = 0;
-
-        const query = `SELECT * FROM nstats_ctf_cap_records WHERE gametype_id=?`;
-
-        const result = await simpleQuery(query, [gametypeId]);
-
-        const soloCaps = [];
-        const assistCaps = [];
-        const mapIds = new Set();
-        const gametypeIds = new Set();
-        const matchIds = new Set();
-        const capIds = new Set();
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-
-            mapIds.add(r.map_id);
-            gametypeIds.add(r.gametype_id);
-            matchIds.add(r.match_id);
-            capIds.add(r.cap_id);
-            
-
-            if(r.cap_type === 0) soloCaps.push(r);
-            if(r.cap_type === 1) assistCaps.push(r);
-        }
-
-        return {
-            "soloCaps": soloCaps, 
-            "assistCaps": assistCaps, 
-            "mapIds": [...mapIds], 
-            "gametypeIds": [...gametypeIds],
-            "matchIds": [...matchIds],
-            "capIds": [...capIds]
-        }
-    }
-
-
     async getMapFastestCapTime(gametypeId, mapId, type){
 
         const query = `SELECT travel_time FROM nstats_ctf_cap_records WHERE gametype_id=? AND map_id=? AND cap_type=?`;
@@ -2130,73 +2090,6 @@ export default class CTF{
         if(result.length === 0) return 0;
 
         return result[0].travel_time;
-    }
-
-    async getSingleMapCapRecords(gametypeId, mapId, type, page, perPage){
-
-        const query = `SELECT * FROM nstats_ctf_caps 
-        WHERE ${(gametypeId === 0) ? "" : "gametype_id=? AND"} map_id=? 
-        AND total_assists${(type === "solo") ? " = 0" : " > 0"}
-        ORDER BY travel_time ASC LIMIT ?, ?`;
-
-        const totalsQuery = `SELECT COUNT(*) as unique_caps FROM nstats_ctf_caps 
-        WHERE ${(gametypeId === 0) ? "" : "gametype_id=? AND"} map_id=? 
-        AND total_assists${(type === "solo") ? " = 0" : " > 0"}`;
-
-        page--;
-        if(page < 0) page = 0;     
-
-        let start = perPage * page;
-        if(start < 0) start = 0;
-
-        const vars = [mapId, start, perPage];
-        if(gametypeId !== 0) vars.unshift(gametypeId);
-
-        const result = await simpleQuery(query, vars);
-
-        const capIds = new Set();
-        const uniquePlayers = new Set();
-        const matchIds = new Set();
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-
-            capIds.add(r.id);
-
-            uniquePlayers.add(r.grab_player);
-            uniquePlayers.add(r.cap_player);
-            matchIds.add(r.match_id);
-        }
-
-        const assistedPlayers = await this.getAssistedPlayers([...capIds]);
-
-        for(let i = 0; i < assistedPlayers.uniquePlayers.length; i++){
-
-            const p = assistedPlayers.uniquePlayers[i];
-            uniquePlayers.add(p);
-        }
-
-        if(type === "assist"){
-
-            for(let i = 0; i < result.length; i++){
-
-                const r = result[i];
-                r.assistPlayers = [...new Set(assistedPlayers.assists[r.id])] ?? [];       
-            }
-        }
-
-        const totalResults = await simpleQuery(totalsQuery, vars);
-        const overalMapRecord = await this.getMapFastestCapTime(gametypeId, mapId, (type === "solo") ? 0 : 1);
-
-        return {
-            "caps": result, 
-            "uniquePlayers": [...uniquePlayers], 
-            "capIds": [...capIds], 
-            "matchIds": [...matchIds],
-            "totalResults": totalResults[0].unique_caps,
-            "mapRecordTime": overalMapRecord
-        };
     }
 
     async getCaps(capIds){
@@ -3570,4 +3463,119 @@ export default class CTF{
 
         return data;
     }
+}
+
+
+
+async function getCapsBasicInfo(capIds){
+
+    if(capIds.length === 0) return {};
+
+    const query = `SELECT id,match_id,match_date,grab_player,cap_player FROM nstats_ctf_caps WHERE id IN (?)`;
+
+    const result = await simpleQuery(query, [capIds]);
+
+    const data = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        data[r.id] = {
+            "matchId": r.match_id,
+            "date": r.match_date,
+            "grabPlayer": r.grab_player,
+            "capPlayer": r.cap_player
+        };
+    }
+
+    return data;
+}
+
+
+export async function getAllMapCapRecords(type, gametypeId){
+
+    type = type.toLowerCase();
+    gametypeId = parseInt(gametypeId);
+
+    if(type !== "solo" && type !== "assist") type = "solo";
+
+    const capType = (type === "solo") ? 0 : 1 ;
+
+    let query = `SELECT cap_id,map_id,gametype_id,match_id,travel_time,drop_time FROM nstats_ctf_cap_records WHERE cap_type=?`;
+
+    let where = "";
+    const vars = [capType];
+
+    if(gametypeId !== 0){
+        where = " AND gametype_id=?";
+        vars.push(gametypeId);
+    }else{
+        where = " AND gametype_id!=0";
+    }
+
+    query = `${query} ${where}`;
+
+    const result = await simpleQuery(query, vars);
+
+    const gametypeIds = new Set();
+    const mapIds = new Set();
+    const capIds = new Set();
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        gametypeIds.add(r.gametype_id);
+        mapIds.add(r.map_id);
+        capIds.add(r.cap_id);
+    }
+
+    const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
+    const mapNames = await getObjectName("maps", [...mapIds]);
+
+    const capInfo = await getCapsBasicInfo([...capIds]);
+
+    const playerIds = new Set();
+
+    for(const capData of Object.values(capInfo)){
+
+        playerIds.add(capData.grabPlayer);
+        playerIds.add(capData.capPlayer);
+    }
+
+    const playersInfo = await getBasicPlayersByIds([...playerIds]);
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        const cap = capInfo[r.cap_id] ?? null;
+        
+        if(cap === null){
+            new Message(`getAllMapCapRecords cap is null.`,"warning");
+            continue;
+        }
+
+        r.grabPlayer = getPlayer(playersInfo, cap.grabPlayer, true);
+        r.capPlayer = getPlayer(playersInfo, cap.capPlayer, true);
+
+        r.grabPlayer.id = cap.grabPlayer;
+        r.capPlayer.id = cap.capPlayer;
+   
+        r.mapName = mapNames[r.map_id] ?? "Not Found";
+        r.gametypeName = gametypeNames[r.gametype_id] ?? "Not Found";
+        r.date = cap.date;
+    }
+
+
+    result.sort((a, b) =>{
+        a = a.mapName.toLowerCase();
+        b = b.mapName.toLowerCase();
+
+        if(a < b) return -1;
+        if(a > b) return 1;
+        return 0;
+    });
+
+    return result;
 }

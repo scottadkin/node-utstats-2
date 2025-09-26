@@ -10,6 +10,8 @@ import { validPlayerTotalTypes, totalPerPageOptions, validPlayerMatchTypes, vali
 import SearchForm from "../../UI/Records/SearchForm";
 import { getAllObjectNames } from "../../../../api/genericServerSide.mjs";
 import { PlayerTotalsTable, PlayerMatchTable } from "../../UI/Records/PlayerTables";
+import { getAllMapCapRecords } from "../../../../api/ctf";
+import CapRecords from "../../UI/Records/CapRecords";
 
 const DEFAULT_PLAYER_TOTALS_TYPE = "kills";
 const DEFAULT_PLAYER_MATCH_TYPE = "kills";
@@ -186,6 +188,15 @@ export default async function Page({params, searchParams}){
             bCTF={true}
             bSingleLifeCTF={true}
         />; 
+
+    }else if(cat === "ctf-caps"){
+
+        const assistCaps = await getAllMapCapRecords("assist", selectedGametype);
+        const soloCaps = await getAllMapCapRecords("solo", selectedGametype);
+
+        console.log(soloCaps);
+
+        elems = <CapRecords soloCaps={soloCaps} assistCaps={assistCaps}/>;
     }
 
 

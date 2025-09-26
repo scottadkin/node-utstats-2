@@ -36,19 +36,48 @@ export default function SearchForm({cat, perPageTypes, types, gametypeNames,
     const router = useRouter();
 
 
+    let recordTypeElem = null;
+    let mapElem = null;
+    let perPageElem = null;
+
+    if(cat !== "ctf-caps"){
+
+        recordTypeElem = <div className="form-row">
+            <label htmlFor="type">Record Type</label>
+            <select id="type" defaultValue={selectedType} className="default-select" onChange={(e) =>{
+                router.push(`/records/${cat}/?type=${e.target.value}&g=${selectedGametype}&m=${selectedMap}&pp=${selectedPerPage}`);
+            }}>
+                {typeOptions}
+            </select>
+        </div>
+
+        mapElem = <div className="form-row">
+            <label htmlFor="map">Map</label>
+            <select id="map" defaultValue={selectedMap} className="default-select" onChange={(e) =>{
+                router.push(`/records/${cat}/?type=${selectedType}&g=${selectedGametype}&m=${e.target.value}&pp=${selectedPerPage}`);
+            }}>
+                <option value="0">Any Map</option>
+                {mOptions}
+            </select>
+        </div>;
+
+        perPageElem = <div className="form-row">
+            <label htmlFor="pp">Per Page</label>
+            <select id="pp" defaultValue={selectedPerPage} className="default-select"  onChange={(e) =>{
+                router.push(`/records/${cat}/?type=${selectedType}&g=${selectedGametype}&m=${selectedMap}&pp=${e.target.value}`);
+            }}>
+                {ppOptions}
+            </select>
+        </div>;
+    }
+
+
     return <>
         <Tabs options={tabOptions} selectedValue={cat} changeSelected={(v) =>{
             router.push(`/records/${v}/`);
         }}/>
         <div className="form m-bottom-25">
-            <div className="form-row">
-                <label htmlFor="type">Record Type</label>
-                <select id="type" defaultValue={selectedType} className="default-select" onChange={(e) =>{
-                    router.push(`/records/${cat}/?type=${e.target.value}&g=${selectedGametype}&m=${selectedMap}&pp=${selectedPerPage}`);
-                }}>
-                    {typeOptions}
-                </select>
-            </div>
+            {recordTypeElem}
             <div className="form-row">
                 <label htmlFor="gametype">Gametype</label>
                 <select id="gametype" defaultValue={selectedGametype} className="default-select" onChange={(e) =>{
@@ -58,23 +87,8 @@ export default function SearchForm({cat, perPageTypes, types, gametypeNames,
                     {gOptions}
                 </select>
             </div>
-            <div className="form-row">
-                <label htmlFor="map">Map</label>
-                <select id="map" defaultValue={selectedMap} className="default-select" onChange={(e) =>{
-                    router.push(`/records/${cat}/?type=${selectedType}&g=${selectedGametype}&m=${e.target.value}&pp=${selectedPerPage}`);
-                }}>
-                    <option value="0">Any Map</option>
-                    {mOptions}
-                </select>
-            </div>
-            <div className="form-row">
-                <label htmlFor="pp">Per Page</label>
-                <select id="pp" defaultValue={selectedPerPage} className="default-select"  onChange={(e) =>{
-                    router.push(`/records/${cat}/?type=${selectedType}&g=${selectedGametype}&m=${selectedMap}&pp=${e.target.value}`);
-                }}>
-                    {ppOptions}
-                </select>
-            </div>
+            {mapElem}
+            {perPageElem}
         </div>
     </>
 }
