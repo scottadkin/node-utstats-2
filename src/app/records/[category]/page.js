@@ -194,7 +194,7 @@ export default async function Page({params, searchParams}){
         const assistCaps = await getAllMapCapRecords("assist", selectedGametype);
         const soloCaps = await getAllMapCapRecords("solo", selectedGametype);
 
-        console.log(soloCaps);
+        //console.log(assistCaps);
 
         elems = <CapRecords soloCaps={soloCaps} assistCaps={assistCaps}/>;
     }

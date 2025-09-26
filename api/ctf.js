@@ -3471,7 +3471,7 @@ async function getCapsBasicInfo(capIds){
 
     if(capIds.length === 0) return {};
 
-    const query = `SELECT id,match_id,match_date,grab_player,cap_player FROM nstats_ctf_caps WHERE id IN (?)`;
+    const query = `SELECT id,match_id,match_date,grab_player,cap_player,total_drops FROM nstats_ctf_caps WHERE id IN (?)`;
 
     const result = await simpleQuery(query, [capIds]);
 
@@ -3485,22 +3485,37 @@ async function getCapsBasicInfo(capIds){
             "matchId": r.match_id,
             "date": r.match_date,
             "grabPlayer": r.grab_player,
-            "capPlayer": r.cap_player
+            "capPlayer": r.cap_player,
+            "totalDrops": r.total_drops
         };
     }
 
     return data;
 }
 
+export async function getCapAssistPlayers(capIds){
 
-export async function getAllMapCapRecords(type, gametypeId){
+    if(capIds.length === 0) return {};
 
-    type = type.toLowerCase();
-    gametypeId = parseInt(gametypeId);
+    const query = `SELECT cap_id,player_id FROM nstats_ctf_assists WHERE cap_id IN (?)`;
 
-    if(type !== "solo" && type !== "assist") type = "solo";
+    const result = await simpleQuery(query, [capIds]);
 
-    const capType = (type === "solo") ? 0 : 1 ;
+    const caps = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        if(caps[r.cap_id] === undefined) caps[r.cap_id] = new Set();
+
+        caps[r.cap_id].add(r.player_id);
+    }
+
+    return caps;
+}
+
+async function getCapRecordsData(capType, gametypeId){
 
     let query = `SELECT cap_id,map_id,gametype_id,match_id,travel_time,drop_time FROM nstats_ctf_cap_records WHERE cap_type=?`;
 
@@ -3516,7 +3531,19 @@ export async function getAllMapCapRecords(type, gametypeId){
 
     query = `${query} ${where}`;
 
-    const result = await simpleQuery(query, vars);
+    return await simpleQuery(query, vars);
+}
+
+export async function getAllMapCapRecords(type, gametypeId){
+
+    type = type.toLowerCase();
+    gametypeId = parseInt(gametypeId);
+
+    if(type !== "solo" && type !== "assist") type = "solo";
+
+    const capType = (type === "solo") ? 0 : 1 ;
+
+    const result = await getCapRecordsData(capType, gametypeId);
 
     const gametypeIds = new Set();
     const mapIds = new Set();
@@ -3535,7 +3562,23 @@ export async function getAllMapCapRecords(type, gametypeId){
 
     const capInfo = await getCapsBasicInfo([...capIds]);
 
+
     const playerIds = new Set();
+    let assists = {};
+
+    if(type === "assist"){
+
+        assists = await getCapAssistPlayers([...capIds]);
+
+        for(let assistPlayers of Object.values(assists)){
+
+            const assistPlayerIds = [...assistPlayers];
+
+            for(let x = 0; x < assistPlayerIds.length; x++){
+                playerIds.add(assistPlayerIds[x]);
+            }    
+        }
+    }
 
     for(const capData of Object.values(capInfo)){
 
@@ -3565,10 +3608,28 @@ export async function getAllMapCapRecords(type, gametypeId){
         r.mapName = mapNames[r.map_id] ?? "Not Found";
         r.gametypeName = gametypeNames[r.gametype_id] ?? "Not Found";
         r.date = cap.date;
+
+        r.totalDrops = cap.totalDrops;
+
+        if(type !== "assist") continue;
+
+        if(assists[r.cap_id] === undefined) continue;
+
+        const assistIds = [...assists[r.cap_id]];
+
+        r.assistPlayers = [];
+
+        for(let x = 0; x < assistIds.length; x++){
+
+            const p = getPlayer(playersInfo, assistIds[x], true);
+            p.id = assistIds[x];
+
+            r.assistPlayers.push(p);
+        }
     }
 
-
     result.sort((a, b) =>{
+
         a = a.mapName.toLowerCase();
         b = b.mapName.toLowerCase();
 
