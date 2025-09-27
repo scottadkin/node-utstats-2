@@ -3674,13 +3674,9 @@ export async function getMapCapEntries(type, mapId, gametypeId){
         vars.push(gametypeId);
     }
 
-
     query = `${query} ${where} ORDER BY travel_time ASC`;
 
     const result = await simpleQuery(query, vars);
-
-    console.log(query);
-    console.log(result);
 
     const gametypeIds = new Set();
     const playerIds = new Set();
@@ -3696,11 +3692,28 @@ export async function getMapCapEntries(type, mapId, gametypeId){
         capIds.add(r.id);
     }
 
+    let assists = {};
+
+    if(type === "assist"){
+
+        assists = await getCapAssistPlayers([...capIds]);
+
+        for(const aP of Object.values(assists)){
+
+            const assistPlayers = [...aP];
+
+            for(let x = 0; x < assistPlayers.length; x++){
+                playerIds.add(assistPlayers[x]);
+            }
+        }
+    }
+    
+
     const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
-    console.log(gametypeNames);
+    //console.log(gametypeNames);
     const playersInfo = await getBasicPlayersByIds([...playerIds]);
 
-    console.log(playersInfo);
+   // console.log(playersInfo);
 
     for(let i = 0; i < result.length; i++){
 
@@ -3713,10 +3726,27 @@ export async function getMapCapEntries(type, mapId, gametypeId){
         
         r.gametypeName = gametypeNames[r.gametype_id] ?? "Not Found";
 
-        console.log(r);
+        if(type !== "assist") continue;
+
+        let assistedPlayers = assists[r.id];
+        if(assistedPlayers === undefined){
+            new Message(`assistedPlayers is null getMapCapEntries`,"warning");
+            continue;
+        }
+
+        assistedPlayers = [...assistedPlayers];
+
+        r.assistPlayers = [];
+
+        for(let x = 0; x < assistedPlayers.length; x++){
+
+            const pId = assistedPlayers[x];
+            const p = getPlayer(playersInfo, pId, true);
+            p.id = pId;
+            r.assistPlayers.push(p);
+        }
+
     }
 
-
     return result;
-
 }

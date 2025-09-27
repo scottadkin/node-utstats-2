@@ -81,7 +81,20 @@ function renderAssistCaps(mode, caps, selectedGametype){
             {c.grabPlayer.name}
         </Link>);
 
-        row.push(<>a</>);
+        
+        const assistElems = [];
+
+        for(let i = 0; i < c.assistPlayers.length; i++){
+
+            const p = c.assistPlayers[i];
+            assistElems.push(<Link key={i} href={`/player/${p.id}`}>
+
+                <CountryFlag country={p.country}/>
+                {p.name}&nbsp; 
+            </Link>);
+        }
+
+        row.push(assistElems);
 
         row.push(<Link href={`/player/${c.cap_player}`}>
             <CountryFlag country={c.capPlayer.country}/>
@@ -97,8 +110,6 @@ function renderAssistCaps(mode, caps, selectedGametype){
         return row;
     });
     
-
-    console.log(caps);
 
     return <BasicTable width={1} headers={headers} rows={rows} columnStyles={styles}/>;
 }
