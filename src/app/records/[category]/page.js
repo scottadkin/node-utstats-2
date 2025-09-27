@@ -29,32 +29,8 @@ const TITLES = {
     "ctf-caps": "CTF Cap",
 };
 
-export async function generateMetadata({ params, searchParams }, parent) {
-    
-    return {
-        "title": "Records - Node UTStats 2",
-        "description": "records",
-        "keywords": ["servers", "utstats", "node"],
-    }
-}
 
-export default async function Page({params, searchParams}){
-
-    const header = await headers();
-
-    const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0];
-
-    params = await params;
-    searchParams = await searchParams;
-
-    console.log(params);
-
-    const cat = (params.category !== undefined) ? params.category.toLowerCase() : "player-totals";
-    let selectedType = (searchParams.type !== undefined) ? searchParams.type.toLowerCase() : "kills";
-    let selectedGametype = searchParams?.g ?? "0";
-    let selectedMap = searchParams?.m ?? "0";
-    let selectedPerPage = searchParams?.pp ?? "25";
-    let page = searchParams.page ?? 1;
+function getSelectedType(cat, selectedType){
 
     if(cat === "player-totals" && !bValidTotalType(selectedType)){
         selectedType = DEFAULT_PLAYER_TOTALS_TYPE;
@@ -75,6 +51,93 @@ export default async function Page({params, searchParams}){
     if(cat === "player-ctf-single-life" && !bValidPlayerCTFSingleLifeType(selectedType)){
         selectedType = DEFAULT_PLAYER_CTF_SINGLE_LIFE_TYPE;
     }
+
+    return selectedType;
+}
+
+export async function generateMetadata({ params, searchParams }, parent) {
+
+    params = await params;
+    searchParams = await searchParams;
+
+    const cat = (params.category !== undefined) ? params.category.toLowerCase() : "";
+    let selectedType = (searchParams.type !== undefined) ? searchParams.type.toLowerCase() : "kills";
+
+    selectedType = getSelectedType(cat, selectedType);
+
+    let title = "Unknown";
+    let desc = "";
+
+    if(TITLES[cat] !== undefined){
+        title = `${TITLES[cat]} Records`;
+    }
+
+    let typeTitle = "";
+
+    
+
+    if(cat !== "ctf-caps"){
+        const name = getTypeName(cat, selectedType);
+
+        typeTitle = `${name} - `;
+        desc = `View all ${name.toLowerCase()} records, `;
+
+        if(cat === "player-totals"){
+            desc += `these records are based on a player's profile all time records.`;
+        }else if(cat === "player-match"){
+            desc += `these records are based on a player's best performance in a single match.`;
+        }else if(cat === "player-ctf-totals"){
+            desc += `these Capture The Flag records are based on a player's profile all time records.`;
+        }else if(cat === "player-ctf-match"){
+            desc += `these Capture The Flag records are based on a player's best performance in a single match.`;
+        }else if(cat === "player-ctf-single-life"){
+            desc += `these Capture The Flag records are based on a player's best performance in a single life.`;
+        }
+        
+    }else{
+        //typeTitle = "CTF Cap";
+        desc = `View all the fastest Capture The Flag cap times for each map.`;
+    }
+
+
+    console.log(params);
+
+    console.log(desc);
+
+
+    
+
+    switch(cat){
+
+        case "player-totals": {
+           
+        } break;
+    }
+    
+    return {
+        "title": `${typeTitle}${title} - Node UTStats 2`,
+        "description": desc,
+        "keywords": ["servers", "utstats", "node"],
+    }
+}
+
+export default async function Page({params, searchParams}){
+
+    const header = await headers();
+
+    const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0];
+
+    params = await params;
+    searchParams = await searchParams;
+
+    const cat = (params.category !== undefined) ? params.category.toLowerCase() : "player-totals";
+    let selectedType = (searchParams.type !== undefined) ? searchParams.type.toLowerCase() : "kills";
+    let selectedGametype = searchParams?.g ?? "0";
+    let selectedMap = searchParams?.m ?? "0";
+    let selectedPerPage = searchParams?.pp ?? "25";
+    let page = searchParams.page ?? 1;
+
+    selectedType = getSelectedType(cat, selectedType);
 
     page = parseInt(page);
 
@@ -201,7 +264,6 @@ export default async function Page({params, searchParams}){
             elems = <CapRecords soloCaps={soloCaps} assistCaps={assistCaps}/>;
 
         }else{
-            console.log("Goldfish noise");
 
             const soloCaps = await getMapCapEntries("solo", selectedMap, selectedGametype);
             const assistCaps = await getMapCapEntries("assist", selectedMap, selectedGametype);

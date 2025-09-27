@@ -43,9 +43,7 @@ function renderAssistsTable(mode, caps){
 
     if(mode !== "assisted") return null;
 
-    console.log(caps);
-
-     const headers = [
+    const headers = [
         "Map", "Date", "Grab Player", "Times Droped", "Time Dropped", "Assisted By", "Capped By", "Cap Time"
     ];
 
