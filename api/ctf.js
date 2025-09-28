@@ -1,6 +1,6 @@
 import { simpleQuery, bulkInsert } from "./database.js";
 import Message from "./message.js";
-import { getTeamName, getPlayer } from "./generic.mjs";
+import { getTeamName, getPlayer, sanatizePage, sanatizePerPage } from "./generic.mjs";
 import { getObjectName } from "./genericServerSide.mjs";
 import { getBasicPlayersByIds } from "./players.js";
 
@@ -3652,12 +3652,12 @@ export async function getAllMapCapRecords(type, gametypeId){
     return result;
 }
 
-export async function getMapCapEntries(type, mapId, gametypeId){
+export async function getMapCapTotalEntries(type, mapId, gametypeId){
 
     mapId = parseInt(mapId);
     gametypeId = parseInt(gametypeId);
 
-    let query = `SELECT id,match_id,gametype_id,match_date,travel_time,cap_player,grab_player FROM nstats_ctf_caps WHERE map_id=?`;
+    let query = `SELECT COUNT(*) as total_rows FROM nstats_ctf_caps WHERE map_id=?`;
     //wehre total drops=0 for solo and drops>0 for assist
     let where = "";
 
@@ -3674,7 +3674,45 @@ export async function getMapCapEntries(type, mapId, gametypeId){
         vars.push(gametypeId);
     }
 
-    query = `${query} ${where} ORDER BY travel_time ASC`;
+    query = `${query} ${where}`;
+
+    const result = await simpleQuery(query, vars);
+
+    return result[0].total_rows;
+
+}
+
+export async function getMapCapEntries(type, mapId, gametypeId, page, perPage){
+
+    mapId = parseInt(mapId);
+    gametypeId = parseInt(gametypeId);
+
+    page = sanatizePage(page);
+    page--;
+    perPage = sanatizePerPage(perPage, 25);
+
+    let query = `SELECT id,match_id,gametype_id,match_date,travel_time,cap_player,grab_player,drop_time FROM nstats_ctf_caps WHERE map_id=?`;
+    //wehre total drops=0 for solo and drops>0 for assist
+    let where = "";
+
+    if(type === "solo"){      
+        where = ` AND total_drops=0`;
+    }else if(type === "assist"){
+        where = ` AND total_drops>0`;
+    }
+
+    const vars = [mapId];
+
+    if(gametypeId !== 0){
+        where += ` AND gametype_id=?`;
+        vars.push(gametypeId);
+    }
+
+    const start = page * perPage;
+
+
+    query = `${query} ${where} ORDER BY travel_time ASC LIMIT ?, ?`;
+    vars.push(start, perPage);
 
     const result = await simpleQuery(query, vars);
 
@@ -3729,6 +3767,7 @@ export async function getMapCapEntries(type, mapId, gametypeId){
         if(type !== "assist") continue;
 
         let assistedPlayers = assists[r.id];
+
         if(assistedPlayers === undefined){
             new Message(`assistedPlayers is null getMapCapEntries`,"warning");
             continue;

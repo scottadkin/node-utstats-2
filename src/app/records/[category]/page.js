@@ -10,7 +10,7 @@ import { validPlayerTotalTypes, totalPerPageOptions, validPlayerMatchTypes, vali
 import SearchForm from "../../UI/Records/SearchForm";
 import { getAllObjectNames, getObjectName } from "../../../../api/genericServerSide.mjs";
 import { PlayerTotalsTable, PlayerMatchTable } from "../../UI/Records/PlayerTables";
-import { getAllMapCapRecords, getMapCapEntries } from "../../../../api/ctf";
+import { getAllMapCapRecords, getMapCapEntries, getMapCapTotalEntries } from "../../../../api/ctf";
 import CapRecords from "../../UI/Records/CapRecords";
 import MapCaps from "../../UI/Records/MapCaps";
 import { removeUnr } from "../../../../api/generic.mjs";
@@ -283,10 +283,22 @@ export default async function Page({params, searchParams}){
 
         }else{
 
-            const soloCaps = await getMapCapEntries("solo", selectedMap, selectedGametype);
-            const assistCaps = await getMapCapEntries("assist", selectedMap, selectedGametype);
+            const soloCaps = await getMapCapEntries("solo", selectedMap, selectedGametype, page, selectedPerPage);
+            const assistCaps = await getMapCapEntries("assist", selectedMap, selectedGametype, page, selectedPerPage);
 
-            elems = <MapCaps selectedGametype={selectedGametype} soloCaps={soloCaps} assistCaps={assistCaps}/>
+            const totalSoloResults = await getMapCapTotalEntries("solo", selectedMap, selectedGametype);
+            const totalAssistResults = await getMapCapTotalEntries("assist", selectedMap, selectedGametype);
+
+            elems = <MapCaps 
+                selectedGametype={selectedGametype} 
+                selectedMap={selectedMap}
+                soloCaps={soloCaps} 
+                assistCaps={assistCaps}
+                page={page}
+                perPage={selectedPerPage}
+                totalSoloResults={totalSoloResults}
+                totalAssistResults={totalAssistResults}
+            />
         }
 
         //console.log(assistCaps);
@@ -301,19 +313,20 @@ export default async function Page({params, searchParams}){
             <div className="default">
                 <div className="default-header">{TITLES?.[cat] ?? "Unknown"} Records</div>
                 <SearchForm 
-                perPageTypes={totalPerPageOptions} 
-                types={types}
-                cat={cat}
-                gametypeNames={gametypeNames}
-                mapNames={mapNames}
-                selectedType={selectedType}
-                selectedGametype={selectedGametype}
-                selectedMap={selectedMap}
-                selectedPerPage={selectedPerPage}
-            /> 
+                    perPageTypes={totalPerPageOptions} 
+                    types={types}
+                    cat={cat}
+                    gametypeNames={gametypeNames}
+                    mapNames={mapNames}
+                    selectedType={selectedType}
+                    selectedGametype={selectedGametype}
+                    selectedMap={selectedMap}
+                    selectedPerPage={selectedPerPage}
+                /> 
             </div>   
          
             {elems} 
+            
         </div>      
     </main>; 
 }

@@ -2,16 +2,17 @@
 import Tabs from "../Tabs"
 import { useState } from "react";
 import { BasicTable } from "../Tables";
-import { convertTimestamp, toPlaytime } from "../../../../api/generic.mjs";
+import { convertTimestamp, getOrdinal, toPlaytime } from "../../../../api/generic.mjs";
 import Link from "next/link";
 import CountryFlag from "../CountryFlag";
+import Pagination from "../Pagination";
 
-function renderSoloCaps(mode, caps, selectedGametype){
+function renderSoloCaps(mode, caps, selectedGametype, page, perPage){
 
     if(mode !== "solo") return null;
 
-    const headers = [];
-    const styles = [];
+    const headers = ["Place"];
+    const styles = ["place"];
 
     if(selectedGametype === 0){
         headers.push("Gametype");
@@ -27,6 +28,9 @@ function renderSoloCaps(mode, caps, selectedGametype){
 
         if(i === 0) capRecord = c.travel_time;
         const row = [];
+
+        const place = (page * perPage) + i  + 1;
+        row.push(`${place}${getOrdinal(place)}`)
 
         if(selectedGametype === 0) row.push(c.gametypeName);
 
@@ -48,12 +52,14 @@ function renderSoloCaps(mode, caps, selectedGametype){
     return <BasicTable width={(selectedGametype === 0) ? 1 : 4} headers={headers} rows={rows} columnStyles={styles}/>;
 }
 
-function renderAssistCaps(mode, caps, selectedGametype){
+function renderAssistCaps(mode, caps, selectedGametype, page, perPage){
 
     if(mode !== "assisted") return null;
 
-    const headers = [];
-    const styles = [];
+    console.log(caps);
+
+    const headers = ["Place"];
+    const styles = ["place"];
 
     if(selectedGametype === 0){
         headers.push("Gametype");
@@ -63,7 +69,7 @@ function renderAssistCaps(mode, caps, selectedGametype){
     styles.push("playtime");
 
     headers.push("Date", "Grabbed By", "Assisted By", "Capped By", "Cap Time", "Offset");
-    styles.push("small-font", "small-font", "small-font", "playtime", "red");
+    styles.push( "small-font", "small-font", "small-font", "playtime", "red");
 
     let capRecord = 0;
 
@@ -72,8 +78,12 @@ function renderAssistCaps(mode, caps, selectedGametype){
         if(i === 0) capRecord = c.travel_time;
         const row = [];
 
+        const place = (page * perPage) + i  + 1;
+
+        row.push(`${place}${getOrdinal(place)}`);
         if(selectedGametype === 0) row.push(c.gametypeName);
 
+        
         row.push(convertTimestamp(c.match_date, true));
 
         row.push(<Link href={`/player/${c.grab_player}`}>
@@ -84,14 +94,20 @@ function renderAssistCaps(mode, caps, selectedGametype){
         
         const assistElems = [];
 
-        for(let i = 0; i < c.assistPlayers.length; i++){
+        if(c.assistPlayers !== undefined){
 
-            const p = c.assistPlayers[i];
-            assistElems.push(<Link key={i} href={`/player/${p.id}`}>
+            for(let i = 0; i < c.assistPlayers.length; i++){
 
-                <CountryFlag country={p.country}/>
-                {p.name}&nbsp; 
-            </Link>);
+                const p = c.assistPlayers[i];
+                assistElems.push(<Link key={i} href={`/player/${p.id}`}>
+
+                    <CountryFlag country={p.country}/>
+                    {p.name}&nbsp; 
+                </Link>);
+            }
+
+        }else{
+            assistElems.push(<span key={`${c.id}-dropped`} className="grey">Dropped for {toPlaytime(c.drop_time, true)}</span>);
         }
 
         row.push(assistElems);
@@ -114,20 +130,29 @@ function renderAssistCaps(mode, caps, selectedGametype){
     return <BasicTable width={1} headers={headers} rows={rows} columnStyles={styles}/>;
 }
 
-export default function MapCaps({soloCaps, assistCaps, selectedGametype}){
+export default function MapCaps({soloCaps, assistCaps, selectedGametype, selectedMap, page, perPage, totalSoloResults, totalAssistResults}){
 
     const [mode, setMode] = useState("assisted");
     selectedGametype = parseInt(selectedGametype);
+    selectedMap = parseInt(selectedMap);
     
     const tabOptions = [
         {"name": "Solo Caps", "value": "solo"},
         {"name": "Assisted Caps", "value": "assisted"}
     ];
 
+    page = page - 1;
+
             
     return <div className="default">
         <Tabs options={tabOptions} selectedValue={mode} changeSelected={(v) =>{ setMode(() => v)}}/>
-        {renderSoloCaps(mode, soloCaps, selectedGametype)}
-        {renderAssistCaps(mode, assistCaps, selectedGametype)}
+        {renderSoloCaps(mode, soloCaps, selectedGametype, page, perPage)}
+        {renderAssistCaps(mode, assistCaps, selectedGametype, page, perPage)}
+        <Pagination 
+            currentPage={page + 1} 
+            perPage={perPage} 
+            url={`/records/ctf-caps?g=${selectedGametype}&m=${selectedMap}&pp=${perPage}&page=`} 
+            results={(mode === "assisted") ? totalAssistResults : totalSoloResults }
+        />
     </div>
 }

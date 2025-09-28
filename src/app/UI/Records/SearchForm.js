@@ -51,6 +51,10 @@ export default function SearchForm({cat, perPageTypes, types, gametypeNames,
             </select>
         </div>
 
+    }
+
+    if((cat === "ctf-caps" && selectedGametype !== "0" || selectedMap !== "0") || cat !== "ctf-caps"){
+        
         perPageElem = <div className="form-row">
             <label htmlFor="pp">Per Page</label>
             <select id="pp" defaultValue={selectedPerPage} className="default-select"  onChange={(e) =>{
