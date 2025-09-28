@@ -8,11 +8,12 @@ import { validPlayerTotalTypes, totalPerPageOptions, validPlayerMatchTypes, vali
     bValidPlayerCTFMatchType, getPlayerCTFMatchRecords, validPlayerCTFSingleLifeTypes, 
     bValidPlayerCTFSingleLifeType, getPlayerCTFSingleLifeRecords } from "../../../../api/records";
 import SearchForm from "../../UI/Records/SearchForm";
-import { getAllObjectNames } from "../../../../api/genericServerSide.mjs";
+import { getAllObjectNames, getObjectName } from "../../../../api/genericServerSide.mjs";
 import { PlayerTotalsTable, PlayerMatchTable } from "../../UI/Records/PlayerTables";
 import { getAllMapCapRecords, getMapCapEntries } from "../../../../api/ctf";
 import CapRecords from "../../UI/Records/CapRecords";
 import MapCaps from "../../UI/Records/MapCaps";
+import { removeUnr } from "../../../../api/generic.mjs";
 
 const DEFAULT_PLAYER_TOTALS_TYPE = "kills";
 const DEFAULT_PLAYER_MATCH_TYPE = "kills";
@@ -65,6 +66,10 @@ export async function generateMetadata({ params, searchParams }, parent) {
 
     selectedType = getSelectedType(cat, selectedType);
 
+    let selectedGametype = searchParams?.g ?? "0";
+    let selectedMap = searchParams?.m ?? "0";
+
+
     let title = "Unknown";
     let desc = "";
 
@@ -74,13 +79,26 @@ export async function generateMetadata({ params, searchParams }, parent) {
 
     let typeTitle = "";
 
+    let name = "all";
+
+    if(selectedGametype !== "0"){
+
+        const result = await getObjectName("gametypes", selectedGametype);
+        name = result[selectedGametype] ?? "Not Found";
+
+    }else if(selectedMap !== "0"){
+
+        const result = await getObjectName("maps", selectedMap);
+        name = (result[selectedMap] !== undefined) ? removeUnr(result[selectedMap]) :  "Not Found";
+    }
     
 
     if(cat !== "ctf-caps"){
+
         const name = getTypeName(cat, selectedType);
 
         typeTitle = `${name} - `;
-        desc = `View all ${name.toLowerCase()} records, `;
+        desc = `View ${name} ${name.toLowerCase()} records, `;
 
         if(cat === "player-totals"){
             desc += `these records are based on a player's profile all time records.`;
@@ -96,7 +114,7 @@ export async function generateMetadata({ params, searchParams }, parent) {
         
     }else{
         //typeTitle = "CTF Cap";
-        desc = `View all the fastest Capture The Flag cap times for each map.`;
+        desc = `View ${name} fastest Capture The Flag cap times.`;
     }
 
 
