@@ -54,8 +54,8 @@ function renderAssistsTable(mode, caps){
         null,
         "playtime",
         "small-font",
-        "playtime",
         "small-font",
+        "purple playtime",
     ];
 
     const rows = caps.map((c) =>{
@@ -77,10 +77,10 @@ function renderAssistsTable(mode, caps){
             c.totalDrops,
             toPlaytime(c.drop_time, true),
             <>{assistedElems}</>,
-            toPlaytime(c.travel_time, true),
             <Link href={`/player/${c.capPlayer.id}`}>
                 <CountryFlag country={c.capPlayer.country}/>{c.capPlayer.name}
-            </Link>
+            </Link>,
+            toPlaytime(c.travel_time, true),
 
         ];
     });
@@ -90,7 +90,7 @@ function renderAssistsTable(mode, caps){
 
 export default function CapRecords({soloCaps, assistCaps}){
 
-    const [mode, setMode] = useState("assisted");
+    const [mode, setMode] = useState("solo");
 
     const tabOptions = [
         {"name": "Solo Caps", "value": "solo"},

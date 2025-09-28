@@ -283,27 +283,30 @@ export default async function Page({params, searchParams}){
 
         }else{
 
-            const soloCaps = await getMapCapEntries("solo", selectedMap, selectedGametype, page, selectedPerPage);
-            const assistCaps = await getMapCapEntries("assist", selectedMap, selectedGametype, page, selectedPerPage);
+            const valid = ["solo", "assist"];
 
-            const totalSoloResults = await getMapCapTotalEntries("solo", selectedMap, selectedGametype);
-            const totalAssistResults = await getMapCapTotalEntries("assist", selectedMap, selectedGametype);
+            if(selectedType === ""){
+                selectedType = "solo";
+            }else{
+                if(valid.indexOf(selectedType) === -1) selectedType = "solo";
+            }
+
+            const caps = await getMapCapEntries(selectedType, selectedMap, selectedGametype, page, selectedPerPage);
+           // const assistCaps = await getMapCapEntries("assist", selectedMap, selectedGametype, page, selectedPerPage);
+
+            const totalResults = await getMapCapTotalEntries(selectedType, selectedMap, selectedGametype);
+            //const totalAssistResults = await getMapCapTotalEntries("assist", selectedMap, selectedGametype);
 
             elems = <MapCaps 
                 selectedGametype={selectedGametype} 
                 selectedMap={selectedMap}
-                soloCaps={soloCaps} 
-                assistCaps={assistCaps}
+                selectedType={selectedType}
+                caps={caps} 
                 page={page}
                 perPage={selectedPerPage}
-                totalSoloResults={totalSoloResults}
-                totalAssistResults={totalAssistResults}
+                totalResults={totalResults}
             />
         }
-
-        //console.log(assistCaps);
-
-        
     }
 
 

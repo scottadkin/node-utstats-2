@@ -6,6 +6,7 @@ import { convertTimestamp, getOrdinal, toPlaytime } from "../../../../api/generi
 import Link from "next/link";
 import CountryFlag from "../CountryFlag";
 import Pagination from "../Pagination";
+import { useRouter } from "next/navigation";
 
 function renderSoloCaps(mode, caps, selectedGametype, page, perPage){
 
@@ -54,9 +55,8 @@ function renderSoloCaps(mode, caps, selectedGametype, page, perPage){
 
 function renderAssistCaps(mode, caps, selectedGametype, page, perPage){
 
-    if(mode !== "assisted") return null;
+    if(mode !== "assist") return null;
 
-    console.log(caps);
 
     const headers = ["Place"];
     const styles = ["place"];
@@ -130,29 +130,32 @@ function renderAssistCaps(mode, caps, selectedGametype, page, perPage){
     return <BasicTable width={1} headers={headers} rows={rows} columnStyles={styles}/>;
 }
 
-export default function MapCaps({soloCaps, assistCaps, selectedGametype, selectedMap, page, perPage, totalSoloResults, totalAssistResults}){
+export default function MapCaps({selectedType, caps, selectedGametype, selectedMap, page, perPage, totalResults}){
 
-    const [mode, setMode] = useState("assisted");
     selectedGametype = parseInt(selectedGametype);
     selectedMap = parseInt(selectedMap);
     
     const tabOptions = [
         {"name": "Solo Caps", "value": "solo"},
-        {"name": "Assisted Caps", "value": "assisted"}
+        {"name": "Assisted Caps", "value": "assist"}
     ];
 
     page = page - 1;
 
+    const router = useRouter();
+
             
     return <div className="default">
-        <Tabs options={tabOptions} selectedValue={mode} changeSelected={(v) =>{ setMode(() => v)}}/>
-        {renderSoloCaps(mode, soloCaps, selectedGametype, page, perPage)}
-        {renderAssistCaps(mode, assistCaps, selectedGametype, page, perPage)}
+        <Tabs options={tabOptions} selectedValue={selectedType} changeSelected={(v) =>{ 
+            router.push(`/records/ctf-caps?type=${v}&g=${selectedGametype}&m=${selectedMap}&pp=${perPage}`);
+        }}/>
+        {renderSoloCaps(selectedType, caps, selectedGametype, page, perPage)}
+        {renderAssistCaps(selectedType, caps, selectedGametype, page, perPage)}
         <Pagination 
             currentPage={page + 1} 
             perPage={perPage} 
-            url={`/records/ctf-caps?g=${selectedGametype}&m=${selectedMap}&pp=${perPage}&page=`} 
-            results={(mode === "assisted") ? totalAssistResults : totalSoloResults }
+            url={`/records/ctf-caps?type=${selectedType}&g=${selectedGametype}&m=${selectedMap}&pp=${perPage}&page=`} 
+            results={totalResults}
         />
     </div>
 }
