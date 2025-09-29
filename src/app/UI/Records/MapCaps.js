@@ -8,7 +8,7 @@ import CountryFlag from "../CountryFlag";
 import Pagination from "../Pagination";
 import { useRouter } from "next/navigation";
 
-function renderSoloCaps(mode, caps, selectedGametype, page, perPage){
+function renderSoloCaps(mode, caps, selectedGametype, page, perPage, mapRecord){
 
     if(mode !== "solo") return null;
 
@@ -23,11 +23,8 @@ function renderSoloCaps(mode, caps, selectedGametype, page, perPage){
     headers.push("Date", "Capped By", "Cap Time", "Offset");
     styles.push("playtime", null, "playtime", "playtime");
 
-    let capRecord = 0;
-
     const rows = caps.map((c, i) =>{
 
-        if(i === 0) capRecord = c.travel_time;
         const row = [];
 
         const place = (page * perPage) + i  + 1;
@@ -43,7 +40,7 @@ function renderSoloCaps(mode, caps, selectedGametype, page, perPage){
 
         row.push(toPlaytime(c.travel_time, true));
 
-        const diff = c.travel_time - capRecord;
+        const diff = c.travel_time - mapRecord;
 
         row.push((diff === 0) ? <></> : <span className="red">+{diff.toFixed(2)}</span>);
 
@@ -53,7 +50,7 @@ function renderSoloCaps(mode, caps, selectedGametype, page, perPage){
     return <BasicTable width={(selectedGametype === 0) ? 1 : 4} headers={headers} rows={rows} columnStyles={styles}/>;
 }
 
-function renderAssistCaps(mode, caps, selectedGametype, page, perPage){
+function renderAssistCaps(mode, caps, selectedGametype, page, perPage, mapRecord){
 
     if(mode !== "assist") return null;
 
@@ -71,11 +68,8 @@ function renderAssistCaps(mode, caps, selectedGametype, page, perPage){
     headers.push("Date", "Grabbed By", "Assisted By", "Capped By", "Cap Time", "Offset");
     styles.push( "small-font", "small-font", "small-font", "playtime", "red");
 
-    let capRecord = 0;
-
     const rows = caps.map((c, i) =>{
 
-        if(i === 0) capRecord = c.travel_time;
         const row = [];
 
         const place = (page * perPage) + i  + 1;
@@ -119,7 +113,7 @@ function renderAssistCaps(mode, caps, selectedGametype, page, perPage){
 
         row.push(toPlaytime(c.travel_time, true));
 
-        const diff = c.travel_time - capRecord;
+        const diff = c.travel_time - mapRecord;
 
         row.push((diff === 0) ? "" : `+${diff.toFixed(2)}`);
 
@@ -130,7 +124,7 @@ function renderAssistCaps(mode, caps, selectedGametype, page, perPage){
     return <BasicTable width={1} headers={headers} rows={rows} columnStyles={styles}/>;
 }
 
-export default function MapCaps({selectedType, caps, selectedGametype, selectedMap, page, perPage, totalResults}){
+export default function MapCaps({selectedType, caps, selectedGametype, selectedMap, page, perPage, totalResults, mapRecord}){
 
     selectedGametype = parseInt(selectedGametype);
     selectedMap = parseInt(selectedMap);
@@ -149,8 +143,8 @@ export default function MapCaps({selectedType, caps, selectedGametype, selectedM
         <Tabs options={tabOptions} selectedValue={selectedType} changeSelected={(v) =>{ 
             router.push(`/records/ctf-caps?type=${v}&g=${selectedGametype}&m=${selectedMap}&pp=${perPage}`);
         }}/>
-        {renderSoloCaps(selectedType, caps, selectedGametype, page, perPage)}
-        {renderAssistCaps(selectedType, caps, selectedGametype, page, perPage)}
+        {renderSoloCaps(selectedType, caps, selectedGametype, page, perPage, mapRecord)}
+        {renderAssistCaps(selectedType, caps, selectedGametype, page, perPage, mapRecord)}
         <Pagination 
             currentPage={page + 1} 
             perPage={perPage} 

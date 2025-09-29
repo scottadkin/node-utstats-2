@@ -10,7 +10,7 @@ import { validPlayerTotalTypes, totalPerPageOptions, validPlayerMatchTypes, vali
 import SearchForm from "../../UI/Records/SearchForm";
 import { getAllObjectNames, getObjectName } from "../../../../api/genericServerSide.mjs";
 import { PlayerTotalsTable, PlayerMatchTable } from "../../UI/Records/PlayerTables";
-import { getAllMapCapRecords, getMapCapEntries, getMapCapTotalEntries } from "../../../../api/ctf";
+import { getAllMapCapRecords, getMapCapEntries, getMapCapTotalEntries, getMapCapFastestTime } from "../../../../api/ctf";
 import CapRecords from "../../UI/Records/CapRecords";
 import MapCaps from "../../UI/Records/MapCaps";
 import { removeUnr } from "../../../../api/generic.mjs";
@@ -297,6 +297,8 @@ export default async function Page({params, searchParams}){
             const totalResults = await getMapCapTotalEntries(selectedType, selectedMap, selectedGametype);
             //const totalAssistResults = await getMapCapTotalEntries("assist", selectedMap, selectedGametype);
 
+            const mapRecord = await getMapCapFastestTime(selectedType, selectedGametype, selectedMap);
+
             elems = <MapCaps 
                 selectedGametype={selectedGametype} 
                 selectedMap={selectedMap}
@@ -305,6 +307,7 @@ export default async function Page({params, searchParams}){
                 page={page}
                 perPage={selectedPerPage}
                 totalResults={totalResults}
+                mapRecord={mapRecord}
             />
         }
     }

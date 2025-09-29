@@ -3789,3 +3789,26 @@ export async function getMapCapEntries(type, mapId, gametypeId, page, perPage){
 
     return result;
 }
+
+
+export async function getMapCapFastestTime(type, gametypeId, mapId){
+
+    if(type === "solo"){
+        type = 0;
+    }else{
+        type = 1;
+    }
+
+    gametypeId = parseInt(gametypeId);
+    mapId = parseInt(mapId);
+
+    let query = `SELECT travel_time FROM nstats_ctf_cap_records WHERE map_id=? AND gametype_id=? AND cap_type=?`;
+
+    const vars = [mapId, gametypeId, type];
+   
+    const result = await simpleQuery(query, vars);
+
+    if(result.length > 0) return result[0].travel_time;
+
+    return 9999999;
+}
