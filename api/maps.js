@@ -1,7 +1,7 @@
 import {simpleQuery} from "./database.js";
 import Message from "./message.js";
 import fs from "fs";
-import {cleanMapName, removeUnr} from "./generic.mjs";
+import {cleanMapName, removeUnr, sanatizePage, sanatizePerPage} from "./generic.mjs";
 import { getObjectName } from "./genericServerSide.mjs";
 
 
@@ -13,9 +13,7 @@ export default class Maps{
             this.settings = settings;
         }
 
-        this.validSearchOptions = [
-            "name", "first", "last", "matches", "playtime"
-        ];
+
 
         this.mergeDepth = 0;
         this.bMergeError = false;
@@ -368,52 +366,6 @@ export default class Maps{
         const result = await simpleQuery(query, vars);
 
         return result[0].total_results;
-    }
-
-
-
-    async defaultSearch(page, perPage, name, bAscending, sortBy){
-
-    
-        page = parseInt(page);
-        if(page !== page) page = 1;
-        page--;
-
-        perPage = parseInt(perPage);
-        if(perPage != perPage) perPage = 25;
-
-        let start = perPage * page;
-        if(start < 0) start = 0;
-
-        const bAsc = (bAscending) ? "ASC" : "DESC";
-
-        if(sortBy === undefined){
-            sortBy = "name";
-        }else{
-
-            sortBy = sortBy.toLowerCase();
-
-            if(this.validSearchOptions.indexOf(sortBy) === -1){
-                sortBy = "name";
-            }
-        }
-
-        const vars = [start, perPage];
-
-        let nameSearch = "";
-
-        if(name !== ""){
-
-            nameSearch = "AND name LIKE (?)";
-            vars.unshift(`%${name}%`);
-        }
-
-        const query = `SELECT * FROM nstats_maps WHERE import_as_id=0 ${nameSearch} ORDER BY ${sortBy} ${bAsc} LIMIT ?, ?`;
-
-        
-        return await simpleQuery(query, vars);
-
-    
     }
 
     async getSingle(id){
@@ -1234,4 +1186,52 @@ export default class Maps{
     }
 }
 
+export const validSearchOptions = [
+    "name", "first", "last", "matches", "playtime"
+];
 
+
+export async function mapSearch(page, perPage, name, bAscending, sortBy){
+
+    
+    page = sanatizePage(page);
+
+    if(page < 1) page = 1;
+    page--;
+    
+    perPage = sanatizePerPage(perPage,25);
+
+
+    let start = perPage * page;
+    if(start < 0) start = 0;
+
+    const bAsc = (bAscending) ? "ASC" : "DESC";
+
+    if(sortBy === undefined){
+        sortBy = "name";
+    }else{
+
+        sortBy = sortBy.toLowerCase();
+
+        if(validSearchOptions.indexOf(sortBy) === -1){
+            sortBy = "name";
+        }
+    }
+
+    const vars = [start, perPage];
+
+    let nameSearch = "";
+
+    if(name !== ""){
+
+        nameSearch = "AND name LIKE (?)";
+        vars.unshift(`%${name}%`);
+    }
+
+    const query = `SELECT * FROM nstats_maps WHERE import_as_id=0 ${nameSearch} ORDER BY ${sortBy} ${bAsc} LIMIT ?, ?`;
+
+    
+    return await simpleQuery(query, vars);
+
+
+}
