@@ -281,91 +281,9 @@ export default class Maps{
     }
 
 
-    getSimilarImage(targetName, fileList){
-
-        for(let i = 0; i < fileList.length; i++){
-
-            const file = fileList[i];
-
-            const cleanNameResult = /^(.+?)\.jpg$/i.exec(file);
-
-            if(cleanNameResult === null) continue;
-
-            const currentName = cleanNameResult[1].toLowerCase();
-            if(targetName.includes(currentName)) return cleanNameResult[1];     
-        }
-
-        return null;
-    }
-
-    async getImage(name){
-
-        name = cleanMapName(name);
-
-        const justName = name.toLowerCase();
-        name = justName+'.jpg';
-
-        const files = fs.readdirSync('public/images/maps/');
-
-        if(files.indexOf(name) !== -1){
-            return `/images/maps/${name}`;
-        }
-
-        const similarImage = this.getSimilarImage(justName, files);
-
-        if(similarImage !== null) return `/images/maps/${similarImage}.jpg`;
-
-        return `/images/maps/default.jpg`;
-    }
-
-    async getImages(names){
-
-        const files = fs.readdirSync('public/images/maps/');
-
-        const exists = {};
-
-        for(let i = 0; i < names.length; i++){
-            
-            const currentName = cleanMapName(names[i]).toLowerCase();
-
-            if(files.indexOf(`${currentName}.jpg`) !== -1){
-
-                exists[currentName] = currentName;
-            }else{
-
-                const similarImage = this.getSimilarImage(currentName, files);
-
-                if(similarImage !== null){
-                    //console.log(`Found similar image ${similarImage}`);
-                    exists[currentName] = similarImage;
-                }
-
-            }
-        }
-
-        return exists;
-    }
-
     async getNames(ids){
 
         return await getObjectName("maps", ids);
-    }
-
-    async getTotalResults(name){
-
-        if(name === undefined) name = "";
-
-        let query = "SELECT COUNT(*) as total_results FROM nstats_maps";
-        let vars = [];
-
-        if(name !== ""){
-            query = "SELECT COUNT(*) as total_results FROM nstats_maps WHERE name LIKE(?)";
-            vars = [`%${name}%`];
-        }
-
-        const result = await simpleQuery(query, vars);
-
-        return result[0].total_results;
     }
 
     async getSingle(id){
@@ -1190,17 +1108,98 @@ export const validSearchOptions = [
     "name", "first", "last", "matches", "playtime"
 ];
 
+function getSimilarImage(targetName, fileList){
+
+    for(let i = 0; i < fileList.length; i++){
+
+        const file = fileList[i];
+
+        const cleanNameResult = /^(.+?)\.jpg$/i.exec(file);
+
+        if(cleanNameResult === null) continue;
+
+        const currentName = cleanNameResult[1].toLowerCase();
+        if(targetName.includes(currentName)) return cleanNameResult[1];     
+    }
+
+    return null;
+}
+
+async function getImage(name){
+
+    name = cleanMapName(name);
+
+    const justName = name.toLowerCase();
+    name = justName+'.jpg';
+
+    const files = fs.readdirSync('public/images/maps/');
+
+    if(files.indexOf(name) !== -1){
+        return `/images/maps/${name}`;
+    }
+
+    const similarImage = getSimilarImage(justName, files);
+
+    if(similarImage !== null) return `/images/maps/${similarImage}.jpg`;
+
+    return `/images/maps/default.jpg`;
+}
+
+function getImages(names){
+
+    if(names.length === 0) return {};
+
+    const files = fs.readdirSync('public/images/maps/');
+
+    const exists = {};
+
+    for(let i = 0; i < names.length; i++){
+        
+        const currentName = cleanMapName(names[i]).toLowerCase();
+
+        if(files.indexOf(`${currentName}.jpg`) !== -1){
+
+            exists[currentName] = currentName;
+        }else{
+
+            const similarImage = getSimilarImage(currentName, files);
+
+            if(similarImage !== null){
+                //console.log(`Found similar image ${similarImage}`);
+                exists[currentName] = similarImage;
+            }
+        }
+    }
+
+    return exists;
+}
+
+async function getTotalResults(name){
+
+    if(name === undefined) name = "";
+
+    let query = "SELECT COUNT(*) as total_results FROM nstats_maps";
+    let vars = [];
+
+    if(name !== ""){
+        query = "SELECT COUNT(*) as total_results FROM nstats_maps WHERE name LIKE(?)";
+        vars = [`%${name}%`];
+    }
+
+    const result = await simpleQuery(query, vars);
+
+    return result[0].total_results;
+}
+
 
 export async function mapSearch(page, perPage, name, bAscending, sortBy){
 
-    
     page = sanatizePage(page);
 
     if(page < 1) page = 1;
     page--;
     
     perPage = sanatizePerPage(perPage,25);
-
 
     let start = perPage * page;
     if(start < 0) start = 0;
@@ -1230,8 +1229,28 @@ export async function mapSearch(page, perPage, name, bAscending, sortBy){
 
     const query = `SELECT * FROM nstats_maps WHERE import_as_id=0 ${nameSearch} ORDER BY ${sortBy} ${bAsc} LIMIT ?, ?`;
 
-    
-    return await simpleQuery(query, vars);
+    const result = await simpleQuery(query, vars);
 
+    const names = new Set();
 
+    for(let i = 0; i < result.length; i++){
+        names.add(result[i].name);
+    }
+
+    const images = getImages([...names]);
+
+    for(let i = 0; i < result.length; i++){
+        
+        const cleanName = cleanMapName(result[i].name).toLowerCase();
+
+        if(images[cleanName] !== undefined){
+            result[i].image = images[cleanName];
+        }else{
+            result[i].image = "default";
+        }
+    }
+
+    const totalResults = await getTotalResults(name);
+
+    return {"data": result, "totalResults": totalResults};
 }
