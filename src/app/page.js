@@ -8,7 +8,7 @@ import Nav from "./UI/Nav";
 import Screenshot from "./UI/Screenshot";
 import { cleanMapName, removeUnr, getUniqueValues } from "../../api/generic.mjs";
 import Faces from "../../api/faces";
-import Maps from "../../api/maps";
+import {getImages as getMapImages, getMostPlayed as getMostPlayedMaps} from "../../api/maps";
 import HomeMostPlayedGametypes from "./UI/Home/HomeMostPlayedGametypes";
 import Gametypes from "../../api/gametypes";
 import HomeTopMaps from "./UI/Home/HomeTopMaps";
@@ -47,7 +47,6 @@ export default async function Page(){
     
     const matchManager = new Matches();
     const playerManager = new Players();
-    const mapManager = new Maps();
     const gametypeManager = new Gametypes();
     const faceManager = new Faces();
 
@@ -99,7 +98,7 @@ export default async function Page(){
             const latestFaces = await faceManager.getFacesWithFileStatuses(playerFaces);
 
             const latestMapName = latestMatch[0].mapName;
-            const mapImage = await mapManager.getImages([latestMapName]);
+            const mapImage = getMapImages([latestMapName]);
 
             let latestMatchImage = "default";
 
@@ -139,7 +138,7 @@ export default async function Page(){
 
     if(pageSettings["Display Most Played Maps"] === "true"){
 
-        const mostPlayedMaps = await mapManager.getMostPlayed(4);
+        const mostPlayedMaps = await getMostPlayedMaps(4);
 
         const mapNames = [];
 
@@ -149,7 +148,7 @@ export default async function Page(){
             mapNames.push(m.name);  
         }
 
-        const mapImages = await mapManager.getImages(mapNames);
+        const mapImages = await getMapImages(mapNames);
 
         elems[pageOrder["Display Most Played Maps"]] = <div className="default" key="top-maps">
             <HomeTopMaps maps={mostPlayedMaps} images={mapImages}/>

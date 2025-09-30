@@ -44,9 +44,9 @@ function renderNormalView(mode, data){
 
 	if(mode !== "normal") return null;
 
-	return <>{data.map((d, i) =>{
+	return <div className="t-width-1 center">{data.map((d, i) =>{
 		return <MapDefaultBox key={i} data={d}/>
-	})}</>;
+	})}</div>;
 }
 
 function renderTableView(mode, data){

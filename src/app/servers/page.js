@@ -3,8 +3,9 @@ import Session from "../../../api/session";
 import SiteSettings from "../../../api/sitesettings";
 import { headers, cookies } from "next/headers";
 import Servers from "../../../api/servers";
-import Maps from "../../../api/maps";
+import {getImages as getMapImages} from "../../../api/maps";
 import ServerList from "../UI/Servers/ServerList";
+import { getObjectName } from "../../../api/genericServerSide.mjs";
 
 export async function generateMetadata({ params, searchParams }, parent) {
     
@@ -39,11 +40,10 @@ export default async function Page(){
         return s.last_map_id;
     })])];
 
-    const mapManager = new Maps();
-    const mapNames = await mapManager.getNames([...mapIds]);
+    const mapNames = await getObjectName("maps", [...mapIds]);
     const mapNamesArray = Object.values(mapNames);
 
-    const mapImages = await mapManager.getImages(mapNamesArray);
+    const mapImages = getMapImages(mapNamesArray);
 
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		

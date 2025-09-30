@@ -515,11 +515,6 @@ export default class Maps{
 
     }
 
-   async getMostPlayed(limit){
-
-        const query = "SELECT id,name,first,last,matches,playtime FROM nstats_maps ORDER BY matches DESC LIMIT ?";
-        return await simpleQuery(query, [limit]);
-    }
 
 
     async getAllNames(){
@@ -1145,7 +1140,7 @@ async function getImage(name){
     return `/images/maps/default.jpg`;
 }
 
-function getImages(names){
+export function getImages(names){
 
     if(names.length === 0) return {};
 
@@ -1253,4 +1248,10 @@ export async function mapSearch(page, perPage, name, bAscending, sortBy){
     const totalResults = await getTotalResults(name);
 
     return {"data": result, "totalResults": totalResults};
+}
+
+export async function getMostPlayed(limit){
+
+    const query = "SELECT id,name,first,last,matches,playtime FROM nstats_maps ORDER BY matches DESC LIMIT ?";
+    return await simpleQuery(query, [limit]);
 }

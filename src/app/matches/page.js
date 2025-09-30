@@ -8,7 +8,7 @@ import MatchesDefaultView from "../UI/MatchesDefaultView";
 import MatchesTableView from "../UI/MatchesTableView";
 import Matches from "../../../api/matches";
 import Players from "../../../api/players";
-import Maps from "../../../api/maps";
+import {getImages as getMapImages} from "../../../api/maps";
 import Pagination from "../UI/Pagination";
 import { removeUnr } from "../../../api/generic.mjs";
 
@@ -128,11 +128,10 @@ export default async function Page({ searchParams}){
     const playerManager = new Players();
     const dmWinnerPlayers = await playerManager.getNamesByIds([...dmWinners], true);
 
-    const mapManager = new Maps();
     let mapImages = {};
 
     if(displayMode === "default"){
-        mapImages = await mapManager.getImages(Object.values(mapNames));
+        mapImages = getMapImages(Object.values(mapNames));
     }
 
 
