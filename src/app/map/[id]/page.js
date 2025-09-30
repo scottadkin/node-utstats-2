@@ -6,6 +6,8 @@ import { getBasic, getSpawns, getGraphHistoryData } from "../../../../api/maps";
 import { removeUnr } from "../../../../api/generic.mjs";
 import MapSummary from "../../UI/Maps/MapSummary";
 import MapHistoryGraph from "../../UI/Maps/MapHistoryGraph";
+import { getFlagLocations } from "../../../../api/ctf";
+import MapSpawns from "../../UI/Maps/MapSpawns";
 
 function setQueryValues(params, searchParams){
 
@@ -44,11 +46,16 @@ export default async function Page({params, searchParams}){
     await session.load();
     const siteSettings = new SiteSettings();
     const navSettings = await siteSettings.getCategorySettings("Navigation");
+    const pageSettings = await siteSettings.getCategorySettings("Map Pages");
     const sessionSettings = session.settings;
 
     const basic = await getBasic(id);
     const spawns = await getSpawns(id);
-    const historyGraphData = await getGraphHistoryData(id);
+    const historyGraphData = (pageSettings["Display Games Played"] === "true") ? await getGraphHistoryData(id) : null;
+
+
+    const flagLocations = await getFlagLocations(id);
+    console.log(basic);
 
     
     if(basic === null){
@@ -65,13 +72,16 @@ export default async function Page({params, searchParams}){
 
     basic.name = removeUnr(basic.name);
 
+    console.log(pageSettings);
+
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
         <div id="content">
             <div className="default">
                 <div className="default-header">{basic.name}</div>
-                <MapSummary data={basic} spawns={spawns}/>
-                <MapHistoryGraph data={historyGraphData} />
+                {(pageSettings["Display Summary"] === "false") ? null :<MapSummary data={basic} spawns={spawns}/>}
+                {(historyGraphData === null) ? null :<MapHistoryGraph data={historyGraphData} />}
+                {(pageSettings["Display Spawn Points"] === "true") ? <MapSpawns spawns={spawns} flagLocations={flagLocations}/> : null}
             </div>    
         </div>   
     </main>; 

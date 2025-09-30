@@ -1119,14 +1119,6 @@ export default class CTF{
     }
 
 
-    async getFlagLocations(id){
-
-        const query = "SELECT team,x,y,z FROM nstats_maps_flags WHERE map=?";
-
-        return await simpleQuery(query, [id]);
-    }
-
-
     async deleteMatchCapData(id){
 
         const query = "DELETE FROM nstats_ctf_caps WHERE match_id=?";
@@ -3811,4 +3803,12 @@ export async function getMapCapFastestTime(type, gametypeId, mapId){
     if(result.length > 0) return result[0].travel_time;
 
     return 9999999;
+}
+
+
+export async function getFlagLocations(id){
+
+    const query = "SELECT team,x,y,z FROM nstats_maps_flags WHERE map=?";
+
+    return await simpleQuery(query, [id]);
 }

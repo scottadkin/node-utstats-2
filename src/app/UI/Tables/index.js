@@ -23,9 +23,18 @@ export function BasicTable({headers, rows, width, columnStyles, title}){
 
         for(let x = 0; x < rows[i].length; x++){
 
-            const style = (columnStyles[x] != undefined) ? columnStyles[x] : "";
+            let style = (columnStyles[x] != undefined) ? columnStyles[x] : "";
 
-            currentRow.push(<td className={style} key={`d-${i}-${x}`}>{rows[i][x]}</td>);
+            const col = rows[i][x];
+            let display = col;
+
+            if(typeof col === "object" && col.className !== undefined){
+                display = col.value;
+                style = `${style} ${col.className}`
+            }
+
+        
+            currentRow.push(<td className={style} key={`d-${i}-${x}`}>{display}</td>);
         }
 
         rowElems.push(<tr key={`r-${i}`}>{currentRow}</tr>);
