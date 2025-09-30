@@ -1,6 +1,7 @@
+"use client"
 import { useRef, useEffect } from "react";
 import styles from "./CustomGraph.module.css";
-import Graph from "../../lib/Graph";
+import Graph from "../Graph";
 
 
 const CustomGraph = ({children, data, tabs, labels, info, labelsPrefix, minDataPoints, bEnableAdvanced, bSkipForceWholeYNumbers}) =>{

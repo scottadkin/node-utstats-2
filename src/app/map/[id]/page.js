@@ -2,9 +2,10 @@ import Nav from "../../UI/Nav";
 import Session from "../../../../api/session";
 import SiteSettings from "../../../../api/sitesettings";
 import { headers, cookies } from "next/headers";
-import { getBasic } from "../../../../api/maps";
+import { getBasic, getSpawns, getGraphHistoryData } from "../../../../api/maps";
 import { removeUnr } from "../../../../api/generic.mjs";
 import MapSummary from "../../UI/Maps/MapSummary";
+import MapHistoryGraph from "../../UI/Maps/MapHistoryGraph";
 
 function setQueryValues(params, searchParams){
 
@@ -46,9 +47,10 @@ export default async function Page({params, searchParams}){
     const sessionSettings = session.settings;
 
     const basic = await getBasic(id);
+    const spawns = await getSpawns(id);
+    const historyGraphData = await getGraphHistoryData(id);
 
     
-
     if(basic === null){
 
         return <main>
@@ -68,7 +70,8 @@ export default async function Page({params, searchParams}){
         <div id="content">
             <div className="default">
                 <div className="default-header">{basic.name}</div>
-                <MapSummary data={basic} spawns={[]}/>
+                <MapSummary data={basic} spawns={spawns}/>
+                <MapHistoryGraph data={historyGraphData} />
             </div>    
         </div>   
     </main>; 

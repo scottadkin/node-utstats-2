@@ -506,17 +506,6 @@ export default class Maps{
         return await simpleQuery(query, [mapId, limit]);
     }
 
-
-    async getSpawns(mapId){
-
-        const query = "SELECT name,x,y,z,spawns,team FROM nstats_map_spawns WHERE map=?";
-
-        return await simpleQuery(query, [mapId]);
-
-    }
-
-
-
     async getAllNames(){
 
         const query = "SELECT name FROM nstats_maps ORDER BY name ASC";
@@ -894,84 +883,6 @@ export default class Maps{
         }
 
         return data;
-    }
-
-
-    async getHistoryBetween(id, start, end){
-
-        const query = `SELECT date FROM nstats_matches WHERE map=? AND date>=? AND date<=? ORDER BY date DESC`;
-        const result = await simpleQuery(query, [id, start, end]);
-
-        return result.map((r) =>{
-            return r.date;
-        });
-    }
-
-    async getGraphHistoryData(id){
-
-        const hour = 60 * 60;
-        const day = hour * 24;
-        const year = day * 365;
-        const now = Math.floor(Date.now() * 0.001);
-        const data = await this.getHistoryBetween(id, now - year, now);
-
-        const dayData = [];
-        const weekData = [];
-        const monthData = [];
-        const yearData = [];
-
-
-        for(let i = 0; i < 365; i++){
-            
-            if(i < 24){
-                dayData.push(0);
-            }
-
-            if(i < 7){
-                weekData.push(0);
-            }
-
-            if(i < 28){
-                monthData.push(0);
-            }
-
-            yearData.push(0);
-        }
-
-       
-
-        for(let i = 0; i < data.length; i++){
-
-            const d = data[i];
-            const offset = now - d;
-            
-            const hourOffset = Math.floor(offset / hour);
-            
-            if(hourOffset < 24){
-                dayData[hourOffset]++;
-            }
-
-            const dayOffset = Math.floor(offset / day);
-
-            if(dayOffset < 7){
-                weekData[dayOffset]++;
-            }
-
-            if(dayOffset < 28){
-                monthData[dayOffset]++;
-            }
-
-            if(dayOffset < 365){
-                yearData[dayOffset]++;
-            }
-        }
-
-        return  [
-            [{"name": "Matches Played", "values": dayData}],
-            [{"name": "Matches Played", "values": weekData}],
-            [{"name": "Matches Played", "values": monthData}],
-            [{"name": "Matches Played", "values": yearData}]
-        ];
     }
 
 
@@ -1426,4 +1337,88 @@ export async function getBasic(mapId){
     }
 
     return result[0];
+}
+
+
+export async function getSpawns(mapId){
+
+    const query = "SELECT name,x,y,z,spawns,team FROM nstats_map_spawns WHERE map=?";
+    return await simpleQuery(query, [mapId]);
+}
+
+export async function getHistoryBetween(id, start, end){
+
+    const query = `SELECT date FROM nstats_matches WHERE map=? AND date>=? AND date<=? ORDER BY date DESC`;
+    const result = await simpleQuery(query, [id, start, end]);
+
+    return result.map((r) =>{
+        return r.date;
+    });
+}
+
+export async function getGraphHistoryData(id){
+
+    const hour = 60 * 60;
+    const day = hour * 24;
+    const year = day * 365;
+    const now = Math.floor(Date.now() * 0.001);
+    const data = await getHistoryBetween(id, now - year, now);
+
+    const dayData = [];
+    const weekData = [];
+    const monthData = [];
+    const yearData = [];
+
+
+    for(let i = 0; i < 365; i++){
+        
+        if(i < 24){
+            dayData.push(0);
+        }
+
+        if(i < 7){
+            weekData.push(0);
+        }
+
+        if(i < 28){
+            monthData.push(0);
+        }
+
+        yearData.push(0);
+    }
+
+    
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+        const offset = now - d;
+        
+        const hourOffset = Math.floor(offset / hour);
+        
+        if(hourOffset < 24){
+            dayData[hourOffset]++;
+        }
+
+        const dayOffset = Math.floor(offset / day);
+
+        if(dayOffset < 7){
+            weekData[dayOffset]++;
+        }
+
+        if(dayOffset < 28){
+            monthData[dayOffset]++;
+        }
+
+        if(dayOffset < 365){
+            yearData[dayOffset]++;
+        }
+    }
+
+    return  [
+        [{"name": "Matches Played", "values": dayData}],
+        [{"name": "Matches Played", "values": weekData}],
+        [{"name": "Matches Played", "values": monthData}],
+        [{"name": "Matches Played", "values": yearData}]
+    ];
 }
