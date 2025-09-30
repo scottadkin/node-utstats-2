@@ -16,10 +16,12 @@
     font-size:16px;
     transition: all 0.5s;
     min-width:30px;
+    user-select:none;
 }
 
 .button:hover{
     background-color:var(--color-1);
+    cursor: pointer;
 }
 
 .abutton{
@@ -32,6 +34,7 @@
     font-weight:500;
     font-size:14px;
     min-width:30px;
+    user-select:none;
 }
 
 .header{

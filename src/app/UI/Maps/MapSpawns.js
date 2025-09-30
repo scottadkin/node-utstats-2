@@ -117,7 +117,7 @@ export default function MapSpawns({spawns, flagLocations}){
                     (totalDistanceToFlag[i].total / totalDistanceToFlag[i].found).toFixed(2),
                     {
                         "className": (percentOfLowest > 100) ? "red" : "green", 
-                        "value": (percentOfLowest === 100) ? "" : `${Math.abs(100 -percentOfLowest).toFixed(2)}}%`
+                        "value": (percentOfLowest === 100) ? "" : `${Math.abs(100 -percentOfLowest).toFixed(2)}%`
                     }
                 ]);
 

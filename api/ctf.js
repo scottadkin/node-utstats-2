@@ -2105,117 +2105,6 @@ export default class CTF{
         return data;
     }
 
-    async getAssistedPlayers(capIds){
-
-        if(capIds.length === 0) return {"assists": {}, "uniquePlayers": []};
-
-        const query = `SELECT cap_id,player_id FROM nstats_ctf_assists WHERE cap_id IN(?)`;
-        const result = await simpleQuery(query, [capIds]);
-
-        const found = {};
-
-        const uniquePlayers = new Set();
-        
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-
-            if(found[r.cap_id] === undefined) found[r.cap_id] = [];
-            found[r.cap_id].push(r.player_id);
-
-            uniquePlayers.add(r.player_id);
-        }
-        
-        return {"assists": found, "uniquePlayers": [...uniquePlayers]};
-    }
-
-
-
-    async getMapSoloCaps(mapId, page, perPage){
-
-        const query = `SELECT id,match_id,match_date,cap_team,flag_team,cap_player,travel_time,carry_time,drop_time 
-        FROM nstats_ctf_caps WHERE map_id=? AND total_assists=0 ORDER BY travel_time ASC LIMIT ?, ?`;
-
-        const start = page * perPage;
-        const vars = [mapId, start, perPage];
-
-        const result = await simpleQuery(query, vars);
-
-        const playerIds = new Set();
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-            playerIds.add(r.cap_player);
-        }
-
-        return {"caps": result, "playerIds": playerIds};
-    }
-
-    async getMapAssistedCaps(mapId, page, perPage){
-
-        const query = `SELECT id,match_id,match_date,cap_team,flag_team,grab_player,cap_player,travel_time,carry_time,drop_time 
-        FROM nstats_ctf_caps WHERE map_id=? AND total_assists>0 ORDER BY travel_time ASC LIMIT ?, ?`;
-
-        const start = page * perPage;
-        const vars = [mapId, start, perPage];
-
-        const result = await simpleQuery(query, vars);
-
-        const playerIds = new Set();
-
-        const caps = {};
-
-        const capIds = result.map((row) =>{
-            
-            caps[row.id] = Object.assign({},row);
-            delete caps[row.id].id;
-            playerIds.add(row.grab_player);
-            playerIds.add(row.cap_player);
-
-            return row.id;
-        });
-        
-        return {"caps": caps, "capIds": capIds, "playerIds": playerIds};
-    }
-
-    async getMapTotalCaps(mapId, capType){
-
-        const soloQuery = `SELECT COUNT(*) as total_matches FROM nstats_ctf_caps WHERE map_id=? AND total_assists=0`;
-        const assistQuery = `SELECT COUNT(*) as total_matches FROM nstats_ctf_caps WHERE map_id=? AND total_assists>0`;
-
-        const query = (capType === "solo") ? soloQuery : assistQuery;
-
-        const result = await simpleQuery(query, [mapId]);
-
-        return result[0].total_matches;
-    }
-
-    async getMapCaps(mapId, mode, page, perPage){
-
-        page = page - 1;
-        if(page < 0) page = 0;
-        if(perPage < 5 || perPage > 100) perPage = 10;
-
-        if(mode === "solo"){
-            return await this.getMapSoloCaps(mapId, page, perPage);
-        }
-
-        const {caps, capIds, playerIds} = await this.getMapAssistedCaps(mapId, page, perPage);
-
-        const assistDetails = await this.getAssistedPlayers(capIds);
-
-        for(let i = 0; i < assistDetails.uniquePlayers.length; i++){
-            playerIds.add(assistDetails.uniquePlayers[i]);
-        }
-
-        delete assistDetails.uniquePlayers;
-
-        return {"caps": caps, "assistData": assistDetails.assists, "playerIds": playerIds};
-    }
-
-
-
     async changeAssistPlayerIds(oldId, newId){
 
         const query = `UPDATE nstats_ctf_assists SET player_id=? WHERE player_id=?`;
@@ -3811,4 +3700,114 @@ export async function getFlagLocations(id){
     const query = "SELECT team,x,y,z FROM nstats_maps_flags WHERE map=?";
 
     return await simpleQuery(query, [id]);
+}
+
+
+async function getAssistedPlayers(capIds){
+
+        if(capIds.length === 0) return {"assists": {}, "uniquePlayers": []};
+
+        const query = `SELECT cap_id,player_id FROM nstats_ctf_assists WHERE cap_id IN(?)`;
+        const result = await simpleQuery(query, [capIds]);
+
+        const found = {};
+
+        const uniquePlayers = new Set();
+        
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            if(found[r.cap_id] === undefined) found[r.cap_id] = [];
+            found[r.cap_id].push(r.player_id);
+
+            uniquePlayers.add(r.player_id);
+        }
+        
+        return {"assists": found, "uniquePlayers": [...uniquePlayers]};
+    }
+
+
+
+async function getMapSoloCaps(mapId, page, perPage){
+
+    const query = `SELECT id,match_id,match_date,cap_team,flag_team,cap_player,travel_time,carry_time,drop_time 
+    FROM nstats_ctf_caps WHERE map_id=? AND total_assists=0 ORDER BY travel_time ASC LIMIT ?, ?`;
+
+    const start = page * perPage;
+    const vars = [mapId, start, perPage];
+
+    const result = await simpleQuery(query, vars);
+
+    const playerIds = new Set();
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        playerIds.add(r.cap_player);
+    }
+
+    return {"caps": result, "playerIds": playerIds};
+}
+
+async function getMapAssistedCaps(mapId, page, perPage){
+
+    const query = `SELECT id,match_id,match_date,cap_team,flag_team,grab_player,cap_player,travel_time,carry_time,drop_time 
+    FROM nstats_ctf_caps WHERE map_id=? AND total_assists>0 ORDER BY travel_time ASC LIMIT ?, ?`;
+
+    const start = page * perPage;
+    const vars = [mapId, start, perPage];
+
+    const result = await simpleQuery(query, vars);
+
+    const playerIds = new Set();
+
+    const caps = {};
+
+    const capIds = result.map((row) =>{
+        
+        caps[row.id] = Object.assign({},row);
+        delete caps[row.id].id;
+        playerIds.add(row.grab_player);
+        playerIds.add(row.cap_player);
+
+        return row.id;
+    });
+    
+    return {"caps": caps, "capIds": capIds, "playerIds": playerIds};
+}
+
+export async function getMapTotalCaps(mapId, capType){
+
+    const soloQuery = `SELECT COUNT(*) as total_matches FROM nstats_ctf_caps WHERE map_id=? AND total_assists=0`;
+    const assistQuery = `SELECT COUNT(*) as total_matches FROM nstats_ctf_caps WHERE map_id=? AND total_assists>0`;
+
+    const query = (capType === "solo") ? soloQuery : assistQuery;
+
+    const result = await simpleQuery(query, [mapId]);
+
+    return result[0].total_matches;
+}
+
+export async function getMapCaps(mapId, mode, page, perPage){
+
+    page = page - 1;
+    if(page < 0) page = 0;
+    if(perPage < 5 || perPage > 100) perPage = 10;
+
+    if(mode === "solo"){
+        return await getMapSoloCaps(mapId, page, perPage);
+    }
+
+    const {caps, capIds, playerIds} = await getMapAssistedCaps(mapId, page, perPage);
+
+    const assistDetails = await getAssistedPlayers(capIds);
+
+    for(let i = 0; i < assistDetails.uniquePlayers.length; i++){
+        playerIds.add(assistDetails.uniquePlayers[i]);
+    }
+
+    delete assistDetails.uniquePlayers;
+
+    return {"caps": caps, "assistData": assistDetails.assists, "playerIds": playerIds};
 }

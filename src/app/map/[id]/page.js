@@ -8,6 +8,7 @@ import MapSummary from "../../UI/Maps/MapSummary";
 import MapHistoryGraph from "../../UI/Maps/MapHistoryGraph";
 import { getFlagLocations } from "../../../../api/ctf";
 import MapSpawns from "../../UI/Maps/MapSpawns";
+import MapCTFCaps from "../../UI/Maps/MapCTFCaps";
 
 function setQueryValues(params, searchParams){
 
@@ -82,6 +83,7 @@ export default async function Page({params, searchParams}){
                 {(pageSettings["Display Summary"] === "false") ? null :<MapSummary data={basic} spawns={spawns}/>}
                 {(historyGraphData === null) ? null :<MapHistoryGraph data={historyGraphData} />}
                 {(pageSettings["Display Spawn Points"] === "true") ? <MapSpawns spawns={spawns} flagLocations={flagLocations}/> : null}
+                {(pageSettings["Display CTF Caps"] === "true") ? <MapCTFCaps mapId={id} perPage={25} page={1} mode="solo"/> : null}
             </div>    
         </div>   
     </main>; 

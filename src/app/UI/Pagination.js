@@ -28,13 +28,15 @@ function PageButton({url, page, anchor, current, event}){
         </div>
     }
 
-    return (
-        <Link href={`${url}${page}${anchor}`}>
-            
-            {elem}
-            
-        </Link>
-    );
+    if(url !== null){
+        return (
+            <Link href={`${url}${page}${anchor}`}>   
+                {elem}     
+            </Link>
+        );
+    }else{
+        return elem;
+    }
 }
 
 export default function Pagination({currentPage, results, perPage, url, anchor, event}){
