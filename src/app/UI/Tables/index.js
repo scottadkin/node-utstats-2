@@ -1,9 +1,10 @@
-export function BasicTable({headers, rows, width, columnStyles}){
+export function BasicTable({headers, rows, width, columnStyles, title}){
 
     if(headers === undefined) headers = [];
     if(rows === undefined) rows = [];
     if(width === undefined) width = 1;
     if(columnStyles === undefined) columnStyles = [];
+    if(title === undefined) title = "";
 
     const headerElems = [];
 
@@ -34,11 +35,16 @@ export function BasicTable({headers, rows, width, columnStyles}){
         rowElems.push(<tr key="none"><td colSpan={headers.length}>No Data</td></tr>);
     }
 
-    return <table className={`basic-table t-width-${width}`}>
-        <tbody>
-            {(headerElems.length > 0) ? <tr>{headerElems}</tr> : null}
-            {rowElems}
-        </tbody>
-    </table>
+    const titleElem = (title === "") ? null : <div className={`table-title t-width-${width} center`}>{title}</div>;
+
+    return <>
+        {titleElem}
+        <table className={`basic-table t-width-${width}`}>
+            <tbody>
+                {(headerElems.length > 0) ? <tr>{headerElems}</tr> : null}
+                {rowElems}
+            </tbody>
+        </table>
+    </>
 
 }

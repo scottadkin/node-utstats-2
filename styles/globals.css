@@ -208,6 +208,12 @@ table{
 	max-width:1250px;
 }
 
+.table-title{
+	background-color:var(--color-8);
+    padding:8px;
+    font-size:14px;
+    color:white;
+}
 
 th{
 	font-weight:500;

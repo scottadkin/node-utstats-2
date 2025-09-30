@@ -286,12 +286,12 @@ export default class Maps{
         return await getObjectName("maps", ids);
     }
 
-    async getSingle(id){
+    /*async getSingle(id){
 
         const query = "SELECT * FROM nstats_maps WHERE id=?";
 
         return await simpleQuery(query, [id]);
-    }
+    }*/
 
 
     async getLongestMatch(id){
@@ -1390,19 +1390,40 @@ export async function calculateMapTotals(gametypeId, mapId){
     const g = generalTotals;
 
     const vars = [
-        gametypeId, mapId, b.first_match, b.last_match,//
-        b.total_matches, b.total_playtime, g.frags, g.score, g.kills, g.deaths,//
-        g.suicides, g.team_kills, g.spawn_kills,//
-        g.multi_1, g.multi_2, g.multi_3, g.multi_4, g.multi_5, g.multi_6, g.multi_7, g.multi_best,//
-        g.spree_1, g.spree_2, g.spree_3, g.spree_4, g.spree_5, g.spree_6, g.spree_7, g.spree_best,//
-        g.best_spawn_kill_spree, g.assault_objectives, g.dom_caps, g.dom_caps_best, g.dom_caps_best_life,//
-        g.k_distance_normal, g.k_distance_long, g.k_distance_uber, g.headshots, g.shield_belt,//
-        g.amp, g.amp_time, g.invisibility, g.invisibility_time, g.pads, //
-        g.armor, g.boots, g.super_health, g.mh_kills, g.mh_kills_best_life,//
-        g.mh_kills_best, g.mh_deaths, g.mh_deaths_worst, g.telefrag_kills, g.telefrag_kills_best,//
+        gametypeId, mapId, b.first_match, b.last_match,
+        b.total_matches, b.total_playtime, g.frags, g.score, g.kills, g.deaths,
+        g.suicides, g.team_kills, g.spawn_kills,
+        g.multi_1, g.multi_2, g.multi_3, g.multi_4, g.multi_5, g.multi_6, g.multi_7, g.multi_best,
+        g.spree_1, g.spree_2, g.spree_3, g.spree_4, g.spree_5, g.spree_6, g.spree_7, g.spree_best,
+        g.best_spawn_kill_spree, g.assault_objectives, g.dom_caps, g.dom_caps_best, g.dom_caps_best_life,
+        g.k_distance_normal, g.k_distance_long, g.k_distance_uber, g.headshots, g.shield_belt,
+        g.amp, g.amp_time, g.invisibility, g.invisibility_time, g.pads, 
+        g.armor, g.boots, g.super_health, g.mh_kills, g.mh_kills_best_life,
+        g.mh_kills_best, g.mh_deaths, g.mh_deaths_worst, g.telefrag_kills, g.telefrag_kills_best,
         g.telefrag_deaths, g.telefrag_best_spree, g.tele_disc_kills, g.tele_disc_kills_best, g.tele_disc_deaths,
         g.tele_disc_best_spree
     ];
 
     return await simpleQuery(query, vars);
+}
+
+
+export async function getBasic(mapId){
+
+    const query = `SELECT * FROM nstats_maps WHERE id=?`;
+
+    const result = await simpleQuery(query, [mapId]);
+
+    if(result.length === 0) return null;
+
+    const image = getImages([result[0].name]);
+
+    const keys = Object.keys(image);
+    if(keys.length > 0){
+        result[0].image = image[keys[0]];
+    }else{
+        result[0].image = "default";
+    }
+
+    return result[0];
 }
