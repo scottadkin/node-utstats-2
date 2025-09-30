@@ -23,6 +23,7 @@ import MonsterHuntManager from "./monsterhuntmanager.js";
 import CombogibManager from "./combogibmanager.js";
 import geoip from "geoip-lite";
 import md5 from "md5";
+import { calculateMapTotals } from "../maps.js";
 
 export default class MatchManager{
 
@@ -471,6 +472,14 @@ export default class MatchManager{
             //need to get player current totals then add them to the scores
             new Message("Updating player rankings.","note");
             await this.playerManager.updateRankings(this.rankingsManager, this.gametype.currentMatchGametype, this.matchId);
+
+
+            //map + gametype totals
+            await calculateMapTotals(this.gametype.currentMatchGametype, this.mapInfo.mapId);
+            //map all time totals
+            await calculateMapTotals(0, this.mapInfo.mapId);
+
+
 
             const logId = await logsInsert(this.fileName);
 

@@ -1255,3 +1255,154 @@ export async function getMostPlayed(limit){
     const query = "SELECT id,name,first,last,matches,playtime FROM nstats_maps ORDER BY matches DESC LIMIT ?";
     return await simpleQuery(query, [limit]);
 }
+
+
+/**
+ * Totals generated from nstats_matches
+ * @param {*} gametypeId 
+ * @param {*} mapId 
+ * @returns 
+ */
+async function calcBasicTotals(gametypeId, mapId){
+
+    const query = `SELECT COUNT(*) as total_matches, MIN(date) as first_match, MAX(date) as last_match,
+    SUM(playtime) as total_playtime, MAX(playtime) as longest_match, SUM(team_score_0) as team_score_0,
+    SUM(team_score_1) as team_score_1,SUM(team_score_2) as team_score_2,SUM(team_score_3) as team_score_3,
+    SUM(assault_caps) as assault_caps, SUM(dom_caps) as dom_caps, SUM(amp_kills) as amp_kills, 
+    SUM(amp_kills_team_0) as amp_kills_team_0, SUM(amp_kills_team_1) as amp_kills_team_1,SUM(amp_kills_team_2) as amp_kills_team_2,
+    SUM(amp_kills_team_3) as amp_kills_team_3 FROM nstats_matches`;
+
+    let where = ``;
+    const vars = [];
+
+    if(gametypeId !== 0){
+        where = `WHERE gametype=? AND map=?`;
+        vars.push(gametypeId, mapId);
+    }else{
+        where = `WHERE map=?`;
+        vars.push(mapId);
+    }
+
+    console.log(where, vars);
+    const result = await simpleQuery(`${query} ${where}`, vars);
+
+    if(result[0].total_matches === 0) return null;
+    return result[0];
+}
+
+
+/**
+ * kills, multis, sprees, headshots, pickups
+ */
+async function calcGeneralTotals(gametypeId, mapId){
+
+    const query = `SELECT COUNT(*) as total_rows, SUM(frags) as frags,SUM(score) as score,SUM(kills) as kills,SUM(deaths) as deaths,
+    SUM(suicides) as suicides, SUM(team_kills) as team_kills, SUM(spawn_kills) as spawn_kills,
+    SUM(multi_1) as multi_1,SUM(multi_2) as multi_2,SUM(multi_3) as multi_3,SUM(multi_4) as multi_4,
+    SUM(multi_5) as multi_5,SUM(multi_6) as multi_6,SUM(multi_7) as multi_7,MAX(multi_best) as multi_best,
+    SUM(spree_1) as spree_1,SUM(spree_2) as spree_2,SUM(spree_3) as spree_3,SUM(spree_4) as spree_4,
+    SUM(spree_5) as spree_5,SUM(spree_6) as spree_6,SUM(spree_7) as spree_7,MAX(spree_best) as spree_best,
+    MAX(best_spawn_kill_spree) as best_spawn_kill_spree,SUM(assault_objectives) as assault_objectives,
+    SUM(dom_caps) as dom_caps,MAX(dom_caps) as dom_caps_best, MAX(dom_caps_best_life) as dom_caps_best_life,
+    SUM(k_distance_normal) as k_distance_normal, SUM(k_distance_long) as k_distance_long, SUM(k_distance_uber) as k_distance_uber,
+    SUM(headshots) as headshots, SUM(shield_belt) as shield_belt, SUM(amp) as amp,
+    SUM(amp_time) as amp_time, SUM(invisibility) as invisibility, SUM(invisibility_time) as invisibility_time,
+    SUM(pads) as pads, SUM(armor) as armor, SUM(boots) as boots, SUM(super_health) as super_health,SUM(mh_kills) as mh_kills,
+    MAX(mh_kills) as mh_kills_best, MAX(mh_kills_best_life) as mh_kills_best_life,
+    SUM(mh_deaths) as mh_deaths, MAX(mh_deaths) as mh_deaths_worst,
+    SUM(telefrag_kills) as telefrag_kills, MAX(telefrag_kills) as telefrag_kills_best,SUM(telefrag_deaths) as telefrag_deaths, 
+    MAX(telefrag_best_spree) as telefrag_best_spree,
+    SUM(tele_disc_kills) as tele_disc_kills, MAX(tele_disc_kills) as tele_disc_kills_best,
+    SUM(tele_disc_deaths) as tele_disc_deaths, MAX(tele_disc_best_spree) as tele_disc_best_spree FROM nstats_player_matches`;
+
+     let where = ``;
+    const vars = [];
+
+    if(gametypeId !== 0){
+        where = `WHERE gametype=? AND map_id=?`;
+        vars.push(gametypeId, mapId);
+    }else{
+        where = `WHERE map_id=?`;
+        vars.push(mapId);
+    }
+
+    const result = await simpleQuery(`${query} ${where}`, vars);
+
+    if(result[0].total_rows === 0) return null;
+    return result[0];
+}
+
+async function deleteMapTotals(gametypeId, mapId){
+
+    const query = `DELETE FROM nstats_map_totals`;
+
+    let where = ``;
+    const vars = [];
+
+    if(gametypeId !== 0){
+        where = `WHERE gametype_id=? AND map_id=?`;
+        vars.push(gametypeId, mapId);
+    }else{
+        where = `WHERE map_id=? AND gametype_id=0`;
+        vars.push(mapId);
+    }
+
+    return await simpleQuery(`${query} ${where}`, vars);
+
+}
+
+export async function calculateMapTotals(gametypeId, mapId){
+
+    gametypeId = parseInt(gametypeId);
+    mapId = parseInt(mapId);
+
+    const basicTotals = await calcBasicTotals(gametypeId, mapId);
+
+    if(basicTotals === null){
+        new Message(`calculateMapTotals basicTotals is null`,"warning");
+        return;
+    }
+
+    const generalTotals = await calcGeneralTotals(gametypeId, mapId);
+
+    if(generalTotals === null){
+        new Message(`calculateMapTotals generalTotals is null`,"warning");
+        return;
+    }
+
+    await deleteMapTotals(gametypeId, mapId);
+
+    const query = `INSERT INTO nstats_map_totals VALUES(
+    NULL,?,?,?,?,
+    ?,?,?,?,?,?,
+    ?,?,?,
+    ?,?,?,?,?,?,?,?,
+    ?,?,?,?,?,?,?,?,
+    ?,?,?,?,?,
+    ?,?,?,?,?,
+    ?,?,?,?,?,
+    ?,?,?,?,?,
+    ?,?,?,?,?,
+    ?,?,?,?,?,
+    ?)`;
+
+    const b = basicTotals;
+    const g = generalTotals;
+
+    const vars = [
+        gametypeId, mapId, b.first_match, b.last_match,//
+        b.total_matches, b.total_playtime, g.frags, g.score, g.kills, g.deaths,//
+        g.suicides, g.team_kills, g.spawn_kills,//
+        g.multi_1, g.multi_2, g.multi_3, g.multi_4, g.multi_5, g.multi_6, g.multi_7, g.multi_best,//
+        g.spree_1, g.spree_2, g.spree_3, g.spree_4, g.spree_5, g.spree_6, g.spree_7, g.spree_best,//
+        g.best_spawn_kill_spree, g.assault_objectives, g.dom_caps, g.dom_caps_best, g.dom_caps_best_life,//
+        g.k_distance_normal, g.k_distance_long, g.k_distance_uber, g.headshots, g.shield_belt,//
+        g.amp, g.amp_time, g.invisibility, g.invisibility_time, g.pads, //
+        g.armor, g.boots, g.super_health, g.mh_kills, g.mh_kills_best_life,//
+        g.mh_kills_best, g.mh_deaths, g.mh_deaths_worst, g.telefrag_kills, g.telefrag_kills_best,//
+        g.telefrag_deaths, g.telefrag_best_spree, g.tele_disc_kills, g.tele_disc_kills_best, g.tele_disc_deaths,
+        g.tele_disc_best_spree
+    ];
+
+    return await simpleQuery(query, vars);
+}

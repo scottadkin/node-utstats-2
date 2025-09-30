@@ -8,6 +8,7 @@ import { convertTimestamp, removeUnr, sanatizePage, sanatizePerPage, toPlaytime 
 import MapDefaultBox from "../UI/Maps/MapDefaultBox";
 import Pagination from "../UI/Pagination";
 import {BasicTable} from "../UI/Tables";
+import Link from "next/link";
 
 function setQueryValues(params, searchParams){
 
@@ -65,12 +66,14 @@ function renderTableView(mode, data){
 
 		const d = data[i];
 
+		const url = `/map/${d.id}`;
+
 		rows.push([
-			removeUnr(d.name),
-			convertTimestamp(d.first),
-			convertTimestamp(d.last),
-			toPlaytime(d.playtime),
-			d.matches
+			<Link href={url}>{removeUnr(d.name)}</Link>,
+			<Link href={url}>{convertTimestamp(d.first)}</Link>,
+			<Link href={url}>{convertTimestamp(d.last)}</Link>,
+			<Link href={url}>{toPlaytime(d.playtime)}</Link>,
+			<Link href={url}>{d.matches}</Link>
 		]);
 	}
 
