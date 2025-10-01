@@ -356,9 +356,9 @@ export default class MatchManager{
             await this.playerManager.insertSprees(this.matchId);
 
 
-            new Message(`Updating Player Map History.`,'note');
-            await this.maps.updateAllPlayersHistory(this.playerManager.players, this.mapInfo.mapId, this.matchId, this.serverInfo.date);
-            new Message(`Updated player map history.`,'pass');
+            //new Message(`Updating Player Map History.`,'note');
+            //await this.maps.updateAllPlayersHistory(this.playerManager.players, this.mapInfo.mapId, this.matchId, this.serverInfo.date);
+           // new Message(`Updated player map history.`,'pass');
             //this.maps.updatePlayerHistory(this.playerManager.players[0].masterId, this.mapInfo.matchId);
 
 

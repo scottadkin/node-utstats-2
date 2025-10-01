@@ -372,120 +372,6 @@ export default class Maps{
     }
 
 
-    async bPlayerExist(player, map){
-
-        const query = "SELECT COUNT(*) as total_players FROM nstats_player_maps WHERE map=? AND player=?";
-
-        const result = await simpleQuery(query, [map, player]);
-
-        return result[0].total_players > 0;
-    }
-
-    async insertNewPlayerHistory(player, map, matchId, date){
-
-        const query = "INSERT INTO nstats_player_maps VALUES(NULL,?,?,?,?,?,?,1,?,?,?)";
-
-        let playtime = 0;
-
-        if(player.stats.time_on_server !== undefined){
-            playtime = player.stats.time_on_server.toFixed(4);
-        }else{
-            new Message(`Maps.InsertNewPlayerHistory() playtime is undefined`,'warning');
-        }
- 
-        const vars = [
-            map, 
-            player.masterId,
-            date,
-            matchId,
-            date,
-            matchId,
-            playtime,
-            playtime,
-            matchId
-        ];
-
-        return await simpleQuery(query, vars);
-    }
-
-    async updatePlayerHistoryQuery(player, map, matchId, date){
-
-        const query = `UPDATE nstats_player_maps SET
-            first = IF(first > ?, ?, first),
-            last = IF(last <= ?, ?, last),
-            last_id = IF(last <= ?, ?, last_id),
-            matches=matches+1,
-            playtime=playtime+?,
-            longest_id = IF(longest <= ?, ?, longest_id),
-            longest = IF(longest < ?, ?, longest)
-            WHERE player=? AND map=?
-            `;
-
-        let playtime = 0;
-
-        if(player.stats.time_on_server !== undefined){
-            playtime = player.stats.time_on_server.toFixed(4);
-        }else{
-            new Message(`Maps.updatePlayerHistoryQuery() playtime is undefined`,'warning');
-        }
-
-        const vars = [
-            date, 
-            date,
-            date,
-            date,
-            date, 
-            matchId,
-            playtime,
-            playtime,
-            matchId,
-            playtime,
-            playtime,
-            player.masterId,
-            map
-        ];
-
-        return await simpleQuery(query, vars);
-    }
-
-    async updatePlayerHistory(player, map, matchId, date){
-
-        try{
-
-            const exists = await this.bPlayerExist(player.masterId, map);
-
-            if(!exists){
-                await this.insertNewPlayerHistory(player, map, matchId, date);
-            }else{
-                await this.updatePlayerHistoryQuery(player, map, matchId, date);
-            }
-
-        }catch(err){
-            new Message(`Maps.updatePlayerHistory() ${err}`,'error');
-        }
-    }
-
-
-    async updateAllPlayersHistory(players, mapId, matchId, date){
-
-        try{
-
-            let p = 0;
-
-            for(let i = 0; i < players.length; i++){
-
-                p = players[i];
-
-                if(p.bDuplicate === undefined){
-                    await this.updatePlayerHistory(p, mapId, matchId, date);
-                }
-            }
-
-        }catch(err){
-            new Message(`Maps.updateAllPlayersHistory() ${err}`,'error');
-        }
-    }
-
     async getLongestMatches(mapId, limit){
 
         const query = `SELECT 
@@ -510,54 +396,8 @@ export default class Maps{
 
     }
 
-    async getPlayerMapsHistory(ids){
 
-        if(ids.length === 0) return [];
-
-        return await simpleQuery("SELECT * FROM nstats_player_maps WHERE player IN (?)",[ids]);
-    }
-
-    async deletePlayerHistoryRows(rowIds){
-
-        if(rowIds.length === 0) return;
-
-        await simpleQuery("DELETE FROM nstats_player_maps WHERE id IN(?)", [rowIds]);
-    }
-
-
-    async getAllPlayerMatchesPlaytime(playerId){
-
-        const query = "SELECT id,match_date,map_id,playtime FROM nstats_player_matches WHERE player_id=?";
-
-        return await simpleQuery(query, [playerId]);
-    }
-
-
-    async deletePlayer(playerId){
-
-        return await simpleQuery("DELETE FROM nstats_player_maps WHERE player=?", [playerId]);
-    }
-
-
-    async insertPlayerTotals(playerId, mapId, data){
-
-        const query = `INSERT INTO nstats_player_maps VALUES(NULL,?,?,?,?,?,?,?,?,?,?)`;
-
-        const vars = [
-            mapId,
-            playerId,
-            data.first,
-            data.first_id,
-            data.last,
-            data.last_id,
-            data.matches,
-            data.playtime,
-            data.longest,
-            data.longest_id
-        ];
-
-        await simpleQuery(query, vars);
-    }
+ 
 
     async recalculatePlayerTotalsAfterMerge(playerId){
 
@@ -641,14 +481,6 @@ export default class Maps{
         }
     }
 
-
-    async reducePlayerTotals(playerId, mapId, matches, playtime){
-
-        const query = "UPDATE nstats_player_maps SET matches=matches-?, playtime=playtime-? WHERE map=? AND player=?";
-        const vars = [matches, playtime, mapId, playerId];
-
-        await simpleQuery(query, vars);
-    }
 
     async reducePlayersTotals(playerData){
 

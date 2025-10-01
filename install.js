@@ -547,19 +547,6 @@ const queries = [
         position int(11) NOT NULL,
         enabled tinyint(1) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-    `CREATE TABLE IF NOT EXISTS nstats_player_maps (
-        id int(11) NOT NULL AUTO_INCREMENT,
-        map int(11) NOT NULL,
-        player int(11) NOT NULL,
-        first int(11) NOT NULL,
-        first_id int(11) NOT NULL,
-        last int(11) NOT NULL,
-        last_id int(11) NOT NULL,
-        matches int(11) NOT NULL,
-        playtime double NOT NULL,
-        longest float NOT NULL,
-        longest_id int(11) NOT NULL
-      ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_player_matches (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
