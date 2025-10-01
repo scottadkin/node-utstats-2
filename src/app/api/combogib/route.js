@@ -39,7 +39,36 @@ export async function POST(req){
               
             }else{
                 return Response.json({"error": "none"});
-         
+            }
+        }
+
+        if(mode === "maptotal"){
+
+            const data = await combo.getMapTotals(mapId);
+
+
+            if(data !== null){
+
+                const playerIds = new Set();
+
+                playerIds.add(data.best_single_combo_player_id);
+                playerIds.add(data.best_single_insane_player_id);
+                playerIds.add(data.best_single_shockball_player_id);
+
+                playerIds.add(data.best_primary_kills_player_id);
+                playerIds.add(data.best_ball_kills_player_id);
+                playerIds.add(data.best_combo_kills_player_id);
+                playerIds.add(data.best_insane_kills_player_id);
+
+                playerIds.add(data.max_combo_kills_player_id);
+                playerIds.add(data.max_insane_kills_player_id);
+                playerIds.add(data.max_ball_kills_player_id);
+                playerIds.add(data.max_primary_kills_player_id);
+
+               // const players = await playerManager.getNamesByIds([...playerIds], true);
+
+                //res.status(200).json({"data": data, "players": players});
+               // return;
             }
         }
 

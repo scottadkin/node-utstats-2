@@ -811,3 +811,10 @@ export function getGametypePrefix(name){
 
     return result[1].toLowerCase();
 }
+
+export function toHours(seconds){
+
+    if(seconds === 0) return 0;
+
+    return (seconds / 3600).toFixed(2);
+}
