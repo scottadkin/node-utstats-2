@@ -15,6 +15,7 @@ import { getMapObjectives, getMapImages as getMapAssaultImages } from "../../../
 import MapAssaultObjectives from "../../UI/Maps/MapAssaultObjectives";
 import MapAddictedPlayers from "../../UI/Maps/MapAddictedPlayers";
 import MapLongestMatches from "../../UI/Maps/MapLongestMatches";
+import MapRecentMatches from "../../UI/Maps/MapRecentMatches";
 
 function setQueryValues(params, searchParams){
 
@@ -89,8 +90,8 @@ export default async function Page({params, searchParams}){
     const assaultImages = await getMapAssaultImages(cleanMapName(basic.name));
     const addictedPlayers = await getTopPlayersPlaytime(id, pageSettings["Max Addicted Players"]);
     const longestMatches = await getLongestMatches(id, pageSettings["Max Longest Matches"], basic.name);
-    console.log(matchesSettings);
-//await getRecentMatches(id, 1, 10, null,);
+    const recentMatches = await getRecentMatches(id, 1, 10, matchesSettings, basic.name);
+
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
         <div id="content">
@@ -104,6 +105,7 @@ export default async function Page({params, searchParams}){
                 <MapAssaultObjectives objects={assaultObjectives} mapPrefix={gametypePrefix} mapName={cleanMapName(basic.name)} images={assaultImages}/>
                 <MapAddictedPlayers players={addictedPlayers}/>
                 <MapLongestMatches data={longestMatches}/>
+                <MapRecentMatches data={recentMatches} />
             </div>    
         </div>   
     </main>; 

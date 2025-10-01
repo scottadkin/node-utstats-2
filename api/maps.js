@@ -1306,11 +1306,12 @@ export async function getLongestMatches(mapId, limit, mapName){
 }
 
 
-export async function getRecent(id, page, perPage, playerManager, minPlayers, minPlaytime){
+export async function getRecent(id, page, perPage, settings, mapName){
 
     const query = "SELECT * FROM nstats_matches WHERE map=? AND playtime>=? AND players>=? ORDER BY date DESC, id DESC LIMIT ?, ?";
 
-    //const settings = this.currentSettings();
+    const minPlaytime = parseInt(settings["Minimum Playtime"]);
+    const minPlayers = parseInt(settings["Minimum Players"]);
 
     page = parseInt(page);
     if(page !== page) page = 1;
@@ -1325,18 +1326,28 @@ export async function getRecent(id, page, perPage, playerManager, minPlayers, mi
     
     const result = await simpleQuery(query, vars);
 
+    const {servers, gametypes, maps} = getUniqueMGS(result);
+
     const dmWinners = new Set(result.map(r => r.dm_winner));
 
-    const playersInfo = await getBasicPlayersByIds([...dmWinners])//playerManager.getNamesByIds([...dmWinners], true);
+    const playersInfo = await getBasicPlayersByIds([...dmWinners]);
+    const gametypeNames = await getObjectName("gametypes", gametypes);
+    const serverNames = await getObjectName("servers", servers);
+
+    setIdNames(result, serverNames, "server", "serverName");
+    setIdNames(result, gametypeNames, "gametype", "gametypeName");
 
     for(let i = 0; i < result.length; i++){
 
         const r = result[i];
 
+        r.mapName = mapName;
+
         if(r.dm_winner !== 0){
             r.dmWinner = playersInfo[r.dm_winner];
         }
     }
+
 
     return result;
 
