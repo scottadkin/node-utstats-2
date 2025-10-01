@@ -1288,9 +1288,9 @@ export default class PlayerManager{
         if(ip === undefined) ip = "";
         if(country === undefined) country = "xx";
 
-        const query = "UPDATE nstats_player_totals SET ip=?,country=? WHERE id=?";
+        const query = "UPDATE nstats_player_totals SET ip=?,country=? WHERE id=? OR player_id=?";
 
-        return await simpleQuery(query, [ip, country, id]);
+        return await simpleQuery(query, [ip, country, id, id]);
     }
 
     async setIpCountry(){
