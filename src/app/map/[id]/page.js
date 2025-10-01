@@ -16,6 +16,7 @@ import MapAssaultObjectives from "../../UI/Maps/MapAssaultObjectives";
 import MapAddictedPlayers from "../../UI/Maps/MapAddictedPlayers";
 import MapLongestMatches from "../../UI/Maps/MapLongestMatches";
 import MapRecentMatches from "../../UI/Maps/MapRecentMatches";
+import CombogibMapRecords from "../../UI/Maps/CombogibMapRecords";
 
 function setQueryValues(params, searchParams){
 
@@ -106,6 +107,7 @@ export default async function Page({params, searchParams}){
                 <MapAddictedPlayers players={addictedPlayers}/>
                 <MapLongestMatches data={longestMatches}/>
                 <MapRecentMatches data={recentMatches} />
+                <CombogibMapRecords mapId={id}/>
             </div>    
         </div>   
     </main>; 
