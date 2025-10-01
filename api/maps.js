@@ -1,8 +1,10 @@
 import {simpleQuery} from "./database.js";
 import Message from "./message.js";
 import fs from "fs";
-import {cleanMapName, removeUnr, sanatizePage, sanatizePerPage} from "./generic.mjs";
+import {cleanMapName, removeUnr, sanatizePage, sanatizePerPage, cleanInt, getPlayer, setIdNames} from "./generic.mjs";
 import { getObjectName } from "./genericServerSide.mjs";
+import { getUniqueMGS } from "./matches.js";
+import { getBasicPlayersByIds } from "./players.js";
 
 
 export default class Maps{
@@ -369,18 +371,6 @@ export default class Maps{
         }
 
         return data;
-    }
-
-
-    async getLongestMatches(mapId, limit){
-
-        const query = `SELECT 
-            id,date,server,gametype,map,playtime,insta,total_teams,players,dm_winner,dm_score,team_score_0,team_score_1,team_score_2,team_score_3
-            FROM nstats_matches WHERE map=? ORDER BY playtime DESC LIMIT ?
-            `;
-
-
-        return await simpleQuery(query, [mapId, limit]);
     }
 
     async getAllNames(){
@@ -1271,4 +1261,46 @@ export async function getTopPlayersPlaytime(mapId, limit){
     const query = `SELECT id,name,country,first,last,matches,playtime,winrate FROM nstats_player_totals WHERE map=? ORDER BY playtime DESC LIMIT ?`;
 
     return await simpleQuery(query, [mapId, limit]);
+}
+
+export async function getLongestMatches(mapId, limit, mapName){
+
+    limit = cleanInt(limit, 5, 100, 5, 100);
+
+    const query = `SELECT id,date,server,gametype,map,playtime,insta,total_teams,
+    players,dm_winner,dm_score,team_score_0,team_score_1,team_score_2,team_score_3
+    FROM nstats_matches WHERE map=? ORDER BY playtime DESC LIMIT ?`;
+
+    const result = await simpleQuery(query, [mapId, limit]);
+
+    const {servers, gametypes, maps} = getUniqueMGS(result);
+    const players = new Set();
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        if(r.dm_winner === 0) continue;
+        players.add(r.dm_winner);
+    }
+
+
+    const serverNames = await getObjectName("servers", servers);
+    const gametypeNames = await getObjectName("gametypes", gametypes);
+    const playerInfo = await getBasicPlayersByIds([...players]);
+    const mapNames = {};
+    mapNames[mapId] = mapName;
+
+    setIdNames(result, serverNames, "server", "serverName");
+    setIdNames(result, gametypeNames, "gametype", "gametypeName");
+    setIdNames(result, mapNames, "map", "mapName");
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        if(r.dm_winner === 0) continue;
+        r.dmWinner = getPlayer(playerInfo, r.dm_winner, true);
+    }
+
+    return result;
 }

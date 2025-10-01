@@ -148,7 +148,7 @@ export default async function Page(){
             mapNames.push(m.name);  
         }
 
-        const mapImages = await getMapImages(mapNames);
+        const mapImages = getMapImages(mapNames);
 
         elems[pageOrder["Display Most Played Maps"]] = <div className="default" key="top-maps">
             <HomeTopMaps maps={mostPlayedMaps} images={mapImages}/>

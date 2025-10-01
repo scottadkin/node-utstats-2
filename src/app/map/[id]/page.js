@@ -2,7 +2,7 @@ import Nav from "../../UI/Nav";
 import Session from "../../../../api/session";
 import SiteSettings from "../../../../api/sitesettings";
 import { headers, cookies } from "next/headers";
-import { getBasic, getSpawns, getGraphHistoryData, getTopPlayersPlaytime } from "../../../../api/maps";
+import { getBasic, getSpawns, getGraphHistoryData, getTopPlayersPlaytime, getLongestMatches } from "../../../../api/maps";
 import { removeUnr, getGametypePrefix, cleanMapName } from "../../../../api/generic.mjs";
 import MapSummary from "../../UI/Maps/MapSummary";
 import MapHistoryGraph from "../../UI/Maps/MapHistoryGraph";
@@ -14,6 +14,7 @@ import MapDomControlPoints from "../../UI/Maps/MapDomControlPoints";
 import { getMapObjectives, getMapImages as getMapAssaultImages } from "../../../../api/assault";
 import MapAssaultObjectives from "../../UI/Maps/MapAssaultObjectives";
 import MapAddictedPlayers from "../../UI/Maps/MapAddictedPlayers";
+import MapLongestMatches from "../../UI/Maps/MapLongestMatches";
 
 function setQueryValues(params, searchParams){
 
@@ -79,12 +80,14 @@ export default async function Page({params, searchParams}){
     basic.name = removeUnr(basic.name);
     const gametypePrefix = getGametypePrefix(basic.name);
     
+    console.log(pageSettings);
 
     const bAnyCTFCaps = await bMapHaveCTFCaps(id);
     const domControlPoints = await getMapFullControlPoints(id);
     const assaultObjectives = await getMapObjectives(id);
     const assaultImages = await getMapAssaultImages(cleanMapName(basic.name));
     const addictedPlayers = await getTopPlayersPlaytime(id, pageSettings["Max Addicted Players"]);
+    const longestMatches = await getLongestMatches(id, pageSettings["Max Longest Matches"], basic.name);
 
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
@@ -98,6 +101,7 @@ export default async function Page({params, searchParams}){
                 <MapDomControlPoints points={domControlPoints}/>
                 <MapAssaultObjectives objects={assaultObjectives} mapPrefix={gametypePrefix} mapName={cleanMapName(basic.name)} images={assaultImages}/>
                 <MapAddictedPlayers players={addictedPlayers}/>
+                <MapLongestMatches data={longestMatches}/>
             </div>    
         </div>   
     </main>; 
