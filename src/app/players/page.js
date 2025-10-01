@@ -1,5 +1,5 @@
 import { headers, cookies } from "next/headers";
-import SiteSettings from "../../../api/sitesettings";
+import {getSettings, getNavSettings} from "../../../api/sitesettings";
 import Session from "../../../api/session";
 import Nav from "../UI/Nav";
 import SearchForm from "../UI/Players/SearchForm";
@@ -113,8 +113,7 @@ export default async function Page({searchParams}){
 	const session = new Session(ip, JSON.stringify(cookiesData));
 
 	await session.load();
-	const siteSettings = new SiteSettings();
-	const navSettings = await siteSettings.getCategorySettings("Navigation");
+	const navSettings = await getNavSettings("Navigation");
 	const sessionSettings = JSON.stringify(session.settings);
 
 

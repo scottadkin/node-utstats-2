@@ -1,4 +1,4 @@
-import SiteSettings from "../../api/sitesettings";
+import {getNavSettings, getSettings, getCategoryOrder} from "../../api/sitesettings";
 import { cookies, headers } from "next/headers";
 import Session from "../../api/session";
 import Matches from "../../api/matches";
@@ -39,11 +39,10 @@ export default async function Page(){
     const session = new Session(ip, cookiesData);
 
     await session.load();
-    const siteSettings = new SiteSettings();
-    const navSettings = await siteSettings.getCategorySettings("Navigation");
+    const navSettings = await getNavSettings();
     const sessionSettings = session.settings;
-    const pageSettings = await siteSettings.getCategorySettings("Home");
-    const pageOrder = await siteSettings.getCategoryOrder("Home");
+    const pageSettings = await getSettings("Home");
+    const pageOrder = await getCategoryOrder("Home");
     
     const matchManager = new Matches();
     const playerManager = new Players();

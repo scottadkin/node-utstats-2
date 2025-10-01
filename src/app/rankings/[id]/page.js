@@ -1,6 +1,6 @@
 import { headers, cookies } from "next/headers";
 import Session from "../../../../api/session";
-import SiteSettings from "../../../../api/sitesettings";
+import {getNavSettings, getSettings} from "../../../../api/sitesettings";
 import Nav from "../../UI/Nav";
 import RankingFilter from "../../UI/Rankings/RankingFilter";
 import {getDetailedSettings, getTotalRankingEntries, getTopPlayersEveryGametype, getRankingData, playtimeOptions, activeOptions} from "../../../../api/rankings";
@@ -89,13 +89,12 @@ export default async function Page({params, searchParams}){
     const session = new Session(ip, cookiesData);
 
     await session.load();
-    const siteSettings = new SiteSettings();
-    const navSettings = await siteSettings.getCategorySettings("Navigation");
+    const navSettings = await getNavSettings();
     const sessionSettings = session.settings;
 
     const rankingSettings = await getDetailedSettings();
 
-    const pageSettings = await siteSettings.getCategorySettings("rankings");
+    const pageSettings = await getSettings("rankings");
 
     const gametypes = await getAllObjectNames("gametypes");
 

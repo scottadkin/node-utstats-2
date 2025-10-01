@@ -1,6 +1,6 @@
 import Nav from "../UI/Nav";
 import Session from "../../../api/session";
-import SiteSettings from "../../../api/sitesettings";
+import {getNavSettings, getSettings} from "../../../api/sitesettings";
 import { headers, cookies } from "next/headers";
 import Servers from "../../../api/servers";
 import {getImages as getMapImages} from "../../../api/maps";
@@ -28,8 +28,7 @@ export default async function Page(){
     const session = new Session(ip, cookiesData);
 
     await session.load();
-    const siteSettings = new SiteSettings();
-    const navSettings = await siteSettings.getCategorySettings("Navigation");
+    const navSettings = await getNavSettings();
     const sessionSettings = session.settings;
 
     const serverManager = new Servers();

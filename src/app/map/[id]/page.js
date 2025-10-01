@@ -1,8 +1,8 @@
 import Nav from "../../UI/Nav";
 import Session from "../../../../api/session";
-import SiteSettings from "../../../../api/sitesettings";
+import {getSettings, getNavSettings} from "../../../../api/sitesettings";
 import { headers, cookies } from "next/headers";
-import { getBasic, getSpawns, getGraphHistoryData, getTopPlayersPlaytime, getLongestMatches } from "../../../../api/maps";
+import { getBasic, getSpawns, getGraphHistoryData, getTopPlayersPlaytime, getLongestMatches, getRecent as getRecentMatches } from "../../../../api/maps";
 import { removeUnr, getGametypePrefix, cleanMapName } from "../../../../api/generic.mjs";
 import MapSummary from "../../UI/Maps/MapSummary";
 import MapHistoryGraph from "../../UI/Maps/MapHistoryGraph";
@@ -51,10 +51,11 @@ export default async function Page({params, searchParams}){
     const session = new Session(ip, cookiesData);
 
     await session.load();
-    const siteSettings = new SiteSettings();
-    const navSettings = await siteSettings.getCategorySettings("Navigation");
-    const pageSettings = await siteSettings.getCategorySettings("Map Pages");
+   // const siteSettings = new SiteSettings();
+    const navSettings = await getNavSettings();
+    const pageSettings = await getSettings("Map Pages");
     const sessionSettings = session.settings;
+    const matchesSettings = await getSettings("Matches Page");
 
     const basic = await getBasic(id);
     const spawns = await getSpawns(id);
@@ -88,7 +89,8 @@ export default async function Page({params, searchParams}){
     const assaultImages = await getMapAssaultImages(cleanMapName(basic.name));
     const addictedPlayers = await getTopPlayersPlaytime(id, pageSettings["Max Addicted Players"]);
     const longestMatches = await getLongestMatches(id, pageSettings["Max Longest Matches"], basic.name);
-
+    console.log(matchesSettings);
+//await getRecentMatches(id, 1, 10, null,);
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
         <div id="content">

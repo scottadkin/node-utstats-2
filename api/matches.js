@@ -20,7 +20,7 @@ import { getUniqueValues, setIdNames } from "./generic.mjs";
 import { getObjectName } from "./genericServerSide.mjs";
 import { deleteFromDatabase as logsDeleteFromDatabase } from "./logs.js";
 import MonsterHunt from "./monsterhunt.js";
-import SiteSettings from "./sitesettings.js";
+import {getSettings} from "./sitesettings.js";
 
 export default class Matches{
 
@@ -128,7 +128,7 @@ export default class Matches{
         const gametypeQuery = `SELECT * FROM nstats_matches WHERE gametype=? AND playtime >=? AND players >=? 
         ORDER BY date DESC, id DESC LIMIT ?, ?`;
 
-        const settings = await SiteSettings.getSettings("Matches Page");
+        const settings = await getSettings("Matches Page");
 
         const vars = [settings["Minimum Playtime"], settings["Minimum Players"], start, perPage];
 
@@ -179,7 +179,7 @@ export default class Matches{
         const defaultQuery = `SELECT COUNT(*) as total_matches FROM nstats_matches WHERE players>=? AND playtime>=?`;
         const gametypeQuery = `SELECT COUNT(*) as total_matches FROM nstats_matches WHERE gametype=? AND players>=? AND playtime>=?`;
 
-        const settings = await SiteSettings.getSettings("Matches Page");
+        const settings = await getSettings("Matches Page");
         const vars = [settings["Minimum Players"], settings["Minimum Playtime"]];
 
         let query = "";
@@ -241,7 +241,7 @@ export default class Matches{
 
         const query = "SELECT MIN(date) as first_match FROM nstats_matches WHERE players>=? AND playtime>=?";
 
-        const settings = await SiteSettings.getSettings("Matches Page");
+        const settings = await getSettings("Matches Page");
 
         const result = await simpleQuery(query, [settings["Minimum Players"], settings["Minimum Playtime"]]);
 
@@ -257,7 +257,7 @@ export default class Matches{
 
         const query = "SELECT MAX(date) as last_match FROM nstats_matches WHERE players>=? AND playtime>=?";
 
-        const settings = await SiteSettings.getSettings("Matches Page");
+        const settings = await getSettings("Matches Page");
         const result = await simpleQuery(query, [settings["Minimum Players"], settings["Minimum Playtime"]]);
 
         if(result.length > 0){

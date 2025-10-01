@@ -1,5 +1,5 @@
 import Session from "../../../api/session";
-import SiteSettings from "../../../api/sitesettings";
+import {getSettings, getNavSettings} from "../../../api/sitesettings";
 import { headers, cookies } from "next/headers";
 import Nav from "../UI/Nav";
 import SearchForm from "../UI/Matches/SearchForm";
@@ -100,11 +100,10 @@ export default async function Page({ searchParams}){
     const session = new Session(ip, cookiesData);
 
     await session.load();
-    const siteSettings = new SiteSettings();
-    const navSettings = await siteSettings.getCategorySettings("Navigation");
+    const navSettings = await getNavSettings("Navigation");
     const sessionSettings = session.settings;
 
-    const pageSettings = await siteSettings.getCategorySettings("Matches Page");
+    const pageSettings = await getSettings("Matches Page");
 
     const defaultPerPage = pageSettings["Default Display Per Page"];
     let perPage = (query.pp !== undefined) ? parseInt(query.pp) : defaultPerPage;

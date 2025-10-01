@@ -1,5 +1,5 @@
 import Nav from "../UI/Nav";
-import SiteSettings from "../../../api/sitesettings"
+import {getNavSettings} from "../../../api/sitesettings";
 import Session from "../../../api/session";
 import { headers, cookies } from "next/headers";
 import SearchForm from "../UI/Maps/SearchForm";
@@ -98,8 +98,7 @@ export default async function Page({params, searchParams}){
 	const session = new Session(ip, JSON.stringify(cookiesData));
 
 	await session.load();
-	const siteSettings = new SiteSettings();
-	const navSettings = await siteSettings.getCategorySettings("Navigation");
+	const navSettings = await getNavSettings("Navigation");
 	const sessionSettings = JSON.stringify(session.settings);
 
 

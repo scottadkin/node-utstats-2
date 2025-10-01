@@ -1,6 +1,6 @@
 import Nav from "../../UI/Nav";
 import Session from "../../../../api/session";
-import SiteSettings from "../../../../api/sitesettings";
+import {getSettings, getNavSettings} from "../../../../api/sitesettings";
 import { headers, cookies } from "next/headers";
 import { validPlayerTotalTypes, totalPerPageOptions, validPlayerMatchTypes, validPlayerCTFTotalTypes, 
     getPlayerTotalRecords, bValidPlayerType, bValidTotalType, bValidPlayerCTFTotalType,
@@ -168,8 +168,7 @@ export default async function Page({params, searchParams}){
     const session = new Session(ip, cookiesData);
 
     await session.load();
-    const siteSettings = new SiteSettings();
-    const navSettings = await siteSettings.getCategorySettings("Navigation");
+    const navSettings = await getNavSettings();
     const sessionSettings = session.settings;
 
 

@@ -269,47 +269,13 @@ export default class SiteSettings{
 
     async getCategorySettings(cat){
 
-        const query = "SELECT name,value FROM nstats_site_settings WHERE category=?";
-
-        const result = await simpleQuery(query, [cat]);
-
-        const settings = {};
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-
-            settings[r.name] = r.value;
-        }
-
-        if(cat === "Navigation"){
-
-            const order = await this.getCategoryOrder(cat);
-
-            return {"settings": settings, "order": order};
-        }
-
-        return settings;
+        throw new Error(`Dont use getCategorySettings`);
     }
 
     //lazy copy paste until I replace calls to the above function
     static async getSettings(cat){
-
-        const query = "SELECT name,value FROM nstats_site_settings WHERE category=?";
-
-        const result = await simpleQuery(query, [cat]);
-
-        const settings = {};
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-
-            settings[r.name] = r.value;
-        }
         
-
-        return settings;
+        throw new Error(`DONT USE THIS METHOD`);
     }
 
 
@@ -431,25 +397,7 @@ export default class SiteSettings{
         return errors;
     }*/
 
-    async getCategoryOrder(categoryName){
 
-        //const query = "SELECT name,page_order,value FROM nstats_site_settings WHERE category=? ORDER BY page_order ASC";
-        const query = "SELECT name,page_order,value FROM nstats_site_settings WHERE category=? AND (value ='true' OR value='false') ORDER BY page_order ASC";
-
-        const result = await simpleQuery(query, [categoryName]);
-
-        const dataObject = {};
-
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-            dataObject[r.name] = i;
-   
-        }
-
-        return dataObject;
-    }
 
     async getAllSettings(){
 
@@ -491,4 +439,66 @@ export default class SiteSettings{
             await this.updateSetting(s.category, s.name, s.value, s.page_order);
         }
     }
+}
+
+
+export async function getSettings(cat){
+
+    const query = "SELECT name,value FROM nstats_site_settings WHERE category=?";
+
+    const result = await simpleQuery(query, [cat]);
+
+    const settings = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        settings[r.name] = r.value;
+    }
+    
+
+    return settings;
+}
+
+export async function getCategoryOrder(categoryName){
+
+    //const query = "SELECT name,page_order,value FROM nstats_site_settings WHERE category=? ORDER BY page_order ASC";
+    const query = "SELECT name,page_order,value FROM nstats_site_settings WHERE category=? AND (value ='true' OR value='false') ORDER BY page_order ASC";
+
+    const result = await simpleQuery(query, [categoryName]);
+
+    const dataObject = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        dataObject[r.name] = i;
+
+    }
+
+    return dataObject;
+}
+
+export async function getNavSettings(){
+
+
+    const query = "SELECT name,value FROM nstats_site_settings WHERE category=?";
+
+    const result = await simpleQuery(query, ["Navigation"]);
+
+    const settings = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        settings[r.name] = r.value;
+    }
+
+    const order = await getCategoryOrder("Navigation");
+
+    return {"settings": settings, "order": order};
+  
+    
 }

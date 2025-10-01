@@ -321,7 +321,7 @@ export default class Maps{
     }
 
 
-    async getRecent(id, page, perPage, playerManager){
+    /*async getRecent(id, page, perPage, playerManager){
 
         const query = "SELECT * FROM nstats_matches WHERE map=? AND playtime>=? AND players>=? ORDER BY date DESC, id DESC LIMIT ?, ?";
 
@@ -355,7 +355,7 @@ export default class Maps{
 
         return result;
 
-    }
+    }*/
 
     async getMatchDates(map, limit){
 
@@ -1303,4 +1303,41 @@ export async function getLongestMatches(mapId, limit, mapName){
     }
 
     return result;
+}
+
+
+export async function getRecent(id, page, perPage, playerManager, minPlayers, minPlaytime){
+
+    const query = "SELECT * FROM nstats_matches WHERE map=? AND playtime>=? AND players>=? ORDER BY date DESC, id DESC LIMIT ?, ?";
+
+    //const settings = this.currentSettings();
+
+    page = parseInt(page);
+    if(page !== page) page = 1;
+    page--;
+
+    perPage = parseInt(perPage);
+    if(perPage !== perPage) perPage = 25;
+
+    const start = page * perPage;
+
+    const vars = [id, minPlaytime, minPlayers, start, perPage];
+    
+    const result = await simpleQuery(query, vars);
+
+    const dmWinners = new Set(result.map(r => r.dm_winner));
+
+    const playersInfo = await getBasicPlayersByIds([...dmWinners])//playerManager.getNamesByIds([...dmWinners], true);
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        if(r.dm_winner !== 0){
+            r.dmWinner = playersInfo[r.dm_winner];
+        }
+    }
+
+    return result;
+
 }
