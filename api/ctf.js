@@ -3811,3 +3811,12 @@ export async function getMapCaps(mapId, mode, page, perPage){
 
     return {"caps": caps, "assistData": assistDetails.assists, "playerIds": playerIds};
 }
+
+
+export async function bMapHaveCTFCaps(mapId){
+    
+    const query = `SELECT COUNT(*) as total_caps FROM nstats_ctf_caps WHERE map_id=?`;
+
+    const result = await simpleQuery(query, [mapId]);
+    return result[0].total_caps > 0;
+}

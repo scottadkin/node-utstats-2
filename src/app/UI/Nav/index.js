@@ -43,7 +43,7 @@ const defaultOrder = {
     'Display Login/Logout': 9
 };
 
-function Nav({session, settings}){
+export default function Nav({session, settings}){
 
     let displayName = "NOT FOUND";
 
@@ -163,5 +163,3 @@ function Nav({session, settings}){
         </div>   
     );
 }
-
-export default Nav;

@@ -22,10 +22,6 @@ export async function POST(req){
             const players = await getBasicPlayersByIds([...data.playerIds]);
             const totalCaps = await getMapTotalCaps(mapId, capType);
 
-            //delete data.playerIds;
-            console.log(data);
-            console.log("----------------------------------------------------------");
-
             return Response.json({"caps": data, "players": players, "totalCaps": totalCaps});
         }
 

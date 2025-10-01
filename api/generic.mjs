@@ -800,3 +800,14 @@ export function sanatizePage(value){
     
     return value;
 }
+
+
+export function getGametypePrefix(name){
+
+    const reg = /^(.+?)-.+$/i;
+
+    const result = reg.exec(name);
+    if(result === null) return "dm";
+
+    return result[1].toLowerCase();
+}

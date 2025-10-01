@@ -153,14 +153,6 @@ export default class Domination{
         return await simpleQuery(query, [id]);
     }
 
-    async getMapFullControlPoints(map){
-
-
-        const query = "SELECT name,matches,captured,x,y,z FROM nstats_dom_control_points WHERE map=?";
-
-        return await simpleQuery(query, [map]);
-    }
-
     async updatePlayerBestLifeCaps(gametypeId, masterId, caps){
 
         const query = `UPDATE nstats_player_totals SET 
@@ -628,4 +620,11 @@ export default class Domination{
             await this.deleteControlPointDuplicates(d.id, d.name, newId);
         }
     }
+}
+
+export async function getMapFullControlPoints(mapId){
+
+    const query = "SELECT name,matches,captured,x,y,z FROM nstats_dom_control_points WHERE map=?";
+
+    return await simpleQuery(query, [mapId]);
 }

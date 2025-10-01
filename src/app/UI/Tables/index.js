@@ -28,9 +28,12 @@ export function BasicTable({headers, rows, width, columnStyles, title}){
             const col = rows[i][x];
             let display = col;
 
-            if(typeof col === "object" && col.className !== undefined){
-                display = col.value;
-                style = `${style} ${col.className}`
+
+            if(col !== null && typeof col === "object" && col.className !== undefined){
+               //if(col.className !== undefined){
+                    display = col.value;
+                    style = `${style} ${col.className}`;
+               // }
             }
 
         

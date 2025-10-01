@@ -3,12 +3,14 @@ import Session from "../../../../api/session";
 import SiteSettings from "../../../../api/sitesettings";
 import { headers, cookies } from "next/headers";
 import { getBasic, getSpawns, getGraphHistoryData } from "../../../../api/maps";
-import { removeUnr } from "../../../../api/generic.mjs";
+import { removeUnr, getGametypePrefix } from "../../../../api/generic.mjs";
 import MapSummary from "../../UI/Maps/MapSummary";
 import MapHistoryGraph from "../../UI/Maps/MapHistoryGraph";
-import { getFlagLocations } from "../../../../api/ctf";
+import { getFlagLocations, bMapHaveCTFCaps } from "../../../../api/ctf";
 import MapSpawns from "../../UI/Maps/MapSpawns";
 import MapCTFCaps from "../../UI/Maps/MapCTFCaps";
+import { getMapFullControlPoints } from "../../../../api/domination";
+import MapDomControlPoints from "../../UI/Maps/MapDomControlPoints";
 
 function setQueryValues(params, searchParams){
 
@@ -72,8 +74,11 @@ export default async function Page({params, searchParams}){
     }
 
     basic.name = removeUnr(basic.name);
+    const gametypePrefix = getGametypePrefix(basic.name);
+    
 
-    console.log(pageSettings);
+    const bAnyCTFCaps = await bMapHaveCTFCaps(id);
+    const domControlPoints = await getMapFullControlPoints(id);
 
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
@@ -83,7 +88,8 @@ export default async function Page({params, searchParams}){
                 {(pageSettings["Display Summary"] === "false") ? null :<MapSummary data={basic} spawns={spawns}/>}
                 {(historyGraphData === null) ? null :<MapHistoryGraph data={historyGraphData} />}
                 {(pageSettings["Display Spawn Points"] === "true") ? <MapSpawns spawns={spawns} flagLocations={flagLocations}/> : null}
-                {(pageSettings["Display CTF Caps"] === "true") ? <MapCTFCaps mapId={id} perPage={25} page={1} mode="solo"/> : null}
+                {(bAnyCTFCaps && pageSettings["Display CTF Caps"] === "true") ? <MapCTFCaps mapId={id} perPage={25} page={1} mode="solo"/> : null}
+                <MapDomControlPoints points={domControlPoints}/>
             </div>    
         </div>   
     </main>; 
