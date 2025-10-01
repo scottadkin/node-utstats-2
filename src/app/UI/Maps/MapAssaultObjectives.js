@@ -6,14 +6,13 @@ const getObjectImage = (images, mapName, name) =>{
     name = `images/assault/${mapName}/${name}.jpg`;
 
     for(let i = 0; i < images.length; i++){
-
         if(images[i] === `/${name}`) return name;
     }
 
     return "images/temp.jpg";
 }
 
-const MapAssaultObjectives = ({host, objects, mapPrefix, mapName, images}) =>{
+export default function MapAssaultObjectives({objects, mapPrefix, mapName, images}){
 
     if(mapPrefix !== "as") return null;
 
@@ -21,18 +20,13 @@ const MapAssaultObjectives = ({host, objects, mapPrefix, mapName, images}) =>{
 
     const elems = [];
 
-    objects = JSON.parse(objects);
-    images = JSON.parse(images);
-
     if(objects.length === 0) return null;
-
-    let o = 0;
 
     let percent = 0;
 
     for(let i = 0; i < objects.length; i++){
 
-        o = objects[i];
+        const o = objects[i];
 
         if(mapName === "rook"){
 
@@ -47,7 +41,6 @@ const MapAssaultObjectives = ({host, objects, mapPrefix, mapName, images}) =>{
                         N/A
                     </div>
                 </div>);
-
             }
         }
         
@@ -83,6 +76,7 @@ const MapAssaultObjectives = ({host, objects, mapPrefix, mapName, images}) =>{
                 </div>);
 
             }else if(mapName === "overlord"){
+
                 elems.push(<div key={"rook-end"} className={styles.box}>
                     <div className={styles.image}>
                         <Image  alt="image" src={`/${getObjectImage(images, mapName, 3)}`} width="350" height="196" />
@@ -92,19 +86,12 @@ const MapAssaultObjectives = ({host, objects, mapPrefix, mapName, images}) =>{
                         N/A
                     </div>
                 </div>);
-            }
-            
-        }
-        
-
-        
+            }   
+        }  
     }
 
     return <div className={`m-bottom-10 center ${styles.wrapper}`}>
         <div className="default-header">Map Objectives</div>
         {elems}
     </div>
-
 }
-
-export default MapAssaultObjectives;

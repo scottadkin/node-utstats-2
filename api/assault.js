@@ -85,26 +85,15 @@ export default class Assault{
         return await simpleQuery(query, [caps, rowId]);
     }
 
-    async getMatchCaps(matchId){
-
-        const query = "SELECT * FROM nstats_assault_match_objectives WHERE match_id=?";
-        return await simpleQuery(query, [matchId]);
-
-    }
-
-    async getMapObjectives(mapId){
-
-        const query = "SELECT map,obj_order,name,obj_id,matches,taken FROM nstats_assault_objects WHERE map=?";
-        return await simpleQuery(query, [mapId]);
-    }
+    
 
 
     async getMatchData(matchId, mapId){
 
         try{
 
-            const mapObjectives = await this.getMapObjectives(mapId);
-            const caps = await this.getMatchCaps(matchId);
+            const mapObjectives = await getMapObjectives(mapId);
+            const caps = await getMatchCaps(matchId);
 
 
             return {"objectives": mapObjectives, "caps": caps};
@@ -114,49 +103,6 @@ export default class Assault{
         }
     }
 
-
-
-
-    async getMapImages(mapName){
-
-        try{
-
-            mapName = mapName.toLowerCase();
-
-            mapName = mapName.replace(/\W\S\D/ig,'');
-            console.log(`mapName = ${mapName}`);
-            const dir = fs.readdirSync(`public/images/assault/`);
-
-            console.log(dir);
-
-            if(dir.indexOf(mapName) !== undefined){
-
-                const files = fs.readdirSync(`public/images/assault/${mapName}`);
-
-                console.log(files);
-
-                for(let i = 0; i < files.length; i++){
-                    files[i] = `/images/assault/${mapName}/${files[i]}`;
-                }
-
-                console.table(files);
-
-                return files;
-
-            }else{
-                return [];
-            }
-
-        }catch(err){
-
-            if(err.code !== "ENOENT"){
-                console.trace(err);
-            }else{
-                console.log("Assault object folder does not exist");
-            }
-            return [];
-        }   
-    }
 
     async deleteMatchObjectives(id){
 
@@ -176,7 +122,7 @@ export default class Assault{
 
         try{
 
-            const matchCaps = await this.getMatchCaps(id);
+            const matchCaps = await getMatchCaps(id);
 
             if(matchCaps.length === 0) return;
             
@@ -436,4 +382,53 @@ export default class Assault{
         await this.changeMatchObjectivesMapId(oldId, newId);
         await this.changeObjectivesMapId(oldId, newId);
     }
+}
+
+
+export async function getMatchCaps(matchId){
+
+    const query = "SELECT * FROM nstats_assault_match_objectives WHERE match_id=?";
+    return await simpleQuery(query, [matchId]);
+
+}
+
+export async function getMapObjectives(mapId){
+
+    const query = "SELECT obj_order,name,obj_id,matches,taken FROM nstats_assault_objects WHERE map=?";
+    return await simpleQuery(query, [mapId]);
+}
+
+export async function getMapImages(mapName){
+
+    try{
+
+        mapName = mapName.toLowerCase();
+
+        mapName = mapName.replace(/\W\S\D/ig,'');
+
+        const dir = fs.readdirSync(`public/images/assault/`);
+
+        if(dir.indexOf(mapName) !== undefined){
+
+            const files = fs.readdirSync(`public/images/assault/${mapName}`);
+
+            for(let i = 0; i < files.length; i++){
+                files[i] = `/images/assault/${mapName}/${files[i]}`;
+            }
+
+            return files;
+
+        }else{
+            return [];
+        }
+
+    }catch(err){
+
+        if(err.code !== "ENOENT"){
+            console.trace(err);
+        }else{
+            console.log("Assault object folder does not exist");
+        }
+        return [];
+    }   
 }

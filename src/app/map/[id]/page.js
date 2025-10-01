@@ -3,7 +3,7 @@ import Session from "../../../../api/session";
 import SiteSettings from "../../../../api/sitesettings";
 import { headers, cookies } from "next/headers";
 import { getBasic, getSpawns, getGraphHistoryData } from "../../../../api/maps";
-import { removeUnr, getGametypePrefix } from "../../../../api/generic.mjs";
+import { removeUnr, getGametypePrefix, cleanMapName } from "../../../../api/generic.mjs";
 import MapSummary from "../../UI/Maps/MapSummary";
 import MapHistoryGraph from "../../UI/Maps/MapHistoryGraph";
 import { getFlagLocations, bMapHaveCTFCaps } from "../../../../api/ctf";
@@ -11,6 +11,8 @@ import MapSpawns from "../../UI/Maps/MapSpawns";
 import MapCTFCaps from "../../UI/Maps/MapCTFCaps";
 import { getMapFullControlPoints } from "../../../../api/domination";
 import MapDomControlPoints from "../../UI/Maps/MapDomControlPoints";
+import { getMapObjectives, getMapImages as getMapAssaultImages } from "../../../../api/assault";
+import MapAssaultObjectives from "../../UI/Maps/MapAssaultObjectives";
 
 function setQueryValues(params, searchParams){
 
@@ -79,6 +81,9 @@ export default async function Page({params, searchParams}){
 
     const bAnyCTFCaps = await bMapHaveCTFCaps(id);
     const domControlPoints = await getMapFullControlPoints(id);
+    const assaultObjectives = await getMapObjectives(id);
+    const assaultImages = await getMapAssaultImages(cleanMapName(basic.name));
+
 
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
@@ -90,6 +95,7 @@ export default async function Page({params, searchParams}){
                 {(pageSettings["Display Spawn Points"] === "true") ? <MapSpawns spawns={spawns} flagLocations={flagLocations}/> : null}
                 {(bAnyCTFCaps && pageSettings["Display CTF Caps"] === "true") ? <MapCTFCaps mapId={id} perPage={25} page={1} mode="solo"/> : null}
                 <MapDomControlPoints points={domControlPoints}/>
+                <MapAssaultObjectives objects={assaultObjectives} mapPrefix={gametypePrefix} mapName={cleanMapName(basic.name)} images={assaultImages}/>
             </div>    
         </div>   
     </main>; 
