@@ -461,27 +461,8 @@ export async function getSettings(cat){
     return settings;
 }
 
-export async function getCategoryOrder(categoryName){
-
-    //const query = "SELECT name,page_order,value FROM nstats_site_settings WHERE category=? ORDER BY page_order ASC";
-    const query = "SELECT name,page_order,value FROM nstats_site_settings WHERE category=? AND (value ='true' OR value='false') ORDER BY page_order ASC";
-
-    const result = await simpleQuery(query, [categoryName]);
-
-    const dataObject = {};
-
-    for(let i = 0; i < result.length; i++){
-
-        const r = result[i];
-        dataObject[r.name] = i;
-
-    }
-
-    return dataObject;
-}
 
 export async function getNavSettings(){
-
 
     const query = "SELECT name,value FROM nstats_site_settings WHERE category=?";
 
@@ -496,9 +477,24 @@ export async function getNavSettings(){
         settings[r.name] = r.value;
     }
 
-    const order = await getCategoryOrder("Navigation");
+    const order = await getPageOrder("Navigation");
 
-    return {"settings": settings, "order": order};
-  
+    return {"settings": settings, "order": order};    
+}
+
+export async function getPageOrder(cat){
     
+    const query = `SELECT name,page_order FROM nstats_site_settings WHERE category=? AND (value='true' OR value='false')`;
+
+    const result = await simpleQuery(query, [cat]);
+
+    const data = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const {name, page_order} = result[i];
+        data[name] = parseInt(page_order);
+    }
+
+    return data;
 }

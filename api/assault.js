@@ -426,8 +426,6 @@ export async function getMapImages(mapName){
 
         if(err.code !== "ENOENT"){
             console.trace(err);
-        }else{
-            console.log("Assault object folder does not exist");
         }
         return [];
     }   

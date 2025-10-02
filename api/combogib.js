@@ -364,6 +364,8 @@ export default class Combogib{
 
         const result = await simpleQuery(query, [mapId, gametypeId]);
 
+        if(result.length === 0) return {"data": [], "players": {}};
+
         const playerIds = new Set();
         
         if(result.length === 0) return null
