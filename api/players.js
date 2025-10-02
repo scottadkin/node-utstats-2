@@ -1,6 +1,6 @@
 import Player from "./player.js";
 import { simpleQuery, bulkInsert } from "./database.js";
-import { removeIps, setIdNames, getUniqueValues } from "./generic.mjs";
+import { removeIps, setIdNames, getUniqueValues, getPlayer } from "./generic.mjs";
 import Matches from "./matches.js";
 import Assault from "./assault.js";
 import CTF from "./ctf.js";
@@ -15,7 +15,7 @@ import Weapons from "./weapons.js";
 import Rankings from "./rankings.js";
 import WinRate from "./winrate.js";
 import CountriesManager from "./countriesmanager.js";
-import Faces from "./faces.js";
+import Faces, { getFacesById } from "./faces.js";
 import Teams from "./teams.js";
 import Voices from "./voices.js";
 import Sprees from "./sprees.js";
@@ -24,6 +24,7 @@ import Combogib from "./combogib.js";
 import PowerUps from "./powerups.js";
 import Telefrags from "./telefrags.js";
 import Message from "./message.js";
+import { getPlayerMatchCTFData } from "./ctf.js";
 
 export default class Players{
 
@@ -1807,23 +1808,7 @@ export default class Players{
 
     }
 
-    async getAllInMatch(id){
 
-        const query = "SELECT * FROM nstats_player_matches WHERE match_id=?";
-
-        const players = await simpleQuery(query, [id]);
-
-        for(let i = 0; i < players.length; i++){
-            delete players[i].ip;
-            delete players[i].hwid;
-        }
-
-        const ctf = new CTF();
-        await ctf.setMatchCTFData(id, players);
-        await this.setPlayerMatchNames(players);
-        
-        return players;
-    }
 
     async getSinglePlayerInMatch(matchId, playerId){
 
@@ -1831,14 +1816,26 @@ export default class Players{
 
         const players = await simpleQuery(query, [matchId, playerId]);
 
+        if(players.length === 0) return [];
 
-        for(let i = 0; i < players.length; i++){
-            delete players[i].ip;
+        
+
+        //for(let i = 0; i < players.length; i++){
+            delete players[0].ip;
+            delete players[0].hwid;
+        //}
+
+        const ctfData = await getPlayerMatchCTFData(matchId, [playerId]);
+        const playersInfo = await getBasicPlayersByIds([playerId]);
+        //await this.setPlayerMatchNames(players);
+        const pInfo = getPlayer(playersInfo, playerId, true);
+
+        players[0].name = pInfo.name;
+
+        if(ctfData[playerId] !== undefined){
+            players[0].ctfData = ctfData[playerId];
         }
 
-        const ctf = new CTF();
-        await ctf.setMatchCTFData(matchId, players);
-        await this.setPlayerMatchNames(players);
 
         return players;
 
@@ -3573,4 +3570,55 @@ export async function getPlayersCountries(playerIds){
     }
 
     return obj;
+}
+
+
+export async function getAllInMatch(id){
+
+    const query = "SELECT * FROM nstats_player_matches WHERE match_id=?";
+
+    const players = await simpleQuery(query, [id]);
+
+    for(let i = 0; i < players.length; i++){
+        delete players[i].ip;
+        delete players[i].hwid;
+    }
+
+    const faceIds = new Set();
+    const playerIds = new Set();
+
+
+    for(let i = 0; i < players.length; i++){
+
+        const p = players[i];
+        faceIds.add(p.face);
+        playerIds.add(p.player_id);
+    }
+
+
+    const ctfData = await getPlayerMatchCTFData(id, [...playerIds]);
+    //const ctf = new CTF();
+    //await ctf.setMatchCTFData(id, players);
+    //console.log(players);
+
+    //console.log(playerIds);
+    const playerNames = await getBasicPlayersByIds([...playerIds]);
+
+    //const faces = await getFacesById([...faceIds]);
+
+
+    for(let i = 0; i < players.length; i++){
+
+        const p = players[i];
+        const pInfo = getPlayer(playerNames, p.player_id, true);
+        p.name = pInfo.name;
+
+        if(ctfData[p.player_id] === undefined) continue;
+
+        p.ctfData = ctfData[p.player_id];
+        //p.faceImage = (faces[p.face] !== undefined) ? faces[p.face] : "faceless";
+
+    }
+
+    return players;
 }

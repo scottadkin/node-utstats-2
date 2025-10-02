@@ -1,8 +1,5 @@
 import { simpleQuery } from "./database.js";
 import shajs from "sha.js";
-//const shajs = require('sha.js');
-//const cookie = require('cookie');
-import cookie from "cookie";
 import { generateRandomString } from "./functions.js";
 import salt from "../salt.js";
 import Message from "./message.js";

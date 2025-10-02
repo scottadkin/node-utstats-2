@@ -1,4 +1,4 @@
-import {getNavSettings, getSettings, getCategoryOrder} from "../../api/sitesettings";
+import {getNavSettings, getSettings, getPageOrder} from "../../api/sitesettings";
 import { cookies, headers } from "next/headers";
 import Session from "../../api/session";
 import Matches from "../../api/matches";
@@ -7,7 +7,7 @@ import MatchesTableView from "./UI/MatchesTableView";
 import Nav from "./UI/Nav";
 import Screenshot from "./UI/Screenshot";
 import { cleanMapName, removeUnr, getUniqueValues } from "../../api/generic.mjs";
-import Faces from "../../api/faces";
+import Faces, { getFacesById } from "../../api/faces";
 import {getImages as getMapImages, getMostPlayed as getMostPlayedMaps} from "../../api/maps";
 import HomeMostPlayedGametypes from "./UI/Home/HomeMostPlayedGametypes";
 import Gametypes from "../../api/gametypes";
@@ -17,6 +17,8 @@ import CountriesManager from "../../api/countriesmanager";
 import HomeGeneralStats from "./UI/Home/HomeGeneralStats";
 import BasicPlayers from "./UI/Home/BasicPlayers";
 import MostUsedFaces from "../../components/MostUsedFaces";
+import { getAllInMatch } from "../../api/players";
+import { getFacesWithFileStatuses, getMostUsed as getMostUsedFaces } from "../../api/faces";
 
 export async function generateMetadata({ params, searchParams }, parent) {
 
@@ -42,7 +44,7 @@ export default async function Page(){
     const navSettings = await getNavSettings();
     const sessionSettings = session.settings;
     const pageSettings = await getSettings("Home");
-    const pageOrder = await getCategoryOrder("Home");
+    const pageOrder = await getPageOrder("Home");
     
     const matchManager = new Matches();
     const playerManager = new Players();
@@ -81,7 +83,7 @@ export default async function Page(){
 
         if(latestMatch.length > 0){
 
-            const latestMatchPlayers = await playerManager.getAllInMatch(latestMatch[0].id);
+            const latestMatchPlayers = await getAllInMatch(latestMatch[0].id);
 
             const playerFaces = [];
 
@@ -94,7 +96,9 @@ export default async function Page(){
 
             
 
-            const latestFaces = await faceManager.getFacesWithFileStatuses(playerFaces);
+            const latestFaces = await getFacesWithFileStatuses(playerFaces);
+
+            console.log(`latestFaces`, latestFaces);
 
             const latestMapName = latestMatch[0].mapName;
             const mapImage = getMapImages([latestMapName]);
@@ -111,7 +115,7 @@ export default async function Page(){
                 <Screenshot 
                 key={"match-sshot"} map={latestMatch[0].mapName} totalTeams={latestMatch[0].total_teams} players={latestMatchPlayers} 
                 image={`/images/maps/${latestMatchImage}.jpg`} 
-                matchData={JSON.stringify(latestMatch[0])}
+                matchData={latestMatch[0]}
                 serverName={latestMatch[0].serverName} gametypeName={latestMatch[0].gametypeName} faces={latestFaces} bHome={true}
             /></div>;
         }
@@ -181,7 +185,7 @@ export default async function Page(){
 
         const faceIds = new Set([...recentPlayersData.map((d) =>{ return d.face; })]);
         
-        const faceFiles = await faceManager.getFacesWithFileStatuses([...faceIds]);
+        const faceFiles = await getFacesWithFileStatuses([...faceIds]);
 
         elems[pageOrder["Display Recent Players"]] = <div className="default"key={"recent-players"} ><BasicPlayers 
             title="Recent Players" 
@@ -197,7 +201,7 @@ export default async function Page(){
 
         const faceIds = new Set([...addictedPlayersData.map((d) =>{ return d.face; })]);
         
-        const faceFiles = await faceManager.getFacesWithFileStatuses([...faceIds]);
+        const faceFiles = await getFacesWithFileStatuses([...faceIds]);
 
         elems[pageOrder["Display Addicted Players"]] = <div className="default" key={"addicted-players"}><BasicPlayers 
             title="Addicted Players" 
@@ -208,9 +212,9 @@ export default async function Page(){
 
     if(pageSettings["Display Most Used Faces"] === "true"){
 
-        const mostUsedFaces = await faceManager.getMostUsed(5);
+        const mostUsedFaces = await getMostUsedFaces(5);
         const faceIds = new Set([...mostUsedFaces.map((d) =>{ return d.id; })]);
-        const faceFiles = await faceManager.getFacesWithFileStatuses([...faceIds]);
+        const faceFiles = await getFacesWithFileStatuses([...faceIds]);
 
         elems[pageOrder["Display Most Used Faces"]] = <MostUsedFaces key={"faces"} data={mostUsedFaces} images={faceFiles} />;
     }

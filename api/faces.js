@@ -232,92 +232,6 @@ export default class Faces{
 
     }
 
-    //smartCTF strips some data from the texture name, so we have to strip the face file names in the same way
-    //then compare file names for matches instead of having duplicate images with slightly different names.
-    smartCTFFaceComparison(string, faceFiles){
-
-        const reg = /^(.+)\.(.+?)5(.+)\.png$/i;
-        const stripExtReg = /^(.+)\.png$/i;
-
-        for(let i = 0; i < faceFiles.length; i++){
-
-            const f = faceFiles[i];
-
-            const result = reg.exec(f);
-
-            if(result !== null){
-
-                const cleanedFileName = `${result[1]}.${result[3]}`;
-
-                if(cleanedFileName === string){
-
-                    const stripResult = stripExtReg.exec(f);
-
-                    if(stripResult !== null){
-                        return stripResult[1];
-                    }
-                }
-            }
-        }
-
-        return null;
-        
-    }
-
-    async getFacesWithFileStatuses(faceIds){
-
-        try{
-
-            const faces = await this.getFacesName(faceIds);
-
-            //console.log(faces);
-
-            const newFaces = {};
-
-            const files = fs.readdirSync('public/images/faces/');
-
-           // console.log(files);
-
-            for(let i = 0; i < faces.length; i++){
-
-                const smartCTFFaceName = this.smartCTFFaceComparison(faces[i].name, files);
- 
-                if(smartCTFFaceName === null){
-
-                    newFaces[faces[i].id] = {
-        
-                        "name": (files.indexOf(`${faces[i].name}.png`) !== -1) ? faces[i].name : "faceless"
-                    };
-
-                }else{
-                    newFaces[faces[i].id] = {"name": smartCTFFaceName};
-                }
-            }
-
-            //add missing ones as faceless
-            for(let i = 0; i < faceIds.length; i++){
-
-                if(newFaces[faceIds[i]] === undefined){
-                    newFaces[faceIds[i]] = {"name": "faceless"};
-                }
-
-            }
-
-            return newFaces;
-
-        }catch(err){
-            console.log(err);
-        }
-    }
-
-
-    async getMostUsed(limit){
-
-        const query = "SELECT * FROM nstats_faces ORDER BY uses DESC LIMIT ?";
-
-        return await simpleQuery(query, [limit]);
-    }
-
 
     async getAll(){
 
@@ -459,4 +373,113 @@ export default class Faces{
             return currentFiles;
         }
     }
+}
+
+
+
+export async function getFacesById(ids, bReturnArray){
+
+    if(ids.length === 0) return {};
+    if(bReturnArray === undefined) bReturnArray = false;
+
+    const query = `SELECT id,name FROM nstats_faces WHERE id IN(?)`;
+
+    const result = await simpleQuery(query, [ids]);
+
+    if(bReturnArray) return result;
+
+    const data = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        data[r.id] = r.name;
+    }
+
+    return data;
+
+}
+
+//smartCTF strips some data from the texture name, so we have to strip the face file names in the same way
+//then compare file names for matches instead of having duplicate images with slightly different names.
+export function smartCTFFaceComparison(string, faceFiles){
+
+    const reg = /^(.+)\.(.+?)5(.+)\.png$/i;
+    const stripExtReg = /^(.+)\.png$/i;
+
+    for(let i = 0; i < faceFiles.length; i++){
+
+        const f = faceFiles[i];
+
+        const result = reg.exec(f);
+
+        if(result !== null){
+
+            const cleanedFileName = `${result[1]}.${result[3]}`;
+
+            if(cleanedFileName === string){
+
+                const stripResult = stripExtReg.exec(f);
+
+                if(stripResult !== null){
+                    return stripResult[1];
+                }
+            }
+        }
+    }
+
+    return null;
+    
+}
+
+export async function getFacesWithFileStatuses(faceIds){
+
+    try{
+
+        //const faces = await this.getFacesName(faceIds);
+        const faces = await getFacesById(faceIds);
+
+        //console.log(faces);
+
+        const newFaces = {};
+
+        const files = fs.readdirSync('public/images/faces/');
+
+
+        for(const [id, name] of Object.entries(faces)){
+
+            const smartCTFFaceName = smartCTFFaceComparison(name, files);
+
+            if(smartCTFFaceName === null){
+
+                newFaces[id] = {
+                    "name": (files.indexOf(`${name}.png`) !== -1) ? name : "faceless"
+                };
+
+            }else{
+                newFaces[id] = {"name": smartCTFFaceName};
+            }
+        }
+
+        //add missing ones as faceless
+        for(let i = 0; i < faceIds.length; i++){
+
+            if(newFaces[faceIds[i]] === undefined){
+                newFaces[faceIds[i]] = {"name": "faceless"};
+            }
+        }
+
+
+        return newFaces;
+
+    }catch(err){
+        console.log(err);
+    }
+}
+
+export async function getMostUsed(limit){
+
+    const query = "SELECT * FROM nstats_faces ORDER BY uses DESC LIMIT ?";
+
+    return await simpleQuery(query, [limit]);
 }

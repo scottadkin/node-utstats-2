@@ -1684,45 +1684,6 @@ export default class CTF{
         
     }
 
-    async getMatchCTFData(matchId, playerIds){
-
-        if(playerIds.length === 0) return {};
-
-        const query = "SELECT * FROM nstats_player_ctf_match WHERE match_id=? AND player_id IN(?)";
-
-        const result =  await simpleQuery(query, [matchId, playerIds]);
-
-        const data = {};
-
-        for(let i = 0; i < result.length; i++){
-
-            data[result[i].player_id] = result[i];
-        }
-
-        return data;
-    }
-
-    async setMatchCTFData(matchId, players){
-
-        //console.log(players);
-
-        const playerIds = players.map((player) =>{
-            return player.player_id;
-        });
-
-
-        const ctfData = await this.getMatchCTFData(matchId, playerIds);
-
-        for(let i = 0; i < players.length; i++){
-
-            const p = players[i];
-
-            if(ctfData[p.player_id] !== undefined){
-                p.ctfData = ctfData[p.player_id];
-            }
-        }
-    }
-
     addCRKill(eventType, matchId, matchDate, mapId, capId, timestamp, playerId, playerTeam, kills){
 
         //insertCRKills
@@ -3819,4 +3780,35 @@ export async function bMapHaveCTFCaps(mapId){
 
     const result = await simpleQuery(query, [mapId]);
     return result[0].total_caps > 0;
+}
+
+export async function getPlayerMatchCTFData(matchId, playerIds){
+
+    if(playerIds.length === 0) return {};
+
+    const query = `SELECT 
+    player_id,flag_assist,flag_assist_best,flag_return,flag_return_best,
+    flag_return_base,flag_return_base_best,flag_return_mid,flag_return_mid_best,
+    flag_return_enemy_base,flag_return_enemy_base_best,flag_return_save,flag_return_save_best,
+    flag_dropped,flag_dropped_best,flag_kill,flag_kill_best,flag_suicide,
+    flag_seal,flag_seal_best,flag_seal_pass,flag_seal_pass_best,flag_seal_fail,
+    flag_seal_fail_best,best_single_seal,flag_cover,flag_cover_best,flag_cover_pass,
+    flag_cover_pass_best,flag_cover_fail,flag_cover_fail_best,flag_cover_multi,flag_cover_multi_best,
+    flag_cover_spree,flag_cover_spree_best,best_single_cover,flag_capture,flag_capture_best,
+    flag_carry_time, flag_carry_time_best,flag_taken,flag_taken_best,flag_pickup,flag_pickup_best,
+    flag_self_cover,flag_self_cover_best,flag_self_cover_pass,flag_self_cover_pass_best,
+    flag_self_cover_fail,flag_self_cover_fail_best,best_single_self_cover,flag_solo_capture,
+    flag_solo_capture_best
+    FROM nstats_player_ctf_match WHERE match_id=? AND player_id IN(?)`;
+
+    const result =  await simpleQuery(query, [matchId, playerIds]);
+
+    const data = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        data[result[i].player_id] = result[i];
+    }
+
+    return data;
 }

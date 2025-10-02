@@ -4,6 +4,10 @@ import {getSettings, getNavSettings, getPageOrder} from "../../../../api/siteset
 import { headers, cookies } from "next/headers";
 import MatchSummary from "../../UI/Match/MatchSummary";
 import { getMatch, getMatchIdFromHash } from "../../../../api/matches";
+import Screenshot from "../../UI/Screenshot";
+import { getAllInMatch } from "../../../../api/players";
+import { getPlayerMatchCTFData } from "../../../../api/ctf";
+import { getFacesById, getFacesWithFileStatuses } from "../../../../api/faces";
 
 function setQueryValues(params, searchParams){
 
@@ -41,6 +45,16 @@ export default async function Page({params, searchParams}){
 
     const info = await getMatch(matchId);
 
+    const players = await getAllInMatch(matchId);
+
+    const faceIds = new Set(players.map((p) =>{
+        return p.face;
+    }));
+
+    const faces = await getFacesWithFileStatuses([...faceIds]);
+    console.log(faceIds);
+    console.log(faces);
+
     if(info === null){
         return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
@@ -52,6 +66,9 @@ export default async function Page({params, searchParams}){
     </main>; 
     }
 
+    console.log(info);
+
+    //map, totalTeams, players, image, matchData, serverName, gametypeName, faces, highlight, bHome, bClassic
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
         <div id="content">
@@ -62,6 +79,16 @@ export default async function Page({params, searchParams}){
                     info={info}
                     settings={pageSettings}
                 />
+                <Screenshot 
+                    faces={faces} 
+                    players={players} 
+                    map={info.mapName}
+                    totalTeams={info.total_teams} 
+                    image={`/images/maps/${info.image}.jpg`}
+                    matchData={info}
+                    serverName={info.serverName} 
+                    gametypeName={info.gametypeName}
+                     bHome={false} bClassic={false}/>
             </div>    
         </div>   
     </main>; 

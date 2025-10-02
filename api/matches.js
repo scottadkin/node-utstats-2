@@ -1851,7 +1851,18 @@ export async function getMatch(id){
     r.serverName = serverNames[r.server] ?? "Not Found";
     r.gametypeName = gametypeNames[r.gametype] ?? "Not Found";
     r.mapName = (mapNames[r.map] !== undefined) ? removeUnr(mapNames[r.map]) : "Not Found";
-    r.image = getImages([r.mapName]);
+   // r.image = getImages([r.mapName]);
+
+    const images = getImages([r.mapName]);
+
+    const imageKeys = Object.keys(images);
+    
+    if(imageKeys.length > 0){
+        r.image = images[imageKeys[0]];
+    }else{
+        r.image = "default";
+    }
+   
 
     if(r.dm_winner !== 0){
 

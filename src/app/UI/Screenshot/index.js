@@ -104,6 +104,7 @@ class MatchScreenshot{
             }
 
             image.onerror = () =>{
+                console.log(url);
                 reject(`Failed to load image ${url}`);
             }
 
@@ -232,14 +233,8 @@ class MatchScreenshot{
 
     getPlayerIconName(id){
 
-        if(this.faces[id] !== undefined){
-            
-            if(this.faces[id] !== null){
-               
-                return this.faces[id].name;           
-            }
-        }
-
+        if(this.faces[id] != undefined) return this.faces[id].name;           
+          
         return 'faceless';
     }
 
