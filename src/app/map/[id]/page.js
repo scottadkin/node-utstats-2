@@ -17,6 +17,7 @@ import MapAddictedPlayers from "../../UI/Maps/MapAddictedPlayers";
 import MapLongestMatches from "../../UI/Maps/MapLongestMatches";
 import MapRecentMatches from "../../UI/Maps/MapRecentMatches";
 import CombogibMapRecords from "../../UI/Maps/CombogibMapRecords";
+import CombogibMapTotals from "../../UI/Maps/CombogibMapTotals";
 
 function setQueryValues(params, searchParams){
 
@@ -108,6 +109,7 @@ export default async function Page({params, searchParams}){
                 <MapLongestMatches data={longestMatches}/>
                 <MapRecentMatches data={recentMatches} />
                 <CombogibMapRecords mapId={id}/>
+                <CombogibMapTotals mapId={id} />
             </div>    
         </div>   
     </main>; 

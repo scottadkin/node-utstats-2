@@ -1,4 +1,6 @@
 import { bulkInsert, simpleQuery } from "./database.js";
+import { getPlayer } from "./generic.mjs";
+import { getBasicPlayersByIds } from "./players.js";
 
 export default class Combogib{
 
@@ -342,18 +344,50 @@ export default class Combogib{
 
     async getMapTotals(mapId, gametypeId){
 
+        const keys = [
+            "best_single_combo_player_id",
+            "best_single_shockball_player_id",
+            "best_single_insane_player_id",
+            "best_primary_spree_player_id",
+            "best_shockball_spree_player_id",
+            "best_combo_spree_player_id",
+            "best_insane_spree_player_id",
+            "max_combo_kills_player_id",
+            "max_insane_kills_player_id",
+            "max_shockball_kills_player_id",
+            "max_primary_kills_player_id",
+        ];
+
         if(gametypeId === undefined) gametypeId = 0;
 
         const query = "SELECT * FROM nstats_map_combogib WHERE map_id=? AND gametype_id=?";
 
         const result = await simpleQuery(query, [mapId, gametypeId]);
 
-        if(result.length > 0){
+        const playerIds = new Set();
+        
+        if(result.length === 0) return null
 
-            return result[0];
+        for(let i = 0; i < keys.length; i++){
+            playerIds.add(result[0][keys[i]]);
         }
 
-        return null;
+    
+        const pInfo = await getBasicPlayersByIds([...playerIds]);
+        const players = {};
+
+        for(let i = 0; i < keys.length; i++){
+
+            const k = keys[i];
+
+            const id = result[0][k];
+
+            players[id] = getPlayer(pInfo, id, true);
+
+        }
+
+        return {"data": result[0], "players": players};
+       
     }
 
 

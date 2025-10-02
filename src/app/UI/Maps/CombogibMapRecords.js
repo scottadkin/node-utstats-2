@@ -15,7 +15,8 @@ function reducer(state, action){
         case "set-data-type": {
 
             return {...state,
-                "dataType": action.value
+                "dataType": action.value,
+                "page": 0
             }
         }
         case "set-page": {
@@ -166,12 +167,10 @@ function renderTable(state, dispatch){
     }
 
 
-    const headers = ["&nbsp;", "Player", "Playtime", "Record"];
+    const headers = ["", "Player", "Playtime", "Record"];
     const styles = ["place", "text-left", "playtime", null];
     return <div>
         <BasicTable width={4} headers={headers} title={getTitle(state.dataType)} rows={rows} columnStyles={styles}/>
-    <br/>
-  
         <TablePagination previous={() =>{
 
             let page = state.page;
