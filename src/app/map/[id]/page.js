@@ -1,9 +1,9 @@
 import Nav from "../../UI/Nav";
 import Session from "../../../../api/session";
-import {getSettings, getNavSettings} from "../../../../api/sitesettings";
+import {getSettings, getNavSettings, getPageOrder} from "../../../../api/sitesettings";
 import { headers, cookies } from "next/headers";
 import { getBasic, getSpawns, getGraphHistoryData, getTopPlayersPlaytime, getLongestMatches, getRecent as getRecentMatches } from "../../../../api/maps";
-import { removeUnr, getGametypePrefix, cleanMapName } from "../../../../api/generic.mjs";
+import { removeUnr, getGametypePrefix, cleanMapName, convertTimestamp } from "../../../../api/generic.mjs";
 import MapSummary from "../../UI/Maps/MapSummary";
 import MapHistoryGraph from "../../UI/Maps/MapHistoryGraph";
 import { getFlagLocations, bMapHaveCTFCaps } from "../../../../api/ctf";
@@ -29,11 +29,29 @@ function setQueryValues(params, searchParams){
 }
 
 export async function generateMetadata({ params, searchParams }, parent) {
+
+    params = await params;
+    searchParams = await searchParams;
+
+    const {id} = setQueryValues(params, searchParams);
+
+    const basic = await getBasic(id);
+
+    if(basic === null){
+        return {
+            "title": "Map Not Found - Node UTStats 2",
+            "description": "Could not find the map you were looking for,",
+            "keywords": ["map", "utstats", "node"],
+        }
+    }
     
     return {
-        "title": "Map - Node UTStats 2",
-        "description": "",
+        "title": `${removeUnr(basic.name)} - Node UTStats 2`,
+        "description": `${removeUnr(basic.name)} (${basic.title}) created by ${basic.author}, ${basic.matches} matches played since ${convertTimestamp(basic.first)}, last played ${convertTimestamp(basic.last)}`,
         "keywords": ["map", "utstats", "node"],
+        "openGraph": {
+            "images": [`/images/maps/${basic.image}.jpg`]
+        }
     }
 }
 
@@ -59,16 +77,14 @@ export default async function Page({params, searchParams}){
     const pageSettings = await getSettings("Map Pages");
     const sessionSettings = session.settings;
     const matchesSettings = await getSettings("Matches Page");
+    
+    const pageOrder = await getPageOrder("Map Pages");
 
     const basic = await getBasic(id);
     const spawns = await getSpawns(id);
     const historyGraphData = (pageSettings["Display Games Played"] === "true") ? await getGraphHistoryData(id) : null;
-
-
     const flagLocations = await getFlagLocations(id);
-    console.log(basic);
 
-    
     if(basic === null){
 
         return <main>
@@ -82,34 +98,79 @@ export default async function Page({params, searchParams}){
     }
 
     basic.name = removeUnr(basic.name);
-    const gametypePrefix = getGametypePrefix(basic.name);
+    const gametypePrefix = getGametypePrefix(basic.name);    
     
-    console.log(pageSettings);
+    const elems = [];
 
-    const bAnyCTFCaps = await bMapHaveCTFCaps(id);
-    const domControlPoints = await getMapFullControlPoints(id);
-    const assaultObjectives = await getMapObjectives(id);
-    const assaultImages = await getMapAssaultImages(cleanMapName(basic.name));
-    const addictedPlayers = await getTopPlayersPlaytime(id, pageSettings["Max Addicted Players"]);
-    const longestMatches = await getLongestMatches(id, pageSettings["Max Longest Matches"], basic.name);
-    const recentMatches = await getRecentMatches(id, 1, 10, matchesSettings, basic.name);
+    
 
+    if(pageSettings["Display Control Points (Domination)"] === "true"){
+        const domControlPoints = await getMapFullControlPoints(id);
+        elems[pageOrder["Display Control Points (Domination)"]] = <MapDomControlPoints key="dom-control" points={domControlPoints}/>;
+    }
+
+    if(pageSettings["Display Summary"] === "true"){
+        elems[pageOrder["Display Summary"]] = <MapSummary key="map-sum" data={basic} spawns={spawns}/>;
+    }
+
+    if(pageSettings["Display Games Played"] === "true" && historyGraphData != null){
+        elems[pageOrder["Display Games Played"]] = <MapHistoryGraph key="history-graph" data={historyGraphData} />;
+    }
+
+    if(pageSettings["Display Spawn Points"] === "true"){
+        elems[pageOrder["Display Spawn Points"]] = <MapSpawns key="spawns" spawns={spawns} flagLocations={flagLocations}/>;
+    }
+
+    if(pageSettings["Display CTF Caps"] === "true"){
+
+        const bAnyCTFCaps = await bMapHaveCTFCaps(id);
+        if(bAnyCTFCaps){
+            elems[pageOrder["Display CTF Caps"]] = <MapCTFCaps key="ctf-caps" mapId={id} perPage={25} page={1} mode="solo"/>;
+        }
+    }
+
+    if(pageSettings["Display Map Objectives"] === "true"){
+
+        const assaultObjectives = await getMapObjectives(id);
+        const assaultImages = await getMapAssaultImages(cleanMapName(basic.name));
+
+        elems[pageOrder["Display Map Objectives"]] = <MapAssaultObjectives key="assault-obj"
+            objects={assaultObjectives} mapPrefix={gametypePrefix} 
+            mapName={cleanMapName(basic.name)} images={assaultImages}
+        />;
+    }
+
+    if(pageSettings["Display Addicted Players" === "true"]){
+        const addictedPlayers = await getTopPlayersPlaytime(id, pageSettings["Max Addicted Players"]);
+        elems[pageOrder["Display Addicted Players"]] = <MapAddictedPlayers key="addic" players={addictedPlayers}/>;
+    }
+
+    if(pageSettings["Display Longest Matches"] === "true"){
+        const longestMatches = await getLongestMatches(id, pageSettings["Max Longest Matches"], basic.name);
+        elems[pageOrder["Display Longest Matches"]] = <MapLongestMatches key="longest" data={longestMatches}/>;
+    }
+
+    if(pageSettings["Display Recent Matches"] === "true"){
+        const recentMatches = await getRecentMatches(id, 1, 10, matchesSettings, basic.name);
+        elems[pageOrder["Display Recent Matches"]] = <MapRecentMatches key="recent"  data={recentMatches} />;
+    }
+
+    if(pageSettings["Display Combogib Player Records"] === "true"){
+        elems[pageOrder["Display Combogib Player Records"]] = <CombogibMapRecords key="combo-records" mapId={id}/>;
+    }
+    
+
+    if(pageSettings["Display Combogib General Stats"] === "true"){
+        elems[pageOrder["Display Combogib General Stats"]] = <CombogibMapTotals key="combo-totals" mapId={id} />
+    }
+    
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
         <div id="content">
             <div className="default">
                 <div className="default-header">{basic.name}</div>
-                {(pageSettings["Display Summary"] === "false") ? null :<MapSummary data={basic} spawns={spawns}/>}
-                {(historyGraphData === null) ? null :<MapHistoryGraph data={historyGraphData} />}
-                {(pageSettings["Display Spawn Points"] === "true") ? <MapSpawns spawns={spawns} flagLocations={flagLocations}/> : null}
-                {(bAnyCTFCaps && pageSettings["Display CTF Caps"] === "true") ? <MapCTFCaps mapId={id} perPage={25} page={1} mode="solo"/> : null}
-                <MapDomControlPoints points={domControlPoints}/>
-                <MapAssaultObjectives objects={assaultObjectives} mapPrefix={gametypePrefix} mapName={cleanMapName(basic.name)} images={assaultImages}/>
-                <MapAddictedPlayers players={addictedPlayers}/>
-                <MapLongestMatches data={longestMatches}/>
-                <MapRecentMatches data={recentMatches} />
-                <CombogibMapRecords mapId={id}/>
-                <CombogibMapTotals mapId={id} />
+                {elems}
+             
             </div>    
         </div>   
     </main>; 

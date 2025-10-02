@@ -307,7 +307,8 @@ export default function CombogibMapTotals({mapId}){
         loadData(dispatch, mapId);
     },[mapId]);
 
-    if(!state.loaded) return <Loading/>;
+    if(state.data === null) return null;
+    if(state.data.length === 0) return null;
 
     if(state.error !== null){
 

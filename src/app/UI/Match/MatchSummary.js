@@ -1,10 +1,10 @@
 import styles from './MatchSummary.module.css';
-import MatchResult from '../MatchResult/';
-import { convertTimestamp, toPlaytime } from '../../api/generic.mjs';
-import MatchPermLink from '../MatchPermLink';
+import MatchResult from '../MatchResult';
+import { convertTimestamp, toPlaytime } from '../../../../api/generic.mjs';
+import MatchPermLink from './MatchPermLink';
 
 
-const MatchSummary = ({info, server, gametype, map, bMonsterHunt, settings, host, bPlayerPage}) =>{
+export default function MatchSummary({info, bPlayerPage, settings}){
 
     if(bPlayerPage === undefined) bPlayerPage = false;
 
@@ -54,12 +54,12 @@ const MatchSummary = ({info, server, gametype, map, bMonsterHunt, settings, host
                     blueScore={Math.floor(info.team_score_1)} 
                     greenScore={Math.floor(info.team_score_2)} 
                     yellowScore={Math.floor(info.team_score_3)} 
-                    bMonsterHunt={bMonsterHunt} 
+                    bMonsterHunt={info.mh} 
                     endReason={info.end_type}
                     bIncludeImages={true}
                 />
-                <span className="white">{gametype}</span> {(info.insta) ? '(Instagib)' : ''} on <span className="white">{map}</span><br/>
-                <span className={styles.small}>{server}</span><br/>
+                <span className="white">{info.gametypeName}</span> {(info.insta) ? '(Instagib)' : ''} on <span className="white">{info.mapName}</span><br/>
+                <span className={styles.small}>{info.serverName}</span><br/>
             
                 <span className={styles.small}>{convertTimestamp(info.date, false)}</span><br/>
                 {targetScoreElem}
@@ -71,10 +71,7 @@ const MatchSummary = ({info, server, gametype, map, bMonsterHunt, settings, host
                 {mutatorsElem}
 
             </div>
-            {(!bPlayerPage) ? <MatchPermLink hash={info.match_hash} url={`${host}/match/`}/> : null}
+            {(!bPlayerPage) ? <MatchPermLink hash={info.match_hash}/> : null}
         </div>
     );
 }
-
-
-export default MatchSummary;

@@ -9,18 +9,19 @@ import Gametypes from "./gametypes.js";
 import Headshots from "./headshots.js";
 import Items from "./items.js";
 import Kills from "./kills.js";
-import Maps from "./maps.js";
+import Maps, { getImages } from "./maps.js";
 import Connections from "./connections.js";
 import Weapons from "./weapons.js";
 import Rankings from "./rankings.js";
 import Servers from "./servers.js";
 import Voices from "./voices.js";
 import WinRate from "./winrate.js";
-import { getUniqueValues, setIdNames } from "./generic.mjs";
+import { getUniqueValues, setIdNames, removeUnr, getPlayer } from "./generic.mjs";
 import { getObjectName } from "./genericServerSide.mjs";
 import { deleteFromDatabase as logsDeleteFromDatabase } from "./logs.js";
 import MonsterHunt from "./monsterhunt.js";
 import {getSettings} from "./sitesettings.js";
+import { getBasicPlayersByIds } from "./players.js";
 
 export default class Matches{
 
@@ -1819,4 +1820,44 @@ export function getUniqueMGS(matches){
         "gametypes": [...gametypeIds],
         "maps": [...mapIds]
     };
+}
+
+
+export async function getMatchIdFromHash(hash){
+
+    const query = `SELECT id FROM nstats_matches WHERE match_hash=?`;
+
+    const result = await simpleQuery(query, [hash]);
+
+    if(result.length === 0) return 0;
+
+    return result[0].id;
+}
+
+
+export async function getMatch(id){
+
+    const query = `SELECT * FROM nstats_matches WHERE id=?`;
+    const result = await simpleQuery(query, [id]);
+
+    if(result.length === 0) return null;
+
+    const r = result[0];
+
+    const serverNames = await getObjectName("servers", r.server);
+    const gametypeNames = await getObjectName("gametypes", r.gametype);
+    const mapNames = await getObjectName("maps", r.map);
+
+    r.serverName = serverNames[r.server] ?? "Not Found";
+    r.gametypeName = gametypeNames[r.gametype] ?? "Not Found";
+    r.mapName = (mapNames[r.map] !== undefined) ? removeUnr(mapNames[r.map]) : "Not Found";
+    r.image = getImages([r.mapName]);
+
+    if(r.dm_winner !== 0){
+
+        const pInfo = await getBasicPlayersByIds(r.dm_winner);
+        r.dmWinner = getPlayer(pInfo, r.dm_winner, true);
+    }
+
+    return r;
 }

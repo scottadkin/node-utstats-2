@@ -20,10 +20,13 @@ export async function generateMetadata({request, params, searchParams }, parent)
   return {
 	"metadataBase": new URL(`${protocol}:${domain}`),
     "title": "Node UTStats 2",
-    "description": "Welcome to Node UTStats 2, view various stats for players,matches,maps,records and more!",
+    "description": "Welcome to Node UTStats 2, view various stats for players, matches, maps, records and more!",
     "keywords": ["home" , "welcome", "utstats", "node"],
 	"openGraph": {
-		"images": ["/images/maps/default.jpg"]
+		"images": ["/images/maps/default.jpg"],
+		"siteName": "Node UTStats 2",
+		"type": "website",
+		"url": new URL(`${protocol}:${domain}`)
 	}
   }
 }
