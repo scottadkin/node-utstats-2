@@ -1,24 +1,20 @@
-import styles from './MatchFragTable.module.css';
 import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
-import Functions from '../../api/functions';
-import {React, useState} from 'react';
 import InteractiveTable from '../InteractiveTable';
+import { getTeamColor, ignore0, MMSS } from '../../../../api/functions';
 
-const MatchFragTable = ({matchId, playerData, totalTeams, bSeparateByTeam, single}) =>{
+function bAnyDataType(type, playerData){
 
+    for(let i = 0; i < playerData.length; i++){
 
-    const bAnyDataType = (type) =>{
-
-        for(let i = 0; i < playerData.length; i++){
-
-            const p = playerData[i];
-            if(p[type] !== 0) return true;
-        }
-
-        return false;
+        const p = playerData[i];
+        if(p[type] !== 0) return true;
     }
-    
+
+    return false;
+}
+
+export default function MatchFragTable({matchId, playerData, totalTeams, bSeparateByTeam, single}){
 
     const types = [
         ["team_kills", "Team Kills"],
@@ -41,12 +37,10 @@ const MatchFragTable = ({matchId, playerData, totalTeams, bSeparateByTeam, singl
 
         const t = types[i];
 
-        if(bAnyDataType(t[0])){
+        if(bAnyDataType(t[0], playerData)){
             headers[t[0]] = t[1];
         }
     }
-
-
 
     const renderTable = (teamId) =>{
 
@@ -82,35 +76,35 @@ const MatchFragTable = ({matchId, playerData, totalTeams, bSeparateByTeam, singl
                         <CountryFlag country={p.country}/>{p.name}
                         
                     </Link>,
-                    "className": `${Functions.getTeamColor(p.team)} player`
+                    "className": `${getTeamColor(p.team)} player`
                 },
                 "playtime":{
                     "value": p.playtime,
-                    "displayValue": Functions.MMSS(p.playtime),
+                    "displayValue": MMSS(p.playtime),
                 },
                 "score": {
                     "value": p.score,
-                    "displayValue": Functions.ignore0(p.score)
+                    "displayValue": ignore0(p.score)
                 },
                 "frags": {
                     "value": p.frags,
-                    "displayValue": Functions.ignore0(p.frags)
+                    "displayValue": ignore0(p.frags)
                 },
                 "kills": {
                     "value": p.kills,
-                    "displayValue": Functions.ignore0(p.kills)
+                    "displayValue": ignore0(p.kills)
                 },
                 "deaths": {
                     "value": p.deaths,
-                    "displayValue": Functions.ignore0(p.deaths)
+                    "displayValue": ignore0(p.deaths)
                 },
                 "suicides": {
                     "value": p.suicides,
-                    "displayValue": Functions.ignore0(p.suicides)
+                    "displayValue": ignore0(p.suicides)
                 },
                 "headshots": {
                     "value": p.headshots,
-                    "displayValue": Functions.ignore0(p.headshots)
+                    "displayValue": ignore0(p.headshots)
                 },
                 "efficiency": {
                     "value": p.efficiency,
@@ -118,11 +112,11 @@ const MatchFragTable = ({matchId, playerData, totalTeams, bSeparateByTeam, singl
                 },
                 "team_kills": {
                     "value": p.team_kills,
-                    "displayValue": Functions.ignore0(p.team_kills)
+                    "displayValue": ignore0(p.team_kills)
                 },
                 "spawn_kills": {
                     "value": p.spawn_kills,
-                    "displayValue": Functions.ignore0(p.spawn_kills)
+                    "displayValue": ignore0(p.spawn_kills)
                 },
             });
 
@@ -146,27 +140,27 @@ const MatchFragTable = ({matchId, playerData, totalTeams, bSeparateByTeam, singl
                 "playtime": "N/A",
                 "score": {
                     "value": totals.score,
-                    "displayValue": Functions.ignore0(totals.score)
+                    "displayValue": ignore0(totals.score)
                 },
                 "frags": {
                     "value": totals.frags,
-                    "displayValue": Functions.ignore0(totals.frags)
+                    "displayValue": ignore0(totals.frags)
                 },
                 "kills": {
                     "value": totals.kills,
-                    "displayValue": Functions.ignore0(totals.kills)
+                    "displayValue": ignore0(totals.kills)
                 },
                 "deaths": {
                     "value": totals.deaths,
-                    "displayValue": Functions.ignore0(totals.deaths)
+                    "displayValue": ignore0(totals.deaths)
                 },
                 "suicides": {
                     "value": totals.suicides,
-                    "displayValue": Functions.ignore0(totals.suicides)
+                    "displayValue": ignore0(totals.suicides)
                 },
                 "headshots": {
                     "value": totals.headshots,
-                    "displayValue": Functions.ignore0(totals.headshots)
+                    "displayValue": ignore0(totals.headshots)
                 },
                 "efficiency": {
                     "value": totalEff,
@@ -174,18 +168,16 @@ const MatchFragTable = ({matchId, playerData, totalTeams, bSeparateByTeam, singl
                 },
                 "team_kills": {
                     "value": totals.team_kills,
-                    "displayValue": Functions.ignore0(totals.team_kills)
+                    "displayValue": ignore0(totals.team_kills)
                 },
                 "spawn_kills": {
                     "value": totals.spawn_kills,
-                    "displayValue": Functions.ignore0(totals.spawn_kills)
+                    "displayValue": ignore0(totals.spawn_kills)
                 },
             }
 
             data.push(last);
         }
-
-        
 
         return <InteractiveTable key={teamId} width={1} headers={headers} data={data} defaultOrder={"score"} bAsc={false}/>
     }
@@ -209,6 +201,4 @@ const MatchFragTable = ({matchId, playerData, totalTeams, bSeparateByTeam, singl
     </div>
 
 }
-
-export default MatchFragTable;
 

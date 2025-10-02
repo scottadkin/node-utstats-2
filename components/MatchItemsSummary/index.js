@@ -4,7 +4,7 @@ import BarChart from "../BarChart";
 import Loading from "../Loading";
 import ErrorMessage from "../ErrorMessage";
 import Tabs from "../Tabs";
-import InteractiveTable from "../InteractiveTable";
+import InteractiveTable from "../../src/app/UI/InteractiveTable";
 import {getPlayer, getTeamColor, getTeamName} from "../../api/generic.mjs";
 import CountryFlag from "../CountryFlag";
 import Link from "next/link";

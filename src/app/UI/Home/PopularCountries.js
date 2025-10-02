@@ -2,7 +2,7 @@
 import { convertTimestamp } from '../../../../api/generic.mjs';
 import styles from './PopularCountries.module.css';
 import Image from 'next/image';
-import InteractiveTable from "../../../../components/InteractiveTable";
+import InteractiveTable from "../InteractiveTable";
 import CountryFlag from '../CountryFlag';
 import Link from 'next/link';
 

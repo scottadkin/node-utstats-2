@@ -1,6 +1,6 @@
 import {React, useEffect, useState, useReducer} from "react";
 import BarChart from "../BarChart";
-import InteractiveTable from "../InteractiveTable";
+import InteractiveTable from "../../src/app/UI/InteractiveTable";
 import CountryFlag from "../CountryFlag";
 import Link from "next/link";
 import ErrorMessage from "../ErrorMessage";

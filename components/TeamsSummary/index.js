@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Loading from '../Loading';
 import {React, useEffect, useReducer, useState} from "react";
 import ErrorMessage from '../ErrorMessage';
-import InteractiveTable from '../InteractiveTable';
+import InteractiveTable from '../../src/app/UI/InteractiveTable';
 
 
 const TeamsSummary = ({matchId, matchStart, players, playerData, totalTeams}) =>{

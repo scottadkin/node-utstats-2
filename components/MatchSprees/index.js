@@ -4,7 +4,7 @@ import CountryFlag from '../CountryFlag/';
 import Link from 'next/link';
 import Loading from '../Loading';
 import ErrorMessage from '../ErrorMessage';
-import InteractiveTable from '../InteractiveTable';
+import InteractiveTable from '../../src/app/UI/InteractiveTable';
 
 const MatchSprees = ({matchId, players, matchStart}) =>{
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import Functions from '../../api/functions';
-import InteractiveTable from '../InteractiveTable';
+import InteractiveTable from '../../src/app/UI/InteractiveTable';
 import Link from 'next/link';
 import CountryFlag from '../CountryFlag';
 

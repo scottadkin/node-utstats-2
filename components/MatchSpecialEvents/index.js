@@ -3,7 +3,7 @@ import styles from './MatchSpecialEvents.module.css';
 import {React, useState} from 'react';
 import Functions from '../../api/functions';
 import Link from 'next/link';
-import InteractiveTable from '../InteractiveTable';
+import InteractiveTable from '../../src/app/UI/InteractiveTable';
 
 const MatchSpecialEvents = ({matchId, bTeamGame, players, bSingle, targetPlayerId}) =>{
 

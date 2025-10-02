@@ -6,8 +6,8 @@ import MatchSummary from "../../UI/Match/MatchSummary";
 import { getMatch, getMatchIdFromHash } from "../../../../api/matches";
 import Screenshot from "../../UI/Screenshot";
 import { getAllInMatch } from "../../../../api/players";
-import { getPlayerMatchCTFData } from "../../../../api/ctf";
-import { getFacesById, getFacesWithFileStatuses } from "../../../../api/faces";
+import { getFacesWithFileStatuses } from "../../../../api/faces";
+import MatchFragSummary from "../../UI/Match/MatchFragSummary";
 
 function setQueryValues(params, searchParams){
 
@@ -88,7 +88,15 @@ export default async function Page({params, searchParams}){
                     matchData={info}
                     serverName={info.serverName} 
                     gametypeName={info.gametypeName}
-                     bHome={false} bClassic={false}/>
+                    bHome={false} 
+                    bClassic={false}
+                />
+                <MatchFragSummary key={`match_3`} 
+                    totalTeams={info.total_teams} 
+                    playerData={players} 
+                    matchStart={info.start}
+                    matchId={info.id}
+                />
             </div>    
         </div>   
     </main>; 

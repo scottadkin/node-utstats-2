@@ -1,4 +1,4 @@
-import InteractiveTable from "../InteractiveTable";
+import InteractiveTable from "../../src/app/UI/InteractiveTable";
 import Functions from "../../api/functions";
 import Link from "next/link";
 import CountryFlag from "../CountryFlag";

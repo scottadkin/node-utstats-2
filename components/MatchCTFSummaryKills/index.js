@@ -1,4 +1,4 @@
-import InteractiveTable from "../InteractiveTable";
+import InteractiveTable from "../../src/app/UI/InteractiveTable";
 import { useEffect, useReducer } from "react";
 import Loading from "../Loading";
 import ErrorMessage from "../ErrorMessage";

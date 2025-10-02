@@ -1,11 +1,10 @@
-import Functions from '../../api/functions';
-import CountryFlag from '../CountryFlag/';
+import { getTeamColor, ignore0 } from '../../../../api/generic.mjs';
+import CountryFlag from '../CountryFlag';
 import Link from 'next/link';
 import InteractiveTable from '../InteractiveTable';
-import React from 'react';
-import MouseOver from '../MouseOver';
+import { BasicMouseOver } from '../MouseOver';
 
-const MatchFragDistances = ({matchId, playerData, totalTeams, bSeparateByTeam, single}) =>{
+export default function MatchFragDistances({matchId, playerData, totalTeams, bSeparateByTeam, single}){
 
     const headers = {
         "player": "Player",
@@ -78,7 +77,7 @@ const MatchFragDistances = ({matchId, playerData, totalTeams, bSeparateByTeam, s
                             {p.name}
                         
                     </Link>,
-                    "className": `${Functions.getTeamColor(p.team)} player`
+                    "className": `${getTeamColor(p.team)} player`
                 },
                 "shortest": {
                     "value": p.shortest_kill_distance,
@@ -92,13 +91,13 @@ const MatchFragDistances = ({matchId, playerData, totalTeams, bSeparateByTeam, s
                     "displayValue": p.longest_kill_distance.toFixed(2)
                 },"close": {
                     "value": p.k_distance_normal,
-                    "displayValue": Functions.ignore0(p.k_distance_normal)
+                    "displayValue": ignore0(p.k_distance_normal)
                 },"long": {
                     "value": p.k_distance_long,
-                    "displayValue": Functions.ignore0(p.k_distance_long)
+                    "displayValue": ignore0(p.k_distance_long)
                 },"uber": {
                     "value": p.k_distance_uber,
-                    "displayValue": Functions.ignore0(p.k_distance_uber)
+                    "displayValue": ignore0(p.k_distance_uber)
                 },
             });
         }
@@ -113,34 +112,34 @@ const MatchFragDistances = ({matchId, playerData, totalTeams, bSeparateByTeam, s
                 "shortest": {
                     "value": totals.shortest,
                     "displayValue":  
-                    <MouseOver title="Shortest Kill Distance" 
-                        display="The shortest distance between a killer and a victim.">
+                    <BasicMouseOver title="Shortest Kill Distance" 
+                        text="The shortest distance between a killer and a victim.">
                         {totals.shortest.toFixed(2)}
-                    </MouseOver>,
+                    </BasicMouseOver>,
                     
                 },"average": {
                     "value": totals.average,
-                    "displayValue":  <MouseOver 
+                    "displayValue":  <BasicMouseOver 
                         title="Longest Average Kill Distance" 
-                        display="The longest average kill distance between a killer and victim.">
+                        text="The longest average kill distance between a killer and victim.">
                         {totals.average.toFixed(2)}
-                    </MouseOver>,
+                    </BasicMouseOver>,
                 },"longest": {
                     "value": totals.longest,
-                    "displayValue":  <MouseOver 
+                    "displayValue":  <BasicMouseOver 
                         title="Longest Kill Distance" 
-                        display="The longest kill distance between a killer and victim.">
+                        text="The longest kill distance between a killer and victim.">
                         {totals.longest.toFixed(2)}
-                    </MouseOver>,
+                    </BasicMouseOver>,
                 },"close": {
                     "value": totals.close,
-                    "displayValue": Functions.ignore0(totals.close)
+                    "displayValue": ignore0(totals.close)
                 },"long": {
                     "value": totals.long,
-                    "displayValue": Functions.ignore0(totals.long)
+                    "displayValue": ignore0(totals.long)
                 },"uber": {
                     "value": totals.uber,
-                    "displayValue": Functions.ignore0(totals.uber)
+                    "displayValue": ignore0(totals.uber)
                 },
             });
         }
@@ -161,5 +160,3 @@ const MatchFragDistances = ({matchId, playerData, totalTeams, bSeparateByTeam, s
         {tables}
     </div>
 }
-
-export default MatchFragDistances;

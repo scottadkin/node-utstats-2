@@ -5,7 +5,7 @@ import Functions from "../../api/functions";
 import CountryFlag from "../CountryFlag";
 import Link from "next/link";
 import Loading from "../Loading";
-import InteractiveTable from "../InteractiveTable";
+import InteractiveTable from "../../src/app/UI/InteractiveTable";
 import {MMSS, scalePlaytime} from "../../api/generic.mjs";
 
 

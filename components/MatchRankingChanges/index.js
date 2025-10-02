@@ -4,7 +4,7 @@ import Functions from '../../api/functions';
 import {React, useEffect, useReducer} from "react";
 import Loading from '../Loading';
 import ErrorMessage from '../ErrorMessage';
-import InteractiveTable from '../InteractiveTable';
+import InteractiveTable from '../../src/app/UI/InteractiveTable';
 import MouseOver from '../MouseOver';
 
 const MatchRankingChanges = ({matchId, players, gametype}) =>{

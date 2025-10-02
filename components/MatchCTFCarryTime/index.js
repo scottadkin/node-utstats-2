@@ -1,7 +1,7 @@
 import {React, useEffect, useState} from "react";
 import Loading from "../Loading";
 import ErrorMessage from "../ErrorMessage";
-import InteractiveTable from "../InteractiveTable";
+import InteractiveTable from "../../src/app/UI/InteractiveTable";
 import Link from "next/link";
 import CountryFlag from "../CountryFlag";
 import Functions from "../../api/functions";
