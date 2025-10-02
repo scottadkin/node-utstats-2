@@ -8,6 +8,7 @@ import Screenshot from "../../UI/Screenshot";
 import { getAllInMatch } from "../../../../api/players";
 import { getFacesWithFileStatuses } from "../../../../api/faces";
 import MatchFragSummary from "../../UI/Match/MatchFragSummary";
+import MatchMonsterHuntFragSummary from "../../UI/Match/MatchMonsterHuntFragSummary";
 
 function setQueryValues(params, searchParams){
 
@@ -96,6 +97,14 @@ export default async function Page({params, searchParams}){
                     playerData={players} 
                     matchStart={info.start}
                     matchId={info.id}
+                />
+
+                <MatchMonsterHuntFragSummary key={`match_mh_frags`} 
+                    totalTeams={info.total_teams} 
+                    playerData={players} 
+                    matchStart={info.start}
+                    matchId={info.id}
+                    single={false}
                 />
             </div>    
         </div>   
