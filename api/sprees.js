@@ -14,14 +14,6 @@ export default class Sprees{
 
     }
 
-    async getMatchData(id){
-
-        const query = "SELECT player,kills,killer,start_timestamp,end_timestamp,total_time FROM nstats_sprees WHERE match_id=?";
-        const vars = [id];
-        return await simpleQuery(query, vars);
-
-    }
-
     async getPlayerMatchData(matchId, playerId){
 
         const query = "SELECT player,kills,killer,start_timestamp,end_timestamp,total_time FROM nstats_sprees WHERE match_id=? AND (player=? || killer=?)";
@@ -53,4 +45,13 @@ export default class Sprees{
         await simpleQuery(query2, [newId, oldId]);
         
     }
+}
+
+
+export async function getDetailedMatchSprees(id){
+
+    const query = "SELECT player,kills,killer,start_timestamp,end_timestamp,total_time FROM nstats_sprees WHERE match_id=?";
+    const vars = [id];
+    return await simpleQuery(query, vars);
+
 }

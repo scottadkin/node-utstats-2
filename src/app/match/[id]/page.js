@@ -16,6 +16,8 @@ import MatchSpecialEvents from "../../UI/Match/MatchSpecialEvents";
 import MatchCTFCaps from "../../UI/Match/MatchCTFCaps";
 import MatchCTFCarryTime from "../../UI/Match/MatchCTFCarryTime";
 import MatchCTFGraphs from "../../UI/Match/MatchCTFGraphs";
+import MatchDetailedSprees from "../../UI/Match/MatchDetailedSprees";
+import { getDetailedMatchSprees } from "../../../../api/sprees";
 
 function setQueryValues(params, searchParams){
 
@@ -69,6 +71,8 @@ export default async function Page({params, searchParams}){
     const ctfCarryTimes = await getCarryTimes(matchId);
 
     const ctfGraphData = await getEventGraphData(matchId, players, info.total_teams);
+
+    const detailedSprees = await getDetailedMatchSprees(matchId);
 
     if(info === null){
         return <main>
@@ -133,7 +137,7 @@ export default async function Page({params, searchParams}){
                     graphData={ctfGraphData}
                 />
                 <MatchSpecialEvents matchId={info.id} bTeamGame={info.total_teams > 1} players={players} bSingle={false} targetPlayerId={-1}/>
-    
+                <MatchDetailedSprees matchId={info.id} players={players} matchStart={info.start} sprees={detailedSprees} bHardcore={info.hardcore}/>
             </div>    
         </div>   
     </main>; 
