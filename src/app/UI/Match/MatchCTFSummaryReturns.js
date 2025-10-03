@@ -49,6 +49,7 @@ function renderTeam(teamId, playerData, matchId, single){
         const p = playerData[i];
 
         if(p.team !== teamId) continue;
+        if(p.ctfData === undefined) continue;
 
         const ctf = p.ctfData;
 

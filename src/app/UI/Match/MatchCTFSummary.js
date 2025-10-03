@@ -43,7 +43,8 @@ export default function MatchCTFSummary({matchId, mapId, playerData, single, fla
 
     const [mode, setMode] = useState(4);
 
-    
+    if(playerData.length > 0 && playerData[0].ctfData === undefined) return null;
+
 
     const headerOptions = [
         {"name": "General", "value": 0},
