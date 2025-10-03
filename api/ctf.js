@@ -513,70 +513,12 @@ export default class CTF{
 
 
 
-
-
-    async getMatchCaps(matchId){
-
-        const query = `SELECT * FROM nstats_ctf_caps WHERE match_id=? ORDER BY grab_time ASC`;
-
-        return await simpleQuery(query, [matchId]);
-    }
-
-    async getMatchAssists(matchId){
-
-        const query = `SELECT id,cap_id,player_id,pickup_time,dropped_time,carry_time 
-        FROM nstats_ctf_assists WHERE match_id=? ORDER BY pickup_time ASC`;
-
-        return await simpleQuery(query, [matchId]);
-    }
-
-
     async getPlayerMatchReturns(matchId, playerId){
 
         const query = `SELECT grab_time,return_time,return_string,distance_to_cap,travel_time,carry_time,drop_time 
         FROM nstats_ctf_returns WHERE match_id=? AND return_player=?`;
 
         return await simpleQuery(query, [matchId, playerId]);
-    }
-
-    filterByCapId(data, capId){
-
-        return data.filter((d) =>{
-            if(d.cap_id === capId) return true;
-        });
-    }
-
-    async getMatchDetailedCaps(matchId){
-
-        const caps = await this.getMatchCaps(matchId);
-        const assists = await this.getMatchAssists(matchId);
-        const covers = await this.getMatchCovers(matchId, true);
-        const selfCovers = await this.getMatchSelfCovers(matchId, true);
-        const seals = await this.getMatchSeals(matchId, true);
-        const carryTimes = await this.getMatchCarryTimes(matchId, true);
-        const capFragEvents = await this.getCapFragEvents(matchId, "only-capped");
-        const flagDeaths = await this.getMatchFlagDeaths(matchId, "only-capped");
-        const flagDrops = await this.getMatchFlagDrops(matchId, "only-capped");
-        const flagPickups = await this.getMatchFlagPickups(matchId, "only-capped"); 
-
-        for(let i = 0; i < caps.length; i++){
-
-            const c = caps[i];
-
-            c.coverData = this.filterByCapId(covers, c.id);
-            c.selfCoverData = this.filterByCapId(selfCovers, c.id);
-            c.flagDrops = this.filterByCapId(flagDrops, c.id);
-            c.flagPickups = this.filterByCapId(flagPickups, c.id);
-            c.flagDeaths = this.filterByCapId(flagDeaths, c.id);
-            c.flagAssists = this.filterByCapId(assists, c.id);
-            c.flagSeals = this.filterByCapId(seals, c.id);
-            c.carryTimes = this.filterByCapId(carryTimes, c.id);
-
-            c.capKills = capFragEvents.kills[c.cap_time] ?? [];
-            c.capSuicides = capFragEvents.suicides[c.cap_time] ?? [];
-        }
-
-        return caps;
     }
 
     addEvent(match, timestamp, player, event, team){
@@ -3812,4 +3754,67 @@ export async function getMatchDetailedReturns(matchId){
     }
 
     return returns;
+}
+
+
+export async function getMatchCaps(matchId){
+
+    const query = `SELECT 
+    id,cap_team,flag_team,grab_time,grab_player,cap_time,cap_player,
+    travel_time,carry_time,carry_time_percent,drop_time,drop_time_percent,
+    total_drops,total_pickups,total_covers,total_seals,total_assists,
+    total_self_covers,total_deaths,total_suicides,team_0_kills,
+    team_1_kills,team_2_kills,team_3_kills,team_0_suicides,
+    team_1_suicides,team_2_suicides,team_3_suicides
+    FROM nstats_ctf_caps WHERE match_id=? ORDER BY grab_time ASC`;
+
+    return await simpleQuery(query, [matchId]);
+}
+
+export async function getMatchAssists(matchId){
+
+    const query = `SELECT id,cap_id,player_id,pickup_time,dropped_time,carry_time 
+    FROM nstats_ctf_assists WHERE match_id=? ORDER BY pickup_time ASC`;
+
+    return await simpleQuery(query, [matchId]);
+}
+
+function filterByCapId(data, capId){
+
+    return data.filter((d) =>{
+        if(d.cap_id === capId) return true;
+    });
+}
+
+export async function getMatchDetailedCaps(matchId){
+
+    const caps = await getMatchCaps(matchId);
+    const assists = await getMatchAssists(matchId);
+    const covers = await getMatchCovers(matchId, true);
+    const selfCovers = await getMatchSelfCovers(matchId, true);
+    const seals = await getMatchSeals(matchId, true);
+    const carryTimes = await getMatchCarryTimes(matchId, true);
+    const capFragEvents = await getCapFragEvents(matchId, "only-capped");
+    const flagDeaths = await getMatchFlagDeaths(matchId, "only-capped");
+    const flagDrops = await getMatchFlagDrops(matchId, "only-capped");
+    const flagPickups = await getMatchFlagPickups(matchId, "only-capped"); 
+
+    for(let i = 0; i < caps.length; i++){
+
+        const c = caps[i];
+
+        c.coverData = filterByCapId(covers, c.id);
+        c.selfCoverData = filterByCapId(selfCovers, c.id);
+        c.flagDrops = filterByCapId(flagDrops, c.id);
+        c.flagPickups = filterByCapId(flagPickups, c.id);
+        c.flagDeaths = filterByCapId(flagDeaths, c.id);
+        c.flagAssists = filterByCapId(assists, c.id);
+        c.flagSeals = filterByCapId(seals, c.id);
+        c.carryTimes = filterByCapId(carryTimes, c.id);
+
+        c.capKills = capFragEvents.kills[c.cap_time] ?? [];
+        c.capSuicides = capFragEvents.suicides[c.cap_time] ?? [];
+    }
+
+    return caps;
 }
