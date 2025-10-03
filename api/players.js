@@ -3579,6 +3579,13 @@ export async function getAllInMatch(id){
 
     const players = await simpleQuery(query, [id]);
 
+    let mapId = -1;
+
+    if(players.length > 0){
+        mapId = parseInt(players[0].map_id);
+    }
+    console.log(`mapId = ${mapId}`);
+
     for(let i = 0; i < players.length; i++){
         delete players[i].ip;
         delete players[i].hwid;
@@ -3596,7 +3603,7 @@ export async function getAllInMatch(id){
     }
 
 
-    const ctfData = await getPlayerMatchCTFData(id, [...playerIds]);
+    const ctfData = await getPlayerMatchCTFData(id, [...playerIds], mapId);
     //const ctf = new CTF();
     //await ctf.setMatchCTFData(id, players);
     //console.log(players);

@@ -3,8 +3,9 @@ import CountryFlag from '../CountryFlag';
 import Link from 'next/link';
 import { BasicTable } from '../Tables';
 
-export default function MatchMonsterHuntFragSummary({playerData, single, matchStart, matchId}){
+export default function MatchMonsterHuntFragSummary({playerData, single, matchStart, matchId, bMH}){
 
+    if(bMH === 0) return null;
     const rows = [];
 
     for(let i = 0; i < playerData.length; i++){
