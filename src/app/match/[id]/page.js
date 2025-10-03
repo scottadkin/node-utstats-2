@@ -10,11 +10,12 @@ import { getFacesWithFileStatuses } from "../../../../api/faces";
 import MatchFragSummary from "../../UI/Match/MatchFragSummary";
 import MatchMonsterHuntFragSummary from "../../UI/Match/MatchMonsterHuntFragSummary";
 import MatchCTFSummary from "../../UI/Match/MatchCTFSummary";
-import { getMatchFlagKillDetails, getMatchDetailedReturns, getMatchDetailedCaps, getCarryTimes } from "../../../../api/ctf";
+import { getMatchFlagKillDetails, getMatchDetailedReturns, getMatchDetailedCaps, getCarryTimes, getEventGraphData } from "../../../../api/ctf";
 import MatchCTFReturns from "../../UI/Match/MatchCTFReturns";
 import MatchSpecialEvents from "../../UI/Match/MatchSpecialEvents";
 import MatchCTFCaps from "../../UI/Match/MatchCTFCaps";
 import MatchCTFCarryTime from "../../UI/Match/MatchCTFCarryTime";
+import MatchCTFGraphs from "../../UI/Match/MatchCTFGraphs";
 
 function setQueryValues(params, searchParams){
 
@@ -66,6 +67,8 @@ export default async function Page({params, searchParams}){
 
     const ctfCaps = await getMatchDetailedCaps(matchId);
     const ctfCarryTimes = await getCarryTimes(matchId);
+
+    const ctfGraphData = await getEventGraphData(matchId, players, info.total_teams);
 
     if(info === null){
         return <main>
@@ -120,6 +123,15 @@ export default async function Page({params, searchParams}){
                 <MatchCTFReturns playerData={players} returnData={ctfReturns} totalTeams={info.total_teams} matchStart={info.start} single={false} bHardcore={info.hardcore}/>
                 <MatchCTFCaps matchId={info.id} playerData={players} totalTeams={info.total_teams} matchStart={info.start} bHardcore={info.hardcore} capData={ctfCaps}/>
                 <MatchCTFCarryTime matchId={info.id} data={ctfCarryTimes} players={players} />
+                <MatchCTFGraphs 
+                    matchId={info.id} 
+                    totalTeams={info.total_teams} 
+                    players={players} 
+                    matchStart={info.start} 
+                    matchEnd={info.end} 
+                    bHardcore={info.hardcore}
+                    graphData={ctfGraphData}
+                />
                 <MatchSpecialEvents matchId={info.id} bTeamGame={info.total_teams > 1} players={players} bSingle={false} targetPlayerId={-1}/>
     
             </div>    

@@ -548,6 +548,7 @@ export function reduceGraphDataPoints(inputData, maxDataPoints, inputLabels, bIg
 
 export function scalePlaytime(playtime, bHardcore){
 
+    playtime = parseFloat(playtime);
     if(bHardcore && playtime !== 0){
         return playtime / 1.1;      
     }
