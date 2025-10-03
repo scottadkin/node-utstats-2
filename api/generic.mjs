@@ -239,10 +239,10 @@ export function getPlayerFromMatchData(players, targetId){
         const p = players[i];
         if(p.player_id !== targetId) continue;
 
-        return {"name": p.name, "country": p.country, "id": p.player_id}
+        return {"name": p.name, "country": p.country, "id": p.player_id, "team": p.team}
     }
 
-    return {"name": "Not Found", "country": "xx", "id": -1};
+    return {"name": "Not Found", "country": "xx", "id": -1, "team": 255};
 }
 
 

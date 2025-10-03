@@ -1357,17 +1357,6 @@ export default class CTF{
     }
 
 
-    async getCarryTimes(matchId){
-
-        const query = `SELECT 
-        player_id,playtime,flag_carry_time,flag_carry_time_best,flag_capture,flag_assist,
-        flag_capture_best,flag_assist_best
-        FROM 
-        nstats_player_ctf_match WHERE match_id=?`;
-
-        return await simpleQuery(query, [matchId]);
-    }
-
     async bMatchCTF(matchId){
  
         const query = `SELECT COUNT(*) as total_players FROM nstats_player_ctf_match WHERE match_id=?`;
@@ -3817,4 +3806,15 @@ export async function getMatchDetailedCaps(matchId){
     }
 
     return caps;
+}
+
+export async function getCarryTimes(matchId){
+
+    const query = `SELECT 
+    player_id,playtime,flag_carry_time,flag_carry_time_best,flag_capture,flag_assist,
+    flag_capture_best,flag_assist_best
+    FROM 
+    nstats_player_ctf_match WHERE match_id=?`;
+
+    return await simpleQuery(query, [matchId]);
 }

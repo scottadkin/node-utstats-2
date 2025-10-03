@@ -300,8 +300,7 @@ export default function MatchCTFCaps({matchId, playerData, totalTeams, matchStar
 
     const [displayMode, setDisplayMode] = useState(0);
 
-    const teamScores = [];
-
+    if(playerData.length > 0 && playerData[0].ctfData === undefined) return null;
 
     const headers = {
         "score": "Score",

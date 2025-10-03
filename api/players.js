@@ -3584,7 +3584,6 @@ export async function getAllInMatch(id){
     if(players.length > 0){
         mapId = parseInt(players[0].map_id);
     }
-    console.log(`mapId = ${mapId}`);
 
     for(let i = 0; i < players.length; i++){
         delete players[i].ip;
