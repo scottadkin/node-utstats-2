@@ -12,6 +12,7 @@ import MatchMonsterHuntFragSummary from "../../UI/Match/MatchMonsterHuntFragSumm
 import MatchCTFSummary from "../../UI/Match/MatchCTFSummary";
 import { getMatchFlagKillDetails, getMatchDetailedReturns } from "../../../../api/ctf";
 import MatchCTFReturns from "../../UI/Match/MatchCTFReturns";
+import MatchSpecialEvents from "../../UI/Match/MatchSpecialEvents";
 
 function setQueryValues(params, searchParams){
 
@@ -114,6 +115,7 @@ export default async function Page({params, searchParams}){
                 />
                 <MatchCTFSummary matchId={info.id} mapId={info.map} playerData={players} single={false} flagKills={matchCTFFlagKills}/>
                 <MatchCTFReturns playerData={players} returnData={ctfReturns} totalTeams={info.total_teams} matchStart={info.start} single={false} bHardcore={info.hardcore}/>
+                <MatchSpecialEvents matchId={info.id} bTeamGame={info.total_teams > 1} players={players} bSingle={false} targetPlayerId={-1}/>
             </div>    
         </div>   
     </main>; 

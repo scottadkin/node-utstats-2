@@ -6,6 +6,7 @@ import Link from "next/link";
 import styles from "./MatchCTFReturns.module.css";
 import MouseOver from "../../../../components/MouseOver";
 import MatchCTFReturnDetailed from "./MatchCTFReturnDetailed";
+import Tabs from "../Tabs";
 import { getPlayerFromMatchData, MMSS, toPlaytime, plural, getTeamColor, 
     scalePlaytime, ignore0, getTeamName, getSmartCTFReturnString } from "../../../../api/generic.mjs";
 
@@ -326,20 +327,14 @@ export default function MatchCTFReturns({playerData, returnData, matchId, matchS
     const [displayMode, setDisplayMode] = useState(0);
     const [currentTab, setCurrentTab] = useState(0);
 
+    const tabOptions = [
+        {"name": "General", "value": 0},
+        {"name": "Team Frags", "value": 1},
+    ];
+
     return <div>
         <div className="default-header">Capture The Flag Returns</div>
-        <div className="tabs">
-            <div className={`tab ${(currentTab === 0) ? "tab-selected" : ""}`} onClick={() =>{
-                setCurrentTab(0);
-            }}>
-                General
-            </div>
-            <div className={`tab ${(currentTab === 1) ? "tab-selected" : ""}`} onClick={() =>{
-                setCurrentTab(1);
-            }}>
-                Team Frags
-            </div>
-        </div>
+        <Tabs options={tabOptions} selectedValue={currentTab} changeSelected={(a) => setCurrentTab(() => a)}/>
         {renderBasicTable(displayMode, currentTab, returnData, playerData, matchId, matchStart, bHardcore, totalTeams)}
     </div>
 }
