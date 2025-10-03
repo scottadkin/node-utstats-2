@@ -1,11 +1,10 @@
-import {React, useEffect, useState} from "react";
 import styles from "./MatchCTFReturnDetailed.module.css";
-import Functions from "../../api/functions";
 import CountryFlag from "../CountryFlag";
 import Link from "next/link";
 import PieChart from "../PieChart";
+import { getPlayer, plural, getTeamColor, getTeamName, MMSS } from "../../../../api/generic.mjs";
 
-const MatchCTFReturnDetailed = ({data, playerData, smartCTFString, matchId, matchStart}) =>{
+export default function MatchCTFReturnDetailed({data, playerData, smartCTFString, matchId, matchStart}){
 
     const dropPercent = data.drop_time_percent;
     const carryPercent = data.carry_time_percent;
@@ -23,7 +22,7 @@ const MatchCTFReturnDetailed = ({data, playerData, smartCTFString, matchId, matc
 
         for(const [key, value] of Object.entries(data)){
 
-            const currentPlayer = Functions.getPlayer(playerData, key);
+            const currentPlayer = getPlayer(playerData, key);
 
             let percent = 0;
 
@@ -32,7 +31,7 @@ const MatchCTFReturnDetailed = ({data, playerData, smartCTFString, matchId, matc
             }
 
             parts.push({
-                "value": `${value} ${Functions.plural(value, valueString)}`, 
+                "value": `${value} ${plural(value, valueString)}`, 
                 "percent": percent * 100, 
                 "name": currentPlayer.name
             });
@@ -107,11 +106,11 @@ const MatchCTFReturnDetailed = ({data, playerData, smartCTFString, matchId, matc
 
    
 
-    const returnPlayer = Functions.getPlayer(playerData, data.return_player);
+    const returnPlayer = getPlayer(playerData, data.return_player);
 
     return <div className={styles.wrapper}>
-        <div className={`${styles.returned} ${Functions.getTeamColor(data.flag_team)}`}>
-                {Functions.getTeamName(data.flag_team, true)} Flag Returned By&nbsp; 
+        <div className={`${styles.returned} ${getTeamColor(data.flag_team)}`}>
+                {getTeamName(data.flag_team, true)} Flag Returned By&nbsp; 
                 <Link href={`/pmatch/${matchId}/?player=${data.return_player}`}>
                     
                     <CountryFlag country={returnPlayer.country}/>{returnPlayer.name}
@@ -126,11 +125,11 @@ const MatchCTFReturnDetailed = ({data, playerData, smartCTFString, matchId, matc
         <div className={styles.times}>
             <div className={styles.row}>
                 <div className={styles.label}>Flag Taken</div>
-                <div className={styles.value}>{Functions.MMSS(data.grab_time - matchStart)}</div>
+                <div className={styles.value}>{MMSS(data.grab_time - matchStart)}</div>
             </div>
             <div className={styles.row}>
                 <div className={styles.label}>Flag Returned</div>
-                <div className={styles.value}>{Functions.MMSS(data.return_time - matchStart)}</div>
+                <div className={styles.value}>{MMSS(data.return_time - matchStart)}</div>
             </div>
         </div>
 
@@ -142,6 +141,3 @@ const MatchCTFReturnDetailed = ({data, playerData, smartCTFString, matchId, matc
       
     </div>
 }
-
-
-export default MatchCTFReturnDetailed;

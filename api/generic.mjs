@@ -224,6 +224,27 @@ export function getPlayer(players, id, bObject){
     return {"name": "not found", "country": "xx", "team": 0, "id": -1}
 }
 
+/**
+ * Use for match data since version 2.15
+ * @param {*} players 
+ * @param {*} targetId 
+ * @returns 
+ */
+export function getPlayerFromMatchData(players, targetId){
+
+    targetId = parseInt(targetId);
+
+    for(let i = 0; i < players.length; i++){
+
+        const p = players[i];
+        if(p.player_id !== targetId) continue;
+
+        return {"name": p.name, "country": p.country, "id": p.player_id}
+    }
+
+    return {"name": "Not Found", "country": "xx", "id": -1};
+}
+
 
 export function ignore0(input){
 
@@ -817,4 +838,27 @@ export function toHours(seconds){
     if(seconds === 0) return 0;
 
     return (seconds / 3600).toFixed(2);
+}
+
+export function getSmartCTFReturnString(string){
+
+    const reg = /^return_(.+)$/i;
+
+    const result = reg.exec(string);
+
+    if(result === null) return string;
+
+    const remaining = result[1];
+
+    if(remaining === "closesave"){
+        return "Close Save";
+    }else if(remaining === "mid"){
+        return "Middle";
+    }else if(remaining === "base"){
+        return "Home Base";
+    }else if(remaining === "enemybase"){
+        return "Enemy Base";
+    }
+
+    return string;
 }

@@ -530,253 +530,6 @@ export default class CTF{
         return await simpleQuery(query, [matchId]);
     }
 
-    async getMatchCovers(matchId, bOnlyCapped, bIgnoreId){
-
-        if(bIgnoreId === undefined) bIgnoreId = false;
-
-        const extra = " AND cap_id!=-1";
-
-        const query = `SELECT ${(bIgnoreId) ? "" :"id,"}cap_id,timestamp,killer_id,victim_id FROM nstats_ctf_covers
-        WHERE match_id=? ${(bOnlyCapped) ? extra : ""} ORDER BY timestamp ASC`;
-
-        return await simpleQuery(query, [matchId]);
-    }
-
-    async getMatchFailedCovers(matchId){
-
-        const query = `SELECT id,timestamp,killer_id,victim_id,killer_team FROM nstats_ctf_covers
-        WHERE match_id=? AND cap_id=-1 ORDER BY timestamp ASC`;
-
-        return await simpleQuery(query, [matchId]);
-    }
-
-
-    async getMatchSelfCovers(matchId, bOnlyCapped){
-
-        const extra = " AND cap_id!=-1";
-
-        const query = `SELECT id,cap_id,timestamp,killer_id,victim_id FROM nstats_ctf_self_covers
-        WHERE match_id=? ${(bOnlyCapped) ? extra : ""} ORDER BY timestamp ASC`;
-
-        return await simpleQuery(query, [matchId]);
-    }
-
-    async getMatchSeals(matchId, bOnlyCapped){
-
-        const extra = " AND cap_id!=-1";
-
-        const query = `SELECT id,cap_id,timestamp,killer_id,victim_id FROM nstats_ctf_seals
-        WHERE match_id=? ${(bOnlyCapped) ? extra : ""} ORDER BY timestamp ASC`;
-
-        return await simpleQuery(query, [matchId]);
-    }
-
-    async getMatchCarryTimes(matchId, bOnlyCapped){
-
-        const extra = " AND cap_id!=-1";
-
-        const query = `SELECT id,cap_id,flag_team,player_id,player_team,start_time,end_time,carry_time,carry_percent 
-        FROM nstats_ctf_carry_times
-        WHERE match_id=? ${(bOnlyCapped) ? extra : ""} ORDER BY start_time ASC`;
-
-        return await simpleQuery(query, [matchId]);
-    }
-
-    /**
-     * 
-     * @param {Number} matchId 
-     * @param {String} include all, only-returns, only-capped
-     * @returns 
-     */
-    async getMatchFlagDeaths(matchId, include){
-
-        include = include.toLowerCase();
-
-        let query = `SELECT id,timestamp,cap_id,killer_id,killer_team,victim_id,victim_team,
-        kill_distance,distance_to_cap,distance_to_enemy_base
-        FROM nstats_ctf_flag_deaths WHERE match_id=?`;
-
-        if(include === "only-returns"){
-            query += " AND cap_id=-1";
-        }else if(include === "only-capped"){
-            query += " AND cap_id!=-1";
-        }
-
-        query += " ORDER BY timestamp ASC";
-        return await simpleQuery(query, [matchId]);
-    }
-
-    /**
-     * 
-     * @param {Number} matchId 
-     * @param {String} include all, only-returns, only-capped
-     * @returns 
-     */
-    async getMatchFlagDrops(matchId, include){
-
-        include = include.toLowerCase();
-
-        let query = `SELECT id,timestamp,cap_id,flag_team,player_id,player_team,distance_to_cap,
-        position_x,position_y,position_z,time_dropped 
-        FROM nstats_ctf_flag_drops 
-        WHERE match_id=?`;
-
-        if(include === "only-returns"){
-            query += " AND cap_id=-1";
-        }else if(include === "only-capped"){
-            query += " AND cap_id!=-1";
-        }
-
-        query += " ORDER BY timestamp ASC"
-
-        return await simpleQuery(query, [matchId]);
-    }
-
-    async getMatchFlagPickups(matchId, include){
-
-        include = include.toLowerCase();
-
-        let query = `SELECT id,timestamp,cap_id,flag_team,player_id,player_team 
-        FROM nstats_ctf_flag_pickups 
-        WHERE match_id=?`;
-
-        if(include === "only-returns"){
-            query += " AND cap_id=-1";
-        }else if(include === "only-capped"){
-            query += " AND cap_id!=-1";
-        }
-
-        query += " ORDER BY timestamp ASC"
-
-        return await simpleQuery(query, [matchId]);
-
-    }
-
-    async getMatchReturns(matchId){
-
-        const query = "SELECT * FROM nstats_ctf_returns WHERE match_id=? ORDER BY return_time ASC";
-
-        return await simpleQuery(query, [matchId]);
-    }
-
-    async getMatchReturnsInteractiveData(matchId){
-
-        const query = `SELECT flag_team,return_time,return_player,pos_x,pos_y,pos_z FROM nstats_ctf_returns WHERE match_id=? ORDER BY return_time DESC`;
-
-        return await simpleQuery(query, [matchId]);
-    }
-
-    filterFlagCovers(covers, team, start, end, bSelfCovers){
-
-        const found = [];
-
-        for(let i = 0; i < covers.length; i++){
-
-            const c = covers[i];
-
-            if(c.timestamp < start) continue;
-            if(c.timestamp > end) break;
-
-            if(!bSelfCovers){
-
-                if(c.killer_team === team){
-                    found.push(c);
-                }
-
-            }else{
-                
-                if(c.killer_team !== team){
-                    found.push(c);
-                }
-            }
-        }
-
-        return found;
-    }
-
-    async getMatchFailedSelfCovers(matchId){
-
-        const query = `SELECT id,timestamp,killer_id,killer_team,victim_id FROM nstats_ctf_self_covers 
-        WHERE match_id=? AND cap_id=-1
-        ORDER BY timestamp ASC`;
-
-        return await simpleQuery(query, [matchId]);
-    }
-
-    filterFlagDeaths(deaths, returnData, startKey, endKey){
-
-        return deaths.filter((death) =>{
-
-            const start = returnData[startKey];
-            const end = returnData[endKey];
-            const time = death.timestamp;
-
-            if(death.victim_team !== returnData.flag_team && time >= start && time <= end){
-                return true;
-            }
-        });
-    }
-
-    filterFlagDrops(drops, returnData, startTimestampKey, endTimestampKey){
-        
-        return drops.filter((drop) =>{
-
-            const timestamp = drop.timestamp;
-            const startTime = returnData[startTimestampKey];
-            const endTime = returnData[endTimestampKey];
-
-            if(drop.flag_team === returnData.flag_team){
-
-                if(timestamp >= startTime && timestamp <= endTime){
-                    return true;
-                }
-            }
-        });
-    }
-
-    filterFlagPickups(pickups, returnData, startKey, endKey){
-
-        const r = returnData;
-
-        return pickups.filter((p) =>{
-
-            const start = r[startKey];
-            const end = r[endKey];
-            const time = p.timestamp;
-
-            if(time >= start && time <= end && r.flag_team === p.flag_team){
-                return true;
-            }
-        });
-    }
-
-    async getMatchDetailedReturns(matchId){
-
-        const returns = await this.getMatchReturns(matchId);
-        const covers = await this.getMatchFailedCovers(matchId);
-        const selfCovers = await this.getMatchFailedSelfCovers(matchId);
-        const flagDeaths = await this.getMatchFlagDeaths(matchId, "only-returns");
-        const flagDrops = await this.getMatchFlagDrops(matchId, "only-returns");
-        const flagPickups = await this.getMatchFlagPickups(matchId, "only-returns");    
-        const teamFrags = await this.getCapFragEvents(matchId, "only-returns");
-
-        for(let i = 0; i < returns.length; i++){
-
-            const r = returns[i];
-            r.coverData = this.filterFlagCovers(covers, r.flag_team, r.grab_time, r.return_time, false);
-            r.selfCoverData = this.filterFlagCovers(selfCovers, r.flag_team, r.grab_time, r.return_time, true);
-            r.deathsData = this.filterFlagDeaths(flagDeaths, r, "grab_time", "return_time");
-            r.flagDrops = this.filterFlagDrops(flagDrops, r, "grab_time", "return_time");
-            r.flagPickups = this.filterFlagPickups(flagPickups, r, "grab_time", "return_time");
-
-            r.returnKills = teamFrags.kills[r.return_time] ?? []; 
-            r.returnSuicides = teamFrags.suicides[r.return_time] ?? []; 
-
-        }
-
-
-        return returns;
-    }
 
     async getPlayerMatchReturns(matchId, playerId){
 
@@ -1711,45 +1464,6 @@ export default class CTF{
         return await simpleQuery(query, vars);
     }*/
 
-    async getCapFragEvents(matchId, option){
-
-        let extra = "";
-
-        if(option === undefined){
-            option = "only-capped";
-        }
-
-        if(option === "only-capped"){
-            extra = "AND cap_id != -1";
-        }
-
-        if(option === "only-returns"){
-            extra = "AND cap_id = -1";
-        }
-
-        const query = `SELECT cap_id,event_type,timestamp,player_id,player_team,total_events 
-        FROM nstats_ctf_cr_kills WHERE match_id=? ${extra} ORDER BY timestamp ASC`;
-
-        const result = await simpleQuery(query, [matchId]);
-
-        const killsByTimestamp = {};
-        const suicidesByTimestamp = {};
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-
-            const timestamp = (r.event_type === 0) ? killsByTimestamp : suicidesByTimestamp;
-
-            if(timestamp[r.timestamp] === undefined){
-                timestamp[r.timestamp] = [];
-            }
-
-            timestamp[r.timestamp].push(r);
-        }
-
-        return {"kills": killsByTimestamp, "suicides": suicidesByTimestamp};
-    }
 
     async bPlayerBestValuesExist(playerId, gametypeId, mapId){
 
@@ -3811,4 +3525,291 @@ export async function getMatchFlagKillDetails(matchId, mapId, playerId){
     }
 
     return data;
+}
+
+
+async function getMatchCovers(matchId, bOnlyCapped, bIgnoreId){
+
+    if(bIgnoreId === undefined) bIgnoreId = false;
+
+    const extra = " AND cap_id!=-1";
+
+    const query = `SELECT ${(bIgnoreId) ? "" :"id,"}cap_id,timestamp,killer_id,victim_id FROM nstats_ctf_covers
+    WHERE match_id=? ${(bOnlyCapped) ? extra : ""} ORDER BY timestamp ASC`;
+
+    return await simpleQuery(query, [matchId]);
+}
+
+async function getMatchFailedCovers(matchId){
+
+    const query = `SELECT id,timestamp,killer_id,victim_id,killer_team FROM nstats_ctf_covers
+    WHERE match_id=? AND cap_id=-1 ORDER BY timestamp ASC`;
+
+    return await simpleQuery(query, [matchId]);
+}
+
+
+async function getMatchSelfCovers(matchId, bOnlyCapped){
+
+    const extra = " AND cap_id!=-1";
+
+    const query = `SELECT id,cap_id,timestamp,killer_id,victim_id FROM nstats_ctf_self_covers
+    WHERE match_id=? ${(bOnlyCapped) ? extra : ""} ORDER BY timestamp ASC`;
+
+    return await simpleQuery(query, [matchId]);
+}
+
+async function getMatchSeals(matchId, bOnlyCapped){
+
+    const extra = " AND cap_id!=-1";
+
+    const query = `SELECT id,cap_id,timestamp,killer_id,victim_id FROM nstats_ctf_seals
+    WHERE match_id=? ${(bOnlyCapped) ? extra : ""} ORDER BY timestamp ASC`;
+
+    return await simpleQuery(query, [matchId]);
+}
+
+async function getMatchCarryTimes(matchId, bOnlyCapped){
+
+    const extra = " AND cap_id!=-1";
+
+    const query = `SELECT id,cap_id,flag_team,player_id,player_team,start_time,end_time,carry_time,carry_percent 
+    FROM nstats_ctf_carry_times
+    WHERE match_id=? ${(bOnlyCapped) ? extra : ""} ORDER BY start_time ASC`;
+
+    return await simpleQuery(query, [matchId]);
+}
+
+/**
+ * 
+ * @param {Number} matchId 
+ * @param {String} include all, only-returns, only-capped
+ * @returns 
+ */
+async function getMatchFlagDeaths(matchId, include){
+
+    include = include.toLowerCase();
+
+    let query = `SELECT id,timestamp,cap_id,killer_id,killer_team,victim_id,victim_team,
+    kill_distance,distance_to_cap,distance_to_enemy_base
+    FROM nstats_ctf_flag_deaths WHERE match_id=?`;
+
+    if(include === "only-returns"){
+        query += " AND cap_id=-1";
+    }else if(include === "only-capped"){
+        query += " AND cap_id!=-1";
+    }
+
+    query += " ORDER BY timestamp ASC";
+    return await simpleQuery(query, [matchId]);
+}
+
+/**
+ * 
+ * @param {Number} matchId 
+ * @param {String} include all, only-returns, only-capped
+ * @returns 
+ */
+async function getMatchFlagDrops(matchId, include){
+
+    include = include.toLowerCase();
+
+    let query = `SELECT id,timestamp,cap_id,flag_team,player_id,player_team,distance_to_cap,
+    position_x,position_y,position_z,time_dropped 
+    FROM nstats_ctf_flag_drops 
+    WHERE match_id=?`;
+
+    if(include === "only-returns"){
+        query += " AND cap_id=-1";
+    }else if(include === "only-capped"){
+        query += " AND cap_id!=-1";
+    }
+
+    query += " ORDER BY timestamp ASC"
+
+    return await simpleQuery(query, [matchId]);
+}
+
+async function getMatchFlagPickups(matchId, include){
+
+    include = include.toLowerCase();
+
+    let query = `SELECT id,timestamp,cap_id,flag_team,player_id,player_team 
+    FROM nstats_ctf_flag_pickups 
+    WHERE match_id=?`;
+
+    if(include === "only-returns"){
+        query += " AND cap_id=-1";
+    }else if(include === "only-capped"){
+        query += " AND cap_id!=-1";
+    }
+
+    query += " ORDER BY timestamp ASC"
+
+    return await simpleQuery(query, [matchId]);
+
+}
+
+async function getMatchReturns(matchId){
+
+    const query = "SELECT * FROM nstats_ctf_returns WHERE match_id=? ORDER BY return_time ASC";
+
+    return await simpleQuery(query, [matchId]);
+}
+
+async function getMatchReturnsInteractiveData(matchId){
+
+    const query = `SELECT flag_team,return_time,return_player,pos_x,pos_y,pos_z FROM nstats_ctf_returns WHERE match_id=? ORDER BY return_time DESC`;
+
+    return await simpleQuery(query, [matchId]);
+}
+
+function filterFlagCovers(covers, team, start, end, bSelfCovers){
+
+    const found = [];
+
+    for(let i = 0; i < covers.length; i++){
+
+        const c = covers[i];
+
+        if(c.timestamp < start) continue;
+        if(c.timestamp > end) break;
+
+        if(!bSelfCovers){
+
+            if(c.killer_team === team){
+                found.push(c);
+            }
+
+        }else{
+            
+            if(c.killer_team !== team){
+                found.push(c);
+            }
+        }
+    }
+
+    return found;
+}
+
+async function getMatchFailedSelfCovers(matchId){
+
+    const query = `SELECT id,timestamp,killer_id,killer_team,victim_id FROM nstats_ctf_self_covers 
+    WHERE match_id=? AND cap_id=-1
+    ORDER BY timestamp ASC`;
+
+    return await simpleQuery(query, [matchId]);
+}
+
+function filterFlagDeaths(deaths, returnData, startKey, endKey){
+
+    return deaths.filter((death) =>{
+
+        const start = returnData[startKey];
+        const end = returnData[endKey];
+        const time = death.timestamp;
+
+        if(death.victim_team !== returnData.flag_team && time >= start && time <= end){
+            return true;
+        }
+    });
+}
+
+function filterFlagDrops(drops, returnData, startTimestampKey, endTimestampKey){
+        
+    return drops.filter((drop) =>{
+
+        const timestamp = drop.timestamp;
+        const startTime = returnData[startTimestampKey];
+        const endTime = returnData[endTimestampKey];
+
+        if(drop.flag_team === returnData.flag_team){
+
+            if(timestamp >= startTime && timestamp <= endTime){
+                return true;
+            }
+        }
+    });
+}
+
+function filterFlagPickups(pickups, returnData, startKey, endKey){
+
+    const r = returnData;
+
+    return pickups.filter((p) =>{
+
+        const start = r[startKey];
+        const end = r[endKey];
+        const time = p.timestamp;
+
+        if(time >= start && time <= end && r.flag_team === p.flag_team){
+            return true;
+        }
+    });
+}
+
+async function getCapFragEvents(matchId, option){
+
+    let extra = "";
+
+    if(option === undefined){
+        option = "only-capped";
+    }
+
+    if(option === "only-capped"){
+        extra = "AND cap_id != -1";
+    }
+
+    if(option === "only-returns"){
+        extra = "AND cap_id = -1";
+    }
+
+    const query = `SELECT cap_id,event_type,timestamp,player_id,player_team,total_events 
+    FROM nstats_ctf_cr_kills WHERE match_id=? ${extra} ORDER BY timestamp ASC`;
+
+    const result = await simpleQuery(query, [matchId]);
+
+    const killsByTimestamp = {};
+    const suicidesByTimestamp = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        const timestamp = (r.event_type === 0) ? killsByTimestamp : suicidesByTimestamp;
+
+        if(timestamp[r.timestamp] === undefined){
+            timestamp[r.timestamp] = [];
+        }
+
+        timestamp[r.timestamp].push(r);
+    }
+
+    return {"kills": killsByTimestamp, "suicides": suicidesByTimestamp};
+}
+
+export async function getMatchDetailedReturns(matchId){
+
+    const returns = await getMatchReturns(matchId);
+    const covers = await getMatchFailedCovers(matchId);
+    const selfCovers = await getMatchFailedSelfCovers(matchId);
+    const flagDeaths = await getMatchFlagDeaths(matchId, "only-returns");
+    const flagDrops = await getMatchFlagDrops(matchId, "only-returns");
+    const flagPickups = await getMatchFlagPickups(matchId, "only-returns");    
+    const teamFrags = await getCapFragEvents(matchId, "only-returns");
+
+    for(let i = 0; i < returns.length; i++){
+
+        const r = returns[i];
+        r.coverData = filterFlagCovers(covers, r.flag_team, r.grab_time, r.return_time, false);
+        r.selfCoverData = filterFlagCovers(selfCovers, r.flag_team, r.grab_time, r.return_time, true);
+        r.deathsData = filterFlagDeaths(flagDeaths, r, "grab_time", "return_time");
+        r.flagDrops = filterFlagDrops(flagDrops, r, "grab_time", "return_time");
+        r.flagPickups = filterFlagPickups(flagPickups, r, "grab_time", "return_time");
+
+        r.returnKills = teamFrags.kills[r.return_time] ?? []; 
+        r.returnSuicides = teamFrags.suicides[r.return_time] ?? []; 
+    }
+
+    return returns;
 }

@@ -10,7 +10,8 @@ import { getFacesWithFileStatuses } from "../../../../api/faces";
 import MatchFragSummary from "../../UI/Match/MatchFragSummary";
 import MatchMonsterHuntFragSummary from "../../UI/Match/MatchMonsterHuntFragSummary";
 import MatchCTFSummary from "../../UI/Match/MatchCTFSummary";
-import { getMatchFlagKillDetails } from "../../../../api/ctf";
+import { getMatchFlagKillDetails, getMatchDetailedReturns } from "../../../../api/ctf";
+import MatchCTFReturns from "../../UI/Match/MatchCTFReturns";
 
 function setQueryValues(params, searchParams){
 
@@ -55,10 +56,10 @@ export default async function Page({params, searchParams}){
     }));
 
     const faces = await getFacesWithFileStatuses([...faceIds]);
-    console.log(faceIds);
-    console.log(faces);
+
 
     const matchCTFFlagKills = await getMatchFlagKillDetails(matchId, info.map, -1);
+    const ctfReturns = await getMatchDetailedReturns(matchId);
 
     if(info === null){
         return <main>
@@ -112,6 +113,7 @@ export default async function Page({params, searchParams}){
                     bMH={info.mh}
                 />
                 <MatchCTFSummary matchId={info.id} mapId={info.map} playerData={players} single={false} flagKills={matchCTFFlagKills}/>
+                <MatchCTFReturns playerData={players} returnData={ctfReturns} totalTeams={info.total_teams} matchStart={info.start} single={false} bHardcore={info.hardcore}/>
             </div>    
         </div>   
     </main>; 
