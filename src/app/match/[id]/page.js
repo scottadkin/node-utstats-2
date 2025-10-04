@@ -28,6 +28,8 @@ import { getMatchDomSummary } from "../../../../api/domination";
 import MatchPlayerScoreHistory from "../../UI/Match/MatchPlayerScoreHistory";
 import { getMatchRankings } from "../../../../api/rankings";
 import MatchRankingChanges from "../../UI/Match/MatchRankingChanges";
+import { getMatchTeamChanges } from "../../../../api/teams";
+import MatchTeamsSummary from "../../UI/Match/MatchTeamsSummary";
 
 function setQueryValues(params, searchParams){
 
@@ -91,6 +93,8 @@ export default async function Page({params, searchParams}){
     const scoreHistory = await getScoreHistory(matchId, players);
     const domSummaryData = await getMatchDomSummary(matchId, info.map);
 
+    const teamChanges = await getMatchTeamChanges(matchId);
+
     const playerIds = [...new Set(players.map((p) =>{
         return p.player_id;
     }))]
@@ -108,9 +112,7 @@ export default async function Page({params, searchParams}){
         </main>; 
     }
 
-    
 
-    //map, totalTeams, players, image, matchData, serverName, gametypeName, faces, highlight, bHome, bClassic
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
         <div id="content">
@@ -180,6 +182,7 @@ export default async function Page({params, searchParams}){
                 />
                 <MatchPlayerScoreHistory graphData={scoreHistory} matchStart={info.start} matchEnd={info.end} bHardcore={info.hardcore}/>
                 <MatchRankingChanges data={rankingsData} players={players} matchId={matchId}/>
+                <MatchTeamsSummary teamChanges={teamChanges} matchId={matchId} matchStart={info.start} players={players} totalTeams={info.total_teams}/>
             </div>    
         </div>   
     </main>; 

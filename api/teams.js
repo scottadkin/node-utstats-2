@@ -25,12 +25,6 @@ export default class Teams{
 
     }
 
-    async getMatchData(matchId){
-
-        const query = "SELECT timestamp,player,team FROM nstats_match_team_changes WHERE match_id=?";
-        return await simpleQuery(query, [matchId]);
-    }
-
     async deletePlayer(playerId){
 
         await simpleQuery("DELETE FROM nstats_match_team_changes WHERE player=?", [playerId]);
@@ -43,4 +37,10 @@ export default class Teams{
 
         return await simpleQuery(query, [matchId, playerId]);
     }
+}
+
+export async function getMatchTeamChanges(matchId){
+
+    const query = "SELECT timestamp,player,team FROM nstats_match_team_changes WHERE match_id=?";
+    return await simpleQuery(query, [matchId]);
 }
