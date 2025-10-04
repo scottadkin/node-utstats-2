@@ -1876,99 +1876,6 @@ export default class Players{
         return data;
     }
 
-    updateOtherScoresGraphData(players, ignoredPlayers){
-
-        for(const [playerId, playerData] of Object.entries(players)){
-
-            const index = ignoredPlayers.indexOf(parseInt(playerId));
-
-            if(index === -1){
-                playerData.values.push(playerData.lastScore);
-            }
-        }
-
-    }
-
-    createPlayerScoreHistory(data, players){
-
-        const playerScores = {};
-
-        for(const [playerId, playerName] of Object.entries(players)){
-
-            playerScores[parseInt(playerId)] = {
-                "name": playerName, 
-                "values": [0], 
-                "lastScore": 0
-            };
-        }
-
-        //console.log(playerScores);
-
-        if(Object.keys(playerScores).length === 0) return [];
-
-        let previousTimestamp = -1;
-        let currentIgnoreList = [];
-
-        for(let i = 0; i < data.length; i++){
-
-            const {timestamp, player, score} = data[i];
-
-            if(timestamp !== previousTimestamp){
-                this.updateOtherScoresGraphData(playerScores, currentIgnoreList);
-                currentIgnoreList = [];
-            }
-
-            if(playerScores[player] === undefined){
-                //console.log(`Players.createPlayerScoreHistory(${player}) player is null`);
-                continue;
-            }
-
-
-            const currentPlayer = playerScores[player];
-
-            //reconnected players scores can have duplicated data
-            if(currentIgnoreList.indexOf(player) !== -1){
-                currentPlayer.values[currentPlayer.values.length - 1] = score;
-                continue;
-            }
-
-            currentPlayer.values.push(score);
-            currentPlayer.lastScore = score;
-
-            currentIgnoreList.push(player);
-
-            previousTimestamp = timestamp;
-        }
-
-        this.updateOtherScoresGraphData(playerScores, currentIgnoreList);
-
-        return Object.values(playerScores);
-    }
-
-    async getScoreHistory(matchId, players){    
-
-        
-        const query = "SELECT timestamp,player,score FROM nstats_match_player_score WHERE match_id=? ORDER BY timestamp ASC";
-
-        const data = await simpleQuery(query, [matchId]);
-
-        const timestamps = [...new Set(data.map((d) =>{
-            return d.timestamp;
-        }))];
-
-        const graphData = this.createPlayerScoreHistory(data, players);
-
-        graphData.sort((a, b) =>{
-
-            a = a.lastValue;
-            b = b.lastValue;
-
-            return b-a;
-        });
-
-        return {"data": graphData, "labels": timestamps};
-    }
-
     async getTeamMatePlayedMatchIds(players){
 
         if(players.length < 2) return [];
@@ -3627,4 +3534,107 @@ export async function getAllInMatch(id){
     }
 
     return players;
+}
+
+function updateOtherScoresGraphData(players, ignoredPlayers){
+
+    for(const [playerId, playerData] of Object.entries(players)){
+
+        const index = ignoredPlayers.indexOf(parseInt(playerId));
+
+        if(index === -1){
+            playerData.values.push(playerData.lastScore);
+        }
+    }
+
+}
+
+function createPlayerScoreHistory(data, players){
+
+    const playerScores = {};
+
+    /*for(const [playerId, playerName] of Object.entries(players)){
+
+        playerScores[parseInt(playerId)] = {
+            "name": playerName, 
+            "values": [0], 
+            "lastScore": 0
+        };
+    }*/
+
+        for(let i = 0; i < players.length; i++){
+
+            const p = players[i];
+            playerScores[p.player_id] = {
+                "name": p.name,
+                "values": [0],
+                "lastScore": 0
+            };
+        }
+
+    //console.log(playerScores);
+
+    if(Object.keys(playerScores).length === 0) return [];
+
+    let previousTimestamp = -1;
+    let currentIgnoreList = [];
+
+    for(let i = 0; i < data.length; i++){
+
+        const {timestamp, player, score} = data[i];
+
+        if(timestamp !== previousTimestamp){
+            updateOtherScoresGraphData(playerScores, currentIgnoreList);
+            currentIgnoreList = [];
+        }
+
+        if(playerScores[player] === undefined){
+            //console.log(`Players.createPlayerScoreHistory(${player}) player is null`);
+            continue;
+        }
+
+
+        const currentPlayer = playerScores[player];
+
+        //reconnected players scores can have duplicated data
+        if(currentIgnoreList.indexOf(player) !== -1){
+            currentPlayer.values[currentPlayer.values.length - 1] = score;
+            continue;
+        }
+
+        currentPlayer.values.push(score);
+        currentPlayer.lastScore = score;
+
+        currentIgnoreList.push(player);
+
+        previousTimestamp = timestamp;
+    }
+
+    updateOtherScoresGraphData(playerScores, currentIgnoreList);
+
+    return Object.values(playerScores);
+}
+
+export async function getScoreHistory(matchId, players){    
+
+    
+    const query = "SELECT timestamp,player,score FROM nstats_match_player_score WHERE match_id=? ORDER BY timestamp ASC";
+
+    const data = await simpleQuery(query, [matchId]);
+
+    const timestamps = [...new Set(data.map((d) =>{
+        return d.timestamp;
+    }))];
+
+    const graphData = createPlayerScoreHistory(data, players);
+
+    graphData.sort((a, b) =>{
+
+        a = a.lastValue;
+        b = b.lastValue;
+
+        return b-a;
+    });
+
+    return {"data": graphData, "labels": timestamps};
 }

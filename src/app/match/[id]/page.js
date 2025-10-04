@@ -5,7 +5,7 @@ import { headers, cookies } from "next/headers";
 import MatchSummary from "../../UI/Match/MatchSummary";
 import { getMatch, getMatchIdFromHash } from "../../../../api/matches";
 import Screenshot from "../../UI/Screenshot";
-import { getAllInMatch } from "../../../../api/players";
+import { getAllInMatch, getScoreHistory } from "../../../../api/players";
 import { getFacesWithFileStatuses } from "../../../../api/faces";
 import MatchFragSummary from "../../UI/Match/MatchFragSummary";
 import MatchMonsterHuntFragSummary from "../../UI/Match/MatchMonsterHuntFragSummary";
@@ -25,6 +25,7 @@ import { getGraphData } from "../../../../api/kills";
 import MatchFragsGraph from "../../UI/Match/MatchFragsGraph";
 import MatchDominationSummary from "../../UI/Match/MatchDominationSummary";
 import { getMatchDomSummary } from "../../../../api/domination";
+import MatchPlayerScoreHistory from "../../UI/Match/MatchPlayerScoreHistory";
 
 function setQueryValues(params, searchParams){
 
@@ -85,6 +86,9 @@ export default async function Page({params, searchParams}){
 
     const fragGraphData = await getGraphData(matchId, players, info.total_teams);
 
+    const scoreHistory = await getScoreHistory(matchId, players);
+
+    console.log(scoreHistory);
 
     if(info === null){
         return <main>
@@ -167,6 +171,7 @@ export default async function Page({params, searchParams}){
                     matchStart={info.start} matchEnd={info.end} bHardcore={info.hardcore}
                     data={domSummaryData}
                 />
+                <MatchPlayerScoreHistory graphData={scoreHistory} matchStart={info.start} matchEnd={info.end} bHardcore={info.hardcore}/>
             </div>    
         </div>   
     </main>; 
