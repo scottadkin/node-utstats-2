@@ -1,5 +1,7 @@
 import { simpleQuery } from "./database.js";
 import Message from "./message.js";
+import { getBasicPlayersByIds } from "./players.js";
+import { getTeamName } from "./generic.mjs";
 
 export default class Domination{
 
@@ -93,16 +95,6 @@ export default class Domination{
 
         const query = "SELECT * FROM nstats_dom_match_control_points WHERE match_id=?";
         return await simpleQuery(query, [matchId]);
-    }
-
-    async getControlPointNames(mapId){
-
-        const query = "SELECT id,name FROM nstats_dom_control_points WHERE map=?";
-        const result = await simpleQuery(query, [mapId]);
-
-        result.unshift({"id": 0, "name": "All"});
-
-        return result;
     }
 
     async getMapControlPoints(map){
@@ -337,13 +329,6 @@ export default class Domination{
     }
 
 
-    async getMatchPlayerCapTotals(matchId){
-
-        const query = "SELECT player, point, COUNT(*) as total_caps FROM nstats_dom_match_caps WHERE match_id=? GROUP BY player, point";
-
-        return await simpleQuery(query, [matchId]);
-    }
-
     async getMatchSinglePlayerTotalCaps(matchId, playerId){
 
         const query = "SELECT point, COUNT(*) as total_caps FROM nstats_dom_match_caps WHERE match_id=? AND player=? GROUP BY point";
@@ -359,212 +344,6 @@ export default class Domination{
         
         return data;
     }
-
-
-    createPointGraphData(inputData, pointNames){
-
-        const pointIndexes = [];
-        const points = [];
-        const timestamps = inputData.map((d) =>{
-            return d.time;
-        });
-
-
-        for(let i = 0; i < pointNames.length; i++){
-
-            const p = pointNames[i];
-            
-            pointIndexes.push(p.id);
-
-            points.push({"name": p.name, "values": [0], "lastValue": 0});
-        }
-
-        const updateOthers = (ignore) =>{
-
-            for(let i = 0; i < points.length; i++){
-
-                const p = points[i];
-
-                if(pointIndexes[i] !== ignore){
-
-                    p.values.push(p.lastValue);
-                }
-            }
-        }
-
-        for(let i = 0; i < inputData.length; i++){
-
-            const d = inputData[i];
-
-            const index = pointIndexes.indexOf(d.point);
-
-            if(index !== -1){
-
-                points[index].lastValue++;
-                points[index].values.push(points[index].lastValue);
-
-                updateOthers(d.point);
-            }
-        }
-
-        return {"data": points, "timestamps": timestamps};
-    }
-
-
-
-
-    updatePlayerGraphData(data, pointId, targetPlayerId){
-
-        targetPlayerId = parseInt(targetPlayerId);
-
-        for(const [playerId, playerData] of Object.entries(data)){
-
-            const pointData = playerData[pointId];
-            const combinedData = playerData[0];
-
-            const previousValue = pointData[pointData.length - 1];
-            const previousCombinedValue = combinedData[combinedData.length - 1];
-
-
-            if(parseInt(playerId) === targetPlayerId){
-                pointData.push(previousValue + 1);     
-                combinedData.push(previousCombinedValue + 1);       
-            }else{
-                pointData.push(previousValue);   
-                combinedData.push(previousCombinedValue);      
-            }
-        }
-    }
-
-    updateTeamTotals(data, targetPointId, targetTeamId){
-
-        const pId = parseInt(targetPointId);
-
-        const pointData = data[pId];    
-
-        for(const [teamId, teamData] of Object.entries(pointData)){
-
-            const previousValue = teamData[teamData.length - 1];
-
-            if(teamId == targetTeamId){
-                teamData.push(previousValue + 1);
-            }else{
-                teamData.push(previousValue);
-            }
-        }    
-    }
-
-    createTeamGraphData(inputData, pointNames){
-
-        const uniqueTeams = [...new Set(inputData.map((d) =>{
-            return d.team;
-        }))]
-
-        uniqueTeams.sort();
-        const teamTotals = {};
-
-        for(let i = 0; i < pointNames.length; i++){
-
-            const currentPoint = pointNames[i].id;
-
-            teamTotals[currentPoint] = {};
-            
-            for(let x = 0; x < uniqueTeams.length; x++){
-
-                teamTotals[currentPoint][uniqueTeams[x]] = [0];
-            }
-        }
-
-        const timestamps = {
-            "0": [0]
-        };
-
-        for(let i = 0; i < inputData.length; i++){
-
-            const {team, point, time} = inputData[i];
-
-            if(timestamps[point] === undefined) timestamps[point] = [0];
-
-            timestamps[0].push(time);
-            timestamps[point].push(time);
-
-            this.updateTeamTotals(teamTotals, parseInt(point), parseInt(team));
-            this.updateTeamTotals(teamTotals, 0, parseInt(team));
-        }
-
-        return {"labels": timestamps, "data": teamTotals};
-    }
-
-    createPlayerGraphData(inputData, pointNames){
-
-        const playerData = {};
-
-        const playerList = [...new Set(inputData.map((p) =>{
-            return p.player;
-        }))];
-
-        for(let i = 0; i < playerList.length; i++){
-
-            //0 is all points combined
-            const current = {
-                "0": [0]
-            };
-
-            for(let x = 0; x < pointNames.length; x++){
-                current[pointNames[x].id] = [0];
-            }
-
-            playerData[playerList[i]] = current;    
-        }
-  
-        const labels = {
-            "0": []
-        };
-
-        for(let i = 0; i < inputData.length; i++){
-
-            const {player, point, time} = inputData[i];
-
-            labels[0].push(time);
-
-            if(labels[point] === undefined) labels[point] = [];
-
-            labels[point].push(time);
-
-            this.updatePlayerGraphData(playerData, point, player);  
-           // this.updateOtherGraphData(playerData, 0, player);  
-        }
-
-        return {"data": playerData, "labels": labels};
-   
-    }
-
-    async getPlayerCapsGraphData(matchId, pointNames){
-
-
-        const query = "SELECT player,point,time,team FROM nstats_dom_match_caps WHERE match_id=? ORDER BY time ASC";
-
-        const result = await simpleQuery(query, [matchId]);
-
-        const teamData = this.createTeamGraphData(result, pointNames);
-
-        return {
-            "playerCaps": this.createPlayerGraphData(result, pointNames), 
-            "teamCaps": teamData
-        };
-        
-    }
-
-    async getPointsGraphData(matchId, pointNames){
-
-        const query = "SELECT player,point,time FROM nstats_dom_match_caps WHERE match_id=? ORDER BY time ASC";
-
-        const result = await simpleQuery(query, [matchId]);
-
-        return this.createPointGraphData(result, pointNames);
-      
-    }
-
 
     async getDuplicateControlPoints(mapId){
 
@@ -627,4 +406,284 @@ export async function getMapFullControlPoints(mapId){
     const query = "SELECT name,matches,captured,x,y,z FROM nstats_dom_control_points WHERE map=?";
 
     return await simpleQuery(query, [mapId]);
+}
+
+export async function getControlPointNames(mapId){
+
+    const query = "SELECT id,name FROM nstats_dom_control_points WHERE map=?";
+    const result = await simpleQuery(query, [mapId]);
+
+    result.unshift({"id": 0, "name": "All"});
+
+    return result;
+}
+
+async function getMatchPlayerCapTotals(matchId){
+
+    const query = "SELECT player, point, COUNT(*) as total_caps FROM nstats_dom_match_caps WHERE match_id=? GROUP BY player, point";
+
+    return await simpleQuery(query, [matchId]);
+}
+
+async function getPointsGraphData(matchId, pointNames){
+
+    const query = "SELECT player,point,time FROM nstats_dom_match_caps WHERE match_id=? ORDER BY time ASC";
+
+    const result = await simpleQuery(query, [matchId]);
+
+    return createPointGraphData(result, pointNames);
+  
+}
+
+function createTeamGraphData(inputData, pointNames){
+
+    const uniqueTeams = [...new Set(inputData.map((d) =>{
+        return d.team;
+    }))]
+
+    uniqueTeams.sort();
+    const teamTotals = {};
+
+    for(let i = 0; i < pointNames.length; i++){
+
+        const currentPoint = pointNames[i].id;
+
+        teamTotals[currentPoint] = {};
+        
+        for(let x = 0; x < uniqueTeams.length; x++){
+
+            teamTotals[currentPoint][uniqueTeams[x]] = [0];
+        }
+    }
+
+    const timestamps = {
+        "0": [0]
+    };
+
+    for(let i = 0; i < inputData.length; i++){
+
+        const {team, point, time} = inputData[i];
+
+        if(timestamps[point] === undefined) timestamps[point] = [0];
+
+        timestamps[0].push(time);
+        timestamps[point].push(time);
+
+        updateTeamTotals(teamTotals, parseInt(point), parseInt(team));
+        updateTeamTotals(teamTotals, 0, parseInt(team));
+    }
+
+    return {"labels": timestamps, "data": teamTotals};
+}
+
+function createPlayerGraphData(inputData, pointNames){
+
+    const playerData = {};
+
+    const playerList = [...new Set(inputData.map((p) =>{
+        return p.player;
+    }))];
+
+    for(let i = 0; i < playerList.length; i++){
+
+        //0 is all points combined
+        const current = {
+            "0": [0]
+        };
+
+        for(let x = 0; x < pointNames.length; x++){
+            current[pointNames[x].id] = [0];
+        }
+
+        playerData[playerList[i]] = current;    
+    }
+
+    const labels = {
+        "0": []
+    };
+
+    for(let i = 0; i < inputData.length; i++){
+
+        const {player, point, time} = inputData[i];
+
+        labels[0].push(time);
+
+        if(labels[point] === undefined) labels[point] = [];
+
+        labels[point].push(time);
+
+        updatePlayerGraphData(playerData, point, player);  
+        // this.updateOtherGraphData(playerData, 0, player);  
+    }
+
+    return {"data": playerData, "labels": labels};
+
+}
+
+function createPointGraphData(inputData, pointNames){
+
+    const pointIndexes = [];
+    const points = [];
+    const timestamps = inputData.map((d) =>{
+        return d.time;
+    });
+
+
+    for(let i = 0; i < pointNames.length; i++){
+
+        const p = pointNames[i];
+        
+        pointIndexes.push(p.id);
+
+        points.push({"name": p.name, "values": [0], "lastValue": 0});
+    }
+
+    const updateOthers = (ignore) =>{
+
+        for(let i = 0; i < points.length; i++){
+
+            const p = points[i];
+
+            if(pointIndexes[i] !== ignore){
+
+                p.values.push(p.lastValue);
+            }
+        }
+    }
+
+    for(let i = 0; i < inputData.length; i++){
+
+        const d = inputData[i];
+
+        const index = pointIndexes.indexOf(d.point);
+
+        if(index !== -1){
+
+            points[index].lastValue++;
+            points[index].values.push(points[index].lastValue);
+
+            updateOthers(d.point);
+        }
+    }
+
+    return {"data": points, "timestamps": timestamps};
+}
+
+
+
+
+function updatePlayerGraphData(data, pointId, targetPlayerId){
+
+    targetPlayerId = parseInt(targetPlayerId);
+
+    for(const [playerId, playerData] of Object.entries(data)){
+
+        const pointData = playerData[pointId];
+        const combinedData = playerData[0];
+
+        const previousValue = pointData[pointData.length - 1];
+        const previousCombinedValue = combinedData[combinedData.length - 1];
+
+
+        if(parseInt(playerId) === targetPlayerId){
+            pointData.push(previousValue + 1);     
+            combinedData.push(previousCombinedValue + 1);       
+        }else{
+            pointData.push(previousValue);   
+            combinedData.push(previousCombinedValue);      
+        }
+    }
+}
+
+function updateTeamTotals(data, targetPointId, targetTeamId){
+
+    const pId = parseInt(targetPointId);
+
+    const pointData = data[pId];    
+
+    for(const [teamId, teamData] of Object.entries(pointData)){
+
+        const previousValue = teamData[teamData.length - 1];
+
+        if(teamId == targetTeamId){
+            teamData.push(previousValue + 1);
+        }else{
+            teamData.push(previousValue);
+        }
+    }    
+}
+
+async function getPlayerCapsGraphData(matchId, pointNames){
+
+    const query = "SELECT player,point,time,team FROM nstats_dom_match_caps WHERE match_id=? ORDER BY time ASC";
+
+    const result = await simpleQuery(query, [matchId]);
+
+    const teamData = createTeamGraphData(result, pointNames);
+
+    return {
+        "playerCaps": createPlayerGraphData(result, pointNames), 
+        "teamCaps": teamData
+    };
+    
+}
+
+export async function getMatchDomSummary(matchId, mapId){
+
+    const pointNames = await getControlPointNames(mapId);
+    const playerPointTotals = await getMatchPlayerCapTotals(matchId);
+
+    const pointsGraphData = await getPointsGraphData(matchId, pointNames);
+    pointsGraphData.data.splice(0,1);
+
+    const {playerCaps, teamCaps} = await getPlayerCapsGraphData(matchId, pointNames);
+
+
+
+
+        
+
+    //console.log(Object.keys(playerCaps));
+    const playerIds = Object.keys(playerCaps.data);
+
+    const playerNames = await getBasicPlayersByIds(playerIds);
+
+    const altTest = [];
+    const teamTestData = [];
+
+    for(let i = 0; i < pointNames.length; i++){
+
+        const {id} = pointNames[i];
+
+        const current = [];
+
+        for(const [playerId, playerData] of Object.entries(playerCaps.data)){
+            current.push({"name": playerNames[playerId] ?? "Not Found", "values": playerData[id]});
+        }
+
+        altTest.push(current);
+    }   
+
+    for(const pointData of Object.values(teamCaps.data)){
+
+        const currentData = [];
+
+        for(const [teamId, teamData] of Object.entries(pointData)){
+            currentData.push({"name": getTeamName(teamId), "values": teamData});
+        }
+
+        teamTestData.push(currentData);
+    }
+
+    
+
+    return {
+        "pointsGraph": pointsGraphData, 
+        "playerTotals": playerPointTotals, 
+        "playerCaps": playerCaps,
+        "pointNames": pointNames,
+        "newPlayerCaps": {"data": altTest, "labels": playerCaps.labels},//[]//test
+        "teamCaps": {"data": teamTestData, "labels": teamCaps.labels}
+    };
+    
 }

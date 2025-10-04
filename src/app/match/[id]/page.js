@@ -23,6 +23,8 @@ import MatchWeaponSummaryCharts from "../../UI/Match/MatchWeaponSummaryCharts";
 import { getMatchData as getWeaponsMatchData } from "../../../../api/weapons";
 import { getGraphData } from "../../../../api/kills";
 import MatchFragsGraph from "../../UI/Match/MatchFragsGraph";
+import MatchDominationSummary from "../../UI/Match/MatchDominationSummary";
+import { getMatchDomSummary } from "../../../../api/domination";
 
 function setQueryValues(params, searchParams){
 
@@ -95,6 +97,8 @@ export default async function Page({params, searchParams}){
         </main>; 
     }
 
+    const domSummaryData = await getMatchDomSummary(matchId, info.map);
+
     //map, totalTeams, players, image, matchData, serverName, gametypeName, faces, highlight, bHome, bClassic
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
@@ -157,6 +161,11 @@ export default async function Page({params, searchParams}){
                     bHardcore={info.hardcore}
                     startTimestamp={info.start}
                     data={fragGraphData}
+                />
+                <MatchDominationSummary 
+                    matchId={info.id} totalTeams={info.total_teams} mapId={info.map} playerData={players} 
+                    matchStart={info.start} matchEnd={info.end} bHardcore={info.hardcore}
+                    data={domSummaryData}
                 />
             </div>    
         </div>   
