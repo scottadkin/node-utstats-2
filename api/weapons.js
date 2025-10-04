@@ -1,6 +1,7 @@
 import { simpleQuery, bulkInsert, updateReturnAffectedRows } from "./database.js";
 import Message from "./message.js";
 import fs from "fs";
+import { getObjectName } from "./genericServerSide.mjs";
 
 export default class Weapons{
 
@@ -244,31 +245,6 @@ export default class Weapons{
         return await simpleQuery(query);
     }
 
-    async getNamesByIds(ids, bReturnObject){
-
-        if(bReturnObject === undefined) bReturnObject = false;
-
-        if(ids.length === 0){
-            return (bReturnObject) ? {} : [];
-        }
-
-        const query = "SELECT id,name FROM nstats_weapons WHERE id IN(?)";
-        const result =  await simpleQuery(query, [ids]);
-
-        if(!bReturnObject) return result;
-
-        const data = {};
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-            data[r.id] = r.name;
-        }
-
-        return data;
-    }
-
-
     async getImageList(){
 
         try{
@@ -321,49 +297,6 @@ export default class Weapons{
 
 
         return weaponToImage;
-    }
-
-
-    async getMatchPlayerData(id){
-
-        const query = `SELECT player_id,weapon_id,kills,best_kills,team_kills,best_team_kills,
-        deaths,suicides,accuracy,shots,hits,damage,efficiency 
-        FROM nstats_player_weapon_match WHERE match_id=? ORDER BY kills DESC, deaths ASC`;
-
-        return await simpleQuery(query, [id]);
-
-    }
-
-    async getMatchData(id){
-
-        try{
-
-            const playerData = await this.getMatchPlayerData(id);
-            
-            const weaponIds = [];
-
-            for(let i = 0; i < playerData.length; i++){
-
-                if(weaponIds.indexOf(playerData[i].weapon_id) === -1){
-                    weaponIds.push(playerData[i].weapon_id);
-                }
-            }
-
-
-            let weaponNames = [];
-
-            if(weaponIds.length > 0){
-                weaponNames = await this.getNamesByIds(weaponIds);
-            }
-            
-            return {
-                "names": weaponNames,
-                "playerData": playerData
-            };
-
-        }catch(err){
-            console.trace(err);
-        }
     }
 
     async deletePlayerMatchData(id){
@@ -1655,3 +1588,33 @@ export default class Weapons{
     }
 }
 
+async function getMatchPlayerData(id){
+
+    const query = `SELECT player_id,weapon_id,kills,best_kills,team_kills,best_team_kills,
+    deaths,suicides,accuracy,shots,hits,damage,efficiency 
+    FROM nstats_player_weapon_match WHERE match_id=? ORDER BY kills DESC, deaths ASC`;
+
+    return await simpleQuery(query, [id]);
+}
+
+export async function getMatchData(id){
+
+    try{
+
+        const playerData = await getMatchPlayerData(id);
+        
+        const weaponIds = new Set(playerData.map((p) =>{
+            return p.weapon_id;
+        }));
+  
+        const weaponNames = await getObjectName("weapons", [...weaponIds]);
+         
+        return {
+            "names": weaponNames,
+            "playerData": playerData
+        };
+
+    }catch(err){
+        console.trace(err);
+    }
+}

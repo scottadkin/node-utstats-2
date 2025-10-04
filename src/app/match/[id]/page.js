@@ -19,6 +19,8 @@ import MatchCTFGraphs from "../../UI/Match/MatchCTFGraphs";
 import MatchDetailedSprees from "../../UI/Match/MatchDetailedSprees";
 import { getDetailedMatchSprees } from "../../../../api/sprees";
 import MatchServerSettings from "../../UI/Match/MatchServerSettings";
+import MatchWeaponSummaryCharts from "../../UI/Match/MatchWeaponSummaryCharts";
+import { getMatchData as getWeaponsMatchData } from "../../../../api/weapons";
 
 function setQueryValues(params, searchParams){
 
@@ -74,6 +76,8 @@ export default async function Page({params, searchParams}){
     const ctfGraphData = await getEventGraphData(matchId, players, info.total_teams);
 
     const detailedSprees = await getDetailedMatchSprees(matchId);
+
+    const weaponData = await getWeaponsMatchData(matchId);
 
     if(info === null){
         return <main>
@@ -140,6 +144,7 @@ export default async function Page({params, searchParams}){
                 <MatchSpecialEvents matchId={info.id} bTeamGame={info.total_teams > 1} players={players} bSingle={false} targetPlayerId={-1}/>
                 <MatchDetailedSprees matchId={info.id} players={players} matchStart={info.start} sprees={detailedSprees} bHardcore={info.hardcore}/>
                 <MatchServerSettings info={info}/>
+                <MatchWeaponSummaryCharts matchId={info.id} totalTeams={info.total_teams} playerData={players} weaponStats={weaponData}/>
             </div>    
         </div>   
     </main>; 

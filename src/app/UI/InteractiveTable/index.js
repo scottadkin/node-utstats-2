@@ -273,7 +273,7 @@ export default function InteractiveTable(props){
     let tableTitle = null;
 
     if(props.title !== undefined){
-        tableTitle = <div className={`table-title t-width-${props.width}`}>{props.title}</div>
+        tableTitle = <div className={`table-title t-width-${props.width} center`}>{props.title}</div>
     }
 
     return <div className={styles.wrapper}>

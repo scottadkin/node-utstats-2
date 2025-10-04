@@ -1,10 +1,10 @@
 import styles from "./MatchWeaponBest.module.css";
 import CountryFlag from "../CountryFlag";
 import Link from "next/link";
-import {getTeamColor} from "../../api/generic.mjs";
+import {getTeamColor} from "../../../../api/generic.mjs";
 
 
-const BestPlayerElem = ({matchId, data, type, player}) =>{
+function BestPlayerElem({matchId, data, type, player}){
 
     let elem = <>N/A</>;
 
@@ -19,7 +19,7 @@ const BestPlayerElem = ({matchId, data, type, player}) =>{
     return elem;
 }
 
-const MatchWeaponBest = ({matchId, name, bestKills, bestDamage, totalTeams}) =>{
+export default function MatchWeaponBest({matchId, name, bestKills, bestDamage, totalTeams}){
 
     if(bestKills.data.kills === 0 && bestDamage.data.damage === 0) return null;
 
@@ -54,5 +54,3 @@ const MatchWeaponBest = ({matchId, name, bestKills, bestDamage, totalTeams}) =>{
         </div>
     </div>
 }
-
-export default MatchWeaponBest;

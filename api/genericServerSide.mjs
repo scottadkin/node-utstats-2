@@ -14,7 +14,8 @@ export async function getObjectName(type, ids){
     const validTypes = [
         "maps", 
         "gametypes",
-        "servers"
+        "servers",
+        "weapons"
     ];
 
     type = type.toLowerCase();

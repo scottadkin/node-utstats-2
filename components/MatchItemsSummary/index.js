@@ -1,6 +1,6 @@
 import {React, useReducer, useEffect} from "react";
 import Functions, { ignore0 } from "../../api/functions";
-import BarChart from "../BarChart";
+import BarChart from "../../src/app/UI/BarChart";
 import Loading from "../Loading";
 import ErrorMessage from "../ErrorMessage";
 import Tabs from "../Tabs";

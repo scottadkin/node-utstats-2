@@ -1,15 +1,15 @@
-import {React, useEffect, useState, useReducer} from "react";
+"use client"
+import {useReducer} from "react";
 import BarChart from "../BarChart";
-import InteractiveTable from "../../src/app/UI/InteractiveTable";
+import InteractiveTable from "../InteractiveTable";
 import CountryFlag from "../CountryFlag";
 import Link from "next/link";
-import ErrorMessage from "../ErrorMessage";
-import Loading from "../Loading";
-import MatchWeaponBest from "../MatchWeaponBest";
+import MatchWeaponBest from "./MatchWeaponBest";
 import Tabs from "../Tabs";
-import { ignore0, getPlayer, getTeamColor } from "../../api/generic.mjs";
+import { ignore0, getPlayer, getTeamColor } from "../../../../api/generic.mjs";
+import { getPlayerFromMatchData } from "../../../../api/generic.mjs";
 
-const reducer = (state, action) =>{
+function reducer(state, action){
 
     switch(action.type){
 
@@ -27,16 +27,8 @@ const reducer = (state, action) =>{
             }
         }
 
-        case "set-weapon-stats": {
-          
-            return {
-                ...state,
-                "weaponStats": {"names": action.value.names, "playerData": action.value.playerData}
-            }
-        }
 
         case "set-individual-mode": {
-            console.log("CHECK");
             return {
                 ...state,
                 "individualDisplayMode": action.value
@@ -62,7 +54,7 @@ const reducer = (state, action) =>{
     return state;
 }
 
-const orderByName = (a, b) =>{
+function orderByName(a, b){
 
     a = a.name.value;
     b = b.name.value;
@@ -72,7 +64,7 @@ const orderByName = (a, b) =>{
     return 0;
 }
 
-const renderTabs = (state, dispatch) =>{
+function renderTabs(state, dispatch){
 
     return <Tabs options={[
         {"name": "Total Damage", "value": -2},
@@ -88,7 +80,7 @@ const renderTabs = (state, dispatch) =>{
     />
 }
 
-const getMaxStats = (weaponStats, weaponId, type) =>{
+function getMaxStats(weaponStats, weaponId, type){
 
     let best = null;
 
@@ -96,7 +88,7 @@ const getMaxStats = (weaponStats, weaponId, type) =>{
 
         const w = weaponStats[i];
 
-        if(w.weapon_id !== weaponId) continue;
+        if(w.weapon_id !== parseInt(weaponId)) continue;
 
         if(best === null){
             best = w;
@@ -110,31 +102,21 @@ const getMaxStats = (weaponStats, weaponId, type) =>{
     return best;
 }
 
-const renderBest = (state, matchId, players, totalTeams) =>{
+function renderBest(state, matchId, players, totalTeams, weaponNames, weaponStats){
 
     if(state.mode !== -1) return null;
 
     const elems = [];
 
-    state.weaponStats.names.sort((a, b) =>{
+    for(let i = 0; i < weaponNames.length; i++){
 
-        a = a.name.toLowerCase();
-        b = b.name.toLowerCase();
+        const {id, name} = weaponNames[i];
 
-        if(a < b) return -1;
-        if(a > b) return 1;
-        return 0;
-    });
+        const bestKills = getMaxStats(weaponStats.playerData, id, "kills");
+        const bestKillsPlayer = getPlayerFromMatchData(players, bestKills.player_id);
 
-    for(let i = 0; i < state.weaponStats.names.length; i++){
-
-        const {id, name} = state.weaponStats.names[i];
-
-        const bestKills = getMaxStats(state.weaponStats.playerData, id, "kills");
-        const bestKillsPlayer = getPlayer(players, bestKills.player_id, true);
-
-        const bestDamage = getMaxStats(state.weaponStats.playerData, id, "damage");
-        const bestDamagePlayer = getPlayer(players, bestDamage.player_id, true);
+        const bestDamage = getMaxStats(weaponStats.playerData, id, "damage");
+        const bestDamagePlayer = getPlayerFromMatchData(players, bestDamage.player_id);
 
         elems.push(<MatchWeaponBest 
             matchId={matchId}
@@ -154,14 +136,14 @@ const renderBest = (state, matchId, players, totalTeams) =>{
             }
             totalTeams={totalTeams}
         />);
-
     }
+
     return <div>
         {elems}  
     </div>
 }
 
-const renderIndividualTabs = (state, dispatch) =>{
+function renderIndividualTabs(state, dispatch){
    
     if(state.mode !== 0) return null;
 
@@ -181,7 +163,7 @@ const renderIndividualTabs = (state, dispatch) =>{
     }}/>
 }
 
-const createPlayerTotalStats = (data, players) =>{
+function createPlayerTotalStats(data, players){
 
     const totals = {};
 
@@ -202,7 +184,7 @@ const createPlayerTotalStats = (data, players) =>{
 
         totalKills = d.kills;
 
-        const currentPlayer = getPlayer(players, d.player_id, true);
+        const currentPlayer = getPlayerFromMatchData(players, d.player_id);
 
         if(totalDamage[currentPlayer.team] === undefined) totalDamage[currentPlayer.team] = 0;
         totalDamage[currentPlayer.team] += d.damage;
@@ -213,7 +195,7 @@ const createPlayerTotalStats = (data, players) =>{
 
     for(const [playerId, playerData] of Object.entries(totals)){
 
-        const currentPlayer = getPlayer(players, playerId, true);
+        const currentPlayer = getPlayerFromMatchData(players, playerId);
 
 
         finalData.push({
@@ -241,7 +223,7 @@ const createPlayerTotalStats = (data, players) =>{
     return finalData;
 }
 
-const renderTotalDamage = (displayMode, matchId, totalData, players, totalTeams) =>{
+function renderTotalDamage(displayMode, matchId, totalData, players, totalTeams){
 
     if(displayMode !== -2) return null;
 
@@ -260,7 +242,7 @@ const renderTotalDamage = (displayMode, matchId, totalData, players, totalTeams)
 
         const {playerId, kills, damage, percent} = d;
 
-        const player = getPlayer(players, playerId, true);
+        const player = getPlayerFromMatchData(players, playerId);
 
         const current = {
             "name": {
@@ -282,7 +264,7 @@ const renderTotalDamage = (displayMode, matchId, totalData, players, totalTeams)
     </>
 }
 
-const getPlayerStatType = (stats, playerId, weaponId, statType) =>{
+function getPlayerStatType(stats, playerId, weaponId, statType){
 
     playerId = parseInt(playerId);
     weaponId = parseInt(weaponId);
@@ -299,29 +281,16 @@ const getPlayerStatType = (stats, playerId, weaponId, statType) =>{
     return 0;
 }
 
-const renderByStatsType = (state, dispatch, players) =>{
+function renderByStatsType(mode, selectedStatType, weaponStats, weaponNames, dispatch, players){
 
-    if(state.mode !== -3) return null;
-
+    if(mode !== -3) return null;
 
     const headers = {
         "player": "Player"
     };
+
     const rows = [];
-
-
-    const weaponNames = [...state.weaponStats.names];
-
-    weaponNames.sort((a, b) =>{
-
-        a = a.name.toLowerCase();
-        b = b.name.toLowerCase();
-
-        if(a < b) return -1;
-        if(a > b) return 1;
-        return 0;
-    });
-
+    
     for(let i = 0; i < weaponNames.length; i++){
 
         const w = weaponNames[i];
@@ -330,31 +299,34 @@ const renderByStatsType = (state, dispatch, players) =>{
 
     headers["totals"] = "Total";
 
-    for(const [playerId, playerData] of Object.entries(players)){
+    for(let i = 0; i < players.length; i++){
 
-        if(playerData.playtime === 0) continue;
+        const p = players[i];
+        const playerId = p.player_id;
+
+        if(p.playtime === 0) continue;
 
         const current = {
             "player": {
-                "value": playerData.name.toLowerCase(), 
-                "displayValue": <><CountryFlag country={playerData.country}/>{playerData.name}</>,
-                "className": `text-left ${getTeamColor(playerData.team)}`
+                "value": p.name.toLowerCase(), 
+                "displayValue": <><CountryFlag country={p.country}/>{p.name}</>,
+                "className": `text-left ${getTeamColor(p.team)}`
             }
         };
 
         let total = 0;
 
-        for(let i = 0; i < weaponNames.length; i++){
+        for(let x = 0; x < weaponNames.length; x++){
 
-            const w = weaponNames[i];
+            const w = weaponNames[x];
 
-            let cValue = getPlayerStatType(state.weaponStats.playerData, playerId, w.id, state.selectedStatType);
+            let cValue = getPlayerStatType(weaponStats.playerData, playerId, w.id, selectedStatType);
 
             const originalValue = cValue;
 
             total += cValue;
 
-            if(state.selectedStatType !== "accuracy" || cValue === 0){
+            if(selectedStatType !== "accuracy" || cValue === 0){
                 cValue = ignore0(cValue);
             }else{
                 cValue = `${cValue.toFixed(2)}%`;
@@ -367,15 +339,15 @@ const renderByStatsType = (state, dispatch, players) =>{
         
         }
 
-        if(state.selectedStatType === "accuracy"){
+        if(selectedStatType === "accuracy"){
 
             total = total.toFixed(2);
         }
 
-        current.totals = {"value": parseFloat(total), "displayValue": (state.selectedStatType === "accuracy") ? `${total}%` :ignore0(total)};
+        current.totals = {"value": parseFloat(total), "displayValue": (selectedStatType === "accuracy") ? `${total}%` :ignore0(total)};
 
         rows.push(current);
-        
+
     }
 
     return <>
@@ -388,7 +360,7 @@ const renderByStatsType = (state, dispatch, players) =>{
                 {"name": "Hits", "value": "hits"},
                 {"name": "Accuracy", "value": "accuracy"},
             ]}
-            selectedValue={state.selectedStatType}
+            selectedValue={selectedStatType}
             changeSelected={(value) =>{
                 dispatch({"type": "set-stats-type", "value": value});
             }}
@@ -398,7 +370,7 @@ const renderByStatsType = (state, dispatch, players) =>{
 }
 
 
-const renderSingleTable = (state, totalTeams, matchId, playerData) =>{
+function renderSingleTable(state, totalTeams, matchId, playerData, weaponNames, weaponStats){
 
     if(state.mode !== 0 || state.individualDisplayMode !== 0) return null;
     
@@ -416,17 +388,17 @@ const renderSingleTable = (state, totalTeams, matchId, playerData) =>{
         "damage": "Damage"
     };
 
-    const weaponName = getWeaponName(state.weaponStats, state.selectedWeaponId);
+    const weaponName = getWeaponName(weaponNames, state.selectedWeaponId);
 
     const data = [];
 
-    for(let i = 0; i < state.weaponStats.playerData.length; i++){
+    for(let i = 0; i < weaponStats.playerData.length; i++){
 
-        const d = state.weaponStats.playerData[i];
+        const d = weaponStats.playerData[i];
 
-        if(d.weapon_id !== state.selectedWeaponId) continue;
+        if(d.weapon_id != state.selectedWeaponId) continue;
 
-        const player = getPlayer(playerData, d.player_id, true);
+        const player = getPlayerFromMatchData(playerData, d.player_id);
 
         data.push({
             "name": {
@@ -457,13 +429,11 @@ const renderSingleTable = (state, totalTeams, matchId, playerData) =>{
     return <InteractiveTable key={state.selectedWeaponId} width="1" title={weaponName} headers={headers} data={data}/>
 }
 
-const getWeaponName = (weaponStats, id) =>{
+function getWeaponName(weaponNames, id){
 
-    //console.log(weaponStats, id);
+    for(let i = 0; i < weaponNames.length; i++){
 
-    for(let i = 0; i < weaponStats.names.length; i++){
-
-        const w = weaponStats.names[i]
+        const w = weaponNames[i]
 
         if(w.id === id) return w.name;        
     }
@@ -471,20 +441,22 @@ const getWeaponName = (weaponStats, id) =>{
     return "Not Found";
 }
 
-const renderBarChart = (state, dispatch, playerData) =>{
+function renderBarChart(state, dispatch, playerData, weaponNames, weaponStats){
 
     if(state.mode !== 0 || state.individualDisplayMode !== 1) return null;
 
-    const weaponName = getWeaponName(state.weaponStats, state.selectedWeaponId);
+    const weaponName = getWeaponName(weaponNames, state.selectedWeaponId);
 
     const values = [];
     const names = [];
 
-    for(const [playerId, data] of Object.entries(playerData)){
-        names.push(data.name);
-        values.push(getPlayerWeaponStat(state, parseInt(playerId)));
-    }
+    for(let i = 0; i < playerData.length; i++){
+        
+        const p = playerData[i];
 
+        names.push(p.name);
+        values.push(getPlayerWeaponStat(state, parseInt(p.player_id), weaponStats));
+    }
 
     return <>
         <Tabs options={[
@@ -502,13 +474,13 @@ const renderBarChart = (state, dispatch, playerData) =>{
     </>
 }
 
-const getPlayerWeaponStat = (state, playerId) =>{
+function getPlayerWeaponStat(state, playerId, weaponStats){
 
-    for(let i = 0; i < state.weaponStats.playerData.length; i++){
+    for(let i = 0; i < weaponStats.playerData.length; i++){
 
-        const p = state.weaponStats.playerData[i];
+        const p = weaponStats.playerData[i];
 
-        if(p.player_id === playerId && state.selectedWeaponId === p.weapon_id){
+        if(p.player_id == playerId && state.selectedWeaponId == p.weapon_id){
 
             let value = p[state.selectedStatType];
 
@@ -521,135 +493,72 @@ const getPlayerWeaponStat = (state, playerId) =>{
 }
 
 
-const MatchWeaponSummaryCharts = ({matchId, totalTeams, playerData, host}) =>{
+function renderWeaponTabs(mode, selectedWeaponId, weaponNames, dispatch){
 
-    const [error, setError] = useState(null);
-    const [totalStats, setTotalStats] = useState([]);
+    if(mode < 0) return null;
+    const tabs = [];
+
+    const names = weaponNames;
+
+    for(let i = 0; i < names.length; i++){
+
+        const weapon = names[i];
+
+        const styleClass = `tab ${(selectedWeaponId === weapon.id) ?  "tab-selected": ""}`;
+
+        tabs.push(<div key={weapon.id} className={styleClass} onClick={() => dispatch({"type": "set-selected-weapon", "value": weapon.id})}>
+            {weapon.name}
+        </div>);
+    }
+
+    if(tabs.length === 0) return null;
+
+    return <div className="tabs">
+        {tabs}
+    </div>
+}    
+
+export default function MatchWeaponSummaryCharts({matchId, totalTeams, playerData, weaponStats}){
 
     const [state, dispatch] = useReducer(reducer, {
-        "bLoading": true,
         "mode": -3,
         //"statsType": 0,
         "individualDisplayMode": 0,
         "selectedStatType": "kills",
-        "weaponStats": {"names": [], "playerData": []},
         "selectedWeaponId": null
     });
 
+    const totalStats = createPlayerTotalStats(weaponStats.playerData, playerData);
 
-    useEffect(() =>{
+    const weaponNames = [];
 
-        const controller = new AbortController();
-
-        const loadData = async () =>{
-            
-            try{
-                const req = await fetch("/api/match", {
-                    "signal": controller.signal,
-                    "headers": {"Content-type": "application/json"},
-                    "method": "POST",
-                    "body": JSON.stringify({"matchId": matchId, "mode": "weapons"})
-                });
-
-                const res = await req.json();
-
-                
-
-                if(res.error !== undefined){
-                    setError(res.error.toString());
-                }else{
-
-                    setError(null);
-
-                    if(res.names.length > 0){
-                        dispatch({"type": "set-selected-weapon", "value": res.names[0].id});
-                    }
-
-                    dispatch({"type": "set-weapon-stats", "value": res});
-
-                    setTotalStats(createPlayerTotalStats(res.playerData, playerData));
-                }
-
-
-            }catch(err){
-                if(err.name !== "AbortError")
-                setError(err.toString());
-            }
-
-            dispatch({"type": "set-loading", "value": false});
-        }
-
-
-        loadData();
-
-        return () =>{
-            controller.abort();
-        }
-
-    }, [matchId, playerData]);
-
-
-    const renderWeaponTabs = (state) =>{
-
-        if(state.mode < 0) return null;
-        const tabs = [];
-
-        const names = [...state.weaponStats.names];
-
-        names.sort((a, b) =>{
-
-            a = a.name.toLowerCase();
-            b = b.name.toLowerCase();
-
-            if(a < b) return -1;
-            if(a > b) return 1;
-            return 0;
-        });
-
-        for(let i = 0; i < names.length; i++){
-
-            const weapon = names[i];
-
-            const styleClass = `tab ${(state.selectedWeaponId === weapon.id) ?  "tab-selected": ""}`;
-
-            tabs.push(<div key={weapon.id} className={styleClass} onClick={() => dispatch({"type": "set-selected-weapon", "value": weapon.id})}>
-                {weapon.name}
-            </div>);
-        }
-
-        if(tabs.length === 0) return null;
-
-        return <div className="tabs">
-            {tabs}
-        </div>
+    for(const [id, name] of Object.entries(weaponStats.names)){
+        weaponNames.push({id, name});
     }
 
-    
+    weaponNames.sort((a, b) =>{
 
-    
+        a = a.name.toLowerCase();
+        b = b.name.toLowerCase();
 
-    if(error !== null){
-        return <ErrorMessage title="Weapon Statistics" text={error}/>
+        if(a < b) return -1;
+        if(a > b) return 1;
+        return 0;
+    });
+
+    if(weaponNames.length > 0 && state.selectedWeaponId === null){
+        dispatch({"type": "set-selected-weapon", "value": weaponNames[0].id});
     }
-
-    if(state.bLoading){
-        return <Loading />;
-    }   
-
-
-    
 
     return <div>
         <div className="default-header">Weapon Statistics</div>
         {renderTabs(state, dispatch)}
         {renderIndividualTabs(state, dispatch)}
-        {renderWeaponTabs(state)}
+        {renderWeaponTabs(state.mode, state.selectedWeaponId, weaponNames, dispatch)}
         {renderTotalDamage(state.mode, matchId, totalStats, playerData, totalTeams)}
-        {renderBest(state, matchId, playerData, totalTeams)}
-        {renderBarChart(state, dispatch, playerData)}
-        {renderSingleTable(state, totalTeams, matchId, playerData)}
-        {renderByStatsType(state, dispatch, playerData)}
+        {renderBest(state, matchId, playerData, totalTeams, weaponNames, weaponStats)}
+        {renderBarChart(state, dispatch, playerData, weaponNames, weaponStats)}
+        {renderSingleTable(state, totalTeams, matchId, playerData, weaponNames, weaponStats)}
+        {renderByStatsType(state.mode, state.selectedStatType, weaponStats, weaponNames, dispatch, playerData)}
     </div>
 }
-
-export default MatchWeaponSummaryCharts;
