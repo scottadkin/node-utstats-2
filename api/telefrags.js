@@ -4,15 +4,6 @@ export default class Telefrags{
 
     constructor(){}
 
-
-    async getMatchData(matchId){
-
-        const query = `SELECT timestamp,killer_id,killer_team,victim_id,victim_team,disc_kill 
-        FROM nstats_tele_frags WHERE match_id=? ORDER BY timestamp ASC`;
-
-        return await simpleQuery(query, [matchId]);
-    }
-
     async getPlayerMatchKills(matchId, targetPlayerId){
 
         const query = `SELECT timestamp,killer_id,killer_team,victim_id,victim_team,disc_kill 
@@ -311,4 +302,13 @@ export default class Telefrags{
 
         await simpleQuery(query, [newId, oldId]);
     }
+}
+
+
+export async function getMatchData(matchId){
+
+    const query = `SELECT timestamp,killer_id,killer_team,victim_id,victim_team,disc_kill 
+    FROM nstats_tele_frags WHERE match_id=? ORDER BY timestamp ASC`;
+
+    return await simpleQuery(query, [matchId]);
 }

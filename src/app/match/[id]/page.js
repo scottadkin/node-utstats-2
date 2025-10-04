@@ -30,6 +30,8 @@ import { getMatchRankings } from "../../../../api/rankings";
 import MatchRankingChanges from "../../UI/Match/MatchRankingChanges";
 import { getMatchTeamChanges } from "../../../../api/teams";
 import MatchTeamsSummary from "../../UI/Match/MatchTeamsSummary";
+import { getMatchData as getMatchTelefrags } from "../../../../api/telefrags";
+import MatchTeleFrags from "../../UI/Match/MatchTeleFrags";
 
 function setQueryValues(params, searchParams){
 
@@ -100,6 +102,8 @@ export default async function Page({params, searchParams}){
     }))]
 
     const rankingsData = await getMatchRankings(matchId, info.gametype, playerIds);
+
+    const teleFrags = await getMatchTelefrags(matchId);
 
     if(info === null){
         return <main>
@@ -183,6 +187,7 @@ export default async function Page({params, searchParams}){
                 <MatchPlayerScoreHistory graphData={scoreHistory} matchStart={info.start} matchEnd={info.end} bHardcore={info.hardcore}/>
                 <MatchRankingChanges data={rankingsData} players={players} matchId={matchId}/>
                 <MatchTeamsSummary teamChanges={teamChanges} matchId={matchId} matchStart={info.start} players={players} totalTeams={info.total_teams}/>
+                <MatchTeleFrags data={teleFrags} players={players} matchId={matchId} matchStart={info.start}/>
             </div>    
         </div>   
     </main>; 
