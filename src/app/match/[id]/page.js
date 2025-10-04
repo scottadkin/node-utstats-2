@@ -21,6 +21,8 @@ import { getDetailedMatchSprees } from "../../../../api/sprees";
 import MatchServerSettings from "../../UI/Match/MatchServerSettings";
 import MatchWeaponSummaryCharts from "../../UI/Match/MatchWeaponSummaryCharts";
 import { getMatchData as getWeaponsMatchData } from "../../../../api/weapons";
+import { getGraphData } from "../../../../api/kills";
+import MatchFragsGraph from "../../UI/Match/MatchFragsGraph";
 
 function setQueryValues(params, searchParams){
 
@@ -78,6 +80,9 @@ export default async function Page({params, searchParams}){
     const detailedSprees = await getDetailedMatchSprees(matchId);
 
     const weaponData = await getWeaponsMatchData(matchId);
+
+    const fragGraphData = await getGraphData(matchId, players, info.total_teams);
+
 
     if(info === null){
         return <main>
@@ -145,6 +150,14 @@ export default async function Page({params, searchParams}){
                 <MatchDetailedSprees matchId={info.id} players={players} matchStart={info.start} sprees={detailedSprees} bHardcore={info.hardcore}/>
                 <MatchServerSettings info={info}/>
                 <MatchWeaponSummaryCharts matchId={info.id} totalTeams={info.total_teams} playerData={players} weaponStats={weaponData}/>
+                <MatchFragsGraph key="frag-graphs" 
+                    matchId={matchId} 
+                    players={players} 
+                    teams={info.total_teams}
+                    bHardcore={info.hardcore}
+                    startTimestamp={info.start}
+                    data={fragGraphData}
+                />
             </div>    
         </div>   
     </main>; 
