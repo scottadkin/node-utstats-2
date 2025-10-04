@@ -18,6 +18,7 @@ import MatchCTFCarryTime from "../../UI/Match/MatchCTFCarryTime";
 import MatchCTFGraphs from "../../UI/Match/MatchCTFGraphs";
 import MatchDetailedSprees from "../../UI/Match/MatchDetailedSprees";
 import { getDetailedMatchSprees } from "../../../../api/sprees";
+import MatchServerSettings from "../../UI/Match/MatchServerSettings";
 
 function setQueryValues(params, searchParams){
 
@@ -138,6 +139,7 @@ export default async function Page({params, searchParams}){
                 />
                 <MatchSpecialEvents matchId={info.id} bTeamGame={info.total_teams > 1} players={players} bSingle={false} targetPlayerId={-1}/>
                 <MatchDetailedSprees matchId={info.id} players={players} matchStart={info.start} sprees={detailedSprees} bHardcore={info.hardcore}/>
+                <MatchServerSettings info={info}/>
             </div>    
         </div>   
     </main>; 
