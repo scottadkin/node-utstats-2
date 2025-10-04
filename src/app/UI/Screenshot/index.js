@@ -793,12 +793,12 @@ class MatchScreenshot{
         
         this.highlightPlayer(player.name);
 
-        
-
         const pingSize = this.y(0.9);
         const nameSize = this.y(2);
-        const nameOffset = this.x(5);
+        const nameOffset = this.x(4);
         const scoreOffset = this.x(39);
+
+        const labelMaxWidth = this.x(3);
 
         c.font = nameSize+"px Arial";
         c.textAlign = "left";
@@ -877,16 +877,18 @@ class MatchScreenshot{
         c.fillText(`PING:${pingAverage}`, x + pingOffsetX + this.x(0.25) , y + pingOffsetY + this.flagHeight + this.y(0.5));
         //c.fillText("PL:0%", x + pingOffsetX, y + pingOffsetY + this.y(1.3) + this.flagHeight + this.y(0.5));
 
-        const row1Offset = this.y(3.2);
-        const row2Offset = this.y(4.8);
-        const row3Offset = this.y(6.4);
-        const valueOffset = this.x(3);
-        const col1Offset = this.x(5);
-        const col2Offset = this.x(22.5);
+        const row1Offset = this.y(3.0);
+        const row2Offset = this.y(4.3);
+        const row3Offset = this.y(5.6);
+        const row4Offset = this.y(6.9);
+        const valueOffset = this.x(3.5);
+        const col1Offset = this.x(4);
+        const col2Offset = this.x(21.5);
 
-        c.fillText(`Caps:`, x + col1Offset, y + row1Offset);
-        c.fillText(`Grabs:`, x + col1Offset, y + row2Offset);
-        c.fillText(`Assists:`, x + col1Offset, y + row3Offset);
+        c.fillText(`Caps:`, x + col1Offset, y + row1Offset, labelMaxWidth);
+        c.fillText(`Grabs:`, x + col1Offset, y + row2Offset, labelMaxWidth);
+        c.fillText(`Assists:`, x + col1Offset, y + row3Offset, labelMaxWidth);
+        c.fillText(`Seals:`, x + col1Offset, y + row4Offset, labelMaxWidth);
 
         c.textAlign = "right";
 
@@ -896,22 +898,30 @@ class MatchScreenshot{
         this.renderSmartCTFBar(c, x + valueOffset + col1Offset, y + row2Offset, "grabs", player.ctfData.flag_taken);
         c.fillText(player.ctfData.flag_assist, x + valueOffset + col1Offset, y + row3Offset);
         this.renderSmartCTFBar(c, x + valueOffset + col1Offset, y + row3Offset, "assists", player.ctfData.flag_assist);
+        c.fillText(player.ctfData.flag_seal, x + valueOffset + col1Offset, y + row4Offset);
+        this.renderSmartCTFBar(c, x + valueOffset + col1Offset, y + row4Offset, "seals", player.ctfData.flag_seal);
+
+        
 
 
         c.textAlign = "left";
 
-        c.fillText(`Covers:`, x + col2Offset, y + row1Offset);
-        c.fillText(`Seals:`, x + col2Offset, y + row2Offset);
-        c.fillText(`FlagKills:`, x + col2Offset, y + row3Offset);
+        c.fillText(`Covers:`, x + col2Offset, y + row1Offset, labelMaxWidth);
+        c.fillText(`Returns:`, x + col2Offset, y + row2Offset, labelMaxWidth);
+        c.fillText(`FlagKills:`, x + col2Offset, y + row3Offset, labelMaxWidth);
+        c.fillText(`CarryTime:`, x + col2Offset, y + row4Offset, labelMaxWidth * 0.5);
 
         c.textAlign = "right";
 
         c.fillText(player.ctfData.flag_cover, x + valueOffset + col2Offset, y + row1Offset);
         this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row1Offset, "covers", player.ctfData.flag_cover);
-        c.fillText(player.ctfData.flag_seal, x + valueOffset + col2Offset, y + row2Offset);
-        this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row2Offset, "seals", player.ctfData.flag_seal);
+        c.fillText(player.ctfData.flag_return, x + valueOffset + col2Offset, y + row2Offset);
+        this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row2Offset, "returns", player.ctfData.flag_return);
         c.fillText(player.ctfData.flag_kill, x + valueOffset + col2Offset, y + row3Offset);
         this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row3Offset, "flagKills", player.ctfData.flag_kill);
+
+        c.fillText(player.ctfData.flag_carry_time, x + valueOffset + col2Offset, y + row4Offset);
+        this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row4Offset, "carryTime", player.ctfData.flag_carry_time);
 
         c.textAlign = "left";
     }
@@ -1106,7 +1116,9 @@ class MatchScreenshot{
             "covers": 0,
             "deaths": 0,
             "flagKills": 0,
-            "seals": 0
+            "seals": 0,
+            "carryTime": 0,
+            "returns": 0
         };
 
         this.totalCTF = {
@@ -1116,7 +1128,9 @@ class MatchScreenshot{
             "covers": 0,
             "deaths": 0,
             "flagKills": 0,
-            "seals": 0
+            "seals": 0,
+            "carryTime": 0,
+            "returns": 0
         };
 
         for(let i = 0; i < this.players.length; i++){
@@ -1153,6 +1167,14 @@ class MatchScreenshot{
                 this.maxCTF.seals = p.ctfData.flag_seal;
             }
 
+            if(p.ctfData.flag_return > this.maxCTF.returns){
+                this.maxCTF.returns = p.ctfData.flag_return;
+            }
+
+            if(p.ctfData.flag_carry_time > this.maxCTF.carryTime){
+                this.maxCTF.carryTime = p.ctfData.flag_carry_time;
+            }
+
             this.totalCTF.grabs += p.ctfData.flag_taken;
             this.totalCTF.caps += p.ctfData.flag_capture;
             this.totalCTF.assists += p.ctfData.flag_assist;
@@ -1160,6 +1182,8 @@ class MatchScreenshot{
             this.totalCTF.deaths += p.deaths;
             this.totalCTF.flagKills += p.ctfData.flag_kill;
             this.totalCTF.seals += p.ctfData.flag_seal;
+            this.totalCTF.returns += p.ctfData.flag_return;
+            this.totalCTF.carryTime += p.ctfData.flag_carry_time;
         }
     }
 
