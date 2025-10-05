@@ -1,7 +1,7 @@
 import {React, useEffect, useReducer} from "react";
 import CustomGraph from "../CustomGraph";
 import Loading from "../Loading";
-import ErrorMessage from "../ErrorMessage";
+import ErrorMessage from "../../src/app/UI/ErrorMessage";
 import InteractiveTable from "../../src/app/UI/InteractiveTable";
 import Functions from "../../api/functions";
 import Link from "next/link";

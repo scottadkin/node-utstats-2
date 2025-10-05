@@ -1,6 +1,6 @@
 "use client"
 import styles from "./MatchPermLink.module.css";
-import ErrorMessage from "../../../../components/ErrorMessage";
+import ErrorMessage from "../ErrorMessage";
 import { useState, useEffect } from "react";
 async function copyToClipboard(url, setError){
 

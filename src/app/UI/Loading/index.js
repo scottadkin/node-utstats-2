@@ -9,7 +9,7 @@ export default function Loading({value, children}){
     }
 
     return <div className={styles.wrapper}>
-        <Image src={`/images/loading.png`} width={32} height={32} alt="Image"/>
+        <Image src={`/images/loading.png`} width={16} height={16} alt="Image"/>
         <div className={styles.text}>
             {(children !== undefined) ? children : "Loading Please wait..."}
         </div>

@@ -2,7 +2,7 @@ import {React, useReducer, useEffect} from "react";
 import Functions, { ignore0 } from "../../api/functions";
 import BarChart from "../../src/app/UI/BarChart";
 import Loading from "../Loading";
-import ErrorMessage from "../ErrorMessage";
+import ErrorMessage from "../../src/app/UI/ErrorMessage";
 import Tabs from "../Tabs";
 import InteractiveTable from "../../src/app/UI/InteractiveTable";
 import {getPlayer, getTeamColor, getTeamName} from "../../api/generic.mjs";

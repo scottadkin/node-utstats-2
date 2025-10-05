@@ -6,8 +6,8 @@
 .wrapper img{
     animation: spin 1.2s infinite;
     animation-timing-function: linear;
-    width:50px;
-    height:50px;
+    width:16px;
+    height:16px;
 }
 
 @keyframes spin {
@@ -16,6 +16,6 @@
 }
 
 .text{
-    font-size:14px;
+    font-size:12px;
     padding:10px;
 }

@@ -2,7 +2,7 @@ import React from "react";
 import Image from "next/image";
 import Table2 from "../Table2";
 import CountryFlag from "../CountryFlag";
-import ErrorMessage from "../ErrorMessage";
+import ErrorMessage from "../../src/app/UI/ErrorMessage";
 import Functions from "../../api/functions";
 import Link from "next/link";
 import styles from "./CombogibMatchStats.module.css";

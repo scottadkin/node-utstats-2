@@ -77,58 +77,6 @@ export default class Kills{
     }
 
 
-    async getMatchKillsBasic(matchId){
-
-        const query = "SELECT killer,victim FROM nstats_kills WHERE match_id=?";
-
-        return await simpleQuery(query, [matchId]);
-   
-    }
-
-
-    async getKillsMatchUp(matchId){
-
-        const kills = await this.getMatchKillsBasic(matchId);
-
-        const data = [];
-
-        const getIndex = (killer, victim) =>{
-
-            for(let i = 0; i < data.length; i++){
-
-                const d = data[i];
-
-                if(d.killer === killer && d.victim === victim){
-                    return i;
-                }
-            }
-
-            return -1;
-        }
-
-
-        for(let i = 0; i < kills.length; i++){
-
-            const k = kills[i];
-
-
-            //ignore suicides
-            if(k.victim === 0) continue;
-
-            let index = getIndex(k.killer, k.victim);
-
-            if(index === -1){
-                data.push({"killer": k.killer, "victim": k.victim, "kills": 0});
-                index = data.length - 1;
-            }
-
-            data[index].kills++;
-
-        }
-
-        return data;
-    }
-
     async getMatchKillsBetween(matchId, start, end){
 
         const query = `SELECT killer,killer_team,COUNT(*) as total_kills 
@@ -437,4 +385,54 @@ export async function getGraphData(matchId, players, totalTeams, getTeamName){
     const result =  await simpleQuery(query, [matchId]);
 
     return createGraphData(result, players, totalTeams, getTeamName);
+}
+
+async function getMatchKillsBasic(matchId){
+
+    const query = "SELECT killer,victim FROM nstats_kills WHERE match_id=?";
+
+    return await simpleQuery(query, [matchId]);
+}
+
+
+export async function getKillsMatchUp(matchId){
+
+    const kills = await getMatchKillsBasic(matchId);
+
+    const data = [];
+
+    const getIndex = (killer, victim) =>{
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            if(d.k === killer && d.v === victim){
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+
+    for(let i = 0; i < kills.length; i++){
+
+        const k = kills[i];
+
+        //ignore suicides
+        if(k.victim === 0) continue;
+
+        let index = getIndex(k.killer, k.victim);
+
+        if(index === -1){
+            data.push({"k": k.killer, "v": k.victim, "kills": 0});
+            index = data.length - 1;
+        }
+
+        data[index].kills++;
+
+    }
+
+    return data;
 }

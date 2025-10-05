@@ -32,6 +32,7 @@ import { getMatchTeamChanges } from "../../../../api/teams";
 import MatchTeamsSummary from "../../UI/Match/MatchTeamsSummary";
 import { getMatchData as getMatchTelefrags } from "../../../../api/telefrags";
 import MatchTeleFrags from "../../UI/Match/MatchTeleFrags";
+import MatchKillsMatchUp from "../../UI/Match/MatchKillsMatchUp";
 
 function setQueryValues(params, searchParams){
 
@@ -188,6 +189,7 @@ export default async function Page({params, searchParams}){
                 <MatchRankingChanges data={rankingsData} players={players} matchId={matchId}/>
                 <MatchTeamsSummary teamChanges={teamChanges} matchId={matchId} matchStart={info.start} players={players} totalTeams={info.total_teams}/>
                 <MatchTeleFrags data={teleFrags} players={players} matchId={matchId} matchStart={info.start}/>
+                <MatchKillsMatchUp matchId={matchId} players={players}/>
             </div>    
         </div>   
     </main>; 

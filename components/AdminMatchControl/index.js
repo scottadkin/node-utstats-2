@@ -3,7 +3,7 @@ import styles from './AdminMatchControl.module.css';
 import CountryFlag from '../CountryFlag/';
 import Table2 from '../Table2';
 import Functions from '../../api/functions';
-import ErrorMessage from '../ErrorMessage';
+import ErrorMessage from '../../src/app/UI/ErrorMessage';
 import Loading from '../Loading';
 
 
