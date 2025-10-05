@@ -15,7 +15,8 @@ export async function getObjectName(type, ids){
         "maps", 
         "gametypes",
         "servers",
-        "weapons"
+        "weapons",
+        "items"
     ];
 
     type = type.toLowerCase();
@@ -24,7 +25,7 @@ export async function getObjectName(type, ids){
 
     if(index === -1) throw new Error(`${type} is not a valid type for getObjectName`);
 
-    const query = `SELECT id,name FROM nstats_${validTypes[index]} WHERE id IN (?)`;
+    const query = `SELECT id,${(type === "items") ? `display_name as name` : `name` } FROM nstats_${validTypes[index]} WHERE id IN (?)`;
 
     const result = await simpleQuery(query, [ids]);
 

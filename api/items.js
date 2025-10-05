@@ -48,46 +48,6 @@ export default class Items{
         }
     }
 
-
-    async getIdsByNames(names){
-
-        if(names.length === 0) return [];
-
-        const query = "SELECT id,name,type FROM nstats_items WHERE name IN(?)";
-
-        return await simpleQuery(query, [names]);
-    }
-
-    async getNamesByIds(ids, bReturnSimpleObject){
-
-        if(ids.length === 0) return [];
-
-        if(bReturnSimpleObject === undefined) bReturnSimpleObject = false;
-
-        const query = "SELECT id,name,display_name,type FROM nstats_items WHERE id IN(?) ORDER BY name ASC";
-
-        const result = await simpleQuery(query, [ids]);
-
-        if(!bReturnSimpleObject){
-            return result;
-        }
-
-        const obj = {};
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-
-            obj[r.id] = {
-                "name": r.name,
-                "displayName": r.display_name,
-                "type": r.type
-            };
-        }
-
-        return obj;
-    }
-
     async insertPlayerMatchItem(matchId, playerId, item, uses){
 
         const query = "INSERT INTO nstats_items_match VALUES(NULL,?,?,?,?)";
@@ -143,29 +103,6 @@ export default class Items{
         }catch(err){
             new Message(`items.updatePlayerTotals ${err}`,'error');
         }
-    }
-
-    async getMatchData(matchId){
-
-        const query = "SELECT player_id,item,uses FROM nstats_items_match WHERE match_id=?";
-        return await simpleQuery(query, [matchId]);
-
-    }
-
-    async getMatchTotals(matchId){
-
-        const query = "SELECT item,SUM(uses) as total_uses FROM nstats_items_match WHERE match_id=? GROUP BY item";
-        const result =  await simpleQuery(query, [matchId]);
-
-        const obj = {};
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-            obj[r.item] = r.total_uses;
-        }
-
-        return obj;
     }
 
     async getPlayerTotalData(player){
@@ -232,127 +169,18 @@ export default class Items{
         return await simpleQuery(query, vars);
     }
 
-
-    async reduceItemTotal(id, amount, matches){
-
-        let query = "UPDATE nstats_items SET uses=uses-?, matches=matches-1 WHERE id=?";
-
-        let vars = [amount, id];
-
-        if(matches !== undefined){
-
-            matches = parseInt(matches);
-            if(matches !== matches) matches = 1;
-
-            vars = [amount, matches, id]
-            query = "UPDATE nstats_items SET uses=uses-?, matches=matches-? WHERE id=?";
-        }
-
-        return await simpleQuery(query, vars);
-    }
-
-    async reduceItemPlayerTotal(id, playerId, amount){
-
-        const query = "UPDATE nstats_items_player SET uses=uses-?, matches=matches-1 WHERE player=? AND item=?";
-
-        return await simpleQuery(query, [amount, playerId, id]);    
-    }
-
-
     async deleteMatchItems(id){
 
         const query = "DELETE FROM nstats_items_match WHERE match_id=?";
         return await simpleQuery(query, [id]);
     }
 
-    async deleteMatchData(id){
-
-        try{
-
-            const matchData = await this.getMatchData(id);
-
-            const uses = {};
-            
-            for(let i = 0; i < matchData.length; i++){
-
-                const m = matchData[i];
-
-                if(uses[m.item] !== undefined){
-                    uses[m.item] += m.uses;
-                }else{
-                    uses[m.item] = m.uses;
-                }
-
-                await this.reduceItemPlayerTotal(m.item, m.player_id, m.uses);
-            }
-
-            for(const [key, value] of Object.entries(uses)){
-
-                await this.reduceItemTotal(key, value);
-            }
-
-            await this.deleteMatchItems(id);
-
-        }catch(err){
-            console.trace(err);
-        }   
-    }
-
-
-    async getPlayerMatchItemData(playerId, matchId){
-
-        const query = "SELECT item,uses FROM nstats_items_match WHERE match_id=? AND player_id=?";
-        return await simpleQuery(query, [matchId, playerId]);
-    }
-
-    async reduceItemTotalsByPlayerMatchUse(item, uses){
-
-        const query = "UPDATE nstats_items SET uses=uses-? WHERE id=?";
-
-        return await simpleQuery(query, [uses, item]);
-    }
-
-    async deletePlayerMatchUses(playerId, matchId){
-
-        const query = "DELETE FROM nstats_items_match WHERE player_id=? AND match_id=?";
-
-        return await simpleQuery(query, [playerId, matchId]);
-    }
-
-    async deletePlayerFromMatch(playerId, matchId){
-
-        try{
-
-            const matchData = await this.getPlayerMatchItemData(playerId, matchId);
-
-            if(matchData.length > 0){
-
-                let m = 0;
-
-                for(let i = 0; i < matchData.length; i++){
-
-                    m = matchData[i];
-
-                    await this.reduceItemPlayerTotal(m.item, playerId, m.uses);
-                    await this.reduceItemTotalsByPlayerMatchUse(m.item, m.uses);
-                    await this.deletePlayerMatchUses(playerId, matchId);
-
-                }
-            }
-        }catch(err){
-            console.trace(err);
-        }   
-    }
 
     async changePlayerIdsMatch(oldId, newId){
 
         await simpleQuery("UPDATE nstats_items_match SET player_id=? WHERE player_id=?", [newId, oldId]);
     }
 
-    async deletePlayerTotals(id){
-
-        await simpleQuery("DELETE FROM nstats_items_player WHERE player=?", [id]);
-    }
 
     async createNewPlayerTotalFromMerge(player, item, first, last, uses, matches){
 
@@ -398,8 +226,8 @@ export default class Items{
             merge(oldData);
             merge(newData);
 
-            await this.deletePlayerTotals(oldId);
-            await this.deletePlayerTotals(newId);
+            await deletePlayerTotals(oldId);
+            await deletePlayerTotals(newId);
 
             for(const [key, value] of Object.entries(mergedData)){
 
@@ -419,11 +247,7 @@ export default class Items{
         return await simpleQuery("SELECT * FROM nstats_items_match WHERE player_id=?", [playerId]);
     }
 
-    async deletePlayerTotals(player){
-
-        await simpleQuery("DELETE FROM nstats_items_player WHERE player=?", [player]);
-
-    }
+    
 
     async deleteAllPlayerMatchData(player){
 
@@ -451,8 +275,8 @@ export default class Items{
             }
 
             for(const [key, value] of Object.entries(uses)){
-                await this.reduceItemTotal(parseInt(key), value.uses, 0);
-                await this.deletePlayerTotals(playerId);
+                await reduceItemTotal(parseInt(key), value.uses, 0);
+                await deletePlayerTotals(playerId);
                 await this.deleteAllPlayerMatchData(playerId);
             }
 
@@ -532,7 +356,7 @@ export default class Items{
 
             for(const [key, value] of Object.entries(uses)){
 
-                await this.reduceItemTotal(parseInt(key), value.uses, value.matches.length);
+                await reduceItemTotal(parseInt(key), value.uses, value.matches.length);
             }
 
             await this.deleteMatchesData(ids);
@@ -591,43 +415,6 @@ export default class Items{
 
         return data;
     }
-
-    createPlayerItemUses(data){
-
-        const players = {};
-
-        for(let i = 0; i < data.length; i++){
-
-            const d = data[i];
-
-            if(players[d.player_id] === undefined){
-                players[d.player_id] = {};
-            }
-
-            const p = players[d.player_id];
-
-            p[d.item] = d.uses;
-        }
-
-        return players;
-    }
-
-    returnUniqueIds(data){
-
-        const unique = [];
-
-        for(let i = 0; i < data.length; i++){
-
-            const d = data[i];
-
-            if(unique.indexOf(d.item) === -1){
-                unique.push(d.item);
-            }
-        }
-
-        return unique;
-    }
-
 
     async updateMatchAmpKills(matchId, ampKills){
 
@@ -707,4 +494,194 @@ export default class Items{
 
         return await this.createMapItemId(item, type);
     }
+}
+
+export async function deleteMatchData(id){
+
+    try{
+
+        const matchData = await getMatchData(id);
+
+        const uses = {};
+        
+        for(let i = 0; i < matchData.length; i++){
+
+            const m = matchData[i];
+
+            if(uses[m.item] !== undefined){
+                uses[m.item] += m.uses;
+            }else{
+                uses[m.item] = m.uses;
+            }
+
+            await reduceItemPlayerTotal(m.item, m.player_id, m.uses);
+        }
+
+        for(const [key, value] of Object.entries(uses)){
+
+            await reduceItemTotal(key, value);
+        }
+
+        await this.deleteMatchItems(id);
+
+    }catch(err){
+        console.trace(err);
+    }   
+}
+
+async function deletePlayerTotals(player){
+
+    await simpleQuery("DELETE FROM nstats_items_player WHERE player=?", [player]);
+}
+
+export async function getMatchData(matchId){
+
+    const query = "SELECT player_id,item,uses FROM nstats_items_match WHERE match_id=?";
+    return await simpleQuery(query, [matchId]);
+
+}
+
+async function reduceItemPlayerTotal(id, playerId, amount){
+
+    const query = "UPDATE nstats_items_player SET uses=uses-?, matches=matches-1 WHERE player=? AND item=?";
+
+    return await simpleQuery(query, [amount, playerId, id]);    
+}
+
+async function reduceItemTotal(id, amount, matches){
+
+    let query = "UPDATE nstats_items SET uses=uses-?, matches=matches-1 WHERE id=?";
+
+    let vars = [amount, id];
+
+    if(matches !== undefined){
+
+        matches = parseInt(matches);
+        if(matches !== matches) matches = 1;
+
+        vars = [amount, matches, id]
+        query = "UPDATE nstats_items SET uses=uses-?, matches=matches-? WHERE id=?";
+    }
+
+    return await simpleQuery(query, vars);
+}
+
+async function getPlayerMatchItemData(playerId, matchId){
+
+    const query = "SELECT item,uses FROM nstats_items_match WHERE match_id=? AND player_id=?";
+    return await simpleQuery(query, [matchId, playerId]);
+}
+
+async function reduceItemTotalsByPlayerMatchUse(item, uses){
+
+    const query = "UPDATE nstats_items SET uses=uses-? WHERE id=?";
+
+    return await simpleQuery(query, [uses, item]);
+}
+
+export async function deletePlayerMatchUses(playerId, matchId){
+
+    const query = "DELETE FROM nstats_items_match WHERE player_id=? AND match_id=?";
+
+    return await simpleQuery(query, [playerId, matchId]);
+}
+
+export async function deletePlayerFromMatch(playerId, matchId){
+
+    try{
+
+        const matchData = await getPlayerMatchItemData(playerId, matchId);
+
+        if(matchData.length > 0){
+
+            let m = 0;
+
+            for(let i = 0; i < matchData.length; i++){
+
+                m = matchData[i];
+
+                await reduceItemPlayerTotal(m.item, playerId, m.uses);
+                await reduceItemTotalsByPlayerMatchUse(m.item, m.uses);
+                await deletePlayerMatchUses(playerId, matchId);
+
+            }
+        }
+    }catch(err){
+        console.trace(err);
+    }   
+}
+
+export async function getMatchTotals(matchId){
+
+    const query = "SELECT item,SUM(uses) as total_uses FROM nstats_items_match WHERE match_id=? GROUP BY item";
+    const result =  await simpleQuery(query, [matchId]);
+
+    const obj = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        obj[r.item] = r.total_uses;
+    }
+
+    return obj;
+}
+
+export function createPlayerItemUses(data){
+
+    const players = {};
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        if(players[d.player_id] === undefined){
+            players[d.player_id] = {};
+        }
+
+        const p = players[d.player_id];
+
+        p[d.item] = d.uses;
+    }
+
+    return players;
+}
+
+export async function getIdsByNames(names){
+
+    if(names.length === 0) return [];
+
+    const query = "SELECT id,name,type FROM nstats_items WHERE name IN(?)";
+
+    return await simpleQuery(query, [names]);
+}
+
+export async function getNamesByIds(ids, bReturnSimpleObject){
+
+    if(ids.length === 0) return [];
+
+    if(bReturnSimpleObject === undefined) bReturnSimpleObject = false;
+
+    const query = "SELECT id,name,display_name,type FROM nstats_items WHERE id IN(?) ORDER BY name ASC";
+
+    const result = await simpleQuery(query, [ids]);
+
+    if(!bReturnSimpleObject){
+        return result;
+    }
+
+    const obj = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        obj[r.id] = {
+            "name": r.name,
+            "displayName": r.display_name,
+            "type": r.type
+        };
+    }
+
+    return obj;
 }

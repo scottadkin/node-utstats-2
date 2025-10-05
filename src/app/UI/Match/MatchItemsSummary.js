@@ -1,15 +1,16 @@
-import {React, useReducer, useEffect} from "react";
-import Functions, { ignore0 } from "../../api/functions";
-import BarChart from "../../src/app/UI/BarChart";
+"use client"
+import { useReducer, useEffect} from "react";
+import BarChart from "../BarChart";
 import Loading from "../Loading";
-import ErrorMessage from "../../src/app/UI/ErrorMessage";
+import ErrorMessage from "../ErrorMessage";
 import Tabs from "../Tabs";
-import InteractiveTable from "../../src/app/UI/InteractiveTable";
-import {getPlayer, getTeamColor, getTeamName} from "../../api/generic.mjs";
+import InteractiveTable from "../InteractiveTable";
+import {getPlayer, getTeamColor, getTeamName, ignore0} from "../../../../api/generic.mjs";
 import CountryFlag from "../CountryFlag";
 import Link from "next/link";
+import { getPlayerFromMatchData } from "../../../../api/generic.mjs";
 
-const reducer = (state, action) =>{
+function reducer(state, action){
 
     switch(action.type){
         case "setError": {
@@ -56,22 +57,24 @@ const reducer = (state, action) =>{
     }
 }
 
-const filterByType = (state, targetType) =>{
+function filterByType(state, targetType){
 
-    const result = state.itemNames.filter((item) =>{
-        return item.type === targetType;
-    });
+    const found = [];
 
-    return result;
+    for(const item of Object.values(state.itemNames)){
+        if(item.type === targetType) found.push(item);
+    }
+    return found;
+
 }
 
 
-const createTypeTabs = (state, dispatch, selectedKey, selectedType) =>{
+function createTypeTabs(state, dispatch, selectedKey, selectedType){
     
     const items = filterByType(state, state.mode);
 
     const bSelectedExist = items.some((item) =>{
-        return item.id === state[selectedKey];
+       return item.id === state[selectedKey];
     });
 
     if(!bSelectedExist && items.length > 0){
@@ -95,9 +98,17 @@ const createTypeTabs = (state, dispatch, selectedKey, selectedType) =>{
     </>
 }
 
-const renderTeamTabs = (totalTeams, dispatch, state) =>{
+function renderTeamTabs(totalTeams, dispatch, state){
 
     if(totalTeams < 2) return null;
+
+    const tabOptions = [
+        {"name": "Players", "value": false},
+        {"name": "Teams", "value": true},
+
+    ];
+
+    return <Tabs options={tabOptions} selectedValue={state.bTeamsView} changeSelected={(a) => dispatch({"type": "teamsViewChange", "mode": a})} />
 
     return <div className="tabs">
         <div className={`tab ${(!state.bTeamsView) ? "tab-selected" : ""}`}
@@ -111,7 +122,7 @@ const renderTeamTabs = (totalTeams, dispatch, state) =>{
     </div>
 }
 
-const bAnyDataOfType = (data, targetType) =>{
+function bAnyDataOfType(data, targetType){
 
     for(let i = 0; i < data.length; i++){
 
@@ -122,7 +133,7 @@ const bAnyDataOfType = (data, targetType) =>{
     return false;
 }
 
-const renderTypeTabs = (state, dispatch) =>{
+function renderTypeTabs(state, dispatch){
 
     const tabs = [];
 
@@ -165,8 +176,9 @@ const renderTypeTabs = (state, dispatch) =>{
     }/>
 }
 
-const renderPlayerTables = (state, dispatch, players, matchId) =>{
-    
+function renderPlayerTables(state, dispatch, players, matchId){
+
+ 
     if(state.bLoading || state.displayMode !== 0 || state.bTeamsView) return null;
 
     const tables = [];
@@ -176,21 +188,21 @@ const renderPlayerTables = (state, dispatch, players, matchId) =>{
         "uses": "Times Picked Up"
     };
 
-    for(let i = 0; i < state.itemNames.length; i++){
+    for(const [id, item] of Object.entries(state.itemNames)){
 
-        const item = state.itemNames[i];
-
+        
         if(item.type !== state.mode) continue;
         if(item.id !== state.selectedItem) continue;
 
         const itemId = item.id;
         const data = [];
 
+
         for(const [playerId, playerData] of Object.entries(state.playerUses)){
 
             if(playerData[itemId] !== undefined){
 
-                const player = getPlayer(players, playerId, true);
+                const player = getPlayerFromMatchData(players, playerId);
 
                 data.push({
                     "name": {
@@ -214,7 +226,7 @@ const renderPlayerTables = (state, dispatch, players, matchId) =>{
     </>;
 }
 
-const renderTeamBarCharts = (state, players, totalTeams) =>{
+function renderTeamBarCharts(state, players, totalTeams){
 
 
     if(state.displayMode !== 1 || !state.bTeamsView) return null;
@@ -225,7 +237,7 @@ const renderTeamBarCharts = (state, players, totalTeams) =>{
 
     for(let i = 0; i < totalTeams; i++){
 
-        names.push(Functions.getTeamName(i));
+        names.push(getTeamName(i));
     }
 
     for(let i = 0; i < state.itemNames.length; i++){
@@ -250,7 +262,7 @@ const renderTeamBarCharts = (state, players, totalTeams) =>{
 }
 
 
-const getPlayerUses = (state, itemId) =>{
+function getPlayerUses(state, itemId){
 
     const uses = [];
 
@@ -266,7 +278,7 @@ const getPlayerUses = (state, itemId) =>{
     return uses;
 }
 
-const renderPlayerBarCharts = (state, players) =>{
+function renderPlayerBarCharts(state, players){
 
     if(state.bTeamsView || state.displayMode !== 1) return null;
 
@@ -299,13 +311,13 @@ const renderPlayerBarCharts = (state, players) =>{
     </div>
 }
 
-const getTeamTotalUses = (state, players, itemId, targetTeam) =>{
+function getTeamTotalUses(state, players, itemId, targetTeam){
 
     let totalUses = 0;
 
     for(const [playerId, playerUses] of Object.entries(state.playerUses)){
 
-        const player = getPlayer(players, playerId, true);
+        const player = getPlayerFromMatchData(players, playerId, true);
 
         if(player.team === targetTeam){
 
@@ -318,7 +330,7 @@ const getTeamTotalUses = (state, players, itemId, targetTeam) =>{
     return totalUses;
 }
 
-const renderTeamTables = (state, dispatch, players, matchId, totalTeams) =>{
+function renderTeamTables(state, dispatch, players, matchId, totalTeams){
 
     if(state.bLoading || state.displayMode !== 0 || !state.bTeamsView) return null;
 
@@ -355,7 +367,7 @@ const renderTeamTables = (state, dispatch, players, matchId, totalTeams) =>{
     </>
 }
 
-const MatchItemsSummary = ({matchId, players, totalTeams}) =>{
+export default function MatchItemsSummary({matchId, players, totalTeams}){
 
 
     const [state, dispatch] = useReducer(reducer, {
@@ -379,10 +391,10 @@ const MatchItemsSummary = ({matchId, players, totalTeams}) =>{
         const loadData = async () =>{
 
             try{
-                const req = await fetch("/api/pickups", {
+                const req = await fetch("/api/match", {
                     "headers": {"content-type": "application/json"},
                     "method": "POST",
-                    "body": JSON.stringify({"mode": "matchUsage", "matchId": matchId})
+                    "body": JSON.stringify({"mode": "item-usage", "matchId": matchId})
                 });
 
                 const res = await req.json();
@@ -435,5 +447,3 @@ const MatchItemsSummary = ({matchId, players, totalTeams}) =>{
     </div>
 }
 
-
-export default MatchItemsSummary;

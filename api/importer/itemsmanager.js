@@ -1,6 +1,7 @@
 import Message from "../message.js";
 import Items from "../items.js";
 import PowerUpManager from "./powerupmanager.js";
+import { getIdsByNames as getItemsByNames } from "../items.js";
 
 export default class ItemsManager{
 
@@ -199,7 +200,7 @@ export default class ItemsManager{
         try{
 
             if(this.itemNames.length > 0){
-                this.itemIds = await this.items.getIdsByNames(this.itemNames);
+                this.itemIds = await getItemsByNames(this.itemNames);
             }
 
             const matchPlayerInsertVars = [];
