@@ -34,6 +34,7 @@ import { getMatchData as getMatchTelefrags } from "../../../../api/telefrags";
 import MatchTeleFrags from "../../UI/Match/MatchTeleFrags";
 import MatchKillsMatchUp from "../../UI/Match/MatchKillsMatchUp";
 import MatchItemsSummary from "../../UI/Match/MatchItemsSummary";
+import MatchPlayerPingHistory from "../../UI/Match/MatchPlayerPingHistory";
 
 function setQueryValues(params, searchParams){
 
@@ -192,6 +193,7 @@ export default async function Page({params, searchParams}){
                 <MatchTeleFrags data={teleFrags} players={players} matchId={matchId} matchStart={info.start}/>
                 <MatchKillsMatchUp matchId={matchId} players={players}/>
                 <MatchItemsSummary matchId={matchId} players={players} totalTeams={info.total_teams}/>
+                <MatchPlayerPingHistory matchId={matchId} players={players} playerIds={playerIds} matchStart={info.start} matchEnd={info.end} bHardcore={info.hardcore}/>
             </div>    
         </div>   
     </main>; 

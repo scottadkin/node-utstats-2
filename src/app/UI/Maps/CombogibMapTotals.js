@@ -1,6 +1,5 @@
 "use client"
-import Loading from "../Loading";
-import ErrorMessage from "../../../../components/ErrorMessage";
+import ErrorMessage from "../ErrorMessage";
 import CountryFlag from "../CountryFlag";
 import Link from "next/link";
 import { toHours, ignore0, getPlayer, plural} from "../../../../api/generic.mjs";

@@ -1,5 +1,6 @@
 import { getKillsMatchUp } from "../../../../api/kills";
 import { getMatchData as getMatchItemsData, getMatchTotals as getMatchItemTotals, createPlayerItemUses, getNamesByIds as getItemsByIds } from "../../../../api/items";
+import { getMatchData as getPingData } from "../../../../api/pings";
 
 export async function POST(req){
 
@@ -35,6 +36,20 @@ export async function POST(req){
      
 
             return Response.json({"playerUses": playerUses, "itemNames": itemNames, "itemTotals": itemTotals});
+        }
+
+        if(mode === "pings"){
+        
+            if(matchId !== matchId){
+                return Response.json({"error": "Match id must be a valid integer"});
+            }
+
+            let players = res.players ?? [];
+
+
+            const data = await getPingData(matchId, players);
+
+            return Response.json({"data": data});
         }
 
         

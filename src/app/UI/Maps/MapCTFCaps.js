@@ -2,7 +2,7 @@
 
 import {useEffect, useReducer} from "react";
 import Loading from "../Loading";
-import ErrorMessage from "../../../../components/ErrorMessage";
+import ErrorMessage from "../ErrorMessage";
 import InteractiveTable from "../InteractiveTable";
 import { getPlayer, convertTimestamp, toPlaytime } from "../../../../api/generic.mjs";
 import Link from "next/link";

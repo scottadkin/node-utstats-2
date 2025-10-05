@@ -1,6 +1,6 @@
 "use client"
 import Loading from "../Loading";
-import ErrorMessage from "../../../../components/ErrorMessage";
+import ErrorMessage from "../ErrorMessage";
 import TablePagination from "../../../../components/TablePagination";
 import CountryFlag from "../CountryFlag";
 import Link from "next/link";
