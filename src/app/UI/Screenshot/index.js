@@ -1,7 +1,7 @@
 "use client"
 import styles from './Screenshot.module.css'
 import {useEffect, useRef} from "react";
-import { utDate } from '../../../../api/generic.mjs';
+import { utDate, MMSS } from '../../../../api/generic.mjs';
 
 class MatchScreenshot{
 
@@ -909,7 +909,7 @@ class MatchScreenshot{
         c.fillText(`Covers:`, x + col2Offset, y + row1Offset, labelMaxWidth);
         c.fillText(`Returns:`, x + col2Offset, y + row2Offset, labelMaxWidth);
         c.fillText(`FlagKills:`, x + col2Offset, y + row3Offset, labelMaxWidth);
-        c.fillText(`CarryTime:`, x + col2Offset, y + row4Offset, labelMaxWidth * 0.5);
+        c.fillText(`CarryTime:`, x + col2Offset, y + row4Offset, labelMaxWidth * 0.7);
 
         c.textAlign = "right";
 
@@ -920,7 +920,7 @@ class MatchScreenshot{
         c.fillText(player.ctfData.flag_kill, x + valueOffset + col2Offset, y + row3Offset);
         this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row3Offset, "flagKills", player.ctfData.flag_kill);
 
-        c.fillText(player.ctfData.flag_carry_time, x + valueOffset + col2Offset, y + row4Offset);
+        c.fillText(MMSS(player.ctfData.flag_carry_time), x + valueOffset + col2Offset, y + row4Offset);
         this.renderSmartCTFBar(c, x + valueOffset + col2Offset, y + row4Offset, "carryTime", player.ctfData.flag_carry_time);
 
         c.textAlign = "left";
