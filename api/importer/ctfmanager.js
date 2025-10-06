@@ -141,10 +141,8 @@ export default class CTFManager{
                 const flagsInPossession = this.getFlagsCarriedBy(killer.masterId);
 
                 for(let i = 0; i < flagsInPossession.length; i++){
-
        
                     this.ctf.addEvent(this.matchId, timestamp, killer.masterId, "suicide", killerTeam);
-                    
 
                     await this.flags[flagsInPossession[i]].killed(
                         timestamp, 

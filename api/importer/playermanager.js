@@ -186,7 +186,6 @@ export default class PlayerManager{
             throw new Error(`PlayerManager.connectPreliminary() name is null!`);
         }
 
-
         
         //work around connect events not having the players correct name if they are named player
 
@@ -205,12 +204,6 @@ export default class PlayerManager{
                 return;
             }
         }
-
-        new Message(`Failed to find preliminary player`,"error");
-
-        this.createPreliminary(timestamp, id, name, true);
-        //console.log(this.preliminaryPlayers);
-       // process.exit();
     }
 
     disconnectPreliminary(timestamp, subString){
@@ -468,12 +461,12 @@ export default class PlayerManager{
            // console.log(p.connectEvents);
         }
 
-        console.table(this.preliminaryPlayers);
+       /* console.table(this.preliminaryPlayers);
 
         for(let i = 0; i < this.preliminaryPlayers.length; i++){
 
             const p = this.preliminaryPlayers[i];
-        }
+        }*/
 
         this.fixReconnectBeforeDisconnect();
 
@@ -518,7 +511,7 @@ export default class PlayerManager{
 
         this.createPreliminaryPlayers();
 
-        console.log(this.delayedDisconnects);
+        //console.log(this.delayedDisconnects);
 
         //now fix the player's team being set to -1, either delete the team change from player
         //or set it to the teamId the highestUsedId used before the delayed disconnect
@@ -571,7 +564,7 @@ export default class PlayerManager{
             this.players.push(player);
         }
 
-        //process.exit();
+
 
         /*for(let i = 0; i < this.players.length; i++){
 
@@ -741,12 +734,12 @@ export default class PlayerManager{
             }
         }
 
-        for(let i = 0; i < this.players.length; i++){
+        /*for(let i = 0; i < this.players.length; i++){
 
             const p = this.players[i];
 
             console.log(p.name, p.ids, p.teams);
-        }
+        }*/
     }
 
     setNStatsValues(){
