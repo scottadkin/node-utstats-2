@@ -740,15 +740,13 @@ export default class PlayerInfo{
 
     getTeamAt(timestamp){
 
-        let t = 0;
-
         timestamp = parseFloat(timestamp);
 
         let currentTeam = -1;
 
         for(let i = 0; i < this.teams.length; i++){
 
-            t = this.teams[i];
+            const t = this.teams[i];
 
             if(t.time <= timestamp){
                 currentTeam = t.id;

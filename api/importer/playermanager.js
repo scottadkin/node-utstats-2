@@ -52,6 +52,10 @@ export default class PlayerManager{
 
         this.spreeManager = new SpreeManager(matchTimings.start);
 
+
+        //issue with player reconnects before old connection is dropped
+        this.delayedDisconnects =[];
+
     }
 
     init(){
@@ -102,11 +106,33 @@ export default class PlayerManager{
         return latestName;
     }
 
+    createPreliminary(timestamp, id, name, bForceAsPlayer){
+
+        id = parseInt(id);
+
+        this.preliminaryPlayers.push({
+            "ids": [id],
+            "name": name,
+            "bSpectator": bForceAsPlayer === false,
+            "hwid": "",
+            "connectEvents": [{"type": "rename", "timestamp": timestamp}],
+            "teamPlaytimes": {
+                "0": 0,
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "255": 0,
+            }
+        });
+        
+    }
+
     /**
     *  Update player id list if already exists
     */
     renamePreliminary(timestamp, subString){
 
+       // new Message(subString, "error");
         const reg = /^(.+?)\t(\d+)$/i;
 
         const result = reg.exec(subString);
@@ -132,25 +158,13 @@ export default class PlayerManager{
 
             if(p.name.toLowerCase() === name.toLowerCase()){
                 p.ids.push(id);
-                p.connectEvents.push({"type": "rename", "timestamp": timestamp});
+                p.connectEvents.push({"type": "rename", "timestamp": timestamp, "playerId": id});
                 return;
             }
         }
 
-        this.preliminaryPlayers.push({
-            "ids": [id],
-            "name": name,
-            "bSpectator": true,
-            "hwid": "",
-            "connectEvents": [{"type": "rename", "timestamp": timestamp}],
-            "teamPlaytimes": {
-                "0": 0,
-                "1": 0,
-                "2": 0,
-                "3": 0,
-                "255": 0,
-            }
-        });
+        this.createPreliminary(timestamp, id, name, false);
+    
     }
 
     connectPreliminary(timestamp, subString){
@@ -172,19 +186,13 @@ export default class PlayerManager{
             throw new Error(`PlayerManager.connectPreliminary() name is null!`);
         }
 
-       // new Message(`originalName was ${originalName}, final name is ${name}`,"error");
-    
-
-        //console.log(`name = ${name}`);
 
         
         //work around connect events not having the players correct name if they are named player
 
         if(name.toLowerCase() === "player"){
-            //console.log("found player");
             //append player id like connect should do
             name = `${name}${id}`;
-           // console.log(`renamed player to ${name}`);
         }
 
         for(let i = 0; i < this.preliminaryPlayers.length; i++){
@@ -193,10 +201,16 @@ export default class PlayerManager{
             //spectators don't get connect events only rename events
             if(p.ids.indexOf(id) !== -1){
                 p.bSpectator = false;
-                p.connectEvents.push({"type": "connect", "timestamp": timestamp});
+                p.connectEvents.push({"type": "connect", "timestamp": timestamp, "playerId": id});
                 return;
             }
         }
+
+        new Message(`Failed to find preliminary player`,"error");
+
+        this.createPreliminary(timestamp, id, name, true);
+        //console.log(this.preliminaryPlayers);
+       // process.exit();
     }
 
     disconnectPreliminary(timestamp, subString){
@@ -208,7 +222,8 @@ export default class PlayerManager{
             const p = this.preliminaryPlayers[i];
 
             if(p.ids.indexOf(playerId) !== -1){
-                p.connectEvents.push({"type": "disconnect", "timestamp": timestamp});
+
+                p.connectEvents.push({"type": "disconnect", "timestamp": timestamp, "playerId": playerId});
                 return;
             }
         }
@@ -234,7 +249,7 @@ export default class PlayerManager{
             const p = this.preliminaryPlayers[i];
 
             if(p.ids.indexOf(playerId) !== -1){
-                p.connectEvents.push({"type": "teamChange", "newTeam": teamId, "timestamp": timestamp});
+                p.connectEvents.push({"type": "teamChange", "newTeam": teamId, "timestamp": timestamp, "playerId": playerId});
                 return;
             }
         }
@@ -307,6 +322,100 @@ export default class PlayerManager{
         //process.exit();
     }
 
+    //example issue of a player joing the server before their last connection to the server has been dropped
+    // ID 6 & 7 are the same player, the discconect event for their previous connection happens after their rejoin
+    // this confusses the importer making it think player id 7 disconnected and not 6
+    /*
+     99.48	player	Teamchange	7	1
+    99.48	player	Connect	Player	7	False
+    99.48	player	TeamName	7	Blue
+    99.48	player	Team	7	1
+    99.48	player	TeamID	7	1
+    99.48	player	Ping	7	0
+    99.48	player	IsABot	7	False
+    99.48	player	Skill	7	1.000000
+    99.48	player	Rename	Player7	7
+    99.49	player	IP	7	174.0.164.49
+    100.59	player	Disconnect	6
+    */
+    /**
+     * Sometimes a log will trigger the rename(on rejoin) event on a new id before a disconnect on their previous id
+     * we need to check if a player has a disconnect event on an id less than
+     * their most recent connection 
+     */
+    fixReconnectBeforeDisconnect(){
+
+        for(let i = 0; i < this.preliminaryPlayers.length; i++){
+
+            const player = this.preliminaryPlayers[i];
+
+            //only happens to players with multiple connections to servers
+            if(player.ids.length <= 1) continue;
+            //new Message(`${player.name} ${player.ids.length}`,"error");
+
+            let highestUsedId = -1;
+            //timestamp for when the highest id was first used
+            let highestUsedIdTimestamp = -1;
+
+            let latestTeamId = -1;
+
+            for(let x = 0; x < player.connectEvents.length; x++){
+
+                const e = player.connectEvents[x];
+                
+                if(e.playerId === undefined) continue;
+               // console.log(e);
+
+                if(e.type === "teamChange"){
+                    latestTeamId = e.newTeam;
+                }
+
+                if(e.playerId < highestUsedId){
+
+                    //const diff = e.timestamp - highestUsedIdTimestamp;
+
+                    if(e.type === "disconnect"){
+
+                        this.delayedDisconnects.push({
+                            "playerId": e.playerId,
+                            "timestamp": e.timestamp,
+                            "highestIdConnectTimestamp": highestUsedIdTimestamp,
+                            "highestId": highestUsedId,
+                            "latestTeamId": latestTeamId
+                        });
+                        ////
+                        e.timestamp = highestUsedIdTimestamp;
+
+                    }
+                }
+
+
+               // if(e.type === "teamchange" && e.playerId === highestUsedId){
+                  //      new Message(`sdfgfj biopfsdjgiopdsjhopsdf jhopjdfgophjdfponjdfopjnopdfj`,"error");
+                  //      latestTeamId = e.newTeam;
+                  //  }
+                
+                if(e.playerId > highestUsedId){
+                    highestUsedId = e.playerId;
+                    highestUsedIdTimestamp = e.timestamp;
+                }
+            }
+
+            
+            //resort
+            player.connectEvents.sort((a, b) =>{
+                a = a.timestamp;
+                b = b.timestamp;
+
+                if(a < b) return -1;
+                if(a > b) return 1;
+                return 0;
+            });
+
+           // process.exit();
+        }
+    }
+
     createPreliminaryPlayers(){
 
         this.preliminaryPlayers = [];
@@ -359,7 +468,17 @@ export default class PlayerManager{
            // console.log(p.connectEvents);
         }
 
+        console.table(this.preliminaryPlayers);
 
+        for(let i = 0; i < this.preliminaryPlayers.length; i++){
+
+            const p = this.preliminaryPlayers[i];
+        }
+
+        this.fixReconnectBeforeDisconnect();
+
+        //process.exit();
+       // process.exit();
         this.setPreliminaryPlaytimes();
     }
 
@@ -398,6 +517,15 @@ export default class PlayerManager{
         //process.exit();
 
         this.createPreliminaryPlayers();
+
+        console.log(this.delayedDisconnects);
+
+        //now fix the player's team being set to -1, either delete the team change from player
+        //or set it to the teamId the highestUsedId used before the delayed disconnect
+
+       // console.log(this.preliminaryPlayers);
+
+        //process.exit();
 
         //process.exit();
 
@@ -443,6 +571,7 @@ export default class PlayerManager{
             this.players.push(player);
         }
 
+        //process.exit();
 
         /*for(let i = 0; i < this.players.length; i++){
 
@@ -609,8 +738,14 @@ export default class PlayerManager{
                 if(player !== null){
                     player.stats.firstBlood = 1;
                 }
-
             }
+        }
+
+        for(let i = 0; i < this.players.length; i++){
+
+            const p = this.players[i];
+
+            console.log(p.name, p.ids, p.teams);
         }
     }
 
@@ -729,6 +864,19 @@ export default class PlayerManager{
     }
 
 
+    getDelayedDisconnectInfo(timestamp, playerId){
+
+        timestamp = parseFloat(timestamp);
+        for(let i = 0; i < this.delayedDisconnects.length; i++){
+
+            const d = this.delayedDisconnects[i];
+
+            if(d.playerId !== playerId) continue;
+            if(d.timestamp == timestamp) return d;
+        }
+        return null;
+    }
+
     setTeam(subString, timestamp, bDisconnect){
 
         if(bDisconnect){
@@ -736,11 +884,25 @@ export default class PlayerManager{
             const id = parseInt(subString);
             const player = this.getPlayerById(id);
 
-            if(player !== null){
-                player.setTeam(timestamp, -1);
-            }else{
+           // new Message(`${id}, ${timestamp}`,"error");
+
+            if(player === null){
                 new Message(`PlayerManager.setTeam() player is null id = ${id}`,"error");
+                return;
             }
+           // timestamp = parseFloat(timestamp);
+
+            const delayInfo = this.getDelayedDisconnectInfo(timestamp, id);
+
+            //if player had a delayed disconect skip this step to prevent importer thinking player disconnected on their rejoin connection
+            if(player !== null && delayInfo === null){
+                player.setTeam(timestamp, -1);
+                return;
+            }
+
+            /*if(delayInfo !== null){
+                console.log(delayInfo)
+            }*/
 
             return;
         }
@@ -1384,15 +1546,12 @@ export default class PlayerManager{
 
         const found = [];
 
-        let connect = 0;
-        let disconnect = 0;
-
         for(let p = 0; p < this.players.length; p++){
 
             for(let i = 0; i < this.players[p].connects.length; i++){
 
-                connect = this.players[p].connects[i];
-                disconnect = (this.players[p].disconnects[i] !== undefined) ? this.players[p].disconnects[i] : 999999999999;
+                const connect = this.players[p].connects[i];
+                const disconnect = (this.players[p].disconnects[i] !== undefined) ? this.players[p].disconnects[i] : 999999999999;
 
 
                 if(connect <= timestamp && timestamp < disconnect){
@@ -1509,6 +1668,9 @@ export default class PlayerManager{
                 return this.players[i].getTeamAt(timestamp);
             }
         }
+
+       // new Message(`getPlayerTeamAt failed to get team for player ${id} @ ${timestamp}`, "error");
+       // console.trace("a");
 
         return -1;
     }

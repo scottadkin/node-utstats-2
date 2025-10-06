@@ -441,6 +441,7 @@ export default class CTFManager{
 
     }
 
+
     async createFlagCover(timestamp, line){
 
         const reg = /^\d+?\.\d+?\tflag_cover\t(\d+?)\t(\d+?)\t(\d+)$/i;
@@ -479,7 +480,7 @@ export default class CTFManager{
 
         if(this.flags[victimTeam] === undefined){
        
-            new Message(`CTFManager.createFlagCover() this.flags[${victimTeam}] is undefined`,"error");
+            new Message(`CTFManager.createFlagCover() this.flags[${victimTeam}] is undefined (${timestamp})`,"error");
             return;
         }
 
