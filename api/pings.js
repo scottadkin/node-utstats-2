@@ -176,6 +176,7 @@ function createMatchGraphData(inputData, players){
         playerIndexes.push(id);
         data.push({"id": id, "data": [], "lastValue": 0, "total": 0, "average": 0});
     }
+    
     const updateOthers = (ignore) =>{
 
         for(let i = 0; i < playerIndexes.length; i++){

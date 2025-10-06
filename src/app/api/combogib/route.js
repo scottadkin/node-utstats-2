@@ -1,4 +1,5 @@
 import Combogib from "../../../../api/combogib";
+import { getMatchData } from "../../../../api/combogib";
 import { getBasicPlayersByIds } from "../../../../api/players";
 
 export async function POST(req){
@@ -15,6 +16,8 @@ export async function POST(req){
         const page = (res.page !== undefined) ? parseInt(res.page) : 0;
         const perPage = (res.perPage !== undefined) ? parseInt(res.perPage) : 5;
         const dataType = (res.dataType !== undefined) ? res.dataType : "combo_kills";
+        let matchId = (res.matchId !== undefined) ? parseInt(res.matchId) : 0;
+        if(matchId !== matchId) matchId = 0;
 
         const combo = new Combogib();
 
@@ -46,6 +49,16 @@ export async function POST(req){
 
             const {data, players} = await combo.getMapTotals(mapId);
             return Response.json({"data": data, "players": players});   
+        }
+
+        if(mode === "match"){
+
+            const data = await getMatchData(matchId);
+
+            return Response.json({"data": data});
+
+       
+
         }
 
     }catch(err){

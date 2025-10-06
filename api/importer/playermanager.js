@@ -328,7 +328,7 @@ export default class PlayerManager{
     99.48	player	IsABot	7	False
     99.48	player	Skill	7	1.000000
     99.48	player	Rename	Player7	7
-    99.49	player	IP	7	174.0.164.49
+    99.49	player	IP	7	0.0.0.0
     100.59	player	Disconnect	6
     */
     /**

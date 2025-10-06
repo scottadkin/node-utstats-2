@@ -24,21 +24,6 @@ export default class Combogib{
     }
 
 
-    async getMatchData(matchId){
-
-        matchId = parseInt(matchId);
-
-        const query = `SELECT 
-        shockball_deaths,shockball_efficiency,shockball_kills,shockball_kpm,best_shockball_spree,best_combo_spree,best_primary_spree,
-        best_single_combo,best_single_shockball,combo_deaths,combo_efficiency,combo_kills,combo_kpm,
-        player_id,primary_deaths,primary_efficiency,primary_kills,primary_kpm,insane_kills,
-        insane_deaths,insane_efficiency,insane_kpm,best_insane_spree,best_single_insane
-
-        FROM nstats_match_combogib WHERE match_id=?`;
-
-        return await simpleQuery(query, [matchId]);
-    }
-
 
     async getPlayerMatchData(playerId, matchId, bEveryRow){
         
@@ -1635,4 +1620,20 @@ export default class Combogib{
 
         await this.fixDuplicateMapTotals(newId);
     }
+}
+
+
+export async function getMatchData(matchId){
+
+    matchId = parseInt(matchId);
+
+    const query = `SELECT 
+    shockball_deaths,shockball_efficiency,shockball_kills,shockball_kpm,best_shockball_spree,best_combo_spree,best_primary_spree,
+    best_single_combo,best_single_shockball,combo_deaths,combo_efficiency,combo_kills,combo_kpm,
+    player_id,primary_deaths,primary_efficiency,primary_kills,primary_kpm,insane_kills,
+    insane_deaths,insane_efficiency,insane_kpm,best_insane_spree,best_single_insane
+
+    FROM nstats_match_combogib WHERE match_id=?`;
+
+    return await simpleQuery(query, [matchId]);
 }
