@@ -56,6 +56,8 @@ function getRankingChangeString(value){
 
 export default function MatchRankingChanges({matchId, players, data}){
 
+    if(data === null) return null;
+
     const headers = {
         "player": "Player",
         "previous": "Previous Ranking",

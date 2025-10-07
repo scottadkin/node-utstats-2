@@ -6,6 +6,8 @@ import { getPlayerFromMatchData, getTeamColor, MMSS, toPlaytime, scalePlaytime }
 
 export default function MatchDetailedSprees({matchId, players, matchStart, sprees, bHardcore}){
 
+    if(sprees === null) return null;
+
     matchStart = scalePlaytime(matchStart, bHardcore);
 
     const headers = {

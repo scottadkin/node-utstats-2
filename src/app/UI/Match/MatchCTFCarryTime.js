@@ -7,7 +7,7 @@ import { getPlayerFromMatchData, ignore0, getTeamColor, toPlaytime } from "../..
 
 export default function MatchCTFCarryTime({data, matchId, players}){
 
-    if(data === null) return null;
+    if(data === null || data.length === 0) return null;
 
     const headers = {
         "player": "Player",

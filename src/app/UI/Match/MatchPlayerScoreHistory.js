@@ -5,6 +5,8 @@ import {MMSS, scalePlaytime} from "../../../../api/generic.mjs";
 
 export default function MatchPlayerScoreHistory({graphData, matchId, players, bHardcore, matchStart, matchEnd}){
 
+    if(graphData === null) return null;
+
     const labels = graphData.labels.map((l) =>{
         return MMSS(scalePlaytime(l - matchStart, bHardcore));
     });

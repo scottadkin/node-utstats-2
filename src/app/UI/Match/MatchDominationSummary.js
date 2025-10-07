@@ -208,6 +208,8 @@ function renderTables(playerData, data, matchId, totalTeams, mode){
 
 export default function MatchDominationSummary({matchId, totalTeams, playerData, matchStart, matchEnd, bHardcore, data}){
 
+    if(data === null || data.playerTotals.length === 0) return null;
+
     const [mode, setMode] = useState(0);
 
     const tabOptions = [

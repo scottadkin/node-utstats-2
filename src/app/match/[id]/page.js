@@ -88,23 +88,65 @@ export default async function Page({params, searchParams}){
 
     const faces = await getFacesWithFileStatuses([...faceIds]);
 
+    let matchCTFFlagKills  = null;
 
-    const matchCTFFlagKills = await getMatchFlagKillDetails(matchId, info.map, -1);
-    const ctfReturns = await getMatchDetailedReturns(matchId);
+    if(pageManager.bEnabled("Display Capture The Flag Summary")){
+        matchCTFFlagKills = await getMatchFlagKillDetails(matchId, info.map, -1);
+    }
 
-    const ctfCaps = await getMatchDetailedCaps(matchId);
-    const ctfCarryTimes = await getCarryTimes(matchId);
+    let ctfReturns = null;
 
-    const ctfGraphData = await getEventGraphData(matchId, players, info.total_teams);
+    if(pageManager.bEnabled("Display Capture The Flag Returns")){
+        ctfReturns = await getMatchDetailedReturns(matchId);
+    }
 
-    const detailedSprees = await getDetailedMatchSprees(matchId);
+    let ctfCaps = null;
+    
+    if(pageManager.bEnabled("Display Capture The Flag Caps")){
+        ctfCaps = await getMatchDetailedCaps(matchId);
+    }
 
-    const weaponData = await getWeaponsMatchData(matchId);
+    let ctfCarryTimes = null;
 
-    const fragGraphData = await getGraphData(matchId, players, info.total_teams);
+    if(pageManager.bEnabled("Display Capture The Flag Carry Times")){
+        ctfCarryTimes = await getCarryTimes(matchId);
+    }
 
-    const scoreHistory = await getScoreHistory(matchId, players);
-    const domSummaryData = await getMatchDomSummary(matchId, info.map);
+    let ctfGraphData = null;
+
+    if(pageManager.bEnabled("Display Capture The Flag Graphs")){
+        ctfGraphData = await getEventGraphData(matchId, players, info.total_teams);
+    }
+
+    let detailedSprees = null;
+
+    if(pageManager.bEnabled("Display Extended Sprees")){
+        detailedSprees = await getDetailedMatchSprees(matchId);
+    }
+
+    let weaponData = null;
+
+    if(pageManager.bEnabled("Display Weapon Statistics")){
+        weaponData = await getWeaponsMatchData(matchId);
+    }
+
+    let fragGraphData = null;
+
+    if(pageManager.bEnabled("Display Frags Graphs")){
+        fragGraphData = await getGraphData(matchId, players, info.total_teams);
+    }
+
+    let scoreHistory = null;
+
+    if(pageManager.bEnabled("Display Player Score Graph")){
+        scoreHistory = await getScoreHistory(matchId, players);
+    }
+
+    let domSummaryData = null;
+
+    if(pageManager.bEnabled("Display Domination Summary")){
+        domSummaryData = await getMatchDomSummary(matchId, info.map);
+    }
 
     let teamChanges = null;
 
@@ -116,9 +158,17 @@ export default async function Page({params, searchParams}){
         return p.player_id;
     }))]
 
-    const rankingsData = await getMatchRankings(matchId, info.gametype, playerIds);
+    let rankingsData = null;
 
-    const teleFrags = await getMatchTelefrags(matchId);
+    if(pageManager.bEnabled("Display Rankings")){
+        rankingsData = await getMatchRankings(matchId, info.gametype, playerIds);
+    }
+
+    let teleFrags = null;
+
+    if(pageManager.bEnabled("Display Telefrag Stats")){
+        teleFrags = await getMatchTelefrags(matchId);
+    }
 
     if(info === null){
         return <main>
@@ -216,12 +266,12 @@ export default async function Page({params, searchParams}){
     pageManager.addComponent("Display Server Settings", <MatchServerSettings key="server-settings" info={info}/>);
 
 
-    pageManager.addComponent("Display Weapons Statistics", <MatchWeaponSummaryCharts key="weapon-control"
+    pageManager.addComponent("Display Weapon Statistics", <MatchWeaponSummaryCharts key="weapon-control"
         matchId={info.id} totalTeams={info.total_teams} playerData={players} 
         weaponStats={weaponData}
     />);
 
-    pageManager.addComponent("Display Frags Graph", <MatchFragsGraph key="frag-graphs" 
+    pageManager.addComponent("Display Frags Graphs", <MatchFragsGraph key="frag-graphs" 
         matchId={matchId} 
         players={players} 
         teams={info.total_teams}

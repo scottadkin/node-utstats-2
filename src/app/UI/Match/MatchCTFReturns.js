@@ -324,6 +324,8 @@ function renderBasicTable(displayMode, currentTab, returnData, playerData, match
 
 export default function MatchCTFReturns({playerData, returnData, matchId, matchStart, single, bHardcore, totalTeams}){
 
+    if(returnData === null) return null;
+
     if(playerData.length > 0 && playerData[0].ctfData === undefined) return null;
 
     const [displayMode, setDisplayMode] = useState(0);

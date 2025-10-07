@@ -4,6 +4,9 @@ import { scalePlaytime, MMSS, toPlaytime } from "../../../../api/generic.mjs";
 
 export default function MatchCTFGraphs({matchId, graphData, totalTeams, players, matchStart, matchEnd, bHardcore}){
 
+    if(graphData === null) return null;
+    if(players.length > 0 && players[0].ctfData === undefined) return null;
+
     matchStart = scalePlaytime(parseFloat(matchStart), bHardcore);
     const d = {...graphData};
     const l = {...graphData.labels};
