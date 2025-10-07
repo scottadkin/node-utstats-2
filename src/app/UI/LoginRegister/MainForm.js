@@ -1,5 +1,5 @@
 "use client";
-import ErrorMessage from "../../../../components/ErrorMessage";
+import ErrorMessage from "../ErrorMessage";
 import { useReducer } from "react";
 import Tabs from "../Tabs";
 import LoginForm from "./LoginForm";

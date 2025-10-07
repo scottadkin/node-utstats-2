@@ -2,7 +2,7 @@
 import styles from "../../../../styles/Login.module.css";
 import { loginUser } from "../../actions";
 import { useActionState } from "react";
-import ErrorMessage from "../../../../components/ErrorMessage";
+import ErrorMessage from "../ErrorMessage";
 
 
 export default function LoginForm(){
