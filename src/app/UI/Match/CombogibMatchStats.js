@@ -1,12 +1,8 @@
 "use client"
-import Image from "next/image";
-import Table2 from "../../../../components/Table2";
 import CountryFlag from "../CountryFlag";
 import ErrorMessage from "../ErrorMessage";
 import Link from "next/link";
-import styles from "./CombogibMatchStats.module.css";
 import Loading from "../Loading";
-
 import { getTeamColor, ignore0, getPlayerFromMatchData } from "../../../../api/generic.mjs";
 import { useEffect, useReducer } from "react";
 import Tabs from "../Tabs";
@@ -94,13 +90,12 @@ function renderTeamTabs(totalTeams, bAllPlayers, dispatch){
 }
 
 
-function renderBasic(dispatch, mode, data, players, bAllPlayers, totalTeams, matchId){
+function renderBasic(mode, data, players, bAllPlayers, totalTeams, matchId){
 
     if(mode !== 0) return null;
 
     const rows = [];
 
-   // data = sortBasic(data);
 
     const teamData = [[],[],[],[]];
 
@@ -125,22 +120,21 @@ function renderBasic(dispatch, mode, data, players, bAllPlayers, totalTeams, mat
 
         const teamColor = (totalTeams >= 2) ? getTeamColor(currentPlayer.team) : "team-none";
 
-
-        const currentRow = [
-            {
+        const currentRow = {
+            "player": {
                 "value": currentPlayer.name.toLowerCase(), 
                 "className": `${teamColor} player`,
                 "displayValue": <><CountryFlag country={currentPlayer.country}/>
                     <Link href={`/pmatch/${matchId}?player=${d.player_id}`}>{currentPlayer.name}</Link>
-                </>},
-            {"value": d.combo_kills, "displayValue": ignore0(d.combo_kills)},
-            {"value": d.insane_kills, "displayValue": ignore0(d.insane_kills)},
-            {"value": d.shockball_kills, "displayValue": ignore0(d.shockball_kills)},
-            {"value": d.primary_kills, "displayValue": ignore0(d.primary_kills)},
-            {"value": bestBallKillString  },
-            {"value": bestInsaneKillString },
-            {"value": bestKillString },
-        ];
+                </>
+            },"combo": {"value": d.combo_kills, "displayValue": ignore0(d.combo_kills)},
+            "insane": {"value": d.insane_kills, "displayValue": ignore0(d.insane_kills)},
+            "shockball":{"value": d.shockball_kills, "displayValue": ignore0(d.shockball_kills)},
+            "primary":  {"value": d.primary_kills, "displayValue": ignore0(d.primary_kills)},
+            "bestBall": {"value": bestBallKillString  },
+            "bestInsane":{"value": bestInsaneKillString },
+            "bestKill":{"value": bestKillString },
+        };
 
         if(bAllPlayers){
 
@@ -203,37 +197,37 @@ function renderBasic(dispatch, mode, data, players, bAllPlayers, totalTeams, mat
         const bestSingleBall = getKillsString(allTotals.bestSingleShockBall);
         const bestInsane = getKillsString(allTotals.bestSingleInsane);
 
-        rows.push(
-            [
-                
-                {"value": "", "displayValue": "Totals/Best"},
-                {"value": allTotals.combo_kills, "displayValue": ignore0(allTotals.combo_kills)},
-                {"value": allTotals.insane, "displayValue": ignore0(allTotals.insane)},
-                {"value": allTotals.shockBalls, "displayValue": ignore0(allTotals.shockBalls)},
-                {"value": allTotals.primary, "displayValue": ignore0(allTotals.primary)},
-                {"value": bestSingleBall},
-                {"value": bestInsane},
-                {"value": bestSingle},
-            ]
-        );
+        rows.push({
+            "bAlwaysLast": true,
+            "player": {
+                "value": null, 
+                "className": `team-none player`,
+                "displayValue": <>Totals/Best</>
+            },"combo": {"value": allTotals.combos, "displayValue": ignore0(allTotals.combos)},
+            "insane": {"value": allTotals.insane, "displayValue": ignore0(allTotals.insane)},
+            "shockball":{"value": allTotals.shockBalls, "displayValue": ignore0(allTotals.shockBalls)},
+            "primary":  {"value": allTotals.primary, "displayValue": ignore0(allTotals.primary)},
+            "bestBall": {"value": bestSingleBall  },
+            "bestInsane":{"value": bestInsane },
+            "bestKill":{"value": bestSingle },
+        });
+
     }
 
-
-    const tableHeaders = [
-        "Player",
-        "Combo Kills",
-        "Insane Combo Kills",
-        "Shock Ball Kills",
-        "Instagib Kills",
-        "Best ShockBall",
-        "Best Insane Combo",
-        "Best Combo"
-    ];
+    const tableHeaders = {
+        "player": "Player",
+        "combo": "Combo Kills",
+        "insane": "Insane Combo Kills",
+        "shockball": "Shock Ball Kills",
+        "primary": "Instagib Kills",
+        "bestBall": "Best ShockBall",
+        "bestInsane": "Best Insane Combo",
+        "bestKill": "Best Combo"
+    };
 
     if(bAllPlayers){
 
-        return <InteractiveTable width={1} headers={tableHeaders} data={rows} />
-        //return this.renderBasicTable(rows, allTotals, -1);
+        return <InteractiveTable width={1} key={"all"} headers={tableHeaders} data={rows} />
 
     }else{
 
@@ -243,12 +237,302 @@ function renderBasic(dispatch, mode, data, players, bAllPlayers, totalTeams, mat
 
             const teamRows = teamData[i];
 
-            //tables.push(this.renderBasicTable(teamRows, teamTotals[i], i));
-            tables.push(<InteractiveTable width={1} headers={tableHeaders} data={teamRows} />);
+            if(teamRows.length === 0) continue;
+
+            const t = teamTotals[i];
+
+            const bestSingle = getKillsString(t.bestSingle);
+            const bestSingleBall = getKillsString(t.bestSingleShockBall);
+            const bestInsane = getKillsString(t.bestSingleInsane);
+
+            teamRows.push({
+                "bAlwaysLast": true,
+                "player": {
+                    "value": null, 
+                    "className": `team-none player`,
+                    "displayValue": <>Totals/Best</>
+                },"combo": {"value": t.combos, "displayValue": ignore0(t.combos)},
+                "insane": {"value": t.insane, "displayValue": ignore0(t.insane)},
+                "shockball":{"value": t.shockBalls, "displayValue": ignore0(t.shockBalls)},
+                "primary":  {"value": t.primary, "displayValue": ignore0(t.primary)},
+                "bestBall": {"value": bestSingleBall },
+                "bestInsane":{"value": bestInsane },
+                "bestKill":{"value": bestSingle },
+            });
+
+            tables.push(<InteractiveTable key={i} width={1} headers={tableHeaders} data={teamRows} />);
         }
 
         return <>{tables}</>;
     }
+}
+
+function getTypeTitles(mode){
+
+    if(mode === 1 || mode === 2 || mode === 4){
+
+        let bestTitle = null;
+
+        if(mode === 1){
+            bestTitle = "Best Combo";
+        }else if(mode === 2){
+            bestTitle = "Best Single Ball";
+        }else{
+            bestTitle = "Best Insane Combo";
+        }
+        
+        return {
+            "player": "Player",
+            "deaths": "Deaths",
+            "kills": "Kills",
+            "eff": "Efficiency",
+            "most-kills": "Most Kills in 1 Life",
+            "best": bestTitle,
+            "kpm": "Kills Per Minute"
+        };
+
+    }else if(mode !== 0){
+
+        return {
+            "player": "Player",
+            "deaths": "Deaths",
+            "kills": "Kills",
+            "eff": "Efficiency",
+            "most-kills": "Most Kills in 1 Life",
+            "kpm": "Kills Per Minute"
+        };
+    }
+
+    return {};
+}
+
+function getTypeRow(mode, totalTeams, matchId, data, players){
+
+    if(mode === 0) return null;
+
+    const player = getPlayerFromMatchData(players, data.player_id);
+
+    const teamColor = (totalTeams >= 2) ? getTeamColor(player.team) : "team-none";
+
+    const playerElem = <Link href={`/pmatch/${matchId}?player=${data.player_id}`}>
+            <CountryFlag country={player.country}/>{player.name}
+        </Link>;
+   
+
+    if(mode === 1 || mode === 2 || mode === 4){
+
+        let bestKills = 0;
+        let kills = 0;
+        let deaths = 0;
+        let eff = 0;
+        let bestOfType = 0;
+        let kpm = 0;
+
+        if(mode === 1){
+
+            bestKills = data.best_combo_spree;
+            kills = data.combo_kills;
+            deaths = data.combo_deaths;
+            eff = data.combo_efficiency;
+            bestOfType =  data.best_single_combo;
+            kpm = data.combo_kpm;
+
+        }else if(mode === 2){
+
+            bestKills = data.best_shockball_spree;
+            kills = data.shockball_kills;
+            deaths = data.shockball_deaths;
+            eff = data.shockball_efficiency;
+            bestOfType = data.best_single_shockball;
+            kpm = data.shockball_kpm;
+
+        }else if(mode === 4){
+
+            bestKills = data.best_insane_spree;
+            kills = data.insane_kills;
+            deaths = data.insane_deaths;
+            eff = data.insane_efficiency;
+            bestOfType = data.best_single_insane;
+            kpm = data.insane_kpm;
+        }
+
+
+        return {
+            "player": {"value": "", "displayValue": playerElem, "className": `player ${teamColor}`},
+            "deaths": {"value": deaths, "displayValue": ignore0(deaths)},
+            "kills": {"value": kills, "displayValue": ignore0(kills)},
+            "eff": {"value": eff, "displayValue": `${eff.toFixed(2)}%`},
+            "most-kills":{"value": bestKills, "displayValue": ignore0(bestKills)},
+            "best":{"value": bestOfType, "displayValue": getKillsString(bestOfType)},
+            "kpm":{"value": kpm, "displayValue": kpm.toFixed(2)},
+        };
+
+    }else{
+
+        let kills =  data.primary_kills;
+        let deaths = data.primary_deaths;
+        let best =  data.best_primary_spree;
+        let kpm = data.primary_kpm;
+
+        const eff = data.primary_efficiency;
+
+        return {
+            "player": {"value": "", "displayValue": playerElem, "className": `player ${teamColor}`},
+            "deaths": {"value": deaths, "displayValue": ignore0(deaths)},
+            "kills": {"value": kills, "displayValue": ignore0(kills)},
+            "eff": {"value": eff, "displayValue": `${eff.toFixed(2)}%`},
+            "most-kills":{"value": best, "displayValue": ignore0(best)},
+            "kpm":{"value": kpm, "displayValue": kpm.toFixed(2)},
+        };
+    }
+}
+
+function updateTeamTotal(mode, teamTotals, data, player){
+
+    let t = 0;
+    //null for all time totals
+    if(player !== null){
+        t = teamTotals[player.team];
+    }else{
+        t = teamTotals[0];
+    }
+    const d = data;
+
+    const keys = {
+        1: "combo",
+        2: "shockball",
+        3: "primary",
+        4: "insane",
+    };
+
+    const k = keys[mode];
+
+    t.kills += d[`${k}_kills`];
+    t.deaths += d[`${k}_deaths`];
+
+    if(d[`best_${k}_spree`] > t.mostKills){
+        t.mostKills += d[`best_${k}_spree`];
+    }
+
+    if(d[`${k}_kpm`] > t.bestKPM){
+        t.bestKPM = d[`${k}_kpm`];
+    }
+
+    if(mode !== 3){
+
+        if(d[`best_single_${k}`] > t.bestSingle){
+            t.bestSingle = d[`best_single_${k}`];
+        }
+    }
+
+}
+
+function renderTypeStats(mode, totalTeams, matchId, data, bAllPlayers, players){
+
+    if(mode === 0) return null;
+
+    const titlesRow = getTypeTitles(mode);
+
+    const rows = [];
+
+    const teamRows = [[],[],[],[]];
+
+    const teamTotals = [
+        {"kills": 0,"deaths": 0,"mostKills": 0,"bestSingle": 0,"bestKPM":0},
+        {"kills": 0,"deaths": 0,"mostKills": 0,"bestSingle": 0,"bestKPM":0},
+        {"kills": 0,"deaths": 0,"mostKills": 0,"bestSingle": 0,"bestKPM":0},
+        {"kills": 0,"deaths": 0,"mostKills": 0,"bestSingle": 0,"bestKPM":0}
+    ];
+
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        if(bAllPlayers){
+            
+            updateTeamTotal(mode, teamTotals, d, null);
+            rows.push(getTypeRow(mode, totalTeams, matchId, d, players));
+            //rows.push(this.getTypeRow(d));
+
+        }else{
+
+            const player = getPlayerFromMatchData(players, d.player_id);//this.getPlayer(d.player_id);
+
+            if(player.team >= 0 && player.team < 4){
+
+                updateTeamTotal(mode, teamTotals, d, player);
+                
+                teamRows[player.team].push(getTypeRow(mode, totalTeams, matchId, d, players));
+            }
+        }
+    }
+
+    const elems = [];
+
+    if(bAllPlayers){
+
+        const t = teamTotals[0];
+
+        let eff = 0;
+        
+        if(t.kills > 0){
+
+            if(t.deaths > 0){
+                eff = (t.kills / (t.kills + t.deaths)) * 100
+            }else{
+                eff = 100;
+            }
+        }
+
+        rows.push({
+            "bAlwaysLast": true,
+            "player": {"value": "", "displayValue": "Totals/Best", "className": `player team-node`},
+            "deaths": {"value": t.deaths, "displayValue": ignore0(t.deaths)},
+            "kills": {"value": t.kills, "displayValue": ignore0(t.kills)},
+            "eff": {"value": eff, "displayValue": `${eff.toFixed(2)}%`},
+            "most-kills":{"value": t.mostKills, "displayValue": ignore0(t.mostKills)},
+            "best":{"value": t.bestSingle, "displayValue": getKillsString(t.bestSingle)},
+            "kpm":{"value": t.bestKPM, "displayValue": t.bestKPM.toFixed(2)},
+        });
+
+        return <InteractiveTable width={1} headers={titlesRow} data={rows}/>
+    }
+
+    for(let x = 0; x < totalTeams; x++){
+
+        let eff = 0;
+
+        const t = teamTotals[x];
+
+        if(t.kills > 0){
+
+            if(t.deaths > 0){
+                eff = (t.kills / (t.kills + t.deaths)) * 100
+            }else{
+                eff = 100;
+            }
+        }
+
+        teamRows[x].push({
+            "bAlwaysLast": true,
+            "player": {"value": "", "displayValue": "Totals/Best", "className": `player team-node`},
+            "deaths": {"value": t.deaths, "displayValue": ignore0(t.deaths)},
+            "kills": {"value": t.kills, "displayValue": ignore0(t.kills)},
+            "eff": {"value": eff, "displayValue": `${eff.toFixed(2)}%`},
+            "most-kills":{"value": t.mostKills, "displayValue": ignore0(t.mostKills)},
+            "best":{"value": t.bestSingle, "displayValue": getKillsString(t.bestSingle)},
+            "kpm":{"value": t.bestKPM, "displayValue": t.bestKPM.toFixed(2)},
+        });
+
+        elems.push(<InteractiveTable key={x} width={1} headers={titlesRow} data={teamRows[x]}/>);
+
+
+    }
+        
+    
+
+    return elems;
 }
 
 export default function CombogibMatchStats({matchId, totalTeams, players}){
@@ -292,445 +576,7 @@ export default function CombogibMatchStats({matchId, totalTeams, players}){
         <div className="default-header">Combogib Stats</div> 
         <Tabs options={tabOptions} selectedValue={state.mode} changeSelected={(a) => dispatch({"type": "set-mode", "value": a})}/>
         {renderTeamTabs(totalTeams, state.bAllPlayers, dispatch)}
-        {renderBasic(dispatch, state.mode, state.data, players, state.bAllPlayers, totalTeams, matchId)}
-        {/*this.renderTypeStats()*/}
+        {renderBasic( state.mode, state.data, players, state.bAllPlayers, totalTeams, matchId)}
+        {renderTypeStats(state.mode, totalTeams, matchId, state.data, state.bAllPlayers, players)}
     </div>
 }
-
-/*
-
-class CombogibMatchStats extends React.Component{
-
-    constructor(props){
-
-        super(props);
-
-        this.sortGeneral = this.sortGeneral.bind(this);
-        this.changeTeamMode = this.changeTeamMode.bind(this);
-
-        this.changeStatsSortBy = this.changeStatsSortBy.bind(this);
-        
-    }
-
-    changeStatsSortBy(type){
-
-
-        if(type === this.state.statsSortBy){
-            this.setState({"bAscendingOrder": !this.state.bAscendingOrder});
-            return;
-        }
-
-        this.setState({"statsSortBy": type, "bAscendingOrder": true});
-    }
-
-    changeTeamMode(newMode){
-
-        this.setState({"bAllPlayers": newMode});
-    }
-
-
-    changeMode(id){
-
-        this.setState({"mode": id});
-    }
-
-
-    sortGeneral(type){
-
-        let sortType = type.toLowerCase();
-
-        if(sortType === this.state.sortType){
-
-            this.setState({"bAscendingOrder": !this.state.bAscendingOrder});
-            return;
-        }
-
-        this.setState({"sortType": sortType, "bAscendingOrder": false});
-    }
-
-
-    
-
-    
-
-
-    
-
-    
-
-
-    getTypeTitles(){
-
-        if(this.state.mode === 1 || this.state.mode === 2 || this.state.mode === 4){
-
-            let bestElem = null;
-
-            if(this.state.mode === 1){
-
-                bestElem = <th className="pointer" onClick={(() =>{
-                    this.changeStatsSortBy("best_single_combo");
-                })}>Best Combo</th>
-
-            }else if(this.state.mode === 2){
-
-                bestElem = <th className="pointer" onClick={(() =>{
-                    this.changeStatsSortBy("best_single_shockball");
-                })}>Best Single Ball</th>
-
-            }else{
-                bestElem = <th className="pointer" onClick={(() =>{
-                    this.changeStatsSortBy("best_single_insane");
-                })}>Best Insane Combo</th>
-            }
-
-            return <tr>
-                <th>Player</th>
-                <th className="pointer" onClick={(() =>{
-                    this.changeStatsSortBy("deaths");
-                })}>Deaths</th>
-                <th className="pointer" onClick={(() =>{
-                    this.changeStatsSortBy("kills");
-                })}>Kills</th>
-                <th className="pointer" onClick={(() =>{
-                    this.changeStatsSortBy("efficiency");
-                })}>Efficiency</th>
-                <th className="pointer" onClick={(() =>{
-                    this.changeStatsSortBy("best_kills");
-                })}>Most Kills in 1 Life</th>
-                {bestElem}
-                <th className="pointer" onClick={(() =>{
-                    this.changeStatsSortBy("kpm");
-                })}>Kills Per Minute</th>
-                
-            </tr>
-
-        }else if(this.state.mode !== 0){
-
-            return <tr>
-                <th>Player</th>
-                <th className="pointer" onClick={(() =>{
-                    this.changeStatsSortBy("deaths");
-                })}>Deaths</th>
-                <th className="pointer" onClick={(() =>{
-                    this.changeStatsSortBy("kills");
-                })}>Kills</th>
-                <th className="pointer" onClick={(() =>{
-                    this.changeStatsSortBy("efficiency");
-                })}>Efficiency</th>
-                <th className="pointer" onClick={(() =>{
-                    this.changeStatsSortBy("best_kills");
-                })}>Most Kills in 1 Life</th>
-                <th className="pointer" onClick={(() =>{
-                    this.changeStatsSortBy("kpm");
-                })}>Kills Per Minute</th>
-            </tr>
-
-        }
-
-        return null;
-
-    }
-
-
-    getTypeRow(data){
-
-        if(this.state.mode === 0) return null;
-
-        const player = this.getPlayer(data.player_id);
-
-        const teamColor = (this.props.totalTeams >= 2) ? getTeamColor(player.team) : "team-none";
-
-        const playerElem = <td className={teamColor}>
-            <Link href={`/pmatch/${this.props.matchId}?player=${data.player_id}`}>
-                
-                <CountryFlag country={player.country}/>{player.name}
-                
-            </Link>
-        </td>
-
-        if(this.state.mode === 1 || this.state.mode === 2 || this.state.mode === 4){
-
-            let bestKills = 0;
-            let kills = 0;
-            let deaths = 0;
-            let eff = 0;
-            let bestOfType = 0;
-            let fpm = 0;
-
-            if(this.state.mode === 1){
-
-                bestKills = data.best_combo_spree;
-                kills = data.combo_kills;
-                deaths = data.combo_deaths;
-                eff = data.combo_efficiency;
-                bestOfType =  data.best_single_combo;
-                fpm = data.combo_kpm;
-
-            }else if(this.state.mode === 2){
-
-                bestKills = data.best_shockball_spree;
-                kills = data.shockball_kills;
-                deaths = data.shockball_deaths;
-                eff = data.shockball_efficiency;
-                bestOfType = data.best_single_shockball;
-                fpm = data.shockball_kpm;
-
-            }else if(this.state.mode === 4){
-
-                bestKills = data.best_insane_spree;
-                kills = data.insane_kills;
-                deaths = data.insane_deaths;
-                eff = data.insane_efficiency;
-                bestOfType = data.best_single_insane;
-                fpm = data.insane_kpm;
-            }
-
-
-            return <tr key={`${this.state.mode}-${data.player_id}`}>
-                {playerElem}
-                <td>{ignore0(deaths)}</td>
-                <td>{ignore0(kills)}</td>
-                <td>{eff.toFixed(2)}%</td>
-                <td>{ignore0(bestKills)}</td>
-                <td>{this.getKillsString(bestOfType)}</td>
-                <td>{fpm.toFixed(2)}</td>
-            </tr>
-
-        }else{
-
-            let kills =  data.primary_kills;
-            let deaths = data.primary_deaths;
-            let best =  data.best_primary_spree;
-            let fpm = data.primary_kpm;
-
-            const eff = data.primary_efficiency;
-
-            return <tr key={`${this.state.mode}-${data.player_id}`}>
-                {playerElem}
-                <td>{ignore0(deaths)}</td>
-                <td>{ignore0(kills)}</td>
-                <td>{eff.toFixed(2)}%</td>
-                <td>{best}</td>
-                <td>{fpm.toFixed(2)}</td>
-            </tr>
-
-        }
-    }
-
-
-    updateTeamTotal(teamTotals, data, player){
-
-        const t = teamTotals[player.team];
-        const d = data;
-        
-        if(this.state.mode === 1){
-
-            t.kills += d.combo_kills;
-            t.deaths += d.combo_deaths;
-
-            if(d.best_combo_spree > t.mostKills){
-                t.mostKills = d.best_combo_spree;
-            }
-
-            if(d.best_single_combo > t.bestSingle){
-                t.bestSingle = d.best_single_combo;
-            }
-
-            if(d.combo_kpm > t.bestKPM){
-                t.bestKPM = d.combo_kpm;
-            }
-
-        }else if(this.state.mode === 2){
-
-            t.kills += d.shockball_kills;
-            t.deaths += d.shockball_deaths;
-
-            if(d.best_shockball_spree > t.mostKills){
-                t.mostKills = d.best_shockball_spree;
-            }
-
-            if(d.best_single_shockball > t.bestSingle){
-                t.bestSingle = d.best_single_shockball;
-            }
-
-            if(d.shockball_kpm > t.bestKPM){
-                t.bestKPM = d.shockball_kpm;
-            }
-
-        }else if(this.state.mode === 3){
-
-            t.kills += d.primary_kills;
-            t.deaths += d.primary_deaths;
-
-            if(d.best_primary_spree > t.mostKills){
-                t.mostKills = d.best_primary_spree;
-            }
-
-            if(d.primary_kpm > t.bestKPM){
-                t.bestKPM = d.primary_kpm;
-            }
-
-            
-        }else if(this.state.mode === 4){
-
-            t.kills += d.insane_kills;
-            t.deaths += d.insane_deaths;
-
-            if(d.best_insane_spree > t.mostKills){
-                t.mostKills = d.best_insane_spree;
-            }
-
-            if(d.best_single_insane > t.bestSingle){
-                t.bestSingle = d.best_single_insane;
-            }
-
-            if(d.insane_kpm > t.bestKPM){
-                t.bestKPM = d.insane_kpm;
-            }
-        }
-    }
-
-    sortStatsType(data){
-
-        const sortType = this.state.statsSortBy;
-        const mode = this.state.mode;
-
-        let prefix = "combo";
-
-        if(mode === 2){
-            prefix = "shockball";
-        }else if(mode === 3){
-            prefix = "primary";
-        }else if(mode === 4){
-            prefix = "insane";
-        }
-
-
-        let key = "";
-
-        if(sortType !== "best_single_combo" && sortType !== "best_single_shockball" && sortType !== "best_kills" && sortType !== "best_single_insane"){
-
-            key = `${prefix}_${sortType}`;
-
-        }else if(sortType === "best_kills"){
-            
-            key = `best_${prefix}_spree`;
-            
-        }else{
-            key = sortType;
-        }
-   
-
-        data.sort((a, b) =>{
-
-            a = a[key];
-            b = b[key];
-      
-
-            if(a < b){
-                return (!this.state.bAscendingOrder) ? -1 : 1;
-            }else if(a > b){
-                return (!this.state.bAscendingOrder) ? 1 : -1;
-            }
-
-            return 0;
-        });
-    }
-
-    renderTypeStats(){
-
-        if(this.state.mode === 0) return null;
-
-        let titlesRow = this.getTypeTitles();
-
-        const rows = [];
-
-        const teamRows = [[],[],[],[]];
-
-        const teamTotals = [
-            {"kills": 0,"deaths": 0,"mostKills": 0,"bestSingle": 0,"bestKPM":0},
-            {"kills": 0,"deaths": 0,"mostKills": 0,"bestSingle": 0,"bestKPM":0},
-            {"kills": 0,"deaths": 0,"mostKills": 0,"bestSingle": 0,"bestKPM":0},
-            {"kills": 0,"deaths": 0,"mostKills": 0,"bestSingle": 0,"bestKPM":0}
-        ];
-
-        const orderedStats = JSON.parse(JSON.stringify(this.state.data));
-
-        this.sortStatsType(orderedStats);
-
- 
-        for(let i = 0; i < orderedStats.length; i++){
-
-            const d = orderedStats[i];
-
-            if(this.state.bAllPlayers){
-
-                rows.push(this.getTypeRow(d));
-
-            }else{
-
-                const player = this.getPlayer(d.player_id);
-
-                if(player.team >= 0 && player.team < 4){
-  
-                    this.updateTeamTotal(teamTotals, d, player);
-                  
-                    teamRows[player.team].push(this.getTypeRow(d));
-                }
-            }
-        }
-
-        const data = [];
-
-        if(this.state.bAllPlayers){
-
-            return <div>
-
-                <Table2 width={1} players={true}>
-                    {titlesRow}
-                    {rows}
-                </Table2>
-            </div>
-        }
-
-        for(let i = 0; i < teamRows.length; i++){
-
-            if(teamRows[i].length === 0) continue;
-
-            let eff = 0;
-
-            if(teamTotals[i].kills > 0){
-
-                if(teamTotals[i].deaths > 0){
-                    eff = (teamTotals[i].kills / (teamTotals[i].kills + teamTotals[i].deaths)) * 100
-                }else{
-                    eff = 100;
-                }
-            }
-
-
-            data.push(<div key={`team-${i}`}>
-                <Table2 width={1} players={true}>
-                    {titlesRow}
-                    {teamRows[i]}
-                    <tr>
-                        <td className="color8"><b>Totals/Best</b></td>
-                        <td className="color8"><b>{teamTotals[i].deaths}</b></td>
-                        <td className="color8"><b>{teamTotals[i].kills}</b></td>
-                        <td className="color8"><b>{eff.toFixed(2)}%</b></td>
-                        <td className="color8"><b>{teamTotals[i].mostKills}</b></td>
-                        {(this.state.mode === 3) ? null : <td className="color8"><b>{this.getKillsString(teamTotals[i].bestSingle)}</b></td>}
-                        <td className="color8"><b>{teamTotals[i].bestKPM.toFixed(2)}</b></td>
-
-                    </tr>
-                </Table2>
-            </div>);
-
-        }
-        
-
-        return data;
-    }
-
-}
-*/
