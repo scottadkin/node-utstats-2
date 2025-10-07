@@ -37,6 +37,7 @@ import MatchItemsSummary from "../../UI/Match/MatchItemsSummary";
 import MatchPlayerPingHistory from "../../UI/Match/MatchPlayerPingHistory";
 import CombogibMatchStats from "../../UI/Match/CombogibMatchStats";
 import MatchPowerupSummary from "../../UI/Match/MatchPowerupSummary";
+import { convertTimestamp, plural, toPlaytime } from "../../../../api/generic.mjs";
 
 function setQueryValues(params, searchParams){
 
@@ -46,6 +47,43 @@ function setQueryValues(params, searchParams){
         "matchId": id
     };
 
+}
+
+export async function generateMetadata({ params, searchParams }, parent) {
+
+    params = await params;
+    searchParams = await searchParams;
+
+    let {matchId} = setQueryValues(params, searchParams);
+
+    if(matchId.length === 32){
+        matchId = await getMatchIdFromHash(matchId);
+    }
+
+    const info = await getMatch(matchId);
+
+    if(info === undefined){
+        return {
+            "title": "Match Not Found - Node UTStats 2",
+            "description": "Could not find the match you were looking for,",
+            "keywords": ["match", "report", "utstats", "node"],
+        }
+    }
+
+    const date = convertTimestamp(info.date, true);
+
+    let desc = `Match report for ${info.mapName} (${info.gametypeName}) played on the ${info.serverName} server,`;
+    desc+= ` there were a total of ${info.players} ${plural(info.players, "player")} in the match and it lasted ${toPlaytime(info.playtime)},`;
+    desc+= ` date of match was ${date} `;
+
+    return {
+        "title": `${info.mapName} (${date}) - Node UTStats 2`,
+        "description": desc,
+        "keywords": ["match","report", "utstats", "node", info.mapName, info.gametypeName],
+        "openGraph": {
+            "images": [`/images/maps/${info.image}.jpg`]
+        }
+    }
 }
 
 export default async function Page({params, searchParams}){
@@ -77,8 +115,9 @@ export default async function Page({params, searchParams}){
 
     const pageManager = new PageComponentManager(pageSettings, pageOrder, elems);
 
-    console.log(pageOrder);
+   
     const info = await getMatch(matchId);
+ 
 
     const players = await getAllInMatch(matchId);
 
