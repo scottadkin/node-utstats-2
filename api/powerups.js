@@ -146,31 +146,6 @@ export default class PowerUps{
         return await simpleQuery(query, vars);
     }
 
-
-    async getMatchPlayerData(matchId){
-
-        const query = `SELECT player_id,powerup_id,	times_used,carry_time,carry_time_best,
-        total_kills,best_kills,end_deaths,end_suicides,end_timeouts,end_match_end,carrier_kills,
-        carrier_kills_best
-        FROM nstats_powerups_player_match WHERE match_id=?`;
-
-        return await simpleQuery(query, [matchId]);
-    }
-
-    getUniquePowerupIds(playerMatchData){
-
-        const found = new Set();
-
-        for(let i = 0; i < playerMatchData.length; i++){
-
-            const p = playerMatchData[i];
-
-            found.add(p.powerup_id);
-        }
-
-        return [...found];
-    }
-
     async getItemNames(ids){
 
         if(ids.length === 0) return {};
@@ -486,4 +461,14 @@ export default class PowerUps{
 
         await simpleQuery(query, [newId, oldId]);
     }
+}
+
+export async function getMatchPlayerData(matchId){
+
+    const query = `SELECT player_id,powerup_id,	times_used,carry_time,carry_time_best,
+    total_kills,best_kills,end_deaths,end_suicides,end_timeouts,end_match_end,carrier_kills,
+    carrier_kills_best
+    FROM nstats_powerups_player_match WHERE match_id=?`;
+
+    return await simpleQuery(query, [matchId]);
 }

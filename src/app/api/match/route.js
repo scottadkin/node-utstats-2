@@ -1,6 +1,8 @@
 import { getKillsMatchUp } from "../../../../api/kills";
 import { getMatchData as getMatchItemsData, getMatchTotals as getMatchItemTotals, createPlayerItemUses, getNamesByIds as getItemsByIds } from "../../../../api/items";
 import { getMatchData as getPingData } from "../../../../api/pings";
+import { getObjectName } from "../../../../api/genericServerSide.mjs";
+import { getMatchPlayerData as getPlayerPowerupData } from "../../../../api/powerups";
 
 export async function POST(req){
 
@@ -52,6 +54,21 @@ export async function POST(req){
             return Response.json({"data": data});
         }
 
+
+        if(mode === "powerups"){
+
+
+            const playerData = await getPlayerPowerupData(matchId);
+
+            const uniqueIds = [...new Set(playerData.map((d) =>{
+                return d.powerup_id;
+            }))];
+
+            const names = await getObjectName("powerups", uniqueIds);
+
+            return Response.json({"names": names, "playerData": playerData});
+
+        }
         
 
         console.log(mode);

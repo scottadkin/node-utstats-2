@@ -1,10 +1,12 @@
+"use client"
 import {useEffect, useReducer, useState} from "react"; 
 import Loading from "../Loading";
-import ErrorMessage from "../../src/app/UI/ErrorMessage";
-import InteractiveTable from "../../src/app/UI/InteractiveTable";
-import Functions from "../../api/functions";
+import ErrorMessage from "../ErrorMessage";
+import InteractiveTable from "../InteractiveTable";
 import Link from "next/link";
 import CountryFlag from "../CountryFlag";
+import Tabs from "../Tabs";
+import { getPlayerFromMatchData, getTeamColor, ignore0, toPlaytime } from "../../../../api/generic.mjs";
 
 const reducer = (state, action) =>{
 
@@ -29,7 +31,7 @@ const reducer = (state, action) =>{
 }
 
 
-const renderTable = (state, matchId, totalTeams, players, targetPowerup) =>{
+function renderTable(state, matchId, totalTeams, players, targetPowerup){
 
     targetPowerup = parseInt(targetPowerup);
 
@@ -72,12 +74,12 @@ const renderTable = (state, matchId, totalTeams, players, targetPowerup) =>{
 
     const data = powerupData.map((stats) =>{
 
-        const player = Functions.getPlayer(players, stats.player_id, true);
+        const player = getPlayerFromMatchData(players, stats.player_id);
 
         let teamColor = "team-none";
 
         if(totalTeams >= 2){
-            teamColor = Functions.getTeamColor(player.team);
+            teamColor = getTeamColor(player.team);
         }
 
         return {
@@ -90,41 +92,41 @@ const renderTable = (state, matchId, totalTeams, players, targetPowerup) =>{
             },
             "carry": {
                 "value": stats.carry_time,
-                "displayValue": Functions.toPlaytime(stats.carry_time),
+                "displayValue": toPlaytime(stats.carry_time),
                 "className": "playtime"
             },
             "bestCarry": {
                 "value": stats.carry_time_best,
-                "displayValue": Functions.toPlaytime(stats.carry_time_best),
+                "displayValue": toPlaytime(stats.carry_time_best),
                 "className": "playtime"
             },
             "kills": {
                 "value": stats.total_kills,
-                "displayValue": Functions.ignore0(stats.total_kills)
+                "displayValue": ignore0(stats.total_kills)
             },
             "bestKills": {
                 "value": stats.best_kills,
-                "displayValue": Functions.ignore0(stats.best_kills)
+                "displayValue": ignore0(stats.best_kills)
             },
             "used": {
                 "value": stats.times_used,
-                "displayValue": Functions.ignore0(stats.times_used)
+                "displayValue": ignore0(stats.times_used)
             },
             "suicides": {
                 "value": stats.end_suicides,
-                "displayValue": Functions.ignore0(stats.end_suicides)
+                "displayValue": ignore0(stats.end_suicides)
             },
             "deaths": {
                 "value": stats.end_deaths,
-                "displayValue": Functions.ignore0(stats.end_deaths)
+                "displayValue": ignore0(stats.end_deaths)
             },
             "carrierKills": {
                 "value": stats.carrier_kills,
-                "displayValue": Functions.ignore0(stats.carrier_kills)
+                "displayValue": ignore0(stats.carrier_kills)
             },
             "bestCarrierKills": {
                 "value": stats.carrier_kills_best,
-                "displayValue": Functions.ignore0(stats.carrier_kills_best)
+                "displayValue": ignore0(stats.carrier_kills_best)
             }
         };
     });
@@ -132,32 +134,35 @@ const renderTable = (state, matchId, totalTeams, players, targetPowerup) =>{
     return <InteractiveTable width={1} headers={headers} data={data}/>
 }
 
-const renderTabs = (powerupNames, selectedPowerup, setSelectedPowerup) =>{
-
+function renderTabs(powerupNames, selectedPowerup, setSelectedPowerup){
 
     const tabs = [];
 
     for(const [key, value] of Object.entries(powerupNames)){
 
-        tabs.push(<div className={`tab ${(selectedPowerup === key) ? "tab-selected" : ""}`} key={key} onClick={() => setSelectedPowerup(key)}>
-            {value}
-        </div>);
+        tabs.push({"name": value, "value": key});
+        //tabs.push(<div className={`tab ${(selectedPowerup === key) ? "tab-selected" : ""}`} key={key} onClick={() => setSelectedPowerup(key)}>
+        //    {value}
+       // </div>);
     }
+
+    return <Tabs options={tabs} selectedValue={selectedPowerup} changeSelected={(a) => setSelectedPowerup(a)}/>;
+
+    
 
     return <div className="tabs">
         {tabs}
     </div>
 }
 
-const renderData = (state, matchId, totalTeams, players, selectedPowerup) =>{
-
+function renderData(state, matchId, totalTeams, players, selectedPowerup) {
 
     return <>
         {renderTable(state, matchId, totalTeams, players, selectedPowerup)}
     </>
 }
 
-const MatchPowerupSummary = ({matchId, players, totalTeams}) =>{
+export default function MatchPowerupSummary({matchId, players, totalTeams}){
 
     const [state, dispatch] = useReducer(reducer,{ 
         "bLoading": true,
@@ -225,5 +230,3 @@ const MatchPowerupSummary = ({matchId, players, totalTeams}) =>{
         {renderData(state, matchId, totalTeams, players, selectedId)}
     </div>
 }
-
-export default MatchPowerupSummary;

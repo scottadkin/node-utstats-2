@@ -36,6 +36,7 @@ import MatchKillsMatchUp from "../../UI/Match/MatchKillsMatchUp";
 import MatchItemsSummary from "../../UI/Match/MatchItemsSummary";
 import MatchPlayerPingHistory from "../../UI/Match/MatchPlayerPingHistory";
 import CombogibMatchStats from "../../UI/Match/CombogibMatchStats";
+import MatchPowerupSummary from "../../UI/Match/MatchPowerupSummary";
 
 function setQueryValues(params, searchParams){
 
@@ -128,6 +129,7 @@ export default async function Page({params, searchParams}){
                 <div className="default-header">Match Report</div>
                 <CombogibMatchStats matchId={matchId} 
                 players={players} totalTeams={info.total_teams}/>
+                <MatchPowerupSummary matchId={matchId} players={players} totalTeams={info.total_teams}/>
                 <MatchSummary 
                     key={"m-s"} 
                     info={info}
