@@ -10,7 +10,7 @@ export async function POST(req){
 
         const res = await req.json();
 
-        console.log(res);
+        //console.log(res);
 
         const mode = (res.mode !== undefined) ?  res.mode.toLowerCase() : "";
         let matchId = (res.matchId !== undefined) ? parseInt(res.matchId) : -1;
@@ -75,7 +75,7 @@ export async function POST(req){
 
         return Response.json({"error": "Unknown Command"});
     }catch(err){
-        console.trace(err);
+        //console.trace(err);
         return Response.json({"error": err.toString()});
     }
 }

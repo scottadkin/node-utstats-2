@@ -35,6 +35,8 @@ function renderTabs(totalTeams, displayMode, setDisplayMode){
 
 function renderTeamChanges(displayMode, teamChanges, players, matchStart, matchId, totalTeams){
 
+    
+
     if(displayMode !== 0) return null;
 
     const headers = {
@@ -42,6 +44,10 @@ function renderTeamChanges(displayMode, teamChanges, players, matchStart, matchI
         "player": "Player",
         "info": "Info"
     };
+
+    if(teamChanges === null){
+        return <InteractiveTable width={4} headers={headers} data={[]}/>
+    }
 
 
     const data = teamChanges.map((teamChange) =>{

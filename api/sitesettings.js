@@ -498,3 +498,62 @@ export async function getPageOrder(cat){
 
     return data;
 }
+
+export function bPageComponentEnabled(settings, targetKey){
+
+    if(settings[targetKey] === undefined) return false;
+
+    if(settings[targetKey] === "true") return true;
+
+    return false;
+}
+
+export function getPageOrderIndex(pageOrder, targetKey){
+
+    if(pageOrder[targetKey] === undefined){
+        throw new Error(`getPageOrderIndex pageOrder[${targetKey}] does not exist`);
+       // return 9999;
+    }
+
+    const index = parseInt(pageOrder[targetKey]);
+    if(index !== index) throw new Error(`getPageOrderIndex pageOrder must be a valid integer`);
+
+    return index;
+}
+
+
+/**
+ * If the component on a page is enabled and has a valid index add it to the elems array
+ */
+export function addComponentToElems(pageSettings, pageOrder, targetKey, elems, elem){
+
+    if(!bPageComponentEnabled(pageSettings, targetKey)) return;
+
+    const index = getPageOrderIndex(pageOrder, targetKey);
+
+    elems[index] = elem;
+}
+
+export class PageComponentManager{
+
+    constructor(pageSettings, pageOrder, elems){
+
+        this.pageSettings = pageSettings;
+        this.pageOrder = pageOrder;
+        this.elems = elems;
+    }
+
+    addComponent(targetKey, elem){
+
+        if(!bPageComponentEnabled(this.pageSettings, targetKey)) return;
+
+        const index = getPageOrderIndex(this.pageOrder, targetKey);
+
+        this.elems[index] = elem;
+    }
+
+    bEnabled(targetKey){
+        return bPageComponentEnabled(this.pageSettings, targetKey);
+    }
+
+}

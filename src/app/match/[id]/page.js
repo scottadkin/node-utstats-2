@@ -1,6 +1,6 @@
 import Nav from "../../UI/Nav";
 import Session from "../../../../api/session";
-import {getSettings, getNavSettings, getPageOrder} from "../../../../api/sitesettings";
+import {getSettings, getNavSettings, getPageOrder, PageComponentManager} from "../../../../api/sitesettings";
 import { headers, cookies } from "next/headers";
 import MatchSummary from "../../UI/Match/MatchSummary";
 import { getMatch, getMatchIdFromHash } from "../../../../api/matches";
@@ -70,8 +70,14 @@ export default async function Page({params, searchParams}){
     await session.load();
     const navSettings = await getNavSettings();
     const pageSettings = await getSettings("Match Pages");
+    const pageOrder = await getPageOrder("Match Pages");
     const sessionSettings = session.settings;
 
+    const elems = [];
+
+    const pageManager = new PageComponentManager(pageSettings, pageOrder, elems);
+
+    console.log(pageOrder);
     const info = await getMatch(matchId);
 
     const players = await getAllInMatch(matchId);
@@ -100,7 +106,11 @@ export default async function Page({params, searchParams}){
     const scoreHistory = await getScoreHistory(matchId, players);
     const domSummaryData = await getMatchDomSummary(matchId, info.map);
 
-    const teamChanges = await getMatchTeamChanges(matchId);
+    let teamChanges = null;
+
+    if(pageManager.bEnabled("Display Team Changes")){
+        teamChanges = await getMatchTeamChanges(matchId);
+    }
 
     const playerIds = [...new Set(players.map((p) =>{
         return p.player_id;
@@ -122,83 +132,149 @@ export default async function Page({params, searchParams}){
     }
 
 
+    pageManager.addComponent("Display Powerup Control", <MatchPowerupSummary 
+        matchId={matchId} players={players} totalTeams={info.total_teams} key="powerups"
+    />);
+
+    pageManager.addComponent("Display Summary", <MatchSummary 
+        key={"m-s"} 
+        info={info}
+        settings={pageSettings}
+    />);
+
+    pageManager.addComponent("Display Screenshot", <Screenshot 
+        faces={faces} 
+        players={players} 
+        map={info.mapName}
+        totalTeams={info.total_teams} 
+        image={`/images/maps/${info.image}.jpg`}
+        matchData={info}
+        serverName={info.serverName} 
+        gametypeName={info.gametypeName}
+        bHome={false} 
+        bClassic={false}
+        key="shot"
+    />);
+
+
+    pageManager.addComponent("Display Frag Summary", <MatchFragSummary key={`match_frags`} 
+        totalTeams={info.total_teams} 
+        playerData={players} 
+        matchStart={info.start}
+        matchId={info.id}
+    />);
+
+    pageManager.addComponent("Display Frag Summary", <MatchMonsterHuntFragSummary key={`match_mh_frags`} 
+        totalTeams={info.total_teams} 
+        playerData={players} 
+        matchStart={info.start}
+        matchId={info.id}
+        single={false}
+        bMH={info.mh}
+    />);
+
+    pageManager.addComponent("Display Capture The Flag Summary", <MatchCTFSummary 
+        key="match-ctf-sum"
+        matchId={info.id} mapId={info.map} playerData={players} single={false} 
+        flagKills={matchCTFFlagKills}
+    />);
+
+    pageManager.addComponent("Display Capture The Flag Returns", <MatchCTFReturns key="ctf-returns"
+        playerData={players} returnData={ctfReturns} totalTeams={info.total_teams} 
+        matchStart={info.start} single={false} bHardcore={info.hardcore}
+    />);
+
+    pageManager.addComponent("Display Capture The Flag Caps", <MatchCTFCaps key="ctf-caps"
+        matchId={info.id} playerData={players} totalTeams={info.total_teams}
+         matchStart={info.start} bHardcore={info.hardcore} capData={ctfCaps}
+    />);
+
+    pageManager.addComponent("Display Capture The Flag Carry Times", <MatchCTFCarryTime key="ctf-carry-times"
+        matchId={info.id} data={ctfCarryTimes} players={players} 
+    />);
+
+    pageManager.addComponent("Display Capture The Flag Graphs", <MatchCTFGraphs key="ctf-graphs"
+        matchId={info.id} 
+        totalTeams={info.total_teams} 
+        players={players} 
+        matchStart={info.start} 
+        matchEnd={info.end} 
+        bHardcore={info.hardcore}
+        graphData={ctfGraphData}
+    />);
+
+    pageManager.addComponent("Display Special Events", <MatchSpecialEvents key="special-events"
+        matchId={info.id} bTeamGame={info.total_teams > 1} players={players} 
+        bSingle={false} targetPlayerId={-1}
+    />);
+
+    pageManager.addComponent("Display Extended Sprees", <MatchDetailedSprees key="detailed-sprees"
+        matchId={info.id} players={players} matchStart={info.start}
+        sprees={detailedSprees} bHardcore={info.hardcore}
+    />);
+
+    pageManager.addComponent("Display Server Settings", <MatchServerSettings key="server-settings" info={info}/>);
+
+
+    pageManager.addComponent("Display Weapons Statistics", <MatchWeaponSummaryCharts key="weapon-control"
+        matchId={info.id} totalTeams={info.total_teams} playerData={players} 
+        weaponStats={weaponData}
+    />);
+
+    pageManager.addComponent("Display Frags Graph", <MatchFragsGraph key="frag-graphs" 
+        matchId={matchId} 
+        players={players} 
+        teams={info.total_teams}
+        bHardcore={info.hardcore}
+        startTimestamp={info.start}
+        data={fragGraphData}
+    />);
+
+    pageManager.addComponent("Display Domination Summary", <MatchDominationSummary key="match-dom-summary"
+        matchId={info.id} totalTeams={info.total_teams} mapId={info.map} playerData={players} 
+        matchStart={info.start} matchEnd={info.end} bHardcore={info.hardcore}
+        data={domSummaryData}
+    />);
+
+
+    pageManager.addComponent("Display Player Score Graph", <MatchPlayerScoreHistory key="score-graph"
+        graphData={scoreHistory} matchStart={info.start} matchEnd={info.end} 
+        bHardcore={info.hardcore}
+    />);
+
+    pageManager.addComponent("Display Rankings", <MatchRankingChanges key="rankings"
+        data={rankingsData} players={players} matchId={matchId}
+    />);
+
+    pageManager.addComponent("Display Team Changes", <MatchTeamsSummary key="teams" 
+        teamChanges={teamChanges} matchId={matchId} matchStart={info.start} players={players} 
+    totalTeams={info.total_teams}/>);
+
+    pageManager.addComponent("Display Telefrag Stats", <MatchTeleFrags key="tele-frags"
+        data={teleFrags} players={players} matchId={matchId} matchStart={info.start}
+    />);
+
+    pageManager.addComponent("Display Kills Match Up", <MatchKillsMatchUp key="kmu" matchId={matchId} players={players}/>);
+
+    pageManager.addComponent("Display Items Summary", <MatchItemsSummary key="items-sum" matchId={matchId} 
+        players={players} totalTeams={info.total_teams}
+    />);
+
+    pageManager.addComponent("Display Player Ping Graph", <MatchPlayerPingHistory key="ping-graph"
+        matchId={matchId} players={players} playerIds={playerIds} matchStart={info.start} 
+        matchEnd={info.end} bHardcore={info.hardcore}
+    />);
+
+    pageManager.addComponent("Display Combogib Stats", <CombogibMatchStats key="combo-stats" matchId={matchId} 
+        players={players} totalTeams={info.total_teams}/>
+    );
+
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
         <div id="content">
             <div className="default">
                 <div className="default-header">Match Report</div>
-                <CombogibMatchStats matchId={matchId} 
-                players={players} totalTeams={info.total_teams}/>
-                <MatchPowerupSummary matchId={matchId} players={players} totalTeams={info.total_teams}/>
-                <MatchSummary 
-                    key={"m-s"} 
-                    info={info}
-                    settings={pageSettings}
-                />
-                <Screenshot 
-                    faces={faces} 
-                    players={players} 
-                    map={info.mapName}
-                    totalTeams={info.total_teams} 
-                    image={`/images/maps/${info.image}.jpg`}
-                    matchData={info}
-                    serverName={info.serverName} 
-                    gametypeName={info.gametypeName}
-                    bHome={false} 
-                    bClassic={false}
-                />
-                <MatchFragSummary key={`match_3`} 
-                    totalTeams={info.total_teams} 
-                    playerData={players} 
-                    matchStart={info.start}
-                    matchId={info.id}
-                />
-
-                <MatchMonsterHuntFragSummary key={`match_mh_frags`} 
-                    totalTeams={info.total_teams} 
-                    playerData={players} 
-                    matchStart={info.start}
-                    matchId={info.id}
-                    single={false}
-                    bMH={info.mh}
-                />
-                <MatchCTFSummary matchId={info.id} mapId={info.map} playerData={players} single={false} flagKills={matchCTFFlagKills}/>
-                <MatchCTFReturns playerData={players} returnData={ctfReturns} totalTeams={info.total_teams} matchStart={info.start} single={false} bHardcore={info.hardcore}/>
-                <MatchCTFCaps matchId={info.id} playerData={players} totalTeams={info.total_teams} matchStart={info.start} bHardcore={info.hardcore} capData={ctfCaps}/>
-                <MatchCTFCarryTime matchId={info.id} data={ctfCarryTimes} players={players} />
-                <MatchCTFGraphs 
-                    matchId={info.id} 
-                    totalTeams={info.total_teams} 
-                    players={players} 
-                    matchStart={info.start} 
-                    matchEnd={info.end} 
-                    bHardcore={info.hardcore}
-                    graphData={ctfGraphData}
-                />
-                <MatchSpecialEvents matchId={info.id} bTeamGame={info.total_teams > 1} players={players} bSingle={false} targetPlayerId={-1}/>
-                <MatchDetailedSprees matchId={info.id} players={players} matchStart={info.start} sprees={detailedSprees} bHardcore={info.hardcore}/>
-                <MatchServerSettings info={info}/>
-                <MatchWeaponSummaryCharts matchId={info.id} totalTeams={info.total_teams} playerData={players} weaponStats={weaponData}/>
-                <MatchFragsGraph key="frag-graphs" 
-                    matchId={matchId} 
-                    players={players} 
-                    teams={info.total_teams}
-                    bHardcore={info.hardcore}
-                    startTimestamp={info.start}
-                    data={fragGraphData}
-                />
-                <MatchDominationSummary 
-                    matchId={info.id} totalTeams={info.total_teams} mapId={info.map} playerData={players} 
-                    matchStart={info.start} matchEnd={info.end} bHardcore={info.hardcore}
-                    data={domSummaryData}
-                />
-                <MatchPlayerScoreHistory graphData={scoreHistory} matchStart={info.start} matchEnd={info.end} bHardcore={info.hardcore}/>
-                <MatchRankingChanges data={rankingsData} players={players} matchId={matchId}/>
-                <MatchTeamsSummary teamChanges={teamChanges} matchId={matchId} matchStart={info.start} players={players} totalTeams={info.total_teams}/>
-                <MatchTeleFrags data={teleFrags} players={players} matchId={matchId} matchStart={info.start}/>
-                <MatchKillsMatchUp matchId={matchId} players={players}/>
-                <MatchItemsSummary matchId={matchId} players={players} totalTeams={info.total_teams}/>
-                <MatchPlayerPingHistory matchId={matchId} players={players} playerIds={playerIds} matchStart={info.start} matchEnd={info.end} bHardcore={info.hardcore}/>
+                {elems}
             </div>    
         </div>   
     </main>; 
