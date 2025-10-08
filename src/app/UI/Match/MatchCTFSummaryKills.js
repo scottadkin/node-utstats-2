@@ -1,8 +1,9 @@
 import InteractiveTable from "../InteractiveTable";
 import { getTeamColor, ignore0 } from "../../../../api/generic.mjs";
 import CountryFlag from "../CountryFlag";
+import Link from "next/link";
 
-function renderTeamTable(playerData, targetTeam, flagKills){
+function renderTeamTable(playerData, targetTeam, flagKills, matchId){
 
     const headers = {
         "player": "Player",
@@ -64,7 +65,7 @@ function renderTeamTable(playerData, targetTeam, flagKills){
         rows.push({
             "player": {
                 "value": p.name.toLowerCase(), 
-                "displayValue": <><CountryFlag country={p.country}/>{p.name}</>,
+                "displayValue": <Link href={`/pmatch/${matchId}?player=${p.player_id}`}><CountryFlag country={p.country}/>{p.name}</Link>,
                 "className": `text-left ${getTeamColor(p.team, 2)}`
             },
             "far": {"value": kT.far, "displayValue": ignore0(kT.far)},
@@ -81,16 +82,13 @@ function renderTeamTable(playerData, targetTeam, flagKills){
     return <InteractiveTable width={1} headers={headers} data={rows}/>
 }
 
-export default function MatchCTFSummaryKills({matchId, mapId, playerData, single, flagKills}){
-
-    if(playerData.length === 1) playerId = playerData[0].player_id;
-    
+export default function MatchCTFSummaryKills({matchId, playerData, flagKills}){    
 
     return <>
-        {renderTeamTable(playerData, 0, flagKills)}
-        {renderTeamTable(playerData, 1, flagKills)}
-        {renderTeamTable(playerData, 2, flagKills)}
-        {renderTeamTable(playerData, 3, flagKills)}
+        {renderTeamTable(playerData, 0, flagKills, matchId)}
+        {renderTeamTable(playerData, 1, flagKills, matchId)}
+        {renderTeamTable(playerData, 2, flagKills, matchId)}
+        {renderTeamTable(playerData, 3, flagKills, matchId)}
     </>
 
 }

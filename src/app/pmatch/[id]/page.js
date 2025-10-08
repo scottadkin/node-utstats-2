@@ -1,7 +1,7 @@
 
 
 import Nav from "../../UI/Nav";
-import { getNavSettings, getSettings } from "../../../../api/sitesettings";
+import { getNavSettings, getPageOrder, getSettings, PageComponentManager } from "../../../../api/sitesettings";
 import Session from "../../../../api/session";
 import { headers, cookies } from "next/headers";
 import { getAllInMatch, getBasicPlayersByIds } from "../../../../api/players";
@@ -10,6 +10,11 @@ import { getMatch, getMatchIdFromHash } from "../../../../api/matches";
 import MatchSummary from "../../UI/Match/MatchSummary";
 import Screenshot from "../../UI/Screenshot";
 import { getFacesWithFileStatuses } from "../../../../api/faces";
+import { getPlayerFromMatchData } from "../../../../api/generic.mjs";
+import MatchFragSummary from "../../UI/Match/MatchFragSummary";
+import MatchSpecialEvents from "../../UI/Match/MatchSpecialEvents";
+import MatchCTFSummary from "../../UI/Match/MatchCTFSummary";
+import { getMatchFlagKillDetails } from "../../../../api/ctf";
 
 function setQueryVars(params, searchParams){
 
@@ -51,7 +56,12 @@ export default async function Page({params, searchParams}){
     const navSettings = await getNavSettings("Navigation");
     const sessionSettings = JSON.stringify(session.settings);
 
-    const pageSettings = await getSettings("Matches Page");
+    const pageSettings = await getSettings("Match Pages");
+    const pageOrder = await getPageOrder("Match Pages");
+
+    const elems = [];
+
+    const pageManager = new PageComponentManager(pageSettings, pageOrder, elems);
 
     const playersInfo = await getBasicPlayersByIds([playerId]);
 
@@ -61,11 +71,22 @@ export default async function Page({params, searchParams}){
     const players = await getAllInMatch(matchId);
     console.log(matchInfo);
 
+
+
+    const targetPlayer = getPlayerFromMatchData(players, playerId, true);
+
+
     const faceIds = new Set(players.map((p) =>{
         return p.face;
     }));
 
     const faces = await getFacesWithFileStatuses([...faceIds]);
+
+    let matchCTFFlagKills  = null;
+    
+    if(pageManager.bEnabled("Display Capture The Flag Summary")){
+        matchCTFFlagKills = await getMatchFlagKillDetails(matchId, matchInfo.map, playerId);
+    }
 
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
@@ -79,19 +100,29 @@ export default async function Page({params, searchParams}){
                     settings={pageSettings}
                 />
                 <Screenshot 
-                faces={faces} 
-                players={players} 
-                map={matchInfo.mapName}
-                totalTeams={matchInfo.total_teams} 
-                image={`/images/maps/${matchInfo.image}.jpg`}
-                matchData={matchInfo}
-                serverName={matchInfo.serverName} 
-                gametypeName={matchInfo.gametypeName}
-                bHome={false} 
-                bClassic={false}
-                key="shot"
-                highlight={basicInfo.name}
-            />
+                    faces={faces} 
+                    players={players} 
+                    map={matchInfo.mapName}
+                    totalTeams={matchInfo.total_teams} 
+                    image={`/images/maps/${matchInfo.image}.jpg`}
+                    matchData={matchInfo}
+                    serverName={matchInfo.serverName} 
+                    gametypeName={matchInfo.gametypeName}
+                    bHome={false} 
+                    bClassic={false}
+                    key="shot"
+                    highlight={basicInfo.name}
+                />
+                <MatchFragSummary matchId={matchId} playerData={[targetPlayer]} totalTeams={matchInfo.total_teams} single={true}/>
+                <MatchCTFSummary
+                    key="ctf-s" 
+                    matchId={matchId} 
+                    playerData={[targetPlayer]} 
+                    single={true}
+                    flagKills={matchCTFFlagKills}
+                />
+                <MatchSpecialEvents matchId={matchId} bTeamGame={matchInfo.total_teams > 1} players={[targetPlayer]} bSingle={true} targetPlayerId={playerId}/>
+                
             </div>
             
         </div>  

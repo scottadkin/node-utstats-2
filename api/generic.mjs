@@ -230,14 +230,17 @@ export function getPlayer(players, id, bObject){
  * @param {*} targetId 
  * @returns 
  */
-export function getPlayerFromMatchData(players, targetId){
+export function getPlayerFromMatchData(players, targetId, bFullData){
 
     targetId = parseInt(targetId);
+    if(bFullData === undefined) bFullData = false;
 
     for(let i = 0; i < players.length; i++){
 
         const p = players[i];
         if(p.player_id !== targetId) continue;
+
+        if(bFullData) return p;
 
         return {"name": p.name, "country": p.country, "id": p.player_id, "team": p.team}
     }

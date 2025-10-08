@@ -309,16 +309,16 @@ function bAnyMultiKills(players, bSingle, targetPlayerId){
     return false;
 }
 
-function bAnySprees(players, bSingle, targetPlayerId){
+function bAnySprees(players, targetPlayerId){
 
     for(let i = 0; i < players.length; i++){
 
-        if(!bSingle){
-            if(bPlayerAnySprees(players[i])) return true;
-        }else{
-            if(players[i].player_id === targetPlayerId){
-                return bPlayerAnySprees(players[i]);
-            }
+        if(targetPlayerId === -1){
+            return bPlayerAnySprees(players[i]);
+        }
+
+        if(targetPlayerId !== -1 && players[i].player_id === targetPlayerId){   
+            return bPlayerAnySprees(players[i]);
         }
     }
 
@@ -331,17 +331,17 @@ function renderMultiKills(killMode, players, bTeamGame, bSingle, targetPlayerId,
 
     const headers = getMultiHeaders(killMode);
 
-    const data = getMultiData(killMode, players, bTeamGame, bSingle, matchId);
+    const data = getMultiData(killMode, players, bTeamGame, bSingle, matchId, targetPlayerId);
 
     return <InteractiveTable width={1} headers={headers} data={data} />
 }
 
 function renderSprees(killMode, players, bTeamGame, bSingle, targetPlayerId, matchId){
 
-    if(!bAnySprees(players, bSingle, targetPlayerId)) return null;
+    if(!bAnySprees(players, targetPlayerId)) return null;
 
     const headers = getSpreeHeaders(killMode);
-    const data = getSpreeData(killMode, players, bTeamGame, bSingle, matchId);
+    const data = getSpreeData(killMode, players, bTeamGame, bSingle, matchId, targetPlayerId);
 
     return <InteractiveTable width={1} headers={headers} data={data} />;
 }
@@ -350,7 +350,7 @@ export default function MatchSpecialEvents({matchId, bTeamGame, players, bSingle
 
     const [killMode, setKillMode] = useState(0);
 
-    if(!bAnySprees(players, bSingle, targetPlayerId) && !bAnyMultiKills(players, bSingle, targetPlayerId)) return null;
+    //if(!bAnySprees(players, targetPlayerId) /*&& !bAnyMultiKills(players, bSingle, targetPlayerId)*/) return null;
 
     const tabOptions = [
         {"name": "Classic", "value": 0},
@@ -358,6 +358,7 @@ export default function MatchSpecialEvents({matchId, bTeamGame, players, bSingle
         {"name": "UT2K4", "value":2},
         {"name": "UT3", "value": 3},
     ];
+
     return <div>
         <div className="default-header">Special Events</div>
         <Tabs options={tabOptions} selectedValue={killMode} changeSelected={(a) => setKillMode(() => a)}/>

@@ -33,15 +33,15 @@ function renderReturns(mode, matchId, playerData, single){
     return <MatchCTFSummaryReturns matchId={matchId}  playerData={playerData} single={single}/>;
 }
     
-function renderFlagKills(mode, playerData, single, flagKills) {
+function renderFlagKills(mode, playerData, single, flagKills, matchId) {
 
     if(mode !== 4) return null;
-    return <MatchCTFSummaryKills playerData={playerData} single={single} flagKills={flagKills}/>;
+    return <MatchCTFSummaryKills playerData={playerData} single={single} flagKills={flagKills} matchId={matchId}/>;
 }
 
 export default function MatchCTFSummary({matchId, mapId, playerData, single, flagKills}){
 
-    const [mode, setMode] = useState(4);
+    const [mode, setMode] = useState(0);
 
     if(playerData.length > 0 && playerData[0].ctfData === undefined) return null;
 
@@ -62,6 +62,6 @@ export default function MatchCTFSummary({matchId, mapId, playerData, single, fla
         {renderCovers(mode, matchId, playerData, single)}
         {renderSeals(mode, matchId, playerData, single)}
         {renderReturns(mode, matchId, playerData, single)}
-        {renderFlagKills(mode, playerData, single, flagKills)}
+        {renderFlagKills(mode, playerData, single, flagKills, matchId)}
     </div>
 }
