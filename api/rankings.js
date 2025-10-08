@@ -342,19 +342,6 @@ export default class Rankings{
         return await simpleQuery(query, [playerId]);
     }
 
-    async getCurrentRanking(playerId, gametype){
-
-        const query = "SELECT ranking,ranking_change FROM nstats_ranking_player_current WHERE player_id=? AND gametype=?";
-
-        const result = await simpleQuery(query, [playerId, gametype]);
-
-        if(result.length > 0){
-            return result[0];
-        }
-
-        return {"ranking": 0, "ranking_change": 0};
-    }
-
     async getPlayerMatchHistory(playerId, matchId){
 
         const query = "SELECT * FROM nstats_ranking_player_history WHERE player_id=? AND match_id=?";
@@ -782,6 +769,20 @@ async function getPlayerMatchRankingChange(matchId, playerId){
     return {"ranking": 0, "match_ranking": 0, "ranking_change": 0, "match_ranking_change": 0};
 }
 
+export async function getPlayerMatchRankingInfo(matchId, gametypeId, playerId){
+
+    const rankingChange = await getPlayerMatchRankingChange(matchId, playerId);
+    const current = await getCurrentRanking(playerId, gametypeId);
+    const gametypePosition = await getGametypePosition(current.ranking, gametypeId);
+
+    return {
+        "matchChanges": rankingChange, 
+        "currentRankings": current,
+        "currentPosition": gametypePosition
+    };
+
+}
+
 async function getCurrentPlayersRanking(players, gametype){
 
     if(players.length === 0) return [];
@@ -821,4 +822,17 @@ export async function getMatchRankings(matchId, gametypeId, playerIds){
         "currentRankings": currentRankings,
         "currentPositions": currentPositions
     };
+}
+
+export async function getCurrentRanking(playerId, gametype){
+
+    const query = "SELECT ranking,ranking_change FROM nstats_ranking_player_current WHERE player_id=? AND gametype=?";
+
+    const result = await simpleQuery(query, [playerId, gametype]);
+
+    if(result.length > 0){
+        return result[0];
+    }
+
+    return {"ranking": 0, "ranking_change": 0};
 }

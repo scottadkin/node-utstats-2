@@ -1,7 +1,7 @@
-import MouseOver from "../MouseOver";
+import MouseOver from "../../../../components/MouseOver";
 import styles from "./RankingIcon.module.css";
 
-const RankingIcon = ({change}) =>{
+export default function RankingIcon({change}){
 
     change = parseFloat(change);
 
@@ -24,5 +24,3 @@ const RankingIcon = ({change}) =>{
         </MouseOver>
     </div>
 }
-
-export default RankingIcon;

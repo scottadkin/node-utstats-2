@@ -19,6 +19,8 @@ import { getPlayerMatchData as getPlayerWeaponData } from "../../../../api/weapo
 import PlayerMatchWeapons from "../../UI/PMatch/PlayerMatchWeapons";
 import { getPlayerMatchKills as getPlayerMatchTeleFragKills } from "../../../../api/telefrags";
 import PlayerMatchTeleFrags from "../../UI/PMatch/PlayerMatchTeleFrags";
+import { getPlayerMatchRankingInfo } from "../../../../api/rankings";
+import PlayerMatchRanking from "../../UI/PMatch/PlayerMatchRanking";
 
 function setQueryVars(params, searchParams){
 
@@ -104,6 +106,10 @@ export default async function Page({params, searchParams}){
     teleFrags = await getPlayerMatchTeleFragKills(matchId, playerId);
 
 
+    let rankingData = null;
+
+    rankingData = await getPlayerMatchRankingInfo(matchId, matchInfo.gametype, playerId);
+    console.log(rankingData);
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
         <div id="content"> 
@@ -140,6 +146,7 @@ export default async function Page({params, searchParams}){
                 <MatchSpecialEvents matchId={matchId} bTeamGame={matchInfo.total_teams > 1} players={[targetPlayer]} bSingle={true} targetPlayerId={playerId}/>
                 <PlayerMatchWeapons matchId={matchId} playerId={playerId} data={weaponStats}/>
                 <PlayerMatchTeleFrags data={players} matchId={matchId} kills={teleFrags} matchStart={matchInfo.start} bHardcore={matchInfo.hardcore}/>
+                <PlayerMatchRanking data={rankingData}/>
             </div>
             
         </div>  
