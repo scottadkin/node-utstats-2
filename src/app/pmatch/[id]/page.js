@@ -15,6 +15,8 @@ import MatchFragSummary from "../../UI/Match/MatchFragSummary";
 import MatchSpecialEvents from "../../UI/Match/MatchSpecialEvents";
 import MatchCTFSummary from "../../UI/Match/MatchCTFSummary";
 import { getMatchFlagKillDetails } from "../../../../api/ctf";
+import { getPlayerMatchData as getPlayerWeaponData } from "../../../../api/weapons";
+import PlayerMatchWeapons from "../../UI/PMatch/PlayerMatchWeapons";
 
 function setQueryVars(params, searchParams){
 
@@ -88,6 +90,12 @@ export default async function Page({params, searchParams}){
         matchCTFFlagKills = await getMatchFlagKillDetails(matchId, matchInfo.map, playerId);
     }
 
+    let weaponStats = null;
+
+    if(pageManager.bEnabled("Display Weapon Statistics")){
+        weaponStats = await getPlayerWeaponData(playerId, matchId);
+    }
+
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
         <div id="content"> 
@@ -122,7 +130,7 @@ export default async function Page({params, searchParams}){
                     flagKills={matchCTFFlagKills}
                 />
                 <MatchSpecialEvents matchId={matchId} bTeamGame={matchInfo.total_teams > 1} players={[targetPlayer]} bSingle={true} targetPlayerId={playerId}/>
-                
+                <PlayerMatchWeapons matchId={matchId} playerId={playerId} data={weaponStats}/>
             </div>
             
         </div>  

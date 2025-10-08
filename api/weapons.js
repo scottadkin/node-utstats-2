@@ -421,11 +421,6 @@ export default class Weapons{
         }
     }
 
-    async getPlayerMatchData(playerId, matchId){
-
-        return await simpleQuery("SELECT * FROM nstats_player_weapon_match WHERE match_id=? AND player_id=?",[matchId, playerId]);
-    }
-
     async getAllPlayerMatchData(playerId){
 
         return await simpleQuery("SELECT * FROM nstats_player_weapon_match WHERE player_id=?", [playerId]);
@@ -1617,4 +1612,26 @@ export async function getMatchData(id){
     }catch(err){
         console.trace(err);
     }
+}
+
+export async function getPlayerMatchData(playerId, matchId){
+
+    const result = await simpleQuery(`SELECT 
+    weapon_id,kills, best_kills,deaths,suicides,team_kills,
+    best_team_kills,accuracy,shots, hits,damage,efficiency 
+    FROM nstats_player_weapon_match WHERE match_id=? AND player_id=?`,[matchId, playerId]);
+
+    const weaponIds = new Set(result.map((r) =>{
+        return r.weapon_id;
+    }));
+
+    const weaponNames = await getObjectName("weapons", [...weaponIds]);
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        r.weaponName = (weaponNames[r.weapon_id]) ? weaponNames[r.weapon_id] : "Not Found";
+    }
+    
+    return result;
 }
