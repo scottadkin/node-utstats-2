@@ -14,7 +14,7 @@ import { getPlayerFromMatchData } from "../../../../api/generic.mjs";
 import MatchFragSummary from "../../UI/Match/MatchFragSummary";
 import MatchSpecialEvents from "../../UI/Match/MatchSpecialEvents";
 import MatchCTFSummary from "../../UI/Match/MatchCTFSummary";
-import { getMatchFlagKillDetails } from "../../../../api/ctf";
+import { getMatchFlagKillDetails, getPlayerMatchReturns } from "../../../../api/ctf";
 import { getPlayerMatchData as getPlayerWeaponData } from "../../../../api/weapons";
 import PlayerMatchWeapons from "../../UI/PMatch/PlayerMatchWeapons";
 import { getPlayerMatchKills as getPlayerMatchTeleFragKills } from "../../../../api/telefrags";
@@ -29,6 +29,7 @@ import { getPlayerMatchData as getPlayerPingData } from "../../../../api/pings";
 import PlayerMatchPing from "../../UI/PMatch/PlayerMatchPing";
 import { getPlayerMatchData as getPlayerItemsData } from "../../../../api/items";
 import PlayerMatchPickups from "../../UI/PMatch/PlayerMatchPickups";
+import PlayerMatchCTFReturns from "../../UI/PMatch/PlayerMatchCTFReturns";
 
 function setQueryVars(params, searchParams){
 
@@ -136,6 +137,11 @@ export default async function Page({params, searchParams}){
     itemsData = await getPlayerItemsData(matchId, playerId);
 
 
+    let ctfReturnData = null;
+
+    ctfReturnData = await getPlayerMatchReturns(matchId, playerId);;
+
+
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
         <div id="content"> 
@@ -177,6 +183,7 @@ export default async function Page({params, searchParams}){
                 <PlayerMatchDomination data={domCaps}/>
                 <PlayerMatchPing data={pingData} matchStart={matchInfo.start} bHardcode={matchInfo.hardcore}/>
                 <PlayerMatchPickups data={itemsData}/>
+                <PlayerMatchCTFReturns players={[targetPlayer]} data={ctfReturnData} matchStart={matchInfo.start} bHardcode={matchInfo.hardcore}/>
             </div>
             
         </div>  

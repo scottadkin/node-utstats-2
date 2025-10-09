@@ -31,6 +31,8 @@ function renderData(selectedType, items, itemUses){
 
 export default function PlayerMatchPickups({data}){
 
+    if(data.items === null) return null;
+
     const [selectedType, setSelectedType] = useState(1);
 
     const tabOptions = [

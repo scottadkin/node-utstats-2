@@ -14,6 +14,10 @@ export async function POST(req){
         let perPage = (res.perPage !== undefined) ? parseInt(res.perPage) : 5;
         let page = (res.page !== undefined) ? parseInt(res.page) : 0;
         const capType = (res.capType !== undefined) ? res.capType.toLowerCase() : "";
+        let playerId = (res.playerId !== undefined) ? parseInt(res.playerId) : 0;
+        if(playerId !== playerId) playerId = 0;
+        let matchId = (res.matchId !== undefined) ? parseInt(res.matchId) : 0;
+        if(matchId !== matchId) matchId = 0;
 
         if(mode === "map-caps"){
 
@@ -23,6 +27,12 @@ export async function POST(req){
             const totalCaps = await getMapTotalCaps(mapId, capType);
 
             return Response.json({"caps": data, "players": players, "totalCaps": totalCaps});
+        }
+
+        if(mode === "match-returns-player"){
+
+            //const data = await getPlayerMatchReturns(matchId, playerId);
+            //console.log(data);
         }
 
         return Response.json({"error": "test"});

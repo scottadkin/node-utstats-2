@@ -513,14 +513,6 @@ export default class CTF{
 
 
 
-    async getPlayerMatchReturns(matchId, playerId){
-
-        const query = `SELECT grab_time,return_time,return_string,distance_to_cap,travel_time,carry_time,drop_time 
-        FROM nstats_ctf_returns WHERE match_id=? AND return_player=?`;
-
-        return await simpleQuery(query, [matchId, playerId]);
-    }
-
     addEvent(match, timestamp, player, event, team){
 
         this.eventList.push([match, timestamp, player, event, team]);
@@ -3796,4 +3788,12 @@ export async function getEventGraphData(id, players, teams){
         "teamSaves": teamsSaveData,
         "teamSeals": teamsSealData
     };
+}
+
+export async function getPlayerMatchReturns(matchId, playerId){
+
+    const query = `SELECT grab_time,return_time,return_string,distance_to_cap,travel_time,carry_time,drop_time 
+    FROM nstats_ctf_returns WHERE match_id=? AND return_player=?`;
+
+    return await simpleQuery(query, [matchId, playerId]);
 }
