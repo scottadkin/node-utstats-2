@@ -53,7 +53,8 @@ function renderData(returnData, matchStart, bHardcore){
 export default function PlayerMatchCTFReturns({players, data, matchStart, bHardcore}){
 
     if(players.length === 0) return null;
-    if(players[0].ctfData === undefined) return null;
+    if(players[0].ctfData === undefined || data.length === 0) return null;
+    
 
     return <>
         <div className="default-header">Capture The Flag Returns</div>

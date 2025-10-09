@@ -350,7 +350,7 @@ export default function MatchSpecialEvents({matchId, bTeamGame, players, bSingle
 
     const [killMode, setKillMode] = useState(0);
 
-    //if(!bAnySprees(players, targetPlayerId) /*&& !bAnyMultiKills(players, bSingle, targetPlayerId)*/) return null;
+    if(!bAnySprees(players, targetPlayerId) && !bAnyMultiKills(players, bSingle, targetPlayerId)) return null;
 
     const tabOptions = [
         {"name": "Classic", "value": 0},
@@ -359,10 +359,10 @@ export default function MatchSpecialEvents({matchId, bTeamGame, players, bSingle
         {"name": "UT3", "value": 3},
     ];
 
-    return <div>
+    return <>
         <div className="default-header">Special Events</div>
         <Tabs options={tabOptions} selectedValue={killMode} changeSelected={(a) => setKillMode(() => a)}/>
         {renderMultiKills(killMode, players, bTeamGame, bSingle, targetPlayerId, matchId)}
         {renderSprees(killMode, players, bTeamGame, bSingle, targetPlayerId, matchId)}
-    </div>
+    </>
 }

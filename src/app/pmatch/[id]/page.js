@@ -30,6 +30,8 @@ import PlayerMatchPing from "../../UI/PMatch/PlayerMatchPing";
 import { getPlayerMatchData as getPlayerItemsData } from "../../../../api/items";
 import PlayerMatchPickups from "../../UI/PMatch/PlayerMatchPickups";
 import PlayerMatchCTFReturns from "../../UI/PMatch/PlayerMatchCTFReturns";
+import { getPlayerMatchCaps } from "../../../../api/ctf";
+import PlayerMatchCTFCaps from "../../UI/PMatch/PlayerMatchCTFCaps";
 
 function setQueryVars(params, searchParams){
 
@@ -139,7 +141,14 @@ export default async function Page({params, searchParams}){
 
     let ctfReturnData = null;
 
-    ctfReturnData = await getPlayerMatchReturns(matchId, playerId);;
+    ctfReturnData = await getPlayerMatchReturns(matchId, playerId);
+
+    let ctfCaps = null;
+
+    ctfCaps = await getPlayerMatchCaps(matchId, playerId);
+    console.log("ctfCaps");
+    console.log(ctfCaps);
+
 
 
     return <main>
@@ -184,6 +193,7 @@ export default async function Page({params, searchParams}){
                 <PlayerMatchPing data={pingData} matchStart={matchInfo.start} bHardcode={matchInfo.hardcore}/>
                 <PlayerMatchPickups data={itemsData}/>
                 <PlayerMatchCTFReturns players={[targetPlayer]} data={ctfReturnData} matchStart={matchInfo.start} bHardcode={matchInfo.hardcore}/>
+                <PlayerMatchCTFCaps player={targetPlayer} data={ctfCaps} matchStart={matchInfo.start} bHardcore={matchInfo.hardcore}/>
             </div>
             
         </div>  

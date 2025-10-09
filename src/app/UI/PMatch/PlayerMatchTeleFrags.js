@@ -96,20 +96,21 @@ function renderKills(selectedTab, matchId, matchStart, players, kills, bHardcore
 
 export default function PlayerMatchTeleFrags({data, matchId, bHardcore, matchStart, kills}){
 
-    const [selectedTab, setSelectedTab] = useState(0);
+    if(kills.length === 0) return null;
 
+    const [selectedTab, setSelectedTab] = useState(0);
 
     const tabOptions = [
         {"name": "General", "value": 0},
         {"name": "Kills", "value": 1},
     ];
 
-    return <div>
+    return <>
         <div className="default-header">Telefrags Summary</div>
         <Tabs selectedValue={selectedTab} options={tabOptions} changeSelected={(newTab) => {
             setSelectedTab(newTab)
         }} />
         {renderGeneral(selectedTab, data[0])}
         {renderKills(selectedTab, matchId, matchStart, data, kills, bHardcore)}
-    </div>
+    </>
 }

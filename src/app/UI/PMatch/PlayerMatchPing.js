@@ -17,6 +17,8 @@ function renderTable(basicInfo){
 
 export default function PlayerMatchPing({data, matchStart, bHardcode}){
 
+    if(data === null) return null;
+
     const graphLabels = data.graphData.graphText.map((d) =>{
         return MMSS(scalePlaytime(d - matchStart, bHardcode));
     });
