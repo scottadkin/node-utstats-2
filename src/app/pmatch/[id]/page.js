@@ -10,11 +10,11 @@ import { getMatch, getMatchIdFromHash } from "../../../../api/matches";
 import MatchSummary from "../../UI/Match/MatchSummary";
 import Screenshot from "../../UI/Screenshot";
 import { getFacesWithFileStatuses } from "../../../../api/faces";
-import { getPlayerFromMatchData } from "../../../../api/generic.mjs";
+import { getPlayerFromMatchData, convertTimestamp, plural, toPlaytime } from "../../../../api/generic.mjs";
 import MatchFragSummary from "../../UI/Match/MatchFragSummary";
 import MatchSpecialEvents from "../../UI/Match/MatchSpecialEvents";
 import MatchCTFSummary from "../../UI/Match/MatchCTFSummary";
-import { getMatchFlagKillDetails, getPlayerMatchReturns } from "../../../../api/ctf";
+import { getMatchFlagKillDetails, getPlayerMatchReturns, getPlayerMatchCaps } from "../../../../api/ctf";
 import { getPlayerMatchData as getPlayerWeaponData } from "../../../../api/weapons";
 import PlayerMatchWeapons from "../../UI/PMatch/PlayerMatchWeapons";
 import { getPlayerMatchKills as getPlayerMatchTeleFragKills } from "../../../../api/telefrags";
@@ -30,7 +30,6 @@ import PlayerMatchPing from "../../UI/PMatch/PlayerMatchPing";
 import { getPlayerMatchData as getPlayerItemsData } from "../../../../api/items";
 import PlayerMatchPickups from "../../UI/PMatch/PlayerMatchPickups";
 import PlayerMatchCTFReturns from "../../UI/PMatch/PlayerMatchCTFReturns";
-import { getPlayerMatchCaps } from "../../../../api/ctf";
 import PlayerMatchCTFCaps from "../../UI/PMatch/PlayerMatchCTFCaps";
 import { getPlayerMatchData as getCombogibData } from "../../../../api/combogib";
 import CombogibPlayerMatch from "../../UI/PMatch/CombogibPlayerMatch";
@@ -45,6 +44,52 @@ function setQueryVars(params, searchParams){
 
 
     return {matchId, playerId};
+}
+
+export async function generateMetadata({ params, searchParams }, parent) {
+
+    params = await params;
+    searchParams = await searchParams;
+
+    let {matchId, playerId} = setQueryVars(params, searchParams);
+
+    if(matchId.length === 32){
+        matchId = await getMatchIdFromHash(matchId);
+    }
+
+    const info = await getMatch(matchId);
+
+    if(info === undefined){
+        return {
+            "title": "Match Not Found - Node UTStats 2",
+            "description": "Could not find the match you were looking for.",
+            "keywords": ["match", "report", "utstats", "node"],
+        }
+    }
+
+    const date = convertTimestamp(info.date, true);
+    const pInfo = await getBasicPlayersByIds([playerId]);
+
+    if(pInfo[playerId] === undefined){
+        return {
+            "title": "Player Not In Match - Node UTStats 2",
+            "description": "There was no player in the match with that id.",
+            "keywords": ["match", "report", "utstats", "node"],
+        }
+    }
+
+    let desc = `Match report for ${pInfo[playerId].name}, ${info.mapName} (${info.gametypeName}) played on the ${info.serverName} server,`;
+    desc+= ` there were a total of ${info.players} ${plural(info.players, "player")} in the match and it lasted ${toPlaytime(info.playtime)},`;
+    desc+= ` date of match was ${date} `;
+
+    return {
+        "title": `${pInfo[playerId].name} - ${info.mapName} (${date}) - Node UTStats 2`,
+        "description": desc,
+        "keywords": ["match","report", "utstats", "node", info.mapName, info.gametypeName],
+        "openGraph": {
+            "images": [`/images/maps/${info.image}.jpg`]
+        }
+    }
 }
 
 export default async function Page({params, searchParams}){
