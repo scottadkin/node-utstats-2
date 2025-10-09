@@ -1,7 +1,4 @@
-import React from 'react';
 import styles from './Table2.module.css';
-import TableHeader from '../TableHeader';
-
 
 export default function Table2({width, header, players, noBottomMargin, compressed, children}){
 
@@ -10,8 +7,6 @@ export default function Table2({width, header, players, noBottomMargin, compress
         const widthClass = `t-width-${widthId}`;
 
         const playerClass = (players !== undefined) ? (players) ? "player-td-1" : "" : "";
-
-
 
         if(noBottomMargin !== undefined){
             noBottomMargin = noBottomMargin;
@@ -22,7 +17,7 @@ export default function Table2({width, header, players, noBottomMargin, compress
         let headerElem = null;
 
         if(header !== undefined){
-            headerElem = <TableHeader width={widthId}>{header}</TableHeader>
+            headerElem = <div className={`t-width-${widthId} table-title`}>{header}</div>
         }
 
         return <div className={`${styles.wrapper}`} style={{"marginBottom": `${(noBottomMargin) ? 0 : 25}px`}}>

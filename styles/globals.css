@@ -218,8 +218,8 @@ table{
 th{
 	font-weight:500;
 	color:yellow;
-	font-size:14px;
-	padding:6px 0px;
+	font-size:13px;
+	padding:14px 5px;
 	background-color:var(--color-8);
 }
 
@@ -842,4 +842,8 @@ input[type="range"]{
 	margin-top:var(--margin-1);
 	font-size:var(--font-small);
 	padding:var(--padding-1);
+}
+
+.basic-table{
+	margin-bottom:var(--margin-1);
 }

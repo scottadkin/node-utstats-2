@@ -32,6 +32,8 @@ import PlayerMatchPickups from "../../UI/PMatch/PlayerMatchPickups";
 import PlayerMatchCTFReturns from "../../UI/PMatch/PlayerMatchCTFReturns";
 import { getPlayerMatchCaps } from "../../../../api/ctf";
 import PlayerMatchCTFCaps from "../../UI/PMatch/PlayerMatchCTFCaps";
+import { getPlayerMatchData as getCombogibData } from "../../../../api/combogib";
+import CombogibPlayerMatch from "../../UI/PMatch/CombogibPlayerMatch";
 
 function setQueryVars(params, searchParams){
 
@@ -146,11 +148,14 @@ export default async function Page({params, searchParams}){
     let ctfCaps = null;
 
     ctfCaps = await getPlayerMatchCaps(matchId, playerId);
-    console.log("ctfCaps");
-    console.log(ctfCaps);
 
 
 
+    let comboData = null;
+
+    comboData = await getCombogibData(playerId, matchId);
+ 
+    
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
         <div id="content"> 
@@ -194,6 +199,7 @@ export default async function Page({params, searchParams}){
                 <PlayerMatchPickups data={itemsData}/>
                 <PlayerMatchCTFReturns players={[targetPlayer]} data={ctfReturnData} matchStart={matchInfo.start} bHardcode={matchInfo.hardcore}/>
                 <PlayerMatchCTFCaps player={targetPlayer} data={ctfCaps} matchStart={matchInfo.start} bHardcore={matchInfo.hardcore}/>
+                <CombogibPlayerMatch data={comboData}/>
             </div>
             
         </div>  

@@ -23,34 +23,6 @@ export default class Combogib{
         return await bulkInsert(query, vars);
     }
 
-
-
-    async getPlayerMatchData(playerId, matchId, bEveryRow){
-        
-        if(bEveryRow === undefined) bEveryRow = false;
-
-        const query = `SELECT 
-        shockball_deaths,shockball_efficiency,shockball_kpm,shockball_kills,best_shockball_spree,best_combo_spree,best_primary_spree,
-        best_single_combo,best_single_shockball,combo_deaths,combo_efficiency,combo_kills,combo_kpm,
-        player_id,primary_deaths,primary_efficiency,primary_kills,primary_kpm,insane_kills,
-        insane_deaths,insane_efficiency,insane_kpm,best_insane_spree,best_single_insane
-        FROM nstats_match_combogib WHERE match_id=? AND player_id=?`;
-
-        const result = await simpleQuery(query, [matchId, playerId]);
-        
-        if(result.length > 0){
-
-            if(!bEveryRow){
-                return result[0];
-            }else{
-                return result;
-            }
-        }
-
-        return null;
-    }
-
-
     async getMapMostCombos(mapId, limit){
 
         const query = "SELECT player_id,match_id,MAX(combo_kills) as combo_kills FROM nstats_match_combogib WHERE map_id=? AND combo_kills>0 GROUP BY player_id ORDER BY combo_kills DESC LIMIT ?";
@@ -1636,4 +1608,21 @@ export async function getMatchData(matchId){
     FROM nstats_match_combogib WHERE match_id=?`;
 
     return await simpleQuery(query, [matchId]);
+}
+
+export async function getPlayerMatchData(playerId, matchId){
+        
+    const query = `SELECT 
+    shockball_deaths,shockball_efficiency,shockball_kpm,shockball_kills,best_shockball_spree,best_combo_spree,best_primary_spree,
+    best_single_combo,best_single_shockball,combo_deaths,combo_efficiency,combo_kills,combo_kpm,
+    player_id,primary_deaths,primary_efficiency,primary_kills,primary_kpm,insane_kills,
+    insane_deaths,insane_efficiency,insane_kpm,best_insane_spree,best_single_insane
+    FROM nstats_match_combogib WHERE match_id=? AND player_id=?`;
+
+    const result = await simpleQuery(query, [matchId, playerId]);
+    
+    if(result.length === 0) return null;
+
+    return result[0];
+
 }

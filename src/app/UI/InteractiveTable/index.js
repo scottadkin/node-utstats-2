@@ -1,5 +1,5 @@
 import {useState} from "react";
-import Table2 from "../../../../components/Table2";
+import Table2 from "../Table2";
 import styles from "./InteractiveTable.module.css";
 import Link from "next/link";
 import { BasicMouseOver } from "../MouseOver";
