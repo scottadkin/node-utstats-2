@@ -88,9 +88,6 @@ export default async function Page({params, searchParams}){
 
     const matchInfo = await getMatch(matchId);
     const players = await getAllInMatch(matchId);
-    console.log(matchInfo);
-
-
 
     const targetPlayer = getPlayerFromMatchData(players, playerId, true);
 
@@ -104,104 +101,163 @@ export default async function Page({params, searchParams}){
     let matchCTFFlagKills  = null;
     
     if(pageManager.bEnabled("Display Capture The Flag Summary")){
+
         matchCTFFlagKills = await getMatchFlagKillDetails(matchId, matchInfo.map, playerId);
+
+        pageManager.addComponent("Display Capture The Flag Summary", <MatchCTFSummary
+            key="ctf-s" 
+            matchId={matchId} 
+            playerData={[targetPlayer]} 
+            single={true}
+            flagKills={matchCTFFlagKills}
+        />);
     }
 
     let weaponStats = null;
 
     if(pageManager.bEnabled("Display Weapon Statistics")){
+
         weaponStats = await getPlayerWeaponData(playerId, matchId);
+
+        pageManager.addComponent("Display Weapon Statistics", <PlayerMatchWeapons 
+            key="weapons" matchId={matchId} playerId={playerId} 
+            data={weaponStats}
+        />);
     }
 
 
     let teleFrags = null;
 
-    teleFrags = await getPlayerMatchTeleFragKills(matchId, playerId);
+    if(pageManager.bEnabled("Display Telefrags Stats")){
+        teleFrags = await getPlayerMatchTeleFragKills(matchId, playerId);
+            pageManager.addComponent("Display Telefrags Stats", <PlayerMatchTeleFrags 
+            key="tele" data={players} matchId={matchId} kills={teleFrags} 
+            matchStart={matchInfo.start} bHardcore={matchInfo.hardcore}
+        />);
+    }
 
 
     let rankingData = null;
-    rankingData = await getPlayerMatchRankingInfo(matchId, matchInfo.gametype, playerId);
+
+    if(pageManager.bEnabled("Display Rankings")){
+        rankingData = await getPlayerMatchRankingInfo(matchId, matchInfo.gametype, playerId);
+        pageManager.addComponent("Display Rankings", <PlayerMatchRanking key="rankings" data={rankingData}/>);
+    }
 
     let teamChanges = null;
 
-    teamChanges = await getPlayerTeamChanges(matchId, playerId);
+    if(pageManager.bEnabled("Display Team Changes")){
+
+        teamChanges = await getPlayerTeamChanges(matchId, playerId);
+
+        pageManager.addComponent("Display Team Changes",<PlayerMatchTeamChanges 
+            key="teams" matchStart={matchInfo.start} totalTeams={matchInfo.total_teams} teamChanges={teamChanges}
+        />);
+    }
     
 
     let domCaps = null;
 
-    domCaps = await getMatchSinglePlayerTotalCaps(matchId, playerId);
+    if(pageManager.bEnabled("Display Domination Summary")){
+
+        domCaps = await getMatchSinglePlayerTotalCaps(matchId, playerId);
+
+        pageManager.addComponent("Display Domination Summary",<PlayerMatchDomination key="dom" data={domCaps}/>);
+    }
     
 
     let pingData = null;
 
-    pingData = await getPlayerPingData(matchId, playerId);
+    if(pageManager.bEnabled("Display Player Ping Graph")){
+
+        pingData = await getPlayerPingData(matchId, playerId);
+
+        pageManager.addComponent("Display Player Ping Graph", <PlayerMatchPing key="ping" data={pingData} 
+            matchStart={matchInfo.start} bHardcode={matchInfo.hardcore}
+        />);
+    }
    
     let itemsData = null;
 
-    itemsData = await getPlayerItemsData(matchId, playerId);
+    if(pageManager.bEnabled("Display Items Summary")){
+        itemsData = await getPlayerItemsData(matchId, playerId);
+        pageManager.addComponent("Display Items Summary",<PlayerMatchPickups key="items" data={itemsData}/>);
+    }
 
 
     let ctfReturnData = null;
 
-    ctfReturnData = await getPlayerMatchReturns(matchId, playerId);
+    if(pageManager.bEnabled("Display Capture The Flag Returns")){
+
+        ctfReturnData = await getPlayerMatchReturns(matchId, playerId);
+
+        pageManager.addComponent("Display Capture The Flag Returns",
+            <PlayerMatchCTFReturns players={[targetPlayer]} key="ctf-returns" data={ctfReturnData}
+             matchStart={matchInfo.start} bHardcode={matchInfo.hardcore}/>
+        );
+    }
 
     let ctfCaps = null;
 
-    ctfCaps = await getPlayerMatchCaps(matchId, playerId);
+    if(pageManager.bEnabled("Display Capture The Flag Caps")){
 
+        ctfCaps = await getPlayerMatchCaps(matchId, playerId);
+        
+        pageManager.addComponent("Display Capture The Flag Caps",
+            <PlayerMatchCTFCaps key="ctf-caps" player={targetPlayer} data={ctfCaps} 
+            matchStart={matchInfo.start} bHardcore={matchInfo.hardcore}/>
+        );
+    }
 
 
     let comboData = null;
 
-    comboData = await getCombogibData(playerId, matchId);
+    if(pageManager.bEnabled("Display Combogib Stats")){
+        comboData = await getCombogibData(playerId, matchId);
+        pageManager.addComponent("Display Combogib Stats", <CombogibPlayerMatch key="combo" data={comboData}/>);
+    }
+
+    pageManager.addComponent("Display Special Events", <MatchSpecialEvents 
+        matchId={matchId} bTeamGame={matchInfo.total_teams > 1} key="special-events"
+        players={[targetPlayer]} bSingle={true} targetPlayerId={playerId}
+    />);
+
+    pageManager.addComponent("Display Frag Summary", <MatchFragSummary 
+        key="frags" matchId={matchId} playerData={[targetPlayer]} totalTeams={matchInfo.total_teams} 
+        single={true}
+    />);
  
+
+    pageManager.addComponent("Display Summary", <MatchSummary 
+        key={"m-s"} 
+        info={matchInfo}
+        settings={pageSettings}
+    />);
+
+    pageManager.addComponent("Display Screenshot", <Screenshot 
+        faces={faces} 
+        players={players} 
+        map={matchInfo.mapName}
+        totalTeams={matchInfo.total_teams} 
+        image={`/images/maps/${matchInfo.image}.jpg`}
+        matchData={matchInfo}
+        serverName={matchInfo.serverName} 
+        gametypeName={matchInfo.gametypeName}
+        bHome={false} 
+        bClassic={false}
+        key="shot"
+        highlight={basicInfo.name}
+    />);
     
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
         <div id="content"> 
             <div className="default m-bottom-25">
                 <div className="default-header">Match Report For {basicInfo.name}</div>	
+                
                 <PlayerMatchProfile data={basicInfo} matchId={matchId} playerId={playerId}/>
-                <MatchSummary 
-                    key={"m-s"} 
-                    info={matchInfo}
-                    settings={pageSettings}
-                />
-                <Screenshot 
-                    faces={faces} 
-                    players={players} 
-                    map={matchInfo.mapName}
-                    totalTeams={matchInfo.total_teams} 
-                    image={`/images/maps/${matchInfo.image}.jpg`}
-                    matchData={matchInfo}
-                    serverName={matchInfo.serverName} 
-                    gametypeName={matchInfo.gametypeName}
-                    bHome={false} 
-                    bClassic={false}
-                    key="shot"
-                    highlight={basicInfo.name}
-                />
-                <MatchFragSummary matchId={matchId} playerData={[targetPlayer]} totalTeams={matchInfo.total_teams} single={true}/>
-                <MatchCTFSummary
-                    key="ctf-s" 
-                    matchId={matchId} 
-                    playerData={[targetPlayer]} 
-                    single={true}
-                    flagKills={matchCTFFlagKills}
-                />
-                <MatchSpecialEvents matchId={matchId} bTeamGame={matchInfo.total_teams > 1} players={[targetPlayer]} bSingle={true} targetPlayerId={playerId}/>
-                <PlayerMatchWeapons matchId={matchId} playerId={playerId} data={weaponStats}/>
-                <PlayerMatchTeleFrags data={players} matchId={matchId} kills={teleFrags} matchStart={matchInfo.start} bHardcore={matchInfo.hardcore}/>
-                <PlayerMatchRanking data={rankingData}/>
-                <PlayerMatchTeamChanges matchStart={matchInfo.start} totalTeams={matchInfo.total_teams} teamChanges={teamChanges}/>
-                <PlayerMatchDomination data={domCaps}/>
-                <PlayerMatchPing data={pingData} matchStart={matchInfo.start} bHardcode={matchInfo.hardcore}/>
-                <PlayerMatchPickups data={itemsData}/>
-                <PlayerMatchCTFReturns players={[targetPlayer]} data={ctfReturnData} matchStart={matchInfo.start} bHardcode={matchInfo.hardcore}/>
-                <PlayerMatchCTFCaps player={targetPlayer} data={ctfCaps} matchStart={matchInfo.start} bHardcore={matchInfo.hardcore}/>
-                <CombogibPlayerMatch data={comboData}/>
-            </div>
-            
+                {elems}
+            </div>        
         </div>  
     </main>; 
 }

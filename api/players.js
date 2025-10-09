@@ -244,7 +244,7 @@ export default class Players{
 
         if(gametype === undefined) gametype = 0;
 
-        const query = "SELECT id,name,country,matches,playtime,face,first,last FROM nstats_player_totals WHERE gametype=? ORDER BY playtime DESC LIMIT ?";
+        const query = "SELECT id,name,country,matches,playtime,face,first,last FROM nstats_player_totals WHERE gametype=? AND map=0 ORDER BY playtime DESC LIMIT ?";
 
         return await simpleQuery(query, [gametype, max]);
     }
