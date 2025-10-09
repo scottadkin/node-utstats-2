@@ -21,6 +21,8 @@ import { getPlayerMatchKills as getPlayerMatchTeleFragKills } from "../../../../
 import PlayerMatchTeleFrags from "../../UI/PMatch/PlayerMatchTeleFrags";
 import { getPlayerMatchRankingInfo } from "../../../../api/rankings";
 import PlayerMatchRanking from "../../UI/PMatch/PlayerMatchRanking";
+import { getPlayerMatchData as getPlayerTeamChanges } from "../../../../api/teams";
+import PlayerMatchTeamChanges from "../../UI/PMatch/PlayerMatchTeamChanges";
 
 function setQueryVars(params, searchParams){
 
@@ -107,9 +109,13 @@ export default async function Page({params, searchParams}){
 
 
     let rankingData = null;
-
     rankingData = await getPlayerMatchRankingInfo(matchId, matchInfo.gametype, playerId);
-    console.log(rankingData);
+
+    let teamChanges = null;
+
+    teamChanges = await getPlayerTeamChanges(matchId, playerId);
+    console.log(teamChanges);
+
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
         <div id="content"> 
@@ -147,6 +153,7 @@ export default async function Page({params, searchParams}){
                 <PlayerMatchWeapons matchId={matchId} playerId={playerId} data={weaponStats}/>
                 <PlayerMatchTeleFrags data={players} matchId={matchId} kills={teleFrags} matchStart={matchInfo.start} bHardcore={matchInfo.hardcore}/>
                 <PlayerMatchRanking data={rankingData}/>
+                <PlayerMatchTeamChanges matchStart={matchInfo.start} totalTeams={matchInfo.total_teams} teamChanges={teamChanges}/>
             </div>
             
         </div>  

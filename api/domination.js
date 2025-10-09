@@ -658,7 +658,8 @@ export async function getMatchDomSummary(matchId, mapId){
         const current = [];
 
         for(const [playerId, playerData] of Object.entries(playerCaps.data)){
-            current.push({"name": playerNames[playerId] ?? "Not Found", "values": playerData[id]});
+
+            current.push({"name": playerNames[playerId]?.name ?? "Not Found", "values": playerData[id]});
         }
 
         altTest.push(current);

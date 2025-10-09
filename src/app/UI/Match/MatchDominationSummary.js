@@ -86,7 +86,6 @@ const renderTestGraph = (graphData, matchStart, matchEnd, bHardcore, newPlayerCa
 
     labels.unshift(MMSS(0));
 
-
     return <CustomGraph 
         tabs={tabs}  
         labels={[labels, ...pointLabels, ...teamCapLabels]}
