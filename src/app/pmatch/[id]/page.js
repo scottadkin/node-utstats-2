@@ -27,6 +27,8 @@ import { getMatchSinglePlayerTotalCaps } from "../../../../api/domination";
 import PlayerMatchDomination from "../../UI/PMatch/PlayerMatchDomination";
 import { getPlayerMatchData as getPlayerPingData } from "../../../../api/pings";
 import PlayerMatchPing from "../../UI/PMatch/PlayerMatchPing";
+import { getPlayerMatchData as getPlayerItemsData } from "../../../../api/items";
+import PlayerMatchPickups from "../../UI/PMatch/PlayerMatchPickups";
 
 function setQueryVars(params, searchParams){
 
@@ -128,7 +130,11 @@ export default async function Page({params, searchParams}){
     let pingData = null;
 
     pingData = await getPlayerPingData(matchId, playerId);
-    console.log(pingData);
+   
+    let itemsData = null;
+
+    itemsData = await getPlayerItemsData(matchId, playerId);
+
 
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
@@ -170,6 +176,7 @@ export default async function Page({params, searchParams}){
                 <PlayerMatchTeamChanges matchStart={matchInfo.start} totalTeams={matchInfo.total_teams} teamChanges={teamChanges}/>
                 <PlayerMatchDomination data={domCaps}/>
                 <PlayerMatchPing data={pingData} matchStart={matchInfo.start} bHardcode={matchInfo.hardcore}/>
+                <PlayerMatchPickups data={itemsData}/>
             </div>
             
         </div>  

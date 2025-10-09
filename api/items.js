@@ -398,24 +398,6 @@ export default class Items{
         }
     }
 
-    async getPlayerMatchData(matchId, playerId){
-
-        const query = "SELECT item,uses FROM nstats_items_match WHERE match_id=? AND player_id=?";
-
-        const result = await simpleQuery(query, [matchId, playerId]);
-
-        const data = {};
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-
-            data[r.item] = r.uses;
-        }
-
-        return data;
-    }
-
     async updateMatchAmpKills(matchId, ampKills){
 
         const query = `UPDATE nstats_matches SET 
@@ -684,4 +666,49 @@ export async function getNamesByIds(ids, bReturnSimpleObject){
     }
 
     return obj;
+}
+
+export async function getItemsById(itemIds){
+
+    if(itemIds.length === 0) return null;
+
+    const query = `SELECT id,name,display_name,type FROM nstats_items WHERE id IN(?)`;
+
+    const result = await simpleQuery(query, [itemIds]);
+
+    const data = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        data[r.id] = {"name": r.name, "displayName": r.display_name, "type": r.type};
+    }
+
+    return data;
+}
+
+export async function getPlayerMatchData(matchId, playerId){
+
+    const query = "SELECT item,uses FROM nstats_items_match WHERE match_id=? AND player_id=?";
+
+    const result = await simpleQuery(query, [matchId, playerId]);
+
+    const itemIds = [...new Set(result.map((r) =>{
+        return r.item;
+    }))];
+
+    const items = await getItemsById(itemIds);
+
+    const data = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        data[r.item] = r.uses;
+        
+    }
+    
+
+    return {"items": items, data};
 }

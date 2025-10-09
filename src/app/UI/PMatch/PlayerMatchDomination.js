@@ -22,6 +22,9 @@ function renderData(pointNames, capsData){
 
 export default function PlayerMatchDomination({data}){
 
+    if(data === null) return null;
+    if(Object.keys(data).length === 0) return null;
+
     return <>
         <div className="default-header">Domination Caps</div>
         {renderData(data.pointNames, data.caps)}
