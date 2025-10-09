@@ -23,6 +23,8 @@ import { getPlayerMatchRankingInfo } from "../../../../api/rankings";
 import PlayerMatchRanking from "../../UI/PMatch/PlayerMatchRanking";
 import { getPlayerMatchData as getPlayerTeamChanges } from "../../../../api/teams";
 import PlayerMatchTeamChanges from "../../UI/PMatch/PlayerMatchTeamChanges";
+import { getMatchSinglePlayerTotalCaps } from "../../../../api/domination";
+import PlayerMatchDomination from "../../UI/PMatch/PlayerMatchDomination";
 
 function setQueryVars(params, searchParams){
 
@@ -114,7 +116,13 @@ export default async function Page({params, searchParams}){
     let teamChanges = null;
 
     teamChanges = await getPlayerTeamChanges(matchId, playerId);
-    console.log(teamChanges);
+    
+
+    let domCaps = null;
+
+    domCaps = await getMatchSinglePlayerTotalCaps(matchId, playerId);
+    console.log("domCaps");
+    console.log(domCaps);
 
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
@@ -154,6 +162,7 @@ export default async function Page({params, searchParams}){
                 <PlayerMatchTeleFrags data={players} matchId={matchId} kills={teleFrags} matchStart={matchInfo.start} bHardcore={matchInfo.hardcore}/>
                 <PlayerMatchRanking data={rankingData}/>
                 <PlayerMatchTeamChanges matchStart={matchInfo.start} totalTeams={matchInfo.total_teams} teamChanges={teamChanges}/>
+                <PlayerMatchDomination data={domCaps}/>
             </div>
             
         </div>  

@@ -2,6 +2,7 @@ import { simpleQuery } from "./database.js";
 import Message from "./message.js";
 import { getBasicPlayersByIds } from "./players.js";
 import { getTeamName } from "./generic.mjs";
+import { getObjectName } from "./genericServerSide.mjs";
 
 export default class Domination{
 
@@ -328,22 +329,6 @@ export default class Domination{
         return await simpleQuery(query, [matchId, playerId]);
     }
 
-
-    async getMatchSinglePlayerTotalCaps(matchId, playerId){
-
-        const query = "SELECT point, COUNT(*) as total_caps FROM nstats_dom_match_caps WHERE match_id=? AND player=? GROUP BY point";
-        const result =  await simpleQuery(query, [matchId, playerId]);
-
-        const data = {};
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-            data[r.point] = r.total_caps;
-        }
-        
-        return data;
-    }
 
     async getDuplicateControlPoints(mapId){
 
@@ -686,5 +671,29 @@ export async function getMatchDomSummary(matchId, mapId){
         "newPlayerCaps": {"data": altTest, "labels": playerCaps.labels},//[]//test
         "teamCaps": {"data": teamTestData, "labels": teamCaps.labels}
     };
+}
+
+
+export async function getMatchSinglePlayerTotalCaps(matchId, playerId){
+
+    const query = "SELECT point, COUNT(*) as total_caps FROM nstats_dom_match_caps WHERE match_id=? AND player=? GROUP BY point";
+    const result =  await simpleQuery(query, [matchId, playerId]);
+
+    if(result.length === 0) return {};
+
+    const pointIds = [...new Set(result.map((r) =>{
+        return r.point;
+    }))]
+
+    const pointNames = await getObjectName("dom_control_points", pointIds);
+
+    const data = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        data[r.point] = r.total_caps;
+    }
     
+    return {"caps": data, pointNames};
 }

@@ -17,7 +17,8 @@ export async function getObjectName(type, ids){
         "servers",
         "weapons",
         "items",
-        "powerups"
+        "powerups",
+        "dom_control_points"
     ];
 
     type = type.toLowerCase();
