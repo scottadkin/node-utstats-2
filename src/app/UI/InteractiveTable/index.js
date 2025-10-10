@@ -1,3 +1,4 @@
+"use client"
 import {useState} from "react";
 import Table2 from "../Table2";
 import styles from "./InteractiveTable.module.css";

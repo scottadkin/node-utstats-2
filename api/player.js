@@ -17,6 +17,7 @@ import Sprees from "./sprees.js";
 import MonsterHunt from "./monsterhunt.js";
 import SiteSettings from "./sitesettings.js";
 import Combogib from "./combogib.js";
+import { getObjectName } from "./genericServerSide.mjs";
 
 export default class Player{
 
@@ -909,15 +910,6 @@ export default class Player{
         return null;
     }
 
-    async getProfileGametypeStats(playerId){
-
-        const query = `SELECT gametype,last,matches,wins,playtime,spec_playtime,score,
-        kills,deaths,suicides,team_kills,spawn_kills,efficiency,accuracy
-        FROM nstats_player_totals WHERE gametype!=0 AND map=0 AND player_id=?`;
-
-        return await simpleQuery(query, [playerId]);
-    }
-
 
     async setLatestHWIDInfo(playerId, hwid){
 
@@ -952,4 +944,27 @@ export async function getPlayerById(id){
 
     return result[0];
 
+}
+
+export async function getProfileGametypeStats(playerId){
+
+    const query = `SELECT gametype,last,matches,wins,playtime,spec_playtime,score,
+    kills,deaths,suicides,team_kills,spawn_kills,efficiency,accuracy
+    FROM nstats_player_totals WHERE gametype!=0 AND map=0 AND player_id=?`;
+
+    const result = await simpleQuery(query, [playerId]);
+
+    const gametypeIds = new Set(result.map((r) =>{
+        return r.gametype;
+    }));
+
+    const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        r.gametypeName = (gametypeNames[r.gametype] !== undefined) ? gametypeNames[r.gametype] : "Not Found";
+    }
+
+    return result;
 }

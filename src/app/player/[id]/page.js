@@ -1,10 +1,14 @@
 import Nav from "../../UI/Nav";
 import Session from "../../../../api/session";
-import { getNavSettings, getPageOrder, getSettings } from "../../../../api/sitesettings";
+import { getNavSettings, getPageOrder, getSettings, PageComponentManager } from "../../../../api/sitesettings";
 import { headers, cookies } from "next/headers";
 import { getPlayerById } from "../../../../api/player";
-import PlayerGeneral from "../../UI/Player";
+import PlayerGeneral from "../../UI/Player/PlayerGeneral";
 import { getCountryName } from "../../../../api/countries";
+import { getFacesWithFileStatuses } from "../../../../api/faces";
+import ErrorPage from "../../UI/ErrorPage";
+import { getProfileGametypeStats } from "../../../../api/player";
+import PlayerGametypeStats from "../../UI/Player/PlayerGametypeStats";
 
 function setQueryVars(params, searchParams){
 
@@ -38,15 +42,38 @@ export default async function Page({params, searchParams}){
     const pageOrder = await getPageOrder("Player Pages");
     const sessionSettings = session.settings;
 
+    const elems = [];
+    const pageManager = new PageComponentManager(pageSettings, pageOrder, elems);
+
 
     const basic = await getPlayerById(playerId);
-    console.log(basic);
+
+    if(basic === null){
+        return <ErrorPage navSettings={navSettings} sessionSettings={sessionSettings} title="Failed to get player">
+            There are no players with that id.
+        </ErrorPage>
+    }
+
+    const faces = await getFacesWithFileStatuses([basic.face]);
+ 
+    console.log(pageSettings);
+
+    if(pageManager.bEnabled("Display Gametype Stats")){
+
+        const gametypeStats = await getProfileGametypeStats(playerId);
+
+        pageManager.addComponent("Display Gametype Stats", <PlayerGametypeStats key="gametype-stats" data={gametypeStats} />);
+    }
+
+    
+
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
         <div id="content">
             <div className="default">
                 <div className="default-header">Player Profile</div>
-                <PlayerGeneral data={basic} country={getCountryName(basic.country)} face=""/>
+                <PlayerGeneral data={basic} country={getCountryName(basic.country)} face={faces[basic.face].name}/>
+                {elems}
             </div>    
         </div>   
     </main>
