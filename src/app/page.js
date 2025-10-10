@@ -98,8 +98,6 @@ export default async function Page(){
 
             const latestFaces = await getFacesWithFileStatuses(playerFaces);
 
-            console.log(`latestFaces`, latestFaces);
-
             const latestMapName = latestMatch[0].mapName;
             const mapImage = getMapImages([latestMapName]);
 

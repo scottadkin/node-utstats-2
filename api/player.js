@@ -405,16 +405,6 @@ export default class Player{
         return result.insertId;
 
     }
-    
-
-    async getPlayerById(id){
-
-        id = parseInt(id);
-
-        const query = "SELECT * FROM nstats_player_totals WHERE id=?";
-
-        return await simpleQuery(query, [id]);
-    }
 
 
     async getPlayerGametypeWinStats(name){
@@ -947,4 +937,19 @@ export default class Player{
         return result[0].player_name;
 
     }
+}
+
+
+export async function getPlayerById(id){
+
+    id = parseInt(id);
+
+    const query = "SELECT * FROM nstats_player_totals WHERE id=?";
+
+    const result = await simpleQuery(query, [id]);
+
+    if(result.length === 0) return null;
+
+    return result[0];
+
 }

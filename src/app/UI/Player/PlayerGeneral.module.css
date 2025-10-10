@@ -1,0 +1,16 @@
+.fwrapper{
+    display:inline-block;
+}
+
+.face{
+    height:74px;
+    background-color:var(--color-8);
+    display:grid;
+    grid-template-columns: 150px 64px;
+    padding:5px;
+
+}
+
+.text{
+    line-height:64px;
+}
