@@ -1,5 +1,5 @@
 import { simpleQuery, bulkInsert } from "./database.js";
-import { setValueIfUndefined, calculateKillEfficiency, removeIps } from "./generic.mjs";
+import { setValueIfUndefined, calculateKillEfficiency, removeIps, removeUnr } from "./generic.mjs";
 import CountriesManager from "./countriesmanager.js";
 import Assault from "./assault.js";
 import CTF from "./ctf.js";
@@ -968,3 +968,51 @@ export async function getProfileGametypeStats(playerId){
 
     return result;
 }
+
+
+/**
+ * get all frag data for every gametype and map except all time total 0,0
+ */
+export async function getProfileFragStats(playerId){
+
+    const query = `SELECT gametype,map,frags,suicides,team_kills,kills,deaths,efficiency,
+    headshots,spawn_kills,best_spawn_kill_spree,k_distance_normal,k_distance_long,
+    k_distance_uber FROM nstats_player_totals WHERE player_id=?`;
+
+    const result = await simpleQuery(query, [playerId]);
+
+    const mapIds = new Set();
+    const gametypeIds = new Set();
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        gametypeIds.add(r.gametype);
+        mapIds.add(r.map);
+    }
+
+    const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
+    const mapNames = await getObjectName("maps", [...mapIds]);
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        if(r.gametype === 0){
+            r.gametypeName = "All";
+        }else{
+            r.gametypeName = gametypeNames[r.gametype] ?? "Not Found";
+        }
+
+        if(r.map === 0){
+            r.mapName = "All";
+        }else{
+            r.mapName = (mapNames[r.map] !== undefined) ? mapNames[r.map] : "Not Found";
+        }
+
+    }
+
+    return {"data": result, "gametypes": gametypeNames, "maps": mapNames};
+}
+

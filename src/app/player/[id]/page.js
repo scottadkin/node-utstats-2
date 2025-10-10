@@ -7,8 +7,9 @@ import PlayerGeneral from "../../UI/Player/PlayerGeneral";
 import { getCountryName } from "../../../../api/countries";
 import { getFacesWithFileStatuses } from "../../../../api/faces";
 import ErrorPage from "../../UI/ErrorPage";
-import { getProfileGametypeStats } from "../../../../api/player";
+import { getProfileGametypeStats, getProfileFragStats } from "../../../../api/player";
 import PlayerGametypeStats from "../../UI/Player/PlayerGametypeStats";
+import PlayerFragSummary from "../../UI/Player/PlayerFragSummary";
 
 function setQueryVars(params, searchParams){
 
@@ -65,6 +66,11 @@ export default async function Page({params, searchParams}){
         pageManager.addComponent("Display Gametype Stats", <PlayerGametypeStats key="gametype-stats" data={gametypeStats} />);
     }
 
+    if(pageManager.bEnabled("Display Frag Summary")){
+
+        const fragStats = await getProfileFragStats(playerId);
+        pageManager.addComponent("Display Frag Summary", <PlayerFragSummary key="frags" data={fragStats} />);
+    }
     
 
     return <main>

@@ -1,6 +1,7 @@
 //generic function that can only be called serverside mysql stuff basically
 
 import { simpleQuery } from "./database.js";
+import { removeUnr } from "./generic.mjs";
 
 /**
  * 
@@ -35,7 +36,9 @@ export async function getObjectName(type, ids){
 
     for(let i = 0; i < result.length; i++){
 
-        const {id, name} = result[i];
+        let {id, name} = result[i];
+
+        if(type === "maps") name = removeUnr(name);
         data[id] = name;
     }
 
