@@ -38,6 +38,8 @@ import MatchPlayerPingHistory from "../../UI/Match/MatchPlayerPingHistory";
 import CombogibMatchStats from "../../UI/Match/CombogibMatchStats";
 import MatchPowerupSummary from "../../UI/Match/MatchPowerupSummary";
 import { convertTimestamp, plural, toPlaytime } from "../../../../api/generic.mjs";
+import ErrorMessage from "../../UI/ErrorMessage";
+import ErrorPage from "../../UI/ErrorPage";
 
 function setQueryValues(params, searchParams){
 
@@ -62,7 +64,7 @@ export async function generateMetadata({ params, searchParams }, parent) {
 
     const info = await getMatch(matchId);
 
-    if(info === undefined){
+    if(info === null){
         return {
             "title": "Match Not Found - Node UTStats 2",
             "description": "Could not find the match you were looking for,",
@@ -96,6 +98,7 @@ export default async function Page({params, searchParams}){
     if(matchId.length === 32){
         matchId = await getMatchIdFromHash(matchId);
     }
+
     const header = await headers();
 
     const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0];
@@ -117,6 +120,13 @@ export default async function Page({params, searchParams}){
 
    
     const info = await getMatch(matchId);
+
+    if(info === null){
+
+        return <ErrorPage navSettings={navSettings} sessionSettings={sessionSettings} title="Match Doesn't Exist">
+            There are no matches with that id.
+        </ErrorPage>;
+    }
  
 
     const players = await getAllInMatch(matchId);
@@ -207,17 +217,6 @@ export default async function Page({params, searchParams}){
 
     if(pageManager.bEnabled("Display Telefrag Stats")){
         teleFrags = await getMatchTelefrags(matchId);
-    }
-
-    if(info === null){
-        return <main>
-            <Nav settings={navSettings} session={sessionSettings}/>		
-            <div id="content">
-                <div className="default">
-                    <div className="default-header">Match Not Found</div>
-                </div>    
-            </div>   
-        </main>; 
     }
 
 

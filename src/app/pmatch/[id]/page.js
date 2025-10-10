@@ -33,6 +33,7 @@ import PlayerMatchCTFReturns from "../../UI/PMatch/PlayerMatchCTFReturns";
 import PlayerMatchCTFCaps from "../../UI/PMatch/PlayerMatchCTFCaps";
 import { getPlayerMatchData as getCombogibData } from "../../../../api/combogib";
 import CombogibPlayerMatch from "../../UI/PMatch/CombogibPlayerMatch";
+import ErrorPage from "../../UI/ErrorPage";
 
 function setQueryVars(params, searchParams){
 
@@ -41,8 +42,6 @@ function setQueryVars(params, searchParams){
     let playerId = (searchParams.player !== undefined) ? parseInt(searchParams.player) : 0;
     if(playerId !== playerId) playerId = 0;
     
-
-
     return {matchId, playerId};
 }
 
@@ -59,7 +58,7 @@ export async function generateMetadata({ params, searchParams }, parent) {
 
     const info = await getMatch(matchId);
 
-    if(info === undefined){
+    if(info === null){
         return {
             "title": "Match Not Found - Node UTStats 2",
             "description": "Could not find the match you were looking for.",
@@ -97,20 +96,15 @@ export default async function Page({params, searchParams}){
     params = await params;
     searchParams = await searchParams;
 
-    console.log(params);
-    console.log(searchParams);
-
     let {playerId, matchId} = setQueryVars(params, searchParams);
 
     if(matchId.length === 32){
         matchId = await getMatchIdFromHash(matchId);
     }
 
-    console.log(playerId, matchId);
     const cookieStore = await cookies();
     const header = await headers();
     const cookiesData = cookieStore.getAll();
-
 
     const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0]
     
@@ -127,12 +121,25 @@ export default async function Page({params, searchParams}){
 
     const pageManager = new PageComponentManager(pageSettings, pageOrder, elems);
 
+    const matchInfo = await getMatch(matchId);
+
+    if(matchInfo === null){
+        return <ErrorPage title="Failed to load match" sessionSettings={sessionSettings} navSettings={navSettings}>
+            There are no matches with that id.
+        </ErrorPage>
+    }
+
+    const players = await getAllInMatch(matchId);
+
     const playersInfo = await getBasicPlayersByIds([playerId]);
 
-    const basicInfo = playersInfo[playerId];
+    if(playersInfo[playerId] === undefined){
+        return <ErrorPage title="Failed to load match" sessionSettings={sessionSettings} navSettings={navSettings}>
+            There are no players with that id in that match.
+        </ErrorPage>
+    }
 
-    const matchInfo = await getMatch(matchId);
-    const players = await getAllInMatch(matchId);
+    const basicInfo = playersInfo[playerId];
 
     const targetPlayer = getPlayerFromMatchData(players, playerId, true);
 
