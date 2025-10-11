@@ -10,6 +10,8 @@ import ErrorPage from "../../UI/ErrorPage";
 import { getProfileGametypeStats, getProfileFragStats } from "../../../../api/player";
 import PlayerGametypeStats from "../../UI/Player/PlayerGametypeStats";
 import PlayerFragSummary from "../../UI/Player/PlayerFragSummary";
+import { getAllRankings } from "../../../../api/player";
+import PlayerRankings from "../../UI/Player/PlayerRankings";
 
 function setQueryVars(params, searchParams){
 
@@ -70,6 +72,12 @@ export default async function Page({params, searchParams}){
 
         const fragStats = await getProfileFragStats(playerId);
         pageManager.addComponent("Display Frag Summary", <PlayerFragSummary key="frags" data={fragStats} />);
+    }
+
+    if(pageManager.bEnabled("Display Rankings")){
+
+        const rankingData = await getAllRankings(playerId);
+        pageManager.addComponent("Display Rankings", <PlayerRankings key="rankings" data={rankingData}/>);
     }
     
 

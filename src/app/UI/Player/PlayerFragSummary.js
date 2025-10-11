@@ -126,10 +126,7 @@ function renderCustom(mode, selectedGametype, selectedMap, setSelectedGametype, 
 
     for(let i = 0; i < data.length; i++){
 
-        console.log(selectedGametype, selectedMap);
-
         const d = data[i];
-       // if(d.gametype !== 9999999/*selectedGametype && d.map !== selectedMap*/) continue;
         if(selectedGametype === 0 && selectedMap === 0) break;
         if(selectedGametype !== 0 && d.gametype !== selectedGametype) continue;
         if(selectedMap !== 0 && d.map !== selectedMap) continue;
@@ -194,7 +191,7 @@ function sortByName(a, b){
 
 export default function PlayerFragSummary({data}){
 
-    const [mode, setMode] = useState(3);
+    const [mode, setMode] = useState(0);
     const [selectedGametype, setSelectedGametype] = useState(0);
     const [selectedMap, setSelectedMap] = useState(0);
 
@@ -211,9 +208,6 @@ export default function PlayerFragSummary({data}){
 
     gametypeNames.sort(sortByName);
     mapNames.sort(sortByName);
-
-    console.log(data);
-    console.log(gametypeNames);
 
     const tabOptions = [
         {"name": "Combined Totals", "value": 0},

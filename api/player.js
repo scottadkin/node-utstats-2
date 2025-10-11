@@ -18,6 +18,7 @@ import MonsterHunt from "./monsterhunt.js";
 import SiteSettings from "./sitesettings.js";
 import Combogib from "./combogib.js";
 import { getObjectName } from "./genericServerSide.mjs";
+import { getGametypePosition } from "./rankings.js";
 
 export default class Player{
 
@@ -1016,3 +1017,26 @@ export async function getProfileFragStats(playerId){
     return {"data": result, "gametypes": gametypeNames, "maps": mapNames};
 }
 
+
+export async function getAllRankings(playerId){
+
+    const query = `SELECT gametype,matches,playtime,ranking,ranking_change,last_active
+    FROM nstats_ranking_player_current WHERE player_id=?`;
+
+    const result = await simpleQuery(query, [playerId]);
+
+    const gametypeIds = [...new Set(result.map((r) =>{
+        return r.gametype;
+    }))];
+
+    const gametypeNames = await getObjectName("gametypes", gametypeIds);
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        r.gametypeName = gametypeNames[r.gametype] ?? "Not Found";
+        r.position = await getGametypePosition(r.ranking, r.gametype);
+    }
+    
+    return result;
+}

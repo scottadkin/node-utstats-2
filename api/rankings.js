@@ -792,7 +792,7 @@ async function getCurrentPlayersRanking(players, gametype){
     return await simpleQuery(query, [players, gametype]);
 }
 
-async function getGametypePosition(rankingValue, gametypeId){
+export async function getGametypePosition(rankingValue, gametypeId){
 
     const query = "SELECT COUNT(*) as total_values FROM nstats_ranking_player_current WHERE gametype=? AND ranking>? ORDER BY ranking DESC";
 
