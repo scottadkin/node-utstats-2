@@ -1037,6 +1037,49 @@ export async function getAllRankings(playerId){
         r.gametypeName = gametypeNames[r.gametype] ?? "Not Found";
         r.position = await getGametypePosition(r.ranking, r.gametype);
     }
-    
+
+    return result;
+}
+
+
+export async function getSpecialEvents(playerId){
+
+    const query = `SELECT gametype,map,matches,playtime,spree_1,spree_2,spree_3,spree_4,spree_5,spree_6,spree_7,spree_best,
+    multi_1,multi_2,multi_3,multi_4,multi_5,multi_6,multi_7,multi_best
+    FROM nstats_player_totals WHERE (player_id=? || id=?)`;
+
+    const result = await simpleQuery(query, [playerId, playerId]);
+
+    const gametypeIds = new Set();
+    const mapIds = new Set();
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        if(r.gametype !== 0) gametypeIds.add(r.gametype);
+        if(r.map !== 0) mapIds.add(r.map);
+    }
+
+    const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
+    const mapNames = await getObjectName("maps", [...mapIds]);
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        if(r.gametype !== 0){
+            r.gametypeName = gametypeNames[r.gametype] ?? "Not Found";
+        }else{
+            r.gametypeName = "All";
+        }
+
+        if(r.map !== 0){
+            r.mapName = mapNames[r.map] ?? "Not Found";
+        }else{
+            r.mapName = "All";
+        }
+    }
+
     return result;
 }

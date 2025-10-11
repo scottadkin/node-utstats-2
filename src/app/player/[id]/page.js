@@ -10,8 +10,9 @@ import ErrorPage from "../../UI/ErrorPage";
 import { getProfileGametypeStats, getProfileFragStats } from "../../../../api/player";
 import PlayerGametypeStats from "../../UI/Player/PlayerGametypeStats";
 import PlayerFragSummary from "../../UI/Player/PlayerFragSummary";
-import { getAllRankings } from "../../../../api/player";
+import { getAllRankings, getSpecialEvents } from "../../../../api/player";
 import PlayerRankings from "../../UI/Player/PlayerRankings";
+import PlayerSpecialEvents from "../../UI/Player/PlayerSpecialEvents";
 
 function setQueryVars(params, searchParams){
 
@@ -80,6 +81,11 @@ export default async function Page({params, searchParams}){
         pageManager.addComponent("Display Rankings", <PlayerRankings key="rankings" data={rankingData}/>);
     }
     
+    if(pageManager.bEnabled("Display Special Events")){
+
+        const specalEvents = await getSpecialEvents(playerId);
+        pageManager.addComponent("Display Special Events", <PlayerSpecialEvents key="special-events" data={specalEvents}/>);
+    }
 
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		

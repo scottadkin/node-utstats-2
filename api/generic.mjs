@@ -866,3 +866,245 @@ export function getSmartCTFReturnString(string){
 
     return string;
 }
+
+
+export function getMultiTitles(type){
+
+    type = type.toLowerCase();
+
+    if(type === "ut99"){
+
+        return [
+            "Double Kill",
+            "Multi Kill",
+            "Ultra Kill",
+            "Monster Kill",
+            "Best Multi"
+        ];
+    }
+
+    if(type === "smartctf"){
+
+        return [
+            "Double Kill",
+            "Triple Kill",
+            "Multi Kill",
+            "Mega Kill",
+            "Ultra Kill",
+            "Monster Kill",
+            "Best Multi"
+        ];
+    }
+
+    if(type === "ut2k4"){
+
+        return [
+            "Double Kill",
+            "Multi Kill",
+            "Mega Kill",
+            "Ultra Kill",
+            "Monster Kill",
+            "Ludicrious Kill",
+            "Holy Shit",
+            "Best Multi"
+        ];
+    }
+
+    if(type === "ut3"){
+
+        return [
+            "Double Kill",
+            "Multi Kill",
+            "Mega Kill",
+            "Ultra Kill",
+            "Monster Kill",
+            "Best Multi"
+        ];
+    }
+
+    return null;
+}
+
+
+/**
+ * convert player total data multis to ut99,ut2k4 ect
+ */
+export function convertMultis(type, data){
+
+    type = type.toLowerCase();
+
+    if(type === "ut99"){
+
+        return [
+            data.multi_1,
+            data.multi_2,
+            data.multi_3,
+            data.multi_4 + data.multi_5 + data.multi_6 + data.multi_7,
+            data.multi_best
+        ];
+    }
+
+    if(type === "smartctf"){
+
+        return [
+            data.multi_1,
+            data.multi_2,
+            data.multi_3,
+            data.multi_4,
+            data.multi_5,
+            data.multi_6 + data.multi_7,
+            data.multi_best
+        ];
+    }
+
+    if(type === "ut2k4"){
+
+        return [
+            data.multi_1,
+            data.multi_2,
+            data.multi_3,
+            data.multi_4,
+            data.multi_5,
+            data.multi_6,
+            data.multi_7,
+            data.multi_best
+        ];
+    }
+
+    if(type === "ut3"){
+
+        return [
+            data.multi_1,
+            data.multi_2,
+            data.multi_3,
+            data.multi_4,
+            data.multi_5 +data.multi_6 + data.multi_7,
+            data.multi_best
+        ];
+    }
+
+    return null;
+}
+
+
+export function getSpreeTitles(type){
+
+    type = type.toLowerCase();
+
+    if(type === "ut99"){
+
+        return [
+            "Killing Spree",
+            "Rampage",
+            "Dominating",
+            "Unstoppable",
+            "Godlike",
+            "Best Spree"
+        ];
+    }
+
+    if(type === "smartctf"){
+
+        return [
+             "Killing Spree",
+            "Rampage",
+            "Dominating",
+            "Unstoppable",
+            "Godlike",
+            "Too Easy",
+            "Brutalizing",
+            "Best Spree"
+        ];
+    }
+
+    if(type === "ut2k4"){
+
+        return [
+            "Killing Spree",
+            "Rampage",
+            "Dominating",
+            "Unstoppable",
+            "Godlike",
+            "Whicked Sick",
+            "Best Spree"
+        ];
+    }
+
+    if(type === "ut3"){
+
+        return [
+            "Killing Spree",
+            "Rampage",
+            "Dominating",
+            "Unstoppable",
+            "Godlike",
+            "Massacre",
+            "Best Spree"
+        ];
+    }
+
+    return null;
+}
+
+
+/**
+ * convert player total data multis to ut99,ut2k4 ect
+ */
+export function convertSprees(type, data){
+
+    type = type.toLowerCase();
+
+    if(type === "ut99"){
+
+        return [
+            data.spree_1,
+            data.spree_2,
+            data.spree_3,
+            data.spree_4,
+            data.spree_5 + data.spree_6 + data.spree_7,
+            data.spree_best
+        ];
+    }
+
+    if(type === "smartctf"){
+
+        return [
+            data.spree_1,
+            data.spree_2,
+            data.spree_3,
+            data.spree_4,
+            data.spree_5,
+            data.spree_6,
+            data.spree_7,
+            data.spree_best
+        ];
+    }
+
+    if(type === "ut2k4"){
+
+        return [
+            data.spree_1,
+            data.spree_2,
+            data.spree_3,
+            data.spree_4,
+            data.spree_5,
+            data.spree_6 + data.spree_7,
+            data.spree_best
+        ];
+    }
+
+    if(type === "ut3"){
+
+         return [
+            data.spree_1,
+            data.spree_2,
+            data.spree_3,
+            data.spree_4,
+            data.spree_5,
+            data.spree_6 + data.spree_7,
+            data.spree_best
+        ];
+    }
+
+    return null;
+}
