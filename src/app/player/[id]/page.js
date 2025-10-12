@@ -13,6 +13,8 @@ import PlayerFragSummary from "../../UI/Player/PlayerFragSummary";
 import { getAllRankings, getSpecialEvents } from "../../../../api/player";
 import PlayerRankings from "../../UI/Player/PlayerRankings";
 import PlayerSpecialEvents from "../../UI/Player/PlayerSpecialEvents";
+import { getPlayerProfileData } from "../../../../api/ctf";
+import PlayerCTFSummary from "../../UI/Player/PlayerCTFSummary";
 
 function setQueryVars(params, searchParams){
 
@@ -85,6 +87,11 @@ export default async function Page({params, searchParams}){
 
         const specalEvents = await getSpecialEvents(playerId);
         pageManager.addComponent("Display Special Events", <PlayerSpecialEvents key="special-events" data={specalEvents}/>);
+    }
+
+    if(pageManager.bEnabled("Display Capture The Flag Summary")){
+        const ctfData = await getPlayerProfileData(playerId);
+        pageManager.addComponent("Display Capture The Flag Summary", <PlayerCTFSummary key="ctf-sum" ctfData={ctfData}/>);
     }
 
     return <main>

@@ -1304,25 +1304,6 @@ export default class CTF{
     }
 
 
-    async getPlayerTotals(playerId){
-
-        const query = `SELECT * FROM nstats_player_ctf_totals WHERE player_id=? ORDER BY playtime DESC`;
-        return await simpleQuery(query, [playerId]);
-    }
-
-    async getPlayerBestValues(playerId){
-
-        const query = `SELECT * FROM nstats_player_ctf_best WHERE player_id=?`;
-        return await simpleQuery(query, [playerId]);
-    }
-
-    async getPlayerBestSingleLifeValues(playerId){
-
-        const query = `SELECT * FROM nstats_player_ctf_best_life WHERE player_id=?`;
-        return await simpleQuery(query, [playerId]);
-    }
-
-
     async bMapHaveRecord(mapId, gametypeId, capType){
 
         const query = `SELECT COUNT(*) as total_records FROM nstats_ctf_cap_records WHERE map_id=? AND gametype_id=? AND cap_type=?`;
@@ -3797,4 +3778,68 @@ export async function getPlayerMatchCaps(matchId, playerId){
     }
 
     return caps;
+}
+
+async function getPlayerTotals(playerId){
+
+    const query = `SELECT * FROM nstats_player_ctf_totals WHERE player_id=? ORDER BY playtime DESC`;
+    return await simpleQuery(query, [playerId]);
+}
+
+async function getPlayerBestValues(playerId){
+
+    const query = `SELECT * FROM nstats_player_ctf_best WHERE player_id=?`;
+    return await simpleQuery(query, [playerId]);
+}
+
+async function getPlayerBestSingleLifeValues(playerId){
+
+    const query = `SELECT * FROM nstats_player_ctf_best_life WHERE player_id=?`;
+    return await simpleQuery(query, [playerId]);
+}
+
+
+function setProfileNames(data, gametypeNames, mapNames){
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+        d.gametypeName = (gametypeNames[d.gametype_id] !== undefined) ? gametypeNames[d.gametype_id] : "Not Found";
+        d.mapName = (mapNames[d.map_id] !== undefined) ? mapNames[d.map_id] : "Not Found";
+    }
+}
+
+export async function getPlayerProfileData(playerId){
+
+    const gametypeIds = new Set();
+    const mapIds = new Set();
+
+    const totals = await getPlayerTotals(playerId);
+    const best = await getPlayerBestValues(playerId);
+    const bestLife = await getPlayerBestSingleLifeValues(playerId);
+
+    for(let i = 0; i < totals.length; i++){
+        gametypeIds.add(totals[i].gametype_id);
+        mapIds.add(totals[i].map_id);
+    }
+
+    for(let i = 0; i < best.length; i++){
+        gametypeIds.add(best[i].gametype_id);
+        mapIds.add(best[i].map_id);
+    }
+
+    for(let i = 0; i < bestLife.length; i++){
+        gametypeIds.add(bestLife[i].gametype_id);
+        mapIds.add(bestLife[i].map_id);
+    }
+
+    const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
+    const mapNames = await getObjectName("maps", [...mapIds]);
+
+    setProfileNames(totals, gametypeNames, mapNames);
+    setProfileNames(best, gametypeNames, mapNames);
+    setProfileNames(bestLife, gametypeNames, mapNames);
+  
+
+    return {"totals": totals, "best": best, "bestLife": bestLife};
 }
