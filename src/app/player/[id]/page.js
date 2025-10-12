@@ -13,8 +13,9 @@ import PlayerFragSummary from "../../UI/Player/PlayerFragSummary";
 import { getAllRankings, getSpecialEvents } from "../../../../api/player";
 import PlayerRankings from "../../UI/Player/PlayerRankings";
 import PlayerSpecialEvents from "../../UI/Player/PlayerSpecialEvents";
-import { getPlayerProfileData } from "../../../../api/ctf";
+import { getPlayerProfileData, getPlayerSoloCapRecords } from "../../../../api/ctf";
 import PlayerCTFSummary from "../../UI/Player/PlayerCTFSummary";
+import PlayerCTFCapRecords from "../../UI/Player/PlayerCTFCapRecords";
 
 function setQueryVars(params, searchParams){
 
@@ -93,6 +94,14 @@ export default async function Page({params, searchParams}){
         const ctfData = await getPlayerProfileData(playerId);
         pageManager.addComponent("Display Capture The Flag Summary", <PlayerCTFSummary key="ctf-sum" ctfData={ctfData}/>);
     }
+
+
+    if(pageManager.bEnabled("Display Capture The Flag Cap Records")){
+
+        const caps = await getPlayerSoloCapRecords(playerId);
+        pageManager.addComponent("Display Capture The Flag Cap Records", <PlayerCTFCapRecords key="ctf-cap-records" data={caps}/>);
+    }
+    
 
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		

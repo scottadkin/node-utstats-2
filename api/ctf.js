@@ -3843,3 +3843,49 @@ export async function getPlayerProfileData(playerId){
 
     return {"totals": totals, "best": best, "bestLife": bestLife};
 }
+
+
+async function getUniqueRecordCapIds(){
+
+    const query = `SELECT DISTINCT cap_id FROM nstats_ctf_cap_records`;
+
+    const result = await simpleQuery(query);
+    
+    return result.map((r) =>{
+        return r.cap_id;
+    })
+}
+
+export async function getPlayerSoloCapRecords(playerId){
+
+    const capIds = await getUniqueRecordCapIds();
+
+    if(capIds.length === 0) return null;
+
+    const query = `SELECT gametype_id,map_id,travel_time FROM nstats_ctf_caps 
+    WHERE id IN(?) AND cap_player=? AND total_drops=0 ORDER BY travel_time ASC`;
+    const result = await simpleQuery(query, [capIds, playerId, playerId]);
+
+
+    const gametypeIds = new Set();
+    const mapIds = new Set();
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        gametypeIds.add(r.gametype_id);
+        mapIds.add(r.map_id);
+    }
+
+    const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
+    const mapNames = await getObjectName("maps", [...mapIds]);
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        r.gametypeName = gametypeNames[r.gametype_id] ?? "Not Found";
+        r.mapName = mapNames[r.map_id] ?? "Not Found";
+    }
+
+    return result;
+}
