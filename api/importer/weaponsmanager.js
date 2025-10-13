@@ -49,44 +49,6 @@ export default class WeaponsManager{
         }
     }
 
-    updatePlayerCurrentStats(stats, value, playtime){
-
-        if(stats === undefined){
-            new Message(`WeaponsManager.update() stats is undefined`,"error");
-            process.exit();
-        }
-
-
-        stats.playtime += playtime;
-        stats.kills += value.kills;
-        stats.team_kills += value.teamKills;
-        stats.deaths += value.deaths;
-        stats.suicides += value.suicides;
-        stats.shots += value.shots;
-        stats.hits += value.hits;
-
-        stats.efficiency = 0;
-
-        if(stats.kills > 0){
-
-            if(stats.deaths === 0){
-                stats.efficiency = 100;
-            }else{
-                stats.efficiency = (stats.kills / (stats.kills + stats.deaths)) * 100
-            }
-        }
-
-        stats.accuracy = 0;
-
-        if(stats.hits > 0 && stats.shots > 0){
-
-            stats.accuracy = (stats.hits / stats.shots) * 100;
-        }
-
-        stats.damage += Math.abs(value.damage);
-        stats.matches += 1;
-    }
-
 
     async update(playerManager){
 
@@ -95,6 +57,8 @@ export default class WeaponsManager{
         const weaponIds = Object.values(namesToIds);
 
         const playerMatchInsertVars = [];
+
+        const currentTotals = {};
 
         const playerIds = new Set();
 
@@ -118,13 +82,35 @@ export default class WeaponsManager{
                         value.teamKills, value.bestTeamKills,
                         value.accuracy, value.shots, value.hits, Math.abs(value.damage), value.efficiency
                     ]);
-                    
+
+                    if(currentTotals[currentWeaponId] === undefined){
+
+                        currentTotals[currentWeaponId] = {
+                            "kills": 0,
+                            "deaths": 0,
+                            "shots": 0,
+                            "hits": 0,
+                            "damage": 0,
+                            "teamKills": 0,
+                            "suicides": 0,
+                        };
+                    }
+
+                    const t = currentTotals[currentWeaponId];
+
+                    t.kills += value.kills;
+                    t.deaths += value.deaths;
+                    t.shots += value.shots;
+                    t.hits += value.hits;
+                    t.damage += Math.abs(value.damage);
+                    t.teamKills += value.teamKills;
+                    t.suicides += value.suicides;
+
                 }else{
                     new Message(`currentWeaponId is null for ${key}`,'warning');
                 }
             }
         }
-
 
 
         await bulkInsertPlayerMatchStats(playerMatchInsertVars);
@@ -155,101 +141,12 @@ export default class WeaponsManager{
         await bulkInsertPlayerBest(allTimeBest, 0, 0);
         await bulkInsertPlayerBest(gametypeBest, this.gametypeId, 0);
         await bulkInsertPlayerBest(mapBest, 0, this.mapId);
+
+
+        for(const [key, value] of Object.entries(currentTotals)){
+
+            await this.weapons.update(key, value.kills, value.deaths, value.shots, value.hits, value.damage);
+        }
     }
 
-    /*async update(playerManager){
-
-        try{
-
-            const playerMatchInsertVars = [];
-
-            await this.weapons.getIdsByName(this.names);
-
-            const weaponIds = this.weapons.weaponNames.map((w) =>{
-                return w.id;
-            });
-
-            const playerIds = playerManager.players.map((p) =>{
-                return p.masterId;
-            });
-      
-            const missingPlayerTotalData = await this.weapons.getMissingPlayerWeaponTotals(0, 0, weaponIds, playerIds);
-            await this.weapons.createMissingPlayerTotalData(missingPlayerTotalData, 0, 0);
-            const currentTotals = await this.weapons.getCurrentPlayerTotals(0,0, playerIds, weaponIds);
-
-            for(let i = 0; i < playerManager.players.length; i++){
-
-                const p = playerManager.players[i];
-        
-                const playtime = p.getTotalPlaytime(playerManager.totalTeams);
-
-                for(const [key, value] of p.weaponStats.entries()){
-   
-                    const currentWeaponId = this.weapons.getSavedWeaponByName(key);
-                    
-                    if(currentWeaponId !== null){      
-
-
-                        playerMatchInsertVars.push([
-                            this.matchId, this.mapId, this.gametypeId, p.masterId, 
-                            currentWeaponId, value.kills, value.bestKills, value.deaths, value.suicides,
-                            value.teamKills, value.bestTeamKills,
-                            value.accuracy, value.shots, value.hits, Math.abs(value.damage), value.efficiency
-                        ]);
-
-
-                        this.updatePlayerCurrentStats(currentTotals[currentWeaponId][p.masterId], value, playtime);
-                      //  this.updatePlayerCurrentStats(currentGametypeTotals[currentWeaponId][p.masterId], value, playtime);
-                     //   this.updatePlayerCurrentStats(currentMapTotals[currentWeaponId][p.masterId], value, playtime);
-
-                        //console.log(i);
-                        await this.weapons.updatePlayerBest(p.masterId, this.mapId, this.gametypeId, currentWeaponId, value);
-                     
-
-                        if(this.currentWeapons.has(currentWeaponId)){
-
-                            const currentWeapon = this.currentWeapons.get(currentWeaponId);
-    
-                            currentWeapon.kills += value.kills;
-                            currentWeapon.deaths += value.deaths;
-                            currentWeapon.shots += value.shots;
-                            currentWeapon.hits += value.hits;
-                            currentWeapon.damage += Math.abs(value.damage);
-                            currentWeapon.teamKills += value.teamKills;
-                            currentWeapon.suicides += value.suicides;
-
-                            this.currentWeapons.set(currentWeaponId, currentWeapon);
-    
-                        }else{
-                            this.currentWeapons.set(currentWeaponId, value);
-                        }
-                    
-
-                    }else{
-                        new Message(`currentWeaponId is null for ${key}`,'warning');
-                    }
-                }
-            }
-
-
-            await this.weapons.deleteOldTotalData(0, 0, playerIds, weaponIds);
-           // await this.weapons.deleteOldTotalData(0, this.mapId, playerIds, weaponIds);
-          //  await this.weapons.deleteOldTotalData(this.gametypeId, 0, playerIds, weaponIds);
-
-            await this.weapons.insertNewPlayerTotalStats(currentTotals);
-          //  await this.weapons.insertNewPlayerTotalStats(currentGametypeTotals);
-         //   await this.weapons.insertNewPlayerTotalStats(currentMapTotals);
-
-            await this.weapons.bulkInsertPlayerMatchStats(playerMatchInsertVars);
-            
-            for(const [key, value] of this.currentWeapons){
-
-                await this.weapons.update(key, value.kills, value.deaths, value.shots, value.hits, value.damage);
-            }
-
-        }catch(err){
-            console.trace(err);
-            new Message(`weaponsmanager update ${err}`,'error');
-        }
-    }*/
 }
