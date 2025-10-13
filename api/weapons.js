@@ -1850,7 +1850,8 @@ export async function bulkInsertPlayerTotals(data, gametypeId, mapId){
             if(other === 0){
                 eff = 100;
             }else{
-                eff = d.kills / (d.kills + other) * 100;
+            
+                eff = (d.kills / (d.kills + other)) * 100;
             }
         }
 
@@ -1909,15 +1910,15 @@ export async function calculatePlayerTotalsFromMatchRows(playerIds, type, target
 
 
     const query = `SELECT weapon_id,player_id,COUNT(*) as total_matches,
-    SUM(kills) as kills,
-    MAX(best_kills) as best_kills,
-    SUM(deaths) as deaths,
-    SUM(suicides) as suicides,
-    SUM(team_kills) as team_kills,
-    MAX(best_team_kills) as best_team_kills,
-    SUM(shots) as shots,
-    SUM(hits) as hits,
-    SUM(damage) as damage 
+    CAST(SUM(kills) AS UNSIGNED) as kills,
+    CAST(MAX(best_kills) AS UNSIGNED) as best_kills,
+    CAST(SUM(deaths) AS UNSIGNED) as deaths,
+    CAST(SUM(suicides) AS UNSIGNED) as suicides,
+    CAST(SUM(team_kills) AS UNSIGNED) as team_kills,
+    CAST(MAX(best_team_kills) AS UNSIGNED) as best_team_kills,
+    CAST(SUM(shots) AS UNSIGNED) as shots,
+    CAST(SUM(hits) AS UNSIGNED) as hits,
+    CAST(SUM(damage) AS UNSIGNED) as damage 
     FROM nstats_player_weapon_match WHERE player_id IN(?) ${where} GROUP BY player_id,weapon_id`;
 
     const result = await simpleQuery(query, vars);
