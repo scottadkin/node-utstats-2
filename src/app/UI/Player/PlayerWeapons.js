@@ -100,6 +100,7 @@ export default function PlayerWeapons({defaultDisplayMode, totals, best}){
 
 
     //console.log(totals);
+    console.log("best");
     console.log(best);
     const [selectedWeapon, setSelectedWeapon] = useState(0);
 

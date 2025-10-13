@@ -1,6 +1,8 @@
 import Weapons, { getWeaponIdsByNames, bulkInsertPlayerMatchStats, 
     calculatePlayerTotalsFromMatchRows, deletePlayerAllTimeTotals, 
-    bulkInsertPlayerTotals, deletePlayerTypeTotals } from "../weapons.js";
+    bulkInsertPlayerTotals, deletePlayerTypeTotals, calculatePlayersBest,
+    bulkDeletePlayersBest, bulkInsertPlayerBest
+} from "../weapons.js";
 import Message from "../message.js";
 
 export default class WeaponsManager{
@@ -89,10 +91,8 @@ export default class WeaponsManager{
     async update(playerManager){
 
         const namesToIds = await getWeaponIdsByNames(this.names);
-        console.log(namesToIds);
 
         const weaponIds = Object.values(namesToIds);
-        console.log(weaponIds);
 
         const playerMatchInsertVars = [];
 
@@ -118,15 +118,14 @@ export default class WeaponsManager{
                         value.teamKills, value.bestTeamKills,
                         value.accuracy, value.shots, value.hits, Math.abs(value.damage), value.efficiency
                     ]);
-
-                    //await this.weapons.updatePlayerBest(p.masterId, this.mapId, this.gametypeId, currentWeaponId, value);
-                
-
+                    
                 }else{
                     new Message(`currentWeaponId is null for ${key}`,'warning');
                 }
             }
         }
+
+
 
         await bulkInsertPlayerMatchStats(playerMatchInsertVars);
 
@@ -144,6 +143,18 @@ export default class WeaponsManager{
         await bulkInsertPlayerTotals(gametypeTotals, this.gametypeId, 0);
         await bulkInsertPlayerTotals(mapTotals, 0, this.mapId);
 
+        const allTimeBest = await calculatePlayersBest([...playerIds], "all");
+        const gametypeBest = await calculatePlayersBest([...playerIds], "gametypes", this.gametypeId);
+        const mapBest = await calculatePlayersBest([...playerIds], "maps", this.mapId);
+
+        await bulkDeletePlayersBest([...playerIds], weaponIds, "all");
+        await bulkDeletePlayersBest([...playerIds], weaponIds, "gametypes", this.gametypeId);
+        await bulkDeletePlayersBest([...playerIds], weaponIds, "maps", this.mapId);
+
+
+        await bulkInsertPlayerBest(allTimeBest, 0, 0);
+        await bulkInsertPlayerBest(gametypeBest, this.gametypeId, 0);
+        await bulkInsertPlayerBest(mapBest, 0, this.mapId);
     }
 
     /*async update(playerManager){

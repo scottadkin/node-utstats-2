@@ -1909,18 +1909,116 @@ export async function calculatePlayerTotalsFromMatchRows(playerIds, type, target
 
 
     const query = `SELECT weapon_id,player_id,COUNT(*) as total_matches,
-    CAST(SUM(kills) AS UNSIGNED) as kills,
-    CAST(MAX(best_kills) AS UNSIGNED) as best_kills,
-    CAST(SUM(deaths) AS UNSIGNED) as deaths,
-    CAST(SUM(suicides) AS UNSIGNED) as suicides,
-    CAST(SUM(team_kills) AS UNSIGNED) as team_kills,
+    SUM(kills) as kills,
+    MAX(best_kills) as best_kills,
+    SUM(deaths) as deaths,
+    SUM(suicides) as suicides,
+    SUM(team_kills) as team_kills,
     MAX(best_team_kills) as best_team_kills,
-    CAST(SUM(shots) AS UNSIGNED) as shots,
-    CAST(SUM(hits) AS UNSIGNED) as hits,
-    CAST(SUM(damage) AS UNSIGNED) as damage 
+    SUM(shots) as shots,
+    SUM(hits) as hits,
+    SUM(damage) as damage 
     FROM nstats_player_weapon_match WHERE player_id IN(?) ${where} GROUP BY player_id,weapon_id`;
 
     const result = await simpleQuery(query, vars);
 
     return result;
+}
+
+
+export async function bulkDeletePlayersBest(playerIds, weaponIds, type, targetId){
+
+    if(playerIds.length === 0 || weaponIds.length === 0) return;
+
+    type = type.toLowerCase();
+
+    const validTypes = ["all", "gametypes", "maps"];
+
+    const index = validTypes.indexOf(type);
+
+    if(index === -1) throw new Error(`Not a valid type for weapons.bulkDeletePlayersBest`);
+
+    let where = ``;
+
+    if(index === 1) where = `,gametype_id`;
+    if(index === 2) where = `,map_id`;
+
+    const query = `DELETE FROM nstats_player_weapon_best WHERE (player_id,weapon_id${where}) IN (?)`;
+    
+    const vars = [];
+
+    for(let i = 0; i < playerIds.length; i++){
+
+        const pId = playerIds[i];
+
+        for(let x = 0; x < weaponIds.length; x++){
+
+            const wId = weaponIds[x];
+
+            const current = [pId, wId];
+
+            if(where !== "") current.push(targetId);
+
+            vars.push(current);
+        }
+    }
+
+    return await simpleQuery(query, [vars]);
+}
+
+
+export async function calculatePlayersBest(playerIds, type, targetId){
+
+    if(playerIds.length === 0) return [];
+
+    type = type.toLowerCase();
+
+    const validTypes = ["all", "gametypes", "maps"];
+
+    const index = validTypes.indexOf(type);
+
+    if(index === -1) throw new Error(`Not a valid type for weapons.calculatePlayersBest`);
+
+    let where = ``;
+    let vars = [playerIds];
+
+    if(index === 1){
+        where = `AND gametype_id=?`;
+    }else if(index === 2){
+        where = `AND map_id=?`;
+    }
+
+    if(index > 0) vars.push(targetId);
+
+    const query = `SELECT player_id,weapon_id,MAX(kills) as kills, MAX(best_kills) as best_kills,
+    MAX(deaths) as deaths,MAX(suicides) as suicides, MAX(team_kills) as team_kills, 
+    MAX(best_team_kills) as best_team_kills, MAX(efficiency) as efficiency,
+    MAX(accuracy) as accuracy,MAX(shots) as shots, MAX(hits) as hits, MAX(damage) as damage
+    FROM nstats_player_weapon_match WHERE player_id IN(?) ${where} GROUP BY player_id,weapon_id`;
+
+    return await simpleQuery(query, vars);
+    
+}
+
+
+export async function bulkInsertPlayerBest(data, gametypeId, mapId){
+
+    const query = `INSERT INTO nstats_player_weapon_best (player_id,map_id,gametype_id,weapon_id,
+    kills,kills_best_life,team_kills,team_kills_best_life,deaths,suicides,efficiency,accuracy
+    ,shots,hits,damage) VALUES ?`;
+//15
+    const vars = [];
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        vars.push([
+            d.player_id, mapId, gametypeId, d.weapon_id,
+            d.kills, d.best_kills, d.team_kills, d.best_team_kills,
+            d.deaths,d.suicides,d.efficiency,d.accuracy,d.shots,d.hits,d.damage
+        ]);
+    }
+
+    await bulkInsert(query, vars);
 }
