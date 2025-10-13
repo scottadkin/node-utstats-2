@@ -16,6 +16,7 @@ import PlayerSpecialEvents from "../../UI/Player/PlayerSpecialEvents";
 import { getPlayerProfileData, getPlayerSoloCapRecords } from "../../../../api/ctf";
 import PlayerCTFSummary from "../../UI/Player/PlayerCTFSummary";
 import PlayerCTFCapRecords from "../../UI/Player/PlayerCTFCapRecords";
+import PlayerADSummary from "../../UI/Player/PlayerADSummary";
 
 function setQueryVars(params, searchParams){
 
@@ -101,6 +102,9 @@ export default async function Page({params, searchParams}){
         const caps = await getPlayerSoloCapRecords(playerId);
         pageManager.addComponent("Display Capture The Flag Cap Records", <PlayerCTFCapRecords key="ctf-cap-records" data={caps}/>);
     }
+
+    pageManager.addComponent("Display Assault & Domination", <PlayerADSummary key="ad-sum" data={basic}/>);
+  
     
 
     return <main>

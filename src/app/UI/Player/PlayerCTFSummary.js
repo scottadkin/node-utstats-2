@@ -308,7 +308,7 @@ function getTabs(){
 
 export default function PlayerCTFSummary({ctfData}){
 
-    const [selectedMode, setSelectedMode] = useState(2);
+    const [selectedMode, setSelectedMode] = useState(0);
     const [recordType, setRecordType] = useState(0);
 
     const options = [
