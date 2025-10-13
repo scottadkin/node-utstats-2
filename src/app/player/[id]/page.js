@@ -17,6 +17,8 @@ import { getPlayerProfileData, getPlayerSoloCapRecords } from "../../../../api/c
 import PlayerCTFSummary from "../../UI/Player/PlayerCTFSummary";
 import PlayerCTFCapRecords from "../../UI/Player/PlayerCTFCapRecords";
 import PlayerADSummary from "../../UI/Player/PlayerADSummary";
+import { getPlayerProfileData as getPlayerWeaponData } from "../../../../api/weapons";
+import PlayerWeapons from "../../UI/Player/PlayerWeapons";
 
 function setQueryVars(params, searchParams){
 
@@ -105,6 +107,11 @@ export default async function Page({params, searchParams}){
 
     pageManager.addComponent("Display Assault & Domination", <PlayerADSummary key="ad-sum" data={basic}/>);
   
+    if(pageManager.bEnabled("Display Weapon Stats")){
+        const {totals, best} = await getPlayerWeaponData(playerId);
+        pageManager.addComponent("Display Weapon Stats", <PlayerWeapons key="weapons" totals={totals} best={best}/>);
+    }
+    
     
 
     return <main>
