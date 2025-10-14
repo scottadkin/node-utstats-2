@@ -6,6 +6,8 @@ import Link from "next/link";
 import MatchResultSmall from "../MatchResultSmall";
 import PlayerMatchResult from "./PlayerMatchResult";
 import Pagination from "../Pagination";
+import MatchResultDisplay from "../MatchResultDisplay";
+import Tabs from "../Tabs";
 
 function reducer(state, action){
 
@@ -24,6 +26,12 @@ function reducer(state, action){
                 "page": action.value
             }
         }
+        case "set-display-mode": {
+            return {
+                ...state,
+                "displayMode": action.value
+            }
+        }
     }
 
     return {...state};
@@ -33,8 +41,6 @@ function reducer(state, action){
 async function loadData(playerId, page, dispatch){
 
     try{
-
-        console.log("loadData");
 
         const req = await fetch("/api/player", {
             "headers": {"Content-type": "application/json"},
@@ -53,9 +59,9 @@ async function loadData(playerId, page, dispatch){
     }
 }
 
-function renderTable(data, playerId){
+function renderTable(mode, data, playerId){
 
-    if(data === null) return null;
+    if(data === null || mode !== 1) return null;
 
     const headers = [
         "Map","Date", "Gametype", "Players", "Playtime", "Match Result", "Result"
@@ -93,12 +99,26 @@ function renderTable(data, playerId){
     return <BasicTable width={1} headers={headers} rows={rows}/>
 }
 
+
+function renderDefault(mode, data, playerId){
+
+    if(mode !== 0) return null;
+    
+    return data.map((d) =>{
+        return <MatchResultDisplay  key={d.match_id}
+            url={`/pmatch/${d.match_id}?player=${playerId}`}  mode="player" playerResult={<PlayerMatchResult playerId={playerId} data={d}/>}
+            mapImage={d.image} mapName={d.mapName} serverName={d.serverName}
+            date={d.match_date} gametypeName={d.gametypeName} playtime={d.playtime} players={d.players}>
+        </MatchResultDisplay>
+    });
+}
+
 export default function PlayerRecentMatches({perPage, defaultDisplayMode, playerId, totalMatches}){
 
     const [state, dispatch] = useReducer(reducer, {
         "page": 1,
-        "displayMode": defaultDisplayMode,
-        "data": null
+        "displayMode": parseInt(defaultDisplayMode),
+        "data": []
     });
 
     useEffect(() =>{
@@ -108,12 +128,21 @@ export default function PlayerRecentMatches({perPage, defaultDisplayMode, player
     }, [playerId, state.page]);
 
 
+    const tabOptions = [
+        {"name": "Default View", "value": 0},
+        {"name": "Table View", "value": 1}
+    ];
+
+
     return <>
         <div className="default-header">Recent Matches</div>
+        <Tabs options={tabOptions} selectedValue={state.displayMode} changeSelected={(a) =>{
+            dispatch({"type": "set-display-mode", "value": parseInt(a)});
+        }}/>
+        {renderDefault(state.displayMode, state.data, playerId)}
+        {renderTable(state.displayMode, state.data, playerId)}
         <Pagination currentPage={state.page} results={totalMatches} perPage={perPage} url={null} event={(a) =>{
             dispatch({"type": "set-page", "value": a});
-        }}/>
-        {renderTable(state.data, playerId)}
-        
+        }}/>  
     </>
 }

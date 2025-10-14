@@ -1,5 +1,5 @@
 import "../../styles/globals.css";
-import Footer from "../../components/Footer";
+import Footer from "./UI/Footer";
 import { headers } from "next/headers";
 
 

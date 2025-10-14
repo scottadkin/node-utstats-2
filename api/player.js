@@ -1106,6 +1106,7 @@ export async function getRecentMatches(id, page){
     nstats_player_matches.draw,
     nstats_player_matches.playtime, 
     nstats_player_matches.team,
+    nstats_matches.server,
     nstats_matches.total_teams,
     nstats_matches.players,
     nstats_matches.dm_winner,
@@ -1127,19 +1128,23 @@ export async function getRecentMatches(id, page){
     const mapIds = new Set();
     const gametypeIds = new Set();
     const playerIds = new Set();
+    const serverIds = new Set();
 
 
     for(let i = 0; i < result.length; i++){
 
         const r = result[i];
+
         gametypeIds.add(r.gametype_id);
         mapIds.add(r.map_id);
+        serverIds.add(r.server);
 
         if(r.dm_winner !== 0){
             playerIds.add(r.dm_winner);
         }
     }
 
+    const serverNames = await getObjectName("servers", [...serverIds]);
     const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
     const mapNames = await getObjectName("maps", [...mapIds]);
     const playerNames = await getBasicPlayersByIds([...playerIds]);
@@ -1149,6 +1154,7 @@ export async function getRecentMatches(id, page){
 
         const r = result[i];
 
+        r.serverName = serverNames[r.server] ?? "Not Found";
         r.gametypeName = gametypeNames[r.gametype_id] ?? "Not Found";
         r.mapName = mapNames[r.map_id] ?? "Not Found";
 

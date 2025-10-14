@@ -1,19 +1,6 @@
 import styles from './MatchResultDisplay.module.css';
 import Link from 'next/link';
-import { toPlaytime } from '../../../api/generic.mjs';
-
-function getPlayerResultColor(playerResult){
-
-    const string = playerResult.toLowerCase();
-
-    if(string === "won the match"){
-        return "green";
-    }else if(string === "lost the match"){
-        return "red";
-    }
-
-    return "yellow";
-}
+import { toPlaytime, convertTimestamp } from '../../../api/generic.mjs';
 
 function reduceNameLength(name){
 
@@ -33,15 +20,14 @@ function renderPlayerResult(mode, players, serverName, gametypeName, mapName, pl
 
     if(mode !== "player") return null;
 
-    const resultColor = getPlayerResultColor();
 
     return <div>
-        <div className={styles.presult} style={{"color": resultColor}}>
+        <div className={styles.presult}>
             {playerResult}
         </div>
         
         <div className={styles.mapi}>
-            <img className="thumb-sshot" src={mapImage}  alt="image"/>
+            <img className="thumb-sshot" src={`/images/maps/${mapImage}.jpg`}  alt="image"/>
         </div>
         <div className={styles.sinfo}>
             {reduceNameLength(serverName)}<br/>
@@ -51,7 +37,7 @@ function renderPlayerResult(mode, players, serverName, gametypeName, mapName, pl
         </div>
         <div className={styles.minfo}>
             {gametypeName}<br/>
-            {date}<br/>
+            {convertTimestamp(date,true)}<br/>
             {toPlaytime(playtime)}<br/>
             {players} Players
         </div>
