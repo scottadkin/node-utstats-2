@@ -1348,7 +1348,5 @@ export async function getRecent(id, page, perPage, settings, mapName){
         }
     }
 
-
     return result;
-
 }

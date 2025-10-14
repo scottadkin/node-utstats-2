@@ -15,9 +15,12 @@ export async function POST(req){
         let id = (res.id !== undefined) ? parseInt(res.id) : 0 ;
         if(id !== id) id = 0;
 
+        let page = (res.page !== undefined) ? parseInt(res.page) : 1;
+        if(page !== page) page = 1;
+
         if(mode === "player-recent-matches"){
 
-            const data = await getRecentMatches(id, 1);
+            const data = await getRecentMatches(id, page);
 
             const mapNames = new Set(data.map((d) =>{
                 return d.mapName;

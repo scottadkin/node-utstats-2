@@ -32,7 +32,7 @@
 	--red-1:rgb(200,40,40);
 	--red-2:rgba(89,0,0,0.75);
 	--red-3:rgba(69,0,0,0.75);
-	--yellow-1:"yellow";
+	--yellow-1:yellow;
 	--yellow-2:rgba(95,95,0, 0.75);
 	--margin-1:25px;
 	--textbox-max-width-1:290px;
@@ -259,11 +259,11 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 }
 
 .yellow{
-	color:var(--yellow-1)
+	color:var(--yellow-1);
 }
 
 .green{
-	color:rgb(50,255,50)
+	color:rgb(50,255,50);
 }
 
 .red{

@@ -423,7 +423,7 @@ export default class Player{
 
     async getPlayedMatchIds(id){
 
-        return await getPlayerMatchIds(id);
+        return await getPlayedMatchIds(id);
     }
 
 
@@ -1090,7 +1090,6 @@ export async function getRecentMatches(id, page){
     perPage = parseInt(perPage);
     if(perPage !== perPage) perPage = 25;
 
-
     const validMatchIds = await getOnlyValidPlayerMatchIds(id, settings["Minimum Players"], settings["Minimum Playtime"]);
 
     if(validMatchIds.length === 0) return [];
@@ -1108,12 +1107,15 @@ export async function getRecentMatches(id, page){
     nstats_player_matches.playtime, 
     nstats_player_matches.team,
     nstats_matches.total_teams,
+    nstats_matches.players,
     nstats_matches.dm_winner,
     nstats_matches.dm_score,
     nstats_matches.team_score_0,
     nstats_matches.team_score_1,
     nstats_matches.team_score_2,
-    nstats_matches.team_score_3
+    nstats_matches.team_score_3,
+    nstats_matches.mh,
+    nstats_matches.end_type
     FROM nstats_player_matches
     INNER JOIN nstats_matches ON nstats_player_matches.match_id = nstats_matches.id
     WHERE nstats_player_matches.player_id=? AND nstats_player_matches.match_id IN (?) AND nstats_player_matches.playtime > 0 AND nstats_player_matches.playtime >=? 
@@ -1124,6 +1126,7 @@ export async function getRecentMatches(id, page){
 
     const mapIds = new Set();
     const gametypeIds = new Set();
+    const playerIds = new Set();
 
 
     for(let i = 0; i < result.length; i++){
@@ -1131,10 +1134,16 @@ export async function getRecentMatches(id, page){
         const r = result[i];
         gametypeIds.add(r.gametype_id);
         mapIds.add(r.map_id);
+
+        if(r.dm_winner !== 0){
+            playerIds.add(r.dm_winner);
+        }
     }
 
     const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
     const mapNames = await getObjectName("maps", [...mapIds]);
+    const playerNames = await getBasicPlayersByIds([...playerIds]);
+
 
     for(let i = 0; i < result.length; i++){
 
@@ -1143,7 +1152,11 @@ export async function getRecentMatches(id, page){
         r.gametypeName = gametypeNames[r.gametype_id] ?? "Not Found";
         r.mapName = mapNames[r.map_id] ?? "Not Found";
 
+        if(r.dm_winner !== 0){
+            r.dmWinner = getPlayer(playerNames, r.dm_winner, true);
+        }
     }
+
 
     return result;
 
