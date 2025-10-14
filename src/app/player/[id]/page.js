@@ -19,6 +19,8 @@ import PlayerCTFCapRecords from "../../UI/Player/PlayerCTFCapRecords";
 import PlayerADSummary from "../../UI/Player/PlayerADSummary";
 import { getPlayerProfileData as getPlayerWeaponData } from "../../../../api/weapons";
 import PlayerWeapons from "../../UI/Player/PlayerWeapons";
+import PlayerItemsSummary from "../../UI/Player/PlayerItemsSummary";
+import { getPlayerProfileData as getPlayerItemData } from "../../../../api/items";
 
 function setQueryVars(params, searchParams){
 
@@ -112,6 +114,12 @@ export default async function Page({params, searchParams}){
         pageManager.addComponent("Display Weapon Stats", <PlayerWeapons key="weapons" totals={totals} best={best}/>);
     }
     
+
+    if(pageManager.bEnabled("Display Items Summary")){
+
+        const itemData = await getPlayerItemData(playerId);
+        pageManager.addComponent("Display Items Summary", <PlayerItemsSummary key="items" data={itemData}/>);
+    }
     
 
     return <main>

@@ -1,4 +1,5 @@
 import { simpleQuery, bulkInsert } from "./database.js";
+import { getObjectName } from "./genericServerSide.mjs";
 import Message from "./message.js";
 
 export default class Items{
@@ -107,9 +108,7 @@ export default class Items{
 
     async getPlayerTotalData(player){
 
-        const query = "SELECT item,first,last,uses,matches FROM nstats_items_player WHERE player=?";
-
-        return await simpleQuery(query, [player]);
+        return await getPlayerTotalData(player);
     }
 
 
@@ -711,4 +710,36 @@ export async function getPlayerMatchData(matchId, playerId){
     
 
     return {"items": items, data};
+}
+
+async function getPlayerTotalData(player){
+
+    const query = "SELECT item,first,last,uses,matches FROM nstats_items_player WHERE player=?";
+
+    return await simpleQuery(query, [player]);
+}
+
+
+export async function getPlayerProfileData(player){
+
+    const data = await getPlayerTotalData(player);
+
+    const itemIds = new Set();
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+        itemIds.add(d.item);
+    }
+
+    const items = await getItemsById([...itemIds]);
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+        d.itemName = items[d.item]?.name ?? "Not Found";
+        d.type = items[d.item]?.type ?? 0;
+    }
+
+    return data;
 }
