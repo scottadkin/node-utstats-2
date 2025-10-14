@@ -7,7 +7,7 @@ import PlayerGeneral from "../../UI/Player/PlayerGeneral";
 import { getCountryName } from "../../../../api/countries";
 import { getFacesWithFileStatuses } from "../../../../api/faces";
 import ErrorPage from "../../UI/ErrorPage";
-import { getProfileGametypeStats, getProfileFragStats } from "../../../../api/player";
+import { getProfileGametypeStats, getProfileFragStats, getPossibleAliasesByHWID } from "../../../../api/player";
 import PlayerGametypeStats from "../../UI/Player/PlayerGametypeStats";
 import PlayerFragSummary from "../../UI/Player/PlayerFragSummary";
 import { getAllRankings, getSpecialEvents } from "../../../../api/player";
@@ -21,6 +21,7 @@ import { getPlayerProfileData as getPlayerWeaponData } from "../../../../api/wea
 import PlayerWeapons from "../../UI/Player/PlayerWeapons";
 import PlayerItemsSummary from "../../UI/Player/PlayerItemsSummary";
 import { getPlayerProfileData as getPlayerItemData } from "../../../../api/items";
+import PlayerAliases from "../../UI/Player/PlayerAliases";
 
 function setQueryVars(params, searchParams){
 
@@ -119,6 +120,11 @@ export default async function Page({params, searchParams}){
 
         const itemData = await getPlayerItemData(playerId);
         pageManager.addComponent("Display Items Summary", <PlayerItemsSummary key="items" data={itemData}/>);
+    }
+
+    if(pageManager.bEnabled("Display Aliases")){
+        const aliases = await getPossibleAliasesByHWID(playerId);
+        pageManager.addComponent("Display Items Summary", <PlayerAliases key="aliases" data={aliases}/>);
     }
     
 

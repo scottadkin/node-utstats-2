@@ -1,5 +1,5 @@
 import { simpleQuery, bulkInsert } from "./database.js";
-import { setValueIfUndefined, calculateKillEfficiency, removeIps, removeUnr } from "./generic.mjs";
+import { setValueIfUndefined, calculateKillEfficiency, removeIps, removeUnr, getPlayer } from "./generic.mjs";
 import CountriesManager from "./countriesmanager.js";
 import Assault from "./assault.js";
 import CTF from "./ctf.js";
@@ -19,6 +19,7 @@ import SiteSettings from "./sitesettings.js";
 import Combogib from "./combogib.js";
 import { getObjectName } from "./genericServerSide.mjs";
 import { getGametypePosition } from "./rankings.js";
+import { getBasicPlayersByIds } from "./players.js";
 
 export default class Player{
 
@@ -937,11 +938,14 @@ export async function getPlayerById(id){
 
     id = parseInt(id);
 
-    const query = "SELECT * FROM nstats_player_totals WHERE id=?";
+    const query = "SELECT * FROM nstats_player_totals WHERE id=? LIMIT 1";
 
     const result = await simpleQuery(query, [id]);
 
     if(result.length === 0) return null;
+
+    delete result[0].hwid;
+    delete result[0].ip;
 
     return result[0];
 
@@ -1079,6 +1083,45 @@ export async function getSpecialEvents(playerId){
         }else{
             r.mapName = "All";
         }
+    }
+
+    return result;
+}
+
+async function getUniqueHWIDsFromMatches(playerId){
+
+    const query = `SELECT hwid FROM nstats_player_matches WHERE player_id=? AND hwid!="" GROUP BY hwid`;
+
+    const result = await simpleQuery(query, [playerId]);
+
+    return result.map((r) =>{
+        return r.hwid;
+    });
+}
+
+export async function getPossibleAliasesByHWID(playerId){
+
+    const hwids = await getUniqueHWIDsFromMatches(playerId);
+
+    if(hwids.length === 0) return [];
+
+    const query = `SELECT player_id,SUM(playtime) as playtime,SUM(spec_playtime) as spec_playtime,
+    COUNT(*) as total_matches,MIN(match_date) as first_match,MAX(match_date) as last_match
+    FROM nstats_player_matches WHERE hwid IN (?) AND player_id!=? GROUP BY player_id`;
+
+    const result = await simpleQuery(query, [hwids, playerId]);
+
+    const playerIds = new Set(result.map((r) =>{
+        return r.player_id;
+    }));
+
+
+    const players = await getBasicPlayersByIds([...playerIds]);
+    
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        r.player = getPlayer(players, r.player_id, true);
     }
 
     return result;
