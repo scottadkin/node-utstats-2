@@ -1423,22 +1423,7 @@ export default class Matches{
 
     async getValidMatches(ids, minPlayers, minPlaytime){
 
-        if(ids.length === 0) return [];
-
-        const query = "SELECT id FROM nstats_matches WHERE id IN (?) AND players>=? AND playtime>=?";
-        const vars = [ids, minPlayers, minPlaytime];
-
-        const result = await simpleQuery(query, vars);
-
-        const newIds = [];
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-            newIds.push(r.id);
-        }
-
-        return newIds;
+        return await getValidMatches(ids, minPlayers, minPlaytime);
     }
 
 
@@ -1871,4 +1856,25 @@ export async function getMatch(id){
     }
 
     return r;
+}
+
+
+export async function getValidMatches(ids, minPlayers, minPlaytime){
+
+    if(ids.length === 0) return [];
+
+    const query = "SELECT id FROM nstats_matches WHERE id IN (?) AND players>=? AND playtime>=?";
+    const vars = [ids, minPlayers, minPlaytime];
+
+    const result = await simpleQuery(query, vars);
+
+    const newIds = [];
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        newIds.push(r.id);
+    }
+
+    return newIds;
 }

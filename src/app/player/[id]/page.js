@@ -7,7 +7,7 @@ import PlayerGeneral from "../../UI/Player/PlayerGeneral";
 import { getCountryName } from "../../../../api/countries";
 import { getFacesWithFileStatuses } from "../../../../api/faces";
 import ErrorPage from "../../UI/ErrorPage";
-import { getProfileGametypeStats, getProfileFragStats, getPossibleAliasesByHWID } from "../../../../api/player";
+import { getProfileGametypeStats, getProfileFragStats, getPossibleAliasesByHWID, getTotalMatches } from "../../../../api/player";
 import PlayerGametypeStats from "../../UI/Player/PlayerGametypeStats";
 import PlayerFragSummary from "../../UI/Player/PlayerFragSummary";
 import { getAllRankings, getSpecialEvents } from "../../../../api/player";
@@ -24,6 +24,7 @@ import { getPlayerProfileData as getPlayerItemData } from "../../../../api/items
 import PlayerAliases from "../../UI/Player/PlayerAliases";
 import PlayerPingHistory from "../../UI/Player/PlayerPingHistory";
 import { getPlayerHistoryGraphData } from "../../../../api/pings";
+import PlayerRecentMatches from "../../UI/Player/PlayerRecentMatches";
 
 function setQueryVars(params, searchParams){
 
@@ -62,6 +63,8 @@ export default async function Page({params, searchParams}){
 
 
     const basic = await getPlayerById(playerId);
+    const totalMatches = await getTotalMatches(playerId);
+
 
     if(basic === null){
         return <ErrorPage navSettings={navSettings} sessionSettings={sessionSettings} title="Failed to get player">
@@ -135,6 +138,20 @@ export default async function Page({params, searchParams}){
 
         pageManager.addComponent("Display Ping History Graph", <PlayerPingHistory key="ping" data={data}/>);
     }
+
+    if(pageManager.bEnabled("Display Recent Matches")){
+
+        pageManager.addComponent("Display Recent Matches",<PlayerRecentMatches 
+            key={"prm"}  
+            perPage={pageSettings["Recent Matches Per Page"]} 
+            defaultDisplayMode={pageSettings["Default Recent Matches Display"]}
+            playerId={playerId} 
+            totalMatches={totalMatches} 
+        />);
+
+    }
+
+    
     
 
     return <main>

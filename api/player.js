@@ -15,11 +15,12 @@ import Voices from "./voices.js";
 import WinRate from "./winrate.js";
 import Sprees from "./sprees.js";
 import MonsterHunt from "./monsterhunt.js";
-import SiteSettings from "./sitesettings.js";
+import { getSettings } from "./sitesettings.js";
 import Combogib from "./combogib.js";
 import { getObjectName } from "./genericServerSide.mjs";
 import { getGametypePosition } from "./rankings.js";
 import { getBasicPlayersByIds } from "./players.js";
+import { getValidMatches } from "./matches.js";
 
 export default class Player{
 
@@ -422,97 +423,8 @@ export default class Player{
 
     async getPlayedMatchIds(id){
 
-        const query = "SELECT match_id FROM nstats_player_matches WHERE player_id=?";
-
-        const result = await simpleQuery(query, [id]);
-
-        const ids = [];
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-
-            ids.push(r.match_id);
-        }
-
-        return ids;
-
+        return await getPlayerMatchIds(id);
     }
-
-    /**
-     * Only get player match ids if they have the min playtime and player count
-     */
-    async getOnlyValidPlayerMatchIds(playerId, minPlayers, minPlaytime, matchManager){
-
-        const ids = await this.getPlayedMatchIds(playerId);
-
-        if(ids.length === 0) return [];
-
-        const validIds = await matchManager.getValidMatches(ids, minPlayers, minPlaytime);
-
-        return validIds;
-    }
-
-    async getRecentMatches(id, amount, page, matchManager){
-
-        amount = parseInt(amount);
-
-        if(amount !== amount) amount = 25;
-
-        if(page === undefined){
-            page = 1;
-        }else{
-            page = parseInt(page);
-            if(page !== page) page = 1;
-        }
-
-        page--;
-
-        const settings = await SiteSettings.getSettings("Matches Page");
-
-        const validMatchIds = await this.getOnlyValidPlayerMatchIds(id, settings["Minimum Players"], settings["Minimum Playtime"], matchManager);
-
-        if(validMatchIds.length === 0) return [];
-        
-        //const ignoreMatchIds = await this.getValidPlayedMatchIds(id, settings["Minimum Players"]);
-
-        const query = "SELECT * FROM nstats_player_matches WHERE player_id=? AND match_id IN (?) AND playtime > 0 AND playtime >=? ORDER BY match_date DESC, id DESC LIMIT ?,?";
-        const start = amount * page;
-        const vars = [id, validMatchIds, settings["Minimum Playtime"], start, amount];
-        const result = await simpleQuery(query, vars);
-
-        const uniqueDMWinners = new Set();
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-            delete r.ip;
-            delete r.hwid;
-
-        }
-
-        return result;
-
-    }
-
-
-    async getTotalMatches(id, matchManager){
-
-        const settings = await SiteSettings.getSettings("Matches Page");
-
-        const validIds = await this.getOnlyValidPlayerMatchIds(id, settings["Minimum Players"], settings["Minimum Playtime"], matchManager);
-
-        if(validIds.length === 0) return 0;
-
-        const query = "SELECT COUNT(*) as total_matches FROM nstats_player_matches WHERE player_id=? AND match_id IN(?) AND playtime > 0 AND playtime >=?";
-        const vars = [id, validIds, settings["Minimum Playtime"]];
-
-        const result = await simpleQuery(query, vars);
-
-        return result[0].total_matches;
-
-    }
-
 
 
     async getNames(ids){
@@ -1125,4 +1037,132 @@ export async function getPossibleAliasesByHWID(playerId){
     }
 
     return result;
+}
+
+
+async function getPlayedMatchIds(id){
+
+    const query = "SELECT match_id FROM nstats_player_matches WHERE player_id=?";
+
+    const result = await simpleQuery(query, [id]);
+
+    const ids = [];
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        ids.push(r.match_id);
+    }
+
+    return ids;
+
+}
+
+/**
+* Only get player match ids if they have the min playtime and player count
+*/
+async function getOnlyValidPlayerMatchIds(playerId, minPlayers, minPlaytime){
+
+    const ids = await getPlayedMatchIds(playerId);
+
+    if(ids.length === 0) return [];
+
+    const validIds = await getValidMatches(ids, minPlayers, minPlaytime);
+
+    return validIds;
+}
+
+export async function getRecentMatches(id, page){
+
+    if(page === undefined){
+        page = 1;
+    }else{
+        page = parseInt(page);
+        if(page !== page) page = 1;
+    }
+
+    page--;
+
+    const settings = await getSettings("Matches Page");
+
+    let perPage = settings["Recent Matches Per Page"] ?? 25;
+    perPage = parseInt(perPage);
+    if(perPage !== perPage) perPage = 25;
+
+
+    const validMatchIds = await getOnlyValidPlayerMatchIds(id, settings["Minimum Players"], settings["Minimum Playtime"]);
+
+    if(validMatchIds.length === 0) return [];
+    
+    //const ignoreMatchIds = await this.getValidPlayedMatchIds(id, settings["Minimum Players"]);
+
+    const query = `SELECT nstats_player_matches.match_id,
+    nstats_player_matches.match_date,
+    nstats_player_matches.map_id,
+    nstats_player_matches.gametype as gametype_id, 
+    nstats_player_matches.spectator, 
+    nstats_player_matches.played, 
+    nstats_player_matches.winner, 
+    nstats_player_matches.draw,
+    nstats_player_matches.playtime, 
+    nstats_player_matches.team,
+    nstats_matches.total_teams,
+    nstats_matches.dm_winner,
+    nstats_matches.dm_score,
+    nstats_matches.team_score_0,
+    nstats_matches.team_score_1,
+    nstats_matches.team_score_2,
+    nstats_matches.team_score_3
+    FROM nstats_player_matches
+    INNER JOIN nstats_matches ON nstats_player_matches.match_id = nstats_matches.id
+    WHERE nstats_player_matches.player_id=? AND nstats_player_matches.match_id IN (?) AND nstats_player_matches.playtime > 0 AND nstats_player_matches.playtime >=? 
+    ORDER BY nstats_player_matches.match_date DESC, nstats_player_matches.match_id DESC LIMIT ?,?`;
+    const start = perPage * page;
+    const vars = [id, validMatchIds, settings["Minimum Playtime"], start, perPage];
+    const result = await simpleQuery(query, vars);
+
+    const mapIds = new Set();
+    const gametypeIds = new Set();
+
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        gametypeIds.add(r.gametype_id);
+        mapIds.add(r.map_id);
+    }
+
+    const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
+    const mapNames = await getObjectName("maps", [...mapIds]);
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        r.gametypeName = gametypeNames[r.gametype_id] ?? "Not Found";
+        r.mapName = mapNames[r.map_id] ?? "Not Found";
+
+    }
+
+    return result;
+
+}
+
+
+export async function getTotalMatches(id){
+
+    const settings = await getSettings("Matches Page");
+
+    const validIds = await getOnlyValidPlayerMatchIds(id, settings["Minimum Players"], settings["Minimum Playtime"]);
+
+    if(validIds.length === 0) return 0;
+
+    const query = "SELECT COUNT(*) as total_matches FROM nstats_player_matches WHERE player_id=? AND match_id IN(?) AND playtime > 0 AND playtime >=?";
+    const vars = [id, validIds, settings["Minimum Playtime"]];
+
+    const result = await simpleQuery(query, vars);
+
+    return result[0].total_matches;
+
 }
