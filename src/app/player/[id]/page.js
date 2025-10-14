@@ -22,6 +22,8 @@ import PlayerWeapons from "../../UI/Player/PlayerWeapons";
 import PlayerItemsSummary from "../../UI/Player/PlayerItemsSummary";
 import { getPlayerProfileData as getPlayerItemData } from "../../../../api/items";
 import PlayerAliases from "../../UI/Player/PlayerAliases";
+import PlayerPingHistory from "../../UI/Player/PlayerPingHistory";
+import { getPlayerHistoryGraphData } from "../../../../api/pings";
 
 function setQueryVars(params, searchParams){
 
@@ -125,6 +127,13 @@ export default async function Page({params, searchParams}){
     if(pageManager.bEnabled("Display Aliases")){
         const aliases = await getPossibleAliasesByHWID(playerId);
         pageManager.addComponent("Display Items Summary", <PlayerAliases key="aliases" data={aliases}/>);
+    }
+
+    if(pageManager.bEnabled("Display Ping History Graph")){
+
+        const data = await getPlayerHistoryGraphData(playerId, 50);
+
+        pageManager.addComponent("Display Ping History Graph", <PlayerPingHistory key="ping" data={data}/>);
     }
     
 
