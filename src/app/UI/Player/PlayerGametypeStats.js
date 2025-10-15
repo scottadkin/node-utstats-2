@@ -27,7 +27,8 @@ function renderData(data){
             },
             "last": {
                 "value": d.last,
-                "displayValue": convertTimestamp(d.last, true)
+                "displayValue": convertTimestamp(d.last, true),
+                "className": "date"
             },
             "matches": {
                 "value": d.matches

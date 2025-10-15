@@ -76,7 +76,7 @@ const renderData = (data, mode, selectedGametype) =>{
 
 
     return <>
-        <InteractiveTable width={1} headers={headers} data={rows} defaultOrder={"name"}/>
+        <InteractiveTable width={1} headers={headers} data={rows} defaultOrder={"name"} perPage={10}/>
     </>;
 }
 

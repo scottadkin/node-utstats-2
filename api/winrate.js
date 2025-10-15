@@ -1,5 +1,6 @@
 import Message from "./message.js";
 import { simpleQuery, bulkInsert } from "./database.js";
+import { getObjectName } from "./genericServerSide.mjs";
 
 export default class WinRate{
 
@@ -376,17 +377,6 @@ export default class WinRate{
         }
     }
 
-
-    async getAllPlayerCurrent(playerId){
-
-        const query = `SELECT date,match_id,gametype,map,matches,wins,draws,losses,winrate,current_win_streak,
-        current_draw_streak,current_lose_streak,max_win_streak,max_draw_streak,max_lose_streak 
-        FROM nstats_winrates_latest WHERE player=?`;
-
-        return await simpleQuery(query, [playerId]);
-    }
-
-
     async deleteMatchData(id){
 
 
@@ -717,4 +707,39 @@ export default class WinRate{
             await this.recalculateGametype(g);
         }*/
     }
+}
+
+export async function getAllPlayerCurrent(playerId){
+
+    const query = `SELECT date,match_id,gametype,map,matches,wins,draws,losses,winrate,current_win_streak,
+    current_draw_streak,current_lose_streak,max_win_streak,max_draw_streak,max_lose_streak 
+    FROM nstats_winrates_latest WHERE player=?`;
+
+    const result = await simpleQuery(query, [playerId]);
+
+    console.log(result);
+
+    const gametypeIds = new Set();
+    const mapIds = new Set();
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        if(r.gametype !== 0) gametypeIds.add(r.gametype);
+        if(r.map !== 0) mapIds.add(r.map);
+    }
+
+    const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
+    const mapNames = await getObjectName("maps", [...mapIds]);
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        if(r.gametype !== 0) r.gametypeName = gametypeNames[r.gametype] ?? "Not Found";
+        if(r.map !== 0) r.mapName = mapNames[r.map] ?? "Not Found";
+    }
+
+    
+    return result;
 }

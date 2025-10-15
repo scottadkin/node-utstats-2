@@ -25,8 +25,8 @@ export default function PlayerGeneral({country, face, data}){
 
         <Image src={`/images/faces/${face}.png`} alt="face" width={46} height={46}/>,
         <><CountryFlag country={data.country}/>{country}</>,
-        convertTimestamp(data.first,true),
-        convertTimestamp(data.last,true),
+        {"className": "date", "value": convertTimestamp(data.first,true)},
+        {"className": "date", "value": convertTimestamp(data.last,true)},
         data.matches,
         data.wins,
         data.draws,

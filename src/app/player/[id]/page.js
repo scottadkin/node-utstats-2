@@ -28,6 +28,8 @@ import PlayerRecentMatches from "../../UI/Player/PlayerRecentMatches";
 import { getPlayerTotals as getTelefragTotals } from "../../../../api/telefrags";
 import PlayerTeleFrags from "../../UI/Player/PlayerTeleFrags";
 import PlayerMapStats from "../../UI/Player/PlayerMapStats";
+import { getAllPlayerCurrent as getAllCurrentWinrates } from "../../../../api/winrate";
+import PlayerWinRates from "../../UI/Player/PlayerWinRates";
 
 function setQueryVars(params, searchParams){
 
@@ -167,6 +169,12 @@ export default async function Page({params, searchParams}){
         pageManager.addComponent("Display Map Stats", <PlayerMapStats key="maps" gametypeNames={gametypeNames} data={data}/>);
     }
     
+
+    if(pageManager.bEnabled("Display Win Rates")){
+
+        const data = await getAllCurrentWinrates(playerId);
+        pageManager.addComponent("Display Win Rates", <PlayerWinRates key="wins" data={data}/>);
+    }
     
 
     return <main>
