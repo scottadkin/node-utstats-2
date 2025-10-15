@@ -25,6 +25,8 @@ import PlayerAliases from "../../UI/Player/PlayerAliases";
 import PlayerPingHistory from "../../UI/Player/PlayerPingHistory";
 import { getPlayerHistoryGraphData } from "../../../../api/pings";
 import PlayerRecentMatches from "../../UI/Player/PlayerRecentMatches";
+import { getPlayerTotals as getTelefragTotals } from "../../../../api/telefrags";
+import PlayerTeleFrags from "../../UI/Player/PlayerTeleFrags";
 
 function setQueryVars(params, searchParams){
 
@@ -148,7 +150,13 @@ export default async function Page({params, searchParams}){
             playerId={playerId} 
             totalMatches={totalMatches} 
         />);
+    }
 
+    if(pageManager.bEnabled("Display Telefrag Stats")){
+
+        const data = await getTelefragTotals(playerId);
+
+        pageManager.addComponent("Display Telefrag Stats", <PlayerTeleFrags key="tele" data={data}/>);
     }
 
     

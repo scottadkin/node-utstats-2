@@ -1,4 +1,5 @@
 import { simpleQuery } from "./database.js";
+import { getObjectName } from "./genericServerSide.mjs";
 
 export default class Telefrags{
 
@@ -252,42 +253,6 @@ export default class Telefrags{
         await this.recalculatePlayerTotals(newId);
     }
 
-    async getPlayerTotals(playerId, bIgnore0Events){
-
-        if(bIgnore0Events === undefined) bIgnore0Events = false;
-
-        const query = `SELECT * FROM nstats_player_telefrags WHERE player_id=?`;
-
-        const result = await simpleQuery(query, [playerId]);
-
-        const targetKeys = [
-            "tele_kills", 
-            "tele_deaths",
-            "disc_kills",
-            "disc_deaths"
-        ];
-
-        if(!bIgnore0Events) return result;
-
-        const finalResult = [];
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-
-            for(let x = 0; x < targetKeys.length; x++){
-
-                if(r[targetKeys[x]] !== 0){
-                    finalResult.push(r);
-                    break;
-                }
-            }
-        }
-
-        return finalResult;
-    }
-
-
     async changeMapId(oldId, newId){
 
         const query = `UPDATE nstats_tele_frags SET map_id=? WHERE map_id=?`;
@@ -312,4 +277,69 @@ export async function getPlayerMatchKills(matchId, targetPlayerId){
     AND (killer_id=? || victim_id=?)`;
 
     return await simpleQuery(query, [matchId, targetPlayerId, targetPlayerId]);
+}
+
+/*export async function getPlayerTotals(playerId, bIgnore0Events){
+
+    if(bIgnore0Events === undefined) bIgnore0Events = false;
+
+    const query = `SELECT * FROM nstats_player_telefrags WHERE player_id=?`;
+
+    const result = await simpleQuery(query, [playerId]);
+
+    const targetKeys = [
+        "tele_kills", 
+        "tele_deaths",
+        "disc_kills",
+        "disc_deaths"
+    ];
+
+    if(!bIgnore0Events) return result;
+
+    const finalResult = [];
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        for(let x = 0; x < targetKeys.length; x++){
+
+            if(r[targetKeys[x]] !== 0){
+                finalResult.push(r);
+                break;
+            }
+        }
+    }
+
+    return finalResult;
+}*/
+
+export async function getPlayerTotals(playerId){
+
+    const query = `SELECT * FROM nstats_player_telefrags WHERE player_id=?`;
+    const result = await simpleQuery(query, [playerId]);
+
+    const gametypeIds = new Set();
+    const mapIds = new Set();
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        if(r.gametype_id !== 0) gametypeIds.add(r.gametype_id);
+        if(r.map_id !== 0) mapIds.add(r.map_id);
+    }
+
+    const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
+    const mapNames = await getObjectName("maps", [...mapIds]);
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        if(r.gametype_id !== 0) r.gametypeName = gametypeNames[r.gametype_id] ?? "Not Found";
+        if(r.map_id !== 0) r.mapName = mapNames[r.map_id] ?? "Not Found";
+    }
+
+    return result;
+
 }

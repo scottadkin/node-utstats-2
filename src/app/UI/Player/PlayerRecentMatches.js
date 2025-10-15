@@ -104,13 +104,15 @@ function renderDefault(mode, data, playerId){
 
     if(mode !== 0) return null;
     
-    return data.map((d) =>{
-        return <MatchResultDisplay  key={d.match_id}
-            url={`/pmatch/${d.match_id}?player=${playerId}`}  mode="player" playerResult={<PlayerMatchResult playerId={playerId} data={d}/>}
-            mapImage={d.image} mapName={d.mapName} serverName={d.serverName}
-            date={d.match_date} gametypeName={d.gametypeName} playtime={d.playtime} players={d.players}>
-        </MatchResultDisplay>
-    });
+    return <div className="t-width-1 center">
+        {data.map((d) =>{
+            return <MatchResultDisplay  key={d.match_id}
+                url={`/pmatch/${d.match_id}?player=${playerId}`}  mode="player" playerResult={<PlayerMatchResult playerId={playerId} data={d}/>}
+                mapImage={d.image} mapName={d.mapName} serverName={d.serverName}
+                date={d.match_date} gametypeName={d.gametypeName} playtime={d.playtime} players={d.players}>
+            </MatchResultDisplay>
+        })}
+    </div>
 }
 
 export default function PlayerRecentMatches({perPage, defaultDisplayMode, playerId, totalMatches}){
