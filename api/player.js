@@ -640,15 +640,6 @@ export default class Player{
         ]);
     }
 
-    async reduceMapTotals(playerId, mapId, playtime){
-
-        return await simpleQuery(`UPDATE nstats_player_maps SET matches=matches-1,playtime=playtime-? WHERE player=?
-        AND map=?
-        `, [playtime, playerId, mapId]);
-    }
-
-
-
     async getPlayerGametypeData(playerName, gametypeId){
 
         return await simpleQuery("SELECT * FROM nstats_player_totals WHERE name=? AND gametype=?", 
@@ -1184,4 +1175,38 @@ export async function getTotalMatches(id){
 
     return result[0].total_matches;
 
+}
+
+export async function getProfileMapStats(playerId){
+
+    const query = `SELECT first,last,map,gametype,matches,wins,draws,losses,winrate,playtime,spec_playtime 
+    FROM nstats_player_totals WHERE map!=0 AND player_id=?`;
+
+    const result = await simpleQuery(query, [playerId]);
+    
+    const mapIds = new Set();
+    const gametypeIds = new Set();
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        if(r.gametype !== 0){
+            gametypeIds.add(r.gametype);
+        }
+
+        mapIds.add(r.map);
+    }
+
+
+    const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
+    const mapNames = await getObjectName("maps", [...mapIds]);
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        r.mapName = mapNames[r.map] ?? "Not Found";
+    }
+
+    return {"gametypeNames": gametypeNames, "data": result}
 }

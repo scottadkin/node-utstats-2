@@ -1435,9 +1435,6 @@ export default class Players{
         await simpleQuery("DELETE FROM nstats_match_player_score WHERE player=?", [playerId]);
     }
 
-    async deleteMapTotals(playerId){
-        await simpleQuery("DELETE FROM nstats_player_maps WHERE player=?", [playerId]);
-    }
 
 
     async deleteAllMatches(playerId){
@@ -3061,15 +3058,6 @@ export default class Players{
         }
     }
 
-
-    async getBasicMapStats(playerId){
-
-        const query = `SELECT first,last,map,matches,wins,draws,losses,winrate,playtime,spec_playtime 
-        FROM nstats_player_totals WHERE map!=0 AND gametype=0 AND player_id=?`;
-
-        return await simpleQuery(query, [playerId]);
-    }
-
     async insertNewPlayerTotalFromData(gametypeId, data){
 
 
@@ -3163,67 +3151,6 @@ export default class Players{
         return {"data": result, "playerNames": names};
     }
 
-    async deletePlayerMapsDataWithRowIds(rowIds){
-
-        const query = `DELETE FROM nstats_player_maps WHERE id IN(?)`;
-
-        return await simpleQuery(query, [rowIds]);
-    }
-
-    async fixDuplucateMapsData(newId){
-
-        const getQuery = `SELECT id,player,first,first_id,last,last_id,matches,playtime,longest,longest_id FROM nstats_player_maps WHERE map=?`;
-        const getResult = await simpleQuery(getQuery, [newId]);
-
-        const rowsToDelete = [];
-        const totals = {};
-
-        for(let i = 0; i < getResult.length; i++){
-
-            const r = getResult[i];
-
-            rowsToDelete.push(r.id);
-
-            if(totals[r.player] === undefined){
-                totals[r.player] = r;
-                continue;
-            }
-       
-
-            totals[r.player].matches += r.matches;
-            totals[r.player].playtime += r.playtime;
-
-            if(r.first < totals[r.player].first){
-                totals[r.player].first = r.first;
-                totals[r.player].first_id = r.first_id;
-            }
-
-            if(r.last > totals[r.player].last){
-                totals[r.player].last = r.last;
-                totals[r.player].last_id = r.last_id;
-            }
-
-            if(r.longest > totals[r.player].longest){
-                totals[r.player].longest = r.longest;
-                totals[r.player].longest_id = r.longest_id;
-            }
-        }
-
-        const insertQuery = `INSERT INTO nstats_player_maps (map,player,first,first_id,last,last_id,matches,playtime,longest,longest_id) VALUES ?`;
-
-
-        const insertVars = [];
-
-        for(const d of Object.values(totals)){
-
-            insertVars.push([newId, d.player, d.first, d.first_id, d.last, d.last_id, d.matches, d.playtime, d.longest, d.longest_id]);
-        }
-
-        await bulkInsert(insertQuery, insertVars);
-
-        await this.deletePlayerMapsDataWithRowIds(rowsToDelete);
-
-    }
 
     async deletePlayerTotalsByRowIds(rowIds){
 
@@ -3402,7 +3329,7 @@ export default class Players{
     async changeMapId(oldId, newId){
 
         const tables = [
-            "player_maps", //map
+            //"player_maps", //map
             "player_matches", //map_id
             "player_telefrags", //map_id
             "player_totals", //map need to merge dupliactes
@@ -3427,7 +3354,7 @@ export default class Players{
         }
 
 
-        await this.fixDuplucateMapsData(newId);
+       // await this.fixDuplucateMapsData(newId);
         await this.fixDuplicateMapTotals(newId);
     }
 

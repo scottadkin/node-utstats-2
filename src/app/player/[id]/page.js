@@ -7,7 +7,7 @@ import PlayerGeneral from "../../UI/Player/PlayerGeneral";
 import { getCountryName } from "../../../../api/countries";
 import { getFacesWithFileStatuses } from "../../../../api/faces";
 import ErrorPage from "../../UI/ErrorPage";
-import { getProfileGametypeStats, getProfileFragStats, getPossibleAliasesByHWID, getTotalMatches } from "../../../../api/player";
+import { getProfileGametypeStats, getProfileFragStats, getPossibleAliasesByHWID, getTotalMatches, getProfileMapStats } from "../../../../api/player";
 import PlayerGametypeStats from "../../UI/Player/PlayerGametypeStats";
 import PlayerFragSummary from "../../UI/Player/PlayerFragSummary";
 import { getAllRankings, getSpecialEvents } from "../../../../api/player";
@@ -27,6 +27,7 @@ import { getPlayerHistoryGraphData } from "../../../../api/pings";
 import PlayerRecentMatches from "../../UI/Player/PlayerRecentMatches";
 import { getPlayerTotals as getTelefragTotals } from "../../../../api/telefrags";
 import PlayerTeleFrags from "../../UI/Player/PlayerTeleFrags";
+import PlayerMapStats from "../../UI/Player/PlayerMapStats";
 
 function setQueryVars(params, searchParams){
 
@@ -159,6 +160,12 @@ export default async function Page({params, searchParams}){
         pageManager.addComponent("Display Telefrag Stats", <PlayerTeleFrags key="tele" data={data}/>);
     }
 
+
+    if(pageManager.bEnabled("Display Map Stats")){
+
+        const {gametypeNames, data} = await getProfileMapStats(playerId);
+        pageManager.addComponent("Display Map Stats", <PlayerMapStats key="maps" gametypeNames={gametypeNames} data={data}/>);
+    }
     
     
 
