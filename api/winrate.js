@@ -732,6 +732,7 @@ export async function getAllPlayerCurrent(playerId){
     const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
     const mapNames = await getObjectName("maps", [...mapIds]);
 
+    
     for(let i = 0; i < result.length; i++){
 
         const r = result[i];
@@ -740,6 +741,5 @@ export async function getAllPlayerCurrent(playerId){
         if(r.map !== 0) r.mapName = mapNames[r.map] ?? "Not Found";
     }
 
-    
     return result;
 }
