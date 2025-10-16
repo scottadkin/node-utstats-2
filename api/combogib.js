@@ -473,13 +473,6 @@ export default class Combogib{
 
         await simpleQuery(query, vars);
 
-        if(gametypeId !== 0){
-            await this.updatePlayerTotals(playerId, 0, 0, matchId, playtime, combos, insane, shockBalls, primary);
-        }
-
-        if(mapId !== 0 && gametypeId !== 0){
-            await this.updatePlayerTotals(playerId, 0, mapId, matchId, playtime, combos, insane, shockBalls, primary);
-        }
 
     }
 
