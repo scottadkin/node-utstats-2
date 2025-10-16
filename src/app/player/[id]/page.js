@@ -33,6 +33,8 @@ import PlayerWinRates from "../../UI/Player/PlayerWinRates";
 import { getPlayerTotals as getCombogibTotals } from "../../../../api/combogib";
 import PlayerCombogibStats from "../../UI/Player/PlayerCombogibStats";
 import PlayerMonsterHuntStats from "../../UI/Player/PlayerMonsterHuntStats";
+import { getPlayerProfileMonsters } from "../../../../api/monsterhunt";
+import PlayerMonsters from "../../UI/Player/PlayerMonsters";
 
 function setQueryVars(params, searchParams){
 
@@ -190,6 +192,11 @@ export default async function Page({params, searchParams}){
     pageManager.addComponent("Display Monsterhunt Basic Stats", <PlayerMonsterHuntStats key="mh-basic" data={basic}/>)
 
     
+    if(pageManager.bEnabled("Display Monsterhunt Monster Stats")){
+
+        const data = await getPlayerProfileMonsters(playerId);
+        pageManager.addComponent("Display Monsterhunt Monster Stats", <PlayerMonsters key="mh-monsters" data={data}/>);
+    }
 
 
     return <main>

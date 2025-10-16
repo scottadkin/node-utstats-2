@@ -4,7 +4,7 @@ export default function PlayerMonsterHuntStats({data}){
 
     const headers = [
         "Total Kills", "Most Kills In A Match", "Most Kills In A Single Life",
-         "Total Deaths", "Most Deaths In A Match", "Kill:Death Ratio"
+        "Total Deaths To Monsters", "Most Deaths In A Match", "Kill:Death Ratio"
     ];
 
     let kd = 0;
@@ -14,7 +14,7 @@ export default function PlayerMonsterHuntStats({data}){
         if(data.mh_deaths === 0){
             kd = "∞";
         }else{
-            kd = mh_kills / mh_deaths;
+            kd = data.mh_kills / data.mh_deaths;
         }
     }
 

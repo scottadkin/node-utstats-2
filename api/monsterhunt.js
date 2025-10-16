@@ -1,5 +1,6 @@
 import { simpleQuery, insertReturnInsertId, updateReturnAffectedRows } from "./database.js";
 import fs from "fs";
+import { getObjectName } from "./genericServerSide.mjs";
 
 export default class MonsterHunt{
 
@@ -255,11 +256,9 @@ export default class MonsterHunt{
 
         const newData = {};
 
-        let d = 0;
-
         for(let i = 0; i < data.length; i++){
 
-            d = data[i];
+            const d = data[i];
 
             if(newData[d.monster] === undefined){
 
@@ -355,9 +354,7 @@ export default class MonsterHunt{
 
     async getPlayerMonsterTotals(id){
 
-        const query = "SELECT monster,kills,matches,deaths FROM nstats_monsters_player_totals WHERE player=?";
-
-        return await simpleQuery(query, [id]);
+        return await getPlayerMonsterTotals(id);
     }
 
     async reducePlayerMonsterTotals(player, monster, kills){
@@ -585,67 +582,138 @@ export default class MonsterHunt{
 
     getSimilarImage(monsterNames, className){
 
-        const reg = /^.+\.(.+)$/i;
-        const result = reg.exec(className);
-
-        if(result !== null){
-            
-            const name = result[1].toLowerCase();
-
-            for(let i = 0; i < monsterNames.length; i++){
-
-                if(name.includes(monsterNames[i])){
-                    return i;
-                }
-            }
-        }
-
-        return null;
+        return getSimilarImage(monsterNames, className);
     }
 
     getImages(classNames){
 
 
-        const currentFiles = fs.readdirSync("./public/images/monsters");
-
-        const justMonsterNames = [];
-
-        const reg = /^.+?\.(.+)\.png$/i;
-        let result = 0;
-
-        for(let i = 0; i < currentFiles.length; i++){
-
-            result = reg.exec(currentFiles[i]);
-
-            if(result === null){
-                justMonsterNames.push("default");
-            }else{
-                justMonsterNames.push(result[1]);
-            }
-           // cleanedImageNames.push(result[1]);
-        }
-
-
-        const found = {};
-
-        let altImageIndex = 0;
-
-        for(let i = 0; i < classNames.length; i++){
-
-            if(currentFiles.indexOf(`${classNames[i]}.png`) !== -1){
-                found[classNames[i]] = `${classNames[i]}.png`;
-            }else{
-
-                altImageIndex = this.getSimilarImage(justMonsterNames, classNames[i]);
-
-                if(altImageIndex !== null){
-                    found[classNames[i]] = currentFiles[altImageIndex];
-                }else{
-                    found[classNames[i]] = "default.png";
-                }
-            }
-        }
-
-        return found;
+        return getImages(classNames);
     }
+}
+
+
+export function getSimilarImage(monsterNames, className){
+
+    const reg = /^.+\.(.+)$/i;
+    const result = reg.exec(className);
+
+    if(result !== null){
+        
+        const name = result[1].toLowerCase();
+
+        for(let i = 0; i < monsterNames.length; i++){
+
+            if(name.includes(monsterNames[i])){
+                return i;
+            }
+        }
+    }
+
+    return null;
+    
+}
+
+export function getImages(targetMonsters){
+
+
+    if(targetMonsters.length === 0) return {};
+
+    const currentFiles = fs.readdirSync("./public/images/monsters");
+
+    const justMonsterNames = [];
+
+    const reg = /^.+?\.(.+)\.png$/i;
+    let result = 0;
+
+    for(let i = 0; i < currentFiles.length; i++){
+
+        result = reg.exec(currentFiles[i]);
+
+        if(result === null){
+            justMonsterNames.push("default");
+        }else{
+            justMonsterNames.push(result[1]);
+        }
+        // cleanedImageNames.push(result[1]);
+    }
+
+
+    const found = {};
+
+    let altImageIndex = 0;
+
+    for(const monster of Object.values(targetMonsters)){
+
+         if(currentFiles.indexOf(`${monster.class_name}.png`) !== -1){
+            found[monster.class_name] = `${monster.class_name}.png`;
+        }else{
+
+            altImageIndex = getSimilarImage(justMonsterNames, monster);
+
+            if(altImageIndex !== null){
+                found[monster.class_name] = currentFiles[altImageIndex];
+            }else{
+                found[monster.class_name] = "default.png";
+            }
+        }
+    }
+
+    return found;
+}
+
+
+export async function getPlayerMonsterTotals(id){
+
+    const query = "SELECT monster,kills,matches,deaths FROM nstats_monsters_player_totals WHERE player=?";
+
+    return await simpleQuery(query, [id]);
+}
+
+export async function getMonstersByIds(ids){
+
+    if(ids.length === 0) return {};
+
+    const query = `SELECT * FROM nstats_monsters WHERE id IN(?)`;
+
+    const result = await simpleQuery(query, [ids]);
+
+    const data = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        data[r.id] = r;
+    }
+
+    return data;
+}
+
+export async function getPlayerProfileMonsters(playerId){
+
+    const playerMonsterTotals = await getPlayerMonsterTotals(playerId);
+
+    const monsterIds = new Set(playerMonsterTotals.map((p) =>{
+        return p.monster;
+    }));
+
+    const monsters = await getMonstersByIds([...monsterIds]);
+
+    const images = getImages(monsters);
+
+
+    for(let i = 0; i < playerMonsterTotals.length; i++){
+
+        const p = playerMonsterTotals[i];
+
+        p.name = monsters?.[p.monster]?.display_name ?? "NOT FOUND";
+
+        if(monsters[p.monster] !== undefined){
+            p.image = images[monsters[p.monster].class_name];
+        }   
+    }
+
+    return playerMonsterTotals;
+
 }
