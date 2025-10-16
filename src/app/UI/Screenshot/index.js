@@ -585,7 +585,7 @@ class MatchScreenshot{
             offsetY += this.y(1.25);
 
             c.fillStyle = "yellow";
-            c.fillText((this.matchData.end_type.toLowerCase() === "hunt successfull!") ? "Hunt Successful!" : "Hunt Failed!" , this.x(50), offsetY);
+            c.fillText((this.matchData.end_type.toLowerCase() === "hunt successful!") ? "Hunt Successful!" : "Hunt Failed!" , this.x(50), offsetY);
 
             offsetY += this.y(4);
 

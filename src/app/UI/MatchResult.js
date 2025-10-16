@@ -1,7 +1,7 @@
 import styles from './MatchResult.module.css';
 import { getTeamColor } from '../../../api/generic.mjs';
 
-const MatchResult = ({dmWinner, dmScore, totalTeams, redScore, blueScore, greenScore, yellowScore, bMonsterHunt, endReason, bIncludeImages}) =>{
+export default function MatchResult({dmWinner, dmScore, totalTeams, redScore, blueScore, greenScore, yellowScore, bMonsterHunt, endReason, bIncludeImages}){
 
     if(bIncludeImages === undefined) bIncludeImages = true;
     const elems = [];
@@ -64,9 +64,12 @@ const MatchResult = ({dmWinner, dmScore, totalTeams, redScore, blueScore, greenS
         }
 
     }else{
-        elems.push(<div key={"mh"}>
-            {(endReason.toLowerCase() === "hunt successfull!") ? "Hunt Succesfull" : "Hunt Failed"}
+
+        elems.push(<div key="mh" className={`${styles.wrapper} ${styles.dm}`}>
+            <img src={`/images/monsters/unrealshare.cow.png`} alt="image"/><br/>
+            {(endReason.toLowerCase() === "hunt successful!") ? "Hunt Succesfull" : "Hunt Failed"}
         </div>);
+
     }
 
     
@@ -77,8 +80,4 @@ const MatchResult = ({dmWinner, dmScore, totalTeams, redScore, blueScore, greenS
             </div>
         </div>
     );
-    
 }
-
-
-export default MatchResult;

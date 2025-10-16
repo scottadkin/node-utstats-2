@@ -36,7 +36,7 @@ export default function MatchResultSmall({totalTeams, dmWinner, dmScore, redScor
 
     }else{
 
-        if(endReason.toLowerCase() === "hunt successfull!"){
+        if(endReason.toLowerCase() === "hunt successful!"){
             return <div className={`${styles.wrapper} solo`}><div className="team-none">Hunt Successful</div></div>;
         }else{
             return <div className={`${styles.wrapper} solo`}><div className="team-none">Hunt Failed</div></div>;

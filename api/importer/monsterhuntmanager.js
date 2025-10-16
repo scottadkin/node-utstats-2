@@ -44,22 +44,20 @@ export default class MonsterHuntManager{
         const killReg = /^(\d+\.\d+?)\tnstats\tmonsterkill\t(.+?)\t(.+)$/i;
         const deathReg = /^(\d+\.\d+?)\tnstats\tmk\t(.+?)\t(.+)$/i;
 
-        let result = 0;
         let monsterName = "";
         let killerId = 0;
         let currentKiller = 0;
         let killerDeaths = 0;
         let timestamp = 0;
 
-        let d = 0;
-
+ 
         for(let i = 0; i < this.lines.length; i++){
 
-            d = this.lines[i];
+            const d = this.lines[i];
 
             if(killReg.test(d)){
 
-                result = killReg.exec(d);
+                const result = killReg.exec(d);
 
                 timestamp = parseFloat(result[1]);
                 monsterName = result[3].toLowerCase();
@@ -135,11 +133,9 @@ export default class MonsterHuntManager{
 
         try{
 
-            let p = 0;
-
             for(let i = 0; i < players.length; i++){
 
-                p = players[i];
+                const p = players[i];
 
                 if(p.bDuplicate === undefined){
 
@@ -163,11 +159,9 @@ export default class MonsterHuntManager{
 
         try{
 
-            let p = 0;
-
             for(let i = 0; i < players.length; i++){
 
-                p = players[i];
+                const p = players[i];
 
                 if(p.bDuplicate === undefined){
                     
@@ -264,12 +258,10 @@ export default class MonsterHuntManager{
     async insertKills(matchId){
 
         try{
-
-            let k = 0;
-
+            
             for(let i = 0; i < this.kills.length; i++){
 
-                k = this.kills[i];
+                const k = this.kills[i];
 
                 await this.monsterHunt.insertKill(matchId, k.timestamp, k.monsterId, k.killer);
             }

@@ -59,6 +59,11 @@ export default function PlayerMatchResult({playerId, data}){
 
     }
 
+    if(data.mh){
+        const end = data.end_type.toLowerCase();
+        if(end === "hunt successful!") return WON_ELEM;
+        return LOST_ELEM;
+    }
 
-    return <span className="red">HORSE NOISE</span>;
+    return <span className="red">{data.end_type}</span>;
 }

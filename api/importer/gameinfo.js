@@ -87,6 +87,7 @@ export default class GameInfo{
                     result = endReg.exec(d);
                     this.end = parseFloat(result[1]);
                     this.endReason = result[2];
+                    
                 }
             }
         }
