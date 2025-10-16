@@ -35,6 +35,8 @@ import PlayerCombogibStats from "../../UI/Player/PlayerCombogibStats";
 import PlayerMonsterHuntStats from "../../UI/Player/PlayerMonsterHuntStats";
 import { getPlayerProfileMonsters } from "../../../../api/monsterhunt";
 import PlayerMonsters from "../../UI/Player/PlayerMonsters";
+import { convertTimestamp } from "../../../../api/generic.mjs";
+
 
 function setQueryVars(params, searchParams){
 
@@ -45,6 +47,50 @@ function setQueryVars(params, searchParams){
     return {playerId}
 }
 
+function getOGImage(faceFiles, faceId){
+
+	if(faceFiles[faceId] !== undefined){
+		return `${faceFiles[faceId].name}`;
+	}
+
+	return "faceless";
+
+}
+
+export async function generateMetadata({ params, searchParams }, parent) {
+
+    params = await params;
+    searchParams = await searchParams;
+
+    const {playerId} = setQueryVars(params, searchParams);
+    const basic = await getPlayerById(playerId);
+
+    if(basic === null){
+        return {
+            "title": "Player Not Found - Node UTStats 2",
+            "description": "Could not find the player you were looking for,",
+            "keywords": ["player", "profile", "utstats", "node"],
+        }
+    }
+
+    const faces = await getFacesWithFileStatuses([basic.face]);
+
+    const ogImage = getOGImage(faces, basic.face);
+
+    let description = `View ${basic.name} career profile, ${basic.name} is from ${getCountryName(basic.country)}, last seen ${convertTimestamp(basic.last)},`;
+    description += ` played ${basic.matches} matches with a winrate of ${basic.winrate.toFixed(2)}% and has played for a total of ${(basic.playtime / (60 * 60)).toFixed(2)}` ;
+    description += ` hours since ${convertTimestamp(basic.first)}.` ;
+
+    return {
+        "title": `${basic.name} - Player Profile - Node UTStats 2`,
+        "description": description,
+        "keywords": ["match","report", "utstats", "node", basic.name],
+        "openGraph": {
+            "images": [`/images/faces/${ogImage}.png`]
+        }
+    }
+}
+
 export default async function Page({params, searchParams}){
 
     const header = await headers();
@@ -52,7 +98,6 @@ export default async function Page({params, searchParams}){
     params = await params;
     searchParams = await searchParams;
 
-    console.log(params);
     const {playerId} = setQueryVars(params, searchParams);
 
     const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0];
@@ -203,7 +248,7 @@ export default async function Page({params, searchParams}){
         <Nav settings={navSettings} session={sessionSettings}/>		
         <div id="content">
             <div className="default">
-                <div className="default-header">Player Profile</div>
+                <div className="default-header">{basic.name} - Player Profile</div>
                 <PlayerGeneral data={basic} country={getCountryName(basic.country)} face={faces[basic.face].name}/>
                 {elems}
             </div>    
