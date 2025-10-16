@@ -30,6 +30,8 @@ import PlayerTeleFrags from "../../UI/Player/PlayerTeleFrags";
 import PlayerMapStats from "../../UI/Player/PlayerMapStats";
 import { getAllPlayerCurrent as getAllCurrentWinrates } from "../../../../api/winrate";
 import PlayerWinRates from "../../UI/Player/PlayerWinRates";
+import { getPlayerTotals as getCombogibTotals } from "../../../../api/combogib";
+import PlayerCombogibStats from "../../UI/Player/PlayerCombogibStats";
 
 function setQueryVars(params, searchParams){
 
@@ -174,6 +176,12 @@ export default async function Page({params, searchParams}){
 
         const data = await getAllCurrentWinrates(playerId);
         pageManager.addComponent("Display Win Rates", <PlayerWinRates key="wins" data={data}/>);
+    }
+
+    if(pageManager.bEnabled("Display Combogib Stats")){
+
+        const data = await getCombogibTotals(playerId);
+        pageManager.addComponent("Display Combogib Stats", <PlayerCombogibStats key="combo" data={data}/>);
     }
     
 

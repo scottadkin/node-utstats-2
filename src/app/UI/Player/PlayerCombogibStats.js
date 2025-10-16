@@ -1,57 +1,37 @@
-import React from "react";
-import Loading from "../Loading";
-import ErrorMessage from "../ErrorMessage";
-import Table2 from "../Table2";
-import Functions from "../../api/functions";
+"use client"
 import Link from "next/link";
-
-class PlayerCombogibStats extends React.Component{
-
-    constructor(props){
-
-        super(props);
-
-        this.state = {"loaded": false, "error": null, "data": null, "tab": 0};
-    }
-
-    changeTab(id){
-
-        this.setState({"tab": id});
-    }
-
-    async loadData(){
-
-        const req = await fetch("/api/combogib", {
-            "headers": {"Content-type": "application/json"},
-            "method": "POST",
-            "body": JSON.stringify({"mode": "ptotal", "playerId": this.props.playerId})
-        });
-
-        const res = await req.json();
-
-        if(res.error !== undefined){
-            this.setState({"error": res.error});
-        }else{
-
-            if(res.data.length !== 0){
-                this.setState({"data": res.data});
-            }
-        }
+import { useState } from "react";
+import Tabs from "../Tabs";
 
 
-        this.setState({"loaded": true});
-    }
+export default function PlayerCombogibStats({data}){
 
-    async componentDidMount(){
+    const [mode, setMode] = useState(0);
+    const [cat, setCat] = useState(0);
 
-        await this.loadData();
-    }
+    const modeOptions = [
+        {"name": "All Time", "value": 0},
+        {"name": "Gametype Totals", "value": 1},
+        {"name": "Map Totals", "value": 2},
+    ];
 
-    renderGametypes(){
+    const catOptions = [
+        {"name": "Total Kills", "value": 0},
+        {"name": "Match Kill Records", "value": 1},
+        {"name": "Best Kill Type Sprees", "value": 2},
+        {"name": "Best Single Kill Event", "value": 3},
+        {"name": "Kills Per Minute", "value": 4},
+    ];
 
-        const elems = [];
+    return <>
+        <div className="default-header">Combogib Summary</div>
+        <Tabs options={modeOptions} selectedValue={mode} changeSelected={(a) => setMode(() => a)}/>
+        <Tabs options={catOptions} selectedValue={cat} changeSelected={(a) => setCat(() => a)}/>
+    </>
+}
 
-    }
+/*class PlayerCombogibStats extends React.Component{
+
 
     renderPlayerTotalKills(d){
 
@@ -269,4 +249,4 @@ class PlayerCombogibStats extends React.Component{
     }
 }
 
-export default PlayerCombogibStats;
+export default PlayerCombogibStats;*/

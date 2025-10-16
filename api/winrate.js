@@ -717,8 +717,6 @@ export async function getAllPlayerCurrent(playerId){
 
     const result = await simpleQuery(query, [playerId]);
 
-    console.log(result);
-
     const gametypeIds = new Set();
     const mapIds = new Set();
 

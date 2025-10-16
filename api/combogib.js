@@ -1,5 +1,6 @@
 import { bulkInsert, simpleQuery } from "./database.js";
 import { getPlayer } from "./generic.mjs";
+import { getObjectName } from "./genericServerSide.mjs";
 import { getBasicPlayersByIds } from "./players.js";
 
 export default class Combogib{
@@ -480,20 +481,6 @@ export default class Combogib{
             await this.updatePlayerTotals(playerId, 0, mapId, matchId, playtime, combos, insane, shockBalls, primary);
         }
 
-    }
-
-
-    async getPlayerTotals(playerId){
-
-        const query = `SELECT * FROM nstats_player_combogib WHERE player_id=? AND gametype_id=0 AND map_id=0`;
-
-        const result = await simpleQuery(query, [playerId]);
-
-        if(result.length > 0){
-            return result[0];
-        }
-
-        return [];
     }
 
 
@@ -1625,4 +1612,35 @@ export async function getPlayerMatchData(playerId, matchId){
 
     return result[0];
 
+}
+
+export async function getPlayerTotals(playerId){
+
+    const query = `SELECT * FROM nstats_player_combogib WHERE player_id=?`;
+
+    const result = await simpleQuery(query, [playerId]);
+
+    const gametypeIds = new Set();
+    const mapIds = new Set();
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        if(r.gametype_id !== 0) gametypeIds.add(r.gametype_id);
+        if(r.map_id !== 0) mapIds.add(r.map_id);
+    }
+
+    const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
+    const mapNames = await getObjectName("maps", [...mapIds]);
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        if(r.gametype_id !== 0) r.gametypeName = gametypeNames[r.gametype_id] ?? "Not Found";
+        if(r.map_id !== 0) r.mapName = mapNames[r.map_id] ?? "Not Found";
+    }
+
+    return result;
 }
