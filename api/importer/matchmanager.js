@@ -140,10 +140,8 @@ export default class MatchManager{
                 return null;
             }
 
-            
-
-    
-            if(this.mapInfo.mapPrefix === "mh"){
+        
+            if(this.mapInfo.mapPrefix === "MH"){
                 this.gameInfo.totalTeams = 0;
             }
  
@@ -552,7 +550,7 @@ export default class MatchManager{
             this.gameInfo.teamScores[1],
             this.gameInfo.teamScores[2],
             this.gameInfo.teamScores[3],
-            (this.mapInfo.mapPrefix === "mh") ? true : false
+            (this.mapInfo.mapPrefix === "MH") ? true : false
         );
 
     }
