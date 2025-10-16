@@ -22,7 +22,7 @@ export default class MonsterHunt{
             mh_kills_best = IF(mh_kills_best < ?, ?, mh_kills_best),
             mh_deaths = mh_deaths + ?,
             mh_deaths_worst = IF(mh_deaths_worst < ?, ?, mh_deaths_worst)
-            WHERE player_id=? AND gametype IN (0,?)`;
+            WHERE (player_id=? OR id=?) AND gametype IN (0,?) AND map=0`;
 
         const vars = [
             kills,
@@ -33,6 +33,7 @@ export default class MonsterHunt{
             monsterDeaths,
             monsterDeaths,
             monsterDeaths,
+            playerId,
             playerId,
             gametypeId
         ];

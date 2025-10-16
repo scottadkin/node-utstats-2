@@ -32,6 +32,7 @@ import { getAllPlayerCurrent as getAllCurrentWinrates } from "../../../../api/wi
 import PlayerWinRates from "../../UI/Player/PlayerWinRates";
 import { getPlayerTotals as getCombogibTotals } from "../../../../api/combogib";
 import PlayerCombogibStats from "../../UI/Player/PlayerCombogibStats";
+import PlayerMonsterHuntStats from "../../UI/Player/PlayerMonsterHuntStats";
 
 function setQueryVars(params, searchParams){
 
@@ -184,7 +185,12 @@ export default async function Page({params, searchParams}){
 
         pageManager.addComponent("Display Combogib Stats", <PlayerCombogibStats key="combo" data={data}/>);
     }
+
+
+    pageManager.addComponent("Display Monsterhunt Basic Stats", <PlayerMonsterHuntStats key="mh-basic" data={basic}/>)
+
     
+
 
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		

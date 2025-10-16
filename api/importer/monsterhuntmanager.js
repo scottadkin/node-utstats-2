@@ -136,17 +136,15 @@ export default class MonsterHuntManager{
             for(let i = 0; i < players.length; i++){
 
                 const p = players[i];
-
-                if(p.bDuplicate === undefined){
-
-                    await this.monsterHunt.updatePlayerMatchData(
-                        matchId, 
-                        p.masterId, 
-                        p.stats.monsterHunt.kills, 
-                        p.stats.monsterHunt.bestKillsInLife,
-                        p.stats.monsterHunt.deaths
-                    );
-                }
+    
+                await this.monsterHunt.updatePlayerMatchData(
+                    matchId, 
+                    p.masterId, 
+                    p.stats.monsterHunt.kills, 
+                    p.stats.monsterHunt.bestKillsInLife,
+                    p.stats.monsterHunt.deaths
+                );
+                
             }
 
         }catch(err){
@@ -162,18 +160,16 @@ export default class MonsterHuntManager{
             for(let i = 0; i < players.length; i++){
 
                 const p = players[i];
-
-                if(p.bDuplicate === undefined){
                     
-                    await this.monsterHunt.updatePlayerTotals(
-                        gametypeId, 
-                        p.masterId, 
-                        p.stats.monsterHunt.kills, 
-                        p.stats.monsterHunt.bestKillsInLife,
-                        p.stats.monsterHunt.deaths
-                    );
-                }
+                await this.monsterHunt.updatePlayerTotals(
+                    gametypeId, 
+                    p.masterId, 
+                    p.stats.monsterHunt.kills, 
+                    p.stats.monsterHunt.bestKillsInLife,
+                    p.stats.monsterHunt.deaths
+                );
             }
+            
 
         }catch(err){
             console.trace(err);

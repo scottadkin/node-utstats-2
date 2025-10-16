@@ -794,10 +794,16 @@ export default class PlayerInfo{
         this.stats.monsterHunt.kills++;
         this.stats.monsterHunt.currentKills++;
         this.stats.monsterHunt.lastKill = timestamp;
+
+        if(this.stats.monsterHunt.currentKills > this.stats.monsterHunt.bestKillsInLife){
+            this.stats.monsterHunt.bestKillsInLife = this.stats.monsterHunt.currentKills;
+        }
     }
 
     diedToMonster(){
         this.stats.monsterHunt.deaths++;
+
+        this.stats.monsterHunt.currentKills = 0;
     }   
 
 
