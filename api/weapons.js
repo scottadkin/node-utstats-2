@@ -21,17 +21,6 @@ export default class Weapons{
         return false;
     }
 
-
-    async create(name){
-
-        const query = "INSERT INTO nstats_weapons VALUES(NULL,?,0,0,0,0,0,0,0)";
-
-        const result = await simpleQuery(query, [name]);
-
-        return result.insertId;
-
-    }
-
     async update(weapon, kills, deaths, shots, hits, damage){
 
         damage = Math.abs(damage);
@@ -1542,7 +1531,7 @@ export default class Weapons{
 
                 if(currentNames.indexOf(name) === -1){       
 
-                    const currentId = await this.create(name); 
+                    const currentId = await create(name); 
 
                     current.push({"id": currentId, "name": name});
              
@@ -1581,6 +1570,16 @@ export default class Weapons{
     /**
      * end still used somewhere else in importer
      */
+}
+
+async function create(name){
+
+    const query = "INSERT INTO nstats_weapons VALUES(NULL,?,0,0,0,0,0,0,0)";
+
+    const result = await simpleQuery(query, [name]);
+
+    return result.insertId;
+
 }
 
 async function getMatchPlayerData(id){
@@ -1735,7 +1734,7 @@ export async function getWeaponIdsByNames(names){
 
             if(currentNames.indexOf(name) === -1){       
 
-                const currentId = await this.create(name); 
+                const currentId = await create(name); 
 
                 current.push({"id": currentId, "name": name});
             
