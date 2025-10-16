@@ -3,7 +3,7 @@ import Link from "next/link";
 import CountryFlag from "../CountryFlag";
 import { getOrdinal, toPlaytime, convertTimestamp } from "../../../../api/generic.mjs";
 import Image from "next/image";
-import { BasicMouseOver } from "../MouseOver";
+import MouseOver from "../MouseOver";
 import Pagination from "../Pagination";
 
 
@@ -40,7 +40,7 @@ export default function RankingTable({title, gametypeId, data, page, perPage, bD
             <Link href={`/player/${d.player_id}`}><CountryFlag country={d.country}/>{d.playerName}</Link>,
             convertTimestamp(d.last_active, true),
             toPlaytime(d.playtime),
-            <BasicMouseOver text={mouseText}>{d.ranking} <Image src={`/images/${icon}`} alt="icon" width={12} height={12}/></BasicMouseOver>
+            <MouseOver text={mouseText}>{d.ranking} <Image src={`/images/${icon}`} alt="icon" width={12} height={12}/></MouseOver>
         ];
     });
 

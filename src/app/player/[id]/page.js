@@ -181,6 +181,7 @@ export default async function Page({params, searchParams}){
     if(pageManager.bEnabled("Display Combogib Stats")){
 
         const data = await getCombogibTotals(playerId);
+
         pageManager.addComponent("Display Combogib Stats", <PlayerCombogibStats key="combo" data={data}/>);
     }
     

@@ -2,7 +2,7 @@ import { getTeamColor, ignore0 } from '../../../../api/generic.mjs';
 import CountryFlag from '../CountryFlag';
 import Link from 'next/link';
 import InteractiveTable from '../InteractiveTable';
-import { BasicMouseOver } from '../MouseOver';
+import MouseOver from '../MouseOver';
 
 export default function MatchFragDistances({matchId, playerData, totalTeams, bSeparateByTeam, single}){
 
@@ -112,25 +112,25 @@ export default function MatchFragDistances({matchId, playerData, totalTeams, bSe
                 "shortest": {
                     "value": totals.shortest,
                     "displayValue":  
-                    <BasicMouseOver title="Shortest Kill Distance" 
+                    <MouseOver title="Shortest Kill Distance" 
                         text="The shortest distance between a killer and a victim.">
                         {totals.shortest.toFixed(2)}
-                    </BasicMouseOver>,
+                    </MouseOver>,
                     
                 },"average": {
                     "value": totals.average,
-                    "displayValue":  <BasicMouseOver 
+                    "displayValue":  <MouseOver 
                         title="Longest Average Kill Distance" 
                         text="The longest average kill distance between a killer and victim.">
                         {totals.average.toFixed(2)}
-                    </BasicMouseOver>,
+                    </MouseOver>,
                 },"longest": {
                     "value": totals.longest,
-                    "displayValue":  <BasicMouseOver 
+                    "displayValue":  <MouseOver 
                         title="Longest Kill Distance" 
                         text="The longest kill distance between a killer and victim.">
                         {totals.longest.toFixed(2)}
-                    </BasicMouseOver>,
+                    </MouseOver>,
                 },"close": {
                     "value": totals.close,
                     "displayValue": ignore0(totals.close)

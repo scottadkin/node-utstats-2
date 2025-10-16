@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import CountryFlag from '../CountryFlag';
 import InteractiveTable from '../InteractiveTable';
-import MouseOver from '../../../../components/MouseOver';
+import MouseOver from '../MouseOver';
 import { getOrdinal, getPlayerFromMatchData, getTeamColor } from '../../../../api/generic.mjs';
 
 function getIcon(value){

@@ -1,4 +1,4 @@
-import { BasicMouseOver } from "../MouseOver";
+import MouseOver from "../MouseOver";
 import Image from "next/image";
 import InteractiveTable from "../InteractiveTable";
 import { toPlaytime, getOrdinal } from "../../../../api/generic.mjs";
@@ -27,13 +27,13 @@ export default function PlayerRankings({data}){
             "matches": {"value": d.matches},
             "playtime": {"value": d.playtime, "displayValue": toPlaytime(d.playtime), "className": "playtime"},
             "ranking": {"value": d.ranking, "displayValue": <>
-                <BasicMouseOver title={`Previous Match Ranking Change`} 
+                <MouseOver title={`Previous Match Ranking Change`} 
                     text={rankingString}>
                     <span className="ranking-position">({d.position}{getOrdinal(d.position)})</span>
                     <Image width={14} height={14} className="ranking-icon" src={icon} alt="image"/>
                     &nbsp;
                     {parseFloat(d.ranking).toFixed(2)}
-                </BasicMouseOver>
+                </MouseOver>
             </>}
         });
     }

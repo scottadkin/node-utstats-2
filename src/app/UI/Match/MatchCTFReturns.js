@@ -4,7 +4,7 @@ import InteractiveTable from "../InteractiveTable";
 import CountryFlag from "../CountryFlag";
 import Link from "next/link";
 import styles from "./MatchCTFReturns.module.css";
-import MouseOver from "../../../../components/MouseOver";
+import MouseOver from "../MouseOver";
 import MatchCTFReturnDetailed from "./MatchCTFReturnDetailed";
 import Tabs from "../Tabs";
 import { getPlayerFromMatchData, MMSS, toPlaytime, plural, getTeamColor, 

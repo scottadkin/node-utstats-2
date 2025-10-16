@@ -4,7 +4,7 @@ import { getPlayerFromMatchData, MMSS, toPlaytime, ignore0, getTeamColor, scaleP
 import InteractiveTable from '../InteractiveTable';
 import Link from 'next/link';
 import CountryFlag from '../CountryFlag';
-import MouseOver from "../../../../components/MouseOver";
+import MouseOver from '../MouseOver';
 
 
 function updateTeamScores(teamScores, teamId, totalTeams){

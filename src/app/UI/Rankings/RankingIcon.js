@@ -1,4 +1,4 @@
-import MouseOver from "../../../../components/MouseOver";
+import MouseOver from "../MouseOver";
 import styles from "./RankingIcon.module.css";
 
 export default function RankingIcon({change}){

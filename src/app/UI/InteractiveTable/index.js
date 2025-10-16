@@ -3,7 +3,7 @@ import {useState} from "react";
 import Table2 from "../Table2";
 import styles from "./InteractiveTable.module.css";
 import Link from "next/link";
-import { BasicMouseOver } from "../MouseOver";
+import MouseOver from "../MouseOver";
 
 
 function renderHeaders(props, changeOrder){
@@ -34,7 +34,7 @@ function renderHeaders(props, changeOrder){
             onClick={(() =>{
                 changeOrder(key);
             })}>
-                <BasicMouseOver title={value.detailedTitle} text={value.content}>{value.title}</BasicMouseOver>
+                <MouseOver title={value.detailedTitle} display={value.display}>{value.title}</MouseOver>
             </th>);
         }
     }
