@@ -282,11 +282,24 @@ const renderReturns = (selectedTab, data, recordType) =>{
 
 function bAnyData(data){
 
-    const keys = ["totals", "best", "bestLife"];
+    if(data.totals === undefined) return false;
 
-    for(let i = 0; i < keys.length; i++){
+    for(let i = 0; i < data.totals.length; i++){
 
-        if(data[keys[i]].length > 0) return true;
+        const t = data.totals[i];
+
+        if(t.gametype_id !== 0 || t.map_id !== 0) continue;
+
+        const keys = Object.keys(t);
+
+        for(let x = 0; x < keys.length; x++){
+
+            const k = keys[x];
+
+            if(k.startsWith("flag_")){
+                if(t[k] > 0) return true;
+            }
+        }
     }
 
     return false;
@@ -307,6 +320,8 @@ function getTabs(){
 
 
 export default function PlayerCTFSummary({ctfData}){
+    
+    if(!bAnyData(ctfData)) return null;
 
     const [selectedMode, setSelectedMode] = useState(0);
     const [recordType, setRecordType] = useState(0);

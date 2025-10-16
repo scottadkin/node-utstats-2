@@ -5,6 +5,24 @@ import InteractiveTable from "../InteractiveTable";
 import Tabs from "../Tabs";
 
 
+function bAnyData(data){
+
+    const keys = [];
+
+    for(let i = 1; i <= 7; i++){
+
+        keys.push(`multi_${i}`);
+        keys.push(`spree_${i}`);
+    }
+
+    for(let i = 0; i < keys.length; i++){
+
+        if(data[keys[i]] > 0) return true;
+    }
+
+    return false;
+}
+
 function renderMultis(mode, cat, data, selectedGametype, selectedMap){
 
     const titles = getMultiTitles(mode);
@@ -24,6 +42,8 @@ function renderMultis(mode, cat, data, selectedGametype, selectedMap){
     for(let i = 0; i < data.length; i++){
 
         const d = data[i];
+
+        if(!bAnyData(d)) continue;
 
         if(cat === 0 && (d.gametype !== 0 || d.map !== 0)) continue;
         if(cat === 1 && (d.gametype === 0 || d.map > 0)) continue;
@@ -55,6 +75,8 @@ function renderMultis(mode, cat, data, selectedGametype, selectedMap){
         rows.push(row);
     }
 
+    if(rows.length === 0) return null;
+
     return <>
         <InteractiveTable width={1} headers={headers} data={rows} defaultOrder={"name"}/>
     </>
@@ -80,6 +102,7 @@ function renderSprees(mode, cat, data, selectedGametype, selectedMap){
 
         const d = data[i];
 
+        if(!bAnyData(d)) continue;
         
 
         if(cat === 0 && (d.gametype !== 0 || d.map !== 0)) continue;
@@ -111,6 +134,8 @@ function renderSprees(mode, cat, data, selectedGametype, selectedMap){
    
         rows.push(row);
     }
+
+    if(rows.length === 0) return null;
 
     return <>
         <InteractiveTable width={1} headers={headers} data={rows} defaultOrder={"name"}/>
@@ -182,6 +207,18 @@ function renderCustomFilter(cat, data, gametype, setGametype, map, setMap){
 }
 
 export default function PlayerSpecialEvents({data}){
+
+    let bFoundData = false;
+
+    for(let i = 0; i < data.length; i++){
+
+        if(bAnyData(data[i])){
+            bFoundData = true;
+            break;
+        }
+    }
+
+    if(!bFoundData) return null;
 
     const [mode, setMode] = useState("ut99");
     const [cat, setCat] = useState(0);

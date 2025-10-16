@@ -158,7 +158,7 @@ export default async function Page({params, searchParams}){
 
     if(pageManager.bEnabled("Display Capture The Flag Summary")){
         const ctfData = await getPlayerProfileData(playerId);
-        pageManager.addComponent("Display Capture The Flag Summary", <PlayerCTFSummary key="ctf-sum" ctfData={ctfData}/>);
+        pageManager.addComponent("Display Capture The Flag Summary", <PlayerCTFSummary key="ctf-sum"  ctfData={ctfData}/>);
     }
 
 

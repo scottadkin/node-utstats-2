@@ -1,7 +1,20 @@
 import { BasicTable } from "../Tables"
 
+function bAnyData(data){
+
+    const keys = [
+        "mh_kills", "mh_kills_best", "mh_kills_best_life", "mh_deaths", "mh_deaths_worst"
+    ];
+
+    for(let i = 0; i < keys.length; i++){
+        if(data[keys[i]] > 0) return true;
+    }
+    return false;
+}
+
 export default function PlayerMonsterHuntStats({data}){
 
+    if(!bAnyData(data)) return null;
     const headers = [
         "Total Kills", "Most Kills In A Match", "Most Kills In A Single Life",
         "Total Deaths To Monsters", "Most Deaths In A Match", "Kill:Death Ratio"
