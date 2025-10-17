@@ -3,9 +3,10 @@ import {getNavSettings} from "../../../api/sitesettings";
 import Session from "../../../api/session";
 import { headers, cookies } from "next/headers";
 import ErrorPage from "../UI/ErrorPage";
+import AdminMain from "../UI/Admin/AdminMain";
 
 export default async function Page({}){
-    
+
     const cookieStore = await cookies();
     const header = await headers();
     const cookiesData = cookieStore.getAll();
@@ -28,7 +29,9 @@ export default async function Page({}){
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
         <div id="content">
-            <div className="default-header">Admin Control Panel</div>
+            <div className="default">
+                <AdminMain />
+            </div>
         </div>   
     </main>; 
 }

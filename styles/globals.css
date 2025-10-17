@@ -671,6 +671,11 @@ input[type="range"]{
 	cursor:pointer;
 }
 
+.delete-button{
+	background-color:rgb(100,0,0);
+	font-weight:bold;
+}
+
 .min-width-150{
 	min-width:150px;
 }

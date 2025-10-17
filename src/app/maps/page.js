@@ -95,11 +95,11 @@ export default async function Page({params, searchParams}){
 
 	const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0]
 	
-	const session = new Session(ip, JSON.stringify(cookiesData));
+	const session = new Session(ip, cookiesData);
 
 	await session.load();
 	const navSettings = await getNavSettings("Navigation");
-	const sessionSettings = JSON.stringify(session.settings);
+	const sessionSettings = session.settings;
 
 
 	const result = await mapSearch(page, perPage, name, order === "asc", sort);

@@ -30,6 +30,9 @@ export async function generateMetadata({ params, searchParams }, parent) {
   }
 }
 
+
+
+
 export default async function Page(){
 
     const cookieStore = await cookies();
@@ -217,10 +220,11 @@ export default async function Page(){
         elems[pageOrder["Display Most Used Faces"]] = <MostUsedFaces key={"faces"} data={mostUsedFaces} images={faceFiles} />;
     }
 
-
+    
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
         <div id="content">
+
             {elems}      
         </div>   
     </main>; 
