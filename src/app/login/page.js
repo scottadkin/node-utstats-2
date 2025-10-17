@@ -25,11 +25,11 @@ export default async function Page(){
 
 	const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0]
 	
-	const session = new Session(ip, JSON.stringify(cookiesData));
+	const session = new Session(ip, cookiesData);
 
 	await session.load();
 	const navSettings = await getNavSettings();
-	const sessionSettings = JSON.stringify(session.settings);
+	const sessionSettings = session.settings;
 
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		

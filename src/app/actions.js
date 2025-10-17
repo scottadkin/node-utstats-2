@@ -32,6 +32,7 @@ export async function loginUser(previousState, formData){
 
     console.log(rawFormData);
 
+
     cookieStore.set({
         "name": "sid",
         "value": result.hash,

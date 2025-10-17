@@ -12,8 +12,8 @@ const urls = {
     "Display Rankings":{"text": "Rankings", "url": "/rankings/0", "reg": /^\/rankings\/.+$/i},
     "Display Records": {"text": "Records", "url": "/records/player-totals", "reg": /^\/(?:records|ctfcaps).+$/i},
     "Display Maps": {"text": "Maps", "url": "/maps", "reg": /^\/map\/.+$/i},
-    "Display Admin": {"text": "Admin", "url": "/admin"},
-    "Display ACE": {"text": "ACE", "url": "/ace"},
+    "Display Admin": {"text": "Admin", "url": "/admin", "reg": /^\/admin.+$/i},
+    //"Display ACE": {"text": "ACE", "url": "/ace"},
     "Display Login/Logout": {"text": "Login/Register", "url": "/login"},    
 };
 
