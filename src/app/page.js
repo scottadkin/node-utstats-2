@@ -1,4 +1,4 @@
-import {getNavSettings, getSettings, getPageOrder} from "../../api/sitesettings";
+import {getNavSettings, getSettings, getPageOrder, PageComponentManager} from "../../api/sitesettings";
 import { cookies, headers } from "next/headers";
 import Session from "../../api/session";
 import Matches from "../../api/matches";
@@ -6,8 +6,7 @@ import Players from "../../api/players";
 import MatchesTableView from "./UI/MatchesTableView";
 import Nav from "./UI/Nav";
 import Screenshot from "./UI/Screenshot";
-import { cleanMapName, removeUnr, getUniqueValues } from "../../api/generic.mjs";
-import Faces, { getFacesById } from "../../api/faces";
+import { cleanMapName} from "../../api/generic.mjs";
 import {getImages as getMapImages, getMostPlayed as getMostPlayedMaps} from "../../api/maps";
 import HomeMostPlayedGametypes from "./UI/Home/HomeMostPlayedGametypes";
 import Gametypes from "../../api/gametypes";
@@ -52,35 +51,27 @@ export default async function Page(){
     const matchManager = new Matches();
     const playerManager = new Players();
     const gametypeManager = new Gametypes();
-    const faceManager = new Faces();
-
+    
     const elems = [];
 
-    let mapImages = [];
-    let matchesData = [];
-
-    
+    const pageManager = new PageComponentManager(pageSettings, pageOrder, elems);
+  
 	const totalPlayers = await playerManager.getTotalPlayers();
 
-   // let uniqueMapNames = new Set();
+    if(pageManager.bEnabled("Display Recent Matches")){
 
-    if(pageSettings["Display Recent Matches"] === "true"){
+        const matchesData = await matchManager.getRecent(0, pageSettings["Recent Matches To Display"], 0, playerManager);
 
-		matchesData = await matchManager.getRecent(0, pageSettings["Recent Matches To Display"], 0, playerManager);
+        if(matchesData.length > 0){
 
-       // for(let i = 0; i < matchesData.length; i++){
-       //     uniqueMapNames.add(removeUnr(matchesData[i].mapName));
-       // }
+            pageManager.addComponent("Display Recent Matches", <div className="default" key="recent-matches">
+                <div className="default-header">Recent Matches</div>
+                <MatchesTableView  data={matchesData}/>     
+            </div>)
+        }
+    }
 
-        elems[pageOrder["Display Recent Matches"]] = <div className="default" key="recent-matches">
-            <div className="default-header">Recent Matches</div>
-            <MatchesTableView  data={matchesData}/>
-            
-        </div>
-	}
-
-
-    if(pageSettings["Display Latest Match"] === "true"){
+    if(pageManager.bEnabled("Display Latest Match")){
 
         const latestMatch = await matchManager.getRecent(0, 1, 0, playerManager);
 
@@ -97,8 +88,6 @@ export default async function Page(){
                 }
             }
 
-            
-
             const latestFaces = await getFacesWithFileStatuses(playerFaces);
 
             const latestMapName = latestMatch[0].mapName;
@@ -112,35 +101,38 @@ export default async function Page(){
                 latestMatchImage = mapImage[mapImageName];
             }
 
-            elems[pageOrder["Display Latest Match"]] = <div className="default" key="sshot">
-                <Screenshot 
-                key={"match-sshot"} map={latestMatch[0].mapName} totalTeams={latestMatch[0].total_teams} players={latestMatchPlayers} 
-                image={`/images/maps/${latestMatchImage}.jpg`} 
-                matchData={latestMatch[0]}
-                serverName={latestMatch[0].serverName} gametypeName={latestMatch[0].gametypeName} faces={latestFaces} bHome={true}
-            /></div>;
+            pageManager.addComponent("Display Latest Match", 
+                <div className="default" key="sshot">
+                    <Screenshot 
+                    key={"match-sshot"} map={latestMatch[0].mapName} totalTeams={latestMatch[0].total_teams} players={latestMatchPlayers} 
+                    image={`/images/maps/${latestMatchImage}.jpg`} 
+                    matchData={latestMatch[0]}
+                    serverName={latestMatch[0].serverName} gametypeName={latestMatch[0].gametypeName} faces={latestFaces} bHome={true}/>
+                </div>);
+        }
+
+    }
+
+    if(pageManager.bEnabled("Display Most Played Gametypes")){
+
+        const gametypeStats = await gametypeManager.getMostPlayed(5);
+        if(gametypeStats.length > 0){
+            const imageGametypeNames = [];
+
+            for(let i = 0; i < gametypeStats.length; i++){
+                imageGametypeNames.push(gametypeStats[i].name.replace(/ /ig,"").replace(/tournament/ig, "").toLowerCase());
+            }
+
+            const gametypeImages = gametypeManager.getMatchingImages(imageGametypeNames, false);
+
+        
+            pageManager.addComponent("Display Most Played Gametypes", <div key="gametypes" className="default">
+                <HomeMostPlayedGametypes data={gametypeStats} images={gametypeImages}/>
+            </div>);
         }
     }
 
-    if(pageSettings["Display Most Played Gametypes"] === "true"){
-        
-        const gametypeStats = await gametypeManager.getMostPlayed(5);
-
-         const imageGametypeNames = [];
-
-		for(let i = 0; i < gametypeStats.length; i++){
-			imageGametypeNames.push(gametypeStats[i].name.replace(/ /ig,"").replace(/tournament/ig, "").toLowerCase());
-		}
-
-        const gametypeImages = gametypeManager.getMatchingImages(imageGametypeNames, false);
-
-        elems[pageOrder["Display Most Played Gametypes"]] = <div key="gametypes" className="default">
-            <HomeMostPlayedGametypes data={gametypeStats} images={gametypeImages}/>
-        </div>
-    }
-
-
-    if(pageSettings["Display Most Played Maps"] === "true"){
+    if(pageManager.bEnabled("Display Most Played Maps")){
 
         const mostPlayedMaps = await getMostPlayedMaps(4);
 
@@ -154,70 +146,75 @@ export default async function Page(){
 
         const mapImages = getMapImages(mapNames);
 
-        elems[pageOrder["Display Most Played Maps"]] = <div className="default" key="top-maps">
+        pageManager.addComponent("Display Most Played Maps", <div className="default" key="top-maps">
             <HomeTopMaps maps={mostPlayedMaps} images={mapImages}/>
-        </div>;
+        </div>);
     }
 
-    if(pageSettings["Display Most Popular Countries"]){
+ 
+    if(pageManager.bEnabled("Display Most Popular Countries")){
 
         const cm = new CountriesManager();
         
         const countryData = await cm.getMostPopular(parseInt(pageSettings["Popular Countries Display Limit"]));
 
-        elems[pageOrder["Display Most Popular Countries"]] = <PopularCountries key="pc" 
+       pageManager.addComponent("Display Most Popular Countries",<PopularCountries key="pc" 
             totalPlayers={totalPlayers}
             settings={{
                 "Popular Countries Display Type": pageSettings["Popular Countries Display Type"]
             }}
             data={countryData}
-        />
+        />);
     }
 
-    if(pageSettings["Display Recent Matches & Player Stats"] === "true"){
-		//elems[pageOrder["Display Recent Matches & Player Stats"]] = <CalendarThing key="player-match-heatmap"/>
-		elems[pageOrder["Display Recent Matches & Player Stats"]] = <HomeGeneralStats key="general-stats" />;	
-	}
+
+    pageManager.addComponent("Display Recent Matches & Player Stats",<HomeGeneralStats key="general-stats"/>);
 
 
-    if(pageSettings["Display Recent Players"] === "true"){
+
+    if(pageManager.bEnabled("Display Recent Players")){
 
         const recentPlayersData = await playerManager.getRecentPlayers(5);
+        if(recentPlayersData.length > 0){
 
-        const faceIds = new Set([...recentPlayersData.map((d) =>{ return d.face; })]);
-        
-        const faceFiles = await getFacesWithFileStatuses([...faceIds]);
+            const faceIds = new Set([...recentPlayersData.map((d) =>{ return d.face; })]);
+            
+            const faceFiles = await getFacesWithFileStatuses([...faceIds]);
 
-        elems[pageOrder["Display Recent Players"]] = <div className="default"key={"recent-players"} ><BasicPlayers 
-            title="Recent Players" 
-            players={recentPlayersData} 
-            faceFiles={faceFiles}
-        /></div>;
+            pageManager.addComponent("Display Recent Players", <div className="default"key={"recent-players"} ><BasicPlayers 
+                title="Recent Players" 
+                players={recentPlayersData} 
+                faceFiles={faceFiles}
+            /></div>);
+        }
     }
 
 
-    if(pageSettings["Display Addicted Players"] === "true"){
+    if(pageManager.bEnabled("Display Addicted Players")){
 
         const addictedPlayersData = await playerManager.getAddictedPlayers(5);
 
-        const faceIds = new Set([...addictedPlayersData.map((d) =>{ return d.face; })]);
-        
-        const faceFiles = await getFacesWithFileStatuses([...faceIds]);
+        if(addictedPlayersData.length > 0){
 
-        elems[pageOrder["Display Addicted Players"]] = <div className="default" key={"addicted-players"}><BasicPlayers 
-            title="Addicted Players" 
-            players={addictedPlayersData} 
-            faceFiles={faceFiles}
-        /></div>;
+            const faceIds = new Set([...addictedPlayersData.map((d) =>{ return d.face; })]);
+            
+            const faceFiles = await getFacesWithFileStatuses([...faceIds]);
+
+            pageManager.addComponent("Display Addicted Players",<div className="default" key={"addicted-players"}><BasicPlayers 
+                title="Addicted Players" 
+                players={addictedPlayersData} 
+                faceFiles={faceFiles}
+            /></div>);
+        }
     }
 
-    if(pageSettings["Display Most Used Faces"] === "true"){
+    if(pageManager.bEnabled("Display Most Used Faces")){
 
         const mostUsedFaces = await getMostUsedFaces(5);
         const faceIds = new Set([...mostUsedFaces.map((d) =>{ return d.id; })]);
         const faceFiles = await getFacesWithFileStatuses([...faceIds]);
 
-        elems[pageOrder["Display Most Used Faces"]] = <MostUsedFaces key={"faces"} data={mostUsedFaces} images={faceFiles} />;
+        pageManager.addComponent("Display Most Used Faces",<MostUsedFaces key={"faces"} data={mostUsedFaces} images={faceFiles}/>);
     }
 
     

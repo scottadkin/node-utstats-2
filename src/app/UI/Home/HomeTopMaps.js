@@ -5,6 +5,7 @@ import { utDate, cleanMapName, removeUnr, convertTimestamp, toPlaytime } from ".
 
 const HomeTopMaps = ({maps, images}) =>{
 
+    if(maps.length === 0) return null;
     const elems = [];
 
     for(let i = 0; i < maps.length; i++){
