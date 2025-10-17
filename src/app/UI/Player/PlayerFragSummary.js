@@ -189,7 +189,26 @@ function sortByName(a, b){
     return 0;
 }
 
+function bAnyData(data){
+
+    const targetKeys = ["deaths", "kills", "suicides", "team_kills","headshots"];
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        for(let x = 0; x < targetKeys.length; x++){
+
+            if(d[targetKeys[x]] > 0) return true;
+        }
+    }
+
+    return false;
+}
+
 export default function PlayerFragSummary({data}){
+
+    if(!bAnyData(data.data)) return null;
 
     const [mode, setMode] = useState(0);
     const [selectedGametype, setSelectedGametype] = useState(0);

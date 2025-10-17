@@ -116,7 +116,29 @@ function renderTelefragKills(mode, cat, data){
     return <InteractiveTable width={1} headers={headers} data={rows}/>
 }
 
+function bAnyData(data){
+
+    const targetKeys = [
+        "disc_kills", "disc_deaths",
+        "tele_deaths", "tele_kills"
+    ];
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+        
+        for(let x = 0; x < targetKeys.length; x++){
+
+            if(d[targetKeys[x]] > 0) return true;
+        }
+    }
+
+    return false;
+}
+
 export default function PlayerTeleFrags({data}){
+
+    if(!bAnyData(data)) return null;
 
     const [mode, setMode] = useState(0);
     const [cat, setCat] = useState(0);

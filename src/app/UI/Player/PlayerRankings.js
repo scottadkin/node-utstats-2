@@ -5,6 +5,8 @@ import { toPlaytime, getOrdinal } from "../../../../api/generic.mjs";
 
 export default function PlayerRankings({data}){
 
+    if(data.length === 0) return null;
+
     const rows = [];
 
     for(let i = 0; i < data.length; i++){

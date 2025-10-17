@@ -159,8 +159,27 @@ function renderBest(data, selectedWeapon, selectedMode){
     return <InteractiveTable title="Single Match Records" width={1} headers={headers} data={rows}/>
 }
 
+function bAnyData(data){
+
+    const targetKeys = ["damage","deaths","kills","suicides","team_kills","shots","hits"];
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        for(let x = 0; x < targetKeys.length; x++){
+
+            if(d[targetKeys[x]] > 0) return true;
+        }
+
+    }
+
+    return false;
+}
+
 export default function PlayerWeapons({defaultDisplayMode, totals, best}){
 
+    if(!bAnyData(totals)) return null;
 
     const [selectedMode, setSelectedMode] = useState(0);
     const [selectedWeapon, setSelectedWeapon] = useState(0);
