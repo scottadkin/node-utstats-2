@@ -9,6 +9,25 @@ async function bHostPortFolderComboInUse(host, port, targetFolder){
     return result[0].total_rows > 0;
 }
 
+async function checkFTPParams(params, bSkipHostPortCheck){
+
+    if(params.name === "") throw new Error(`FTP server name can't be an empty string`);
+    if(params.host === "") throw new Error(`Host can't be an empty string`);
+    if(params.port === "") throw new Error(`Port can't be an empty string`);
+    const port = parseInt(params.port);
+    if(port !== port) throw new Error(`Port must be an integer`);
+
+    if(port < 0 || port > 65535) throw new Error(`Post must be an integer value between 0-65535`);
+    params.port = port;
+
+    if(!bSkipHostPortCheck && await bHostPortFolderComboInUse(params.host, params.port, params.folder)){
+        throw new Error(`An FTP entry with the same host,port, and target folder already exist.`);
+    }
+
+    if(params.minPlayers === "") params.minPlayers = 0;
+    if(params.minPlaytime === "") params.minPlaytime = 0;
+}
+
 export default class Admin{
 
     constructor(session){
@@ -116,42 +135,7 @@ export default class Admin{
 
     async addFTPServer(params){
 
-
-
-        if(params.name === "") throw new Error(`FTP server name can't be an empty string`);
-        if(params.host === "") throw new Error(`Host can't be an empty string`);
-        if(params.port === "") throw new Error(`Port can't be an empty string`);
-        const port = parseInt(params.port);
-        if(port !== port) throw new Error(`Port must be an integer`);
-
-        if(port < 0 || port > 65535) throw new Error(`Post must be an integer value between 0-65535`);
-        params.port = port;
-
-        if(await bHostPortFolderComboInUse(params.host, params.port, params.folder)){
-            throw new Error(`An FTP entry with the same host,port, and target folder already exist.`);
-        }
-
-        const bools = [
-            "enabled","sftp","deleteLogsAfterImport",
-            "deleteTmpFiles","ignoreBots","ignoreDuplicates",
-            "importAce","deleteAceLogs","deleteAceSShots"
-        ];
-
-        if(params.minPlayers === "") params.minPlayers = 0;
-        if(params.minPlaytime === "") params.minPlaytime = 0;
-
-        for(let i = 0; i < bools.length; i++){
-
-            const b = bools[i];
-
-            if(params[b] === "true"){
-                params[b] = 1;
-            }else if(params[b] === "false"){
-                params[b] = 0;
-            }else{
-                throw new Error(`${b} must be a boolean`);
-            }
-        }
+        await checkFTPParams(params, false);
 
         const query = `INSERT INTO nstats_ftp VALUES (NULL,?,?,?,?,?,
         ?,?,0,0,0,
@@ -183,6 +167,41 @@ export default class Admin{
         await simpleQuery(query, vars);
     }
 
+
+    async updateFTPServer(params){
+
+        await checkFTPParams(params, true);
+
+        const query = `UPDATE nstats_ftp SET name=?,host=?,port=?,user=?,
+        password=?,target_folder=?,delete_after_import=?,
+        delete_tmp_files=?,ignore_bots=?,ignore_duplicates=?,
+        min_players=?,min_playtime=?,sftp=?,
+        import_ace=?,
+        delete_ace_logs=?,delete_ace_screenshots=?,enabled=? WHERE id=?`;
+
+        const vars = [
+            params.name,
+            params.host,
+            params.port,
+            params.user,
+            params.password,
+            params.folder,
+            params.deleteLogsAfterImport,
+            params.deleteTmpFiles,
+            params.ignoreBots,
+            params.ignoreDuplicates,
+            params.minPlayers,
+            params.minPlaytime,
+            params.sftp,
+            params.importAce,
+            params.deleteAceLogs,
+            params.deleteAceSShots,
+            params.enabled,
+            params.id
+        ];
+
+        await simpleQuery(query, vars);
+    }
 
 
     async getFTPList(){

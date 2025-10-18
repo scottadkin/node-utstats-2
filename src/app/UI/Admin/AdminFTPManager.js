@@ -69,43 +69,86 @@ function reducer(state, action){
                 "createServerFormData": data
             }
         }
+        case "set-selected-server": {
+
+            if(action.data === null) throw new Error(`ServerData is null!`);
+
+            const s = {...action.data};
+
+            const data = {
+                "enabled": s.enabled,
+                "sftp": s.sftp,
+                "name": s.name,
+                "host": s.host,
+                "port": s.port,
+                "user": s.user,
+                "password": s.password,
+                "folder": s.target_folder,
+                "deleteLogsAfterImport": s.delete_after_import,
+                "deleteTmpFiles": s.delete_tmp_files,
+                "ignoreBots": s.ignore_bots,
+                "ignoreDuplicates": s.ignore_duplicates,
+                "minPlayers": s.min_players,
+                "minPlaytime": s.min_playtime,
+                "importAce": s.import_ace,
+                "deleteAceLogs": s.delete_ace_logs,
+                "deleteAceSShots": s.delete_ace_screenshots
+            };
+        
+            return {
+                ...state,
+                "selectedEditServerId": action.value,
+                "editServerFormData": data
+            }
+        }
+        case "update-edit-form-data": {
+
+            const data = {...state.editServerFormData};
+
+    
+            if(data[action.key] === undefined){
+                throw new Error(`Unknown key`);
+            }
+
+            data[action.key] = action.value;
+
+            return {
+                ...state,
+                "editServerFormData": data
+            }
+        }
     }
 
     return state;
 }
 
-async function addServer(e, dispatch){
+
+
+async function update(mode, e, formData, dispatch, selectedEditServerId){
 
     try{
 
         e.preventDefault();
   
         dispatch({"type": "set-bInProgress", "value": true});
-        const data = {};
 
-        data.enabled = e.target.enabled.value;
-        data.sftp = e.target.sftp.value;
-        data.name = e.target.name.value;
-        data.host = e.target.host.value;
-        data.port = e.target.port.value;
-        data.user = e.target.user.value;
-        data.password = e.target.password.value;
-        data.folder = e.target.folder.value;
-        data.deleteLogsAfterImport = e.target["delete-logs-after-import"].value;
-        data.deleteTmpFiles = e.target["delete-tmp-files"].value;
-        data.ignoreBots = e.target["ignore-bots"].value;
-        data.ignoreDuplicates = e.target["ignore-duplicates"].value;
-        data.minPlayers = e.target["min-players"].value;
-        data.minPlaytime = e.target["min-playtime"].value;
-        data.importAce = e.target["import-ace"].value;
-        data.deleteAceLogs = e.target["delete-ace-logs"].value;
-        data.deleteAceSShots = e.target["delete-ace-sshots"].value;
+        const data = {
+            ...formData
+        };
+
+        
+        if(mode === "edit"){
+            data.id = selectedEditServerId;
+        }
 
 
         const req = await fetch("/api/admin", {
             "headers": {"Content-type": "application/json"},
             "method": "POST",
-            "body": JSON.stringify({"mode": "add-ftp-server", "data": data})
+            "body": JSON.stringify({
+                "mode": (mode === "add") ? "add-ftp-server" : "update-ftp-server", 
+                "data": data
+            })
         });
 
         const res = await req.json();
@@ -116,7 +159,14 @@ async function addServer(e, dispatch){
         if(res.error !== undefined){
             dispatch({"type": "set-message", "messageType": "error", "content": res.error});
         }else{
-            dispatch({"type": "set-message", "messageType": "pass", "content": `Server added.`});
+
+            await loadFTPServers(dispatch);
+
+            if(mode === "add"){
+                dispatch({"type": "set-message", "messageType": "pass", "content": `Server added.`});
+            }else if(mode === "edit"){
+                dispatch({"type": "set-message", "messageType": "pass", "content": `Server updated successfully.`});
+            }
         }
 
     }catch(err){
@@ -124,40 +174,86 @@ async function addServer(e, dispatch){
     }
 }
 
-function renderCreateForm(mode, bInProgress, formData, dispatch){
 
-    if(mode !== "add") return null;
+function getServer(ftpServers, targetId){
+
+    targetId = parseInt(targetId);
+
+    for(let i = 0; i < ftpServers.length;  i++){
+
+        const f = ftpServers[i];
+        if(f.id === targetId) return f;
+    }
+
+    return null;
+}
+
+function renderForm(mode, bInProgress, formData, ftpServers, selectedEditServerId, dispatch){
+
+    if(mode !== "add" && mode !== "edit") return null;
+
+    let type = "";
+
+    if(mode === "add"){
+        type = "update-create-form-data";
+    }else if(mode === "edit"){
+        type = "update-edit-form-data";
+    }
 
     if(bInProgress){
         return <Loading>Processing...</Loading>
     }
 
+    let dropdown = null;
+
+    if(mode === "edit"){
+
+        dropdown = <div className="form-row">
+            <label htmlFor="target-server">Selected Server</label>
+            <select className="default-select" value={selectedEditServerId} onChange={(e) =>{
+
+                const serverData = getServer(ftpServers, e.target.value);
+                dispatch({"type": "set-selected-server", "value":e.target.value, "data": serverData});
+                
+            }}> 
+                <option value="-1">-</option>
+                {ftpServers.map((f) =>{
+                    return <option key={f.id} value={f.id}>{f.name}</option>
+                })}
+            </select>
+        </div>;
+    }
+
     return <form className="form m-bottom-10" onSubmit={(e) =>{
-        addServer(e, dispatch);
-    }}>
-        <div className="form-header">Add FTP Server</div>
+
+            update(mode, e, formData, dispatch, selectedEditServerId);
+       
+        }}>
+        <div className="form-header">{(mode === "add") ? "Add" : "Edit"} FTP Server</div>
+        {dropdown}
         <div className="form-row">
             <label htmlFor="sftp">Enabled</label>
             <Checkbox name="enabled" value={formData.enabled} setValue={(value) =>{
-                dispatch({"type": "update-create-form-data", "key": "enabled", "value": value})
+           
+                dispatch({"type": type, "key": "enabled", "value": value})
             }}/>
         </div>
         <div className="form-row">
             <label htmlFor="sftp">Use SFTP</label>
             <Checkbox name="sftp" value={formData.sftp} setValue={(value) =>{
-                dispatch({"type": "update-create-form-data", "key": "sftp", "value": value})
+                dispatch({"type": type, "key": "sftp", "value": value})
             }}/>
         </div>
         <div className="form-row">
             <label htmlFor="name">Name</label>
             <input name="name" type="text" value={formData.name} className="default-textbox" onChange={(e) =>{
-                dispatch({"type": "update-create-form-data", "key": "name", "value": e.target.value})
+                dispatch({"type": type, "key": "name", "value": e.target.value})
             }}/>
         </div>
         <div className="form-row">
             <label htmlFor="host">Host</label>
             <input name="host" type="text"  value={formData.host} className="default-textbox" onChange={(e) =>{
-                dispatch({"type": "update-create-form-data", "key": "host", "value": e.target.value})
+                dispatch({"type": type, "key": "host", "value": e.target.value})
             }}/>
         </div>
         <div className="form-row">
@@ -166,82 +262,82 @@ function renderCreateForm(mode, bInProgress, formData, dispatch){
                 type="number" 
                 value={formData.port} 
                 className="default-textbox"
-                onChange={(e) => { dispatch({"type": "update-create-form-data", "key": "port", "value": e.target.value})}}
+                onChange={(e) => { dispatch({"type": type, "key": "port", "value": e.target.value})}}
             />
         </div>
         <div className="form-row">
             <label htmlFor="user">User</label>
             <input name="user" type="text"  value={formData.user} className="default-textbox" onChange={(e) =>{
-                dispatch({"type": "update-create-form-data", "key": "user", "value": e.target.value})
+                dispatch({"type": type, "key": "user", "value": e.target.value})
             }} />
         </div>
         <div className="form-row">
             <label htmlFor="password">Password</label>
             <input name="password" type="password"  value={formData.password} className="default-textbox" onChange={(e) =>{
-                dispatch({"type": "update-create-form-data", "key": "password", "value": e.target.value})
+                dispatch({"type": type, "key": "password", "value": e.target.value})
             }}/>
         </div>
         <div className="form-row">
             <label htmlFor="folder">Target Folder</label>
             <input name="folder" type="text"  value={formData.folder} className="default-textbox" onChange={(e) =>{
-                dispatch({"type": "update-create-form-data", "key": "folder", "value": e.target.value})
+                dispatch({"type": type, "key": "folder", "value": e.target.value})
             }} />
         </div>
         <div className="form-row">
             <label htmlFor="delete-logs-after-import">Delete Logs After Import</label>
             <Checkbox name="delete-logs-after-import" value={formData.deleteLogsAfterImport} setValue={(value) =>{
-                dispatch({"type": "update-create-form-data", "key": "deleteLogsAfterImport", "value": value})
+                dispatch({"type": type, "key": "deleteLogsAfterImport", "value": value})
             }}/>
         </div>
         <div className="form-row">
             <label htmlFor="delete-tmp-files">Delete TMP Files</label>
             <Checkbox name="delete-tmp-files" value={formData.deleteTmpFiles} setValue={(value) =>{
-                dispatch({"type": "update-create-form-data", "key": "deleteTmpFiles", "value": value})
+                dispatch({"type": type, "key": "deleteTmpFiles", "value": value})
             }}/>
         </div>
         <div className="form-row">
             <label htmlFor="ignore-bots">Ignore Bots</label>
             <Checkbox name="ignore-bots" value={formData.ignoreBots} setValue={(value) =>{
-                dispatch({"type": "update-create-form-data", "key": "ignoreBots", "value": value})
+                dispatch({"type": type, "key": "ignoreBots", "value": value})
             }}/>
         </div>
         <div className="form-row">
             <label htmlFor="ignore-duplicates">Ignore Duplicates</label>
             <Checkbox name="ignore-duplicates" value={formData.ignoreDuplicates} setValue={(value) =>{
-                dispatch({"type": "update-create-form-data", "key": "ignoreDuplicates", "value": value})
+                dispatch({"type": type, "key": "ignoreDuplicates", "value": value})
             }}/>
         </div>
         <div className="form-row">
             <label htmlFor="min-players">Minimum Players</label>
             <input name="min-players" type="number" value={formData.minPlayers} className="default-textbox" onChange={(e) =>{
-                dispatch({"type": "update-create-form-data", "key": "minPlayers", "value": e.target.value})
+                dispatch({"type": type, "key": "minPlayers", "value": e.target.value})
             }}/>
         </div>
         <div className="form-row">
             <label htmlFor="min-playtime">Minimum Playtime(seconds)</label>
             <input name="min-playtime" type="number"  value={formData.minPlaytime} className="default-textbox" onChange={(e) =>{
-                dispatch({"type": "update-create-form-data", "key": "minPlaytime", "value": e.target.value})
+                dispatch({"type": type, "key": "minPlaytime", "value": e.target.value})
             }}/>
         </div>
         <div className="form-row">
             <label htmlFor="import-ace">Import ACE</label>
             <Checkbox name="import-ace" value={formData.importAce} setValue={(value) =>{
-                dispatch({"type": "update-create-form-data", "key": "importAce", "value": value})
+                dispatch({"type": type, "key": "importAce", "value": value})
             }}/>
         </div>
         <div className="form-row">
             <label htmlFor="delete-ace-logs">Delete ACE Logs</label>
             <Checkbox name="delete-ace-logs" value={formData.deleteAceLogs} setValue={(value) =>{
-                dispatch({"type": "update-create-form-data", "key": "deleteAceLogs", "value": value})
+                dispatch({"type": type, "key": "deleteAceLogs", "value": value})
             }}/>
         </div>
         <div className="form-row">
             <label htmlFor="delete-ace-sshots">Delete Ace Screenshots</label>
             <Checkbox name="delete-ace-sshots"  value={formData.deleteAceSShots} setValue={(value) =>{
-                dispatch({"type": "update-create-form-data", "key": "deleteAceSShots", "value": value})
+                dispatch({"type": type, "key": "deleteAceSShots", "value": value})
             }}/>
         </div>
-        <input type="submit" value="Add FTP Server" className="search-button"/>
+        <input type="submit" value={`${(mode === "add") ? "Add" : "Edit" } FTP Server`} className="search-button"/>
     </form>
 }
 
@@ -299,6 +395,7 @@ function renderList(mode, ftpServers){
     return <BasicTable width={1} headers={headers} rows={rows}/>
 }
 
+
 export default function AdminFTPManager({}){
 
     const [mode, setMode] = useState("add");
@@ -308,12 +405,15 @@ export default function AdminFTPManager({}){
         "messageContent": null,
         "bInProgress": false,
         "ftpServers": [],
-        "createServerFormData": {...DEFAULT_FORM_VALUES}
+        "createServerFormData": {...DEFAULT_FORM_VALUES},
+        "editServerFormData": {...DEFAULT_FORM_VALUES},
+        "selectedEditServerId": -1
     });
 
     const tabOptions = [
         {"name": "Current Servers", "value": "list"},
         {"name": "Add FTP Server", "value": "add"},
+        {"name": "Edit FTP Server", "value": "edit"},
     ];
 
 
@@ -323,13 +423,15 @@ export default function AdminFTPManager({}){
     },[]);
 
 
+    const currentFormData = (mode === "add") ? state.createServerFormData : state.editServerFormData;
+
 
     return <>
         <div className="default-header">Admin FTP Manager</div>
         <MessageBox type={state.messageType} title={state.messageTitle}>{state.messageContent}</MessageBox>
 
         <Tabs options={tabOptions} selectedValue={mode} changeSelected={(a) => setMode(() => a)}/>
-        {renderCreateForm(mode, state.bInProgress, state.createServerFormData, dispatch)}
+        {renderForm(mode, state.bInProgress, currentFormData, state.ftpServers, state.selectedEditServerId, dispatch)}
         {renderList(mode, state.ftpServers)}
     </>
 
