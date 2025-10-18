@@ -1,16 +1,17 @@
 "use client"
-import AdminClearDatabase from "./AdminClearDatabase";
 import { useState } from "react";
-import styles from "./Admin.module.css";
 import Tabs from "../Tabs";
+import AdminClearDatabase from "./AdminClearDatabase";
+import AdminFTPManager from "./AdminFTPManager";
 
 
 export default function AdminMain({}){
 
-    const [mode, setMode] = useState("admin-clear-database");
+    const [mode, setMode] = useState("ftp");
 
     const options = [
-        {"name": "Clear Database", "value": "admin-clear-database"}
+        {"name": "FTP Manager", "value": "ftp"},
+        {"name": "Clear Database", "value": "admin-clear-database"},
     ];
 
     const elems = [];
@@ -18,6 +19,10 @@ export default function AdminMain({}){
 
     if(mode === "admin-clear-database"){
         elems.push(<AdminClearDatabase key="acd"/>);
+    }
+
+    if(mode === "ftp"){
+        elems.push(<AdminFTPManager key="ftp"/>);
     }
 
     return <>

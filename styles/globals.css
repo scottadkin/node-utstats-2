@@ -35,9 +35,11 @@
 	--yellow-1:yellow;
 	--yellow-2:rgba(95,95,0, 0.75);
 	--margin-1:25px;
+	--margin-2:10px;
 	--textbox-max-width-1:290px;
 	--textbox-width-1:90%;
 	--padding-1:5px;
+	--padding-2:10px;
 	--font-small:12px;
 }
 
@@ -421,6 +423,13 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	line-height:24px;
 }
 
+.form-header{
+	font-size:16px;
+	padding: var(--padding-2);
+	margin-bottom:var(--margin-1);
+	font-weight:500;
+}
+
 .select-row, .form-row{
 	display:grid;
 	grid-template-columns: 50% 50%;
@@ -468,6 +477,19 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	color:white;
 }
 
+.checkbox{
+	width:95%;
+	font-size:14px;
+	line-height:28px;
+	text-align:center;
+	max-width:var(--textbox-max-width-1);
+	width:var(--textbox-width-1);
+	user-select: none;
+}
+
+.checkbox:hover{
+	cursor: pointer;
+}
 
 .default-number{
 	background-color:var(--color-1);

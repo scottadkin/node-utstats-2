@@ -17,7 +17,6 @@ export default class Session{
             this.cookies[cookie.name] = cookie.value;
         }
 
-        console.log(this.cookies);
 
         this.userIp = -1;
 
