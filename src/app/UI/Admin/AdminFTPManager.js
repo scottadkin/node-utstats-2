@@ -117,6 +117,13 @@ function reducer(state, action){
                 "editServerFormData": data
             }
         }
+
+        case "set-delete-server-id": {
+            return {
+                ...state,
+                "selectedDeleteServerId": action.value
+            }
+        }
     }
 
     return state;
@@ -395,10 +402,31 @@ function renderList(mode, ftpServers){
     return <BasicTable width={1} headers={headers} rows={rows}/>
 }
 
+function renderDelete(mode, servers, selectedDeleteServerId, dispatch){
+
+    if(mode !== "delete") return null;
+
+    return <div className="form">
+        <div className="form-header">Delete FTP Server</div>
+        <div className="form-row">
+            <label htmlFor="server">Selected Server</label>
+            <select className="default-select" value={selectedDeleteServerId} onChange={(e) =>{
+                dispatch({"type": "set-delete-server-id", "value": e.target.value});
+            }}>
+                <option value="-1">-</option>
+                {servers.map((s) =>{
+                    return <option key={s.id} value={s.id}>{s.name}</option>
+                })}
+            </select>
+            
+        </div>
+        <button className="button delete-button m-top-10">Delete Selected Server</button>
+    </div>
+}
 
 export default function AdminFTPManager({}){
 
-    const [mode, setMode] = useState("add");
+    const [mode, setMode] = useState("delete");
     const [state,dispatch] = useReducer(reducer, {
         "messageType": null,
         "messageTitle": null,
@@ -407,13 +435,15 @@ export default function AdminFTPManager({}){
         "ftpServers": [],
         "createServerFormData": {...DEFAULT_FORM_VALUES},
         "editServerFormData": {...DEFAULT_FORM_VALUES},
-        "selectedEditServerId": -1
+        "selectedEditServerId": -1,
+        "selectedDeleteServerId": -1,
     });
 
     const tabOptions = [
         {"name": "Current Servers", "value": "list"},
         {"name": "Add FTP Server", "value": "add"},
         {"name": "Edit FTP Server", "value": "edit"},
+        {"name": "Delete FTP Server", "value": "delete"},
     ];
 
 
@@ -433,6 +463,7 @@ export default function AdminFTPManager({}){
         <Tabs options={tabOptions} selectedValue={mode} changeSelected={(a) => setMode(() => a)}/>
         {renderForm(mode, state.bInProgress, currentFormData, state.ftpServers, state.selectedEditServerId, dispatch)}
         {renderList(mode, state.ftpServers)}
+        {renderDelete(mode, state.ftpServers, state.selectedDeleteServerId, dispatch)}
     </>
 
 }
