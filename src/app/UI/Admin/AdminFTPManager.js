@@ -7,6 +7,26 @@ import Loading from "../Loading";
 import {BasicTable} from "../Tables";
 import { convertTimestamp } from "../../../../api/generic.mjs";
 
+const DEFAULT_FORM_VALUES = {
+    "enabled": 1,
+    "sftp": 0,
+    "name": "",
+    "host": "",
+    "port": 21,
+    "user": "",
+    "password": "",
+    "folder": "",
+    "deleteLogsAfterImport": 0,
+    "deleteTmpFiles": 0,
+    "ignoreBots": 0,
+    "ignoreDuplicates": 0,
+    "minPlayers": 0,
+    "minPlaytime": 0,
+    "importAce": 0,
+    "deleteAceLogs": 0,
+    "deleteAceSShots": 0
+};
+
 function reducer(state, action){
 
     switch(action.type){
@@ -30,6 +50,23 @@ function reducer(state, action){
                 "messageType": action.messageType,
                 "messageTitle": action.title,
                 "messageContent": action.content
+            }
+        }
+
+        case "update-create-form-data": {
+
+            const data = {...state.createServerFormData};
+
+    
+            if(data[action.key] === undefined){
+                throw new Error(`Unknown key`);
+            }
+
+            data[action.key] = action.value;
+
+            return {
+                ...state,
+                "createServerFormData": data
             }
         }
     }
@@ -87,7 +124,7 @@ async function addServer(e, dispatch){
     }
 }
 
-function renderCreateForm(mode, bInProgress, dispatch){
+function renderCreateForm(mode, bInProgress, formData, dispatch){
 
     if(mode !== "add") return null;
 
@@ -101,71 +138,108 @@ function renderCreateForm(mode, bInProgress, dispatch){
         <div className="form-header">Add FTP Server</div>
         <div className="form-row">
             <label htmlFor="sftp">Enabled</label>
-            <Checkbox name="enabled" initialValue={true}/>
+            <Checkbox name="enabled" value={formData.enabled} setValue={(value) =>{
+                dispatch({"type": "update-create-form-data", "key": "enabled", "value": value})
+            }}/>
         </div>
         <div className="form-row">
             <label htmlFor="sftp">Use SFTP</label>
-            <Checkbox name="sftp"/>
+            <Checkbox name="sftp" value={formData.sftp} setValue={(value) =>{
+                dispatch({"type": "update-create-form-data", "key": "sftp", "value": value})
+            }}/>
         </div>
         <div className="form-row">
             <label htmlFor="name">Name</label>
-            <input name="name" type="text" className="default-textbox"/>
+            <input name="name" type="text" value={formData.name} className="default-textbox" onChange={(e) =>{
+                dispatch({"type": "update-create-form-data", "key": "name", "value": e.target.value})
+            }}/>
         </div>
         <div className="form-row">
             <label htmlFor="host">Host</label>
-            <input name="host" type="text" className="default-textbox"/>
+            <input name="host" type="text"  value={formData.host} className="default-textbox" onChange={(e) =>{
+                dispatch({"type": "update-create-form-data", "key": "host", "value": e.target.value})
+            }}/>
         </div>
         <div className="form-row">
             <label htmlFor="port">Port</label>
-            <input name="port" type="number" defaultValue={21} className="default-textbox"/>
+            <input name="port" 
+                type="number" 
+                value={formData.port} 
+                className="default-textbox"
+                onChange={(e) => { dispatch({"type": "update-create-form-data", "key": "port", "value": e.target.value})}}
+            />
         </div>
         <div className="form-row">
             <label htmlFor="user">User</label>
-            <input name="user" type="text" className="default-textbox"/>
+            <input name="user" type="text"  value={formData.user} className="default-textbox" onChange={(e) =>{
+                dispatch({"type": "update-create-form-data", "key": "user", "value": e.target.value})
+            }} />
         </div>
         <div className="form-row">
             <label htmlFor="password">Password</label>
-            <input name="password" type="password" className="default-textbox"/>
+            <input name="password" type="password"  value={formData.password} className="default-textbox" onChange={(e) =>{
+                dispatch({"type": "update-create-form-data", "key": "password", "value": e.target.value})
+            }}/>
         </div>
         <div className="form-row">
             <label htmlFor="folder">Target Folder</label>
-            <input name="folder" type="text" className="default-textbox"/>
+            <input name="folder" type="text"  value={formData.folder} className="default-textbox" onChange={(e) =>{
+                dispatch({"type": "update-create-form-data", "key": "folder", "value": e.target.value})
+            }} />
         </div>
         <div className="form-row">
             <label htmlFor="delete-logs-after-import">Delete Logs After Import</label>
-            <Checkbox name="delete-logs-after-import"/>
+            <Checkbox name="delete-logs-after-import" value={formData.deleteLogsAfterImport} setValue={(value) =>{
+                dispatch({"type": "update-create-form-data", "key": "deleteLogsAfterImport", "value": value})
+            }}/>
         </div>
         <div className="form-row">
             <label htmlFor="delete-tmp-files">Delete TMP Files</label>
-            <Checkbox name="delete-tmp-files"/>
+            <Checkbox name="delete-tmp-files" value={formData.deleteTmpFiles} setValue={(value) =>{
+                dispatch({"type": "update-create-form-data", "key": "deleteTmpFiles", "value": value})
+            }}/>
         </div>
         <div className="form-row">
             <label htmlFor="ignore-bots">Ignore Bots</label>
-            <Checkbox name="ignore-bots"/>
+            <Checkbox name="ignore-bots" value={formData.ignoreBots} setValue={(value) =>{
+                dispatch({"type": "update-create-form-data", "key": "ignoreBots", "value": value})
+            }}/>
         </div>
         <div className="form-row">
             <label htmlFor="ignore-duplicates">Ignore Duplicates</label>
-            <Checkbox name="ignore-duplicates"/>
+            <Checkbox name="ignore-duplicates" value={formData.ignoreDuplicates} setValue={(value) =>{
+                dispatch({"type": "update-create-form-data", "key": "ignoreDuplicates", "value": value})
+            }}/>
         </div>
         <div className="form-row">
             <label htmlFor="min-players">Minimum Players</label>
-            <input name="min-players" type="number" defaultValue={0} className="default-textbox"/>
+            <input name="min-players" type="number" value={formData.minPlayers} className="default-textbox" onChange={(e) =>{
+                dispatch({"type": "update-create-form-data", "key": "minPlayers", "value": e.target.value})
+            }}/>
         </div>
         <div className="form-row">
             <label htmlFor="min-playtime">Minimum Playtime(seconds)</label>
-            <input name="min-playtime" type="number" defaultValue={0} className="default-textbox"/>
+            <input name="min-playtime" type="number"  value={formData.minPlaytime} className="default-textbox" onChange={(e) =>{
+                dispatch({"type": "update-create-form-data", "key": "minPlaytime", "value": e.target.value})
+            }}/>
         </div>
         <div className="form-row">
             <label htmlFor="import-ace">Import ACE</label>
-            <Checkbox name="import-ace"/>
+            <Checkbox name="import-ace" value={formData.importAce} setValue={(value) =>{
+                dispatch({"type": "update-create-form-data", "key": "importAce", "value": value})
+            }}/>
         </div>
         <div className="form-row">
             <label htmlFor="delete-ace-logs">Delete ACE Logs</label>
-            <Checkbox name="delete-ace-logs"/>
+            <Checkbox name="delete-ace-logs" value={formData.deleteAceLogs} setValue={(value) =>{
+                dispatch({"type": "update-create-form-data", "key": "deleteAceLogs", "value": value})
+            }}/>
         </div>
         <div className="form-row">
             <label htmlFor="delete-ace-sshots">Delete Ace Screenshots</label>
-            <Checkbox name="delete-ace-sshots"/>
+            <Checkbox name="delete-ace-sshots"  value={formData.deleteAceSShots} setValue={(value) =>{
+                dispatch({"type": "update-create-form-data", "key": "deleteAceSShots", "value": value})
+            }}/>
         </div>
         <input type="submit" value="Add FTP Server" className="search-button"/>
     </form>
@@ -190,7 +264,6 @@ async function loadFTPServers(dispatch){
         }
 
 
-        console.log(res);
 
     }catch(err){
         console.trace(err);
@@ -211,7 +284,7 @@ function renderList(mode, ftpServers){
     const rows = ftpServers.map((f) =>{
         return [
             {"className": "text-left", "value": f.name}, 
-            <Checkbox name="a" initialValue={f.sftp} bForceValue={true}/>,      
+            <Checkbox name="a" value={f.sftp}/>,      
             f.host, 
             f.port,
             {"className": "date", "value": convertTimestamp(f.first, true)},
@@ -219,7 +292,7 @@ function renderList(mode, ftpServers){
             f.total_imports,
             f.min_players,
             f.min_playtime,
-            <Checkbox name="b" initialValue={f.enabled} bForceValue={true}/>,   
+            <Checkbox name="b" value={f.enabled}/>,   
         ];
     });
 
@@ -228,18 +301,21 @@ function renderList(mode, ftpServers){
 
 export default function AdminFTPManager({}){
 
-    const [mode, setMode] = useState("list");
+    const [mode, setMode] = useState("add");
     const [state,dispatch] = useReducer(reducer, {
         "messageType": null,
         "messageTitle": null,
         "messageContent": null,
         "bInProgress": false,
-        "ftpServers": []
+        "ftpServers": [],
+        "createServerFormData": {...DEFAULT_FORM_VALUES}
     });
+
     const tabOptions = [
         {"name": "Current Servers", "value": "list"},
         {"name": "Add FTP Server", "value": "add"},
     ];
+
 
     useEffect(() =>{
 
@@ -253,7 +329,7 @@ export default function AdminFTPManager({}){
         <MessageBox type={state.messageType} title={state.messageTitle}>{state.messageContent}</MessageBox>
 
         <Tabs options={tabOptions} selectedValue={mode} changeSelected={(a) => setMode(() => a)}/>
-        {renderCreateForm(mode, state.bInProgress, dispatch)}
+        {renderCreateForm(mode, state.bInProgress, state.createServerFormData, dispatch)}
         {renderList(mode, state.ftpServers)}
     </>
 
