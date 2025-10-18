@@ -4,6 +4,8 @@ import Tabs from "../Tabs";
 import Checkbox from "../Checkbox";
 import MessageBox from "../MessageBox";
 import Loading from "../Loading";
+import {BasicTable} from "../Tables";
+import { convertTimestamp } from "../../../../api/generic.mjs";
 
 function reducer(state, action){
 
@@ -13,6 +15,12 @@ function reducer(state, action){
             return {
                 ...state,
                 "bInProgress": action.value
+            }
+        }
+        case "set-server-list": {
+            return {
+                ...state,
+                "ftpServers": action.data
             }
         }
         case "set-message": {
@@ -87,7 +95,7 @@ function renderCreateForm(mode, bInProgress, dispatch){
         return <Loading>Processing...</Loading>
     }
 
-    return <form className="form" onSubmit={(e) =>{
+    return <form className="form m-bottom-10" onSubmit={(e) =>{
         addServer(e, dispatch);
     }}>
         <div className="form-header">Add FTP Server</div>
@@ -163,6 +171,61 @@ function renderCreateForm(mode, bInProgress, dispatch){
     </form>
 }
 
+async function loadFTPServers(dispatch){
+
+    try{
+
+        const req = await fetch("/api/admin", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "ftp-list"})
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined){
+            dispatch({"type": "set-message", "messageType": "error", "content": res.error});
+        }else{
+            dispatch({"type": "set-server-list", "data": res.data});
+        }
+
+
+        console.log(res);
+
+    }catch(err){
+        console.trace(err);
+    }
+}
+
+function renderList(mode, ftpServers){
+
+    if(mode !== "list") return null;
+
+    const headers = [
+        "Name","SFTP", "Host", "Port", "First Import", 
+        "Last Import", "Total Imports", "Min Players",
+        "Min Playtime",
+        "Enabled"
+    ];
+
+    const rows = ftpServers.map((f) =>{
+        return [
+            {"className": "text-left", "value": f.name}, 
+            <Checkbox name="a" initialValue={f.sftp} bForceValue={true}/>,      
+            f.host, 
+            f.port,
+            {"className": "date", "value": convertTimestamp(f.first, true)},
+            {"className": "date", "value": convertTimestamp(f.last, true)},
+            f.total_imports,
+            f.min_players,
+            f.min_playtime,
+            <Checkbox name="b" initialValue={f.enabled} bForceValue={true}/>,   
+        ];
+    });
+
+    return <BasicTable width={1} headers={headers} rows={rows}/>
+}
+
 export default function AdminFTPManager({}){
 
     const [mode, setMode] = useState("list");
@@ -170,15 +233,17 @@ export default function AdminFTPManager({}){
         "messageType": null,
         "messageTitle": null,
         "messageContent": null,
-        "bInProgress": false
+        "bInProgress": false,
+        "ftpServers": []
     });
     const tabOptions = [
-        {"name": "View FTP List", "value": "list"},
+        {"name": "Current Servers", "value": "list"},
         {"name": "Add FTP Server", "value": "add"},
     ];
 
     useEffect(() =>{
 
+        loadFTPServers(dispatch);
     },[]);
 
 
@@ -189,6 +254,7 @@ export default function AdminFTPManager({}){
 
         <Tabs options={tabOptions} selectedValue={mode} changeSelected={(a) => setMode(() => a)}/>
         {renderCreateForm(mode, state.bInProgress, dispatch)}
+        {renderList(mode, state.ftpServers)}
     </>
 
 }
