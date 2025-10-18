@@ -1,7 +1,6 @@
 import { useState } from "react";
 import Loading from "../Loading";
-import ErrorMessage from "../ErrorMessage";
-import PassedMessage from "../PassedMessage";
+import MessageBox from "../MessageBox";
 
 async function clearTables(bInProgress, setBInProgress, setError, setBPassed){
 
@@ -62,8 +61,8 @@ export default function AdminClearDatabase(){
                 Delete all data collected from match log imports.<br/>
                 This will not delete settings related to the site itself or site users.
             </div>
-            <ErrorMessage title="Failed To Clear Database Tables" text={error}/>
-            {(bPassed) ? <PassedMessage text={"Clear Database Tables Completed"}/> : null}
+            <MessageBox type="error" title="Failed To Clear Database Tables" text={error}/>
+            {(bPassed) ? <MessageBox type="pass" text={"Clear Database Tables Completed"}/> : null}
             
             {elems}
         </div>

@@ -33,11 +33,16 @@ export async function POST(req){
             return Response.json({"message": "passed"});
         }
 
+        if(mode === "ftp-list"){
+
+        }
+
         if(mode === "add-ftp-server"){
 
             const data = res.data ?? null;
             if(data === null) throw new Error(`FTP add server was passed no data.`);
             await AdminManager.addFTPServer(data);
+            return Response.json({"message": "passed"});
         }
         
         //await AdminManager.clearDatabases();

@@ -182,4 +182,13 @@ export default class Admin{
 
         await simpleQuery(query, vars);
     }
+
+
+
+    async getFTPList(){
+
+        const query = `SELECT * FROM nstats_ftp ORDER BY name ASC`;
+
+        return await simpleQuery(query);
+    }
 }

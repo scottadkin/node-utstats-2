@@ -3,6 +3,7 @@ import styles from './ErrorMessage.module.css';
 
 export default function ErrorMessage({text, title, children}){
 
+    console.warn(`use MessageBox component instead.`);
     if(text !== undefined && text == null) return null;
 
 

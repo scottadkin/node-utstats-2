@@ -1,14 +1,41 @@
 "use client"
-import { useReducer } from "react";
+import { useState, useReducer, useEffect } from "react";
+import Tabs from "../Tabs";
 import Checkbox from "../Checkbox";
+import MessageBox from "../MessageBox";
+import Loading from "../Loading";
 
+function reducer(state, action){
 
-async function addServer(e){
+    switch(action.type){
+
+        case "set-bInProgress": {
+            return {
+                ...state,
+                "bInProgress": action.value
+            }
+        }
+        case "set-message": {
+
+            return {
+                ...state,
+                "messageType": action.messageType,
+                "messageTitle": action.title,
+                "messageContent": action.content
+            }
+        }
+    }
+
+    return state;
+}
+
+async function addServer(e, dispatch){
 
     try{
 
         e.preventDefault();
   
+        dispatch({"type": "set-bInProgress", "value": true});
         const data = {};
 
         data.enabled = e.target.enabled.value;
@@ -29,7 +56,6 @@ async function addServer(e){
         data.deleteAceLogs = e.target["delete-ace-logs"].value;
         data.deleteAceSShots = e.target["delete-ace-sshots"].value;
 
-        console.log(data);
 
         const req = await fetch("/api/admin", {
             "headers": {"Content-type": "application/json"},
@@ -38,15 +64,32 @@ async function addServer(e){
         });
 
         const res = await req.json();
-        console.log(res);
+
+
+        dispatch({"type": "set-bInProgress", "value": false});
+
+        if(res.error !== undefined){
+            dispatch({"type": "set-message", "messageType": "error", "content": res.error});
+        }else{
+            dispatch({"type": "set-message", "messageType": "pass", "content": `Server added.`});
+        }
 
     }catch(err){
         console.trace(err);
     }
 }
 
-function renderCreateForm(){
-    return <form className="form" onSubmit={addServer}>
+function renderCreateForm(mode, bInProgress, dispatch){
+
+    if(mode !== "add") return null;
+
+    if(bInProgress){
+        return <Loading>Processing...</Loading>
+    }
+
+    return <form className="form" onSubmit={(e) =>{
+        addServer(e, dispatch);
+    }}>
         <div className="form-header">Add FTP Server</div>
         <div className="form-row">
             <label htmlFor="sftp">Enabled</label>
@@ -66,7 +109,7 @@ function renderCreateForm(){
         </div>
         <div className="form-row">
             <label htmlFor="port">Port</label>
-            <input name="port" type="number" className="default-textbox"/>
+            <input name="port" type="number" defaultValue={21} className="default-textbox"/>
         </div>
         <div className="form-row">
             <label htmlFor="user">User</label>
@@ -98,11 +141,11 @@ function renderCreateForm(){
         </div>
         <div className="form-row">
             <label htmlFor="min-players">Minimum Players</label>
-            <input name="min-players" type="number" className="default-textbox"/>
+            <input name="min-players" type="number" defaultValue={0} className="default-textbox"/>
         </div>
         <div className="form-row">
             <label htmlFor="min-playtime">Minimum Playtime(seconds)</label>
-            <input name="min-playtime" type="number" className="default-textbox"/>
+            <input name="min-playtime" type="number" defaultValue={0} className="default-textbox"/>
         </div>
         <div className="form-row">
             <label htmlFor="import-ace">Import ACE</label>
@@ -122,9 +165,30 @@ function renderCreateForm(){
 
 export default function AdminFTPManager({}){
 
+    const [mode, setMode] = useState("list");
+    const [state,dispatch] = useReducer(reducer, {
+        "messageType": null,
+        "messageTitle": null,
+        "messageContent": null,
+        "bInProgress": false
+    });
+    const tabOptions = [
+        {"name": "View FTP List", "value": "list"},
+        {"name": "Add FTP Server", "value": "add"},
+    ];
+
+    useEffect(() =>{
+
+    },[]);
+
+
+
     return <>
         <div className="default-header">Admin FTP Manager</div>
-        {renderCreateForm()}
+        <MessageBox type={state.messageType} title={state.messageTitle}>{state.messageContent}</MessageBox>
+
+        <Tabs options={tabOptions} selectedValue={mode} changeSelected={(a) => setMode(() => a)}/>
+        {renderCreateForm(mode, state.bInProgress, dispatch)}
     </>
 
 }
