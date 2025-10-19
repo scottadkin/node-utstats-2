@@ -1,11 +1,15 @@
 import styles from './MessageBox.module.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 
 
-export default function MessageBox({text, title, children, type}){
+export default function MessageBox({text, title, children, type, timestamp}){
 
     const [hide, setHide] = useState(false);
+
+    useEffect(() =>{
+        if(hide) setHide(() => false);
+    },[timestamp]);
 
     if(children === null) return null;
     if(hide) return null;

@@ -49,7 +49,8 @@ function reducer(state, action){
                 ...state,
                 "messageType": action.messageType,
                 "messageTitle": action.title,
-                "messageContent": action.content
+                "messageContent": action.content,
+                "messageTimestamp": performance.now()
             }
         }
 
@@ -417,7 +418,6 @@ async function deleteServer(selectedServer, bInProgress, dispatch){
 
         const res = await req.json();
 
-        console.log(res);
         if(res.error !== undefined) throw new Error(res.error);
 
         dispatch({"type": "set-message", "messageType": "pass", "title": "FTP Server Deleted", "content": "Successfully deleted ftp server."});
@@ -462,11 +462,12 @@ function renderDelete(mode, bInProgress, servers, selectedDeleteServerId, dispat
 
 export default function AdminFTPManager({}){
 
-    const [mode, setMode] = useState("delete");
+    const [mode, setMode] = useState("list");
     const [state,dispatch] = useReducer(reducer, {
         "messageType": null,
         "messageTitle": null,
         "messageContent": null,
+        "messageTimestamp": 0,
         "bInProgress": false,
         "ftpServers": [],
         "createServerFormData": {...DEFAULT_FORM_VALUES},
@@ -494,7 +495,7 @@ export default function AdminFTPManager({}){
 
     return <>
         <div className="default-header">Admin FTP Manager</div>
-        <MessageBox type={state.messageType} title={state.messageTitle}>{state.messageContent}</MessageBox>
+        <MessageBox type={state.messageType} title={state.messageTitle} timestamp={state.messageTimestamp}>{state.messageContent}</MessageBox>
 
         <Tabs options={tabOptions} selectedValue={mode} changeSelected={(a) => setMode(() => a)}/>
         {renderForm(mode, state.bInProgress, currentFormData, state.ftpServers, state.selectedEditServerId, dispatch)}

@@ -68,6 +68,24 @@ export async function POST(req){
             return Response.json({"message": "passed"});
         }
         
+
+        if(mode === "load-logs-folder-settings"){
+
+            const data = await adminManager.getLogsFolderSettings();
+
+            return Response.json({"data": data});
+        }
+
+        if(mode === "save-logs-folder-settings"){
+
+            const settings = res.settings ?? null;
+
+            if(settings === null) throw new Error(`Logs folder settings is null`);
+
+            await adminManager.updateLogsFolderSettings(settings);
+            return Response.json({"message": "pass"});
+        }
+
         //await adminManager.clearDatabases();
 
 

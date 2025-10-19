@@ -218,4 +218,33 @@ export default class Admin{
 
         return await simpleQuery(query, [id]);
     }
+
+
+    async getLogsFolderSettings(){
+
+        const query = `SELECT ignore_bots,ignore_duplicates,min_players,
+        min_playtime,import_ace FROM nstats_logs_folder ORDER BY id DESC LIMIT 1`;
+
+        const result = await simpleQuery(query);
+
+        if(result.length === 0) return null;
+
+        return result[0];
+    }
+
+
+    async updateLogsFolderSettings(settings){
+
+        const query = `UPDATE nstats_logs_folder SET ignore_bots=?,ignore_duplicates=?,min_players=?,min_playtime=?,import_ace=?`;
+
+        const vars = [
+            settings.ignore_bots,
+            settings.ignore_duplicates,
+            settings.min_players,
+            settings.min_playtime,
+            settings.import_ace
+        ];
+
+        return await simpleQuery(query, vars);
+    }
 }
