@@ -247,4 +247,12 @@ export default class Admin{
 
         return await simpleQuery(query, vars);
     }
+
+
+    async getAllPageSettings(){
+
+        const query = `SELECT * FROM nstats_site_settings ORDER BY page_order ASC`;
+
+        return await simpleQuery(query);
+    }
 }

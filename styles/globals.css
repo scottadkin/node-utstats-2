@@ -487,7 +487,11 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 	user-select: none;
 }
 
-.checkbox:hover{
+.checkbox-table{
+	user-select: none;
+}
+
+.checkbox:hover, .checkbox-table:hover{
 	cursor: pointer;
 }
 
@@ -878,4 +882,18 @@ input[type="range"]{
 
 .basic-table{
 	margin-bottom:var(--margin-1);
+}
+
+.move-button{
+	display:inline-block;
+	font-size:12px;
+	padding:5px;
+	user-select: none;
+	background-color:var(--red-2);
+	border:1px solid var(--border-color-1);
+	margin-right:5px;
+}
+
+.move-button:hover{
+	cursor: pointer;
 }

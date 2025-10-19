@@ -86,6 +86,14 @@ export async function POST(req){
             return Response.json({"message": "pass"});
         }
 
+
+        if(mode === "load-page-settings"){
+
+            const settings = await adminManager.getAllPageSettings();
+
+            return Response.json({settings});
+        }
+
         //await adminManager.clearDatabases();
 
 

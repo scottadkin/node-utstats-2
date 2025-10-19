@@ -1399,7 +1399,7 @@ const queries = [
     `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","bool","Display CTF Cap Records","true","0", 1)`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","bool","Display Combogib Records","true","0", 1)`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","perpage","Default Per Page","25",0,0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Navigation","bool","Display Servers","true",1,0)`,
+    `INSERT INTO nstats_site_settings VALUES(NULL,"Navigation","bool","Display Servers","true",1,1)`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Servers Page","selection","Default Display Type","default",0,0)`,
 
     
