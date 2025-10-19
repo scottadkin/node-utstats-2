@@ -55,6 +55,18 @@ export async function POST(req){
             await adminManager.updateFTPServer(data);
             return Response.json({"message": "passed"});
         }
+
+        if(mode === "delete-ftp-server"){
+
+            let id = res.id ?? 0;
+            id = parseInt(id);
+            if(id !== id) id = 0;
+            if(id === 0) throw new Error("No server selected");
+
+            await adminManager.deleteFTPServer(id);
+
+            return Response.json({"message": "passed"});
+        }
         
         //await adminManager.clearDatabases();
 

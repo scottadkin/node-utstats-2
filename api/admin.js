@@ -210,4 +210,12 @@ export default class Admin{
 
         return await simpleQuery(query);
     }
+
+
+    async deleteFTPServer(id){
+
+        const query = `DELETE FROM nstats_ftp WHERE id=?`;
+
+        return await simpleQuery(query, [id]);
+    }
 }

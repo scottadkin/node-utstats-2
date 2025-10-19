@@ -402,9 +402,43 @@ function renderList(mode, ftpServers){
     return <BasicTable width={1} headers={headers} rows={rows}/>
 }
 
-function renderDelete(mode, servers, selectedDeleteServerId, dispatch){
+async function deleteServer(selectedServer, bInProgress, dispatch){
+
+    try{
+
+        if(bInProgress) return;
+        dispatch({"type": "set-bInProgress", "value": true});
+
+        const req = await fetch("/api/admin", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "delete-ftp-server", "id": selectedServer})
+        });
+
+        const res = await req.json();
+
+        console.log(res);
+        if(res.error !== undefined) throw new Error(res.error);
+
+        dispatch({"type": "set-message", "messageType": "pass", "title": "FTP Server Deleted", "content": "Successfully deleted ftp server."});
+        await loadFTPServers(dispatch);
+        dispatch({"type": "set-bInProgress", "value": false});
+
+
+        
+        
+    }catch(err){
+        console.trace(err);
+        dispatch({"type": "set-message", "messageType": "error", "title": "Failed to delete server", "content": err.toString()});
+        dispatch({"type": "set-bInProgress", "value": false});
+    }
+}
+
+function renderDelete(mode, bInProgress, servers, selectedDeleteServerId, dispatch){
 
     if(mode !== "delete") return null;
+
+    if(bInProgress) return <Loading>Deleting Server Please Wait...</Loading>
 
     return <div className="form">
         <div className="form-header">Delete FTP Server</div>
@@ -420,7 +454,9 @@ function renderDelete(mode, servers, selectedDeleteServerId, dispatch){
             </select>
             
         </div>
-        <button className="button delete-button m-top-10">Delete Selected Server</button>
+        <button className="button delete-button m-top-10" onClick={() =>{
+            deleteServer(selectedDeleteServerId, bInProgress, dispatch);
+        }}>Delete Selected Server</button>
     </div>
 }
 
@@ -463,7 +499,7 @@ export default function AdminFTPManager({}){
         <Tabs options={tabOptions} selectedValue={mode} changeSelected={(a) => setMode(() => a)}/>
         {renderForm(mode, state.bInProgress, currentFormData, state.ftpServers, state.selectedEditServerId, dispatch)}
         {renderList(mode, state.ftpServers)}
-        {renderDelete(mode, state.ftpServers, state.selectedDeleteServerId, dispatch)}
+        {renderDelete(mode, state.bInProgress, state.ftpServers, state.selectedDeleteServerId, dispatch)}
     </>
 
 }
