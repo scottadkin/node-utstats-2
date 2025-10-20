@@ -24,6 +24,9 @@ const CUSTOM_OPTIONS = {
         "Recent Matches Display Type": [...DEFAULT_DISPLAY_OPTIONS],
         "Popular Countries Display Type": [...DEFAULT_DISPLAY_OPTIONS]
     },
+    "Maps Page": {
+        "Default Display Type": [...DEFAULT_DISPLAY_OPTIONS]
+    },
     "Matches Page": {
         "Default Display Type": [...DEFAULT_DISPLAY_OPTIONS]
     },
@@ -350,8 +353,9 @@ function renderSettings(selectedTab, settings, bLoading, dispatch){
 
         if(s.value_type === "bool"){
 
-            elem = <Checkbox key={i} value={s.value} setValue={(v) =>{
-                dispatch({"type": "update-setting", "category": s.category, "name": s.name, "value": v});
+            elem = <Checkbox key={i} value={(s.value === "true") ? true : false} setValue={(v) =>{
+                console.log(s.value);
+                dispatch({"type": "update-setting", "category": s.category, "name": s.name, "value": v.toString()});
             }}/>;
 
         }else if(s.value_type === "int"){

@@ -85,8 +85,8 @@ const PopularCountries = ({data, totalPlayers, settings}) =>{
     if(data.length === 0) return null;
     const elems = [];
 
-    if(settings["Popular Countries Display Type"] === "1") elems.push(renderTable(data, totalPlayers));
-    if(settings["Popular Countries Display Type"] === "0") elems.push(renderDefault(data, totalPlayers));
+    if(settings["Popular Countries Display Type"] === "table") elems.push(renderTable(data, totalPlayers));
+    if(settings["Popular Countries Display Type"] === "default") elems.push(renderDefault(data, totalPlayers));
 
     return <div className="default">
         <div className="default-header">Popular Countries</div>

@@ -2,18 +2,6 @@ import { convertTimestamp, cleanMapName, removeUnr } from '../../../api/generic.
 import MatchResultDisplay from './MatchResultDisplay';
 import MatchResult from './MatchResult';
 
-function getMapImage(images, name){
-
-    name = cleanMapName(name).toLowerCase();
-
-    if(images[name] !== undefined){
-        return images[name];
-    }
-
-    return "default";
-
-}
-
 export default function MatchesDefaultView({data, images}){
 
     const elems = [];
@@ -22,11 +10,13 @@ export default function MatchesDefaultView({data, images}){
 
         const d = data[i];
 
+        console.log(d);
+
         elems.push(<MatchResultDisplay 
             key={i}
             mode="recent"
             url={`/match/${d.id}`}
-            mapImage={`/images/maps/${getMapImage(images, d.mapName)}.jpg`}
+            mapImage={`/images/maps/${d.mapImage}.jpg`}
             mapName={removeUnr(d.mapName)}
             serverName={d.serverName}
             date={convertTimestamp(d.date)}

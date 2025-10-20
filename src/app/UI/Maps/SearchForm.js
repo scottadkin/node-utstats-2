@@ -41,7 +41,7 @@ export default function SearchForm({validOptions, name, page, order, perPage, so
             <select name="display" defaultValue={display} className="default-select"  onChange={(e) =>{
                 router.push(`/maps?name=${name}&sort=${sort}&order=${order}&display=${e.target.value}&perPage=${perPage}`);
             }}>
-                <option value="normal">Normal View</option>
+                <option value="default">Normal View</option>
                 <option value="table">Table View</option>
             </select>
         </div>

@@ -13,17 +13,17 @@ import Pagination from "../UI/Pagination";
 import { removeUnr } from "../../../api/generic.mjs";
 
 
-function setQueryStuff(query){
+function setQueryStuff(query, pageSettings){
 
     let selectedServer = (query.server !== undefined) ? parseInt(query.server) : 0;
     let selectedGametype = (query.gametype !== undefined) ? parseInt(query.gametype) : 0;
     let selectedMap = (query.map !== undefined) ? parseInt(query.map) : 0;
-    let displayMode = query.displayMode ?? "default";
+    let displayMode = query.displayMode ?? pageSettings["Default Display Type"];
     let page = (query.page !== undefined) ? parseInt(query.page) : 1;
-
+    let perPage = (query.pp !== undefined) ? parseInt(query.pp) :  parseInt(pageSettings["Default Display Per Page"]);
     displayMode = displayMode.toLowerCase();
 
-    return {selectedServer, selectedGametype, selectedMap, displayMode, page};
+    return {selectedServer, selectedGametype, selectedMap, displayMode, page, perPage};
 
 }
 
@@ -31,7 +31,8 @@ export async function generateMetadata({ params, searchParams }, parent) {
 
     const query = await searchParams;
 
-    const {selectedServer, selectedGametype, selectedMap, displayMode, page} = setQueryStuff(query);
+    const pageSettings = await getSettings("Matches Page");
+    const {selectedServer, selectedGametype, selectedMap} = setQueryStuff(query, pageSettings);
 
     const serverName = (selectedServer !== 0) ? await getSingleObjectName("servers", selectedServer) : "";
     const gametypeName = (selectedGametype !== 0) ? await getSingleObjectName("gametypes", selectedGametype) : "";
@@ -88,7 +89,8 @@ export default async function Page({ searchParams}){
 
     const query = await searchParams;
 
-    const {selectedServer, selectedGametype, selectedMap, displayMode, page} = setQueryStuff(query);
+    const pageSettings = await getSettings("Matches Page");
+    const {selectedServer, selectedGametype, selectedMap, displayMode, page, perPage} = setQueryStuff(query, pageSettings);
 
     const header = await headers();
 
@@ -103,10 +105,7 @@ export default async function Page({ searchParams}){
     const navSettings = await getNavSettings("Navigation");
     const sessionSettings = session.settings;
 
-    const pageSettings = await getSettings("Matches Page");
 
-    const defaultPerPage = pageSettings["Default Display Per Page"];
-    let perPage = (query.pp !== undefined) ? parseInt(query.pp) : defaultPerPage;
 
     const serverNames = await getAllObjectNames("servers");
     const gametypeNames = await getAllObjectNames("gametypes");

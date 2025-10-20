@@ -361,7 +361,7 @@ export default async function Page({params, searchParams}){
         <Nav settings={navSettings} session={sessionSettings}/>		
         <div id="content">
             <div className="default">
-                <div className="default-header">Match Report</div>
+                {(pageSettings["Display Match Report Title"] === "true") ? <div className="default-header">Match Report</div> : <div className="blank-header"></div>}
                 {elems}
             </div>    
         </div>   

@@ -18,6 +18,7 @@ import BasicPlayers from "./UI/Home/BasicPlayers";
 import MostUsedFaces from "../../components/MostUsedFaces";
 import { getAllInMatch } from "../../api/players";
 import { getFacesWithFileStatuses, getMostUsed as getMostUsedFaces } from "../../api/faces";
+import MatchesDefaultView from "./UI/MatchesDefaultView";
 
 export async function generateMetadata({ params, searchParams }, parent) {
 
@@ -66,7 +67,10 @@ export default async function Page(){
 
             pageManager.addComponent("Display Recent Matches", <div className="default" key="recent-matches">
                 <div className="default-header">Recent Matches</div>
-                <MatchesTableView  data={matchesData}/>     
+                   
+                {(pageSettings["Recent Matches Display Type"] === "default") ? <MatchesDefaultView data={matchesData}/> : null}
+                {(pageSettings["Recent Matches Display Type"] === "table") ? <MatchesTableView data={matchesData}/>   : null}
+                   
             </div>)
         }
     }

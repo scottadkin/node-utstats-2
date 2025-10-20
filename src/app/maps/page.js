@@ -1,5 +1,5 @@
 import Nav from "../UI/Nav";
-import {getNavSettings} from "../../../api/sitesettings";
+import {getNavSettings, getSettings} from "../../../api/sitesettings";
 import Session from "../../../api/session";
 import { headers, cookies } from "next/headers";
 import SearchForm from "../UI/Maps/SearchForm";
@@ -10,7 +10,7 @@ import Pagination from "../UI/Pagination";
 import {BasicTable} from "../UI/Tables";
 import Link from "next/link";
 
-function setQueryValues(params, searchParams){
+function setQueryValues(params, searchParams, pageSettings){
 
 	console.log(params);
 	console.log(searchParams);
@@ -18,9 +18,9 @@ function setQueryValues(params, searchParams){
 	let name = searchParams.name ?? "";
 	let page = searchParams.page ?? 1;
 	let order = searchParams.order ?? "asc";
-	let perPage = searchParams.perPage ?? 25;
+	let perPage = searchParams.perPage ?? pageSettings["Default Display Per Page"];
 	let sort = searchParams.sort ?? "name";
-	let display = searchParams.display ?? "normal";
+	let display = searchParams.display ?? pageSettings["Default Display Type"];
 
 	page = sanatizePage(page);
 	if(page < 1) page = 1;
@@ -43,7 +43,7 @@ export async function generateMetadata({ params, searchParams }, parent) {
 
 function renderNormalView(mode, data){
 
-	if(mode !== "normal") return null;
+	if(mode !== "default") return null;
 
 	return <div className="t-width-1 center">{data.map((d, i) =>{
 		return <MapDefaultBox key={i} data={d}/>
@@ -86,12 +86,14 @@ export default async function Page({params, searchParams}){
 	params = await params;
 	searchParams = await searchParams;
 
-	const {name, page, order, perPage, sort, display} = setQueryValues(params, searchParams);
+	const pageSettings = await getSettings("Maps Page");
+	console.log(pageSettings);
+
+	const {name, page, order, perPage, sort, display} = setQueryValues(params, searchParams, pageSettings);
 
 	const cookieStore = await cookies();
 	const header = await headers();
 	const cookiesData = cookieStore.getAll();
-
 
 	const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0]
 	
@@ -100,7 +102,6 @@ export default async function Page({params, searchParams}){
 	await session.load();
 	const navSettings = await getNavSettings("Navigation");
 	const sessionSettings = session.settings;
-
 
 	const result = await mapSearch(page, perPage, name, order === "asc", sort);
 
@@ -113,15 +114,15 @@ export default async function Page({params, searchParams}){
 				perPage={perPage} sort={sort} display={display}/>
 			</div>	
 			<div className="default">
-			{renderNormalView(display, result.data)}
-			{renderTableView(display, result.data)}
-			
-			<Pagination 
-				results={result.totalResults} 
-				perPage={perPage} 
-				currentPage={page} 
-				url={`/maps?name=${name}&sort=${sort}&order=${order}&display=${display}&perPage=${perPage}&page=`}	
-			/>
+				{renderNormalView(display, result.data)}
+				{renderTableView(display, result.data)}
+				
+				<Pagination 
+					results={result.totalResults} 
+					perPage={perPage} 
+					currentPage={page} 
+					url={`/maps?name=${name}&sort=${sort}&order=${order}&display=${display}&perPage=${perPage}&page=`}	
+				/>
 			</div>
 		</div>  
     </main>; 

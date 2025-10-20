@@ -16,7 +16,7 @@ import Rankings from "./rankings.js";
 import Servers from "./servers.js";
 import Voices from "./voices.js";
 import WinRate from "./winrate.js";
-import { getUniqueValues, setIdNames, removeUnr, getPlayer } from "./generic.mjs";
+import { getUniqueValues, setIdNames, removeUnr, getPlayer, cleanMapName } from "./generic.mjs";
 import { getObjectName } from "./genericServerSide.mjs";
 import { deleteFromDatabase as logsDeleteFromDatabase } from "./logs.js";
 import MonsterHunt from "./monsterhunt.js";
@@ -147,6 +147,8 @@ export default class Matches{
         const gametypeNames = await getObjectName("gametypes", mgsIds.gametypes);
         const mapNames = await getObjectName("maps", mgsIds.maps);
 
+        const mNames = Object.values(mapNames);
+        const mapImages = getImages(mNames);
 
         setIdNames(result, serverNames, "server", "serverName");
         setIdNames(result, gametypeNames, "gametype", "gametypeName");
@@ -161,6 +163,14 @@ export default class Matches{
 
             if(r.dm_winner !== 0){
                 r.dmWinner = players[r.dm_winner];
+            }
+
+            const cleanName = cleanMapName(r.mapName).toLowerCase();
+
+            if(mapImages[cleanName] !== undefined){
+                r.mapImage = mapImages[cleanName];
+            }else{
+                r.mapImage = "default";
             }
         }
 
