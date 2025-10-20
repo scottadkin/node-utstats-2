@@ -255,4 +255,25 @@ export default class Admin{
 
         return await simpleQuery(query);
     }
+
+
+    async savePageChanges(changes){
+
+
+        const query = `UPDATE nstats_site_settings SET value=?,page_order=? WHERE category=? AND name=?`;
+
+        for(let i = 0; i < changes.length; i++){
+
+            const c = changes[i];
+
+            const vars = [
+                c.newValue,
+                c.pageOrder,
+                c.cat,
+                c.name
+            ];
+
+            await simpleQuery(query, vars);
+        }
+    }
 }

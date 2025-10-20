@@ -94,6 +94,17 @@ export async function POST(req){
             return Response.json({settings});
         }
 
+
+        if(mode === "save-page-changes"){
+
+            const changes = res.changes ?? null;
+
+            if(changes === null) throw new Error(`Changes was null`);
+
+            await adminManager.savePageChanges(changes);
+            return Response.json({"message": "pass"});
+        }
+
         //await adminManager.clearDatabases();
 
 

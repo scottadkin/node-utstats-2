@@ -1389,7 +1389,6 @@ const queries = [
     `INSERT INTO nstats_site_settings VALUES(NULL,"Players Page","selection","Default Display Type","default","0",0)`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Players Page","order","Default Order","ASC","0",0)`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Players Page","selection","Default Sort Type","name","0",0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Players Page","bool","Display Capture The Flag Cap Records","true","22", 1)`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Rankings","perpage","Rankings Per Gametype (Main)","10","0",0)`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Rankings","perpage","Rankings Per Page (Individual)","100","0",0)`,
     `INSERT INTO nstats_site_settings VALUES(NULL,"Rankings","int","Default Min Playtime","3","0",0)`,

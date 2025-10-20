@@ -4,6 +4,8 @@ import MessageBox from "../MessageBox";
 import Tabs from "../Tabs";
 import Checkbox from "../Checkbox";
 import styles from "./Admin.module.css";
+import { getOrdinal } from "../../../../api/generic.mjs";
+import Loading from "../Loading";
 
 const PER_PAGE_OPTIONS = [5,10,20,25,50,75,100];
 
@@ -67,7 +69,8 @@ function reducer(state, action){
                 "messageBox": {
                     "type": action.messageType,
                     "title": action.title,
-                    "content": action.content
+                    "content": action.content,
+                    "timestamp": performance.now()
                 }
             }
         }
@@ -124,6 +127,13 @@ function reducer(state, action){
                     ...state.messageBox,
                     "timestamp": performance.now()
                 }
+            }
+        }
+
+        case "set-loading": {
+            return {
+                ...state,
+                "bLoading": action.value
             }
         }
     }
@@ -314,7 +324,9 @@ function moveDown(data, settings, dispatch){
 }
 
 
-function renderSettings(selectedTab, settings, dispatch){
+function renderSettings(selectedTab, settings, bLoading, dispatch){
+
+    if(bLoading) return <Loading></Loading>
 
     const moveableElems = [];
     const nonMoveableElems = [];
@@ -376,7 +388,7 @@ function renderSettings(selectedTab, settings, dispatch){
 
 
             moveableElems.push(<div key={s.name} className={`${styles["page-item"]} ${styles["moveable"]}`}>
-                <div className={styles["label"]}>{s.name}{s.page_order}</div>
+                <div className={styles["label"]}>{s.name}</div>
                 {elem}
                
                 <div className="move-button move-up" onClick={() =>{
@@ -431,7 +443,35 @@ function getSavedSetting(cat, name, savedSettings){
     return null;
 }
 
-function renderUnsavedChanges(settings, savedSettings, timestamp){
+
+async function saveChanges(changes, dispatch){
+
+    try{
+
+
+        dispatch({"type": "set-loading", "value": true});
+
+        const req = await fetch("/api/admin", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "save-page-changes", "changes": changes})
+        });
+
+        const res = await req.json();
+        dispatch({"type": "set-loading", "value": false});
+
+        if(res.error !== undefined) throw new Error(res.error);
+
+        dispatch({"type": "set-message", "messageType": "pass", "title": "Saved Changes", "content": "Changes saved successfully"});
+
+        await loadData(dispatch);
+    }catch(err){
+        console.trace(err);
+    }
+}
+
+
+function getChangedSettings(settings, savedSettings){
 
     const changes = [];
 
@@ -447,6 +487,7 @@ function renderUnsavedChanges(settings, savedSettings, timestamp){
             changes.push({
                 "cat": oldSetting.category,
                 "name": oldSetting.name,
+                "pageOrder": newSetting.page_order,
                 "oldValue": oldSetting.value.toString(),
                 "newValue": newSetting.value.toString()
             });
@@ -456,11 +497,24 @@ function renderUnsavedChanges(settings, savedSettings, timestamp){
             changes.push({
                 "cat": oldSetting.category,
                 "name": oldSetting.name,
-                "oldValue": oldSetting.page_order,
-                "newValue": newSetting.page_order
+                "pageOrder": newSetting.page_order,
+                "oldIndex": oldSetting.page_order,
+                "newIndex": newSetting.page_order,
+                //pass this for backend
+                "newValue": newSetting.value.toString()
             });
         }
     }
+
+
+    return changes;
+}
+
+function renderUnsavedChanges(settings, savedSettings, timestamp, bLoading, dispatch){
+
+    if(bLoading) return null;
+    
+    const changes = getChangedSettings(settings, savedSettings);
 
     if(changes.length === 0) return null;
 
@@ -478,10 +532,26 @@ function renderUnsavedChanges(settings, savedSettings, timestamp){
 
     return <MessageBox timestamp={timestamp} type="warn" title="You have unsaved changes">
         {changes.map((c, i) =>{
-            return <span key={i}><b>{c.cat} - {c.name}</b>, was <b>{c.oldValue}</b>, now set to <b>{c.newValue}</b><br/></span>
+
+            let message = <></>;
+
+            if(c.newIndex === undefined){
+                message = <span key={i}><b>{c.cat} - {c.name}</b>, was <b>{c.oldValue}</b>, now set to <b>{c.newValue}</b><br/></span>;
+            }else{
+
+                let o = c.oldIndex + 1;
+                let n = c.newIndex + 1;
+
+                message = <span key={i}><b>{c.cat} - {c.name}</b>, page order was changed from 
+                <b> {o}{getOrdinal(o)}</b>, now set to <b>{n}{getOrdinal(n)}</b><br/></span>;
+            }
+
+            return message;
         })}
         <br/>
-        <button className="search-button">Save Changes</button>
+        <button className="search-button" onClick={() =>{
+            saveChanges(changes, dispatch);
+        }}>Save Changes</button>
     </MessageBox>
     
 }
@@ -513,7 +583,7 @@ export default function AdminPageSettings(){
         <div className="default-header">Site Settings</div>
         {renderTabs(state.uniquePages, state.selectedTab, dispatch)}
         <MessageBox type={state.messageBox.type} title={state.messageBox.title}>{state.messageBox.content}</MessageBox>
-        {renderUnsavedChanges(state.settings, state.savedSettings, state.messageBox.timestamp)}
-        {renderSettings(state.selectedTab, state.settings, dispatch)}
+        {renderUnsavedChanges(state.settings, state.savedSettings, state.messageBox.timestamp, state.bLoading, dispatch)}
+        {renderSettings(state.selectedTab, state.settings, state.bLoading, dispatch)}
     </>
 }
