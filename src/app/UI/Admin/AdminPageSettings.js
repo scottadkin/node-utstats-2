@@ -94,10 +94,36 @@ function reducer(state, action){
                 break;
             }
 
-            
             return {
                 ...state,
                 "settings": settings
+            }
+        }
+
+        case "change-page-order": {
+
+            const settings = JSON.parse(JSON.stringify(state.settings));
+
+            for(let i = 0; i < settings.length; i++){
+
+                const s = settings[i];
+
+                for(let x = 0; x < action.changes.length; x++){
+
+                    const c = action.changes[x];
+                    if(c.category !== s.category) continue;
+                    if(c.name !== s.name) continue;
+                    s.page_order = c.pageIndex;
+                }
+            }
+            return {
+
+                ...state,
+                "settings": [...settings],
+                "messageBox": {
+                    ...state.messageBox,
+                    "timestamp": performance.now()
+                }
             }
         }
     }
@@ -180,10 +206,127 @@ function getSelectionElem(cat, name, value, dispatch){
     </select>
 }
 
+
+function getPageComponents(category, settings){
+
+    const found = [];
+
+    for(let i = 0; i < settings.length; i++){
+
+        const s = settings[i];
+        if(s.category !== category) continue;
+        if(!s.moveable) continue;
+        found.push(s);
+    }
+
+    found.sort(sortByPageOrder);
+    return found;
+}
+
+
+function getPageOrderIndex(components, targetName){
+
+    let index = -1;
+
+    for(let i = 0; i < components.length; i++){
+
+        const p = components[i];
+        if(p.name === targetName){
+            index = i;
+            break;
+        }
+    }
+
+    return index;
+}
+
+function sortByPageOrder(a, b){
+    a = a.page_order;
+    b = b.page_order;
+
+    if(a < b) return -1;
+    if(a > b) return 1;
+    return 0;
+}
+
+function moveUp(data, settings, dispatch){
+    
+    settings = JSON.parse(JSON.stringify(settings));
+
+    const pageComponents = getPageComponents(data.category, settings);
+
+    const foundAtIndex = getPageOrderIndex(pageComponents, data.name);
+
+    //already first elem
+    if(foundAtIndex === 0) return;
+
+    const changes = [];
+
+    for(let i = 0; i < pageComponents.length; i++){
+
+        const p = pageComponents[i];
+
+        if(i === foundAtIndex - 1){
+            p.page_order++;
+            changes.push({"category": p.category, "name": p.name, "pageIndex": p.page_order});
+        }
+
+        if(i === foundAtIndex){
+            p.page_order--;
+            changes.push({"category": p.category, "name": p.name, "pageIndex": p.page_order});
+        }
+    }
+
+    dispatch({"type": "change-page-order", "changes": changes});
+
+}
+
+function moveDown(data, settings, dispatch){
+    
+    settings = JSON.parse(JSON.stringify(settings));
+
+    const pageComponents = getPageComponents(data.category, settings);
+
+    const foundAtIndex = getPageOrderIndex(pageComponents, data.name);
+
+    //already last elem
+    if(foundAtIndex === pageComponents.length - 1) return;
+
+    const changes = [];
+
+    for(let i = 0; i < pageComponents.length; i++){
+
+        const p = pageComponents[i];
+
+        if(i === foundAtIndex){
+            p.page_order++;
+            changes.push({"category": p.category, "name": p.name, "pageIndex": p.page_order});
+        }
+
+        if(i === foundAtIndex + 1){
+            p.page_order--;
+            changes.push({"category": p.category, "name": p.name, "pageIndex": p.page_order});
+        }
+    }
+
+    dispatch({"type": "change-page-order", "changes": changes});
+
+}
+
+
 function renderSettings(selectedTab, settings, dispatch){
 
     const moveableElems = [];
     const nonMoveableElems = [];
+
+
+    settings.sort((a, b) =>{
+        a = a.page_order;
+        b = b.page_order;
+        if(a < b) return -1;
+        if(a > b) return 1;
+        return 0;
+    });
 
 
     for(let i = 0; i < settings.length; i++){
@@ -233,11 +376,15 @@ function renderSettings(selectedTab, settings, dispatch){
 
 
             moveableElems.push(<div key={s.name} className={`${styles["page-item"]} ${styles["moveable"]}`}>
-                <div className={styles["label"]}>{s.name}</div>
+                <div className={styles["label"]}>{s.name}{s.page_order}</div>
                 {elem}
                
-                <div className="move-button move-up">Move Up</div>
-                <div className="move-button move-down">Move Down</div>
+                <div className="move-button move-up" onClick={() =>{
+                    moveUp(s, settings, dispatch);
+                }}>Move Up</div>
+                <div className="move-button move-down" onClick={() =>{
+                    moveDown(s, settings, dispatch);
+                }}>Move Down</div>
                
             </div>);
 
@@ -273,15 +420,28 @@ function renderSettings(selectedTab, settings, dispatch){
 }
 
 
-function renderUnsavedChanges(settings, savedSettings){
+function getSavedSetting(cat, name, savedSettings){
+
+    for(let i = 0; i < savedSettings.length; i++){
+
+        const s = savedSettings[i];
+        if(s.category === cat && s.name === name) return s;
+    }
+
+    return null;
+}
+
+function renderUnsavedChanges(settings, savedSettings, timestamp){
 
     const changes = [];
 
     for(let i = 0; i < settings.length; i++){
 
-        const oldSetting = savedSettings[i];
         const newSetting = settings[i];
+        const oldSetting = getSavedSetting(newSetting.category, newSetting.name, savedSettings);//savedSettings[i];
 
+        if(oldSetting === null) throw new Error(`Oldsetting not found`);
+        
         if(oldSetting.value.toString() != newSetting.value.toString()){
 
             changes.push({
@@ -289,6 +449,15 @@ function renderUnsavedChanges(settings, savedSettings){
                 "name": oldSetting.name,
                 "oldValue": oldSetting.value.toString(),
                 "newValue": newSetting.value.toString()
+            });
+        }
+
+        if(oldSetting.page_order !== newSetting.page_order){
+            changes.push({
+                "cat": oldSetting.category,
+                "name": oldSetting.name,
+                "oldValue": oldSetting.page_order,
+                "newValue": newSetting.page_order
             });
         }
     }
@@ -307,7 +476,7 @@ function renderUnsavedChanges(settings, savedSettings){
     });
 
 
-    return <MessageBox type="warn" title="You have unsaved changes">
+    return <MessageBox timestamp={timestamp} type="warn" title="You have unsaved changes">
         {changes.map((c, i) =>{
             return <span key={i}><b>{c.cat} - {c.name}</b>, was <b>{c.oldValue}</b>, now set to <b>{c.newValue}</b><br/></span>
         })}
@@ -328,7 +497,8 @@ export default function AdminPageSettings(){
         "messageBox": {
             "type": null,
             "title": null,
-            "content": null
+            "content": null,
+            "timestamp": 0
         }
     });
 
@@ -343,7 +513,7 @@ export default function AdminPageSettings(){
         <div className="default-header">Site Settings</div>
         {renderTabs(state.uniquePages, state.selectedTab, dispatch)}
         <MessageBox type={state.messageBox.type} title={state.messageBox.title}>{state.messageBox.content}</MessageBox>
-        {renderUnsavedChanges(state.settings, state.savedSettings)}
+        {renderUnsavedChanges(state.settings, state.savedSettings, state.messageBox.timestamp)}
         {renderSettings(state.selectedTab, state.settings, dispatch)}
     </>
 }
