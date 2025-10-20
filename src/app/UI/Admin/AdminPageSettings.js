@@ -5,6 +5,45 @@ import Tabs from "../Tabs";
 import { BasicTable } from "../Tables";
 import Checkbox from "../Checkbox";
 
+const PER_PAGE_OPTIONS = [5,10,20,25,50,75,100];
+
+const ORDER_OPTIONS = [
+    {"name": "Ascending", "value": "ASC"},
+    {"name": "Descending", "value": "DESC"},
+];
+
+const DEFAULT_DISPLAY_OPTIONS = [
+    {"name": "Default", "value": "default"},
+    {"name": "Table", "value": "table"},
+]
+
+const CUSTOM_OPTIONS = {
+    "Home": {
+        "Recent Matches Display Type": [...DEFAULT_DISPLAY_OPTIONS],
+        "Popular Countries Display Type": [...DEFAULT_DISPLAY_OPTIONS]
+    },
+    "Matches Page": {
+        "Default Display Type": [...DEFAULT_DISPLAY_OPTIONS]
+    },
+    "Player Pages": {
+        "Default Weapon Display": [...DEFAULT_DISPLAY_OPTIONS]
+    },
+    "Players Page": {
+        "Default Display Type": [...DEFAULT_DISPLAY_OPTIONS],
+        "Default Sort Type": [
+            {"name": "Name", "value": "name"},
+            {"name": "Playtime", "value": "playtime"},
+            {"name": "Matches Played", "value": "matches"},
+            {"name": "Score", "value": "score"},
+            {"name": "Kills", "value": "kills"},
+            {"name": "Last Active", "value": "last"}
+        ]
+    },
+    "Servers Page": {
+        "Default Display Type": [...DEFAULT_DISPLAY_OPTIONS],
+    }
+};
+
 
 function reducer(state, action){
 
@@ -98,6 +137,20 @@ function renderTabs(uniquePages, selectedTab, dispatch){
 }
 
 
+function getSelectionElem(cat, name){
+
+    if(CUSTOM_OPTIONS[cat] === undefined || CUSTOM_OPTIONS[cat][name] === undefined){
+        return <select className="default-select"></select>;
+    }
+
+
+    return <select className="default-select">
+        {CUSTOM_OPTIONS[cat][name].map((o, i) =>{
+            return <option key={i} value={o.value}>{o.name}</option>
+        })}
+    </select>
+}
+
 function renderSettings(selectedTab, settings){
 
     const movableRows = [];
@@ -114,11 +167,31 @@ function renderSettings(selectedTab, settings){
         let elem = null;
 
         if(s.value_type === "bool"){
-            elem = <Checkbox key={i} bTableElem={true} value={s.value} changeSelected={() =>{}}/>
+
+            elem = <Checkbox key={i} bTableElem={true} value={s.value} changeSelected={() =>{}}/>;
+
         }else if(s.value_type === "int"){
-            elem = <input type="number" className="default-textbox"/>
+
+            elem = <input type="number" className="default-textbox"/>;
+
         }else if(s.value_type === "selection"){
-            elem = <select className="default-select"></select>
+
+            elem = getSelectionElem(s.category, s.name);
+
+        }else if(s.value_type === "perpage"){
+
+            elem = <select className="default-select">
+                {PER_PAGE_OPTIONS.map((p) =>{
+                    return <option key={p} value={p}>{p}</option>
+                })}
+            </select>;
+
+        }else if(s.value_type === "order"){
+            elem = <select className="default-select">
+                {ORDER_OPTIONS.map((p) =>{
+                    return <option key={p.value} value={p.value}>{p.name}</option>
+                })}
+            </select>;
         }
 
         const current = [
@@ -139,9 +212,9 @@ function renderSettings(selectedTab, settings){
     }
 
     return <>
-        <BasicTable title="Moveable Components" width={1} headers={moveableHeaders} rows={movableRows}/>
+        <BasicTable title="Moveable Components" width={4} headers={moveableHeaders} rows={movableRows}/>
         <br/>
-        <BasicTable title="Non Moveable Components" width={1} headers={nonMoveableHeaders} rows={nonMovableRows}/>
+        <BasicTable title="Non Moveable Components" width={4} headers={nonMoveableHeaders} rows={nonMovableRows}/>
     </>
 }
 
