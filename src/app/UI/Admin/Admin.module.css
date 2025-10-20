@@ -1,0 +1,27 @@
+.page-items{
+    background-color:var(--color-9);
+    max-width:var(--max-width-3);
+    margin-left:auto;
+    margin-right:auto;
+    padding-top:10px;
+    margin-bottom:25px;
+}
+
+.page-item{
+    padding:5px;
+}
+
+.moveable{
+    display: grid;
+    grid-template-columns: auto 200px 100px 100px;
+}
+
+.label{
+    text-align:left;
+    font-size:12px;
+}
+
+.non-moveable{
+    display:grid;
+    grid-template-columns: auto 200px;
+}

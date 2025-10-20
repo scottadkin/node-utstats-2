@@ -2,8 +2,8 @@
 import { useEffect,useReducer } from "react";
 import MessageBox from "../MessageBox";
 import Tabs from "../Tabs";
-import { BasicTable } from "../Tables";
 import Checkbox from "../Checkbox";
+import styles from "./Admin.module.css";
 
 const PER_PAGE_OPTIONS = [5,10,20,25,50,75,100];
 
@@ -50,9 +50,13 @@ function reducer(state, action){
     switch(action.type){
 
         case "loaded": {
+            
+            //const settings = JSON.parse(JSON.stringify(action.settings));
+            //const savedSettings = JSON.parse(JSON.stringify(action.settings));
             return {
                 ...state,
-                "settings": action.settings,
+                "settings": [...action.settings],
+                "savedSettings": [...action.settings],
                 "uniquePages": action.uniquePages,
                 "bLoading": false
             }
@@ -71,6 +75,29 @@ function reducer(state, action){
             return {
                 ...state,
                 "selectedTab": action.value
+            }
+        }
+
+        case "update-setting": {
+
+            const settings = JSON.parse(JSON.stringify(state.settings));
+
+
+            for(let i = 0; i < settings.length; i++){
+
+                const s = settings[i];
+
+                if(s.category !== action.category) continue;
+                if(s.name !== action.name) continue;
+                
+                s.value = action.value;
+                break;
+            }
+
+            
+            return {
+                ...state,
+                "settings": settings
             }
         }
     }
@@ -137,27 +164,27 @@ function renderTabs(uniquePages, selectedTab, dispatch){
 }
 
 
-function getSelectionElem(cat, name){
+function getSelectionElem(cat, name, value, dispatch){
 
     if(CUSTOM_OPTIONS[cat] === undefined || CUSTOM_OPTIONS[cat][name] === undefined){
         return <select className="default-select"></select>;
     }
 
 
-    return <select className="default-select">
+    return <select className="default-select" value={value} onChange={(e) =>{
+            dispatch({"type": "update-setting", "category": cat, "name": name, "value": e.target.value});
+        }}>
         {CUSTOM_OPTIONS[cat][name].map((o, i) =>{
             return <option key={i} value={o.value}>{o.name}</option>
         })}
     </select>
 }
 
-function renderSettings(selectedTab, settings){
+function renderSettings(selectedTab, settings, dispatch){
 
-    const movableRows = [];
-    const nonMovableRows = [];
+    const moveableElems = [];
+    const nonMoveableElems = [];
 
-    const moveableHeaders = ["Name", "Value", "Change Position"];
-    const nonMoveableHeaders = ["Name", "Value"];
 
     for(let i = 0; i < settings.length; i++){
 
@@ -168,62 +195,134 @@ function renderSettings(selectedTab, settings){
 
         if(s.value_type === "bool"){
 
-            elem = <Checkbox key={i} bTableElem={true} value={s.value} changeSelected={() =>{}}/>;
+            elem = <Checkbox key={i} value={s.value} setValue={(v) =>{
+                dispatch({"type": "update-setting", "category": s.category, "name": s.name, "value": v});
+            }}/>;
 
         }else if(s.value_type === "int"){
 
-            elem = <input type="number" className="default-textbox"/>;
+            elem = <input type="number" min={0} value={s.value} className="default-textbox" onChange={(e) =>{
+                dispatch({"type": "update-setting", "category": s.category, "name": s.name, "value": e.target.value});
+            }}/>;
 
         }else if(s.value_type === "selection"){
 
-            elem = getSelectionElem(s.category, s.name);
+            elem = getSelectionElem(s.category, s.name, s.value, dispatch);
 
         }else if(s.value_type === "perpage"){
 
-            elem = <select className="default-select">
+            elem = <select className="default-select" value={s.value} onChange={(e) =>{
+                dispatch({"type": "update-setting", "category": s.category, "name": s.name, "value": e.target.value});
+            }}>
                 {PER_PAGE_OPTIONS.map((p) =>{
                     return <option key={p} value={p}>{p}</option>
                 })}
             </select>;
 
         }else if(s.value_type === "order"){
-            elem = <select className="default-select">
+            elem = <select className="default-select" value={s.value} onChange={(e) =>{
+                dispatch({"type": "update-setting", "category": s.category, "name": s.name, "value": e.target.value});
+            }}>
                 {ORDER_OPTIONS.map((p) =>{
                     return <option key={p.value} value={p.value}>{p.name}</option>
                 })}
             </select>;
         }
 
-        const current = [
-            {"className": "text-left", "value": s.name},
-            {"className": "", "bSkipTd": (s.value_type === "bool") ? true : false, "value": elem}
-        ];
-
         if(s.moveable){
 
-            current.push(<>
+
+            moveableElems.push(<div key={s.name} className={`${styles["page-item"]} ${styles["moveable"]}`}>
+                <div className={styles["label"]}>{s.name}</div>
+                {elem}
+               
                 <div className="move-button move-up">Move Up</div>
                 <div className="move-button move-down">Move Down</div>
-            </>);
-            movableRows.push(current);
+               
+            </div>);
+
         }else{
-            nonMovableRows.push(current);
+            nonMoveableElems.push(<div key={s.name} className={`${styles["page-item"]} ${styles["non-moveable"]}`}>
+                <div className={styles["label"]}>{s.name}</div>
+                {elem}
+            </div>);
         }
     }
 
+
+    const elems = [];
+
+    if(moveableElems.length > 0){
+
+        elems.push(<div key="move" className={styles["page-items"]}>
+            <div className="default-sub-header-alt">Moveable Items</div>
+            {moveableElems}
+        </div>);
+    }
+    
+    if(nonMoveableElems.length > 0){
+        elems.push(<div key="non-move" className={styles["page-items"]}>
+            <div className="default-sub-header-alt">Non Moveable Items</div>
+            {nonMoveableElems}
+        </div>);
+    }
+
     return <>
-        <BasicTable title="Moveable Components" width={4} headers={moveableHeaders} rows={movableRows}/>
-        <br/>
-        <BasicTable title="Non Moveable Components" width={4} headers={nonMoveableHeaders} rows={nonMovableRows}/>
+        {elems}
     </>
 }
 
+
+function renderUnsavedChanges(settings, savedSettings){
+
+    const changes = [];
+
+    for(let i = 0; i < settings.length; i++){
+
+        const oldSetting = savedSettings[i];
+        const newSetting = settings[i];
+
+        if(oldSetting.value.toString() != newSetting.value.toString()){
+
+            changes.push({
+                "cat": oldSetting.category,
+                "name": oldSetting.name,
+                "oldValue": oldSetting.value.toString(),
+                "newValue": newSetting.value.toString()
+            });
+        }
+    }
+
+    if(changes.length === 0) return null;
+
+    changes.sort((a, b) =>{
+
+        if(a.cat < b.cat) return -1;
+        if(a.cat > b.cat) return 1;
+
+        if(a.name < a.name) return -1;
+        if(a.name > b.name) return 1;
+
+        return 0;
+    });
+
+
+    return <MessageBox type="warn" title="You have unsaved changes">
+        {changes.map((c, i) =>{
+            return <span key={i}><b>{c.cat} - {c.name}</b>, was <b>{c.oldValue}</b>, now set to <b>{c.newValue}</b><br/></span>
+        })}
+        <br/>
+        <button className="search-button">Save Changes</button>
+    </MessageBox>
+    
+}
 
 export default function AdminPageSettings(){
 
     const [state, dispatch] = useReducer(reducer, {
         "selectedTab": null,
         "settings": [],
+        "savedSettings": [],
         "bLoading": true,
         "uniquePages": [],
         "messageBox": {
@@ -244,6 +343,7 @@ export default function AdminPageSettings(){
         <div className="default-header">Site Settings</div>
         {renderTabs(state.uniquePages, state.selectedTab, dispatch)}
         <MessageBox type={state.messageBox.type} title={state.messageBox.title}>{state.messageBox.content}</MessageBox>
-        {renderSettings(state.selectedTab, state.settings)}
+        {renderUnsavedChanges(state.settings, state.savedSettings)}
+        {renderSettings(state.selectedTab, state.settings, dispatch)}
     </>
 }
