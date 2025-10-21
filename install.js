@@ -1,8 +1,9 @@
 import Message from "./api/message.js";
-import fs from "fs";
-import { generateRandomString } from "./api/functions.js";
+import { existsSync, writeFileSync } from "fs";
+import { generateRandomString } from "./api/generic.mjs";
 import mysql from "mysql2/promise";
 import config from "./config.json" with {"type": "json"};
+import { DEFAULT_PAGE_SETTINGS } from "./api/sitesettings.js";
 
 
 let mysqlObject = mysql.createPool({
@@ -1281,132 +1282,6 @@ const queries = [
     `INSERT INTO nstats_items VALUES(NULL,"Shock Core","Shock Core",0,0,0,0,2)`,
     `INSERT INTO nstats_items VALUES(NULL,"Sword","Sword",0,0,0,0,1)`,
 
-
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Home","int","Recent Matches To Display","3","10", 0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Home","selection","Recent Matches Display Type","default","9", 0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Home","bool","Display Most Played Gametypes","true","8", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Home","bool","Display Most Used Faces","true","7", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Home","bool","Display Most Played Maps","true","6", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Home","bool","Display Most Popular Countries","true","5", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Home","bool","Display Recent Players","true","4", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Home","bool","Display Addicted Players","true","1", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Home","bool","Display Latest Match","true","0", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Home","bool","Display Recent Matches","true","2", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Home","bool","Display Recent Matches & Player Stats","true","3", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Home","selection","Popular Countries Display Type","default",999999, 0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Home","int","Popular Countries Display Limit",5,999999, 0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","bool","Display Addicted Players","true","11", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","bool","Display Control Points (Domination)","true","8", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","bool","Display Games Played","true","4", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","bool","Display Longest Matches","true","12", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","bool","Display Map Objectives (Assault)","true","7", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","bool","Display Recent Matches","true","5", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","bool","Display Spawn Points","true","13", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","bool","Display Summary","true","3", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","int","Max Addicted Players","5","2", 0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","int","Max Longest Matches","5","1", 0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","perpage","Recent Matches Per Page","25","0", 0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","bool","Display CTF Caps","true","6", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","bool","Display Combogib Player Records","true","10", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Map Pages","bool","Display Combogib General Stats","true","9", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Maps Page","perpage","Default Display Per Page","25","0", 0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Maps Page","selection","Default Display Type","default","0",0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Maps Page","selection","Default Sort By","name","0",0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Maps Page","order","Default Order","asc","0",0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Match Report Title","true",0,0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Summary","true",1, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Screenshot","true",2, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Domination Summary","true",3, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Domination Graphs","true",4, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Assault Summary","true",5, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Capture The Flag Summary","true",6, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Capture The Flag Graphs","true",7, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Capture The Flag Times","true",8, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Capture The Flag Caps","true",9, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Capture The Flag Returns","true",10, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Capture The Flag Carry Times","true",11, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display MonsterHunt Kills","true",12, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Frag Summary","true",13, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Frags Graphs","true",14, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Combogib Stats","true",15, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Special Events","true",16, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Extended Sprees","true",17, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Telefrag Stats","true",18, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Rankings","true",19, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Ammo Control","true",20, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Health/Armour Control","true",21, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Weapons Control","true",22, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Powerup Control","true",23, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Items Summary","true",24, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Pickup Summary","true",25, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Kills Match Up","true",26, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Weapon Statistics","true",27, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Player Ping Graph","true",28, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Players Connected to Server Graph","true",29, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Player Score Graph","true",30, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Team Changes","true",31, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Time Limit","true",32, 0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Server Settings","true",33, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Target Score","true",34, 0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Match Pages","bool","Display Mutators","true",35, 0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","perpage","Default Display Per Page","25","0", 0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","selection","Default Display Type","default","0", 0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","int","Default Gametype","0","0",0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","int","Minimum Players","0","0",0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Matches Page","int","Minimum Playtime","0","0",0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Navigation","bool","Display Admin","true","8", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Navigation","bool","Display Home","true","0", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Navigation","bool","Display Servers","true",1,1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Navigation","bool","Display Login/Logout","true","9", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Navigation","bool","Display Maps","true","6", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Navigation","bool","Display Matches","true","2", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Navigation","bool","Display Players","true","3", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Navigation","bool","Display Rankings","true","4", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Navigation","bool","Display Records","true","5", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Navigation","bool","Display ACE","true","7", 1)`,
-
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","bool","Display Summary","true",0, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","bool","Display Win Rates","true",1, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","bool","Display Gametype Stats","true",2, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","bool","Display Map Stats","true",3, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","bool","Display Frag Summary","true",4, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","bool","Display Monsterhunt Basic Stats","true",5, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","bool","Display Monsterhunt Monster Stats","true",6, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","bool","Display Capture The Flag Summary","true",7, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","bool","Display Assault & Domination","true",8, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","bool","Display Capture The Flag Cap Records","true",9, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","bool","Display Combogib Stats","true",10, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","bool","Display Special Events","true",11, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","bool","Display Telefrag Stats","true",12, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","bool","Display Rankings","true",13, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","bool","Display Pickup History","true",14, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","bool","Display Weapon Stats","true",15, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","bool","Display Items Summary","true",16, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","bool","Display Aliases","true",17, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","perpage","Recent Matches Per Page","25",18, 0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","bool","Display Ping History Graph","true",18, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","bool","Display Recent Activity Graph","true",19, 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","selection","Default Weapon Display","default",20, 0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","bool","Display Recent Matches","true",20,1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Player Pages","selection","Default Recent Matches Display","table",21,0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Players Page","perpage","Default Display Per Page","25","0",0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Players Page","selection","Default Display Type","default","0",0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Players Page","order","Default Order","ASC","0",0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Players Page","selection","Default Sort By","name","0",0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Players Page","selection","Default Last Active Range","0","0",0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Rankings","perpage","Rankings Per Gametype (Main)","10","0",0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Rankings","perpage","Rankings Per Page (Individual)","100","0",0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Rankings","selection","Default Min Playtime","0","0",0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Rankings","selection","Default Last Active","90","0",0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","bool","Display Player Records","true","0", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","bool","Display Match Records","true","0", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","bool","Display CTF Cap Records","true","0", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","bool","Display Combogib Records","true","0", 1)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Records Page","perpage","Default Per Page","25",0,0)`,
-    `INSERT INTO nstats_site_settings VALUES(NULL,"Servers Page","selection","Default Display Type","default",0,0)`,
-
-    
-
     `CREATE TABLE IF NOT EXISTS nstats_player_ctf_match (
       id int NOT NULL AUTO_INCREMENT,
       player_id int NOT NULL,
@@ -1829,6 +1704,44 @@ async function basicQuery(query){
 	return await mysqlObject.query(query);
 } 
 
+async function simpleQuery(query, vars){
+
+	if(vars === undefined) vars = [];
+
+	const [result, fields] = await mysqlObject.query(query, vars);
+	
+	return result;
+}
+
+async function bSettingAlreadyExist(cat, name){
+
+	const query = `SELECT COUNT(*) as total_rows FROM nstats_site_settings WHERE category=? AND name=?`;
+	const result = await simpleQuery(query, [cat, name]);
+
+	return result[0].total_rows > 0;
+
+}
+
+async function insertSiteSettings(){
+
+	const query = `INSERT INTO nstats_site_settings VALUES(NULL,?,?,?,?,?,?)`;
+
+	for(const [cat, cData] of Object.entries(DEFAULT_PAGE_SETTINGS)){
+
+		for(let i = 0; i < cData.length; i++){
+
+			const c = cData[i];
+
+			if(!await bSettingAlreadyExist(cat, c.name)){
+				await simpleQuery(query, [cat, c.valueType, c.name, c.value, c.pageOrder, c.moveable]);
+				new Message(`Inserted Site Setting: ${cat}->${c.name} inserted successfully.`,"pass");
+			}else{
+				new Message(`Site Setting: ${cat}->${c.name} already exists.`,"pass");
+			}
+		}
+	}
+}
+
 (async () =>{
 
 
@@ -1851,17 +1764,24 @@ async function basicQuery(query){
                 });
             }
             new Message(`Performed query ${i+1} of ${queries.length}`,"pass");
-        
         }
+
+		await insertSiteSettings();
 
         mysqlObject.releaseConnection();
 
-        const seed = generateRandomString(10000);
+        const saltFileDest = "./salt.js";
 
+        if(!existsSync(saltFileDest)){
+			new Message(`Creating password salt file`, "note");
+            const seed = generateRandomString(10000);
+            const fileContents = `export default function (){  return \`${seed}\`;}`;
 
-        const fileContents = `export default function (){  return \`${seed}\`;}`;
-
-        fs.writeFileSync("./salt.js", fileContents);
+            writeFileSync(saltFileDest, fileContents);
+        }else{
+			new Message(`Password salt file already exists, delete salt.js if you wish to create a new salt.`,"note");
+			new Message(`You will not be able to login if if you create a new salt.js`,"note");
+		}
 
         process.exit();
 

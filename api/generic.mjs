@@ -1109,3 +1109,23 @@ export function convertSprees(type, data){
     return null;
 }
 
+export function generateRandomChar(){
+
+    const chars = `abcdefghijklmnopqrstuvwxyz0123456789!"$%^&*()_+-=:;@'~#[],.<>?/`;
+
+    const r = Math.floor(Math.random() * (chars.length - 1));
+
+    return chars[r];
+}
+
+export function generateRandomString(length){
+
+    let string = "";
+
+    for(let i = 0; i < length; i++){
+
+        string += generateRandomChar();
+    }
+
+    return string;
+}
