@@ -22,8 +22,6 @@ export default async function Page({}){
     const bAdmin = await session.bUserAdmin();
 
 
-
-
     if(!bAdmin){
         return <ErrorPage navSettings={navSettings} sessionSettings={sessionSettings} title="Access Denied">You do not have the access to this area.</ErrorPage>;
     }

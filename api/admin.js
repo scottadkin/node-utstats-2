@@ -307,8 +307,6 @@ export default class Admin{
 
         const query = `SELECT name,display_name,description,value FROM nstats_ranking_values`;
         const result = await simpleQuery(query);
-        console.log(result);
-        
 
         let buffer = `[`;
 
@@ -321,6 +319,27 @@ export default class Admin{
         buffer += `]`;
 
         writeFileSync("./DEFAULT_RANKING_VALUES.txt", buffer);
+    }
+
+
+    async dumpDefaultItemsAsJSON(){
+
+        const query = `SELECT name,display_name,type FROM nstats_items`;
+
+        const result = await simpleQuery(query);
+
+        let buffer = `[`;
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+
+            buffer += `${JSON.stringify(r)},\n\t`;
+        }
+
+        buffer += `];`;
+
+        writeFileSync("./DEFAULT_ITEMS.txt", buffer);
     }
 
 

@@ -5,6 +5,7 @@ import mysql from "mysql2/promise";
 import config from "./config.json" with {"type": "json"};
 import { DEFAULT_PAGE_SETTINGS } from "./api/sitesettings.js";
 import { DEFAULT_RANKING_VALUES } from "./api/rankings.js";
+import { DEFAULT_ITEMS } from "./api/items.js";
 
 
 let mysqlObject = mysql.createPool({
@@ -1170,60 +1171,6 @@ const queries = [
                       PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
     `INSERT INTO nstats_logs_folder VALUES(NULL, 'Logs Folder',0,0,0,0,0,0,0,0,0,0,0,0,0)`,
-    
-    
-    `INSERT INTO nstats_items VALUES(NULL,"AntiGrav Boots","Jump Boots",0,0,0,0,4)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Body Armor","Body Armor",0,0,0,0,3)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Chainsaw","Chainsaw",0,0,0,0,1)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Damage Amplifier","Damage Amplifier",0,0,0,0,4)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Double Enforcers","Double Enforcers",0,0,0,0,1)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Enforcer","Enforcer",0,0,0,0,1)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Enhanced Shock Rifle","Enhanced Shock Rifle",0,0,0,0,1)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Flak Cannon","Flak Cannon",0,0,0,0,1)`,
-    `INSERT INTO nstats_items VALUES(NULL,"GES Bio Rifle","GES Bio Rifle",0,0,0,0,1)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Health Pack","Health Pack",0,0,0,0,3)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Health Vial","Health Vial",0,0,0,0,3)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Invisibility","Invisibility",0,0,0,0,4)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Minigun","Minigun",0,0,0,0,1)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Pulse Gun","Pulse Gun",0,0,0,0,1)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Redeemer","Redeemer",0,0,0,0,1)`,
-    `INSERT INTO nstats_items VALUES(NULL,"RelicDeathInventory","Relic Death",0,0,0,0,5)`,
-    `INSERT INTO nstats_items VALUES(NULL,"RelicDefenseInventory","Relic Defense",0,0,0,0,5)`,
-    `INSERT INTO nstats_items VALUES(NULL,"RelicRedemptionInventory","Relic Redemption",0,0,0,0,5)`,
-    `INSERT INTO nstats_items VALUES(NULL,"RelicRegenInventory","Relic Regen",0,0,0,0,5)`,
-    `INSERT INTO nstats_items VALUES(NULL,"RelicSpeedInventory","Relic Speed",0,0,0,0,5)`,
-    `INSERT INTO nstats_items VALUES(NULL,"RelicStrengthInventory","Relic Strength",0,0,0,0,5)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Ripper","Ripper",0,0,0,0,1)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Rocket Launcher","Rocket Launcher",0,0,0,0,1)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Shield Belt","Shield Belt",0,0,0,0,4)`,
-    `INSERT INTO nstats_items VALUES(NULL,"ShieldBelt","Shield Belt",0,0,0,0,4)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Shock Rifle","Shock Rifle",0,0,0,0,1)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Sniper Rifle","Sniper Rifle",0,0,0,0,1)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Super Health Pack","Super Health Pack",0,0,0,0,4)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Thigh Pads","Thigh Pads",0,0,0,0,3)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Ammor Percing Slugs Pads","Armor Percing Slugs",0,0,0,0,2)`,
-    `INSERT INTO nstats_items VALUES(NULL,"AP CAS12","AP CAS12s",0,0,0,0,1)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Armor Shard","Armor Shard",0,0,0,0,3)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Arrows","Arrows",0,0,0,0,2)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Blade Hopper","Ripper Ammo",0,0,0,0,2)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Box of Rifle Rounds","Sniper Ammo",0,0,0,0,2)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Box of RPB Rounds","RPB Sniper Ammo",0,0,0,0,2)`,
-    `INSERT INTO nstats_items VALUES(NULL,"CAS12","CAS12",0,0,0,0,1)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Chaos Sniper Rifle","Chaos Sniper Rifle",0,0,0,0,1)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Claw","Claw",0,0,0,0,1)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Crossbow","Crossbow",0,0,0,0,1)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Explosive Arrows","Crossbow",0,0,0,0,2)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Explosive CAS12","Explosive CAS12",0,0,0,0,1)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Explosive Crossbow","Explosive Crossbow",0,0,0,0,1)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Explosive SG Shells","Explosive SG Shells",0,0,0,0,2)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Flak Shells","Flak Shells",0,0,0,0,2)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Gravity Belt","Gravity Belt",0,0,0,0,5)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Poison Crossbow","Poison Crossbow",0,0,0,0,1)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Proxy Mines","Proxy Mines",0,0,0,0,1)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Rocket Pack","Rocket Pack",0,0,0,0,2)`,
-    `INSERT INTO nstats_items VALUES(NULL,"SG Shells","SG Shell",0,0,0,0,2)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Shock Core","Shock Core",0,0,0,0,2)`,
-    `INSERT INTO nstats_items VALUES(NULL,"Sword","Sword",0,0,0,0,1)`,
 
     `CREATE TABLE IF NOT EXISTS nstats_player_ctf_match (
       id int NOT NULL AUTO_INCREMENT,
@@ -1699,7 +1646,6 @@ async function bRankingValueExist(name){
 
 async function insertRankingValues(){
 
-
 	const query = `INSERT INTO nstats_ranking_values VALUES(NULL,?,?,?,?)`;
 
 	for(let i = 0; i < DEFAULT_RANKING_VALUES.length; i++){
@@ -1712,6 +1658,33 @@ async function insertRankingValues(){
 			new Message(`Inserted Ranking value for event: ${r.display_name} `, "pass");
 		}else{
 			new Message(`Ranking value for event: ${r.display_name} already exists`, "pass");
+		}
+	}
+}
+
+async function bItemExist(name){
+
+	const query = `SELECT COUNT(*) as total_rows FROM nstats_items WHERE name=?`;
+	const result = await simpleQuery(query, [name]);
+
+	return result[0].total_rows > 0;
+}
+
+async function insertItems(){
+
+	const query = `INSERT INTO nstats_items VALUES(NULL,?,?,0,0,0,0,?)`;
+
+	for(let i = 0; i < DEFAULT_ITEMS.length; i++){
+
+		const d = DEFAULT_ITEMS[i];
+		
+		if(!await bItemExist(d.name)){
+
+			await simpleQuery(query, [d.name, d.display_name, d.type]);
+			new Message(`Inserted item ${d.name} into items table.`,"pass");
+
+		}else{
+			new Message(`There is already an item called ${d.name} in the items table.`,"pass");
 		}
 	}
 }
@@ -1742,6 +1715,7 @@ async function insertRankingValues(){
 
 		await insertSiteSettings();
 		await insertRankingValues();
+		await insertItems();
 
         mysqlObject.releaseConnection();
 
