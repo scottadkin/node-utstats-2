@@ -1,6 +1,7 @@
 import Session from "../../../../api/session";
 import { headers, cookies } from "next/headers";
 import Admin from "../../../../api/admin";
+import { getAllGametypeNames } from "../../../../api/gametypes";
 
 
 export async function POST(req){
@@ -91,7 +92,15 @@ export async function POST(req){
 
             const settings = await adminManager.getAllPageSettings();
 
-            return Response.json({settings});
+            const gametypeNames = await getAllGametypeNames();
+
+            const names = [];
+
+            for(const [key, value] of Object.entries(gametypeNames)){
+                names.push({"name": value, "id": parseInt(key)});
+            }
+
+            return Response.json({settings, "gametypeNames": names});
         }
 
 

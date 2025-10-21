@@ -35,7 +35,8 @@ const CUSTOM_OPTIONS = {
         ]
     },
     "Matches Page": {
-        "Default Display Type": [...DEFAULT_DISPLAY_OPTIONS]
+        "Default Display Type": [...DEFAULT_DISPLAY_OPTIONS],
+        "Default Gametype": null
     },
     "Player Pages": {
         "Default Weapon Display": [{"name": "Table", "value": "table"}],
@@ -98,7 +99,8 @@ function reducer(state, action){
                 "settings": [...action.settings],
                 "savedSettings": [...action.settings],
                 "uniquePages": action.uniquePages,
-                "bLoading": false
+                "bLoading": false,
+                "gametypeNames": action.gametypeNames
             }
         }
         case "set-message": {
@@ -213,7 +215,12 @@ async function loadData(dispatch){
             return 0;
         });
 
-        dispatch({"type": "loaded","uniquePages": uniquePages, "settings": res.settings});
+        dispatch({
+            "type": "loaded",
+            "uniquePages": uniquePages, 
+            "settings": res.settings, 
+            "gametypeNames": res.gametypeNames
+        });
 
     }catch(err){
         console.trace(err);
@@ -238,19 +245,33 @@ function renderTabs(uniquePages, selectedTab, dispatch){
 }
 
 
-function getSelectionElem(cat, name, value, dispatch){
+function getSelectionElem(cat, name, value, dispatch, gametypeNames){
 
     if(CUSTOM_OPTIONS[cat] === undefined || CUSTOM_OPTIONS[cat][name] === undefined){
         return <select className="default-select"></select>;
+    }
+
+    let options = [];
+
+    if((cat === "Matches Page" && name === "Default Gametype")){
+
+        options = gametypeNames.map((g) =>{
+            return <option key={g.id} value={g.id}>{g.name}</option>
+        });
+
+        options.unshift(<option key={0} value="0">All</option>);
+        
+    }else{
+        options = CUSTOM_OPTIONS[cat][name].map((o, i) =>{
+            return <option key={i} value={o.value}>{o.name}</option>
+        })
     }
 
 
     return <select className="default-select" value={value} onChange={(e) =>{
             dispatch({"type": "update-setting", "category": cat, "name": name, "value": e.target.value});
         }}>
-        {CUSTOM_OPTIONS[cat][name].map((o, i) =>{
-            return <option key={i} value={o.value}>{o.name}</option>
-        })}
+        {options}
     </select>
 }
 
@@ -366,8 +387,6 @@ async function restoreDefaultSettings(cat, dispatch){
 
     try{
 
-        console.log(cat);
-
         const req = await fetch("/api/admin", {
             "headers": {"Content-type": "application/json"},
             "method": "POST",
@@ -393,7 +412,7 @@ async function restoreDefaultSettings(cat, dispatch){
     }
 }
 
-function renderSettings(selectedTab, settings, bLoading, dispatch){
+function renderSettings(selectedTab, settings, gametypeNames, bLoading, dispatch){
 
     if(bLoading) return <Loading></Loading>
 
@@ -431,7 +450,7 @@ function renderSettings(selectedTab, settings, bLoading, dispatch){
 
         }else if(s.value_type === "selection"){
 
-            elem = getSelectionElem(s.category, s.name, s.value, dispatch);
+            elem = getSelectionElem(s.category, s.name, s.value, dispatch, gametypeNames);
 
         }else if(s.value_type === "perpage"){
 
@@ -637,6 +656,7 @@ export default function AdminPageSettings(){
         "savedSettings": [],
         "bLoading": true,
         "uniquePages": [],
+        "gametypeNames": [],
         "messageBox": {
             "type": null,
             "title": null,
@@ -657,6 +677,6 @@ export default function AdminPageSettings(){
         {renderTabs(state.uniquePages, state.selectedTab, dispatch)}
         <MessageBox type={state.messageBox.type} title={state.messageBox.title}>{state.messageBox.content}</MessageBox>
         {renderUnsavedChanges(state.settings, state.savedSettings, state.messageBox.timestamp, state.bLoading, dispatch)}
-        {renderSettings(state.selectedTab, state.settings, state.bLoading, dispatch)}
+        {renderSettings(state.selectedTab, state.settings, state.gametypeNames, state.bLoading, dispatch)}
     </>
 }

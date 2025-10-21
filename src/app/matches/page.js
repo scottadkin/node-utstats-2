@@ -16,7 +16,7 @@ import { cleanMapName, removeUnr } from "../../../api/generic.mjs";
 function setQueryStuff(query, pageSettings){
 
     let selectedServer = (query.server !== undefined) ? parseInt(query.server) : 0;
-    let selectedGametype = (query.gametype !== undefined) ? parseInt(query.gametype) : 0;
+    let selectedGametype = (query.gametype !== undefined) ? parseInt(query.gametype) : parseInt(pageSettings["Default Gametype"]);
     let selectedMap = (query.map !== undefined) ? parseInt(query.map) : 0;
     let displayMode = query.displayMode ?? pageSettings["Default Display Type"];
     let page = (query.page !== undefined) ? parseInt(query.page) : 1;
