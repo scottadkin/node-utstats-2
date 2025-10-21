@@ -61,7 +61,7 @@ export default function SearchForm({name, country, active, sortBy, perPage, orde
         </div>
         <div className="form-row">
             <label htmlFor="sort">Sort By</label>
-            <select id="sort" className="default-select" onChange={(e) =>{
+            <select id="sort"  defaultValue={sortBy} className="default-select" onChange={(e) =>{
                 router.push(`/players?name=${name}&country=${country}&active=${active}&sb=${e.target.value}&pp=${perPage}&o=${order}`);
             }}>
                 <option value="name">Name</option>
@@ -75,7 +75,7 @@ export default function SearchForm({name, country, active, sortBy, perPage, orde
 
         <div className="form-row">
             <label htmlFor="order">Order</label>
-            <select id="order" className="default-select" onChange={(e) =>{
+            <select id="order" defaultValue={order} className="default-select" onChange={(e) =>{
                 router.push(`/players?name=${name}&country=${country}&active=${active}&sb=${sortBy}&pp=${perPage}&o=${e.target.value}`);
             }}>
                 <option value="asc">Ascending</option>

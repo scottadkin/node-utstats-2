@@ -12,14 +12,12 @@ import Link from "next/link";
 
 function setQueryValues(params, searchParams, pageSettings){
 
-	console.log(params);
-	console.log(searchParams);
 
 	let name = searchParams.name ?? "";
 	let page = searchParams.page ?? 1;
-	let order = searchParams.order ?? "asc";
+	let order = searchParams.order ?? pageSettings["Default Order"];
 	let perPage = searchParams.perPage ?? pageSettings["Default Display Per Page"];
-	let sort = searchParams.sort ?? "name";
+	let sort = searchParams.sort ?? pageSettings["Default Sort By"];
 	let display = searchParams.display ?? pageSettings["Default Display Type"];
 
 	page = sanatizePage(page);
@@ -27,6 +25,7 @@ function setQueryValues(params, searchParams, pageSettings){
 	perPage = sanatizePerPage(perPage);
 	sort = sort.toLowerCase();
 	display = display.toLowerCase();
+	order = order.toLowerCase();
 
 	return {name, page, order, perPage, sort, display};
 }
@@ -87,7 +86,6 @@ export default async function Page({params, searchParams}){
 	searchParams = await searchParams;
 
 	const pageSettings = await getSettings("Maps Page");
-	console.log(pageSettings);
 
 	const {name, page, order, perPage, sort, display} = setQueryValues(params, searchParams, pageSettings);
 
@@ -102,6 +100,7 @@ export default async function Page({params, searchParams}){
 	await session.load();
 	const navSettings = await getNavSettings("Navigation");
 	const sessionSettings = session.settings;
+
 
 	const result = await mapSearch(page, perPage, name, order === "asc", sort);
 

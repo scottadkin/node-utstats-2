@@ -1064,7 +1064,7 @@ async function getOnlyValidPlayerMatchIds(playerId, minPlayers, minPlaytime){
     return validIds;
 }
 
-export async function getRecentMatches(id, page){
+export async function getRecentMatches(id, page, forcePerPage){
 
     if(page === undefined){
         page = 1;
@@ -1077,7 +1077,15 @@ export async function getRecentMatches(id, page){
 
     const settings = await getSettings("Matches Page");
 
-    let perPage = settings["Recent Matches Per Page"] ?? 25;
+  
+    let perPage = 25;
+
+    if(forcePerPage !== undefined){
+        perPage = forcePerPage;
+    }else{
+        perPage = settings["Recent Matches Per Page"] ?? 25;
+    }
+
     perPage = parseInt(perPage);
     if(perPage !== perPage) perPage = 25;
 

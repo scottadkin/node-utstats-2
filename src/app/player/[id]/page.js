@@ -244,12 +244,14 @@ export default async function Page({params, searchParams}){
     }
 
 
+   pageManager.addComponent("Display Summary",<PlayerGeneral key="sum" data={basic} country={getCountryName(basic.country)} face={faces[basic.face].name}/> );
+
+
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
         <div id="content">
             <div className="default">
-                <div className="default-header">{basic.name} - Player Profile</div>
-                <PlayerGeneral data={basic} country={getCountryName(basic.country)} face={faces[basic.face].name}/>
+                <div className="default-header">{basic.name} - Player Profile</div>        
                 {elems}
             </div>    
         </div>   

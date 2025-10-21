@@ -35,5 +35,8 @@ export default function PlayerGeneral({country, face, data}){
         {"className": "playtime", "value": toPlaytime(data.playtime)}
     ];
 
-    return <BasicTable width={1} headers={headers} rows={[row]}/>
+    return <>
+        <div className="default-header">Basic Summary</div>
+        <BasicTable width={1} headers={headers} rows={[row]}/>
+    </>;
 }

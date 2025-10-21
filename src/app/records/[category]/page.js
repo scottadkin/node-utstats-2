@@ -148,11 +148,13 @@ export default async function Page({params, searchParams}){
     params = await params;
     searchParams = await searchParams;
 
+    const pageSettings = await getSettings("Records Page");
+
     const cat = (params.category !== undefined) ? params.category.toLowerCase() : "player-totals";
     let selectedType = (searchParams.type !== undefined) ? searchParams.type.toLowerCase() : "kills";
     let selectedGametype = searchParams?.g ?? "0";
     let selectedMap = searchParams?.m ?? "0";
-    let selectedPerPage = searchParams?.pp ?? "25";
+    let selectedPerPage = searchParams?.pp ?? pageSettings["Default Per Page"];
     let page = searchParams.page ?? 1;
 
     selectedType = getSelectedType(cat, selectedType);
@@ -170,6 +172,7 @@ export default async function Page({params, searchParams}){
     await session.load();
     const navSettings = await getNavSettings();
     const sessionSettings = session.settings;
+    
 
 
     const gametypeNames = await getAllObjectNames("gametypes", true);

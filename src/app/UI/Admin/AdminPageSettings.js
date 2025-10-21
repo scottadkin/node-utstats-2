@@ -25,23 +25,58 @@ const CUSTOM_OPTIONS = {
         "Popular Countries Display Type": [...DEFAULT_DISPLAY_OPTIONS]
     },
     "Maps Page": {
-        "Default Display Type": [...DEFAULT_DISPLAY_OPTIONS]
+        "Default Display Type": [...DEFAULT_DISPLAY_OPTIONS],
+        "Default Sort By": [
+            {"name": "Name","value": "name" },
+            {"name": "First Match","value": "first" },
+            {"name": "Last Match","value": "last" },
+            {"name": "Matches Played","value": "matches" },
+            {"name": "Playtime","value": "playtime" }
+        ]
     },
     "Matches Page": {
         "Default Display Type": [...DEFAULT_DISPLAY_OPTIONS]
     },
     "Player Pages": {
-        "Default Weapon Display": [...DEFAULT_DISPLAY_OPTIONS]
+        "Default Weapon Display": [{"name": "Table", "value": "table"}],
+        "Default Recent Matches Display": [...DEFAULT_DISPLAY_OPTIONS],
     },
     "Players Page": {
-        "Default Display Type": [...DEFAULT_DISPLAY_OPTIONS],
-        "Default Sort Type": [
+        "Default Display Type": [{"name": "Table", "value": "table"}],
+        "Default Sort By": [
             {"name": "Name", "value": "name"},
             {"name": "Playtime", "value": "playtime"},
             {"name": "Matches Played", "value": "matches"},
             {"name": "Score", "value": "score"},
             {"name": "Kills", "value": "kills"},
             {"name": "Last Active", "value": "last"}
+        ],
+        "Default Last Active Range": [
+            {"name": "Any Time", "value": 0},
+            {"name": "Past 24 Hours", "value": 1},
+            {"name": "Past 7 Days", "value": 2},
+            {"name": "Past 28 Days", "value": 3},
+            {"name": "Past Year", "value": 4},
+        ]
+    },
+    "Rankings": {
+        "Default Last Active":[
+            {"name": "No Limit", "value": 0},
+            {"name": "Past 24 Hours", "value": 1},
+            {"name": "Past 7 Days", "value": 7},
+            {"name": "Past 28 Days", "value": 28},
+            {"name": "Past 90 Days", "value": 90},
+            {"name": "Past Year", "value": 365}
+        ],
+        "Default Min Playtime": [
+            {"name": "No Limit", "value": 0},
+            {"name": "1 Hour", "value": 1},
+            {"name": "2 Hours", "value": 2},
+            {"name": "3 Hours", "value": 3},
+            {"name": "6 Hours", "value": 6},
+            {"name": "12 Hours", "value": 12},
+            {"name": "24 Hours", "value": 24},
+            {"name": "48 Hours", "value": 48},
         ]
     },
     "Servers Page": {

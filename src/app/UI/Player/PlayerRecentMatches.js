@@ -38,14 +38,14 @@ function reducer(state, action){
 }
 
 
-async function loadData(playerId, page, dispatch){
+async function loadData(playerId, page, perPage, dispatch){
 
     try{
 
         const req = await fetch("/api/player", {
             "headers": {"Content-type": "application/json"},
             "method": "POST",
-            "body": JSON.stringify({"mode": "player-recent-matches", "id": playerId, "page": page})
+            "body": JSON.stringify({"mode": "player-recent-matches", "id": playerId, "page": page, "perPage": perPage})
         });
 
         const res = await req.json();
@@ -61,7 +61,7 @@ async function loadData(playerId, page, dispatch){
 
 function renderTable(mode, data, playerId){
 
-    if(data === null || mode !== 1) return null;
+    if(data === null || mode !== "table") return null;
 
     const headers = [
         "Map","Date", "Gametype", "Players", "Playtime", "Match Result", "Result"
@@ -102,7 +102,7 @@ function renderTable(mode, data, playerId){
 
 function renderDefault(mode, data, playerId){
 
-    if(mode !== 0) return null;
+    if(mode !== "default") return null;
     
     return <div className="t-width-1 center">
         {data.map((d) =>{
@@ -119,27 +119,27 @@ export default function PlayerRecentMatches({perPage, defaultDisplayMode, player
 
     const [state, dispatch] = useReducer(reducer, {
         "page": 1,
-        "displayMode": parseInt(defaultDisplayMode),
+        "displayMode": defaultDisplayMode,
         "data": []
     });
 
     useEffect(() =>{
 
-        loadData(playerId, state.page, dispatch);
+        loadData(playerId, state.page, perPage, dispatch);
 
-    }, [playerId, state.page]);
+    }, [playerId, state.page, perPage]);
 
 
     const tabOptions = [
-        {"name": "Default View", "value": 0},
-        {"name": "Table View", "value": 1}
+        {"name": "Default View", "value": "default"},
+        {"name": "Table View", "value": "table"}
     ];
 
 
     return <>
         <div className="default-header">Recent Matches</div>
         <Tabs options={tabOptions} selectedValue={state.displayMode} changeSelected={(a) =>{
-            dispatch({"type": "set-display-mode", "value": parseInt(a)});
+            dispatch({"type": "set-display-mode", "value": a});
         }}/>
         {renderDefault(state.displayMode, state.data, playerId)}
         {renderTable(state.displayMode, state.data, playerId)}

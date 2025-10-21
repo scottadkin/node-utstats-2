@@ -12,15 +12,17 @@ import Link from "next/link";
 import { getCountryName } from "../../../api/countries";
 
 
-function setQueryStuff(query){
+function setQueryStuff(query, pageSettings){
 
     const selectedCountry = (query.country !== undefined) ? query.country.toLowerCase() : "";
-    const selectedActive = (query.active !== undefined) ? parseInt(query.active) : 0;
+    const selectedActive = (query.active !== undefined) ? parseInt(query.active) : pageSettings["Default Last Active Range"];
     const selectedName = (query.name !== undefined) ? query.name : "";
-    const perPage = (query.pp !== undefined) ? query.pp : 25;
+    let perPage = (query.pp !== undefined) ? parseInt(query.pp) : parseInt(pageSettings["Default Display Per Page"]);
+    if(perPage !== perPage) perPage = 25;
+
     let page = (query.page !== undefined) ? cleanInt(query.page, 1, null) : 1;
-    const sortBy = (query.sb !== undefined) ? query.sb : "name";
-    const order = (query.o !== undefined) ? query.o.toLowerCase() : "asc";
+    const sortBy = (query.sb !== undefined) ? query.sb : pageSettings["Default Sort By"];
+    const order = (query.o !== undefined) ? query.o.toLowerCase() : pageSettings["Default Order"]?.toLowerCase();
 
      if(page !== page){
         page = 1;
@@ -105,8 +107,10 @@ export default async function Page({searchParams}){
 	const cookiesData = cookieStore.getAll();
 
     const query = await searchParams;
+    const pageSettings = await getSettings("Players Page");
+    console.log(pageSettings);
    
-    const {selectedCountry, selectedActive, selectedName, perPage, page, sortBy, order} = setQueryStuff(query);
+    const {selectedCountry, selectedActive, selectedName, perPage, page, sortBy, order} = setQueryStuff(query, pageSettings);
 
 	const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0]
 	
@@ -115,7 +119,7 @@ export default async function Page({searchParams}){
 	await session.load();
 	const navSettings = await getNavSettings("Navigation");
 	const sessionSettings = session.settings;
-
+    
 
     const p = new PlayerSearch();
     

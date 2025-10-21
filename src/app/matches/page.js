@@ -10,7 +10,7 @@ import Matches from "../../../api/matches";
 import Players from "../../../api/players";
 import {getImages as getMapImages} from "../../../api/maps";
 import Pagination from "../UI/Pagination";
-import { removeUnr } from "../../../api/generic.mjs";
+import { cleanMapName, removeUnr } from "../../../api/generic.mjs";
 
 
 function setQueryStuff(query, pageSettings){
@@ -149,6 +149,9 @@ export default async function Page({ searchParams}){
                 d.dmWinner = {"name": "Not Found", "country": "xx"};
             }
         }
+
+        const cleanName = cleanMapName(d.mapName).toLowerCase();
+        d.mapImage = (mapImages[cleanName] !== undefined) ? mapImages[cleanName] : "default";
     }
 
     const totalMatches = await matchManager.getSearchTotalResults(selectedServer, selectedGametype, selectedMap);
@@ -173,7 +176,7 @@ export default async function Page({ searchParams}){
                 />
                 <Pagination currentPage={page} results={totalMatches} perPage={perPage} url={pURL} />
                 {(displayMode === "table") ? <MatchesTableView data={data}/> : null }
-                {(displayMode === "default") ? <MatchesDefaultView data={data} images={mapImages}/> : null }
+                {(displayMode === "default") ? <MatchesDefaultView data={data}/> : null }
                 <Pagination currentPage={page} results={totalMatches} perPage={perPage} url={pURL} />
             </div>
             

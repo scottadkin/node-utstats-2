@@ -20,7 +20,6 @@ function renderPlayerResult(mode, players, serverName, gametypeName, mapName, pl
 
     if(mode !== "player") return null;
 
-
     return <div>
         <div className={styles.presult}>
             {playerResult}

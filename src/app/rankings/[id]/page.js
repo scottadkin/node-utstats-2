@@ -172,7 +172,7 @@ export default async function Page({params, searchParams}){
             <div className="default">
                 <div className="default-header">Rankings</div>
                 <RankingFilter playtimeOptions={playtimeOptions} activeOptions={activeOptions} gametypeId={gametype} 
-                    settings={rankingSettings} lastActive={lastActive} minPlaytime={minPlaytime}
+                    settings={rankingSettings} lastActive={lastActive.toString()} minPlaytime={minPlaytime}
                 />
             </div>
             {elems}

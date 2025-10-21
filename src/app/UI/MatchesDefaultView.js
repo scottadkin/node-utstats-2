@@ -10,8 +10,6 @@ export default function MatchesDefaultView({data, images}){
 
         const d = data[i];
 
-        console.log(d);
-
         elems.push(<MatchResultDisplay 
             key={i}
             mode="recent"
