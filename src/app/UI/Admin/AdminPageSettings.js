@@ -362,13 +362,43 @@ function moveDown(data, settings, dispatch){
 }
 
 
+async function restoreDefaultSettings(cat, dispatch){
+
+    try{
+
+        console.log(cat);
+
+        const req = await fetch("/api/admin", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "restore-page-settings", "cat": cat})
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined) throw new Error(res.error);
+
+        await loadData(dispatch);
+        
+        dispatch({"type": "set-message", 
+            "messageType": "pass", 
+            "title": "Default Page Settings Restored", 
+            "content": "The default page settings for this category have been applied"
+        });
+        
+
+    }catch(err){
+        console.trace(err);
+        dispatch({"type": "set-message", "messageType": "error", "title": "Failed To Restore To Default Settings", "content": err.toString()});
+    }
+}
+
 function renderSettings(selectedTab, settings, bLoading, dispatch){
 
     if(bLoading) return <Loading></Loading>
 
     const moveableElems = [];
     const nonMoveableElems = [];
-
 
     settings.sort((a, b) =>{
         a = a.page_order;
@@ -467,6 +497,9 @@ function renderSettings(selectedTab, settings, bLoading, dispatch){
 
     return <>
         {elems}
+        <button className="button delete-button" onClick={() =>{
+            restoreDefaultSettings(selectedTab, dispatch);
+        }}>Restore Default Settings</button>
     </>
 }
 
@@ -506,6 +539,7 @@ async function saveChanges(changes, dispatch){
         await loadData(dispatch);
     }catch(err){
         console.trace(err);
+        dispatch({"type": "set-message", "messageType": "error", "title": "Failed to Save Changes", "content": err.toString()});
     }
 }
 

@@ -105,6 +105,15 @@ export async function POST(req){
             return Response.json({"message": "pass"});
         }
 
+        if(mode === "restore-page-settings"){
+
+            const cat = res.cat ?? null;
+            if(cat === null) throw new Error(`Site setting category was not supplied`);
+
+            await adminManager.restorePageSettingsToDefault(cat);
+            return Response.json({"message": "pass"});
+        }
+
         //await adminManager.clearDatabases();
 
 

@@ -1,4 +1,6 @@
-import { simpleQuery } from "./database.js";
+import { bulkInsert, simpleQuery } from "./database.js";
+import {writeFileSync} from "fs";
+import { DEFAULT_PAGE_SETTINGS } from "./sitesettings.js";
 
 async function bHostPortFolderComboInUse(host, port, targetFolder){
     
@@ -256,6 +258,50 @@ export default class Admin{
         return await simpleQuery(query);
     }
 
+    /**
+     * Used to dump for default site settings
+     * @returns 
+     */
+    async dumpPageSettingsAsJSON(){
+
+        const settings = await this.getAllPageSettings();
+
+        const data = {};
+
+        for(let i = 0; i < settings.length; i++){
+
+            const s = settings[i];
+
+            if(data[s.category] === undefined){
+                data[s.category]= [];
+            }
+
+             data[s.category].push({
+                "name": s.name,
+                "value": s.value,
+                "valueType": s.value_type,
+                "pageOrder": s.page_order,
+                "moveable": s.moveable
+            });
+        }
+
+        let buffer = `{`;
+
+        for(const [cat, cData] of Object.entries(data)){
+
+            buffer += `"${cat}": [\n`;
+
+            for(const setting of Object.values(cData)){
+                buffer += `\t\t${JSON.stringify(setting)},\n`;
+            }
+
+            buffer += `],\n`;
+        }
+
+        writeFileSync("./DEFAULT_SITE_SETTINGS.txt", `${buffer}};`);
+
+    }
+
 
     async savePageChanges(changes){
 
@@ -275,5 +321,38 @@ export default class Admin{
 
             await simpleQuery(query, vars);
         }
+    }
+
+
+    async deletePageSettingCategory(cat){
+
+        const query = `DELETE FROM nstats_site_settings WHERE category=?`;
+
+        return await simpleQuery(query, [cat]);
+    }
+
+    async restorePageSettingsToDefault(cat){
+
+        if(DEFAULT_PAGE_SETTINGS[cat] === undefined){
+            throw new Error(`There is no site setting category called ${cat}`);
+        }
+
+
+        await this.deletePageSettingCategory(cat);
+
+        const settings = DEFAULT_PAGE_SETTINGS[cat];
+
+        const vars = [];
+
+        for(let i = 0; i < settings.length; i++){
+
+            const s = settings[i];
+
+            vars.push([cat, s.valueType, s.name, s.value, s.pageOrder, s.moveable]);
+        }
+
+        const query = `INSERT INTO nstats_site_settings (category,value_type,name,value,page_order,moveable) VALUES ?`
+
+        await bulkInsert(query, vars);
     }
 }
