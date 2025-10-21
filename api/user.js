@@ -1,6 +1,6 @@
 import { simpleQuery } from "./database.js";
 import shajs from "sha.js";
-import { generateRandomString } from "./functions.js";
+import { generateRandomString } from "./generic.mjs";
 import salt from "../salt.js";
 import Message from "./message.js";
 

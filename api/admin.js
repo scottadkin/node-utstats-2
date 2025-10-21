@@ -303,6 +303,27 @@ export default class Admin{
     }
 
 
+    async dumpDefaultRankingsAsJSON(){
+
+        const query = `SELECT name,display_name,description,value FROM nstats_ranking_values`;
+        const result = await simpleQuery(query);
+        console.log(result);
+        
+
+        let buffer = `[`;
+
+        for(let i = 0; i < result.length; i++){
+
+            const r = result[i];
+            buffer+=`${JSON.stringify(r)},\n\t`;
+        }
+
+        buffer += `]`;
+
+        writeFileSync("./DEFAULT_RANKING_VALUES.txt", buffer);
+    }
+
+
     async savePageChanges(changes){
 
 
