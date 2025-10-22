@@ -1,7 +1,7 @@
 import {simpleQuery} from "./database.js";
 import Message from "./message.js";
 import fs from "fs";
-import {cleanMapName, removeUnr, sanatizePage, sanatizePerPage, cleanInt, getPlayer, setIdNames} from "./generic.mjs";
+import {cleanMapName, removeUnr, sanatizePage, sanatizePerPage, cleanInt, getPlayer, setIdNames, toMysqlDate} from "./generic.mjs";
 import { getObjectName } from "./genericServerSide.mjs";
 import { getUniqueMGS } from "./matches.js";
 import { getBasicPlayersByIds } from "./players.js";
@@ -116,6 +116,7 @@ export default class Maps{
 
         try{
 
+           // date = toMysqlDate(date * 1000);
             if(!await this.bExists(name)){
 
                 await this.insert(name, title, author, idealPlayerCount, levelEnterText, date, matchLength);
@@ -381,6 +382,7 @@ export default class Maps{
 
     async reduceMapTotals(id, playtime){
 
+        throw new Error(`Use mysql instead...`);
         const query = "UPDATE nstats_maps SET matches=matches-1, playtime=playtime-? WHERE id=?";
         return await simpleQuery(query, [playtime, id]);
 
@@ -451,6 +453,7 @@ export default class Maps{
 
     async reduceTotal(mapId, playtime, matches){
 
+        throw new Error(`use mysql instead`);
         const query = "UPDATE nstats_maps SET playtime=playtime-?, matches=matches-? WHERE id=?";
         const vars = [playtime, matches, mapId];
 
@@ -1171,11 +1174,11 @@ export async function getHistoryBetween(id, start, end){
 
 export async function getGraphHistoryData(id){
 
-    const hour = 60 * 60;
-    const day = hour * 24;
-    const year = day * 365;
-    const now = Math.floor(Date.now() * 0.001);
-    const data = await getHistoryBetween(id, now - year, now);
+    const hour = 60 * 60 * 1000;
+    const day = hour * 24 * 1000;
+    const year = day * 365 * 1000;
+    const now = Date.now();
+    const data = await getHistoryBetween(id, toMysqlDate(new Date(now - year)), toMysqlDate(now));
 
     const dayData = [];
     const weekData = [];

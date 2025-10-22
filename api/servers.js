@@ -1,4 +1,5 @@
 import { simpleQuery, bulkInsert } from "./database.js";
+import { toMysqlDate } from "./generic.mjs";
 import { getObjectName } from "./genericServerSide.mjs";
 
 
@@ -34,7 +35,8 @@ export default class Servers{
 
         try{
 
-            date = parseInt(date);
+           // date = toMysqlDate(new Date(date * 1000))
+    
             playtime = parseFloat(playtime);
 
             //if(port !== port) throw new Error(`Port must be a valid integer.`);

@@ -1,5 +1,6 @@
 //const mysql = require('./database');
 import { insertReturnInsertId, simpleQuery } from "./database.js";
+import { toMysqlDate } from "./generic.mjs";
 
 
 export async function bExists(name){
@@ -14,7 +15,7 @@ export async function bExists(name){
 
 export async function insert(name){
 
-    const now = Math.floor(Date.now() * 0.001);
+    const now = toMysqlDate(Date.now());
     const query = "INSERT INTO nstats_logs VALUES(NULL,?,?,0)";
     return await insertReturnInsertId(query, [name, now]);
 }

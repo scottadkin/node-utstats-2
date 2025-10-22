@@ -3,6 +3,7 @@ import Message from "./message.js";
 import geo from "geoip-lite";
 //const geo = require('geoip-lite');
 import Countries from "./countries.js";
+import { toMysqlDate } from "./generic.mjs";
 
 export default class Analytics{
 
@@ -148,18 +149,18 @@ export default class Analytics{
 
             const system = result[1];
 
-            const now = Math.floor(Date.now() * 0.001);
+            const now = Date.now();
 
             const query = "UPDATE nstats_user_agents SET last=?,total=total+1 WHERE system_name=? AND browser=?";
 
             const browser = this.findBrowserName(agent);
 
-            const changedRows = await updateReturnAffectedRows(query, [now, system, browser]);
+            const changedRows = await updateReturnAffectedRows(query, [toMysqlDate(now), system, browser]);
 
 
             if(changedRows === 0){
 
-                await this.insertUserAgent(system, browser, now);
+                await this.insertUserAgent(system, browser, toMysqlDate(now));
             }
 
         }else{
@@ -176,7 +177,7 @@ export default class Analytics{
 
         const query = "INSERT INTO nstats_hits VALUES(NULL,?,?)";
 
-        const now = Math.floor(Date.now() * 0.001);
+        const now = toMysqlDate(Date.now());
 
         await simpleQuery(query, [ip, now]);
 

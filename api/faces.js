@@ -1,4 +1,5 @@
 import { simpleQuery, insertReturnInsertId } from "./database.js";
+import { DEFAULT_DATE } from "./generic.mjs";
 import Message from "./message.js";
 import fs from "fs";
 
@@ -12,9 +13,9 @@ export default class Faces{
 
         name = name.toLowerCase();
 
-        const query = "INSERT INTO nstats_faces VALUES(NULL,?,0,0,0)";
+        const query = "INSERT INTO nstats_faces VALUES(NULL,?,?,?,0)";
 
-        return await insertReturnInsertId(query, [name]);
+        return await insertReturnInsertId(query, [name, DEFAULT_DATE, DEFAULT_DATE]);
 
     }
 
@@ -63,6 +64,7 @@ export default class Faces{
             return null;
 
         }catch(err){
+            throw new Error(err);
             new Message(`Failed to get FaceId ${err}`,'warning');
         }
     }
@@ -70,8 +72,8 @@ export default class Faces{
     async updateQuery(id, uses, date){
 
         const query = `UPDATE nstats_faces SET uses=uses+?,
-            first = IF(first = 0 OR ? < first, ?, first),
-            last = IF(last = 0 OR ? > last, ?, last)
+            first = IF(? < first, ?, first),
+            last = IF(? > last, ?, last)
             WHERE id=?`;
 
         const vars = [uses, date, date, date, date, id];

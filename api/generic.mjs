@@ -1135,6 +1135,7 @@ export function generateRandomString(length){
 
 export function toMysqlDate(timestamp){
 
+
     const date = new Date(timestamp);
     const iso = date.toISOString();
 

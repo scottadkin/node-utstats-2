@@ -1,5 +1,5 @@
 import { simpleQuery, bulkInsert } from "./database.js";
-import { setValueIfUndefined, calculateKillEfficiency, removeIps, removeUnr, getPlayer } from "./generic.mjs";
+import { setValueIfUndefined, calculateKillEfficiency, removeIps, removeUnr, getPlayer, DEFAULT_DATE } from "./generic.mjs";
 import CountriesManager from "./countriesmanager.js";
 import Assault from "./assault.js";
 import CTF from "./ctf.js";
@@ -31,7 +31,7 @@ export default class Player{
         if(hwid === undefined) hwid = "";
 
         const query = `INSERT INTO nstats_player_totals VALUES(
-            NULL,?,?,0,0,0,0,"",0,0,0,0,0,0,0,
+            NULL,?,?,0,?,?,0,"",0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
@@ -39,7 +39,7 @@ export default class Player{
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0)`;
 
-        const result = await simpleQuery(query, [hwid, playerName]);
+        const result = await simpleQuery(query, [hwid, playerName, DEFAULT_DATE, DEFAULT_DATE]);
 
             //55
         return result.insertId;
@@ -64,7 +64,7 @@ export default class Player{
         if(hwid === undefined) hwid = "";
 
         const query = `INSERT INTO nstats_player_totals VALUES(
-            NULL,?,?,?,0,0,0,"",0,0,?,?,
+            NULL,?,?,?,?,?,0,"",0,0,?,?,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
@@ -72,7 +72,7 @@ export default class Player{
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,0,0,0)`;
 
-        const result = await simpleQuery(query, [hwid, playerName, playerMasterId, gametypeId, mapId]);
+        const result = await simpleQuery(query, [hwid, playerName, playerMasterId, DEFAULT_DATE, DEFAULT_DATE, gametypeId, mapId]);
 
         return result.insertId;
     }

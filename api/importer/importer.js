@@ -9,6 +9,7 @@ import SFTPImporter from "./sftpimporter.js";
 import {bExists as logsBExists} from "../logs.js";
 import ACE from "../ace.js";
 import Encoding from "encoding-japanese";
+import { toMysqlDate } from "../generic.mjs";
 //const jschardet = require("jschardet")
 
 export default class Importer{
@@ -349,17 +350,17 @@ export default class Importer{
 
     async updateImportStats(){
 
-        const now = Math.floor(Date.now() / 1000);
+        const now = toMysqlDate(Date.now());
 
         const ending = (this.bLogsFolderImport) ? "WHERE id > -1" : "WHERE id=?";
 
         const query = `UPDATE ${(this.bLogsFolderImport) ? "nstats_logs_folder" : "nstats_ftp"} 
         SET total_logs_imported = total_logs_imported + 1,
-        first = IF (first > ?, ?, IF(first=0, ?, first)),
+        first = IF (first > ?, ?, first),
         last = IF (last < ?, ?, last)
         ${ending}`;
 
-        const vars = [now, now, now, now, now, this.serverId];
+        const vars = [now, now, now, now, this.serverId];
 
         await simpleQuery(query, vars);
     }

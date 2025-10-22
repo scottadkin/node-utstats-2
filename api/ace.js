@@ -1,4 +1,5 @@
 import { simpleQuery, updateReturnAffectedRows } from "./database.js";
+import { toMysqlDate } from "./generic.mjs";
 import Message from "./message.js";
 
 export default class ACE{
@@ -52,11 +53,11 @@ export default class ACE{
 
     async updateScreenshotTable(name){
 
-        const now = Math.floor(new Date() * 0.001);
+        const now = new Date();
 
         const query = "INSERT INTO nstats_ace_screenshots VALUES(NULL,?,?)";
 
-        await simpleQuery(query, [name, now]);
+        await simpleQuery(query, [name, toMysqlDate(now)]);
 
     }
 

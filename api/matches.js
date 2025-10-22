@@ -1405,32 +1405,6 @@ export default class Matches{
         return 0;
     }
 
-    /**
-     * 
-     * @param {*} units How many days/minutes/years
-     * @param {*} timeUnit How many seconds a unit is 60 * 60 is one hour, ect
-     * @returns Array of times frames starting with most recent to latest
-     */
-
-    async getMatchesInRecentUnits(units, timeUnit){
-
-        const now = Math.floor(Date.now() * 0.001);
-
-        const data = [];
-
-        for(let i = 0; i < units; i++){
-
-            const min = now - (timeUnit * (i + 1));
-            const max = now - (timeUnit * i);
-
-            data.push(await this.getMatchesBetween(min, max));
-
-        }
-
-        return data;
-    }
-
-
     async getValidMatches(ids, minPlayers, minPlaytime){
 
         return await getValidMatches(ids, minPlayers, minPlaytime);

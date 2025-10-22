@@ -1,5 +1,6 @@
 import Servers from "../servers.js";
 import Message from "../message.js";
+import { toMysqlDate } from "../generic.mjs";
 
 export default class ServerInfo{
 
@@ -104,7 +105,8 @@ export default class ServerInfo{
 
             const date = new Date(year, month, day, hours, minutes, seconds);
 
-            this.date = date.getTime() * 0.001;
+            this.date = toMysqlDate(date.getTime());
+ 
         }  
     }
 

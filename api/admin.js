@@ -1,6 +1,7 @@
 import { bulkInsert, simpleQuery } from "./database.js";
 import {writeFileSync} from "fs";
 import { DEFAULT_PAGE_SETTINGS } from "./sitesettings.js";
+import { DEFAULT_DATE } from "./generic.mjs";
 
 async function bHostPortFolderComboInUse(host, port, targetFolder){
     
@@ -140,7 +141,7 @@ export default class Admin{
         await checkFTPParams(params, false);
 
         const query = `INSERT INTO nstats_ftp VALUES (NULL,?,?,?,?,?,
-        ?,?,0,0,0,
+        ?,?,?,?,0,
         ?,0,?,?,?,
         ?,?,?,?,?,
         0,0,0,?,?)`;
@@ -153,6 +154,8 @@ export default class Admin{
             params.password,
             params.folder,
             params.deleteLogsAfterImport,
+            DEFAULT_DATE,
+            DEFAULT_DATE,
             params.deleteTmpFiles,
             params.ignoreBots,
             params.ignoreDuplicates,

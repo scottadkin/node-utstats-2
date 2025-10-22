@@ -1,6 +1,6 @@
 import Player from "./player.js";
 import { simpleQuery, bulkInsert } from "./database.js";
-import { removeIps, setIdNames, getUniqueValues, getPlayer } from "./generic.mjs";
+import { removeIps, setIdNames, getUniqueValues, getPlayer, DEFAULT_DATE } from "./generic.mjs";
 import Matches from "./matches.js";
 import Assault from "./assault.js";
 import CTF from "./ctf.js";
@@ -1850,28 +1850,6 @@ export default class Players{
         return 0;
     }
 
-    /**
-     * 
-     * @param {*} units How many days/minutes/years
-     * @param {*} timeUnit How many seconds a unit is 60 * 60 is one hour, ect
-     * @returns Array of times frames starting with most recent to latest
-     */
-    async getUniquePlayersInRecentUnits(units, timeUnit){
-
-        const now = Math.floor(Date.now() * 0.001);
-
-        const data = [];
-
-        for(let i = 0; i < units; i++){
-
-            const min = now - (timeUnit * (i + 1));
-            const max = now - (timeUnit * i);
-
-            data.push(await this.getUniquePlayersBetween(min, max));         
-        }
-
-        return data;
-    }
 
     async getTeamMatePlayedMatchIds(players){
 
@@ -2809,7 +2787,7 @@ export default class Players{
      
 
         const query = `INSERT INTO nstats_player_totals VALUES(
-            NULL,?,?,?,0,0,0,"",0,0,?,?,
+            NULL,?,?,?,?,?,0,"",0,0,?,?,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
@@ -2817,7 +2795,7 @@ export default class Players{
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,0,0,0)`;
 
-        return await simpleQuery(query, ["", playerName, playerId, gametypeId, mapId]);
+        return await simpleQuery(query, ["", playerName, playerId, DEFAULT_DATE, DEFAULT_DATE, gametypeId, mapId]);
     }
 
     async updateNewGametypeMapStats(playerId, gametypeId, mapId, data){
