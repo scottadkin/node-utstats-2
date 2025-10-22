@@ -1,3 +1,5 @@
+export const DEFAULT_DATE = "1999-11-30";
+
 export function fart(){
     return "Fart Noise";
 }
@@ -1128,4 +1130,20 @@ export function generateRandomString(length){
     }
 
     return string;
+}
+
+
+export function toMysqlDate(timestamp){
+
+    const date = new Date(timestamp);
+    const iso = date.toISOString();
+
+    const reg = /(\d\d\d\d-\d\d-\d\d)T(\d\d:\d\d:\d\d)./i;
+
+
+    const result = reg.exec(iso);
+
+    if(iso === null) throw new Error(`toMysqlDate Failed to parse ISO Date String`);
+
+    return `${result[1]} ${result[2]}`;
 }

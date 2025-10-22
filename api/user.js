@@ -1,6 +1,6 @@
 import { simpleQuery } from "./database.js";
 import shajs from "sha.js";
-import { generateRandomString } from "./generic.mjs";
+import { generateRandomString, DEFAULT_DATE, toMysqlDate } from "./generic.mjs";
 import salt from "../salt.js";
 import Message from "./message.js";
 
@@ -12,7 +12,7 @@ export default class User{
         this.minUsernameLength = 2;
         this.maxUsernameLength = 20;
 
-        this.maxLoginTime = (60 * 60) * 24;
+        this.maxLoginTime = (60 * 60) * 24 * 1000;
     }
 
 
@@ -115,18 +115,18 @@ export default class User{
             const totalUsers = await this.getTotalUsers();
           
 
-            const now = Math.floor(Date.now() * 0.001);
+         
 
             const passwordHash = shajs('sha256').update(`${salt()}${password}`).digest('hex');
 
-            let query = "INSERT INTO nstats_users VALUES(NULL,?,?,?,0,0,0,0,0,?,0,0)";
+            let query = "INSERT INTO nstats_users VALUES(NULL,?,?,?,0,0,0,?,?,?,0,0)";
 
             //if there are no uses already set account as admin and auto activate it
             if(totalUsers === 0){
-                query = "INSERT INTO nstats_users VALUES(NULL,?,?,?,1,0,1,0,0,?,0,0)";
+                query = "INSERT INTO nstats_users VALUES(NULL,?,?,?,1,0,1,?,?,?,0,0)";
             }
 
-            const vars = [username, passwordHash, now, ip];
+            const vars = [username, passwordHash, DEFAULT_DATE, DEFAULT_DATE, DEFAULT_DATE, ip];
 
             await simpleQuery(query, vars);
 
@@ -210,7 +210,7 @@ export default class User{
 
                     bPassed = true;
 
-                    const now = Math.floor(Date.now() * 0.001);
+                    const now = Math.floor(Date.now());
                     const expires = this.maxLoginTime;
 
                     if(await this.bCorrectPassword(username, password)){
@@ -264,9 +264,9 @@ export default class User{
     async saveUserLogin(name, hash, date, expires, ip){
 
         const query = "INSERT INTO nstats_sessions VALUES(NULL,?,?,?,?,?,?)";
-        const now = Math.floor(Date.now() * 0.001);
+        const now = toMysqlDate(new Date(Date.now()));
 
-        await simpleQuery(query, [date, name, hash, now, expires, ip]);
+        await simpleQuery(query, [now, name, hash, now, toMysqlDate(expires), ip]);
     }
 
 
@@ -283,11 +283,11 @@ export default class User{
 
     async updateSessionExpire(hash){
 
-        const expires = Math.floor(Date.now() * 0.001) + this.maxLoginTime;
+        const expires = Math.floor(Date.now()) + this.maxLoginTime;
 
         const query = "UPDATE nstats_sessions SET expires=? WHERE hash=?";
 
-        await simpleQuery(query, [expires, hash]);
+        await simpleQuery(query, [toMysqlDate(expires), hash]);
 
     }
 
@@ -305,9 +305,9 @@ export default class User{
 
         const query = "UPDATE nstats_users SET last_active=?,last_ip=? WHERE id=?";
 
-        const now = Math.floor(Date.now() * 0.001);
+        const now = Math.floor(Date.now());
 
-        await simpleQuery(query, [now, ip, user]);
+        await simpleQuery(query, [toMysqlDate(now), ip, user]);
 
     }
 
@@ -315,9 +315,9 @@ export default class User{
 
         const query = "UPDATE nstats_users SET last_login=?,logins=logins+1 WHERE id=?";
 
-        const now = Math.floor(Date.now() * 0.001);
+        const now = Math.floor(Date.now());
 
-        await simpleQuery(query, [now, user]);
+        await simpleQuery(query, [toMysqlDate(now), user]);
 
     }
 
@@ -355,7 +355,7 @@ export default class User{
 
                 if(session !== null){
 
-                    const now = Math.floor(Date.now() * 0.001);
+                    const now = Math.floor(Date.now());
 
                     const bActivated = await this.bUserActivatedById(session.user);
 
@@ -479,7 +479,8 @@ export default class User{
 
     async deleteExpiredSessions(){
 
-        const now = Math.floor(Date.now() * 0.001) + 1;
-        return await simpleQuery("DELETE FROM nstats_sessions WHERE expires < ?", [now]);
+        const now = Math.floor(Date.now()) + 999999;
+
+        return await simpleQuery("DELETE FROM nstats_sessions WHERE expires < ?", [toMysqlDate(now)]);
     }
 }
