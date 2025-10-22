@@ -245,21 +245,24 @@ export default async function Page({params, searchParams}){
     />);
 
 
-    pageManager.addComponent("Display Frag Summary", <MatchFragSummary key={`match_frags`} 
-        totalTeams={info.total_teams} 
-        playerData={players} 
-        matchStart={info.start}
-        matchId={info.id}
-    />);
+    if(!info.mh){
+        pageManager.addComponent("Display Frag Summary", <MatchFragSummary key={`match_frags`} 
+            totalTeams={info.total_teams} 
+            playerData={players} 
+            matchStart={info.start}
+            matchId={info.id}
+        />);
+    }else{
 
-    pageManager.addComponent("Display Frag Summary", <MatchMonsterHuntFragSummary key={`match_mh_frags`} 
-        totalTeams={info.total_teams} 
-        playerData={players} 
-        matchStart={info.start}
-        matchId={info.id}
-        single={false}
-        bMH={info.mh}
-    />);
+        pageManager.addComponent("Display Frag Summary", <MatchMonsterHuntFragSummary key={`match_mh_frags`} 
+            totalTeams={info.total_teams} 
+            playerData={players} 
+            matchStart={info.start}
+            matchId={info.id}
+            single={false}
+            bMH={info.mh}
+        />);
+    }
 
     pageManager.addComponent("Display Capture The Flag Summary", <MatchCTFSummary 
         key="match-ctf-sum"

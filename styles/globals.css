@@ -60,11 +60,6 @@ body{
 	min-height:100vh;
 	position: relative;
 	background-color:var(--color-2);
-	background-image:url(/images/bg.jpg);
-	background-repeat: no-repeat;
-	background-size:100% 100%;
-	background-attachment: fixed;
-	overflow-x:hidden;
 }
 
 * {
@@ -110,10 +105,9 @@ footer{
 .default-header{
 	text-align:center;
 	font-size:18px;
+	line-height:52px;
 	color:white;
-	font-weight:500;
-	padding-bottom:18px;
-	padding-top:18px;
+	font-weight:400;
 	background-color:var(--color-9);
 	margin-left:auto;
 	margin-right:auto;
@@ -590,12 +584,13 @@ input[type="range"]{
 
 .tabs, .big-tabs, .view-profile{
 	text-align:center;
-	margin-bottom:10px;
+	margin-bottom:15px;
 	margin-left:auto;
 	margin-right:auto;
 	background-color:var(--color-1);
 	user-select: none;
 }
+
 .view-profile{
 	padding:5px;
 }
@@ -603,8 +598,8 @@ input[type="range"]{
 .tab, .big-tab{
 	color:white;
 	display:inline-block;
-	font-size:14px;
-	padding:5px 10px;
+	font-size:12px;
+	padding:6px 10px;
 	transition:background-color 0.5s;
 
 }
@@ -616,12 +611,9 @@ input[type="range"]{
 }
 
 .tab-selected{
-	background-color:rgb(64,0,0);
+	background-color:var(--color-2);
 	color:yellow;
-}
-
-.tab-selected:hover{
-	background-color:rgb(128,0,0);
+	border-bottom:1px solid yellow;
 }
 
 .no-drop{
