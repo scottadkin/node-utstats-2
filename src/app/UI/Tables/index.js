@@ -18,7 +18,7 @@ export function BasicTable({headers, rows, width, columnStyles, title}){
                 {headers[i]}
             </th>);
 
-        }else if(typeof headers[i] === "object"){
+        }else if(headers[i] !== null && typeof headers[i] === "object"){
 
             headerElems.push(<th className="hover no-select" key={`h-${i}`} onClick={() =>{
                 if(headers[i].callback !== undefined){

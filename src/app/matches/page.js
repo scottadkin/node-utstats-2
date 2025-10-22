@@ -6,7 +6,7 @@ import SearchForm from "../UI/Matches/SearchForm";
 import { getAllObjectNames, getSingleObjectName } from "../../../api/genericServerSide.mjs";
 import MatchesDefaultView from "../UI/MatchesDefaultView";
 import MatchesTableView from "../UI/MatchesTableView";
-import Matches from "../../../api/matches";
+import Matches, { getSearchTotalMatches } from "../../../api/matches";
 import Players from "../../../api/players";
 import {getImages as getMapImages} from "../../../api/maps";
 import Pagination from "../UI/Pagination";
@@ -24,8 +24,6 @@ function setQueryStuff(query, pageSettings){
     displayMode = displayMode.toLowerCase();
     let order = query.order ?? "desc";
     let sortBy = query.sortBy ?? "date";
-
-    console.log(query.order, query.sortBy);
 
     return {selectedServer, selectedGametype, selectedMap, displayMode, page, perPage, order, sortBy};
 
@@ -158,7 +156,8 @@ export default async function Page({ searchParams}){
         d.mapImage = (mapImages[cleanName] !== undefined) ? mapImages[cleanName] : "default";
     }
 
-    const totalMatches = await matchManager.getSearchTotalResults(selectedServer, selectedGametype, selectedMap);
+   // const totalMatches = await matchManager.getSearchTotalResults(selectedServer, selectedGametype, selectedMap);
+    const totalMatches = await getSearchTotalMatches(selectedServer, selectedGametype, selectedMap);
 
     const pURL = `/matches?server=${selectedServer}&gametype=${selectedGametype}&map=${selectedMap}&pp=${perPage}&displayMode=${displayMode}&page=`;
 
@@ -177,6 +176,8 @@ export default async function Page({ searchParams}){
                     gametypeNames={gametypeNames} 
                     perPage={perPage}
                     mapNames={mapNames}
+                    sortBy={sortBy}
+                    order={order}
                 />
                 <Pagination currentPage={page} results={totalMatches} perPage={perPage} url={pURL} />
                 {(displayMode === "table") ? <MatchesTableView 
