@@ -80,6 +80,8 @@ export const DEFAULT_PAGE_SETTINGS = {
             {"name":"Default Display Per Page","value":"25","valueType":"perpage","pageOrder":0,"moveable":0},
             {"name":"Default Display Type","value":"default","valueType":"selection","pageOrder":0,"moveable":0},
             {"name":"Default Gametype","value":"0","valueType":"selection","pageOrder":0,"moveable":0},
+            {"name":"Default Sort By","value":"date","valueType":"selection","pageOrder":0,"moveable":0},
+            {"name":"Default Order","value":"asc","valueType":"selection","pageOrder":0,"moveable":0},
             {"name":"Minimum Players","value":"0","valueType":"int","pageOrder":0,"moveable":0},
             {"name":"Minimum Playtime","value":"0","valueType":"int","pageOrder":0,"moveable":0},
     ],

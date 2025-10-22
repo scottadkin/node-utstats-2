@@ -22,8 +22,8 @@ function setQueryStuff(query, pageSettings){
     let page = (query.page !== undefined) ? parseInt(query.page) : 1;
     let perPage = (query.pp !== undefined) ? parseInt(query.pp) :  parseInt(pageSettings["Default Display Per Page"]);
     displayMode = displayMode.toLowerCase();
-    let order = query.order ?? "desc";
-    let sortBy = query.sortBy ?? "date";
+    let order = query.order ?? pageSettings["Default Order"];
+    let sortBy = query.sortBy ?? pageSettings["Default Sort By"];
 
     return {selectedServer, selectedGametype, selectedMap, displayMode, page, perPage, order, sortBy};
 

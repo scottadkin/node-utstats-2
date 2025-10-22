@@ -36,7 +36,19 @@ const CUSTOM_OPTIONS = {
     },
     "Matches Page": {
         "Default Display Type": [...DEFAULT_DISPLAY_OPTIONS],
-        "Default Gametype": null
+        "Default Gametype": null,
+        "Default Order": [
+            {"name": "Ascending", "value": "asc"},
+            {"name": "Descending", "value": "desc"},
+        ],
+        "Default Sort By": [
+            {"name": "Date","value": "date"},
+            {"name": "Server","value": "server"},
+            {"name": "Gametype","value": "gametype"},
+            {"name": "Map","value": "map"},
+            {"name": "Players","value": "players"},
+            {"name": "Playtime","value": "playtime"},
+        ]
     },
     "Player Pages": {
         "Default Weapon Display": [{"name": "Table", "value": "table"}],
