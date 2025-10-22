@@ -3,13 +3,11 @@ import {getSettings, getNavSettings} from "../../../api/sitesettings";
 import Session from "../../../api/session";
 import Nav from "../UI/Nav";
 import SearchForm from "../UI/Players/SearchForm";
-import { cleanInt, convertTimestamp, toPlaytime } from "../../../api/generic.mjs";
+import { cleanInt } from "../../../api/generic.mjs";
 import PlayerSearch from "../lib/playersearch";
-import {BasicTable} from "../UI/Tables/";
-import CountryFlag from "../UI/CountryFlag";
 import Pagination from "../UI/Pagination";
-import Link from "next/link";
 import { getCountryName } from "../../../api/countries";
+import PlayersTableView from "../UI/Players/PlayersTableView";
 
 
 function setQueryStuff(query, pageSettings){
@@ -108,8 +106,7 @@ export default async function Page({searchParams}){
 
     const query = await searchParams;
     const pageSettings = await getSettings("Players Page");
-    console.log(pageSettings);
-   
+
     const {selectedCountry, selectedActive, selectedName, perPage, page, sortBy, order} = setQueryStuff(query, pageSettings);
 
 	const ip = (header.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0]
@@ -125,13 +122,6 @@ export default async function Page({searchParams}){
     
     const {data, totalMatches} = await p.defaultSearch(selectedName, page, perPage, selectedCountry, selectedActive, sortBy, order);
 
-    const tableHeaders = [
-        "Name", "Last Active", "Playtime", "Matches", "Kills", "score"
-    ];
-
-    const tableStyles = [
-        "text-left", "playtime", "playtime", null, null, null
-    ];
 
     const pURL = `/players?name=${selectedName}&country=${selectedCountry}&active=${selectedActive}&sb=${sortBy}&pp=${perPage}&page=`;
 
@@ -152,19 +142,7 @@ export default async function Page({searchParams}){
             
             <div className="default">
                 <Pagination currentPage={page + 1} results={totalMatches} perPage={perPage} url={pURL}/>
-                <BasicTable headers={tableHeaders} columnStyles={tableStyles} rows={[...data.map((s) =>{
-
-                    const url = `/player/${s.id}`;
-            
-                    return [
-                        <Link href={url}><CountryFlag country={s.country}/>{s.name}</Link>,
-                        <Link href={url}>{convertTimestamp(s.last, true)}</Link>,
-                        <Link href={url}>{toPlaytime(s.playtime)}</Link>,
-                        <Link href={url}>{s.matches}</Link>,
-                        <Link href={url}>{s.kills}</Link>,
-                        <Link href={url}>{s.score}</Link>
-                    ];
-                })]}/>
+                <PlayersTableView data={data} order={order} sortBy={sortBy} name={selectedName} country={selectedCountry} active={selectedActive}/>
                 <Pagination currentPage={page + 1} results={totalMatches} perPage={perPage} url={pURL}/>
             </div>
         </div>   

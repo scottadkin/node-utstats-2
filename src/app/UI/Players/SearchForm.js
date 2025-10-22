@@ -37,19 +37,19 @@ export default function SearchForm({name, country, active, sortBy, perPage, orde
     }}>
         <div className="form-row">
             <label htmlFor="name">Name</label>
-            <input className="default-textbox" defaultValue={name} placeholder="player name..." type="text" id="name" onChange={(e) =>{
+            <input className="default-textbox" value={name} placeholder="player name..." type="text" id="name" onChange={(e) =>{
                 router.push(`/players?name=${e.target.value}&country=${country}&active=${active}&sb=${sortBy}&pp=${perPage}&o=${order}`);
             }}/>
         </div>
         <div className="form-row">
             <label htmlFor="country">Country</label>
-            <select id={"country"} defaultValue={country} className="default-select" onChange={(e) =>{
+            <select id={"country"} value={country} className="default-select" onChange={(e) =>{
                 router.push(`/players?name=${name}&country=${e.target.value}&active=${active}&sb=${sortBy}&pp=${perPage}&o=${order}`);
             }}>{getCountryOptions(country)}</select>
         </div>
         <div className="form-row">
             <label htmlFor="active">Active</label>
-            <select id="active" defaultValue={active} className="default-select" onChange={(e) =>{
+            <select id="active" value={active} className="default-select" onChange={(e) =>{
                 router.push(`/players?name=${name}&country=${country}&active=${e.target.value}&sb=${sortBy}&pp=${perPage}&o=${order}`);
             }}>
                 <option value="0">All Time</option>
@@ -61,7 +61,7 @@ export default function SearchForm({name, country, active, sortBy, perPage, orde
         </div>
         <div className="form-row">
             <label htmlFor="sort">Sort By</label>
-            <select id="sort"  defaultValue={sortBy} className="default-select" onChange={(e) =>{
+            <select id="sort"  value={sortBy} className="default-select" onChange={(e) =>{
                 router.push(`/players?name=${name}&country=${country}&active=${active}&sb=${e.target.value}&pp=${perPage}&o=${order}`);
             }}>
                 <option value="name">Name</option>
@@ -75,7 +75,7 @@ export default function SearchForm({name, country, active, sortBy, perPage, orde
 
         <div className="form-row">
             <label htmlFor="order">Order</label>
-            <select id="order" defaultValue={order} className="default-select" onChange={(e) =>{
+            <select id="order" value={order} className="default-select" onChange={(e) =>{
                 router.push(`/players?name=${name}&country=${country}&active=${active}&sb=${sortBy}&pp=${perPage}&o=${e.target.value}`);
             }}>
                 <option value="asc">Ascending</option>
@@ -84,7 +84,7 @@ export default function SearchForm({name, country, active, sortBy, perPage, orde
         </div>
         <div className="form-row">
             <label htmlFor="results">Results Per Page</label>
-            <select id="results" defaultValue={perPage} className="default-select" onChange={(e) =>{
+            <select id="results" value={perPage} className="default-select" onChange={(e) =>{
                 router.push(`/players?name=${name}&country=${country}&active=${active}&sb=${sortBy}&pp=${e.target.value}&o=${order}`);
             }}>
                 <option value="5">5</option>

@@ -1,3 +1,4 @@
+"use client"
 export function BasicTable({headers, rows, width, columnStyles, title}){
 
     if(headers === undefined) headers = [];
@@ -10,9 +11,23 @@ export function BasicTable({headers, rows, width, columnStyles, title}){
 
     for(let i = 0; i < headers.length; i++){
 
-        headerElems.push(<th key={`h-${i}`}>
-            {headers[i]}
-        </th>);
+
+        if(typeof headers[i] === "string"){
+
+            headerElems.push(<th key={`h-${i}`}>
+                {headers[i]}
+            </th>);
+
+        }else if(typeof headers[i] === "object"){
+
+            headerElems.push(<th className="hover no-select" key={`h-${i}`} onClick={() =>{
+                if(headers[i].callback !== undefined){
+                    headers[i].callback();
+                }
+            }}>
+                {headers[i].name}
+            </th>);
+        }
     }
 
     const rowElems = [];
