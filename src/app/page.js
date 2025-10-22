@@ -69,7 +69,7 @@ export default async function Page(){
                 <div className="default-header">Recent Matches</div>
                    
                 {(pageSettings["Recent Matches Display Type"] === "default") ? <MatchesDefaultView data={matchesData}/> : null}
-                {(pageSettings["Recent Matches Display Type"] === "table") ? <MatchesTableView data={matchesData}/>   : null}
+                {(pageSettings["Recent Matches Display Type"] === "table") ? <MatchesTableView bHome={true} data={matchesData}/>   : null}
                    
             </div>)
         }

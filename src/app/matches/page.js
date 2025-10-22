@@ -22,8 +22,12 @@ function setQueryStuff(query, pageSettings){
     let page = (query.page !== undefined) ? parseInt(query.page) : 1;
     let perPage = (query.pp !== undefined) ? parseInt(query.pp) :  parseInt(pageSettings["Default Display Per Page"]);
     displayMode = displayMode.toLowerCase();
+    let order = query.order ?? "desc";
+    let sortBy = query.sortBy ?? "date";
 
-    return {selectedServer, selectedGametype, selectedMap, displayMode, page, perPage};
+    console.log(query.order, query.sortBy);
+
+    return {selectedServer, selectedGametype, selectedMap, displayMode, page, perPage, order, sortBy};
 
 }
 
@@ -90,7 +94,7 @@ export default async function Page({ searchParams}){
     const query = await searchParams;
 
     const pageSettings = await getSettings("Matches Page");
-    const {selectedServer, selectedGametype, selectedMap, displayMode, page, perPage} = setQueryStuff(query, pageSettings);
+    const {selectedServer, selectedGametype, selectedMap, displayMode, page, perPage, sortBy, order} = setQueryStuff(query, pageSettings);
 
     const header = await headers();
 
@@ -112,7 +116,7 @@ export default async function Page({ searchParams}){
     const mapNames = await getAllObjectNames("maps");
 
     const matchManager = new Matches();
-    const data = await matchManager.searchMatches(selectedServer, selectedGametype, selectedMap, page - 1, perPage);
+    const data = await matchManager.searchMatches(selectedServer, selectedGametype, selectedMap, page - 1, perPage, sortBy, order);
 
     const dmWinners = new Set();
 
@@ -175,7 +179,17 @@ export default async function Page({ searchParams}){
                     mapNames={mapNames}
                 />
                 <Pagination currentPage={page} results={totalMatches} perPage={perPage} url={pURL} />
-                {(displayMode === "table") ? <MatchesTableView data={data}/> : null }
+                {(displayMode === "table") ? <MatchesTableView 
+                    data={data} 
+                    server={selectedServer} 
+                    gametype={selectedGametype} 
+                    map={selectedMap} 
+                    perPage={perPage} 
+                    displayMode={displayMode}
+                    sortBy={sortBy}
+                    order={order}
+                    bHome={false}
+                /> : null }
                 {(displayMode === "default") ? <MatchesDefaultView data={data}/> : null }
                 <Pagination currentPage={page} results={totalMatches} perPage={perPage} url={pURL} />
             </div>

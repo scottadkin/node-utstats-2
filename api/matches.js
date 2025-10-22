@@ -1562,7 +1562,7 @@ export default class Matches{
     }
 
 
-    createSearchQuery(bTotalCount, serverId, gametypeId, mapId, perPage, page){
+    createSearchQuery(bTotalCount, serverId, gametypeId, mapId, perPage, page, sortBy, order){
 
         
         serverId = parseInt(serverId);
@@ -1577,8 +1577,41 @@ export default class Matches{
         if(page !== page) throw new Error("page must be a valid integer");
         if(perPage !== perPage) throw new Error("perPage must be a valid integer");
 
+        let start = `SELECT nstats_matches.id as id,
+        nstats_matches.match_hash as match_hash,
+        nstats_matches.date as date,
+        nstats_matches.server as server,
+        nstats_matches.gametype as gametype,
+        nstats_matches.map as map,
+        nstats_matches.playtime as playtime,
+        nstats_matches.end_type as end_type,
+        nstats_matches.team_game as team_game,
+        nstats_matches.total_teams as total_teams,
+        nstats_matches.players as players,
+        nstats_matches.dm_winner as dm_winner,
+        nstats_matches.dm_score as dm_score,
+        nstats_matches.team_score_0 as team_score_0,
+        nstats_matches.team_score_1 as team_score_1,
+        nstats_matches.team_score_2 as team_score_2,
+        nstats_matches.team_score_3 as team_score_3,
+        nstats_matches.mh as mh `;
 
-        let start = "SELECT * FROM nstats_matches";
+        if(!bTotalCount){
+
+            if(sortBy === "gametype"){
+
+                start += `,nstats_gametypes.name as gametype_name `;
+
+            }else if(sortBy === "map"){
+
+                start += `,nstats_maps.name as map_name `;
+
+            }else if(sortBy === "server"){
+                start += `,nstats_servers.name as server_name `;
+            }
+        }
+
+        start += ` FROM nstats_matches `;
 
         if(bTotalCount){
             start = "SELECT COUNT(*) as total_matches FROM nstats_matches";
@@ -1587,17 +1620,19 @@ export default class Matches{
         let query = start;
         const vars = [];
 
+        let where = "";
+
         if(serverId !== 0){
-            query += " WHERE server=? "
+            where = " WHERE nstats_matches.server=? "
             vars.push(serverId);
         }
 
         if(gametypeId !== 0){
 
-            if(query === start){
-                query += " WHERE gametype=? ";
+            if(where === ""){
+                where += " WHERE nstats_matches.gametype=? ";
             }else{
-                query += " AND gametype=? ";
+                where += " AND nstats_matches.gametype=? ";
             }
      
             vars.push(gametypeId);
@@ -1605,10 +1640,10 @@ export default class Matches{
 
         if(mapId !== 0){
 
-            if(query === start){
-                query += " WHERE map=? ";
+            if(where === ""){
+                where += " WHERE nstats_matches.map=? ";
             }else{
-                query += " AND map=? ";
+                where += " AND nstats_matches.map=? ";
             }
 
             vars.push(mapId);
@@ -1624,9 +1659,39 @@ export default class Matches{
 
             if(startIndex < 0) startIndex = 0;
 
-            query += " ORDER BY date DESC, id DESC LIMIT ?, ?";
+            if(sortBy === undefined && order === undefined){
+                query += " ORDER BY date DESC, id DESC LIMIT ?, ?";
+            }else{
+                
+
+                let firstOrder = `nstats_matches.${sortBy}`;
+
+                if(sortBy === "server"){
+                    
+                    query += ` INNER JOIN nstats_servers ON nstats_matches.server = nstats_servers.id`;
+                    firstOrder = `server_name`;
+
+                }else if(sortBy === "gametype"){
+
+                    query += ` INNER JOIN nstats_gametypes ON nstats_matches.gametype = nstats_gametypes.id`;
+                    firstOrder = `gametype_name`;
+
+                }else if(sortBy === "map"){
+
+                    query += ` INNER JOIN nstats_maps ON nstats_matches.map = nstats_maps.id`;
+                    firstOrder = `map_name`;
+
+                }
+
+                query += `${where} ORDER BY ${firstOrder} ${order.toUpperCase()}, nstats_matches.id DESC LIMIT ?, ?`;
+                
+            }
             vars.push(startIndex, perPage);
+        }else{
+            console.log(query);
+            console.log(`:::::::::::::::::::::::::::::`);
         }
+
 
         return {"query": query, "vars": vars};
     }
@@ -1638,13 +1703,32 @@ export default class Matches{
 
         const result = await simpleQuery(query, vars); 
 
+
         return result[0].total_matches;
 
     }
 
-    async searchMatches(serverId, gametypeId, mapId, page, perPage){
+    async searchMatches(serverId, gametypeId, mapId, page, perPage, sortBy, order){
 
-        const {query, vars} = this.createSearchQuery(false, serverId, gametypeId, mapId, perPage, page);
+        sortBy = sortBy.toLowerCase();
+        order = order.toLowerCase();
+
+        const validSortBys = [
+            "date",
+            "gametype",
+            "map",
+            "server",
+            "players",
+            "playtime"
+        ];
+
+        if(validSortBys.indexOf(sortBy) === -1){
+            throw new Error(`Not a valid match sort by`);
+        }
+
+        if(order !== "asc" && order !== "desc") order = "desc";
+
+        const {query, vars} = this.createSearchQuery(false, serverId, gametypeId, mapId, perPage, page, sortBy, order);
 
         return await simpleQuery(query, vars); 
     }

@@ -1,35 +1,9 @@
+"use client"
 import Link from 'next/link';
 import MatchResultSmall from './MatchResultSmall';
 import { toPlaytime, convertTimestamp, removeUnr } from '../../../api/generic.mjs';
-import { BasicTable } from "./Tables/";
-
-function getMatchResult(matchData){
-
-    const scores = [];
-    const myScore = matchData[`team_score_${matchData.playersTeam}`]
-
-    for(let i = 0; i < matchData.total_teams; i++){
-
-        scores.push(matchData[`team_score_${i}`]);
-    }
-
-    scores.sort((a, b) =>{
-
-        if(a > b) return -1;
-        else if(a < b) return 1;
-        return 0;
-    });
-
-    //draws
-    if(scores[0] === scores[1]){
-        if(scores[0] === myScore) return -1;
-    }
-
-    if(scores[0] > myScore) return 0;
-
-    return 1;
-
-}
+import { BasicTable } from "./Tables";
+import { useRouter } from 'next/navigation';
 
 
 function createRows(matches){
@@ -42,33 +16,14 @@ function createRows(matches){
 
         const url = `/match/${m.id}`;
 
-        let resultElem = null;
-
-        if(m.playersTeam !== undefined){
-
-            const result = getMatchResult(m);
-
-            let string = "Lost the Match!";
-            let colorClass = "team-red";
-
-            if(result === 1){
-                string = "Won the Match!";
-                colorClass = "team-green";
-            }else if(result === -1){
-                string = "Drew the match!";
-                colorClass = "team-yellow";
-            } 
-
-            resultElem = <td className={colorClass}>{string}</td>;
-        }
-
         rows.push([
             <Link href={url}>{convertTimestamp(m.date, true)}</Link>,
+            <Link href={url}>{m.serverName}</Link>,
             <Link href={url}>{m.gametypeName}</Link>,
             <Link href={url}>{removeUnr(m.mapName)}</Link>,
             <Link href={url}>{m.players}</Link>,
             <Link href={url}>{toPlaytime(m.playtime)}</Link>,
-            <MatchResultSmall 
+            <MatchResultSmall key={i}
                 totalTeams={m.total_teams} 
                 dmWinner={m.dmWinner} 
                 dmScore={m.dm_score} 
@@ -79,38 +34,75 @@ function createRows(matches){
                 bMonsterHunt={m.mh}
                 endReason={m.end_type}
             />,
-            resultElem
         ]);
     }
 
     return rows;
 }
 
-export default function MatchesTableView({data}){
 
+function changeURL(router, newSortBy, currentSortBy, order, server, gametype, map){
+
+    order = order.toLowerCase();
+
+    if(newSortBy === currentSortBy){
+
+        order = (order === "asc") ? "desc" : "asc";
+    }
+
+    router.push(`/matches/?sortBy=${newSortBy}&order=${order}&server=${server}&gametype=${gametype}&map=${map}`);
+}
+
+export default function MatchesTableView({data, bHome, sortBy, order, server, gametype, map}){
+
+    const router = useRouter();
+
+    if(bHome === undefined) bHome = false;
 
     const matches = data;
 
     const rows = createRows(matches);
 
-    if(rows.length === 0){
-       // rows.push(<td colSpan={7}>No Data</td></tr>);
-    }
-
-    let finalHeader = null;
-
-    if(matches[0] !== undefined){
-        
-        if(matches[0].playerTeam !== undefined){
-            finalHeader = <th>Players Result</th>
-        }
-    }
-
-
-    const headers = [
-        "Date", "Gametype", "Map", "Players", "Playtime", "Result", finalHeader
+    let headers = [
+        "Date", "Server", "Gametype", "Map", "Players", "Playtime", "Result",
     ];
 
-    return <BasicTable width={1} headers={headers} rows={rows} />
+    if(!bHome){
+        headers =[
+            
+                {"name": "Date", "callback": () =>{
+                    changeURL(router, "date", sortBy, order,server, gametype, map);
+                }}, 
+                {"name": "Server", "callback": () =>{
+                    changeURL(router, "server", sortBy, order,server, gametype, map);
+                }}, 
+                {"name": "Gametype", "callback": () =>{
+                    changeURL(router, "gametype", sortBy, order,server, gametype, map);
+                }}, 
+                {"name": "Map", "callback": () =>{
+                    changeURL(router, "map", sortBy, order,server, gametype, map);
+                }}, 
+                {"name": "Players", "callback": () =>{
+                    changeURL(router, "players", sortBy, order,server, gametype, map);
+                }}, 
+                {"name": "Playtime", "callback": () =>{
+                    changeURL(router, "playtime", sortBy, order,server, gametype, map);
+                }}, 
+                //dont need for result
+                "Result",
+        ];
+    }
+
+    const styles = [
+        "date",
+        "small-font",
+        "small-font",
+        null,
+        null,
+        "playtime",
+        null
+    ];
+
+    return <BasicTable width={1} columnStyles={styles} headers={headers} rows={rows} />
 
 }
