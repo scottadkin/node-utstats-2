@@ -1,45 +1,71 @@
 import {writeFileSync} from "fs";
 import { headers, cookies } from "next/headers";
 import Session from "../../../../api/session";
-
+import { Jimp } from "jimp";
+import { stripFileExtension, cleanMapName } from "../../../../api/generic.mjs";
 
 const VALID_IMAGE_TYPES = [
     "image/jpeg",
     "image/png",
-    "image/svg+xml",
+    "image/bmp",
 ];
 
 async function bulkMapImageUpload(formData){
 
     const files = formData.getAll("file");
 
-   // return Response.json({"b": "B"});
 
-   // console.log(formData.get("file"));
-
-    //const file = formData.get("file");
+    const fileResults = {
+        "failed": [],
+        "passed": []
+    };
 
     for(let i = 0; i < files.length; i++){
 
         const f = files[i];
-        console.log(f);
 
-        //check file type
+        try{
+            
+            const typeIndex = VALID_IMAGE_TYPES.indexOf(f.type);
 
-        if(VALID_IMAGE_TYPES.indexOf(f.type) === -1){
-            console.log(`Not a supported image file type`);
-            continue;
+            if(typeIndex === -1){
+                console.log(`Not a supported image file type`);
+                continue;
+            }
+
+            let justFileName = stripFileExtension(f.name);
+     
+
+            if(justFileName === null) throw new Error(`Not a valid file name`);
+
+            justFileName = cleanMapName(justFileName).toLowerCase();
+
+            //only do this if file is not a pjg
+            if(typeIndex !== 0){
+
+                const image = await Jimp.read(Buffer.from(await f.arrayBuffer()));
+
+                const converted = await image.getBuffer('image/jpeg', { quality: 66 });
+
+                const finalImage = await Jimp.fromBuffer(converted);
+
+                await finalImage.write(`./public/images/maps/${justFileName}.jpg`, "image/jpeg");
+                fileResults.passed.push(f.name);
+            }else{
+
+                writeFileSync(`./public/images/maps/${justFileName}.jpg`, Buffer.from(await f.arrayBuffer()));
+                fileResults.passed.push(f.name);
+            }
+
+
+        }catch(err){
+
+            fileResults.failed.push(f.name);
+            console.trace(err);
         }
-
-        
-
-        //strip file ext
-        //cleanmapname & tolowercase
-        //upload image
-        console.log(f.name);
     }
 
-   // writeFileSync("./doesthiswork.png",Buffer.from(await file.arrayBuffer()));
+    return Response.json({"data": fileResults});
 }
 
 export async function POST(req){

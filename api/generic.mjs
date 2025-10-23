@@ -1149,3 +1149,27 @@ export function toMysqlDate(timestamp){
 
     return `${result[1]} ${result[2]}`;
 }
+
+
+export function getFileExtension(fileName){
+
+    const reg = /^.+\.(.+)$/i;
+
+    const result = reg.exec(fileName);
+
+    if(result === null) return null;
+
+    return result[1].toLowerCase();
+}
+
+
+export function stripFileExtension(fileName){
+
+    const reg = /^(.+)\..+$/i;
+
+    const result = reg.exec(fileName);
+
+    if(result === null) return null;
+
+    return result[1];
+}
