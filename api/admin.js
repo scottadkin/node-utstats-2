@@ -1,7 +1,7 @@
 import { bulkInsert, simpleQuery } from "./database.js";
 import {writeFileSync} from "fs";
 import { DEFAULT_PAGE_SETTINGS } from "./sitesettings.js";
-import { DEFAULT_DATE } from "./generic.mjs";
+import { DEFAULT_DATE, DEFAULT_MIN_DATE } from "./generic.mjs";
 
 async function bHostPortFolderComboInUse(host, port, targetFolder){
     
@@ -104,7 +104,6 @@ export default class Admin{
             "player_ctf_best_life",
             "player_ctf_match",
             "player_ctf_totals",
-            "player_maps",
             "player_matches",
             "player_telefrags",
             "player_totals",
@@ -154,7 +153,7 @@ export default class Admin{
             params.password,
             params.folder,
             params.deleteLogsAfterImport,
-            DEFAULT_DATE,
+            DEFAULT_MIN_DATE,
             DEFAULT_DATE,
             params.deleteTmpFiles,
             params.ignoreBots,

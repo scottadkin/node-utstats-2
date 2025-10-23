@@ -1,5 +1,5 @@
 import { simpleQuery, insertReturnInsertId } from "./database.js";
-import { DEFAULT_DATE } from "./generic.mjs";
+import { DEFAULT_DATE, DEFAULT_MIN_DATE } from "./generic.mjs";
 import Message from "./message.js";
 import fs from "fs";
 
@@ -15,7 +15,7 @@ export default class Faces{
 
         const query = "INSERT INTO nstats_faces VALUES(NULL,?,?,?,0)";
 
-        return await insertReturnInsertId(query, [name, DEFAULT_DATE, DEFAULT_DATE]);
+        return await insertReturnInsertId(query, [name, DEFAULT_MIN_DATE, DEFAULT_DATE]);
 
     }
 

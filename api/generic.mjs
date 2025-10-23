@@ -1,4 +1,5 @@
 export const DEFAULT_DATE = "1999-11-30";
+export const DEFAULT_MIN_DATE = "9999-01-01";
 
 export function fart(){
     return "Fart Noise";
@@ -172,8 +173,8 @@ export function convertTimestamp(timestamp, noDayName, noTime){
     noDayName = (noDayName !== undefined) ? noDayName : false;
     noTime = (noTime !== undefined) ? noTime : false;
 
-    const now = new Date();
-    now.setTime(timestamp * 1000);
+    const now = new Date(timestamp);
+    //now.setTime(timestamp * 1000);
 
     const year = now.getFullYear();
     const month = now.getMonth();

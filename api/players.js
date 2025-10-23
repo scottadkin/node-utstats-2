@@ -1,6 +1,6 @@
 import Player from "./player.js";
 import { simpleQuery, bulkInsert } from "./database.js";
-import { removeIps, setIdNames, getUniqueValues, getPlayer, DEFAULT_DATE } from "./generic.mjs";
+import { removeIps, setIdNames, getUniqueValues, getPlayer, DEFAULT_DATE, DEFAULT_MIN_DATE } from "./generic.mjs";
 import Matches from "./matches.js";
 import Assault from "./assault.js";
 import CTF from "./ctf.js";
@@ -2795,7 +2795,7 @@ export default class Players{
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,0,0,0)`;
 
-        return await simpleQuery(query, ["", playerName, playerId, DEFAULT_DATE, DEFAULT_DATE, gametypeId, mapId]);
+        return await simpleQuery(query, ["", playerName, playerId, DEFAULT_MIN_DATE, DEFAULT_DATE, gametypeId, mapId]);
     }
 
     async updateNewGametypeMapStats(playerId, gametypeId, mapId, data){

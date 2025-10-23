@@ -126,7 +126,8 @@ export default class User{
                 query = "INSERT INTO nstats_users VALUES(NULL,?,?,?,1,0,1,?,?,?,0,0)";
             }
 
-            const vars = [username, passwordHash, DEFAULT_DATE, DEFAULT_DATE, DEFAULT_DATE, ip];
+            const now = Date.now();
+            const vars = [username, passwordHash, toMysqlDate(now), DEFAULT_DATE, DEFAULT_DATE, ip];
 
             await simpleQuery(query, vars);
 

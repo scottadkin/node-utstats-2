@@ -18,7 +18,7 @@ import Voices from "./voices.js";
 import WinRate from "./winrate.js";
 import fs from "fs";
 import { getObjectName } from "./genericServerSide.mjs";
-import { DEFAULT_DATE } from "./generic.mjs";
+import { DEFAULT_DATE, DEFAULT_MIN_DATE } from "./generic.mjs";
 
 export async function getAllGametypeNames(){
     
@@ -60,7 +60,7 @@ export default class Gametypes{
         if(await this.bExists(name)) throw new Error("Gametype already exists");
 
         const query = "INSERT INTO nstats_gametypes VALUES(NULL,?,?,?,0,0,0)";
-        const result = await simpleQuery(query, [name, DEFAULT_DATE, DEFAULT_DATE]);
+        const result = await simpleQuery(query, [name, DEFAULT_MIN_DATE, DEFAULT_DATE]);
 
         return result.insertId;
     }

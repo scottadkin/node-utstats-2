@@ -1,6 +1,6 @@
 import Message from "./api/message.js";
 import { existsSync, writeFileSync } from "fs";
-import { generateRandomString } from "./api/generic.mjs";
+import { DEFAULT_MIN_DATE, generateRandomString } from "./api/generic.mjs";
 import mysql from "mysql2/promise";
 import config from "./config.json" with {"type": "json"};
 import { DEFAULT_PAGE_SETTINGS } from "./api/sitesettings.js";
@@ -1171,7 +1171,7 @@ const queries = [
       
                       PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
-    `INSERT INTO nstats_logs_folder VALUES(NULL, 'Logs Folder',"1999-11-30","1999-11-30",0,0,0,0,0,0,0,0,0,0,0)`,
+    `INSERT INTO nstats_logs_folder VALUES(NULL, 'Logs Folder',"${DEFAULT_MIN_DATE}","1999-11-30",0,0,0,0,0,0,0,0,0,0,0)`,
 
     `CREATE TABLE IF NOT EXISTS nstats_player_ctf_match (
       id int NOT NULL AUTO_INCREMENT,
