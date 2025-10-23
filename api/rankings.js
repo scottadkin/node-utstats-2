@@ -2,6 +2,7 @@ import { simpleQuery } from "./database.js";
 import Message from "./message.js";
 import { getAllGametypeNames } from "./gametypes.js";
 import { getBasicPlayersByIds } from "./players.js";
+import { toMysqlDate } from "./generic.mjs";
 
 export const DEFAULT_RANKING_VALUES = [
     {"name":"frags","display_name":"Kill","description":"Player Killed an enemy","value":300},
@@ -49,11 +50,11 @@ export const DEFAULT_RANKING_VALUES = [
 ];
 
 const validLastActive =  {
-    "1": 60 * 60 * 24,
-    "7": 60 * 60 * 24 * 7,
-    "28": 60 * 60 * 24 * 28,
-    "90": 60 * 60 * 24 * 90,
-    "365": 60 * 60 * 24 * 365,
+    "1": 60 * 60 * 24 * 1000,
+    "7": 60 * 60 * 24 * 7 * 1000,
+    "28": 60 * 60 * 24 * 28 * 1000,
+    "90": 60 * 60 * 24 * 90 * 1000,
+    "365": 60 * 60 * 24 * 365 * 1000,
     "0": Number.MAX_SAFE_INTEGER
 };
 
@@ -91,17 +92,18 @@ export const playtimeOptions = [
 
 function sanitizeLastActive(lastActive){
 
-    const now = Math.ceil(Date.now() * 0.001);
+    const now = new Date();
 
-    let limit = 0;
+    let limit = "1111-01-01";
 
     if(validLastActive[lastActive] !== undefined){
 
         limit = now - validLastActive[lastActive];
-        if(limit < 0) limit = 0;
     }
 
-    return limit;
+    if(limit < 0) limit = 0;
+
+    return toMysqlDate(limit);
 }
 
 function sanitizeMinPlaytime(minPlaytime){

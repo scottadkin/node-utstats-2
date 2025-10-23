@@ -1,5 +1,5 @@
 import { simpleQuery } from "../../../api/database.js";
-import { cleanInt } from "../../../api/generic.mjs";
+import { cleanInt, toMysqlDate } from "../../../api/generic.mjs";
 
 export default class PlayerSearch{
 
@@ -8,23 +8,24 @@ export default class PlayerSearch{
 
     getSearchStartTimestampRange(activeRange){
 
-        const now = Math.ceil(Date.now() * 0.001);
-
+        const now = Date.now();
+  
         activeRange = cleanInt(activeRange, 0, 4);
 
         const startRanges = {
-            "0": 0,
-            "1": now - 60 * 60 * 24,
-            "2": now - 60 * 60 * 24 * 7,
-            "3": now - 60 * 60 * 24 * 28,
-            "4": now - 60 * 60 * 24 * 365
+            "0": now - Number.MAX_SAFE_INTEGER,
+            "1": now - 60 * 60 * 24 * 1000,
+            "2": now - 60 * 60 * 24 * 7 * 1000,
+            "3": now - 60 * 60 * 24 * 28 * 1000,
+            "4": now - 60 * 60 * 24 * 365 * 1000
         };
 
-        if(startRanges[activeRange] !== undefined){
-            return {"minTimestamp": startRanges[activeRange], "maxTimestamp": now};
-        }
 
-        return {"minTimestamp": startRanges[0], "maxTimestamp": now};
+        let min = (startRanges[activeRange] !== undefined) ? startRanges[activeRange] : startRanges[0];
+        if(min < 0) min = 0;
+
+
+        return {"minTimestamp": toMysqlDate(min), "maxTimestamp": toMysqlDate(now)};
     }
 
     createSearchQuery(name, page, perPage, country, activeRange, sortBy, order, bOnlyCount){
