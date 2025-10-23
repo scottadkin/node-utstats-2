@@ -2,11 +2,11 @@ import Session from "../../../../api/session";
 import { headers, cookies } from "next/headers";
 import Admin from "../../../../api/admin";
 import { getAllGametypeNames } from "../../../../api/gametypes";
-
-
 export async function POST(req){
 
     try{
+
+       // console.log(await req.formData());
 
         const cookieStore = await cookies();
         const header = await headers();
@@ -123,6 +123,14 @@ export async function POST(req){
             return Response.json({"message": "pass"});
         }
 
+        if(mode === "upload-map-sshot"){
+
+           // console.log(res);
+           // console.log(`-----------------------------------------------`);
+        }
+
+        
+        //console.log(`....`);
         //await adminManager.clearDatabases();
 
 

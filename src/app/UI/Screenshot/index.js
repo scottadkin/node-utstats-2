@@ -1,7 +1,7 @@
 "use client"
 import styles from './Screenshot.module.css'
 import {useEffect, useRef} from "react";
-import { utDate, MMSS } from '../../../../api/generic.mjs';
+import { utDate, MMSS, toMysqlDate } from '../../../../api/generic.mjs';
 
 class MatchScreenshot{
 
@@ -291,8 +291,8 @@ class MatchScreenshot{
 
     getDate(){
 
-        let date = (!this.bClassic) ? this.matchData.date * 1000 : utDate(this.matchData.time) * 1000;
-
+        //let date = (!this.bClassic) ? this.matchData.date * 1000 : utDate(this.matchData.time) * 1000;
+        const date = toMysqlDate(this.matchData.date);
 
         const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -408,11 +408,8 @@ class MatchScreenshot{
             c.font = teamHeaderFontSize+"px Arial";
             c.fillText(teamTitle, x, y - this.y(3.5));
 
-            if(!this.bClassic){
-                c.fillText(this.matchData[`team_score_${team}`], x + scoreOffset, y - this.y(3.5));
-            }else{
-                c.fillText(this.matchData[`t${team}score`], x + scoreOffset, y - this.y(3.5));
-            }
+            c.fillText(this.matchData[`team_score_${team}`], x + scoreOffset, y - this.y(3.5));
+            
 
         }
 
