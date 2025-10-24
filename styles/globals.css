@@ -633,6 +633,10 @@ input[type="range"]{
 	margin:0;
 }
 
+.padding-1{
+	padding:var(--padding-1);
+}
+
 .td-1-150 td:nth-child(1){
 	width:150px;
 }

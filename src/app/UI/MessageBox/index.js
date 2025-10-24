@@ -33,6 +33,10 @@ export default function MessageBox({text, title, children, type, timestamp}){
     }else if(type === "warn" || type === "warning"){
         bgClassName = "team-yellow";
         if(title === "") title = "Warning";
+    }else if(type === "note"){
+        
+        bgClassName = "purple";
+        if(title === "") title = "Note";
     }else{
         if(title === "") title = "Message";
     }

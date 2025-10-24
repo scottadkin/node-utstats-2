@@ -4,6 +4,7 @@ import MessageBox from "../MessageBox";
 import Tabs from "../Tabs";
 import {BasicTable} from "../Tables";
 import Link from "next/link";
+import Loading from "../Loading";
 
 function reducer(state, action){
 
@@ -22,7 +23,8 @@ function reducer(state, action){
 				"messageBox": {
 					"type": action.messageType,
 					"title": action.title,
-					"content": action.content
+					"content": action.content,
+					"timestamp": performance.now()
 				}
 			}
 		}
@@ -37,8 +39,6 @@ function reducer(state, action){
 
 			const data = [...state.pendingSingles];
 
-			console.log(action.value);
-
 			if(data.indexOf(action.value) === -1){
 				data.push(action.value);
 			}else{
@@ -50,15 +50,37 @@ function reducer(state, action){
 				"pendingSingles": data
 			}
 		}
+
+		case "remove-pending-single": {
+
+			const data = [...state.pendingSingles];
+
+			const index = data.indexOf(action.value);
+
+			if(index !== -1) data.splice(index, 1);
+
+			return {
+				...state,
+				"pendingSingles": data
+			}
+		}
+
+		case "set-bulk-progress": {
+			return {
+				...state,
+				"bBulkInProgress": action.value
+			}
+		}
 	}
 
 	return state;
 }
 
-async function bulkUpload(mode, data){
+async function bulkUpload(mode, data, dispatch){
 
     try{
 
+		dispatch({"type": "set-bulk-progress", "value": true});
         const formData = new FormData();
 
         formData.set("mode", mode);
@@ -77,13 +99,37 @@ async function bulkUpload(mode, data){
 
         const result = await response.json();
 
+		if(result.error !== undefined) throw new Error(result.error);
+
+		let content = [];
+
+
+		for(let i = 0; i < result.fileResults.passed.length; i++){
+
+			const r = result.fileResults.passed[i];
+			content.push(<div className="team-green padding-1" key={`p-${i}`}>Successfully uploaded <b>{r}</b></div>);
+		}
+
+		for(let i = 0; i < result.fileResults.failed.length; i++){
+
+			const r = result.fileResults.failed[i];
+			content.push(<div className="team-red  padding-1" key={`e-${i}`}>Failed to upload <b>{r}</b></div>);
+		}
+
+		dispatch({"type": "set-message", "messageType": "note", "title": "Uploads Completed", "content": content});
+
+		await loadData(dispatch);
+		dispatch({"type": "set-bulk-progress", "value": false});
+
+
+
     }catch(err){
         console.trace(err);
     }
 }
 
 
-async function singleUpload(fileName, files){
+async function singleUpload(fileName, files, dispatch){
 
 	try{
 
@@ -96,23 +142,33 @@ async function singleUpload(fileName, files){
 		formData.set("image", files[0]);
 		formData.set("mapName", fileName);
 
-		console.log(files);
-
-		const response = await fetch("/api/adminUpload", {
+		const res = await fetch("/api/adminUpload", {
             method: "POST",
             body: formData,
         });
 
-		console.log(response);
+		if(res.error !== undefined){
+			throw new Error(res.error);
+		}
+
+
+		await loadData(dispatch);
+
+		dispatch({"type": "remove-pending-single", "value": fileName});
+		dispatch({"type": "set-message", "messageType": "pass", "title": "Upload Successful", "content": `Uploaded /images/maps/${fileName}.jpg successful`});
+
 
 	}catch(err){
 		console.trace(err);
+		dispatch({"type": "set-message", "messageType": "error", "title": `Failed to upload ${fileName}.jpg`, "content": `${err.toString()}`});
 	}
 }
 
-function renderBulkUpload(mode){
+function renderBulkUpload(mode, bBulkInProgress, dispatch){
 
 	if(mode !== "bulk") return null;
+
+	if(bBulkInProgress) return <Loading>Uploading Images Please Wait...</Loading>
 
     return <>
 		<div className="form m-bottom-25">
@@ -134,7 +190,7 @@ function renderBulkUpload(mode){
 		<form className="form" onSubmit={(e) =>{
 			
 			e.preventDefault();
-			bulkUpload(e.target.mode.value, e.target.filesToUpload);
+			bulkUpload(e.target.mode.value, e.target.filesToUpload, dispatch);
 		}}>
 			<div className="form-header">Bulk Image Uploader</div>
 			<div className="form-info m-bottom-10">
@@ -184,7 +240,7 @@ function renderSingleUpload(mode, images, pendingSingles, dispatch){
 		if(pendingSingles.indexOf(img.imageName) === -1){
 			elem = <td key={`up-${i}`}><input type="file" name={img.imageName} accept="image/png, image/jpeg, image/jpg, image/bmp" onChange={(e) =>{
 				dispatch({"type": "add-pending-single", "value": e.target.name});
-				singleUpload(e.target.name, e.target.files);
+				singleUpload(e.target.name, e.target.files, dispatch);
 			}}/></td>
 		}
 
@@ -238,12 +294,14 @@ export default function AdminMapScreenshots(){
 		"messageBox": {
 			"type": null,
 			"title": null,
-			"content": null
+			"content": null,
+			"timestamp": 0
 		},
 		"images": [],
 		"names": [],
 		"mode": "single",
-		"pendingSingles": []
+		"pendingSingles": [],
+		"bBulkInProgress": false
 	});
 
 	useEffect(() =>{
@@ -260,7 +318,7 @@ export default function AdminMapScreenshots(){
 		<Tabs options={tabs} selectedValue={state.mode} changeSelected={(v) =>{
 			dispatch({"type": "set-mode", "value": v});
 		}} />
-		<MessageBox type={state.messageBox.type} title={state.messageBox.title}>{state.messageBox.content}</MessageBox>
+		<MessageBox timestamp={state.messageBox.timestamp} type={state.messageBox.type} title={state.messageBox.title}>{state.messageBox.content}</MessageBox>
 		<div className="form">
 			<div className="form-header">Supported Upload Image Formats</div>	
 			<div className="form-info">
@@ -281,6 +339,6 @@ export default function AdminMapScreenshots(){
 			</div>
 		</div>
         {renderSingleUpload(state.mode, state.images, state.pendingSingles, dispatch)}
-        {renderBulkUpload(state.mode)}
+        {renderBulkUpload(state.mode, state.bBulkInProgress, dispatch)}
     </>
 }

@@ -1,8 +1,8 @@
-import {writeFileSync} from "fs";
+import {writeFileSync, renameSync} from "fs";
 import { headers, cookies } from "next/headers";
 import Session from "../../../../api/session";
 import { Jimp } from "jimp";
-import { stripFileExtension, cleanMapName } from "../../../../api/generic.mjs";
+import { stripFileExtension, cleanMapName, generateRandomString } from "../../../../api/generic.mjs";
 
 const VALID_IMAGE_TYPES = [
     "image/jpeg",
@@ -28,6 +28,8 @@ async function uploadMapImage(file, forcedFileName){
         justFileName = cleanMapName(justFileName).toLowerCase();
     }
 
+    const tmpName = `tmp_${Math.floor(Math.random() * 90000000)}`
+
     //only do this if file is not a pjg
     if(typeIndex !== 0){
 
@@ -37,10 +39,13 @@ async function uploadMapImage(file, forcedFileName){
 
         const finalImage = await Jimp.fromBuffer(converted);
 
-        await finalImage.write(`./uploads/${justFileName}.jpg`, "image/jpeg");
+        await finalImage.write(`./uploads/${tmpName}.jpg`, "image/jpeg");
+
+        renameSync(`./uploads/${tmpName}.jpg`, `./public/images/maps/${justFileName}.jpg`);
     }else{
 
-        writeFileSync(`./uploads/${justFileName}.jpg`, Buffer.from(await file.arrayBuffer()));     
+        writeFileSync(`./uploads/${tmpName}.jpg`, Buffer.from(await file.arrayBuffer()));     
+        renameSync(`./uploads/${tmpName}.jpg`, `./public/images/maps/${justFileName}.jpg`);
     }
 
     return true;
@@ -72,7 +77,7 @@ async function bulkMapImageUpload(formData){
         }
     }
 
-    return Response.json({"data": fileResults});
+    return fileResults;
 }
 
 export async function POST(req){
@@ -96,21 +101,15 @@ export async function POST(req){
 
         const formData = await req.formData();
 
-        console.log("test");
-
         let mode = formData.get("mode") ?? "";
         mode = mode.toLowerCase();
 
-        console.log(`mode = ${mode}`);
-
         if(mode === "map-bulk-upload"){
-            await bulkMapImageUpload(formData);
-            return Response.json({"message": "set message"});
+            const fileResults = await bulkMapImageUpload(formData);
+            return Response.json({fileResults});
         }
 
         if(mode === "map-single-upload"){
-
-            console.log(formData.get("mapName"));
 
             const file = formData.get("image");
 
@@ -118,7 +117,7 @@ export async function POST(req){
 
             const mapName = formData.get("mapName");
             if(mapName === null) throw new Error(`You did not supply a name for the image`);
-            console.log(file);
+
             await uploadMapImage(file, mapName); 
         }
         //const file = 
