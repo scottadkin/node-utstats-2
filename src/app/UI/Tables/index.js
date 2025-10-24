@@ -44,10 +44,10 @@ export function BasicTable({headers, rows, width, columnStyles, title}){
             let display = col;
 
 
-            if(col !== null && typeof col === "object" && col.className !== undefined){
+            if(col !== null && typeof col === "object"){
           
                 display = col.value;
-                style = `${style} ${col.className}`;
+                style = `${style} ${(col.className !== undefined) ? col.className : ""}`;
             }
 
             if(col !== null && typeof col === "object"){

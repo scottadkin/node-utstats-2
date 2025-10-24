@@ -2,6 +2,11 @@ import Session from "../../../../api/session";
 import { headers, cookies } from "next/headers";
 import Admin from "../../../../api/admin";
 import { getAllGametypeNames } from "../../../../api/gametypes";
+import { getAllUploadedImages as getAllUploadedMapImages, getImages } from "../../../../api/maps";
+import { getAllObjectNames } from "../../../../api/genericServerSide.mjs";
+import { cleanMapName } from "../../../../api/generic.mjs";
+
+
 export async function POST(req){
 
     try{
@@ -123,15 +128,53 @@ export async function POST(req){
             return Response.json({"message": "pass"});
         }
 
-        if(mode === "upload-map-sshot"){
+        if(mode === "get-all-uploaded-map-images"){
 
-           // console.log(res);
-           // console.log(`-----------------------------------------------`);
+
+            //const images = await getAllUploadedMapImages();
+            const mapNames = await getAllObjectNames("maps");
+
+            const names = Object.values(mapNames);
+
+
+            const currentMatches = getImages(names);
+
+            const images = [];
+     
+            for(const [key, value] of Object.entries(mapNames)){
+
+                const current = {
+                    "name": value,
+                    "imageName": cleanMapName(value).toLowerCase(),
+                };
+
+                if(currentMatches[current.imageName] !== undefined){
+
+                    current.match = currentMatches[current.imageName];
+                    current.bFullMatch = current.match === current.imageName;
+
+                }else{
+                    current.match = null;
+                }
+
+                images.push(current);
+            }
+
+            console.log(images);
+
+            images.sort((a, b) =>{
+                a = a.name;
+                b = b.name;
+
+                if(a < b) return -1;
+                if(a > b) return 1;
+                return 0;
+            });
+   
+            return Response.json({"images": images});
+
         }
 
-        
-        //console.log(`....`);
-        //await adminManager.clearDatabases();
 
 
         return Response.json({"error": "Unknown Request"});

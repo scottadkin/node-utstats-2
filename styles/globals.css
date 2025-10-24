@@ -426,7 +426,6 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 .form-header{
 	font-size:16px;
 	padding: var(--padding-2);
-	margin-bottom:var(--margin-1);
 	font-weight:500;
 }
 
@@ -894,4 +893,10 @@ input[type="range"]{
 
 .move-button:hover{
 	cursor: pointer;
+}
+
+
+ul{
+	list-style: inside;
+	list-style-type: "- ";
 }

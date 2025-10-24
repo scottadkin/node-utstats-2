@@ -105,6 +105,8 @@ export async function getAllObjectNames(type, bReturnArray){
 
         const {id, name} = result[i];
         data[id] = name;
+
+        if(type === "maps") data[id] = removeUnr(data[id]);
     }
 
     return data; 

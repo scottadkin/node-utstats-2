@@ -321,43 +321,6 @@ export default class Maps{
         };
     }
 
-
-    /*async getRecent(id, page, perPage, playerManager){
-
-        const query = "SELECT * FROM nstats_matches WHERE map=? AND playtime>=? AND players>=? ORDER BY date DESC, id DESC LIMIT ?, ?";
-
-        const settings = this.currentSettings();
-
-        page = parseInt(page);
-        if(page !== page) page = 1;
-        page--;
-
-        perPage = parseInt(perPage);
-        if(perPage !== perPage) perPage = 25;
-
-        const start = page * perPage;
-
-        const vars = [id, settings.minPlaytime, settings.minPlayers, start, perPage];
-        
-        const result = await simpleQuery(query, vars);
-
-        const dmWinners = new Set(result.map(r => r.dm_winner));
-
-        const playersInfo = await playerManager.getNamesByIds([...dmWinners], true);
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-
-            if(r.dm_winner !== 0){
-                r.dmWinner = playersInfo[r.dm_winner];
-            }
-        }
-
-        return result;
-
-    }*/
-
     async getMatchDates(map, limit){
 
         const query = "SELECT date FROM nstats_matches WHERE map=? ORDER BY date DESC";
@@ -540,19 +503,7 @@ export default class Maps{
         return result[0].total_matches;
     }
 
-
-    getAllUploadedImages(){
-
-        const fullSizeDir = "public/images/maps/";
-        const thumbsDir = "public/images/maps/thumbs/";
-
-        const fullSizeImages = fs.readdirSync(fullSizeDir);
-        const thumbImages = fs.readdirSync(thumbsDir);
-
-        return {"fullsize": fullSizeImages, "thumbs": thumbImages};
-    }
-
-    getMissingThumbnails(){
+    /*getMissingThumbnails(){
 
         const files = this.getAllUploadedImages();
 
@@ -573,7 +524,7 @@ export default class Maps{
         }
 
         return missing;
-    }
+    }*/
 
 
     async getAllNameAndIds(bIncludeAutoMergeMaps){
@@ -1352,4 +1303,15 @@ export async function getRecent(id, page, perPage, settings, mapName){
     }
 
     return result;
+}
+
+export async function getAllUploadedImages(){
+
+    const fullSizeDir = "public/images/maps/";
+    // const thumbsDir = "public/images/maps/thumbs/";
+
+    const fullSizeImages = fs.readdirSync(fullSizeDir);
+    //const thumbImages = fs.readdirSync(thumbsDir);
+
+    return fullSizeImages;
 }

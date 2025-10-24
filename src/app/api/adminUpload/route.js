@@ -10,10 +10,45 @@ const VALID_IMAGE_TYPES = [
     "image/bmp",
 ];
 
+async function uploadMapImage(file, forcedFileName){
+
+    
+    const typeIndex = VALID_IMAGE_TYPES.indexOf(file.type);
+
+    if(typeIndex === -1){
+        throw new Error(`Not a supported image file type`);
+    }
+
+    let justFileName = (forcedFileName !== undefined) ? forcedFileName : stripFileExtension(file.name);
+
+
+    if(justFileName === null) throw new Error(`Not a valid file name`);
+
+    if(forcedFileName === undefined){
+        justFileName = cleanMapName(justFileName).toLowerCase();
+    }
+
+    //only do this if file is not a pjg
+    if(typeIndex !== 0){
+
+        const image = await Jimp.read(Buffer.from(await file.arrayBuffer()));
+
+        const converted = await image.getBuffer('image/jpeg', { quality: 66 });
+
+        const finalImage = await Jimp.fromBuffer(converted);
+
+        await finalImage.write(`./uploads/${justFileName}.jpg`, "image/jpeg");
+    }else{
+
+        writeFileSync(`./uploads/${justFileName}.jpg`, Buffer.from(await file.arrayBuffer()));     
+    }
+
+    return true;
+}
+
 async function bulkMapImageUpload(formData){
 
     const files = formData.getAll("file");
-
 
     const fileResults = {
         "failed": [],
@@ -26,37 +61,9 @@ async function bulkMapImageUpload(formData){
 
         try{
             
-            const typeIndex = VALID_IMAGE_TYPES.indexOf(f.type);
-
-            if(typeIndex === -1){
-                console.log(`Not a supported image file type`);
-                continue;
-            }
-
-            let justFileName = stripFileExtension(f.name);
-     
-
-            if(justFileName === null) throw new Error(`Not a valid file name`);
-
-            justFileName = cleanMapName(justFileName).toLowerCase();
-
-            //only do this if file is not a pjg
-            if(typeIndex !== 0){
-
-                const image = await Jimp.read(Buffer.from(await f.arrayBuffer()));
-
-                const converted = await image.getBuffer('image/jpeg', { quality: 66 });
-
-                const finalImage = await Jimp.fromBuffer(converted);
-
-                await finalImage.write(`./public/images/maps/${justFileName}.jpg`, "image/jpeg");
-                fileResults.passed.push(f.name);
-            }else{
-
-                writeFileSync(`./public/images/maps/${justFileName}.jpg`, Buffer.from(await f.arrayBuffer()));
+            if(await uploadMapImage(f)){
                 fileResults.passed.push(f.name);
             }
-
 
         }catch(err){
 
@@ -98,6 +105,21 @@ export async function POST(req){
 
         if(mode === "map-bulk-upload"){
             await bulkMapImageUpload(formData);
+            return Response.json({"message": "set message"});
+        }
+
+        if(mode === "map-single-upload"){
+
+            console.log(formData.get("mapName"));
+
+            const file = formData.get("image");
+
+            if(file === null) throw new Error(`No image supplied`);
+
+            const mapName = formData.get("mapName");
+            if(mapName === null) throw new Error(`You did not supply a name for the image`);
+            console.log(file);
+            await uploadMapImage(file, mapName); 
         }
         //const file = 
 
