@@ -6,17 +6,19 @@ import AdminFTPManager from "./AdminFTPManager";
 import AdminLogsFolder from "./AdminLogsFolder";
 import AdminPageSettings from "./AdminPageSettings";
 import AdminMapScreenshots from "./AdminMapScreenshots";
+import AdminFaces from "./AdminFaces";
 
 
 export default function AdminMain({}){
 
-    const [mode, setMode] = useState("map-sshots");
+    const [mode, setMode] = useState("faces");
 
     const options = [
         {"name": "Site Settings", "value": "page-settings"},
         {"name": "FTP Manager", "value": "ftp"},
         {"name": "Logs Folder Settings", "value": "logs-folder"},
         {"name": "Map Screenshots", "value": "map-sshots"},
+        {"name": "Player Faces", "value": "faces"},
         {"name": "Clear Database", "value": "admin-clear-database"},
         
     ];
@@ -44,6 +46,11 @@ export default function AdminMain({}){
     if(mode === "map-sshots"){
 
         elems.push(<AdminMapScreenshots key="map-sshots"/>);
+    }
+
+    if(mode === "faces"){
+
+        elems.push(<AdminFaces key="faces"/>);
     }
 
     return <>

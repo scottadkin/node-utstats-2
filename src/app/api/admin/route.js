@@ -5,6 +5,7 @@ import { getAllGametypeNames } from "../../../../api/gametypes";
 import { getAllUploadedImages as getAllUploadedMapImages, getImages } from "../../../../api/maps";
 import { getAllObjectNames } from "../../../../api/genericServerSide.mjs";
 import { cleanMapName } from "../../../../api/generic.mjs";
+import { getAllFaces, getAllFacesWithFileStatuses, getFacesWithFileStatuses } from "../../../../api/faces";
 
 
 export async function POST(req){
@@ -160,7 +161,6 @@ export async function POST(req){
                 images.push(current);
             }
 
-            console.log(images);
 
             images.sort((a, b) =>{
                 a = a.name;
@@ -173,6 +173,13 @@ export async function POST(req){
    
             return Response.json({"images": images});
 
+        }
+
+        if(mode === "get-faces"){
+
+            const faces = await getAllFacesWithFileStatuses();
+
+            return Response.json({"data": faces});
         }
 
 

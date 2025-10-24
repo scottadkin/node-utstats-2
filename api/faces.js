@@ -237,9 +237,7 @@ export default class Faces{
 
     async getAll(){
 
-        const query = "SELECT name,first,last,uses FROM nstats_faces ORDER BY uses DESC";
-
-        return await simpleQuery(query);
+        return await getAllFaces();
     }
 
 
@@ -249,6 +247,7 @@ export default class Faces{
 
     async reduceUsage(id, amount){
 
+        throw new Error(`use mysql instead`);
         const query = "UPDATE nstats_faces SET uses=uses-? WHERE id=?";
 
         return await simpleQuery(query, [amount, id]);
@@ -484,4 +483,36 @@ export async function getMostUsed(limit){
     const query = "SELECT * FROM nstats_faces ORDER BY uses DESC LIMIT ?";
 
     return await simpleQuery(query, [limit]);
+}
+
+
+export async function getAllFaces(){
+
+    const query = "SELECT id,name,first,last,uses FROM nstats_faces ORDER BY uses DESC";
+    return await simpleQuery(query);
+
+}
+
+
+export async function getAllFacesWithFileStatuses(){
+
+    const faces = await getAllFaces();
+
+    const faceIds = faces.map((f) =>{
+        return f.id;
+    });
+
+    const fileStatus = await getFacesWithFileStatuses(faceIds);
+   
+    for(let i = 0; i < faces.length; i++){
+
+        const f = faces[i];
+        if(fileStatus[f.id] !== undefined){
+            f.image = fileStatus[f.id].name;
+        }else{
+            f.image = "faceless";
+        }
+    }
+
+    return faces;
 }
