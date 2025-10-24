@@ -1126,9 +1126,10 @@ export async function getHistoryBetween(id, start, end){
 export async function getGraphHistoryData(id){
 
     const hour = 60 * 60 * 1000;
-    const day = hour * 24 * 1000;
-    const year = day * 365 * 1000;
+    const day = hour * 24;
+    const year = day * 365;
     const now = Date.now();
+    console.log(now, now-year);
     const data = await getHistoryBetween(id, toMysqlDate(new Date(now - year)), toMysqlDate(now));
 
     const dayData = [];
@@ -1189,24 +1190,6 @@ export async function getGraphHistoryData(id){
         [{"name": "Matches Played", "values": yearData}]
     ];
 }
-
-//uses old maps table( should delete this table after making changes to player totals?)
-/*
-export async function getTopPlayersPlaytime(mapId, limit){
-
-    limit = parseInt(limit);
-    if(limit !== limit) limit = 5;
-
-    const m = `nstats_player_maps`;
-    const p = `nstats_player_totals`;
-
-    const query = `SELECT ${m}.player,${m}.playtime,
-    ${m}.matches,${m}.longest,${m}.longest_id,
-    ${m}.first,${m}.last,${p}.name FROM ${m} 
-    INNER JOIN ${p} ON ${p}.id=${m}.player
-    WHERE ${m}.map=? ORDER BY playtime DESC LIMIT ?`;
-    return await simpleQuery(query, [mapId, limit]);
-}*/
 
 export async function getTopPlayersPlaytime(mapId, limit){
 

@@ -1,6 +1,9 @@
 import "../../styles/globals.css";
 import Footer from "./UI/Footer";
 import { headers } from "next/headers";
+import { Montserrat } from 'next/font/google';
+
+const monFont = Montserrat();
 
 
 
@@ -36,7 +39,7 @@ export default async function RootLayout({ children }) {
 return (
 	<html lang="en">
 		<body>
-			<main>
+			<main className={monFont.className}>
 				{children}
 				<Footer/>
 			</main>	

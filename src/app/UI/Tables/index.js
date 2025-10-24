@@ -32,6 +32,7 @@ export function BasicTable({headers, rows, width, columnStyles, title}){
 
     const rowElems = [];
 
+
     for(let i = 0; i < rows.length; i++){
 
         const currentRow = [];
@@ -44,20 +45,22 @@ export function BasicTable({headers, rows, width, columnStyles, title}){
             let display = col;
 
 
-            if(col !== null && typeof col === "object"){
-          
+            if(col !== null && col.value !== undefined){
+
+                if(col.bSkipTd !== undefined && col.bSkipTd){
+                    currentRow.push(col.value);
+                    continue;
+                }
+            }
+
+
+            
+
+            if(col !== null && col.value !== undefined){
                 display = col.value;
                 style = `${style} ${(col.className !== undefined) ? col.className : ""}`;
             }
 
-            if(col !== null && typeof col === "object"){
-
-
-                if(col.bSkipTd !== undefined && col.bSkipTd){
-                    currentRow.push(display);
-                    continue;
-                }
-            }
             currentRow.push(<td className={style} key={`d-${i}-${x}`}>{display}</td>);
         }
 
