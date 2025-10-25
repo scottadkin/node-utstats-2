@@ -1,6 +1,9 @@
 "use client"
 import { useEffect, useReducer } from "react";
 import MessageBox from "../MessageBox";
+import {BasicTable} from "../Tables";
+import {convertTimestamp} from "../../../../api/generic.mjs";
+import Image from "next/image";
 
 function reducer(state, action){
 
@@ -9,7 +12,7 @@ function reducer(state, action){
         case "loaded": {
             return {
                 ...state,
-                "faces": action.faces
+                "data": action.data
             }
         }
         case "set-message": {
@@ -41,13 +44,87 @@ async function loadData(dispatch){
 
         if(res.error !== undefined) throw new Error(res.error);
 
-        dispatch({"type": "loaded", "faces": res.data});
+        res.data.sort((a, b) =>{
+
+            a = a.uses;
+            b = b.uses;
+            if(a > b) return -1;
+            if(a < b) return 1;
+            return 0;
+        });
+
+        dispatch({"type": "loaded", "data": res.data});
 
     }catch(err){
         
         console.trace(err);
         dispatch({"type": "set-message", "messageType": "error", "title": "Failed to load faces data", "content": err.toString()});
     }
+}
+
+
+async function uploadImage(name, files, dispatch){
+
+    try{
+
+        if(files.length === 0) return;
+        if(name === "") throw new Error(`File name can not be a blank string`);
+
+        const formData = new FormData();
+
+        formData.set("mode", "upload-face");
+        formData.set("imageName", name);
+        formData.set("image", files[0]);
+
+
+        const req = await fetch("/api/adminUpload", {
+            "method": "POST",
+            "body": formData
+        });
+
+        const res = await req.json();
+
+        console.log(res);
+
+        if(res.error !== undefined) throw new Error(res.error);
+        
+
+    }catch(err){
+        console.trace(err);
+        dispatch({"type": "set-message", "messageType": "error", "title": "Failed to upload image", "content": err.toString()});
+    }
+}
+
+function renderFaces(data, dispatch){
+
+    const headers = [
+        "Image",
+        "Name",
+        "First Used",
+        "Last Used",
+        "Times Used",
+        "Upload Image"
+    ];
+
+    console.log(data);
+
+    const rows = data.map((d) =>{
+        return [
+            {"className": "text-left", "value": <Image width={46} height={46} alt="image" src={`/images/faces/${d.image}.png`}/>},
+            {"className": "text-left", "value": d.name},
+            {"className": "date", "value": convertTimestamp(d.first, true)},
+            {"className": "date", "value": convertTimestamp(d.last, true)},
+            d.uses,
+            <>
+                <input type="file" accept="image/png" onChange={(e) =>{
+                    console.log(e.target.files);
+                    uploadImage(d.name, e.target.files, dispatch);
+                }}/>
+            </>
+        ];
+    });
+
+    return <BasicTable width={1} headers={headers} rows={rows}/>
 }
 
 export default function AdminFaces({}){
@@ -61,7 +138,6 @@ export default function AdminFaces({}){
         }
     });
 
-
     useEffect(() =>{
 
         loadData(dispatch);
@@ -70,5 +146,17 @@ export default function AdminFaces({}){
     return <>
         <div className="default-header">Faces Manager</div>
         <MessageBox type={state.messageBox.type} title={state.messageBox.title}>{state.messageBox.content}</MessageBox>
+        <div className="form m-bottom-25">
+            <div className="form-header m-bottom-10">
+                Image Requirements
+            </div>
+            <ul>
+                <li>image/png Format (.png)</li>
+                <li>1:1 Aspect ratio</li>
+                <li>Target 64x64 at minimum</li>
+                <li>Image names are automatically set.</li>
+            </ul>
+        </div>
+        {renderFaces(state.data, dispatch)}
     </>
 }

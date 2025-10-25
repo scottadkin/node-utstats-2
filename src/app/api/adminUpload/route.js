@@ -80,6 +80,22 @@ async function bulkMapImageUpload(formData){
     return fileResults;
 }
 
+async function uploadFaceImage(file, name){
+
+    console.log(file, name);
+
+    name = name.toLowerCase();
+
+    if(file.type !== "image/png"){
+        throw new Error(`Image file must be a .png`);
+    }
+
+    const tmpName = `tmp_${Math.floor(Math.random() * 90000000)}`
+
+    writeFileSync(`./uploads/${tmpName}.png`, Buffer.from(await file.arrayBuffer()));
+
+}
+
 export async function POST(req){
 
     try{
@@ -122,7 +138,16 @@ export async function POST(req){
         }
         //const file = 
 
-        return Response.json({"a": "a"});
+        if(mode === "upload-face"){
+
+            const file = formData.get("image");
+            if(file === null) throw new Error(`No image supplied`);
+
+            const faceName = formData.get("imageName");
+            await uploadFaceImage(file, faceName);
+        }
+
+        return Response.json({"error": "Unknown request"});
 
     }catch(err){
         console.trace(err);
