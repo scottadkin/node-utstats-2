@@ -4,9 +4,10 @@ import Admin from "../../../../api/admin";
 import { getAllGametypeNames } from "../../../../api/gametypes";
 import { getAllUploadedImages as getAllUploadedMapImages, getImages } from "../../../../api/maps";
 import { getAllObjectNames } from "../../../../api/genericServerSide.mjs";
-import { cleanMapName } from "../../../../api/generic.mjs";
+import { cleanMapName, sortByName } from "../../../../api/generic.mjs";
 import { getAllFaces, getAllFacesWithFileStatuses, getFacesWithFileStatuses } from "../../../../api/faces";
 import { adminMatchesSearch } from "../../../../api/matches";
+
 
 
 export async function POST(req){
@@ -191,13 +192,29 @@ export async function POST(req){
             const order = (res.order !== undefined) ? res.order.toLowerCase() : null;
             const page = (res.page !== undefined) ? parseInt(res.page) : 1;
             const perPage = (res.perPage !== undefined) ? parseInt(res.perPage) : 100;
+            const selectedServer = (res.selectedServer !== undefined) ? parseInt(res.selectedServer) : 0;
+            const selectedGametype = (res.selectedGametype !== undefined) ? parseInt(res.selectedGametype) : 0;
+            const selectedMap = (res.selectedMap !== undefined) ? parseInt(res.selectedMap) : 0;
             
+            if(selectedServer !== selectedServer) throw new Error(`Server must be a valid integer`);
+            if(selectedGametype !== selectedGametype) throw new Error(`Gametype must be a valid integer`);
+            if(selectedMap !== selectedMap) throw new Error(`Map must be a valid integer`);
 
             //const data = await adminMatchesSearch(sortBy, order, page);
-            const {totalMatches, data} = await adminMatchesSearch(sortBy, order, page, perPage);
+            const {totalMatches, data} = await adminMatchesSearch(sortBy, order, selectedServer, selectedGametype, selectedMap, page, perPage);
 
             return Response.json({totalMatches, data});
             //console.log(data);
+        }
+
+        if(mode === "get-all-match-names"){
+
+            const servers = await getAllObjectNames("servers", true);
+            const gametypes = await getAllObjectNames("gametypes", true);
+            const maps = await getAllObjectNames("maps", true);
+
+    
+            return Response.json({servers, gametypes, maps});
         }
 
 

@@ -1951,13 +1951,15 @@ export async function getSearchTotalMatches(serverId, gametypeId, mapId){
 
  */
 
-function createAdminSearchQuery(sortBy, order, page, perPage, validSortBys){
+function createAdminSearchQuery(sortBy, order, selectedServer, selectedGametype, selectedMap, page, perPage, validSortBys){
 
     if(validSortBys.indexOf(sortBy) === -1) throw new Error(`Not a valid sort by`);
 
     if(order !== "ASC" && order !== "DESC") order = "DESC";
 
     const index = validSortBys.indexOf(sortBy);
+
+    const vars = [];
 
     let query = `SELECT 
     nstats_matches.id,
@@ -1984,9 +1986,36 @@ function createAdminSearchQuery(sortBy, order, page, perPage, validSortBys){
 
     query += ` FROM nstats_matches`;
 
+
+    if(selectedServer !== 0){
+        query += ` WHERE server=?`;
+        vars.push(selectedServer);
+    }
+
+    if(selectedGametype !== 0){
+
+        if(vars.length === 0){
+            query += ` WHERE gametype=?`;      
+        }else{
+            query += ` AND gametype=?`;
+        }
+        vars.push(selectedGametype);
+    }
+
+    if(selectedMap !== 0){
+
+        if(vars.length === 0){
+            query += ` WHERE map=?`;      
+        }else{
+            query += ` AND map=?`;
+        }
+        vars.push(selectedMap);
+    }
+
     if(sortBy === "gametype"){
 
-        query += ` INNER JOIN nstats_gametypes ON nstats_matches.gametype = nstats_gametypes.id`;
+        query += `  INNER JOIN nstats_gametypes ON nstats_matches.gametype = nstats_gametypes.id`;
+       // query += `  INNER JOIN nstats_gametypes ON nstats_matches.gametype = nstats_gametypes.id WHERE nstats_gametypes.name LIKE '%dom%'`;
         finalSortBy = `gametypeName`;
 
     }else if(sortBy === "map"){
@@ -2004,20 +2033,48 @@ function createAdminSearchQuery(sortBy, order, page, perPage, validSortBys){
 
     const orderString = ` ORDER BY ${finalSortBy} ${order}, id DESC LIMIT ?, ?`;
  
-    return `${query} ${orderString}`;
+    return {"query": `${query} ${orderString}`, vars};
 }
 
-//duplicate for now until add the extra serach terms
-async function adminGetTotalPossibleMatches(){
 
-    const query = `SELECT COUNT(*) as total_rows FROM nstats_matches`;
+async function adminGetTotalPossibleMatches(selectedServer, selectedGametype, selectedMap){
 
-    const result = await simpleQuery(query);
+    let query = `SELECT COUNT(*) as total_rows FROM nstats_matches`;
+    const vars = [];
+
+    if(selectedServer !== 0){
+        query += ` WHERE server=?`;
+        vars.push(selectedServer);
+    }
+
+    if(selectedGametype !== 0){
+
+        if(vars.length === 0){
+            query += `WHERE gametype=?`;
+        }else{
+            query += ` AND gametype=?`;
+        }
+
+        vars.push(selectedGametype);
+    }
+
+    if(selectedMap !== 0){
+
+        if(vars.length === 0){
+            query += `WHERE map=?`;
+        }else{
+            query += ` AND map=?`;
+        }
+
+        vars.push(selectedGametype);
+    }
+
+    const result = await simpleQuery(query, vars);
 
     return result[0].total_rows;
 }
 
-export async function adminMatchesSearch(sortBy, order, page, perPage){
+export async function adminMatchesSearch(sortBy, order, selectedServer, selectedGametype, selectedMap, page, perPage){
 
 
     page = sanatizePage(page);
@@ -2030,18 +2087,15 @@ export async function adminMatchesSearch(sortBy, order, page, perPage){
 
     const validSortBys = ["date", "server", "gametype", "map", "players", "playtime"];
 
-    const query = createAdminSearchQuery(sortBy, order, page, perPage, validSortBys);
+    const {query, vars} = createAdminSearchQuery(sortBy, order, selectedServer, selectedGametype, selectedMap, page, perPage, validSortBys);
 
-    console.log(query);
+
 
     let start = page * perPage;
     if(start < 0) start = 0;
 
-    console.log(start, perPage);
 
-    const result = await simpleQuery(query, [start, perPage]);
-
-    console.log(result);
+    const result = await simpleQuery(query, [...vars, start, perPage]);
 
     const gametypeIds = new Set();
     const mapIds = new Set();
@@ -2070,7 +2124,7 @@ export async function adminMatchesSearch(sortBy, order, page, perPage){
         r.mapName = mapNames[r.map] ?? "Not Found";
     }
 
-    const totalRows = await adminGetTotalPossibleMatches();
+    const totalRows = await adminGetTotalPossibleMatches(selectedServer, selectedGametype, selectedMap);
 
     return {"totalMatches": totalRows, "data": result};
 }

@@ -1173,3 +1173,14 @@ export function stripFileExtension(fileName){
 
     return result[1];
 }
+
+
+export function sortByName(a, b){
+
+    a = a.name.toLowerCase();
+    b = b.name.toLowerCase();
+
+    if(a < b) return -1;
+    if(a > b) return 1;
+    return 0;
+}

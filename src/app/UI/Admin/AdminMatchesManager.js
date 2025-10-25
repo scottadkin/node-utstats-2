@@ -3,7 +3,7 @@ import { useReducer, useEffect } from "react";
 import Tabs from "../Tabs";
 import MessageBox from "../MessageBox";
 import { BasicTable } from "../Tables";
-import { convertTimestamp, toPlaytime } from "../../../../api/generic.mjs";
+import { convertTimestamp, removeUnr, toPlaytime } from "../../../../api/generic.mjs";
 import Link from "next/link";
 import Pagination from "../Pagination";
 
@@ -62,6 +62,31 @@ function reducer(state, action){
                 "page": action.value
             }
         }
+        case "set-names": {
+            return {
+                ...state,
+                "names": action.names
+            }
+        }
+        case "set-selected": {
+
+            const newState = {...state};
+
+            if(action.key === "servers"){
+
+                newState.selectedServer = parseInt(action.value);
+
+            }else if(action.key === "gametypes"){
+
+                newState.selectedGametype = parseInt(action.value);
+
+            }else if(action.key === "maps"){
+
+                newState.selectedMap = parseInt(action.value);
+            }
+
+            return newState;
+        }
     }
 
 
@@ -69,7 +94,7 @@ function reducer(state, action){
 }
 
 
-async function loadData(page, perPage, order, sortBy, dispatch){
+async function loadMatches(page, perPage, order, sortBy, selectedServer, selectedGametype, selectedMap, dispatch){
 
     try{
 
@@ -77,7 +102,16 @@ async function loadData(page, perPage, order, sortBy, dispatch){
         const req = await fetch("/api/admin", {
             "headers": {"Content-type": "application/json"},
             "method": "POST",
-            "body": JSON.stringify({"mode": "load-matches", "page": page, "perPage": perPage, "order": order, "sortBy": sortBy})
+            "body": JSON.stringify({
+                "mode": "load-matches", 
+                "page": page, 
+                "perPage": perPage, 
+                "order": order, 
+                "sortBy": sortBy,
+                selectedServer, 
+                selectedGametype, 
+                selectedMap
+            })
         });
 
         const res = await req.json();
@@ -138,8 +172,44 @@ function renderGeneral(state, dispatch){
            
         ];
     });
-    
+
     return <>
+
+        <div className="form">
+            <div className="form-row">
+                <label htmlFor="server">Server</label>
+                <select className="default-select" value={state.selectedServer} name="server" onChange={(e) =>{
+                    dispatch({"type": "set-selected", "key": "servers","value": e.target.value});
+                }}>
+                    <option value={0}>Any</option>
+                    {state.names.servers.map((n) =>{
+                        return <option key={n.id} value={n.id}>{n.name}</option>
+                    })}
+                </select>
+            </div>
+            <div className="form-row">
+                <label htmlFor="gametype">Gametype</label>
+                <select className="default-select" value={state.selectedGametype} name="gametype" onChange={(e) =>{
+                    dispatch({"type": "set-selected", "key": "gametypes","value": e.target.value});
+                }}>
+                    <option value={0}>Any</option>
+                    {state.names.gametypes.map((n) =>{
+                        return <option key={n.id} value={n.id}>{n.name}</option>
+                    })}
+                </select>
+            </div>
+            <div className="form-row">
+                <label htmlFor="map">Map</label>
+                <select className="default-select" value={state.selectedMap} name="map" onChange={(e) =>{
+                    dispatch({"type": "set-selected", "key": "maps","value": e.target.value});
+                }}>
+                    <option value={0}>Any</option>
+                    {state.names.maps.map((n) =>{
+                        return <option key={n.id} value={n.id}>{removeUnr(n.name)}</option>
+                    })}
+                </select>
+            </div>
+        </div>
         <Pagination results={state.totalMatches} currentPage={state.page} perPage={state.perPage} url={null} event={(v) =>{
    
             dispatch({"type": "set-page", "value": v});
@@ -148,10 +218,40 @@ function renderGeneral(state, dispatch){
     </>
 }
 
+
+async function loadNames(dispatch){
+
+    try{
+
+        const req = await fetch("/api/admin", {
+            "headers": {"Content-type": "application/json"},
+            "method":  "POST",
+            "body": JSON.stringify({"mode": "get-all-match-names"})
+        });
+
+        const res = await req.json();
+
+        console.log(res);
+
+        if(res.error !== undefined) throw new Error(res.error);
+
+        dispatch({"type": "set-names", "names": res});
+
+    }catch(err){
+        console.trace(err);
+        dispatch({"type": "set-message", "messageType": "error", "title": "Failed To Load Names", "content": err.toString()});
+    }
+}
+
 export default function AdminMatchesManager(){
 
 
     const [state, dispatch] = useReducer(reducer, {
+        "names": {
+            "servers": [],
+            "gametypes": [],
+            "maps": []
+        },
         "matches": [],
         "totalMatches": 0,
         "page": 1,
@@ -159,6 +259,9 @@ export default function AdminMatchesManager(){
         "sortBy": "date",
         "mode": "general",
         "perPage": 5,
+        "selectedServer": 0,
+        "selectedGametype": 0,
+        "selectedMap": 0,
         "messageBox": {
             "type": null,
             "title": null,
@@ -167,12 +270,16 @@ export default function AdminMatchesManager(){
         }
     });
 
+    useEffect(() =>{
+
+        loadNames(dispatch);
+    }, []);
 
     useEffect(() =>{
 
-        loadData(state.page, state.perPage, state.order, state.sortBy, dispatch);
+        loadMatches(state.page, state.perPage, state.order, state.sortBy, state.selectedServer, state.selectedGametype, state.selectedMap, dispatch);
 
-    }, [state.page, state.order, state.sortBy]);
+    }, [state.page, state.order, state.sortBy, state.selectedServer, state.selectedGametype, state.selectedMap]);
 
     const tabOptions = [
         {"name": "General", "value": "general"},
