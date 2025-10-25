@@ -16,7 +16,7 @@ import Rankings from "./rankings.js";
 import Servers from "./servers.js";
 import Voices from "./voices.js";
 import WinRate from "./winrate.js";
-import { getUniqueValues, setIdNames, removeUnr, getPlayer, cleanMapName } from "./generic.mjs";
+import { getUniqueValues, setIdNames, removeUnr, getPlayer, cleanMapName, sanatizePage, sanatizePerPage } from "./generic.mjs";
 import { getObjectName } from "./genericServerSide.mjs";
 import { deleteFromDatabase as logsDeleteFromDatabase } from "./logs.js";
 import MonsterHunt from "./monsterhunt.js";
@@ -1767,62 +1767,6 @@ export default class Matches{
         return data;
     }
 
-    createAdminSearchWhereStatement(serverId, gametypeId, mapId){
-
-        let where = "";
-        const vars = [];
-
-        if(serverId !== 0){
-            where += `server=?`;
-            vars.push(serverId);
-        }
-
-        if(gametypeId !== 0){
-            if(where !== "") where += ` AND`
-            where += ` gametype=? `;
-            vars.push(gametypeId);
-        }
-
-        if(mapId !== 0){
-            if(where !== "") where += ` AND`
-            where += ` map=? `;
-            vars.push(mapId);
-        }
-
-        return {"where": where, "vars": vars};
-    }
-
-    async adminGetTotalMatches(serverId, gametypeId, mapId){
-
-        const {where, vars} = this.createAdminSearchWhereStatement(serverId, gametypeId, mapId);
-
-        const query = `SELECT COUNT(*) as total_matches FROM nstats_matches ${(where !== "") ? `WHERE ${where}` : ""}`;
-
-        const result = await simpleQuery(query, vars);
-
-        return result[0].total_matches;
-    }
-
-    /**
-     * Ordered by match date in descending order
-    */
-    async adminGet(page, perPage, serverId, gametypeId, mapId){
-
-        const start = page * perPage;
-
-        const {where, vars} = this.createAdminSearchWhereStatement(serverId, gametypeId, mapId);
-
-        const query = `SELECT id,date,server,gametype,map,playtime,players 
-        FROM nstats_matches ${(where !== "") ? `WHERE ${where}` : ""} 
-        ORDER BY date DESC, id DESC LIMIT ?,?`;
-
-        const basicInfo = await simpleQuery(query, [...vars, start, perPage]);
-
-        return {
-            "matchInfo": basicInfo
-        }
-    }
-
 
     async changeMapId(oldId, newId){
 
@@ -1974,4 +1918,159 @@ export async function getSearchTotalMatches(serverId, gametypeId, mapId){
     const result = await simpleQuery(query, vars);
 
     return result[0].total_rows;
+}
+
+
+/**
+ * 
+ * @param {const query = `SELECT nstats_player_matches.match_id,
+    nstats_player_matches.match_date,
+    nstats_player_matches.map_id,
+    nstats_player_matches.gametype as gametype_id, 
+    nstats_player_matches.spectator, 
+    nstats_player_matches.played, 
+    nstats_player_matches.winner, 
+    nstats_player_matches.draw,
+    nstats_player_matches.playtime, 
+    nstats_player_matches.team,
+    nstats_matches.server,
+    nstats_matches.total_teams,
+    nstats_matches.players,
+    nstats_matches.dm_winner,
+    nstats_matches.dm_score,
+    nstats_matches.team_score_0,
+    nstats_matches.team_score_1,
+    nstats_matches.team_score_2,
+    nstats_matches.team_score_3,
+    nstats_matches.mh,
+    nstats_matches.end_type
+    FROM nstats_player_matches
+    INNER JOIN nstats_matches ON nstats_player_matches.match_id = nstats_matches.id
+    WHERE nstats_player_matches.player_id=? AND nstats_player_matches.match_id IN (?) AND nstats_player_matches.playtime > 0 AND nstats_player_matches.playtime >=? 
+    ORDER BY nstats_player_matches.match_date DESC, nstats_player_matches.match_id DESC LIMIT ?,?`;} sortBy 
+
+ */
+
+function createAdminSearchQuery(sortBy, order, page, perPage, validSortBys){
+
+    if(validSortBys.indexOf(sortBy) === -1) throw new Error(`Not a valid sort by`);
+
+    if(order !== "ASC" && order !== "DESC") order = "DESC";
+
+    const index = validSortBys.indexOf(sortBy);
+
+    let query = `SELECT 
+    nstats_matches.id,
+    nstats_matches.match_hash,
+    nstats_matches.date,
+    nstats_matches.server,
+    nstats_matches.gametype,
+    nstats_matches.map,
+    nstats_matches.players,
+    nstats_matches.playtime`;
+
+    if(sortBy === "gametype"){
+
+        query += `,nstats_gametypes.name as gametypeName`;
+
+    }else if(sortBy === "map"){
+        query += `,nstats_maps.name as mapName`;
+    }else if(sortBy === "server"){
+        query += `,nstats_servers.name as serverName`;
+    }
+
+
+    let finalSortBy = validSortBys[index];
+
+    query += ` FROM nstats_matches`;
+
+    if(sortBy === "gametype"){
+
+        query += ` INNER JOIN nstats_gametypes ON nstats_matches.gametype = nstats_gametypes.id`;
+        finalSortBy = `gametypeName`;
+
+    }else if(sortBy === "map"){
+
+        query += ` INNER JOIN nstats_maps ON nstats_matches.map = nstats_maps.id`;
+        finalSortBy = `mapName`;
+
+    }else if(sortBy === "server"){
+
+        query += ` INNER JOIN nstats_servers ON nstats_matches.server = nstats_servers.id`;
+        finalSortBy = `serverName`;
+    }
+
+
+
+    const orderString = ` ORDER BY ${finalSortBy} ${order}, id DESC LIMIT ?, ?`;
+ 
+    return `${query} ${orderString}`;
+}
+
+//duplicate for now until add the extra serach terms
+async function adminGetTotalPossibleMatches(){
+
+    const query = `SELECT COUNT(*) as total_rows FROM nstats_matches`;
+
+    const result = await simpleQuery(query);
+
+    return result[0].total_rows;
+}
+
+export async function adminMatchesSearch(sortBy, order, page, perPage){
+
+
+    page = sanatizePage(page);
+    page--;
+
+    perPage = sanatizePerPage(perPage, 100);
+    
+    sortBy = sortBy.toLowerCase();
+    order = order.toUpperCase();
+
+    const validSortBys = ["date", "server", "gametype", "map", "players", "playtime"];
+
+    const query = createAdminSearchQuery(sortBy, order, page, perPage, validSortBys);
+
+    console.log(query);
+
+    let start = page * perPage;
+    if(start < 0) start = 0;
+
+    console.log(start, perPage);
+
+    const result = await simpleQuery(query, [start, perPage]);
+
+    console.log(result);
+
+    const gametypeIds = new Set();
+    const mapIds = new Set();
+    const serverIds = new Set();
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        serverIds.add(r.server);
+        gametypeIds.add(r.gametype);
+        mapIds.add(r.map);
+    }
+
+    //check if type is server, gametype, map and skip required step below
+    const serverNames = await getObjectName("servers", [...serverIds]);
+    const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
+    const mapNames = await getObjectName("maps", [...mapIds]);
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        r.serverName = serverNames[r.server] ?? "Not Found";
+        r.gametypeName = gametypeNames[r.gametype] ?? "Not Found";
+        r.mapName = mapNames[r.map] ?? "Not Found";
+    }
+
+    const totalRows = await adminGetTotalPossibleMatches();
+
+    return {"totalMatches": totalRows, "data": result};
 }

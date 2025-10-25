@@ -6,6 +6,7 @@ import { getAllUploadedImages as getAllUploadedMapImages, getImages } from "../.
 import { getAllObjectNames } from "../../../../api/genericServerSide.mjs";
 import { cleanMapName } from "../../../../api/generic.mjs";
 import { getAllFaces, getAllFacesWithFileStatuses, getFacesWithFileStatuses } from "../../../../api/faces";
+import { adminMatchesSearch } from "../../../../api/matches";
 
 
 export async function POST(req){
@@ -182,6 +183,22 @@ export async function POST(req){
             return Response.json({"data": faces});
         }
 
+
+        if(mode === "load-matches"){
+
+
+            const sortBy = (res.sortBy !== undefined) ? res.sortBy.toLowerCase() : null;
+            const order = (res.order !== undefined) ? res.order.toLowerCase() : null;
+            const page = (res.page !== undefined) ? parseInt(res.page) : 1;
+            const perPage = (res.perPage !== undefined) ? parseInt(res.perPage) : 100;
+            
+
+            //const data = await adminMatchesSearch(sortBy, order, page);
+            const {totalMatches, data} = await adminMatchesSearch(sortBy, order, page, perPage);
+
+            return Response.json({totalMatches, data});
+            //console.log(data);
+        }
 
 
         return Response.json({"error": "Unknown Request"});

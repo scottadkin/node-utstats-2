@@ -1,18 +1,26 @@
 # Node UTStats 2
 Unreal Tournament stats tracking website using node.js and mysql.
 
-# Important Change
-- From Version 2.8.0 and onwards Node UTStats 2 is not compatible with previous versions, running **node upgrade** will not work. 
+# Requirements
+- Node.js 20.9.0 or greater.
+- Mysql
+
+# Upgrading Ranges
+- Version 2.15.0+ is only compatable with 2.15.0 or higher.
+- Version 2.8.0 to 2.14.2 are compatable with each other. 
+- Version 2.0.0 to 2.7.X are compatable with each other.
 
 # Current Features
 - Match reports
 - Player Match reports
 - Player profiles
+- Player gametype totals
+- Player map totals
 - Ranking system
 - Records system
 - Maps system
+- Capture The Flag Records
 - Cap records for ctf maps
-- User Accounts (in future builds you will be able to save matches, players to your favourites for easy tracking)
 - Admin management system, change what the site displays and how it's displayed. You can also give a user permission to upload map images
 - ACE support
 - SFTP Support
@@ -28,13 +36,6 @@ Unreal Tournament stats tracking website using node.js and mysql.
 - MonsterHunt
 - CTF4
 
-## Thanks to
-- Many thanks to the original creators of the UTStats mutators **azazel, )°DoE°(-AnthraX and toa**
-- Thanks to **Krull0r** for the Monster Icons.
-
-# Requirements
-- Node.js 18.18 or greater.
-- Mysql
 
 # Install
 - Extract the contents of the archive into a folder.
@@ -64,7 +65,6 @@ ServerActors=NodeUTStats2.NodeUTStatsServerActor
 - To run in development mode open command prompt in the installed folder and run the command **npm run dev**
 - To run in production mode run the following commands in this order, **npm run build** this will create the production version of the website(will take a few seconds), once that has finished run the command **npm run start** to run the production website. 
 - Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-- If you have enabled classic mode you will find it [http://localhost:3000/classic](http://localhost:3000/classic)
 
 # Creating an admin account
 - If there are no users in the database, create an account by going to the site's login page, then press the "Not a member? Register now!" button, the next created account will automatically set to admin, and will be activated.
@@ -111,3 +111,7 @@ bExternalLogJoins=true
 JoinLogPath=../Logs/
 JoinLogPrefix=ACE_JOIN
 ```
+
+## Thanks to
+- Many thanks to the original creators of the UTStats mutators **azazel, )°DoE°(-AnthraX and toa**
+- Thanks to **Krull0r** for the Monster Icons.
