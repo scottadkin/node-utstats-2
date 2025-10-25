@@ -82,18 +82,22 @@ async function bulkMapImageUpload(formData){
 
 async function uploadFaceImage(file, name){
 
-    console.log(file, name);
+    try{
 
-    name = name.toLowerCase();
+        name = name.toLowerCase();
 
-    if(file.type !== "image/png"){
-        throw new Error(`Image file must be a .png`);
+        if(file.type !== "image/png"){
+            throw new Error(`Image file must be a .png`);
+        }
+
+        const tmpName = `tmp_${Math.floor(Math.random() * 90000000)}`
+
+        writeFileSync(`./uploads/${tmpName}.png`, Buffer.from(await file.arrayBuffer()));
+        renameSync(`./uploads/${tmpName}.png`, `./public/images/faces/${name}.png`);
+
+    }catch(err){
+        throw new Error(err.toString());
     }
-
-    const tmpName = `tmp_${Math.floor(Math.random() * 90000000)}`
-
-    writeFileSync(`./uploads/${tmpName}.png`, Buffer.from(await file.arrayBuffer()));
-
 }
 
 export async function POST(req){
@@ -135,8 +139,10 @@ export async function POST(req){
             if(mapName === null) throw new Error(`You did not supply a name for the image`);
 
             await uploadMapImage(file, mapName); 
+
+            return Response.json({"message": "passed"});
         }
-        //const file = 
+ 
 
         if(mode === "upload-face"){
 
@@ -145,12 +151,14 @@ export async function POST(req){
 
             const faceName = formData.get("imageName");
             await uploadFaceImage(file, faceName);
+
+            return Response.json({"message": "passed"});
         }
 
         return Response.json({"error": "Unknown request"});
 
     }catch(err){
         console.trace(err);
-        return Response.json({"test": "test"});
+        return Response.json({"error": err.toString()});
     }
 }

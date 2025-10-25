@@ -244,11 +244,18 @@ function renderSingleUpload(mode, images, pendingSingles, dispatch){
 			}}/></td>
 		}
 
+		let currentImg = img.imageName;
+
+		if(img.match !== null){
+
+			currentImg = img.match;
+		}
+
 		rows.push([
 			{"className": "text-left", "value": img.name},
 			{"className": "text-left", "value": `${img.imageName}.jpg`},
 			{"bSkipTd": true, "value": <td key={i} className={className}>
-				<Link href={`/images/maps/${(img.match === null) ? "default" : img.imageName}.jpg`} target="_blank">{status}</Link>
+				<Link href={`/images/maps/${(img.match === null) ? "default" : currentImg}.jpg`} target="_blank">{status}</Link>
 				
 			</td>},
 			{

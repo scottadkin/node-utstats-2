@@ -21,8 +21,40 @@ function reducer(state, action){
                 "messageBox":{
                     "type": action.messageType,
                     "title": action.title,
-                    "content": action.content
+                    "content": action.content,
+                    "timestamp": performance.now()
                 }
+            }
+        }
+        case "add-pending": {
+
+            const pending = [...state.pending];
+
+            if(pending.indexOf(action.value) === -1){
+
+                pending.push(action.value);
+            }
+
+            return {
+                ...state,
+                "pending": pending
+            }
+        }
+
+        case "remove-pending": {
+
+            const pending = [...state.pending];
+
+            const index = pending.indexOf(action.value);
+
+            if(index !== -1){
+                pending.splice(index, 1);
+            }
+
+            return {
+                ...state,
+                "pending": pending,
+                "test": performance.now()
             }
         }
     }
@@ -68,7 +100,10 @@ async function uploadImage(name, files, dispatch){
     try{
 
         if(files.length === 0) return;
+
         if(name === "") throw new Error(`File name can not be a blank string`);
+
+        dispatch({"type": "add-pending", "value": name});
 
         const formData = new FormData();
 
@@ -84,18 +119,21 @@ async function uploadImage(name, files, dispatch){
 
         const res = await req.json();
 
-        console.log(res);
 
         if(res.error !== undefined) throw new Error(res.error);
         
+        dispatch({"type": "set-message", "messageType": "pass", "title": "Image Upload Successful", "content": `./images/faces/${name}.png Upload completed.`});
+        await loadData(dispatch);
 
     }catch(err){
         console.trace(err);
         dispatch({"type": "set-message", "messageType": "error", "title": "Failed to upload image", "content": err.toString()});
     }
+
+    dispatch({"type": "remove-pending", "value": name});
 }
 
-function renderFaces(data, dispatch){
+function renderFaces(data, pending, test, dispatch){
 
     const headers = [
         "Image",
@@ -106,20 +144,27 @@ function renderFaces(data, dispatch){
         "Upload Image"
     ];
 
-    console.log(data);
-
     const rows = data.map((d) =>{
+
+        let elem = <>Uploading...</>;
+
+        if(pending.indexOf(d.name) === -1){
+
+            elem = <input type="file" accept="image/png" onChange={(e) =>{
+
+                uploadImage(d.name, e.target.files, dispatch);
+     
+            }}/>;
+        }
+
         return [
-            {"className": "text-left", "value": <Image width={46} height={46} alt="image" src={`/images/faces/${d.image}.png`}/>},
+            {"className": "text-left", "value": <Image width={38} height={38} alt="image" src={`/images/faces/${d.image}.png#${test}`}/>},
             {"className": "text-left", "value": d.name},
             {"className": "date", "value": convertTimestamp(d.first, true)},
             {"className": "date", "value": convertTimestamp(d.last, true)},
             d.uses,
             <>
-                <input type="file" accept="image/png" onChange={(e) =>{
-                    console.log(e.target.files);
-                    uploadImage(d.name, e.target.files, dispatch);
-                }}/>
+                {elem}
             </>
         ];
     });
@@ -131,11 +176,14 @@ export default function AdminFaces({}){
 
     const [state, dispatch] = useReducer(reducer, {
         "data": [],
+        "test": performance.now(),
         "messageBox": {
             "type": null,
             "title": null,
-            "content": null
-        }
+            "content": null,
+            "timestamp": 0
+        },
+        "pending": []
     });
 
     useEffect(() =>{
@@ -145,18 +193,20 @@ export default function AdminFaces({}){
 
     return <>
         <div className="default-header">Faces Manager</div>
-        <MessageBox type={state.messageBox.type} title={state.messageBox.title}>{state.messageBox.content}</MessageBox>
+        <MessageBox type={state.messageBox.type} title={state.messageBox.title} timestamp={state.messageBox.timestamp}>{state.messageBox.content}</MessageBox>
         <div className="form m-bottom-25">
             <div className="form-header m-bottom-10">
                 Image Requirements
             </div>
-            <ul>
-                <li>image/png Format (.png)</li>
-                <li>1:1 Aspect ratio</li>
-                <li>Target 64x64 at minimum</li>
-                <li>Image names are automatically set.</li>
-            </ul>
+            <div className="form-info">
+                <ul>
+                    <li><b>.png</b> image/png Format</li>
+                    <li>1:1 Aspect ratio</li>
+                    <li>Target 64x64 at minimum</li>
+                    <li>Image names are automatically set.</li>
+                </ul>
+            </div>
         </div>
-        {renderFaces(state.data, dispatch)}
+        {renderFaces(state.data, state.pending, state.test, dispatch)}
     </>
 }
