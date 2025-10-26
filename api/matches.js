@@ -26,7 +26,7 @@ import { recalculateSelectedTotals as recaclFaceTotals } from "./faces.js";
 import { deleteMatchData as deleteMatchHeadshots } from "./headshots.js";
 import { deleteMatchData as deleteMatchSprees } from "./sprees.js";
 import { deleteMatchData as deleteMatchTeleFrags, recalculateTelefragPlayersTotals } from "./telefrags.js";
-import { deleteMatches as deleteMatchCTFData } from "./ctf.js";
+import { deleteMatches as deleteMatchCTFData, recalculatePlayers as recalcultePlayersCTF } from "./ctf.js";
 
 export default class Matches{
 
@@ -2013,6 +2013,9 @@ export async function adminDeleteMatch(id){
 
     if(basic === null) throw new Error(`Match does not exist`);
 
+    const gametypeId = basic.gametype;
+    const mapId = basic.map;
+
     const players = await getAllInMatch(id);
 
     const playerIds = new Set();
@@ -2040,6 +2043,8 @@ export async function adminDeleteMatch(id){
     //make sure to delete all player match data before recalculating totals
     await recaclFaceTotals([...faceIds]);
     await recalculateTelefragPlayersTotals([...playerIds]);
+    await recalcultePlayersCTF([...playerIds], gametypeId, mapId);
+    
 
     //nstats_ctf_cap_records (match_id, map) recalc all time record, gametype record, map record
 
