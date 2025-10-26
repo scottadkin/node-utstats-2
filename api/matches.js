@@ -26,6 +26,7 @@ import { recalculateSelectedTotals as recaclFaceTotals } from "./faces.js";
 import { deleteMatchData as deleteMatchHeadshots } from "./headshots.js";
 import { deleteMatchData as deleteMatchSprees } from "./sprees.js";
 import { deleteMatchData as deleteMatchTeleFrags, recalculateTelefragPlayersTotals } from "./telefrags.js";
+import { deleteMatches as deleteMatchCTFData } from "./ctf.js";
 
 export default class Matches{
 
@@ -2031,6 +2032,8 @@ export async function adminDeleteMatch(id){
     await deleteMatchSprees(id);
     await deleteMatchTeleFrags(id);
 
+    await deleteMatchCTFData([id]);
+
 
 
 
@@ -2038,19 +2041,8 @@ export async function adminDeleteMatch(id){
     await recaclFaceTotals([...faceIds]);
     await recalculateTelefragPlayersTotals([...playerIds]);
 
-    //nstats_ctf_assists (match_id, player_id)
-    //nstats_ctf_caps (match_id)
     //nstats_ctf_cap_records (match_id, map) recalc all time record, gametype record, map record
-    //nstats_ctf_carry_times (match_id)
-    //nstats_ctf_covers (match_id)
-    //nstats_ctf_cr_kills (match_id)
-    //nstats_ctf_events (match_id)
-    //nstats_ctf_flag_deaths (match_id)
-    //nstats_ctf_flag_drops (match_id)
-    //nstats_ctf_flag_pickups (match_id)
-    //nstats_ctf_returns (match_id)
-    //nstats_ctf_seals (match_id)
-    //nstats_ctf_self_covers (match_id)
+
     //nstats_dom_control_points (map) recalc map totals
     //nstats_dom_match_caps (match_id)
     //nstats_dom_match_control_points (match_id)
@@ -2079,10 +2071,7 @@ export async function adminDeleteMatch(id){
     //nstats_monsters_player_totals recalc totals
     //nstats_monster_kills match_id
     //nstats_player_combogib recalc totals
-    //nstats_player_ctf_best recalc best
-    //nstats_player_ctf_best_life recalc best life
-    //nstats_player_ctf_match match_id
-    //nstats_player_ctf_totals recalc totals
+    
     //nstats_player_matches match_id
     //nstats_player_totals recalc
     //nstats_player_weapon_best reca;c
