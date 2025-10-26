@@ -128,7 +128,23 @@ async function loadMatches(page, perPage, order, sortBy, selectedServer, selecte
     }
 }
 
+async function deleteMatch(id, dispatch){
 
+    try{
+
+        const req = await fetch(`/api/admin`, {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "delete-match", "id": id})
+        });
+
+        const res = await req.json();
+        console.log(res);
+
+    }catch(err){
+        console.trace(err);
+    }
+}
 
 
 function renderGeneral(state, dispatch){
@@ -168,7 +184,11 @@ function renderGeneral(state, dispatch){
             {"className": "small-font", "value": d.mapName},
             d.players,
             {"className": "playtime", "value": toPlaytime(d.playtime)},
-            {"bSkipTd": true, "value": <td key={d.id} className="team-red pointer">Delete Match</td>}
+            {"bSkipTd": true, "value": <td key={d.id} className="team-red pointer" onClick={() =>{
+                deleteMatch(d.id, dispatch);
+            }}>
+                Delete Match
+            </td>}
            
         ];
     });

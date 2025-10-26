@@ -104,11 +104,9 @@ export default class Faces{
 
             const usageData = {};
 
-            let p = 0;
-
             for(let i = 0; i < players.length; i++){
 
-                p = players[i];
+                const p = players[i];
 
                 if(p.bDuplicate === undefined){
 
@@ -143,11 +141,9 @@ export default class Faces{
 
             const results = [];
 
-            let currentId = 0;
-
             for(let i = 0; i < faces.length; i++){
 
-                currentId = await this.getFaceId(faces[i]);
+                const currentId = await this.getFaceId(faces[i]);
 
                 results[faces[i]] = currentId;
             }
@@ -243,43 +239,6 @@ export default class Faces{
 
     getAllFiles(){
         return fs.readdirSync("./public/images/faces");
-    }
-
-    async reduceUsage(id, amount){
-
-        throw new Error(`use mysql instead`);
-        const query = "UPDATE nstats_faces SET uses=uses-? WHERE id=?";
-
-        return await simpleQuery(query, [amount, id]);
-    }
-
-    async reduceMatchUses(playersData){
-
-        try{
-
-            const uses = {};
-
-            let p = 0;
-
-            for(let i = 0; i < playersData.length; i++){
-
-                p = playersData[i];
-
-                if(uses[p.face] !== undefined){
-                    uses[p.face]++;
-                }else{
-                    uses[p.face] = 1;
-                }
-            }
-
-            for(const [key, value] of Object.entries(uses)){
-
-                await this.reduceUsage(key, value);
-            }
-
-        }catch(err){
-            console.trace(err);
-        }   
     }
 
 
@@ -515,4 +474,27 @@ export async function getAllFacesWithFileStatuses(){
     }
 
     return faces;
+}
+
+async function getAllInMatch(id){
+
+    const query = `SELECT DISTINCT face FROM nstats_player_matches WHERE match_id=?`;
+
+    const result = await simpleQuery(query, [id]);
+
+    return result.map((r) =>{
+        return r.face;
+    });
+}
+
+export async function recalculateSelectedTotals(faceIds){
+
+    if(faceIds.length === 0) return;
+
+    const query = `SELECT COUNT(*) as total_uses,MIN(match_date) as first_match,MAX(match_date) as last_match 
+    FROM nstats_player_matches WHERE face IN(?)`;
+
+    const result = await simpleQuery(query, [faceIds]);
+
+    console.log(result);
 }

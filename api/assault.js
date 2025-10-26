@@ -104,44 +104,6 @@ export default class Assault{
     }
 
 
-    async deleteMatchObjectives(id){
-
-        const query = "DELETE FROM nstats_assault_match_objectives WHERE match_id=?";
-        return await simpleQuery(query, [id]);
-    }
-
-
-    async removeMatchCap(match, obj){
-
-        const query = "UPDATE nstats_assault_objects SET matches=matches-1,taken=taken-1 AND id=?";
-        return await simpleQuery(query, [obj]);
-
-    }
-
-    async deleteMatch(id){
-
-        try{
-
-            const matchCaps = await getMatchCaps(id);
-
-            if(matchCaps.length === 0) return;
-            
-            console.log("Deleteing Assault Match Objectives");
-
-            await this.deleteMatchObjectives(id);
-
-            for(let i = 0; i < matchCaps; i++){
-
-                await this.removeMatchCap(id, matchCaps[i].id);
-            }
-
-        }catch(err){
-
-            console.trace(err);
-        }   
-    }
-
-
     async deletePlayerMatchCaps(playerId, matchId){
 
         const query = "UPDATE nstats_assault_match_objectives SET player=-1 WHERE player=? AND match_id=?";
@@ -428,5 +390,42 @@ export async function getMapImages(mapName){
             console.trace(err);
         }
         return [];
+    }   
+}
+
+async function deleteMatchObjectives(id){
+
+    const query = "DELETE FROM nstats_assault_match_objectives WHERE match_id=?";
+    return await simpleQuery(query, [id]);
+}
+
+
+async function removeMatchCap(match, obj){
+
+    const query = "UPDATE nstats_assault_objects SET matches=matches-1,taken=taken-1 AND id=?";
+    return await simpleQuery(query, [obj]);
+
+}
+
+export async function deleteMatch(id){
+
+    try{
+
+        const matchCaps = await getMatchCaps(id);
+
+        if(matchCaps.length === 0) return;
+        
+        console.log("Deleteing Assault Match Objectives");
+
+        await deleteMatchObjectives(id);
+
+        for(let i = 0; i < matchCaps; i++){
+
+            await removeMatchCap(id, matchCaps[i].id);
+        }
+
+    }catch(err){
+
+        console.trace(err);
     }   
 }

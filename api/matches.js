@@ -1,6 +1,5 @@
 import { simpleQuery } from "./database.js";
 import Match from "./match.js";
-import Assault from "./assault.js";
 import CountriesManager from "./countriesmanager.js";
 import CTF from "./ctf.js";
 import Domination from "./domination.js";
@@ -21,7 +20,10 @@ import { getObjectName } from "./genericServerSide.mjs";
 import { deleteFromDatabase as logsDeleteFromDatabase } from "./logs.js";
 import MonsterHunt from "./monsterhunt.js";
 import {getSettings} from "./sitesettings.js";
-import { getBasicPlayersByIds } from "./players.js";
+import { getAllInMatch, getBasicPlayersByIds } from "./players.js";
+import { deleteMatch as assaultDeleteMatch } from "./assault.js";
+import { recalculateSelectedTotals as recaclFaceTotals } from "./faces.js";
+import { deleteMatchData as deleteMatchHeadshots } from "./headshots.js";
 
 export default class Matches{
 
@@ -535,134 +537,6 @@ export default class Matches{
 
         return await simpleQuery(query, [id]);
     }
-
-    async deleteMatch(id, playerManager){
-
-        try{
-
-            console.log(`attempting to delete data for match id ${id}`);
-
-            const match = new Match();
-
-            const matchData = await match.get(id);
-       
-            
-            if(matchData === undefined) return;
-
-            const playersData = await playerManager.getAllInMatch(id);
-
-            //console.log(playersData);
-     
-
-            const assault = new Assault();
-            await assault.deleteMatch(id);
-
-
-            const monsterHuntManager = new MonsterHunt();
-
-            await monsterHuntManager.deleteMatch(id);
-
-            await this.deleteMatchCountryData(playersData);
-
-            await this.deleteCtfData(id);
-
-            await this.deleteDominationData(id);
-
-            
-            const faceManager = new Faces();
-
-            await faceManager.reduceMatchUses(playersData);
-
-            const gametypeManager = new Gametypes();
-
-            await gametypeManager.reduceMatchStats(matchData.gametype, matchData.playtime);
-
-            const headshotsManager = new Headshots();
-
-            await headshotsManager.deleteMatchData(id);
-
-            const itemsManager = new Items();
-
-            await itemsManager.deleteMatchData(id);
-
-            const killsManager = new Kills();
-
-            await killsManager.deleteMatchData(id);
-            
-            const mapManager = new Maps();
-
-            await mapManager.reduceMapTotals(matchData.map, matchData.playtime);
-
-            const connectionsManager = new Connections();
-
-            await connectionsManager.deleteMatchData(id);
-
-            await this.deletePingData(id);
-
-            await this.deletePlayerScoreData(id);
-
-            await this.deleteTeamChangesData(id);
-
-            await this.removeMatchFromPlayerMapTotals(matchData.map, playersData);
-   
-            const weaponsManager = new Weapons();
-
-            await weaponsManager.deleteMatchData(id);
-
-            const rankingManager = new Rankings();
-            await rankingManager.init();
-            await rankingManager.deleteMatchRankings(id);
-
-            const serverManager = new Servers();
-
-            
-
-            await serverManager.reduceServerTotals(matchData.server, matchData.playtime);
-
-            await this.removeVoiceData(playersData);
-
-            const winrateManager = new WinRate();
-
-            await winrateManager.deleteMatchData(id);
-
-            //await players.deleteMatchData(id);
-
-
-            const playerIds = [...new Set(playersData.map((player) => player.player_id))];
-   
-            const playerNames = await playerManager.getJustNamesByIds(playerIds);
-
-            setIdNames(playersData, playerNames, "player_id", "name");
-
-         
-            await playerManager.deleteMatchData(id);
-
-            await playerManager.reduceTotals(playerIds, matchData.gametype, matchData.map);
-
-            for(let i = 0; i < playerIds.length; i++){
-                //playerManager, playerId, gametypeId
-                await rankingManager.recalculatePlayerGametype(playerManager, playerIds[i], matchData.gametype);
-            }
-
-            await this.deleteMatchQuery(matchData.id);
-
-            await logsDeleteFromDatabase(matchData.id);
-
-           // for(let i = 0; i < playersData.length; i++){
-               // await winrateManager.deletePlayerFromMatch(playersData[i].player_id, id, matchData.gametype);
-            //}
-
-            
-
-           // return matchData.gametype;
-           return true;
-
-        }catch(err){
-            console.trace(err);
-            return false;
-        }    
-    }
-
 
     async reducePlayerCount(matchId, amount){
 
@@ -2127,4 +2001,97 @@ export async function adminMatchesSearch(sortBy, order, selectedServer, selected
     const totalRows = await adminGetTotalPossibleMatches(selectedServer, selectedGametype, selectedMap);
 
     return {"totalMatches": totalRows, "data": result};
+}
+
+export async function adminDeleteMatch(id){
+
+
+    const basic = await getMatch(id);
+
+    if(basic === null) throw new Error(`Match does not exist`);
+
+    const players = await getAllInMatch(id);
+
+    const playerIds = new Set();
+    const faceIds = new Set();
+
+    for(let i = 0; i < players.length; i++){
+        const p = players[i];
+        playerIds.add(p.player_id);
+        faceIds.add(p.face);
+    }
+
+
+    
+
+    await assaultDeleteMatch(id);
+    await deleteMatchHeadshots(id);
+
+
+
+
+    //make sure to delete all player match data before recalculating totals
+    await recaclFaceTotals([...faceIds]);
+
+    //nstats_ctf_assists (match_id, player_id)
+    //nstats_ctf_caps (match_id)
+    //nstats_ctf_cap_records (match_id, map) recalc all time record, gametype record, map record
+    //nstats_ctf_carry_times (match_id)
+    //nstats_ctf_covers (match_id)
+    //nstats_ctf_cr_kills (match_id)
+    //nstats_ctf_events (match_id)
+    //nstats_ctf_flag_deaths (match_id)
+    //nstats_ctf_flag_drops (match_id)
+    //nstats_ctf_flag_pickups (match_id)
+    //nstats_ctf_returns (match_id)
+    //nstats_ctf_seals (match_id)
+    //nstats_ctf_self_covers (match_id)
+    //nstats_dom_control_points (map) recalc map totals
+    //nstats_dom_match_caps (match_id)
+    //nstats_dom_match_control_points (match_id)
+    //nstats_dom_match_caps (match_id)
+    //nstats_dom_match_control_points (match_id)
+    //nstats_dom_match_player_score (match_id)
+    //nstats_gametypes recaclc gametype totals
+    //nstats_items recalc totals
+    //nstats_items_match (match_id)
+    //nstats_items_player reclac totals used in match
+    //nstats_maps recalc totals
+    //nstats_maps_flags recalc totals
+    //nstats_map_combogib recalc totals
+    //nstats_map_items_locations (match_id)
+    //nstats_map_spawns recalc total spawns
+    //nstats_map_totals recacl totals
+    //nstats_matches delete
+    //nstats_match_combogib match_id
+    //nstats_match_connections match_id
+    //nstats_match_pings match_id
+    //nstats_match_player_score match_id
+    //nstats_match_team_changes match_id
+    //nstats_monsters recalc totals
+    //nstats_monsters_match match_id
+    //nstats_monsters_player_match match_id
+    //nstats_monsters_player_totals recalc totals
+    //nstats_monster_kills match_id
+    //nstats_player_combogib recalc totals
+    //nstats_player_ctf_best recalc best
+    //nstats_player_ctf_best_life recalc best life
+    //nstats_player_ctf_match match_id
+    //nstats_player_ctf_totals recalc totals
+    //nstats_player_matches match_id
+    //nstats_player_telefrags recalc totals
+    //nstats_player_totals recalc
+    //nstats_player_weapon_best reca;c
+    //nstats_player_weapon_match match_id
+    //nstats_player_weapon_totals recalc
+    //nstats_powerups_carry_times match_id
+    //nstats_powerups_player_match match_id
+    //nstats_powerups_player_totals recalc
+    //nstats_ranking_player_current recalc
+    //nstats_ranking_player_history match_id
+    //nstats_sprees match_id
+    //nstats_tele_frags match_id
+    //nstats_winrates match_id
+    //nstats_winrates_latest recalc
+
 }

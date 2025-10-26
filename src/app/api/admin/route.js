@@ -6,7 +6,7 @@ import { getAllUploadedImages as getAllUploadedMapImages, getImages } from "../.
 import { getAllObjectNames } from "../../../../api/genericServerSide.mjs";
 import { cleanMapName, sortByName } from "../../../../api/generic.mjs";
 import { getAllFaces, getAllFacesWithFileStatuses, getFacesWithFileStatuses } from "../../../../api/faces";
-import { adminMatchesSearch } from "../../../../api/matches";
+import { adminMatchesSearch, adminDeleteMatch } from "../../../../api/matches";
 
 
 
@@ -215,6 +215,14 @@ export async function POST(req){
 
     
             return Response.json({servers, gametypes, maps});
+        }
+
+
+        if(mode === "delete-match"){
+
+            const id = res.id ?? 0;
+
+            await adminDeleteMatch(id);
         }
 
 

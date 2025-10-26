@@ -63,3 +63,9 @@
     font-size:12px;
     
 }
+
+.wrapper td{
+	font-weight:normal;
+	padding:6px 5px;
+	font-size:13px;
+}
