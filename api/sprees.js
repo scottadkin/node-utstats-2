@@ -55,3 +55,10 @@ export async function getDetailedMatchSprees(id){
     return await simpleQuery(query, vars);
 
 }
+
+export async function deleteMatchData(id){
+
+    const query = `DELETE FROM nstats_sprees WHERE match_id=?`;
+
+    return await simpleQuery(query, [id]);
+}

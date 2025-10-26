@@ -24,6 +24,7 @@ import { getAllInMatch, getBasicPlayersByIds } from "./players.js";
 import { deleteMatch as assaultDeleteMatch } from "./assault.js";
 import { recalculateSelectedTotals as recaclFaceTotals } from "./faces.js";
 import { deleteMatchData as deleteMatchHeadshots } from "./headshots.js";
+import { deleteMatchData as deleteMatchSprees } from "./sprees.js";
 
 export default class Matches{
 
@@ -2026,6 +2027,7 @@ export async function adminDeleteMatch(id){
 
     await assaultDeleteMatch(id);
     await deleteMatchHeadshots(id);
+    await deleteMatchHeadshots(id);
 
 
 
@@ -2089,7 +2091,6 @@ export async function adminDeleteMatch(id){
     //nstats_powerups_player_totals recalc
     //nstats_ranking_player_current recalc
     //nstats_ranking_player_history match_id
-    //nstats_sprees match_id
     //nstats_tele_frags match_id
     //nstats_winrates match_id
     //nstats_winrates_latest recalc

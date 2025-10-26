@@ -487,14 +487,58 @@ async function getAllInMatch(id){
     });
 }
 
+async function deleteFacesTotals(ids){
+
+    if(ids.length === 0) return;
+
+    const query = `DELETE FROM nstats_faces WHERE id IN(?)`;
+    return await simpleQuery(query, [ids]);
+}
+
+async function getFacesTotalUsesFromMatchesTable(faceIds){
+
+    const query = `SELECT face,COUNT(*) as total_uses,MIN(match_date) as first_match,MAX(match_date) as last_match 
+    FROM nstats_player_matches WHERE face IN(?) GROUP BY face`;
+
+    return await simpleQuery(query, [faceIds]);
+
+}
+
+async function getNames(ids){
+
+    if(ids.length === 0) return {};
+
+    const query = `SELECT id,name FROM nstats_faces WHERE id IN(?)`;
+
+    const result = await simpleQuery(query, [ids]);
+
+    const data = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        data[r.id] = r.name; 
+    }
+    
+
+    return data;
+}
+
 export async function recalculateSelectedTotals(faceIds){
 
     if(faceIds.length === 0) return;
 
-    const query = `SELECT COUNT(*) as total_uses,MIN(match_date) as first_match,MAX(match_date) as last_match 
-    FROM nstats_player_matches WHERE face IN(?)`;
+    const totals = await getFacesTotalUsesFromMatchesTable(faceIds);
 
-    const result = await simpleQuery(query, [faceIds]);
+    const query = `UPDATE nstats_faces SET first=?,last=?,uses=? WHERE id=?`;
 
-    console.log(result);
+    for(let i = 0; i < totals.length; i++){
+
+        const t = totals[i];
+
+        await mysql.simpleQuery(query, [t.first_match,t.last_match,t.uses,t.id]);
+    }
+
+  
 }
