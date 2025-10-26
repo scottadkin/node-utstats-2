@@ -280,7 +280,7 @@ export default function AdminMatchesManager(){
         "order": "desc",
         "sortBy": "date",
         "mode": "general",
-        "perPage": 5,
+        "perPage": 50,
         "selectedServer": 0,
         "selectedGametype": 0,
         "selectedMap": 0,

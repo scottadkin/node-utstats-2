@@ -1270,9 +1270,7 @@ export default class CTF{
 
     async insertNewCapRecord(capId, mapId, matchId, gametypeId, capType, travelTime, carryTime, dropTime){
 
-        const query = `INSERT INTO nstats_ctf_cap_records VALUES(NULL,?,?,?,?,?,?,?,?)`;
-
-        return await simpleQuery(query, [capId, mapId, gametypeId, matchId, travelTime, carryTime, dropTime, capType]);
+        return await insertNewCapRecord(capId, mapId, matchId, gametypeId, capType, travelTime, carryTime, dropTime);
     }
 
     async getMapCurrentRecordTime(mapId, gametypeId, capType){
@@ -3860,7 +3858,88 @@ export async function recalculatePlayers(playerIds, gametypeId, mapId){
         await recalculatePlayerBestLifeAfterMatchDelete(pId, 0, 0);
 
     }
+}
+
+//check if the match_id helds a cap record, recalcultate map cap record if it is
+async function bMatchWasCapRecord(matchId, gametypeId, mapId){
+
+    let query = `SELECT COUNT(*) as total_rows FROM nstats_ctf_cap_records WHERE match_id=? AND map_id=?`;
+
+    const vars = [matchId, mapId];
+
+    if(gametypeId !== 0){
+        query += ` AND gametype_id=?`;
+        vars.push(gametypeId);
+    }
+
+    const result = await simpleQuery(query, vars);
+
+    return result[0].total_rows > 0;
+}
+
+async function deleteCapRecord(gametypeId, mapId){
+
+    const query = `DELETE FROM nstats_ctf_cap_records WHERE gametype_id=? AND map_id=?`;
+    return await simpleQuery(query, [gametypeId, mapId]);
+}
 
 
-    
+async function getCapRecordFromMatchesTable(gametypeId, mapId, bSolo){
+
+    const query = `SELECT id,match_id,travel_time,carry_time,drop_time,total_drops 
+    FROM nstats_ctf_caps WHERE ${(gametypeId !== 0) ? "gametype_id=? AND " : ""} map_id=? ${(bSolo) ? "AND total_drops=0" : "AND total_drops>0"}
+    ORDER BY travel_time ASC LIMIT 1`;
+
+    const vars = [mapId];
+    if(gametypeId !== 0) vars.unshift(gametypeId);
+
+    const result = await simpleQuery(query, vars);
+
+    if(result.length > 0) return result[0];
+
+    return null;
+}
+
+async function insertNewCapRecord(capId, mapId, matchId, gametypeId, capType, travelTime, carryTime, dropTime){
+
+    const query = `INSERT INTO nstats_ctf_cap_records VALUES(NULL,?,?,?,?,?,?,?,?)`;
+
+    return await simpleQuery(query, [capId, mapId, gametypeId, matchId, travelTime, carryTime, dropTime, capType]);
+}
+
+export async function recalculateCapRecordsAfterMatchDelete(matchId, gametypeId, mapId){
+  
+    //map gametype combo
+    if(await bMatchWasCapRecord(matchId, gametypeId, mapId)){
+
+        await deleteCapRecord(gametypeId, mapId);
+
+        const soloRecord = await getCapRecordFromMatchesTable(gametypeId, mapId, true);
+        const assistRecord = await getCapRecordFromMatchesTable(gametypeId, mapId, false)
+
+        if(soloRecord !== null){
+            await insertNewCapRecord(soloRecord.id, mapId, matchId, gametypeId, 0, soloRecord.travel_time, soloRecord.carry_time, soloRecord.drop_time);
+        }
+
+        if(assistRecord !== null){
+            await insertNewCapRecord(assistRecord.id, mapId, matchId, gametypeId, 1, assistRecord.travel_time, assistRecord.carry_time, assistRecord.drop_time);
+        }
+    }
+
+    //map alltime record
+    if(await bMatchWasCapRecord(matchId, 0, mapId)){
+
+        await deleteCapRecord(0, mapId);
+
+        const soloRecord = await getCapRecordFromMatchesTable(0, mapId, true);
+        const assistRecord = await getCapRecordFromMatchesTable(0, mapId, false)
+
+        if(soloRecord !== null){
+            await insertNewCapRecord(soloRecord.id, mapId, matchId, 0, 0, soloRecord.travel_time, soloRecord.carry_time, soloRecord.drop_time);
+        }
+
+        if(assistRecord !== null){
+            await insertNewCapRecord(assistRecord.id, mapId, matchId, 0, 1, assistRecord.travel_time, assistRecord.carry_time, assistRecord.drop_time);
+        }
+    }
 }

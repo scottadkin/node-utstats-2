@@ -26,7 +26,7 @@ import { recalculateSelectedTotals as recaclFaceTotals } from "./faces.js";
 import { deleteMatchData as deleteMatchHeadshots } from "./headshots.js";
 import { deleteMatchData as deleteMatchSprees } from "./sprees.js";
 import { deleteMatchData as deleteMatchTeleFrags, recalculateTelefragPlayersTotals } from "./telefrags.js";
-import { deleteMatches as deleteMatchCTFData, recalculatePlayers as recalcultePlayersCTF } from "./ctf.js";
+import { deleteMatches as deleteMatchCTFData, recalculatePlayers as recalcultePlayersCTF, recalculateCapRecordsAfterMatchDelete } from "./ctf.js";
 
 export default class Matches{
 
@@ -1927,7 +1927,7 @@ async function adminGetTotalPossibleMatches(selectedServer, selectedGametype, se
     if(selectedGametype !== 0){
 
         if(vars.length === 0){
-            query += `WHERE gametype=?`;
+            query += ` WHERE gametype=?`;
         }else{
             query += ` AND gametype=?`;
         }
@@ -1938,7 +1938,7 @@ async function adminGetTotalPossibleMatches(selectedServer, selectedGametype, se
     if(selectedMap !== 0){
 
         if(vars.length === 0){
-            query += `WHERE map=?`;
+            query += ` WHERE map=?`;
         }else{
             query += ` AND map=?`;
         }
@@ -2044,6 +2044,7 @@ export async function adminDeleteMatch(id){
     await recaclFaceTotals([...faceIds]);
     await recalculateTelefragPlayersTotals([...playerIds]);
     await recalcultePlayersCTF([...playerIds], gametypeId, mapId);
+    await recalculateCapRecordsAfterMatchDelete(id, gametypeId, mapId);
     
 
     //nstats_ctf_cap_records (match_id, map) recalc all time record, gametype record, map record
