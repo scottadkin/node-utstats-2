@@ -537,7 +537,7 @@ export async function recalculateSelectedTotals(faceIds){
 
         const t = totals[i];
 
-        await mysql.simpleQuery(query, [t.first_match,t.last_match,t.uses,t.id]);
+        await simpleQuery(query, [t.first_match,t.last_match,t.uses,t.id]);
     }
 
   

@@ -229,6 +229,7 @@ export async function POST(req){
         return Response.json({"error": "Unknown Request"});
 
     }catch(err){
+        console.trace(err);
         return Response.json({"error": err.toString()});
     }
 }

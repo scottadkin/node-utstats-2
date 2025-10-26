@@ -25,6 +25,7 @@ import { deleteMatch as assaultDeleteMatch } from "./assault.js";
 import { recalculateSelectedTotals as recaclFaceTotals } from "./faces.js";
 import { deleteMatchData as deleteMatchHeadshots } from "./headshots.js";
 import { deleteMatchData as deleteMatchSprees } from "./sprees.js";
+import { deleteMatchData as deleteMatchTeleFrags, recalculateTelefragPlayersTotals } from "./telefrags.js";
 
 export default class Matches{
 
@@ -2027,13 +2028,15 @@ export async function adminDeleteMatch(id){
 
     await assaultDeleteMatch(id);
     await deleteMatchHeadshots(id);
-    await deleteMatchHeadshots(id);
+    await deleteMatchSprees(id);
+    await deleteMatchTeleFrags(id);
 
 
 
 
     //make sure to delete all player match data before recalculating totals
     await recaclFaceTotals([...faceIds]);
+    await recalculateTelefragPlayersTotals([...playerIds]);
 
     //nstats_ctf_assists (match_id, player_id)
     //nstats_ctf_caps (match_id)
@@ -2081,7 +2084,6 @@ export async function adminDeleteMatch(id){
     //nstats_player_ctf_match match_id
     //nstats_player_ctf_totals recalc totals
     //nstats_player_matches match_id
-    //nstats_player_telefrags recalc totals
     //nstats_player_totals recalc
     //nstats_player_weapon_best reca;c
     //nstats_player_weapon_match match_id
@@ -2091,7 +2093,6 @@ export async function adminDeleteMatch(id){
     //nstats_powerups_player_totals recalc
     //nstats_ranking_player_current recalc
     //nstats_ranking_player_history match_id
-    //nstats_tele_frags match_id
     //nstats_winrates match_id
     //nstats_winrates_latest recalc
 

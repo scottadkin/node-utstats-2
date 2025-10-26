@@ -85,6 +85,8 @@ function reducer(state, action){
                 newState.selectedMap = parseInt(action.value);
             }
 
+            newState.page = 1;
+
             return newState;
         }
     }
