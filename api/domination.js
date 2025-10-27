@@ -100,20 +100,7 @@ export default class Domination{
 
     async getMapControlPoints(map){
 
-        const query = "SELECT id,name FROM nstats_dom_control_points WHERE map=?";
-        const result = await simpleQuery(query, [map]);
-
-        const data = new Map();
-
-        if(result !== undefined){
-
-            for(let i = 0; i < result.length; i++){
-
-                data.set(result[i].name, result[i].id);
-            }
-        }
-
-        return data;
+        return await getMapControlPoints(map);
     }
 
     async insertPointCap(match, time, player, point, team){
@@ -164,27 +151,6 @@ export default class Domination{
         return await simpleQuery(query, [caps, caps, playerId, matchId]);
     }
 
-
-    async reducePointCaps(id, amount){
-
-        const query = "UPDATE nstats_dom_control_points SET captured=captured-? WHERE id=?";
-
-        return await simpleQuery(query, [amount, id]);
-    }
-
-    async deleteMatchControlPoints(id){
-
-        const query = "DELETE FROM nstats_dom_match_control_points WHERE match_id=?";
-
-        return await simpleQuery(query, [id]);
-    }
-
-    async deletePlayerMatchScore(id){
-
-        const query = "DELETE FROM nstats_dom_match_player_score WHERE match_id=?";
-
-        return await simpleQuery(query, [id]);
-    }
 
     async removePlayerMatchCaps(playerId, matchId){
 
@@ -282,46 +248,6 @@ export default class Domination{
         await simpleQuery("DELETE FROM nstats_dom_match_player_score WHERE match_id IN (?)", [ids]);
     }
 
-    async deleteMatches(ids){
-
-        try{
-
-            const matchCaps = await this.getMatchesCaps(ids);
-
-            const pointCaps = {};
-
-            let m = 0;
-
-            for(let i = 0; i < matchCaps.length; i++){
-
-                m = matchCaps[i];
-
-                if(pointCaps[m.point] === undefined){
-                    pointCaps[m.point] = {"matches": [], "caps": 0}
-                }
-
-                if(pointCaps[m.point].matches.indexOf(m.match_id) === -1){
-                    pointCaps[m.point].matches.push(m.match_id);
-                }
-
-                pointCaps[m.point].caps++;
-            }
-
-            for(const [key, value] of Object.entries(pointCaps)){
-
-                await this.reduceCapsAlt(key, value.caps, value.matches.length);
-            }
-            
-            await this.deleteMatchesCaps(ids);
-            await this.deleteMatchesControlPoints(ids);
-            await this.deleteMatchesPlayerScores(ids);
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-
     async getPlayerMatchCaps(matchId, playerId){
 
         const query = "SELECT time,point,team FROM nstats_dom_match_caps WHERE match_id=? AND player=?";
@@ -393,8 +319,9 @@ export async function getMapFullControlPoints(mapId){
     return await simpleQuery(query, [mapId]);
 }
 
-export async function getControlPointNames(mapId){
+export async function getControlPointNames(mapId, bSkipAllEntry){
 
+    if(bSkipAllEntry === undefined) bSkipAllEntry = false;
     const query = "SELECT id,name FROM nstats_dom_control_points WHERE map=?";
     const result = await simpleQuery(query, [mapId]);
 
@@ -696,4 +623,73 @@ export async function getMatchSinglePlayerTotalCaps(matchId, playerId){
     }
     
     return {"caps": data, pointNames};
+}
+
+
+async function getMapControlPointIds(mapId){
+
+    const query = `SELECT id FROM nstats_dom_control_points WHERE map=?`;
+
+    const result = await simpleQuery(query, [mapId]);
+
+    return result.map((r) =>{
+        return r.id;
+    });
+}
+
+
+async function updateControlPointTotals(data){
+
+    const query = `UPDATE nstats_dom_control_points SET captured=? WHERE id=?`;
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        await simpleQuery(query, [d.total_caps, d.point]);
+    }
+}
+
+
+export async function recalculateMapControlPointTotals(mapId){
+
+    const pointIds = await getMapControlPointIds(mapId);
+
+    const query = `SELECT point, COUNT(*) as total_caps FROM nstats_dom_match_caps WHERE point IN (?) GROUP BY point`;
+
+
+    if(pointIds.length === 0) return;
+    const result = await simpleQuery(query, [pointIds]);
+
+    await updateControlPointTotals(result);
+}
+
+
+async function deleteMatchCaps(matchId){
+
+    const query = `DELETE FROM nstats_dom_match_caps WHERE match_id=?`;
+
+    return await simpleQuery(query, [matchId]);
+}
+
+
+async function deleteMatchControlPoints(id){
+
+    const query = "DELETE FROM nstats_dom_match_control_points WHERE match_id=?";
+
+    return await simpleQuery(query, [id]);
+}
+
+async function deleteMatchPlayerScores(matchId){
+
+    const query = `DELETE FROM nstats_dom_match_player_score WHERE match_id=?`;
+
+    return await simpleQuery(query, [matchId]);
+}
+
+export async function deleteMatchData(matchId){
+
+    await deleteMatchCaps(matchId);
+    await deleteMatchControlPoints(matchId);
+    await deleteMatchPlayerScores(matchId);
 }

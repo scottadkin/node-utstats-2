@@ -27,6 +27,7 @@ import { deleteMatchData as deleteMatchHeadshots } from "./headshots.js";
 import { deleteMatchData as deleteMatchSprees } from "./sprees.js";
 import { deleteMatchData as deleteMatchTeleFrags, recalculateTelefragPlayersTotals } from "./telefrags.js";
 import { deleteMatches as deleteMatchCTFData, recalculatePlayers as recalcultePlayersCTF, recalculateCapRecordsAfterMatchDelete } from "./ctf.js";
+import { recalculateMapControlPointTotals, deleteMatchData as deleteMatchDomData } from "./domination.js";
 
 export default class Matches{
 
@@ -431,28 +432,6 @@ export default class Matches{
         }
     }
 
-    async deleteDominationData(id){
-
-        try{
-
-            const dom = new Domination();
-
-            const capData = await dom.getMatchDomPoints(id);
-
-            for(let i = 0; i < capData.length; i++){
-
-               // console.log(`reducing point caps for point ${capData[i].id} by ${capData[i].captured}`);
-                await dom.reducePointCaps(capData[i].id, capData[i].captured);
-            }
-
-            await dom.deleteMatchControlPoints(id);
-
-            await dom.deletePlayerMatchScore(id);
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
 
     async deletePingData(id){
 
@@ -2036,6 +2015,7 @@ export async function adminDeleteMatch(id){
     await deleteMatchTeleFrags(id);
 
     await deleteMatchCTFData([id]);
+    await deleteMatchDomData(id);
 
 
 
@@ -2045,16 +2025,10 @@ export async function adminDeleteMatch(id){
     await recalculateTelefragPlayersTotals([...playerIds]);
     await recalcultePlayersCTF([...playerIds], gametypeId, mapId);
     await recalculateCapRecordsAfterMatchDelete(id, gametypeId, mapId);
+    await recalculateMapControlPointTotals(mapId);
     
 
-    //nstats_ctf_cap_records (match_id, map) recalc all time record, gametype record, map record
 
-    //nstats_dom_control_points (map) recalc map totals
-    //nstats_dom_match_caps (match_id)
-    //nstats_dom_match_control_points (match_id)
-    //nstats_dom_match_caps (match_id)
-    //nstats_dom_match_control_points (match_id)
-    //nstats_dom_match_player_score (match_id)
     //nstats_gametypes recaclc gametype totals
     //nstats_items recalc totals
     //nstats_items_match (match_id)

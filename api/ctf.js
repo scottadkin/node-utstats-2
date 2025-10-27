@@ -118,58 +118,6 @@ export default class CTF{
         await simpleQuery(query, vars);
     }
 
-    /*async updatePlayerMatchStats(playerId, matchId, stats){
-
-        const query = `UPDATE nstats_player_matches SET
-            flag_assist = ?,
-            flag_return = ?,
-            flag_taken = ?,
-            flag_dropped = ?,
-            flag_capture = ?,
-            flag_pickup = ?,
-            flag_seal = ?,
-            flag_cover = ?,
-            flag_cover_pass = ?,
-            flag_cover_fail = ?,
-            flag_self_cover = ?,
-            flag_self_cover_pass = ?,
-            flag_self_cover_fail = ?,
-            flag_multi_cover=?,
-            flag_spree_cover=?,
-            flag_cover_best=?,
-            flag_kill = ?,
-            flag_save = ?,
-            flag_carry_time=?,
-            flag_self_cover_best=?
-            WHERE player_id=? AND match_id=?`;
-
-            const vars = [
-                stats.assist,
-                stats.return,
-                stats.taken,
-                stats.dropped,
-                stats.capture,
-                stats.pickup,
-                stats.seal,
-                stats.cover,
-                stats.coverPass,
-                stats.coverFail,
-                stats.selfCover,
-                stats.selfCoverPass,
-                stats.selfCoverFail,
-                stats.multiCover,
-                stats.spreeCover,
-                stats.bestCover,
-                stats.kill,
-                stats.save,
-                stats.carryTime,
-                stats.bestSelfCover,
-                playerId,
-                matchId
-            ];
-
-        return await simpleQuery(query, vars);
-    }*/
 
     calculateTimeDropped(dropTimes, pickupTimes){
 
@@ -336,14 +284,6 @@ export default class CTF{
         return await simpleQuery(query, vars);
     }
 
-    /*async insertCover(matchId, matchDate, mapId, capId, timestamp, killerId, killerTeam, victimId){
-
-        const query = "INSERT INTO nstats_ctf_covers VALUES(NULL,?,?,?,?,?,?,?,?)";
-
-        const vars = [matchId, matchDate, mapId, capId, timestamp, killerId, killerTeam, victimId];
-
-        return await simpleQuery(query, vars);
-    }*/
 
     addCover(matchId, matchDate, mapId, capId, timestamp, killerId, killerTeam, victimId){
 
@@ -434,30 +374,6 @@ export default class CTF{
         return await bulkInsert(query, this.flagDrops);
     }
 
-    /*async insertDrop(matchId, matchDate, mapId, timestamp, capId, flagTeam, playerId, playerTeam, distanceToCap, location,
-        timeDropped){
-
-        const query = `INSERT INTO nstats_ctf_flag_drops VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
-
-        const vars = [
-            matchId,
-            matchDate,
-            mapId,
-            timestamp,
-            capId,
-            flagTeam,
-            playerId, 
-            playerTeam,
-            distanceToCap,
-            location.x,
-            location.y,
-            location.z,
-            timeDropped
-        ];
-
-        return await simpleQuery(query, vars);
-    }*/
-
     async insertPickup(matchId, matchDate, mapId, capId, timestamp, playerId, playerTeam, flagTeam){
   
         const query = `INSERT INTO nstats_ctf_flag_pickups VALUES(NULL,?,?,?,?,?,?,?,?)`;
@@ -475,42 +391,6 @@ export default class CTF{
 
         return await simpleQuery(query, vars);         
     }
-
-    /*async insertCap(matchId, matchDate, mapId, team, flagTeam, grabTime, grab, drops, dropTimes, pickups, pickupTimes, covers, coverTimes, assists, 
-        assistsTimes, carryIds, cap, 
-        capTime, travelTime, selfCovers, selfCoversCount, seals, sealTimes){
-
-        const totalDrops = drops.length;
-        const totalCovers = covers.length;
-        const totalSelfCovers = selfCovers.length;
-        const totalSeals = seals.length;
-        const totalPickups = pickups.length;
-        const totalAssists = carryIds.length;
-        const totalUniqueAssists = assists.length;
-
-        const timeDropped = this.calculateTimeDropped(dropTimes, pickupTimes);
-
-        console.log(`timeDropped = ${timeDropped}`);
-        let carryTime = parseFloat(travelTime) - timeDropped;
-        if(carryTime !== carryTime) carryTime = -1;
-
-        const query = `INSERT INTO nstats_ctf_caps VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
-
-        const vars = [matchId, mapId, team, grabTime, grab, drops.toString(), dropTimes.toString(), pickups.toString(), pickupTimes.toString(), 
-            covers.toString(), coverTimes.toString(), assists.toString(), assistsTimes.toString(), carryIds.toString(), cap, capTime, travelTime,
-            selfCovers.toString(), selfCoversCount.toString(), seals.toString(), sealTimes.toString(), flagTeam, totalDrops, totalCovers, 
-            totalSelfCovers, totalPickups, totalAssists, totalUniqueAssists, totalSeals, timeDropped, carryTime];
-
-        let type = 0;
-
-        if(assists.length !== 0){
-            type = 1;
-        }
-        
-        await simpleQuery(query, vars);
-
-    }*/
-
 
 
     addEvent(match, timestamp, player, event, team){
@@ -570,11 +450,9 @@ export default class CTF{
             data = data.split(",");
             const cleanData = [];
 
-            let d = 0;
-
             for(let i = 0; i < data.length; i++){
 
-                d = data[i];
+                let d = data[i];
 
                 if(d !== ""){
 
@@ -603,11 +481,9 @@ export default class CTF{
 
         }
 
-        let c = 0;
-
         for(let i = 0; i < caps.length; i++){
 
-            c = caps[i];
+            const c = caps[i];
 
             if(removedPlayer !== undefined){
 
@@ -1058,15 +934,6 @@ export default class CTF{
 
         await bulkInsert(query, this.crKills);
     }
-
-    /*async insertCRKills(eventType, matchId, matchDate, mapId, capId, timestamp, playerId, playerTeam, kills){
-
-        const query = `INSERT INTO nstats_ctf_cr_kills VALUES(NULL,?,?,?,?,?,?,?,?,?)`;
-
-        const vars = [matchId, matchDate, mapId, capId, eventType, timestamp, playerId, playerTeam, kills];
-
-        return await simpleQuery(query, vars);
-    }*/
 
 
     async bPlayerBestValuesExist(playerId, gametypeId, mapId){
@@ -3664,35 +3531,35 @@ async function recalculatePlayerTotalAfterMatchDelete(playerId, gametypeId, mapI
 
     let query = `SELECT
     COUNT(*) as total_matches,
-    SUM(playtime) as playtime,
-    SUM(flag_assist) as flag_assist,
-    SUM(flag_return) as flag_return,
-    SUM(flag_return_base) as flag_return_base,
-    SUM(flag_return_mid) as flag_return_mid,
-    SUM(flag_return_enemy_base) as flag_return_enemy_base,
-    SUM(flag_return_save) as flag_return_save,
-    SUM(flag_dropped) as flag_dropped,
-    SUM(flag_kill) as flag_kill,
-    SUM(flag_suicide) as flag_suicide,
-    SUM(flag_seal) as flag_seal,
-    SUM(flag_seal_pass) as flag_seal_pass,
-    SUM(flag_seal_fail) as flag_seal_fail,
-    MAX(best_single_seal) as best_single_seal,
-    SUM(flag_cover) as flag_cover,
-    SUM(flag_cover_pass) as flag_cover_pass,
-    SUM(flag_cover_fail) as flag_cover_fail,
-    SUM(flag_cover_multi) as flag_cover_multi,
-    SUM(flag_cover_spree) as flag_cover_spree,
-    MAX(best_single_cover) as best_single_cover,
-    SUM(flag_capture) as flag_capture,
-    SUM(flag_carry_time) as flag_carry_time,
-    SUM(flag_taken) as flag_taken,
-    SUM(flag_pickup) as flag_pickup,
-    SUM(flag_self_cover) as flag_self_cover,
-    SUM(flag_self_cover_pass) as flag_self_cover_pass,
-    SUM(flag_self_cover_fail) as flag_self_cover_fail,
-    MAX(best_single_self_cover) as best_single_self_cover,
-    SUM(flag_solo_capture) as flag_solo_capture
+    IFNULL(SUM(playtime), 0) as playtime,
+    IFNULL(SUM(flag_assist), 0) as flag_assist,
+    IFNULL(SUM(flag_return), 0) as flag_return,
+    IFNULL(SUM(flag_return_base), 0) as flag_return_base,
+    IFNULL(SUM(flag_return_mid), 0) as flag_return_mid,
+    IFNULL(SUM(flag_return_enemy_base), 0) as flag_return_enemy_base,
+    IFNULL(SUM(flag_return_save), 0) as flag_return_save,
+    IFNULL(SUM(flag_dropped), 0) as flag_dropped,
+    IFNULL(SUM(flag_kill), 0) as flag_kill,
+    IFNULL(SUM(flag_suicide), 0) as flag_suicide,
+    IFNULL(SUM(flag_seal), 0) as flag_seal,
+    IFNULL(SUM(flag_seal_pass), 0) as flag_seal_pass,
+    IFNULL(SUM(flag_seal_fail), 0) as flag_seal_fail,
+    IFNULL(MAX(best_single_seal), 0) as best_single_seal,
+    IFNULL(SUM(flag_cover), 0) as flag_cover,
+    IFNULL(SUM(flag_cover_pass), 0) as flag_cover_pass,
+    IFNULL(SUM(flag_cover_fail), 0) as flag_cover_fail,
+    IFNULL(SUM(flag_cover_multi), 0) as flag_cover_multi,
+    IFNULL(SUM(flag_cover_spree), 0) as flag_cover_spree,
+    IFNULL(MAX(best_single_cover), 0) as best_single_cover,
+    IFNULL(SUM(flag_capture), 0) as flag_capture,
+    IFNULL(SUM(flag_carry_time), 0) as flag_carry_time,
+    IFNULL(SUM(flag_taken), 0) as flag_taken,
+    IFNULL(SUM(flag_pickup), 0) as flag_pickup,
+    IFNULL(SUM(flag_self_cover), 0) as flag_self_cover,
+    IFNULL(SUM(flag_self_cover_pass), 0) as flag_self_cover_pass,
+    IFNULL(SUM(flag_self_cover_fail), 0) as flag_self_cover_fail,
+    IFNULL(MAX(best_single_self_cover), 0) as best_single_self_cover,
+    IFNULL(SUM(flag_solo_capture), 0) as flag_solo_capture
     FROM nstats_player_ctf_match
     WHERE player_id=?`;
 
