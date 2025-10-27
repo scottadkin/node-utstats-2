@@ -31,6 +31,7 @@ import { recalculateMapControlPointTotals, deleteMatchData as deleteMatchDomData
 import { deleteMatchData as deleteMatchPings } from "./pings.js";
 import { deleteMatchTeamChanges } from "./teams.js";
 import { deleteMatchData as deleteMatchConnections } from "./connections.js";
+import { deleteMatchData as deleteMatchItems } from "./items.js";
 
 export default class Matches{
 
@@ -2014,6 +2015,8 @@ export async function adminDeleteMatch(id){
     //re enable once everything else is added
    // await deletePlayersMatchData(id);
     await deleteMatchConnections(id);
+    await deleteMatchItems(id);
+
 
 
 
@@ -2031,8 +2034,7 @@ export async function adminDeleteMatch(id){
 
 
     //nstats_gametypes recaclc gametype totals
-    //nstats_items recalc totals
-    //nstats_items_match (match_id)
+
     //nstats_items_player reclac totals used in match
     //nstats_maps recalc totals
     //nstats_maps_flags recalc totals

@@ -1,4 +1,5 @@
 import { simpleQuery, bulkInsert } from "./database.js";
+import { toMysqlDate } from "./generic.mjs";
 import { getObjectName } from "./genericServerSide.mjs";
 import Message from "./message.js";
 
@@ -224,12 +225,6 @@ export default class Items{
         return await simpleQuery(query, vars);
     }
 
-    async deleteMatchItems(id){
-
-        const query = "DELETE FROM nstats_items_match WHERE match_id=?";
-        return await simpleQuery(query, [id]);
-    }
-
 
     async changePlayerIdsMatch(oldId, newId){
 
@@ -303,122 +298,17 @@ export default class Items{
     }
 
     
-
     async deleteAllPlayerMatchData(player){
 
         await simpleQuery("DELETE FROM nstats_items_match WHERE player_id=?", [player]);
     }
 
-    async deletePlayer(playerId){
-
-        try{
-
-            const matchData = await this.getAllPlayerMatchData(playerId);
-
-            const uses = {};
-
-            let m = 0;
-
-            for(let i = 0; i < matchData.length; i++){
-
-                m = matchData[i];
-
-                if(uses[m.item] === undefined) uses[m.item] = {"uses": 0, "matches": 0};
-
-                uses[m.item].uses += m.uses;
-                uses[m.item].matches++;
-            }
-
-            for(const [key, value] of Object.entries(uses)){
-                await reduceItemTotal(parseInt(key), value.uses, 0);
-                await deletePlayerTotals(playerId);
-                await this.deleteAllPlayerMatchData(playerId);
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
 
     async getMatchesData(ids){
 
         if(ids.length === 0) return [];
         
         return await simpleQuery("SELECT * FROM nstats_items_match WHERE match_id IN (?)", [ids]);
-    }
-
-    async reducePlayerTotalsAlt(player, item, uses, matches){
-
-        const query = "UPDATE nstats_items_player SET uses=uses-?,matches=matches-? WHERE player=? AND item=?";
-        const vars = [uses, matches, player, item];
-
-        await simpleQuery(query, vars);
-    }
-
-    async deleteMatchesData(ids){
-
-        if(ids.length === 0) return;
-
-        await simpleQuery("DELETE FROM nstats_items_match WHERE match_id IN (?)", [ids]);
-    }
-
-    async deleteMatches(ids){
-
-        try{
-
-            const matchesData = await this.getMatchesData(ids);
-
-            const uses = {};
-            const playerUses = {};
-
-            let m = 0;
-
-            for(let i = 0; i < matchesData.length; i++){
-
-                m = matchesData[i];
-
-                if(uses[m.item] === undefined){
-                    uses[m.item] = {"uses": 0, "matches": []};
-                }
-
-                if(playerUses[m.player_id] === undefined){
-                    playerUses[m.player_id] = {};
-                }
-
-                uses[m.item].uses += m.uses;
-                
-                if(uses[m.item].matches.indexOf(m.match_id) === -1){
-
-                    uses[m.item].matches.push(m.match_id);
-                }
-
-
-                if(playerUses[m.player_id][m.item] === undefined){
-                    playerUses[m.player_id][m.item] = {"uses": 0, "matches": 0};
-                }
-
-                playerUses[m.player_id][m.item].matches++;
-                playerUses[m.player_id][m.item].uses += m.uses;
-            }
-
-            for(const [player, items] of Object.entries(playerUses)){
-
-                for(const [item, data] of Object.entries(items)){
-
-                    await this.reducePlayerTotalsAlt(player, parseInt(item), data.uses, data.matches);
-                }
-            }
-
-            for(const [key, value] of Object.entries(uses)){
-
-                await reduceItemTotal(parseInt(key), value.uses, value.matches.length);
-            }
-
-            await this.deleteMatchesData(ids);
-
-        }catch(err){    
-            console.trace(err);
-        }
     }
 
 
@@ -533,38 +423,6 @@ export default class Items{
     }
 }
 
-export async function deleteMatchData(id){
-
-    try{
-
-        const matchData = await getMatchData(id);
-
-        const uses = {};
-        
-        for(let i = 0; i < matchData.length; i++){
-
-            const m = matchData[i];
-
-            if(uses[m.item] !== undefined){
-                uses[m.item] += m.uses;
-            }else{
-                uses[m.item] = m.uses;
-            }
-
-            await reduceItemPlayerTotal(m.item, m.player_id, m.uses);
-        }
-
-        for(const [key, value] of Object.entries(uses)){
-
-            await reduceItemTotal(key, value);
-        }
-
-        await this.deleteMatchItems(id);
-
-    }catch(err){
-        console.trace(err);
-    }   
-}
 
 async function deletePlayerTotals(player){
 
@@ -578,30 +436,6 @@ export async function getMatchData(matchId){
 
 }
 
-async function reduceItemPlayerTotal(id, playerId, amount){
-
-    const query = "UPDATE nstats_items_player SET uses=uses-?, matches=matches-1 WHERE player=? AND item=?";
-
-    return await simpleQuery(query, [amount, playerId, id]);    
-}
-
-async function reduceItemTotal(id, amount, matches){
-
-    let query = "UPDATE nstats_items SET uses=uses-?, matches=matches-1 WHERE id=?";
-
-    let vars = [amount, id];
-
-    if(matches !== undefined){
-
-        matches = parseInt(matches);
-        if(matches !== matches) matches = 1;
-
-        vars = [amount, matches, id]
-        query = "UPDATE nstats_items SET uses=uses-?, matches=matches-? WHERE id=?";
-    }
-
-    return await simpleQuery(query, vars);
-}
 
 async function getPlayerMatchItemData(playerId, matchId){
 
@@ -798,4 +632,92 @@ export async function getPlayerProfileData(player){
     }
 
     return data;
+}
+
+async function getAllIdsUsedInMatch(matchId){
+
+    const query = `SELECT DISTINCT item FROM nstats_items_match WHERE match_id=?`;
+    const result = await simpleQuery(query, [matchId]);
+
+    return result.map((r) =>{
+        return r.item;
+    });
+}
+
+
+async function updateTotalsAfterRecalculate(data){
+
+    const query = `UPDATE nstats_items SET first=?,last=?,uses=?,matches=? WHERE id=?`;
+
+
+    for(const [weaponId, d] of Object.entries(data)){
+
+        const vars = [
+            toMysqlDate(d.minDate),
+            toMysqlDate(d.maxDate),
+            d.uses,
+            d.matchIds.size,
+            weaponId
+        ];
+        
+        await simpleQuery(query, vars);
+    }
+    
+}
+
+async function recalculateMultipleTotals(itemIds){
+
+    if(itemIds.length === 0) return;
+
+    const query = `SELECT nstats_items_match.item,
+    nstats_items_match.match_id,
+    SUM(nstats_items_match.uses) as uses,
+    MIN(nstats_matches.date) as match_date
+    FROM nstats_items_match
+    INNER JOIN nstats_matches ON nstats_items_match.match_id = nstats_matches.id
+    WHERE item IN (?) GROUP BY nstats_items_match.item,nstats_items_match.match_id`;
+
+    const result = await simpleQuery(query, [itemIds]);
+
+    const totals = {};
+
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        if(totals[r.item] === undefined){
+            totals[r.item] = {
+                "matchIds": new Set(),
+                "uses": 0,
+                "minDate": null,
+                "maxDate": null
+            };
+        }
+
+        const t = totals[r.item]
+        t.matchIds.add(r.match_id);
+        t.uses += parseInt(r.uses);
+
+        if(t.minDate === null || t.minDate > r.match_date){
+            t.minDate = r.match_date;
+        }
+        if(t.maxDate === null || t.maxDate < r.match_Date){
+            t.maxDate = r.match_date;
+        }
+    }
+
+    await updateTotalsAfterRecalculate(totals);
+
+}
+
+export async function deleteMatchData(matchId){
+
+    const usedIds = await getAllIdsUsedInMatch(matchId);
+
+    const query = `DELETE FROM nstats_items_match WHERE match_id=?`;
+
+    await simpleQuery(query, [matchId]);
+
+    await recalculateMultipleTotals(usedIds);
 }
