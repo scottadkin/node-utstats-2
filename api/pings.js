@@ -57,12 +57,6 @@ export default class Pings{
         await simpleQuery("DELETE FROM nstats_match_pings WHERE player=?", [playerId]);
     }
 
-    async deleteMatches(ids){
-
-        if(ids.length === 0) return;
-
-        await simpleQuery("DELETE FROM nstats_match_pings WHERE match_id IN (?)", [ids]);
-    }
 }
 
 
@@ -263,4 +257,13 @@ export async function getPlayerHistoryGraphData(playerId, limit){
     }
 
     return {"data": data, "labels": labels};
+}
+
+
+export async function deleteMatchData(matchId){
+
+    const query = `DELETE FROM nstats_match_pings WHERE match_id=?`;
+
+    return await simpleQuery(query, [matchId]);
+    
 }

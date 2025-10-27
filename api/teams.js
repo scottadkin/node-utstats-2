@@ -43,3 +43,10 @@ export async function getPlayerMatchData(matchId, playerId){
 
     return await simpleQuery(query, [matchId, playerId]);
 }
+
+export async function deleteMatchTeamChanges(id){
+
+    const query = "DELETE FROM nstats_match_team_changes WHERE match_id=?";
+
+    return await simpleQuery(query, [id]);
+}

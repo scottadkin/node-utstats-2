@@ -20,7 +20,7 @@ import { getObjectName } from "./genericServerSide.mjs";
 import { deleteFromDatabase as logsDeleteFromDatabase } from "./logs.js";
 import MonsterHunt from "./monsterhunt.js";
 import {getSettings} from "./sitesettings.js";
-import { getAllInMatch, getBasicPlayersByIds } from "./players.js";
+import { getAllInMatch, getBasicPlayersByIds, deletePlayersMatchData } from "./players.js";
 import { deleteMatch as assaultDeleteMatch } from "./assault.js";
 import { recalculateSelectedTotals as recaclFaceTotals } from "./faces.js";
 import { deleteMatchData as deleteMatchHeadshots } from "./headshots.js";
@@ -28,6 +28,9 @@ import { deleteMatchData as deleteMatchSprees } from "./sprees.js";
 import { deleteMatchData as deleteMatchTeleFrags, recalculateTelefragPlayersTotals } from "./telefrags.js";
 import { deleteMatches as deleteMatchCTFData, recalculatePlayers as recalcultePlayersCTF, recalculateCapRecordsAfterMatchDelete } from "./ctf.js";
 import { recalculateMapControlPointTotals, deleteMatchData as deleteMatchDomData } from "./domination.js";
+import { deleteMatchData as deleteMatchPings } from "./pings.js";
+import { deleteMatchTeamChanges } from "./teams.js";
+import { deleteMatchData as deleteMatchConnections } from "./connections.js";
 
 export default class Matches{
 
@@ -432,27 +435,6 @@ export default class Matches{
         }
     }
 
-
-    async deletePingData(id){
-
-        const query = "DELETE FROM nstats_match_pings WHERE match_id=?";
-
-        return await simpleQuery(query, [id]);
-    }
-
-    async deletePlayerScoreData(id){
-
-        const query = "DELETE FROM nstats_match_player_score WHERE match_id=?";
-
-        return await simpleQuery(query, [id]);
-    }
-
-    async deleteTeamChangesData(id){
-
-        const query = "DELETE FROM nstats_match_team_changes WHERE match_id=?";
-
-        return await simpleQuery(query, [id]);
-    }
 
     async reducePlayerMapTotals(mapId, playerId, playtime){
 
@@ -1985,6 +1967,16 @@ export async function adminMatchesSearch(sortBy, order, selectedServer, selected
     return {"totalMatches": totalRows, "data": result};
 }
 
+
+async function deletePlayerScoreData(id){
+
+    const query = "DELETE FROM nstats_match_player_score WHERE match_id=?";
+
+    return await simpleQuery(query, [id]);
+}
+
+
+
 export async function adminDeleteMatch(id){
 
 
@@ -2016,6 +2008,12 @@ export async function adminDeleteMatch(id){
 
     await deleteMatchCTFData([id]);
     await deleteMatchDomData(id);
+    await deleteMatchPings(id);
+    await deleteMatchTeamChanges(id);
+
+    //re enable once everything else is added
+   // await deletePlayersMatchData(id);
+    await deleteMatchConnections(id);
 
 
 
@@ -2026,6 +2024,9 @@ export async function adminDeleteMatch(id){
     await recalcultePlayersCTF([...playerIds], gametypeId, mapId);
     await recalculateCapRecordsAfterMatchDelete(id, gametypeId, mapId);
     await recalculateMapControlPointTotals(mapId);
+
+
+    //recalc player totals
     
 
 
@@ -2041,10 +2042,6 @@ export async function adminDeleteMatch(id){
     //nstats_map_totals recacl totals
     //nstats_matches delete
     //nstats_match_combogib match_id
-    //nstats_match_connections match_id
-    //nstats_match_pings match_id
-    //nstats_match_player_score match_id
-    //nstats_match_team_changes match_id
     //nstats_monsters recalc totals
     //nstats_monsters_match match_id
     //nstats_monsters_player_match match_id
@@ -2052,7 +2049,6 @@ export async function adminDeleteMatch(id){
     //nstats_monster_kills match_id
     //nstats_player_combogib recalc totals
     
-    //nstats_player_matches match_id
     //nstats_player_totals recalc
     //nstats_player_weapon_best reca;c
     //nstats_player_weapon_match match_id

@@ -414,14 +414,6 @@ export default class Players{
         return data;
     }
 
-    async deleteMatchData(id){
-
-        const query = "DELETE FROM nstats_player_matches WHERE match_id=?";
-        return await simpleQuery(query, [id]);
-    }
-
-
-
 
     async getPlayerTotalsFromMatchesTable(playerId, gametypeId, mapId){
 
@@ -3542,4 +3534,19 @@ export async function getScoreHistory(matchId, players){
     });
 
     return {"data": graphData, "labels": timestamps};
+}
+
+async function deleteMatchScoreHistory(matchId){
+    
+    const query = `DELETE FROM nstats_match_player_score WHERE match_id=?`;
+
+    return await simpleQuery(query, [matchId]);
+}
+
+export async function deletePlayersMatchData(matchId){
+
+    const query = "DELETE FROM nstats_player_matches WHERE match_id=?";
+    await simpleQuery(query, [matchId]);
+
+    await deleteMatchScoreHistory(matchId);
 }

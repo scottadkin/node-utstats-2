@@ -28,13 +28,6 @@ export default class Connections{
         return await simpleQuery(query, matchId);
     }
 
-    async deleteMatchData(matchId){
-
-        const query = "DELETE FROM nstats_match_connections WHERE match_id=?";
-        return await simpleQuery(query, [matchId]);
-
-    }
-
     async deletePlayerFromMatch(playerId, matchId){
 
         const query = "DELETE FROM nstats_match_connections WHERE player=? AND match_id=?";
@@ -64,4 +57,11 @@ export default class Connections{
 
         return await simpleQuery(query, [matchId, playerId]);
     }
+}
+
+export async function deleteMatchData(matchId){
+
+    const query = "DELETE FROM nstats_match_connections WHERE match_id=?";
+    return await simpleQuery(query, [matchId]);
+
 }
