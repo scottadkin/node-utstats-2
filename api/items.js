@@ -711,7 +711,88 @@ async function recalculateMultipleTotals(itemIds){
 
 }
 
-export async function deleteMatchData(matchId){
+
+async function deleteMultiplePlayerItemTotals(itemIds, playerIds){
+
+    const query = `DELETE FROM nstats_items_player WHERE item IN(?) AND player IN(?)`;
+
+    return await simpleQuery(query, [itemIds, playerIds]);
+}
+
+
+async function bulkInsertPlayerItemTotals(data){
+
+    const query = `INSERT INTO nstats_items_player (player,item,first,last,uses,matches) VALUES ?`;
+
+    const insertVars = [];
+
+    for(const [playerId, player] of Object.entries(data)){
+
+        for(const [itemId, d] of Object.entries(player)){
+
+            insertVars.push([
+                playerId, itemId, d.minDate, d.maxDate, d.uses, d.matchIds.size
+            ]);
+        }
+    }
+
+    await bulkInsert(query, insertVars);
+}
+
+async function recalculateMultiplePlayerTotals(itemIds, playerIds){
+
+    if(itemIds.length === 0) return;
+    if(playerIds.length === 0) return;
+
+    const query = `SELECT nstats_items_match.item,
+    nstats_items_match.match_id,
+    nstats_items_match.player_id,
+    SUM(nstats_items_match.uses) as uses,
+    MIN(nstats_matches.date) as match_date
+    FROM nstats_items_match
+    INNER JOIN nstats_matches ON nstats_items_match.match_id = nstats_matches.id
+    WHERE item IN (?) AND player_id IN (?) GROUP BY nstats_items_match.player_id,nstats_items_match.item,nstats_items_match.match_id`;
+
+    const result = await simpleQuery(query, [itemIds, playerIds]);
+
+    const totals = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        if(totals[r.player_id] === undefined){
+            totals[r.player_id] = {};
+        }
+
+        if(totals[r.player_id][r.item] === undefined){
+            totals[r.player_id][r.item] = {
+                "matchIds": new Set(),
+                "uses": 0,
+                "minDate": null,
+                "maxDate": null
+            };
+        }
+
+        const t = totals[r.player_id][r.item]
+        t.matchIds.add(r.match_id);
+        t.uses += parseInt(r.uses);
+
+        if(t.minDate === null || t.minDate > r.match_date){
+            t.minDate = r.match_date;
+        }
+        if(t.maxDate === null || t.maxDate < r.match_Date){
+            t.maxDate = r.match_date;
+        }
+
+    }
+
+
+    await deleteMultiplePlayerItemTotals(itemIds, playerIds);
+    await bulkInsertPlayerItemTotals(totals);
+}
+
+export async function deleteMatchData(matchId, playerIds){
 
     const usedIds = await getAllIdsUsedInMatch(matchId);
 
@@ -720,4 +801,6 @@ export async function deleteMatchData(matchId){
     await simpleQuery(query, [matchId]);
 
     await recalculateMultipleTotals(usedIds);
+    await recalculateMultiplePlayerTotals(usedIds, playerIds);
+
 }

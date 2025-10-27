@@ -2015,7 +2015,7 @@ export async function adminDeleteMatch(id){
     //re enable once everything else is added
    // await deletePlayersMatchData(id);
     await deleteMatchConnections(id);
-    await deleteMatchItems(id);
+    await deleteMatchItems(id, [...playerIds]);
 
 
 
@@ -2034,8 +2034,6 @@ export async function adminDeleteMatch(id){
 
 
     //nstats_gametypes recaclc gametype totals
-
-    //nstats_items_player reclac totals used in match
     //nstats_maps recalc totals
     //nstats_maps_flags recalc totals
     //nstats_map_combogib recalc totals
