@@ -1,5 +1,4 @@
 "use client"
-import Link from "next/link";
 import { useState } from "react";
 import Tabs from "../Tabs";
 import InteractiveTable from "../InteractiveTable";
@@ -115,21 +114,20 @@ function renderMatchRecords(mode, cat, data){
             "name": {"value": name.toLowerCase(), "displayValue": name, "className": "text-left"},
             "combo": {
                 "value": d.max_combo_kills, 
-                "displayValue": <Link href={`/pmatch/${d.max_combo_kills_match_id}/?player=${d.player_id}`}>
-                    {ignore0(d.max_combo_kills)}
-                </Link>
+                "displayValue": ignore0(d.max_combo_kills)
+         
             },
             "insane": {
                 "value": d.max_insane_kills, 
-                "displayValue": <Link href={`/pmatch/${d.max_insane_kills_match_id}/?player=${d.player_id}`}>{ignore0(d.max_insane_kills)}</Link>
+                "displayValue": ignore0(d.max_insane_kills)
             },
             "ball": {
                 "value": d.max_shockball_kills, 
-                "displayValue": <Link href={`/pmatch/${d.max_shockball_kills_match_id}/?player=${d.player_id}`}>{ignore0(d.max_shockball_kills)}</Link>
+                "displayValue": ignore0(d.max_shockball_kills)
             },
             "instagib": {
                 "value": d.max_primary_kills, 
-                "displayValue": <Link href={`/pmatch/${d.max_primary_kills_match_id}/?player=${d.player_id}`}>{ignore0(d.max_primary_kills)},</Link>
+                "displayValue": ignore0(d.max_primary_kills)
             }
         });
     }
@@ -165,27 +163,19 @@ function renderBestSprees(mode, cat, data){
             "name": {"value": name.toLowerCase(), "displayValue": name, "className": "text-left"},
             "combo": {
                 "value": d.best_combo_spree, 
-                "displayValue": <Link href={`/pmatch/${d.best_combo_spree_match_id}?player=${d.player_id}`}>
-                    {ignore0(d.best_combo_spree)}
-                </Link>
+                "displayValue": ignore0(d.best_combo_spree)
             },
             "insane": {
                 "value": d.best_insane_spree, 
-                "displayValue": <Link href={`/pmatch/${d.best_insane_spree_match_id}?player=${d.player_id}`}>
-                    {ignore0(d.best_insane_spree)}
-                </Link>
+                "displayValue": ignore0(d.best_insane_spree)
             },
             "ball": {
                 "value": d.best_shockball_spree, 
-                "displayValue": <Link href={`/pmatch/${d.best_shockball_spree_match_id}?player=${d.player_id}`}>
-                    {ignore0(d.best_shockball_spree)}
-                </Link>
+                "displayValue": ignore0(d.best_shockball_spree)
             },
             "primary": {
                 "value": d.best_primary_spree, 
-                "displayValue": <Link href={`/pmatch/${d.best_primary_spree_match_id}?player=${d.player_id}`}>
-                    {ignore0(d.best_primary_spree)}
-                </Link>
+                "displayValue": ignore0(d.best_primary_spree)
             }
         });
     }
@@ -265,15 +255,15 @@ function renderBestSingleEvent(mode, cat, data){
             "name": {"value": name.toLowerCase(), "displayValue": name, "className": "text-left"},
             "combo": {
                 "value": d.best_single_combo, 
-                "displayValue": <Link href={`/pmatch/${d.player_id}?player=${d.best_single_combo_match_id}`}>{ignore0(d.best_single_combo)}</Link>
+                "displayValue": ignore0(d.best_single_combo)
             },
             "insane": {
                 "value": d.best_single_insane, 
-                "displayValue": <Link href={`/pmatch/${d.player_id}?player=${d.best_single_insane_match_id}`}>{ignore0(d.best_single_insane)}</Link>
+                "displayValue":ignore0(d.best_single_insane)
             },
             "ball": {
                 "value": d.best_single_shockball, 
-                "displayValue": <Link href={`/pmatch/${d.player_id}?player=${d.best_single_shockball_match_id}`}>{ignore0(d.best_single_shockball)}</Link>
+                "displayValue": ignore0(d.best_single_shockball)
             }
         });
     }

@@ -1140,35 +1140,17 @@ const queries = [
                       primary_deaths int(11) NOT NULL,
                       primary_efficiency FLOAT NOT NULL,
                       primary_kpm float NOT NULL,      
-  
                       best_single_combo int(11) NOT NULL,
-                      best_single_combo_match_id int(11) NOT NULL,
                       best_single_insane int(11) NOT NULL,
-                      best_single_insane_match_id int(11) NOT NULL,
                       best_single_shockball int(11) NOT NULL,
-                      best_single_shockball_match_id int(11) NOT NULL,
-                      
                       max_combo_kills int(11) NOT NULL,
-                      max_combo_kills_match_id int(11) NOT NULL,
                       max_insane_kills int(11) NOT NULL,
-                      max_insane_kills_match_id int(11) NOT NULL,
                       max_shockball_kills int(11) NOT NULL,
-                      max_shockball_kills_match_id int(11) NOT NULL,
                       max_primary_kills int(11) NOT NULL,
-                      max_primary_kills_match_id int(11) NOT NULL,
-  
                       best_combo_spree int(11) NOT NULL,
-                      best_combo_spree_match_id int(11) NOT NULL,
-  
                       best_insane_spree int(11) NOT NULL,
-                      best_insane_spree_match_id int(11) NOT NULL,
-  
                       best_shockball_spree int(11) NOT NULL,
-                      best_shockball_spree_match_id int(11) NOT NULL,
-  
                       best_primary_spree int(11) NOT NULL,
-                      best_primary_spree_match_id int(11) NOT NULL,
-      
                       PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
     `INSERT INTO nstats_logs_folder VALUES(NULL, 'Logs Folder',"${DEFAULT_MIN_DATE}","1999-11-30",0,0,0,0,0,0,0,0,0,0,0)`,

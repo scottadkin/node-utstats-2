@@ -2,7 +2,7 @@ import { simpleQuery } from "./database.js";
 import Message from "./message.js";
 import { getAllGametypeNames } from "./gametypes.js";
 import { getBasicPlayersByIds } from "./players.js";
-import { toMysqlDate } from "./generic.mjs";
+import { DEFAULT_MIN_DATE, toMysqlDate } from "./generic.mjs";
 
 export const DEFAULT_RANKING_VALUES = [
     {"name":"frags","display_name":"Kill","description":"Player Killed an enemy","value":300},
@@ -178,7 +178,7 @@ export default class Rankings{
 
         if(latestMatchDate === null){
             new Message(`rankings.insertPlayerCurrent() latestMatchDate is null!`);
-            latestMatchDate = 0;
+            latestMatchDate = DEFAULT_MIN_DATE;
         }
 
         await simpleQuery(query, [playerId, gametypeId, totalMatches, playtime, ranking, rankingChange, latestMatchDate]);

@@ -792,6 +792,12 @@ async function recalculateMultiplePlayerTotals(itemIds, playerIds){
     await bulkInsertPlayerItemTotals(totals);
 }
 
+async function deleteMatchMapItemLocations(matchId){
+
+    const query = `DELETE FROM nstats_map_items_locations WHERE match_id=?`;
+    return await simpleQuery(query, [matchId]);
+}
+
 export async function deleteMatchData(matchId, playerIds){
 
     const usedIds = await getAllIdsUsedInMatch(matchId);
@@ -800,6 +806,7 @@ export async function deleteMatchData(matchId, playerIds){
 
     await simpleQuery(query, [matchId]);
 
+    await deleteMatchMapItemLocations(matchId);
     await recalculateMultipleTotals(usedIds);
     await recalculateMultiplePlayerTotals(usedIds, playerIds);
 
