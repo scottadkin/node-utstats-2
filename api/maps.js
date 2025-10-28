@@ -1298,3 +1298,29 @@ export async function getAllUploadedImages(){
 
     return fullSizeImages;
 }
+
+
+/**
+ * Gets total playtime from nstats_matches table and not maps table
+ * @param {*} mapId 
+ * @param {*} gametypeId 
+ * @returns 
+ */
+export async function getTotalPlaytime(mapId, gametypeId){
+
+    let query = `SELECT SUM(playtime) as playtime FROM nstats_matches WHERE map=?`;
+
+    const vars = [mapId];
+
+    if(gametypeId !== 0){
+        vars.push(gametypeId);
+        query += ` AND gametype=?`;
+    }
+
+    const result = await simpleQuery(query, vars);
+
+    if(result.length === 0) return 0;
+
+    return result[0].playtime;
+
+}

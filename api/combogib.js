@@ -2,6 +2,7 @@ import { bulkInsert, simpleQuery } from "./database.js";
 import { getPlayer } from "./generic.mjs";
 import { getObjectName } from "./genericServerSide.mjs";
 import { getBasicPlayersByIds } from "./players.js";
+import { getTotalPlaytime as getTotalMapPlaytime } from "./maps.js";
 
 export default class Combogib{
 
@@ -1526,6 +1527,18 @@ async function recalcPlayerTotals(playerIds, gametypeId, mapId){
     await insertNewPlayerTotals(result, gametypeId, mapId);
 }
 
+
+async function deleteMapTotals(mapId, gametypeId){
+
+    const query = `DELETE FROM nstats_map_combogib WHERE map_id=? AND gametype_id=?`;
+
+    const vars = [mapId, gametypeId];
+
+
+
+    return await simpleQuery(query, [mapId, gametypeId]);
+}
+
 async function insertNewMapTotals(mapId, gametypeId, matchId, playtime, combos, shockBalls, primary, insane){
 
    // if(matchId === null) then its new from merged data, use the type.matchId instead
@@ -1548,30 +1561,55 @@ async function insertNewMapTotals(mapId, gametypeId, matchId, playtime, combos, 
         ?,?,?,
         ?,?,?)`;
 
-    const vars = [mapId, gametypeId, playtime,
-        primary.kills, primary.kpm,
-        shockBalls.kills, shockBalls.kpm,
-        combos.kills, combos.kpm,
-        insane.kills,  insane.kpm,
-        combos.bestSingle, combos.bestSinglePlayerId, matchId,
-        shockBalls.bestSingle, shockBalls.bestSinglePlayerId, matchId,
-        insane.bestSingle, insane.bestSinglePlayerId, matchId,
-        primary.best, primary.bestPlayerId, matchId,
-        shockBalls.best, shockBalls.bestPlayerId, matchId,
-        combos.best, combos.bestPlayerId, matchId,
-        insane.best, insane.bestPlayerId, matchId,
-        combos.mostKills, combos.mostKillsPlayerId, matchId,
-        insane.mostKills, insane.mostKillsPlayerId, matchId,
-        shockBalls.mostKills, shockBalls.mostKillsPlayerId, matchId,
-        primary.mostKills, primary.mostKillsPlayerId, matchId,
-    ];
+    let vars = [];
+
+    if(matchId !== null){
+
+        vars = [mapId, gametypeId, playtime,
+            primary.kills, primary.kpm,
+            shockBalls.kills, shockBalls.kpm,
+            combos.kills, combos.kpm,
+            insane.kills,  insane.kpm,
+            combos.bestSingle, combos.bestSinglePlayerId, matchId,
+            shockBalls.bestSingle, shockBalls.bestSinglePlayerId, matchId,
+            insane.bestSingle, insane.bestSinglePlayerId, matchId,
+            primary.best, primary.bestPlayerId, matchId,
+            shockBalls.best, shockBalls.bestPlayerId, matchId,
+            combos.best, combos.bestPlayerId, matchId,
+            insane.best, insane.bestPlayerId, matchId,
+            combos.mostKills, combos.mostKillsPlayerId, matchId,
+            insane.mostKills, insane.mostKillsPlayerId, matchId,
+            shockBalls.mostKills, shockBalls.mostKillsPlayerId, matchId,
+            primary.mostKills, primary.mostKillsPlayerId, matchId,
+        ];
+
+    }else{
+
+        vars = [mapId, gametypeId, playtime,
+            primary.kills, primary.kpm,
+            shockBalls.kills, shockBalls.kpm,
+            combos.kills, combos.kpm,
+            insane.kills,  insane.kpm,
+            combos.bestSingle, combos.bestSinglePlayerId, combos.bestSingleMatchId,
+            shockBalls.bestSingle, shockBalls.bestSinglePlayerId, combos.bestSingleMatchId,
+            insane.bestSingle, insane.bestSinglePlayerId, insane.bestSingleMatchId,
+            primary.bestSpree, primary.bestSpreePlayerId, primary.bestSpreeMatchId,
+            shockBalls.bestSpree, shockBalls.bestSpreePlayerId, shockBalls.bestSpreeMatchId,
+            combos.bestSpree, combos.bestSpreePlayerId, combos.bestSpreeMatchId,
+            insane.bestSpree, insane.bestSpreePlayerId, insane.bestSpreeMatchId,
+            combos.maxKills, combos.maxKillsPlayerId, combos.maxKillsMatchId,
+            insane.maxKills, insane.maxKillsPlayerId, insane.maxKillsMatchId,
+            shockBalls.maxKills, shockBalls.maxKillsPlayerId, shockBalls.maxKillsMatchId,
+            primary.maxKills, primary.maxKillsPlayerId, primary.maxKillsMatchId,
+        ];
+    }
 
     await simpleQuery(query, vars);
 }
 
 async function recalculateMapTotals(mapId, gametypeId){
 
-    let query = `SELECT player_id,match_id,playtime,
+    let query = `SELECT player_id,match_id,
     primary_kills,  primary_kpm,
     shockball_kills,  shockball_kpm,
     combo_kills,  combo_kpm,
@@ -1608,7 +1646,6 @@ async function recalculateMapTotals(mapId, gametypeId){
     const totals = {
         "matchIds": new Set(),
         "matches": 0,
-        "playtime": 0,
         "primary": {...obj},
         "combo": {...obj},
         "insane": {...obj},
@@ -1672,12 +1709,22 @@ async function recalculateMapTotals(mapId, gametypeId){
                 totals[k].bestSinglePlayerId = r.player_id;
             }
         }
-        
     }
 
 
-    //set total playtime after fetching total time via mysql
-    console.log(totals);
+    const totalPlaytime = await getTotalMapPlaytime(mapId, gametypeId);
+
+    if(totalPlaytime > 0){
+        if(totals.combo.kills > 0) totals.combo.kpm = (totals.combo.kills / totalPlaytime) * 60;
+        if(totals.insane.kills > 0) totals.insane.kpm = (totals.insane.kills / totalPlaytime) * 60;
+        if(totals.shockball.kills > 0) totals.shockball.kpm = (totals.shockball.kills / totalPlaytime) * 60;
+        if(totals.primary.kills > 0) totals.primary.kpm = (totals.primary.kills / totalPlaytime) * 60;
+    }
+
+    await deleteMapTotals(mapId, gametypeId);
+    await insertNewMapTotals(mapId, gametypeId, null, totalPlaytime, totals.combo, totals.shockball, totals.primary, totals.insane);
+
+    
 }
 
 export async function deleteMatchData(matchId, playerIds, gametypeId, mapId){
@@ -1685,7 +1732,7 @@ export async function deleteMatchData(matchId, playerIds, gametypeId, mapId){
     //nstats_map_combogib recalc totals
 
     const query = `DELETE FROM nstats_match_combogib WHERE match_id=?`;
-    //await simpleQuery(query, [matchId]);
+    await simpleQuery(query, [matchId]);
 
     if(playerIds.length === 0) return;
 
@@ -1698,10 +1745,9 @@ export async function deleteMatchData(matchId, playerIds, gametypeId, mapId){
     //all time
     await recalcPlayerTotals(playerIds, 0, 0);
 
-
-    //RECALC MAP TOTALS, DON't REMOVE BEST_MATCH_ID,BEST_PLAYER_ID
-    //just select all matching rows and set stuff that way instead...
-
+    //map alltime totals
     await recalculateMapTotals(mapId, 0);
+    //map + gametype totals
+    await recalculateMapTotals(mapId, gametypeId);
     
 }
