@@ -33,6 +33,7 @@ import { deleteMatchTeamChanges } from "./teams.js";
 import { deleteMatchData as deleteMatchConnections } from "./connections.js";
 import { deleteMatchData as deleteMatchItems } from "./items.js";
 import { deleteMatchData as deleteMatchCombogibData } from "./combogib.js";
+import { deleteMatchData as deleteMatchMonsterHuntData} from "./monsterhunt.js";
 
 export default class Matches{
 
@@ -2018,6 +2019,7 @@ export async function adminDeleteMatch(id){
     await deleteMatchConnections(id);
     await deleteMatchItems(id, [...playerIds]);
     await deleteMatchCombogibData(id, [...playerIds], gametypeId, mapId);
+    await deleteMatchMonsterHuntData(id, [...playerIds]);
 
 
 
@@ -2040,13 +2042,6 @@ export async function adminDeleteMatch(id){
     
     //nstats_map_totals recacl totals
     //nstats_matches delete
-    
-    //nstats_monsters recalc totals
-    //nstats_monsters_match match_id
-    //nstats_monsters_player_match match_id
-    //nstats_monsters_player_totals recalc totals
-    //nstats_monster_kills match_id
-    
     
     //nstats_player_totals recalc
     //nstats_player_weapon_best reca;c

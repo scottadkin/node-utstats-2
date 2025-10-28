@@ -1,4 +1,4 @@
-import { simpleQuery, insertReturnInsertId, updateReturnAffectedRows } from "./database.js";
+import { simpleQuery, insertReturnInsertId, updateReturnAffectedRows, bulkInsert } from "./database.js";
 import fs from "fs";
 import { getObjectName } from "./genericServerSide.mjs";
 
@@ -357,20 +357,7 @@ export default class MonsterHunt{
         return await getPlayerMonsterTotals(id);
     }
 
-    async reducePlayerMonsterTotals(player, monster, kills){
 
-        const query = "UPDATE nstats_monsters_player_totals SET kills=kills-?,matches=matches-1 WHERE player=? AND monster=?";
-
-        await simpleQuery(query, [kills, player, monster]);
-    }
-
-
-    async reduceMonsterDeaths(monsterId, kills){
-
-        const query = "UPDATE nstats_monsters SET deaths=deaths-? WHERE id=?";
-
-        await simpleQuery(query, [kills, monsterId]);
-    }
 
     async deletePlayer(id){
 
@@ -438,7 +425,7 @@ export default class MonsterHunt{
     }
 
     async removePlayerFromMatch(playerId, matchId){
-
+        throw new Error(`rewrite mh.removePlayerFromMatch`);
         try{
 
 
@@ -476,52 +463,6 @@ export default class MonsterHunt{
         const query = "SELECT player,monster,kills FROM nstats_monsters_player_match WHERE match_id=?";
 
         return await simpleQuery(query, [id]);
-    }
-
-    async deleteMatchPlayerTotals(id){
-
-        const query = "DELETE FROM nstats_monsters_player_match WHERE match_id=?";
-
-        await simpleQuery(query, [id]);
-    }
-
-    async deleteMatchKills(id){
-
-        const query = "DELETE FROM nstats_monster_kills WHERE match_id=?";
-
-        await simpleQuery(query, [id]);
-    }
-
-    async deleteMatch(id){
-
-        try{
-
-            const monsterTotals = await this.getMatchMonsterTotals(id);
-
-            let m = 0;
-
-            for(let i = 0; i < monsterTotals.length; i++){
-
-                m = monsterTotals[i];
-
-                await this.reduceMonsterTotals(m.monster, m.deaths, 1);
-            }
-
-            const playerTotals = await this.getMatchPlayerTotals(id);
-
-            for(let i = 0; i < playerTotals.length; i++){
-
-                m = playerTotals[i];
-
-                await this.reducePlayerMonsterTotals(m.player, m.monster, m.kills);
-            }
-
-            await this.deleteMatchPlayerTotals(id);
-            await this.deleteMatchKills(id);
-
-        }catch(err){
-            console.trace(err);
-        }
     }
 
     async getAllMonsters(){
@@ -716,4 +657,128 @@ export async function getPlayerProfileMonsters(playerId){
 
     return playerMonsterTotals;
 
+}
+
+
+async function deleteMatchMonsters(matchId){
+
+    const query = `DELETE FROM nstats_monsters_match WHERE match_id=?`;
+    return await simpleQuery(query, [matchId]);
+}
+
+async function deleteMatchPlayerMonsters(matchId){
+
+    const query = `DELETE FROM nstats_monsters_player_match WHERE match_id=?`;
+    return await simpleQuery(query, [matchId]);
+}
+
+async function deleteMatchMonsterKills(matchId){
+    
+    const query = `DELETE FROM nstats_monster_kills WHERE match_id=?`;
+    return await simpleQuery(query, [matchId]);
+}
+
+async function getMonsterIdsFromMatch(matchId){
+
+    const query = `SELECT DISTINCT monster FROM nstats_monsters_match WHERE match_id=? AND monster>0`;
+
+    const result = await simpleQuery(query, [matchId]);
+
+    return result.map((r) =>{
+        return r.monster;
+    });
+}
+
+async function deleteSelectedMonsterTotals(monsterIds){
+
+    const query = `DELETE FROM nstats_monsters WHERE id IN (?)`;
+    return await simpleQuery(query, [monsterIds]);
+}
+
+async function setMonsterTotals(monsterId, kills, deaths){
+
+    const query = `UPDATE nstats_monsters SET kills=?,deaths=? WHERE id=?`;
+
+    return await simpleQuery(query, [kills, deaths, monsterId]);
+}
+
+//get totals from players table because i didnt save deaths by monster anywhere else...
+//deaths = times a monster killed a player
+//kills = times a player killed a monster
+async function recalculateSelectedMonsterTotals(monsterIds){
+
+    if(monsterIds.length === 0) return;
+
+    await deleteSelectedMonsterTotals(monsterIds);
+
+    const query = `SELECT 
+    CAST(SUM(kills) AS UNSIGNED) as kills, 
+    CAST(SUM(deaths) AS UNSIGNED) as deaths,
+    monster 
+    FROM nstats_monsters_player_match WHERE monster IN (?) GROUP BY monster`;
+
+    const result = await simpleQuery(query, [monsterIds]);
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        //kills and deaths are not the WRONG way around
+        //r.deaths is player deaths to monster not monster deaths
+        await setMonsterTotals(r.monster, r.deaths, r.kills);
+    }
+}
+
+async function deletePlayerMonsterTotals(playerIds, monsterIds){
+
+    const query = `DELETE FROM nstats_monsters_player_totals WHERE player IN(?) AND monster IN(?)`;
+
+    return await simpleQuery(query, [playerIds, monsterIds]);
+}
+
+async function bulkInsertPlayerMonsterTotals(data){
+
+    const query = `INSERT INTO nstats_monsters_player_totals (player,monster,matches,kills,deaths) VALUES ?`;
+
+    const insertVars = [];
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        insertVars.push([
+            d.player, d.monster, d.total_matches,d.kills,d.deaths
+        ]);
+    }
+
+    return await bulkInsert(query, insertVars);
+}
+
+async function recalculatePlayerMonsterTotals(monsterIds, playerIds){
+
+    if(monsterIds.length === 0 || playerIds.length === 0) return;
+
+    const query = `SELECT player,monster,
+    COUNT(*) as total_matches,
+    CAST(SUM(kills) AS UNSIGNED) as kills, 
+    CAST(SUM(deaths) AS UNSIGNED) as deaths
+    FROM nstats_monsters_player_match WHERE player IN(?) AND monster IN(?) GROUP BY player,monster`;
+
+    const result = await simpleQuery(query, [playerIds, monsterIds]);
+
+    await deletePlayerMonsterTotals(playerIds, monsterIds);
+
+
+    await bulkInsertPlayerMonsterTotals(result);
+}
+
+export async function deleteMatchData(matchId, playerIds){
+
+    const affectedMonsters = await getMonsterIdsFromMatch(matchId);
+    await deleteMatchMonsters(matchId);
+    await deleteMatchPlayerMonsters(matchId);
+    await deleteMatchMonsterKills(matchId);
+
+    await recalculatePlayerMonsterTotals(affectedMonsters, playerIds);
+    await recalculateSelectedMonsterTotals(affectedMonsters);
+    //TODO create nstats_monsters_deaths table and save each time a player dies to a monster
 }
