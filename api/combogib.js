@@ -124,46 +124,7 @@ export default class Combogib{
     }
 
 
-    async insertNewMapTotals(mapId, gametypeId, matchId, playtime, combos, shockBalls, primary, insane){
-
-        const query = `INSERT INTO nstats_map_combogib VALUES(
-            NULL,?,?,1,?,
-            ?,?,
-            ?,?,
-            ?,?,
-            ?,?,
-            ?,?,?,
-            ?,?,?,
-            ?,?,?,
-            ?,?,?,
-            ?,?,?,
-            ?,?,?,
-            ?,?,?,
-            ?,?,?,
-            ?,?,?,
-            ?,?,?,
-            ?,?,?)`;
-
-        const vars = [mapId, gametypeId, playtime,
-            primary.kills, primary.kpm,
-            shockBalls.kills, shockBalls.kpm,
-            combos.kills, combos.kpm,
-            insane.kills,  insane.kpm,
-            combos.bestSingle, combos.bestSinglePlayerId, matchId,
-            shockBalls.bestSingle, shockBalls.bestSinglePlayerId, matchId,
-            insane.bestSingle, insane.bestSinglePlayerId, matchId,
-            primary.best, primary.bestPlayerId, matchId,
-            shockBalls.best, shockBalls.bestPlayerId, matchId,
-            combos.best, combos.bestPlayerId, matchId,
-            insane.best, insane.bestPlayerId, matchId,
-            combos.mostKills, combos.mostKillsPlayerId, matchId,
-            insane.mostKills, insane.mostKillsPlayerId, matchId,
-            shockBalls.mostKills, shockBalls.mostKillsPlayerId, matchId,
-            primary.mostKills, primary.mostKillsPlayerId, matchId,
-        ];
-
-        await simpleQuery(query, vars);
-    }
+    
 
     async updateMapTotalTable(mapId, gametypeId, matchId, playtime, combos, shockBalls, primary, insane){
 
@@ -291,7 +252,7 @@ export default class Combogib{
             await this.updateMapTotalTable(mapId, gametypeId, matchId, playtime, combos, shockBalls, primary, insane);
 
         }else{
-            await this.insertNewMapTotals(mapId, gametypeId, matchId, playtime, combos, shockBalls, primary, insane);
+            await insertNewMapTotals(mapId, gametypeId, matchId, playtime, combos, shockBalls, primary, insane);
         } 
 
         //run again but with gametype id of 0(all combined)
@@ -638,7 +599,7 @@ export default class Combogib{
         return null;
     }
 
-    async reduceMapTotals(data){
+    /*async reduceMapTotals(data){
 
 
         const query = `UPDATE nstats_map_combogib SET 
@@ -722,7 +683,7 @@ export default class Combogib{
         ];
 
         await simpleQuery(query, vars);
-    }
+    }*/
 
     async getMapBestValues(mapId){
 
@@ -1565,6 +1526,159 @@ async function recalcPlayerTotals(playerIds, gametypeId, mapId){
     await insertNewPlayerTotals(result, gametypeId, mapId);
 }
 
+async function insertNewMapTotals(mapId, gametypeId, matchId, playtime, combos, shockBalls, primary, insane){
+
+   // if(matchId === null) then its new from merged data, use the type.matchId instead
+
+    const query = `INSERT INTO nstats_map_combogib VALUES(
+        NULL,?,?,1,?,
+        ?,?,
+        ?,?,
+        ?,?,
+        ?,?,
+        ?,?,?,
+        ?,?,?,
+        ?,?,?,
+        ?,?,?,
+        ?,?,?,
+        ?,?,?,
+        ?,?,?,
+        ?,?,?,
+        ?,?,?,
+        ?,?,?,
+        ?,?,?)`;
+
+    const vars = [mapId, gametypeId, playtime,
+        primary.kills, primary.kpm,
+        shockBalls.kills, shockBalls.kpm,
+        combos.kills, combos.kpm,
+        insane.kills,  insane.kpm,
+        combos.bestSingle, combos.bestSinglePlayerId, matchId,
+        shockBalls.bestSingle, shockBalls.bestSinglePlayerId, matchId,
+        insane.bestSingle, insane.bestSinglePlayerId, matchId,
+        primary.best, primary.bestPlayerId, matchId,
+        shockBalls.best, shockBalls.bestPlayerId, matchId,
+        combos.best, combos.bestPlayerId, matchId,
+        insane.best, insane.bestPlayerId, matchId,
+        combos.mostKills, combos.mostKillsPlayerId, matchId,
+        insane.mostKills, insane.mostKillsPlayerId, matchId,
+        shockBalls.mostKills, shockBalls.mostKillsPlayerId, matchId,
+        primary.mostKills, primary.mostKillsPlayerId, matchId,
+    ];
+
+    await simpleQuery(query, vars);
+}
+
+async function recalculateMapTotals(mapId, gametypeId){
+
+    let query = `SELECT player_id,match_id,playtime,
+    primary_kills,  primary_kpm,
+    shockball_kills,  shockball_kpm,
+    combo_kills,  combo_kpm,
+    insane_kills,  insane_kpm,
+    best_single_combo, best_single_shockball, best_single_insane,
+    best_primary_spree,best_shockball_spree,best_combo_spree,best_insane_spree
+    FROM nstats_match_combogib WHERE map_id=?`;
+
+    const vars = [mapId];
+
+    if(gametypeId !== 0){
+        query += ` AND gametype_id=?`;
+        vars.push(gametypeId);
+    }
+
+    const result = await simpleQuery(query, vars);
+
+
+    const obj = {
+        "kills": 0, 
+        "kpm": 0,
+        "bestSingle": 0,
+        "bestSingleMatchId": 0,
+        "bestSinglePlayerId": 0,
+        "maxKills": 0,
+        "maxKillsMatchId": 0,
+        "maxKillsPlayerId": 0,
+        "bestSpree": 0,
+        "bestSpreeMatchId": 0,
+        "bestSpreePlayerId": 0
+    };
+
+
+    const totals = {
+        "matchIds": new Set(),
+        "matches": 0,
+        "playtime": 0,
+        "primary": {...obj},
+        "combo": {...obj},
+        "insane": {...obj},
+        "shockball": {...obj}
+    };
+
+    const typeKeys = [
+        "primary", "combo", "insane", "shockball"
+    ];
+
+    const countedMatchIds = [];
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        if(countedMatchIds.indexOf(r.match_id) === -1){
+
+            countedMatchIds.push(r.match_id);
+
+            totals.matches++;
+        }
+
+        totals.matchIds.add(r.match_id);
+
+        totals.combo.kills += r.combo_kills;
+        totals.insane.kills += r.insane_kills;
+        totals.shockball.kills += r.shockball_kills;
+        totals.primary.kills += r.primary_kills;
+
+        for(let x = 0; x < typeKeys.length; x++){
+
+            const k = typeKeys[x];
+
+            const maxKills = totals[k].maxKills;
+            const bestSpree = totals[k].bestSpree;
+
+            const currentKills = r[`${k}_kills`];
+            const currentSpree = r[`best_${k}_spree`];
+
+            if(currentKills > maxKills){
+                totals[k].maxKills = currentKills;
+                totals[k].maxKillsMatchId = r.match_id;
+                totals[k].maxKillsPlayerId = r.player_id;
+            }
+
+            if(currentSpree > bestSpree){
+                totals[k].bestSpree = currentSpree;
+                totals[k].bestSpreeMatchId = r.match_id;
+                totals[k].bestSpreePlayerId = r.player_id;
+            }
+
+            if(k === "primary") continue;
+
+            const currentBestSingle = r[`best_single_${k}`];
+            const maxBestSingle = totals[k].bestSingle;
+
+            if(currentBestSingle > maxBestSingle){
+                totals[k].bestSingle = currentBestSingle;
+                totals[k].bestSingleMatchId = r.match_id;
+                totals[k].bestSinglePlayerId = r.player_id;
+            }
+        }
+        
+    }
+
+
+    //set total playtime after fetching total time via mysql
+    console.log(totals);
+}
 
 export async function deleteMatchData(matchId, playerIds, gametypeId, mapId){
 
@@ -1583,5 +1697,11 @@ export async function deleteMatchData(matchId, playerIds, gametypeId, mapId){
     await recalcPlayerTotals(playerIds, gametypeId, 0);
     //all time
     await recalcPlayerTotals(playerIds, 0, 0);
+
+
+    //RECALC MAP TOTALS, DON't REMOVE BEST_MATCH_ID,BEST_PLAYER_ID
+    //just select all matching rows and set stuff that way instead...
+
+    await recalculateMapTotals(mapId, 0);
     
 }
