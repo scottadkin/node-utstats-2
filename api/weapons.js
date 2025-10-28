@@ -1425,7 +1425,6 @@ export async function bulkInsertPlayerTotals(data, gametypeId, mapId){
     const query = `INSERT INTO nstats_player_weapon_totals (player_id,map_id,gametype,playtime,weapon,
     kills,team_kills,deaths,suicides,efficiency,accuracy,shots,hits,damage,matches) VALUES ?`;
 
-    console.log(`fgdsjhi gdgsjio gdsgododgsjgodjspjogsdpjopgdsopjgdsopjgdsjopgd s jopgdsjogds jopgdsjo pgdsjo pgsdjo pgsdjo gsdjop gsdjopgjo jopgsd jgsd jopgsd josdg gojds`);
     const vars = data.map((d) =>{
 
         let eff = 0;

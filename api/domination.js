@@ -693,3 +693,17 @@ export async function deleteMatchData(matchId){
     await deleteMatchControlPoints(matchId);
     await deleteMatchPlayerScores(matchId);
 }
+
+export async function getMapControlPoints(map){
+
+    const query = "SELECT id,name FROM nstats_dom_control_points WHERE map=?";
+    const result = await simpleQuery(query, [map]);
+
+    const data = new Map();
+
+    for(let i = 0; i < result.length; i++){
+        data.set(result[i].name, result[i].id);
+    }
+    
+    return data;
+}

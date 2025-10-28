@@ -151,7 +151,16 @@ export default class PowerUpManager{
                     playtime = player.getTotalPlaytime(this.totalTeams);
                 }
 
-                await this.powerUps.updatePlayerTotals(playerId, gametypeId, powerUpId, stats, playtime);
+                //gametype + map combo
+                await this.powerUps.updatePlayerTotals(playerId, gametypeId, mapId, powerUpId, stats, playtime);
+
+                //map total
+                await this.powerUps.updatePlayerTotals(playerId, 0, mapId, powerUpId, stats, playtime);
+                //gametype total
+                await this.powerUps.updatePlayerTotals(playerId, gametypeId, 0, powerUpId, stats, playtime);
+
+                //all time
+                await this.powerUps.updatePlayerTotals(playerId, 0, 0, powerUpId, stats, playtime);
 
                 //await this.powerUps.bPlayerTotalExist(playerId, powerUpId, playtime);
             }
@@ -215,10 +224,14 @@ export default class PowerUpManager{
    
                 await this.powerUps.updatePlayerMatchCarrierKills(matchId, matchDate, mapId, gametypeId, playerId, powerUpId, totalKills, bestKills);
 
-                //combined totals
-                await this.powerUps.updatePlayerTotalCarrierKills(playerId, 0, powerUpId, playtime, totalKills, bestKills);
+                //all time totals
+                await this.powerUps.updatePlayerTotalCarrierKills(playerId, 0, 0, powerUpId, playtime, totalKills, bestKills);
                 //gametype totals
-                await this.powerUps.updatePlayerTotalCarrierKills(playerId, gametypeId, powerUpId, playtime, totalKills, bestKills);
+                await this.powerUps.updatePlayerTotalCarrierKills(playerId, gametypeId, 0, powerUpId, playtime, totalKills, bestKills);
+                //map totals
+                await this.powerUps.updatePlayerTotalCarrierKills(playerId, 0, mapId, powerUpId, playtime, totalKills, bestKills);
+                //gametype map combo totals
+                await this.powerUps.updatePlayerTotalCarrierKills(playerId, gametypeId, mapId, powerUpId, playtime, totalKills, bestKills);
             }
         }
     }

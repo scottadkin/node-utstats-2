@@ -1,4 +1,5 @@
 import Domination from "../domination.js";
+import { getMapControlPoints } from "../domination.js";
 import Message from "../message.js";
 
 export default class DOMManager{
@@ -301,7 +302,7 @@ export default class DOMManager{
         try{
 
 
-            const pointIds = await this.domination.getMapControlPoints(mapId);
+            const pointIds = await getMapControlPoints(mapId);
 
 
             for(let i = 0; i < this.capData.length; i++){
