@@ -177,7 +177,7 @@ export default class Rankings{
         let latestMatchDate = await this._getPlayerLatestGametypeDate(playerId, gametypeId);
 
         if(latestMatchDate === null){
-            new Message(`rankings.insertPlayerCurrent() latestMatchDate is null!`);
+           // new Message(`rankings.insertPlayerCurrent() latestMatchDate is null!`);
             latestMatchDate = DEFAULT_MIN_DATE;
         }
 
@@ -607,16 +607,16 @@ export default class Rankings{
 
             const rankingChange = totalScore - totalData.previousScore;
 
-            insertVars.push([matchId, playerId, gametypeId, totalScore, matchScore, rankingChange]);
+            //insertVars.push([matchId, playerId, gametypeId, totalScore, matchScore, rankingChange]);
 
-            //await this.insertPlayerHistory(matchId, playerId, gametypeId, totalScore, matchScore, rankingChange);
+            await this.insertPlayerHistory(matchId, playerId, gametypeId, totalScore, matchScore, rankingChange);
 
             totalData.previousScore = totalScore;  
             totalData.rankingChange = rankingChange;
 
         }
 
-        console.log(insertVars);
+        //console.log(insertVars);
         //await this.deletePlayerGametypeCurrent(playerId, gametypeId);
 
         for(const [playerId, data] of Object.entries(totals)){
@@ -898,12 +898,14 @@ export async function deleteMatchData(matchId, playerIds, gametypeId){
 
     const rankingManager = new Rankings();
     await rankingManager.loadCurrentSettings();
-    console.log(rankingManager.settings);
-
-     //nstats_ranking_player_current recalc
     
-     //await deletePlayerMatchData(matchId);
+    await deletePlayerMatchData(matchId);
 
+    for(let i = 0; i < playerIds.length; i++){
+        const id = playerIds[i];
+        
+        await rankingManager.recalculatePlayerGametype(id, gametypeId);
+    }
 
 
 }
