@@ -258,20 +258,33 @@ export default class MatchManager{
 
             if(this.domManager !== undefined){
 
+                new Message(`Inserting match domination data`,`note`);
                 this.domManager.setLifeCaps(this.killManager);
+
+                const startTest = performance.now();
+                
 
                 await this.domManager.updatePlayersMatchStats();
                 await this.domManager.insertMatchPlayerScores(this.matchId);
                 await this.domManager.updatePlayerLifeCaps(this.matchId);
+
+                const endTest = performance.now();
+
+                console.log(endTest - startTest);
             }
 
             if(this.assaultManager !== undefined){
+                new Message(`Inserting match assault data`,`note`);
                 await this.assaultManager.updatePlayersMatchStats();
             }
 
             if(this.monsterHuntManager !== undefined){
 
+                new Message(`Inserting match monsterhunt data`,`note`);
+
+                
                 this.monsterHuntManager.parseData(this.playerManager, this.killManager);
+                
 
                 await this.monsterHuntManager.updatePlayerMatchData(this.matchId, this.playerManager.players);
                 await this.monsterHuntManager.updatePlayerTotals(this.gametype.currentMatchGametype, this.playerManager.players);
@@ -283,6 +296,8 @@ export default class MatchManager{
 
 
             if(this.weaponsManager !== undefined){
+
+                new Message(`Processing match weapon data`,`note`);
 
                 this.weaponsManager.matchId = this.matchId;
                 this.weaponsManager.mapId = this.mapInfo.mapId;
@@ -300,6 +315,7 @@ export default class MatchManager{
 
             this.itemsManager = new ItemsManager(this.itemLines, this.playerManager, this.killManager, this.gameInfo.totalTeams);
           
+            new Message(`Inserting match items data`,`note`);
             await this.itemsManager.updateTotals(this.serverInfo.date);
             await this.itemsManager.updateMapItems(this.mapInfo.mapId, this.matchId);
 

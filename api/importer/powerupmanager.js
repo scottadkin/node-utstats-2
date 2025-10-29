@@ -112,7 +112,7 @@ export default class PowerUpManager{
         }
     }
 
-    async insertCarryTimes(matchId, matchDate){
+    async insertCarryTimes(matchId, matchDate, gametypeId, mapId){
 
         for(let i = 0; i < this.powerUpHistory.length; i++){
 
@@ -120,6 +120,8 @@ export default class PowerUpManager{
 
             await this.powerUps.insertPlayerCarryTimes(
                 matchId, 
+                gametypeId,
+                mapId,
                 matchDate, 
                 p.player, 
                 p.powerUpId, 
@@ -238,13 +240,12 @@ export default class PowerUpManager{
 
     async insertMatchData(matchId, matchDate, mapId, gametypeId){
 
-        await this.insertCarryTimes(matchId, matchDate);
+        await this.insertCarryTimes(matchId, matchDate, gametypeId, mapId);
         await this.insertPlayerMatchData(matchId, matchDate, mapId, gametypeId);
 
         await this.insertCarrierKills(matchId, matchDate, mapId, gametypeId);
         //console.log(this.powerUpHistory);
-        
-        console.log(this.carrierKills);
+    
 
     }
 }

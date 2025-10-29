@@ -1,4 +1,4 @@
-import { simpleQuery } from "./database.js";
+import { bulkInsert, simpleQuery } from "./database.js";
 
 export default class PowerUps{
 
@@ -27,10 +27,10 @@ export default class PowerUps{
 
 
     //end reasons : -1 match ended, 0 power up ended, 1 killed, 2 suicide
-    async insertPlayerCarryTimes(matchId, matchDate, playerId, powerUpId, start, end, carryTime, kills, endReason){
+    async insertPlayerCarryTimes(matchId, gametypeId, mapId, matchDate, playerId, powerUpId, start, end, carryTime, kills, endReason){
 
-        const query = `INSERT INTO nstats_powerups_carry_times VALUES(NULL,?,?,?,?,?,?,?,?,?)`;
-        const vars = [matchId, matchDate, playerId, powerUpId, start, end, carryTime, kills, endReason];
+        const query = `INSERT INTO nstats_powerups_carry_times VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?)`;
+        const vars = [matchId, gametypeId, mapId, matchDate, playerId, powerUpId, start, end, carryTime, kills, endReason];
 
         return await simpleQuery(query, vars);
     }
@@ -491,10 +491,95 @@ async function deleteMatchPlayerCarryTimes(matchId){
 }
 
 
+async function deletePlayersTotals(playerIds, gametypeId, mapId){
+
+    let query = `DELETE FROM nstats_powerups_player_totals WHERE player_id IN (?) AND gametype_id=? AND map_id=?`;
+
+    const vars = [playerIds, gametypeId, mapId];
+
+    return await simpleQuery(query, vars);
+}
+
+async function bulkInsertPlayersTotals(data, bestSingleUses, gametypeId, mapId){
+
+   // if(data.length === 0) return;
+
+    let query = `INSERT INTO nstats_powerups_player_totals (
+    player_id,gametype_id,map_id,total_matches,total_playtime,powerup_id,
+    times_used,times_used_best,carry_time,carry_time_best,total_kills,best_kills,
+    best_kills_single_use,end_deaths,end_suicides,end_timeouts,end_match_end,
+    total_carrier_kills,carrier_kills_best,carrier_kills_single_life
+    ) VALUES ?`;
+
+    const insertVars = [];
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        insertVars.push([
+            d.player_id, gametypeId, mapId, d.total_matches, 0, d.powerup_id,
+            d.times_used, d.times_used_best,
+            d.carry_time,
+            bestSingleUses?.[d.player_id]?.[d.powerup_id]?.best_carry_time ?? 0,
+            d.total_kills,
+            d.best_kills,
+            bestSingleUses?.[d.player_id]?.[d.powerup_id]?.best_single_use_kills ?? 0,
+            d.end_deaths,d.end_suicides,d.end_timeouts,d.end_match_end, d.carrier_kills,
+            d.max_carrier_kills,
+            d.carrier_kills_best,
+        ]);
+    }
+
+    return await bulkInsert(query, insertVars);
+}
+
+async function getPlayersBestSingleUse(playerIds, gametypeId, mapId){
+
+    let query = `SELECT MAX(kills) as best_single_use_kills,MAX(carry_time) as best_carry_time,player_id,powerup_id
+    FROM nstats_powerups_carry_times WHERE player_id IN (?)`;
+
+    const vars = [playerIds];
+
+    if(gametypeId !== 0){
+        vars.push(gametypeId);
+        query += ` AND gametype_id=?`;
+    }
+
+    if(mapId !== 0){
+        vars.push(mapId);
+        query += ` AND map_id=?`;
+    }
+
+    const result = await simpleQuery(`${query} GROUP BY player_id,powerup_id`, vars);
+
+    const data = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        if(data[r.player_id] === undefined){
+            data[r.player_id] = {};
+        }
+
+        if(data[r.player_id][r.powerup_id] === undefined){
+            data[r.player_id][r.powerup_id] = {
+                "best_single_use_kills": r.best_single_use_kills,
+                "best_carry_time": r.best_carry_time
+            };
+        }
+    }
+
+    return data;
+}
+
 async function recalculatePlayerTotals(playerIds, gametypeId, mapId){
 
-    let query =  `SELECT COUNT(*) as total_matches,powerup_id,
+
+    let query =  `SELECT COUNT(*) as total_matches,powerup_id,player_id,
     SUM(times_used) as times_used,
+    MAX(times_used) as times_used_best,
     SUM(carry_time) as carry_time,
     MAX(carry_time_best) as carry_times_best,
     SUM(total_kills) as total_kills,
@@ -504,6 +589,7 @@ async function recalculatePlayerTotals(playerIds, gametypeId, mapId){
     SUM(end_timeouts) as end_timeouts,
     SUM(end_match_end) as end_match_end,
     SUM(carrier_kills) as carrier_kills,
+    MAX(carrier_kills) as max_carrier_kills,
     MAX(carrier_kills_best) as carrier_kills_best
     FROM nstats_powerups_player_match WHERE player_id IN(?)`;
 
@@ -521,15 +607,20 @@ async function recalculatePlayerTotals(playerIds, gametypeId, mapId){
 
     const result = await simpleQuery(`${query} GROUP BY player_id,powerup_id`, vars);
 
-    console.log(result);
+    await deletePlayersTotals(playerIds, gametypeId, mapId);
+
+    const bestSingleUses = await getPlayersBestSingleUse(playerIds, gametypeId, mapId);
+
+
+    await bulkInsertPlayersTotals(result, bestSingleUses, gametypeId, mapId);
+
 }
 
 export async function deleteMatchData(matchId, playerIds, gametypeId, mapId){
 
-    //await deleteMatchPlayerData(matchId);
-    //await deleteMatchPlayerCarryTimes(matchId);
+   // await deleteMatchPlayerData(matchId);
+   // await deleteMatchPlayerCarryTimes(matchId);
 
-    //nstats_powerups_player_totals recalc
 
     //map gametype combo
     await recalculatePlayerTotals(playerIds, gametypeId, mapId);

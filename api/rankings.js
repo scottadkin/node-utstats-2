@@ -1,7 +1,7 @@
 import { simpleQuery } from "./database.js";
 import Message from "./message.js";
 import { getAllGametypeNames } from "./gametypes.js";
-import { getBasicPlayersByIds } from "./players.js";
+import { getBasicPlayersByIds, getAllPlayersGametypeMatchData } from "./players.js";
 import { DEFAULT_MIN_DATE, toMysqlDate } from "./generic.mjs";
 
 export const DEFAULT_RANKING_VALUES = [
@@ -558,20 +558,6 @@ export default class Rankings{
         return await simpleQuery(query, [playerId, gametypeId]);
     }
 
-
-    async deletePlayerFromMatch(playerManager, playerId, matchId, gametypeId, bRecalculate){
-
-        if(bRecalculate){
-
-            await this.deletePlayerGametypeHistory(playerId, gametypeId);
-            await this.recalculatePlayerGametype(playerManager, playerId, gametypeId);
-
-        }else{
-
-            await this.deletePlayerMatchHistory(playerId, matchId);
-        }
-    }
-
     async fullPlayerRecalculate(playerManager, playerId){
 
         const playedGametypes = await playerManager.getPlayedGametypes(playerId);
@@ -580,7 +566,7 @@ export default class Rankings{
 
             const pId = playedGametypes[i];
 
-            await this.recalculatePlayerGametype(playerManager, playerId, pId);
+            await this.recalculatePlayerGametype(playerId, pId);
         }
     }
 
@@ -590,16 +576,22 @@ export default class Rankings{
         await this.deletePlayerGametypeHistory(playerId, gametypeId);
     }
 
-    async recalculatePlayerGametype(playerManager, playerId, gametypeId){
+
+    async bulkInsertPlayerHistory(data, gametypeId){
+
+    }
+
+    async recalculatePlayerGametype(playerId, gametypeId){
 
         console.log(`recalculate player ranking for playerId=${playerId} and gametypeId=${gametypeId}`);
 
-        const matchHistory = await playerManager.getAllPlayersGametypeMatchData(gametypeId, playerId);
+        const matchHistory = await getAllPlayersGametypeMatchData(gametypeId, playerId);
 
         await this.deletePlayerGametype(playerId, gametypeId);
 
         const totals = {};
 
+        const insertVars = [];
 
         for(let i = 0; i < matchHistory.length; i++){
 
@@ -615,13 +607,16 @@ export default class Rankings{
 
             const rankingChange = totalScore - totalData.previousScore;
 
-            await this.insertPlayerHistory(matchId, playerId, gametypeId, totalScore, matchScore, rankingChange);
+            insertVars.push([matchId, playerId, gametypeId, totalScore, matchScore, rankingChange]);
+
+            //await this.insertPlayerHistory(matchId, playerId, gametypeId, totalScore, matchScore, rankingChange);
 
             totalData.previousScore = totalScore;  
             totalData.rankingChange = rankingChange;
 
         }
 
+        console.log(insertVars);
         //await this.deletePlayerGametypeCurrent(playerId, gametypeId);
 
         for(const [playerId, data] of Object.entries(totals)){
@@ -643,14 +638,6 @@ export default class Rankings{
         const currentResult = await simpleQuery(currentQuery, vars);
 
         return {"history": historyResult.affectedRows, "current": currentResult.affectedRows};
-    }
-
-
-    async deleteMatchRankings(matchId){
-
-        const query = `DELETE FROM nstats_ranking_player_history WHERE match_id=?`;
-
-        return await simpleQuery(query, [matchId]);
     }
 
 
@@ -684,6 +671,16 @@ export default class Rankings{
 
             await simpleQuery(query, [last, player, gametype]);
         } 
+    }
+
+    
+    async recalculatePlayersRankings(playerIds, gametypeId){
+
+        for(let i = 0; i < playerIds.length; i++){
+
+            const id = playerIds[i];
+            await this.recalculatePlayerGametype(id, gametypeId);
+        }
     }
 }
 
@@ -882,4 +879,31 @@ export async function getCurrentRanking(playerId, gametype){
     }
 
     return {"ranking": 0, "ranking_change": 0};
+}
+
+
+async function deletePlayerMatchData(matchId){
+
+    const query = `DELETE FROM nstats_ranking_player_history WHERE match_id=?`;
+
+    return await simpleQuery(query, [matchId]);
+}
+
+
+
+export async function deleteMatchData(matchId, playerIds, gametypeId){
+
+
+    if(playerIds.length === 0) return;
+
+    const rankingManager = new Rankings();
+    await rankingManager.loadCurrentSettings();
+    console.log(rankingManager.settings);
+
+     //nstats_ranking_player_current recalc
+    
+     //await deletePlayerMatchData(matchId);
+
+
+
 }

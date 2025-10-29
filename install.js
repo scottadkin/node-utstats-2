@@ -1225,9 +1225,11 @@ const queries = [
         display_name varchar(100) NOT NULL,
         PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
-      `CREATE TABLE IF NOT EXISTS  nstats_powerups_carry_times (
+      `CREATE TABLE IF NOT EXISTS nstats_powerups_carry_times (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
+        gametype_id int(11) NOT NULL,
+        map_id int(11) NOT NULL,
         match_date DATETIME NOT NULL,
         player_id int(11) NOT NULL,
         powerup_id int(11) NOT NULL,

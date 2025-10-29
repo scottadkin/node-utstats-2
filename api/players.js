@@ -1548,9 +1548,7 @@ export default class Players{
 
     async getAllPlayersGametypeMatchData(gametypeId, playerId){
 
-        const query = "SELECT * FROM nstats_player_matches WHERE gametype=? AND player_id=?";
-
-        return await simpleQuery(query, [gametypeId, playerId]);
+        return getAllPlayersGametypeMatchData(gametypeId, playerId);
     }
 
     async reducePlayerGametypeTotals(gametypeId, playerId, data){
@@ -3549,4 +3547,12 @@ export async function deletePlayersMatchData(matchId){
     await simpleQuery(query, [matchId]);
 
     await deleteMatchScoreHistory(matchId);
+}
+
+
+export async function getAllPlayersGametypeMatchData(gametypeId, playerId){
+
+    const query = "SELECT * FROM nstats_player_matches WHERE gametype=? AND player_id=?";
+
+    return await simpleQuery(query, [gametypeId, playerId]);
 }
