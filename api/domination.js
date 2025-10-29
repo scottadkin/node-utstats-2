@@ -1,4 +1,4 @@
-import { simpleQuery } from "./database.js";
+import { bulkInsert, simpleQuery } from "./database.js";
 import Message from "./message.js";
 import { getBasicPlayersByIds } from "./players.js";
 import { getTeamName } from "./generic.mjs";
@@ -706,4 +706,20 @@ export async function getMapControlPoints(map){
     }
     
     return data;
+}
+
+
+export async function bulkInsertPlayerScoreHistory(matchId, data){
+
+    const insertVars = [];
+
+    const query = `INSERT INTO nstats_dom_match_player_score (match_id,timestamp,player,score) VALUES ?`;
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+        insertVars.push([matchId, d.timestamp, d.player, d.score]);
+    }
+
+    return await bulkInsert(query, insertVars);
 }

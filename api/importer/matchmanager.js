@@ -268,9 +268,6 @@ export default class MatchManager{
                 await this.domManager.insertMatchPlayerScores(this.matchId);
                 await this.domManager.updatePlayerLifeCaps(this.matchId);
 
-                const endTest = performance.now();
-
-                console.log(endTest - startTest);
             }
 
             if(this.assaultManager !== undefined){

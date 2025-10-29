@@ -1,4 +1,4 @@
-import Domination from "../domination.js";
+import Domination, { bulkInsertPlayerScoreHistory } from "../domination.js";
 import { getMapControlPoints } from "../domination.js";
 import Message from "../message.js";
 
@@ -325,20 +325,7 @@ export default class DOMManager{
 
 
     async insertMatchPlayerScores(matchId){
-
-        try{
-
-            let p = 0;
-
-            for(let i = 0; i < this.playerScores.length; i++){
-
-                p = this.playerScores[i];
-                await this.domination.insertMatchPlayerScore(matchId, p.timestamp, p.player, p.score);
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
+        await bulkInsertPlayerScoreHistory(matchId, this.playerScores); 
     }
 
 
