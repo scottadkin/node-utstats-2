@@ -1,4 +1,4 @@
-import PowerUps, { bulkInsertMatchCarryTimes } from "../powerups.js";
+import PowerUps, { bulkInsertMatchCarryTimes, bulkInsertPlayerMatchData, bulkUpdatePlayerTotals } from "../powerups.js";
 
 export default class PowerUpManager{
 
@@ -114,62 +114,23 @@ export default class PowerUpManager{
 
     async insertCarryTimes(matchId, matchDate, gametypeId, mapId){
 
-
         return await bulkInsertMatchCarryTimes(matchId, matchDate, mapId, gametypeId, this.powerUpHistory);
-
-        /*for(let i = 0; i < this.powerUpHistory.length; i++){
-
-            const p = this.powerUpHistory[i];
-
-            await this.powerUps.insertPlayerCarryTimes(
-                matchId, 
-                gametypeId,
-                mapId,
-                matchDate, 
-                p.player, 
-                p.powerUpId, 
-                p.timestamp, 
-                p.endTimestamp, 
-                p.carryTime, 
-                p.totalKills,
-                p.endReason
-            );
-        }*/
     }
 
 
     async insertPlayerMatchData(matchId, matchDate, mapId, gametypeId){
 
+        const data = [];
+
         for(const [playerId, playerStats] of Object.entries(this.playerTotals)){
 
             for(const [powerUpId, stats] of Object.entries(playerStats)){
 
-                await this.powerUps.insertPlayerMatchData(matchId, matchDate, mapId, gametypeId, playerId, powerUpId, stats);
-
-                //const playerPlaytime = this.playerManager.getTotalPlaytime();
-
-                const player = this.playerManager.getPlayerByMasterId(playerId);
-
-                let playtime = 0;
-
-                if(player !== null){
-                    playtime = player.getTotalPlaytime(this.totalTeams);
-                }
-
-                //gametype + map combo
-                await this.powerUps.updatePlayerTotals(playerId, gametypeId, mapId, powerUpId, stats, playtime);
-
-                //map total
-                await this.powerUps.updatePlayerTotals(playerId, 0, mapId, powerUpId, stats, playtime);
-                //gametype total
-                await this.powerUps.updatePlayerTotals(playerId, gametypeId, 0, powerUpId, stats, playtime);
-
-                //all time
-                await this.powerUps.updatePlayerTotals(playerId, 0, 0, powerUpId, stats, playtime);
-
-                //await this.powerUps.bPlayerTotalExist(playerId, powerUpId, playtime);
+                data.push({"playerId": playerId, "powerUpId": powerUpId, "stats": stats}); 
             }
         }
+
+        await bulkInsertPlayerMatchData(matchId, matchDate, mapId, gametypeId, data);
     }
 
 
@@ -209,52 +170,25 @@ export default class PowerUpManager{
         return best;
     }
 
-    async insertCarrierKills(matchId, matchDate, mapId, gametypeId){
-
-        //updatePlayerMatchCarrierKills(matchId, matchDate, playerId, powerUpId, totalKills)
-
-        for(const [playerId, powerupStats] of Object.entries(this.carrierKills)){
-
-            const player = this.playerManager.getPlayerByMasterId(playerId);
-
-            let playtime = -1;
-
-            if(player !== null){
-                playtime = player.getTotalPlaytime(this.totalTeams);
-            }
-
-            for(const [powerUpId, totalKills] of Object.entries(powerupStats)){
-
-                const bestKills = this.getBestCarrierKills(playerId, powerUpId);
-   
-                await this.powerUps.updatePlayerMatchCarrierKills(matchId, matchDate, mapId, gametypeId, playerId, powerUpId, totalKills, bestKills);
-
-                //all time totals
-                await this.powerUps.updatePlayerTotalCarrierKills(playerId, 0, 0, powerUpId, playtime, totalKills, bestKills);
-                //gametype totals
-                await this.powerUps.updatePlayerTotalCarrierKills(playerId, gametypeId, 0, powerUpId, playtime, totalKills, bestKills);
-                //map totals
-                await this.powerUps.updatePlayerTotalCarrierKills(playerId, 0, mapId, powerUpId, playtime, totalKills, bestKills);
-                //gametype map combo totals
-                await this.powerUps.updatePlayerTotalCarrierKills(playerId, gametypeId, mapId, powerUpId, playtime, totalKills, bestKills);
-            }
-        }
-    }
-
     async insertMatchData(matchId, matchDate, mapId, gametypeId){
-
-        const start = performance.now();
 
         await this.insertCarryTimes(matchId, matchDate, gametypeId, mapId);
         await this.insertPlayerMatchData(matchId, matchDate, mapId, gametypeId);
 
-        await this.insertCarrierKills(matchId, matchDate, mapId, gametypeId);
-        //console.log(this.powerUpHistory);
-    
-        const end = performance.now();
+        const playerIds = [];
+        const powerupIds = new Set();
 
-        console.log(`took ${(end- start) * 0.001} seconds`);
-        process.exit();
+        for(const [playerId, playerData] of Object.entries(this.playerTotals)){
+
+            playerIds.push(parseInt(playerId));
+
+            for(const powerupId of Object.keys(playerData)){
+
+                powerupIds.add(parseInt(powerupId));
+            }
+        }
+        
+        await bulkUpdatePlayerTotals(playerIds, [...powerupIds], gametypeId, mapId);
 
     }
 }
