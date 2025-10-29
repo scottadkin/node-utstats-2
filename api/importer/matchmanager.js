@@ -244,7 +244,6 @@ export default class MatchManager{
                 new Message(`Domination stats update complete.`,'pass');
             }
 
-            
 
             //this.playerManager.mergeDuplicates(bLMS);
 
@@ -261,8 +260,6 @@ export default class MatchManager{
                 new Message(`Inserting match domination data`,`note`);
                 this.domManager.setLifeCaps(this.killManager);
 
-                const startTest = performance.now();
-                
 
                 await this.domManager.updatePlayersMatchStats();
                 await this.domManager.insertMatchPlayerScores(this.matchId);

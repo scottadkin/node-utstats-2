@@ -103,12 +103,6 @@ export default class Domination{
         return await getMapControlPoints(map);
     }
 
-    async insertPointCap(match, time, player, point, team){
-
-        const query = "INSERT INTO nstats_dom_match_caps VALUES(NULL,?,?,?,?,?)";
-
-        return await simpleQuery(query, [match, time, player, point, team]);
-    }
 
     async getMatchCaps(match){
 
@@ -116,15 +110,6 @@ export default class Domination{
 
         return await simpleQuery(query, [match]);
     }
-
-
-    async insertMatchPlayerScore(match, timestamp, player, score){
-
-        const query = "INSERT INTO nstats_dom_match_player_score VALUES(NULL,?,?,?,?)";
-
-        return await simpleQuery(query, [match, timestamp, player, score]);
-    }
-
 
     async getMatchPlayerScoreData(id){
 
@@ -699,10 +684,10 @@ export async function getMapControlPoints(map){
     const query = "SELECT id,name FROM nstats_dom_control_points WHERE map=?";
     const result = await simpleQuery(query, [map]);
 
-    const data = new Map();
+    const data = {};
 
     for(let i = 0; i < result.length; i++){
-        data.set(result[i].name, result[i].id);
+        data[result[i].name] = result[i].id;
     }
     
     return data;
@@ -719,6 +704,22 @@ export async function bulkInsertPlayerScoreHistory(matchId, data){
 
         const d = data[i];
         insertVars.push([matchId, d.timestamp, d.player, d.score]);
+    }
+
+    return await bulkInsert(query, insertVars);
+}
+
+export async function bulkInsertControlPointCapData(matchId, data){
+    
+    const query = `INSERT INTO nstats_dom_match_caps (match_id,time,player,point,team) VALUES ?`;
+
+    const insertVars = [];
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        insertVars.push([matchId, d.timestamp, d.player, d.pointId, d.team]);
     }
 
     return await bulkInsert(query, insertVars);

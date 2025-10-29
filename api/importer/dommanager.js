@@ -1,4 +1,4 @@
-import Domination, { bulkInsertPlayerScoreHistory } from "../domination.js";
+import Domination, { bulkInsertControlPointCapData, bulkInsertPlayerScoreHistory } from "../domination.js";
 import { getMapControlPoints } from "../domination.js";
 import Message from "../message.js";
 
@@ -301,22 +301,20 @@ export default class DOMManager{
 
         try{
 
-
             const pointIds = await getMapControlPoints(mapId);
-
 
             for(let i = 0; i < this.capData.length; i++){
 
                 const d = this.capData[i];
 
-                let pointId = pointIds.get(d.point);
+                let pointId = pointIds?.[d.point] ?? -1;
 
-                if(pointId === undefined){
-                    pointId = -1;
-                }
+                d.pointId = pointId;
 
-                await this.domination.insertPointCap(matchId, d.timestamp, d.player, pointId, d.team);
             }
+
+            await bulkInsertControlPointCapData(matchId, this.capData);
+
 
         }catch(err){
             new Message(err,'error');
