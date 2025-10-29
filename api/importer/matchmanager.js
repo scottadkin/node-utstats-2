@@ -336,8 +336,6 @@ export default class MatchManager{
             await this.playerManager.insertConnectionData(this.matchId);
             new Message(`Updated played connection data.`,'pass');
 
-            
-
 
             this.countiresManager = new CountriesManager();
             await this.countiresManager.insertBulk(this.playerManager.players, this.serverInfo.date);

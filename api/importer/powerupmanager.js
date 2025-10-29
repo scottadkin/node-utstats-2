@@ -1,4 +1,4 @@
-import PowerUps from "../powerups.js";
+import PowerUps, { bulkInsertMatchCarryTimes } from "../powerups.js";
 
 export default class PowerUpManager{
 
@@ -114,7 +114,10 @@ export default class PowerUpManager{
 
     async insertCarryTimes(matchId, matchDate, gametypeId, mapId){
 
-        for(let i = 0; i < this.powerUpHistory.length; i++){
+
+        return await bulkInsertMatchCarryTimes(matchId, matchDate, mapId, gametypeId, this.powerUpHistory);
+
+        /*for(let i = 0; i < this.powerUpHistory.length; i++){
 
             const p = this.powerUpHistory[i];
 
@@ -131,7 +134,7 @@ export default class PowerUpManager{
                 p.totalKills,
                 p.endReason
             );
-        }
+        }*/
     }
 
 
@@ -240,12 +243,18 @@ export default class PowerUpManager{
 
     async insertMatchData(matchId, matchDate, mapId, gametypeId){
 
+        const start = performance.now();
+
         await this.insertCarryTimes(matchId, matchDate, gametypeId, mapId);
         await this.insertPlayerMatchData(matchId, matchDate, mapId, gametypeId);
 
         await this.insertCarrierKills(matchId, matchDate, mapId, gametypeId);
         //console.log(this.powerUpHistory);
     
+        const end = performance.now();
+
+        console.log(`took ${(end- start) * 0.001} seconds`);
+        process.exit();
 
     }
 }

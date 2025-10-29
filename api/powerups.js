@@ -24,16 +24,7 @@ export default class PowerUps{
 
         return createResult.insertId;
     }
-
-
-    //end reasons : -1 match ended, 0 power up ended, 1 killed, 2 suicide
-    async insertPlayerCarryTimes(matchId, gametypeId, mapId, matchDate, playerId, powerUpId, start, end, carryTime, kills, endReason){
-
-        const query = `INSERT INTO nstats_powerups_carry_times VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?)`;
-        const vars = [matchId, gametypeId, mapId, matchDate, playerId, powerUpId, start, end, carryTime, kills, endReason];
-
-        return await simpleQuery(query, vars);
-    }
+    
 
     async insertPlayerMatchData(matchId, matchDate, mapId, gametypeId, playerId, powerUpId, stats){
 
@@ -633,4 +624,34 @@ export async function deleteMatchData(matchId, playerIds, gametypeId, mapId){
 
     //all time totals
     await recalculatePlayerTotals(playerIds, 0, 0);
+}
+
+
+export async function bulkInsertMatchCarryTimes(matchId, matchDate, mapId, gametypeId, data){
+
+    //end reasons : -1 match ended, 0 power up ended, 1 killed, 2 suicide
+
+    const query = `INSERT INTO nstats_powerups_carry_times (
+    match_id,gametype_id,map_id,match_date,player_id,powerup_id,
+    start_timestamp,end_timestamp,carry_time,kills,end_reason
+    ) VALUES ?`;
+
+    const insertVars = [];
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        insertVars.push([
+            matchId, gametypeId, mapId, matchDate, d.player,
+            d.powerUpId,
+            d.timestamp,
+            d.endTimestamp,
+            d.carryTime,
+            d.totalKills,
+            d.endReason
+        ]);
+    }
+
+    return await bulkInsert(query, insertVars);
 }
