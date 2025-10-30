@@ -13,7 +13,6 @@ import Pings from "./pings.js";
 import Maps from "./maps.js";
 import Weapons from "./weapons.js";
 import Rankings from "./rankings.js";
-import WinRate from "./winrate.js";
 import CountriesManager from "./countriesmanager.js";
 import Faces, { getFacesById } from "./faces.js";
 import Teams from "./teams.js";
@@ -884,11 +883,11 @@ export default class Players{
             await weaponsManager.mergePlayers(first, second, matchManager);
 
 
-            const winrateManager = new WinRate();
+           // const winrateManager = new WinRate();
 
-            await winrateManager.deletePlayer(first);
-            await winrateManager.deletePlayer(second);
-            await winrateManager.recalculatePlayerHistoryAfterMerge(second);
+            //await winrateManager.deletePlayer(first);
+            //await winrateManager.deletePlayer(second);
+            //await winrateManager.recalculatePlayerHistoryAfterMerge(second);
 
 
             const spreeManager = new Sprees();
@@ -1516,9 +1515,9 @@ export default class Players{
 
             await voiceManager.deletePlayer(matches);
 
-            const winrateManager = new WinRate();
+            //const winrateManager = new WinRate();
 
-            await winrateManager.deletePlayer(playerId);
+            //await winrateManager.deletePlayer(playerId);
 
             const spreeManager = new Sprees();
 

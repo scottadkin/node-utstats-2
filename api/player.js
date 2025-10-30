@@ -12,7 +12,6 @@ import Connections from "./connections.js";
 import Pings from "./pings.js";
 import Weapons from "./weapons.js";
 import Voices from "./voices.js";
-import WinRate from "./winrate.js";
 import Sprees from "./sprees.js";
 import MonsterHunt from "./monsterhunt.js";
 import { getSettings } from "./sitesettings.js";
@@ -319,7 +318,7 @@ export default class Player{
 
         const query = `INSERT INTO nstats_player_matches VALUES(
             NULL,?,?,?,?,?,?,?,?,?,
-            ?,?,?,?,?,?,?,?,?,?,?,
+            ?,?,?,?,?,?,?,?,?,?,
             ?,?,?,?,?,?,?,?,?,?,
             ?,?,?,?,?,?,?,?,?,?,
             ?,?,?,?,?,?,?,?,0,0,0,
@@ -348,8 +347,7 @@ export default class Player{
             setValueIfUndefined(player.faceId),
             setValueIfUndefined(player.voiceId),
             gametypeId,
-            player.bWinner,
-            player.bDrew,
+            player.matchResult,
             playtime,//Functions.setValueIfUndefined(player.stats.time_on_server),
             player.stats.teamPlaytime[0],
             player.stats.teamPlaytime[1],
@@ -728,9 +726,9 @@ export default class Player{
 
                 await voiceManager.reduceTotals(matchData.voice, 1);
 
-                const winRateManager = new WinRate();
+                //const winRateManager = new WinRate();
 
-                await winRateManager.deletePlayerFromMatch(playerId, matchId, matchData.gametype);
+                //await winRateManager.deletePlayerFromMatch(playerId, matchId, matchData.gametype);
 
 
                 const spreeManager = new Sprees();

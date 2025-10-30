@@ -8,9 +8,9 @@ import Voices from "../voices.js";
 import ConnectionsManager from "./connectionsmanager.js";
 import PingManager from "./pingmanager.js";
 import TeamsManager from "./teamsmanager.js";
-import WinRateManager from "../winrate.js";
 import SpreeManager  from "./spreemanager.js";
 import {scalePlaytime} from "../functions.js";
+import { updatePlayerWinrates } from "../winrate.js";
 
 export default class PlayerManager{
 
@@ -48,7 +48,6 @@ export default class PlayerManager{
         this.teamChanges = [];
 
         this.pingManager = new PingManager();
-        this.winRateManager = new WinRateManager();
 
         this.spreeManager = new SpreeManager(matchTimings.start);
 
@@ -1707,6 +1706,10 @@ export default class PlayerManager{
 
         try{
 
+           // const playerIds = new Set();
+
+            const playerResults = {};
+
             for(let i = 0; i < this.players.length; i++){
 
                 const p = this.players[i];
@@ -1716,14 +1719,15 @@ export default class PlayerManager{
 
                 if(playtime === 0) continue;
           
-                let currentResult = 0;
+                let currentResult = p.matchResult;
+                
+                console.log(currentResult);
 
-                if(p.bWinner){
-                    currentResult = 1;
-                }else if(p.bDrew){
-                    currentResult = 2;
-                }         
+                //playerIds.add(p.masterId);
 
+                playerResults[p.masterId] = currentResult;
+
+                /*
                 //map + gametype win rates
                 await this.winRateManager.updatePlayerLatest(p.masterId, gametypeId, mapId, currentResult, matchDate, matchId);
                 //gametype win rates
@@ -1732,13 +1736,12 @@ export default class PlayerManager{
                 await this.winRateManager.updatePlayerLatest(p.masterId, 0, mapId, currentResult, matchDate, matchId);
                 //all time win rate
                 await this.winRateManager.updatePlayerLatest(p.masterId, 0, 0, currentResult, matchDate, matchId);
-
-                /*
-                if(bNeedToRecalulate){
-                    //console.log("REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
-                    await this.winRateManager.recaluatePlayerHistory(p.masterId, [0, gametypeId], [0, mapId]);
-                }*/
+                */
             }
+
+
+            await updatePlayerWinrates(playerResults, matchId, gametypeId, mapId, matchDate);
+            process.exit();
 
         }catch(err){
             new Message(`PlayerManager.updateCurrentWinRates() ${err}`,'error');

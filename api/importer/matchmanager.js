@@ -458,7 +458,8 @@ export default class MatchManager{
       
                 if(winner !== null){
 
-                    winner.bWinner = true;
+                    //winner.bWinner = true;
+                    winner.matchResult = "w";
 
                     await this.match.setDMWinner(this.matchId, winner.masterId, LMSWinner.score);
 
@@ -818,7 +819,8 @@ export default class MatchManager{
                 const p = this.playerManager.players[i];
 
                 if(p.bPlayedInMatch && !p.bSpectator){
-                    p.bWinner = true;
+                    //p.bWinner = true;
+                    p.matchResult = "w";
                 }
             }
 
@@ -842,9 +844,9 @@ export default class MatchManager{
 
 
                 if(winningTeams.length === 1){
-                    p.bWinner = true;
+                    p.matchResult = "w";
                 }else{
-                    p.bDrew = true;
+                    p.matchResult = "d";
                 }
                 
             }
@@ -873,11 +875,11 @@ export default class MatchManager{
                 }
 
                 if(totalWinningPlayers === 1){
-                    this.playerManager.players[0].bWinner = true;
+                    this.playerManager.players[0].matchResult = "w";
                 }else{
 
                     for(let i = 0; i < totalWinningPlayers; i++){
-                        this.playerManager.players[i].bDrew = true;
+                        this.playerManager.players[i].matchResult = "d";
                     }
                 }
 

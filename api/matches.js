@@ -14,7 +14,6 @@ import Weapons from "./weapons.js";
 import Rankings from "./rankings.js";
 import Servers from "./servers.js";
 import Voices from "./voices.js";
-import WinRate from "./winrate.js";
 import { getUniqueValues, setIdNames, removeUnr, getPlayer, cleanMapName, sanatizePage, sanatizePerPage } from "./generic.mjs";
 import { getObjectName } from "./genericServerSide.mjs";
 import { deleteFromDatabase as logsDeleteFromDatabase } from "./logs.js";
@@ -37,6 +36,7 @@ import { deleteMatchData as deleteMatchMonsterHuntData} from "./monsterhunt.js";
 import { deleteMatchData as deleteMatchWeaponData } from "./weapons.js";
 import { deleteMatchData as deleteMatchPowerupData } from "./powerups.js";
 import { deleteMatchData as deleteMatchRankingData } from "./rankings.js";
+import { deleteMatchData as deleteMatchWinRateData } from "./winrate.js";
 
 export default class Matches{
 
@@ -2038,6 +2038,8 @@ export async function adminDeleteMatch(id){
     await recalculateCapRecordsAfterMatchDelete(id, gametypeId, mapId);
     await recalculateMapControlPointTotals(mapId);
 
+
+    await deleteMatchWinRateData(id, [...playerIds], gametypeId, mapId);
     
     //nstats_gametypes recaclc gametype totals
     //nstats_maps recalc totals
@@ -2047,7 +2049,6 @@ export async function adminDeleteMatch(id){
     
     //nstats_player_totals recalc
 
-    //nstats_winrates match_id
-    //nstats_winrates_latest recalc
+ 
 
 }

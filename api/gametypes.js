@@ -15,7 +15,6 @@ import Weapons from "./weapons.js";
 import Rankings from "./rankings.js";
 import Servers from "./servers.js";
 import Voices from "./voices.js";
-import WinRate from "./winrate.js";
 import fs from "fs";
 import { getObjectName } from "./genericServerSide.mjs";
 import { DEFAULT_DATE, DEFAULT_MIN_DATE } from "./generic.mjs";
@@ -693,9 +692,9 @@ export default class Gametypes{
 
             await rankingManager.changeGametypeId(this, oldId, newId);
 
-            await winrateManager.changeGametypeId(oldId, newId);
+            //await winrateManager.changeGametypeId(oldId, newId);
 
-            await winrateManager.recalculateGametype(newId);
+            //await winrateManager.recalculateGametype(newId);
 
             if(!bAutoMergeAfter){
                 await this.deleteGametype(oldId);
@@ -859,9 +858,9 @@ export default class Gametypes{
         
         await voiceManager.reduceViaPlayerMatchData(playersData);
 
-        const winrateManager = new WinRate();
+        //const winrateManager = new WinRate();
 
-        await winrateManager.deleteMatches(matchIds, gametypeId, playerIds);
+        //await winrateManager.deleteMatches(matchIds, gametypeId, playerIds);
 
 
         await matchManager.deleteMatches(matchIds);

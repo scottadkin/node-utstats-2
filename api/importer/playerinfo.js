@@ -30,8 +30,11 @@ export default class PlayerInfo{
 
         this.bPlayedInMatch = !this.bSpectator;
 
-        this.bWinner = false;
-        this.bDrew = false;
+        //this.bWinner = false;
+        //this.bDrew = false;
+
+        //w,d,l
+        this.matchResult = "l";
 
 
         this.weaponStats = new Map();
