@@ -2039,7 +2039,7 @@ export async function adminDeleteMatch(id){
     await recalculateMapControlPointTotals(mapId);
 
 
-    await deleteMatchWinRateData(id, [...playerIds], gametypeId, mapId);
+    await deleteMatchWinRateData([...playerIds], gametypeId, mapId);
     
     //nstats_gametypes recaclc gametype totals
     //nstats_maps recalc totals

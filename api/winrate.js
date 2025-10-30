@@ -37,42 +37,71 @@ export async function getAllPlayerCurrent(playerId){
     return result;
 }
 
-async function deleteMatchFromHistory(matchId){
-    return await simpleQuery("DELETE FROM nstats_winrates WHERE match_id=?", [id]);
-}
+
+async function getPlayerLatestWinrateInfo(playerIds, gametypeId, mapId){
 
 
-export async function deleteMatchData(id, playerIds, gametypeId, mapId){
+    let query = `SELECT player_id,MAX(match_date) as latest_date FROM nstats_player_matches WHERE player_id IN(?)`;
 
-    await deleteMatchFromHistory(id);
-    await simpleQuery("DELETE FROM nstats_winrates_latest WHERE match_id=?", [id]);
-}
+    const vars = [playerIds];
 
-async function getPlayerLatestWinrateDate(playerIds, gametypeId, mapId){
-
-    const query = `SELECT player,MAX(date) as latest_match FROM nstats_winrates_latest WHERE player IN(?) AND gametype=? AND map=? GROUP BY player`;
-
-    const result = await simpleQuery(query, [playerIds, gametypeId, mapId]);
-
-    const data = {};
-
-    for(let i = 0; i < result.length; i++){
-
-        const r = result[i];
-        data[r.player] = r.latest_match;
+    if(gametypeId !== 0){
+        vars.push(gametypeId);
+        query += ` AND gametype=?`;
     }
 
-    for(let i = 0; i < playerIds.length; i++){
-
-        const id = playerIds[i];
-
-        if(data[id] === undefined){
-            data[id] = DEFAULT_DATE;
-        }
+    if(mapId !== 0){
+        vars.push(mapId);
+        query += ` AND map_id=?`;
     }
 
-    return data;
+    return await simpleQuery(`${query} GROUP BY player_id`, vars);
+
+
 }
+
+/**
+ * Basically just recalculate involved players data
+ * @param {*} playerIds 
+ * @param {*} gametypeId 
+ * @param {*} mapId 
+ */
+export async function deleteMatchData(playerIds, gametypeId, mapId){
+
+    if(playerIds.length === 0) return;
+
+    const mapGametypeCombos = await getPlayerLatestWinrateInfo(playerIds, gametypeId, mapId);
+    const gametypeLatest = await getPlayerLatestWinrateInfo(playerIds, gametypeId, 0);
+    const mapLatest = await getPlayerLatestWinrateInfo(playerIds, 0, mapId);
+    const allTime = await getPlayerLatestWinrateInfo(playerIds, 0, 0);
+
+
+    for(let i = 0; i < mapGametypeCombos.length; i++){
+
+        const d = mapGametypeCombos[i];
+        await recalculatePlayer(d.player_id, gametypeId, mapId, d.latest_date);
+    }
+
+    for(let i = 0; i < gametypeLatest.length; i++){
+
+        const d = gametypeLatest[i];
+        await recalculatePlayer(d.player_id, gametypeId, 0, d.latest_date);
+    }
+
+    for(let i = 0; i < mapLatest.length; i++){
+
+        const d = mapLatest[i];
+        await recalculatePlayer(d.player_id, 0, mapId, d.latest_date);
+    }
+
+     for(let i = 0; i < allTime.length; i++){
+
+        const d = allTime[i];
+        await recalculatePlayer(d.player_id, 0, 0, d.latest_date);
+    }
+
+}
+
 
 async function getPlayerCurrent(playerIds, gametypeId, mapId){
 
@@ -131,17 +160,17 @@ async function insertNewPlayerWinrateHistory(playerId, playerResult, matchDate, 
 }
 */
 
-async function insertNewPlayerWinrateLatest(playerId, playerResult, matchDate, matchId, gametypeId, mapId){
+async function insertNewPlayerWinrateLatest(playerId, playerResult, matchDate, gametypeId, mapId){
 
 
     const query = `INSERT INTO nstats_winrates_latest VALUES(NULL,
-    ?,?,?,?,?,1,
+    ?,?,?,?,1,
     ?,?,?,?,
     ?,1,?,?,?
     )`;
 
     const vars = [
-        matchDate, matchId, playerId, gametypeId, mapId,
+        matchDate, playerId, gametypeId, mapId,
         (playerResult === "w") ? 1 : 0,
         (playerResult === "d") ? 1 : 0,
         (playerResult === "l") ? 1 : 0,
@@ -155,11 +184,11 @@ async function insertNewPlayerWinrateLatest(playerId, playerResult, matchDate, m
     await simpleQuery(query, vars);
 }
 
-async function insertNewPlayer(playerId, playerResult, matchDate, matchId, gametypeId, mapId){
+async function insertNewPlayer(playerId, playerResult, matchDate, gametypeId, mapId){
 
     //winrate history not used on site anywhere so removing for now
     //await insertNewPlayerWinrateHistory(playerId, playerResult, matchDate, matchId, gametypeId, mapId);
-    await insertNewPlayerWinrateLatest(playerId, playerResult, matchDate, matchId, gametypeId, mapId);
+    await insertNewPlayerWinrateLatest(playerId, playerResult, matchDate, gametypeId, mapId);
 }
 
 function updateHistoryObject(playerData, matchResult){
@@ -247,16 +276,16 @@ async function deletePlayerLatest(playerId, gametypeId, mapId){
 }
 
 
-async function insertPlayerLatest(playerId, history, gametypeId, mapId, matchId, matchDate){
+async function insertPlayerLatest(playerId, history, gametypeId, mapId, matchDate){
 
     const query = `INSERT INTO nstats_winrates_latest VALUES(NULL,
-    ?,?,?,?,?,?,
+    ?,?,?,?,?,
     ?,?,?,?,
     ?,?,?,?,?
     )`;
 
     const vars = [
-        matchDate, matchId, playerId, gametypeId, mapId,
+        matchDate, playerId, gametypeId, mapId,
         history.matches,
         history.wins,
         history.draws,
@@ -272,7 +301,7 @@ async function insertPlayerLatest(playerId, history, gametypeId, mapId, matchId,
     await simpleQuery(query, vars);
 }
 
-async function recalculatePlayer(playerId, gametypeId, mapId, matchId, matchDate){
+async function recalculatePlayer(playerId, gametypeId, mapId, matchDate){
 
     const matchResults = await getPlayerMatchResultHistory(playerId, gametypeId, mapId);
 
@@ -299,11 +328,11 @@ async function recalculatePlayer(playerId, gametypeId, mapId, matchId, matchDate
     }
 
     await deletePlayerLatest(playerId, gametypeId, mapId);
-    await insertPlayerLatest(playerId, history, gametypeId, mapId, matchId, matchDate)
+    await insertPlayerLatest(playerId, history, gametypeId, mapId, matchDate)
     
 }
 
-export async function updatePlayerWinrates(playerResults, matchId, gametypeId, mapId, matchDate){
+export async function updatePlayerWinrates(playerResults, gametypeId, mapId, matchDate){
 
     const playerIds = Object.keys(playerResults);
 
@@ -327,7 +356,7 @@ export async function updatePlayerWinrates(playerResults, matchId, gametypeId, m
 
         if(playerData === null){
             //insert new player winrate
-            await insertNewPlayer(playerId, playerResults[playerId], matchDate, matchId, gametypeId, mapId);
+            await insertNewPlayer(playerId, playerResults[playerId], matchDate, gametypeId, mapId);
         }else{
             
            // if(needRecalculate.indexOf(playerId) === -1){
@@ -336,7 +365,7 @@ export async function updatePlayerWinrates(playerResults, matchId, gametypeId, m
                 //await updateExistingPlayer(playerId, playerData, playerResults[playerId], matchDate, matchId, gametypeId, mapId);
            // }else{
                 //console.log(`NEED TO RECALC`);
-                await recalculatePlayer(playerId, gametypeId, mapId, matchId, matchDate);
+                await recalculatePlayer(playerId, gametypeId, mapId, matchDate);
            // }
         }
     }
