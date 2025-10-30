@@ -6,8 +6,8 @@ import { DEFAULT_DATE, DEFAULT_MIN_DATE } from "./generic.mjs";
 
 export async function getAllPlayerCurrent(playerId){
 
-    const query = `SELECT date,match_id,gametype,map,matches,wins,draws,losses,winrate,current_win_streak,
-    current_draw_streak,current_lose_streak,max_win_streak,max_draw_streak,max_lose_streak 
+    const query = `SELECT date,match_id,gametype,map,matches,wins,draws,losses,winrate,current_streak,
+    current_streak_type,max_win_streak,max_draw_streak,max_lose_streak 
     FROM nstats_winrates_latest WHERE player=?`;
 
     const result = await simpleQuery(query, [playerId]);

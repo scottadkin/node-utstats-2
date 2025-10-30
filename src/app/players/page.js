@@ -123,7 +123,7 @@ export default async function Page({searchParams}){
     const {data, totalMatches} = await p.defaultSearch(selectedName, page, perPage, selectedCountry, selectedActive, sortBy, order);
 
 
-    const pURL = `/players?name=${selectedName}&country=${selectedCountry}&active=${selectedActive}&sb=${sortBy}&pp=${perPage}&page=`;
+    const pURL = `/players?name=${selectedName}&country=${selectedCountry}&active=${selectedActive}&sb=${sortBy}&o=${order}&pp=${perPage}&page=`;
 
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
