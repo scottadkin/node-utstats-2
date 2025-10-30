@@ -902,7 +902,7 @@ const queries = [
         losses int(11) NOT NULL,
         winrate float NOT NULL,
         current_streak_type char(1) NOT NULL,
-        current_streak char(1) NOT NULL,
+        current_streak int(11) NOT NULL,
         max_win_streak int(11) NOT NULL,
         max_draw_streak int(11) NOT NULL,
         max_lose_streak int(11) NOT NULL

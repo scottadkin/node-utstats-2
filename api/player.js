@@ -347,7 +347,7 @@ export default class Player{
             setValueIfUndefined(player.faceId),
             setValueIfUndefined(player.voiceId),
             gametypeId,
-            player.matchResult,
+            (player.stats.time_on_server === 0) ? "s" : player.matchResult,
             playtime,//Functions.setValueIfUndefined(player.stats.time_on_server),
             player.stats.teamPlaytime[0],
             player.stats.teamPlaytime[1],

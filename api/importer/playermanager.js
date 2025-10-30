@@ -1721,7 +1721,6 @@ export default class PlayerManager{
           
                 let currentResult = p.matchResult;
                 
-                console.log(currentResult);
 
                 //playerIds.add(p.masterId);
 
@@ -1739,9 +1738,14 @@ export default class PlayerManager{
                 */
             }
 
-
+            // gametype & map combo
             await updatePlayerWinrates(playerResults, matchId, gametypeId, mapId, matchDate);
-            process.exit();
+            //map
+            await updatePlayerWinrates(playerResults, matchId, 0, mapId, matchDate);
+            //gametype
+            await updatePlayerWinrates(playerResults, matchId, gametypeId, 0, matchDate);
+            //all time
+            await updatePlayerWinrates(playerResults, matchId, 0, 0, matchDate);
 
         }catch(err){
             new Message(`PlayerManager.updateCurrentWinRates() ${err}`,'error');
