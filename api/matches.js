@@ -9,7 +9,7 @@ import { getUniqueValues, setIdNames, removeUnr, getPlayer, cleanMapName, sanati
 import { getObjectName } from "./genericServerSide.mjs";
 import { deleteFromDatabase as logsDeleteFromDatabase } from "./logs.js";
 import {getSettings} from "./sitesettings.js";
-import { getAllInMatch, getBasicPlayersByIds, deletePlayersMatchData } from "./players.js";
+import { getAllInMatch, getBasicPlayersByIds, deletePlayersMatchData, recalculateTotals as recalculatePlayerTotals } from "./players.js";
 import { deleteMatch as assaultDeleteMatch } from "./assault.js";
 import { recalculateSelectedTotals as recaclFaceTotals } from "./faces.js";
 import { deleteMatchData as deleteMatchHeadshots } from "./headshots.js";
@@ -2003,7 +2003,7 @@ export async function adminDeleteMatch(id){
 
 
     
-    //await deleteMatch(id);
+    await deleteMatch(id);
 
     await assaultDeleteMatch(id);
     await deleteMatchHeadshots(id);
@@ -2015,8 +2015,7 @@ export async function adminDeleteMatch(id){
     await deleteMatchPings(id);
     await deleteMatchTeamChanges(id);
 
-    //re enable once everything else is added
-   // await deletePlayersMatchData(id);
+    await deletePlayersMatchData(id);
     await deleteMatchConnections(id);
     await deleteMatchItems(id, [...playerIds]);
     await deleteMatchCombogibData(id, [...playerIds], gametypeId, mapId);
@@ -2041,9 +2040,11 @@ export async function adminDeleteMatch(id){
     await recalculateMapTotals(0, mapId);
 
     await recalculateGametypeTotals(gametypeId);
-    
-    //nstats_player_totals recalc
 
+    await recalculatePlayerTotals([...playerIds], 0, 0);
+    await recalculatePlayerTotals([...playerIds], gametypeId, 0);
+    await recalculatePlayerTotals([...playerIds], 0, mapId);
+    await recalculatePlayerTotals([...playerIds], gametypeId, mapId);
  
 
 }

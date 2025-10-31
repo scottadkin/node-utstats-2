@@ -121,8 +121,7 @@ export default class Admin{
             "tele_frags",
             "voices",
             "weapons",
-            "winrates",
-            "winrates_latest"
+            "winrates_latest",
         ];
 
         for(let i = 0; i < tables.length; i++){

@@ -6,7 +6,7 @@ import { DEFAULT_DATE, DEFAULT_MIN_DATE } from "./generic.mjs";
 
 export async function getAllPlayerCurrent(playerId){
 
-    const query = `SELECT date,match_id,gametype,map,matches,wins,draws,losses,winrate,current_streak,
+    const query = `SELECT date,gametype,map,matches,wins,draws,losses,winrate,current_streak,
     current_streak_type,max_win_streak,max_draw_streak,max_lose_streak 
     FROM nstats_winrates_latest WHERE player=?`;
 
@@ -374,4 +374,40 @@ export async function updatePlayerWinrates(playerResults, gametypeId, mapId, mat
     //gametype
     //map
     //gametype & map combo
+}
+
+export async function getPlayersBasic(playerIds, gametypeId, mapId){
+
+    if(playerIds.length === 0) return {};
+
+    let query = `SELECT player,wins,draws,losses,winrate FROM nstats_winrates_latest WHERE player IN(?)`;
+
+    const vars = [playerIds];
+
+    if(gametypeId !== 0){
+        vars.push(gametypeId);
+        query += ` AND gametype=?`;
+    }
+
+    if(mapId !== 0){
+        vars.push(mapId);
+        query += ` AND map=?`;
+    }
+
+    const result = await simpleQuery(query, vars);
+
+    const data = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        const {wins, draws, losses, winrate} = r;
+
+        data[r.player] = {
+            wins, draws, losses, winrate
+        };
+    }
+
+    return data;
 }

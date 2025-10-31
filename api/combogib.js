@@ -1051,6 +1051,9 @@ export default class Combogib{
 
     async insertMergedMapTotals(mapId, gametypeId, matches, playtime, primary, shockBalls, combos, insane){
 
+        if(playtime == 0) return;
+        
+
         const query = `INSERT INTO nstats_map_combogib VALUES(
             NULL,?,?,?,?,
             ?,?,
@@ -1541,6 +1544,7 @@ async function deleteMapTotals(mapId, gametypeId){
 
 async function insertNewMapTotals(mapId, gametypeId, matchId, playtime, combos, shockBalls, primary, insane){
 
+    if(playtime == 0 || playtime === null) return;  
    // if(matchId === null) then its new from merged data, use the type.matchId instead
 
     const query = `INSERT INTO nstats_map_combogib VALUES(

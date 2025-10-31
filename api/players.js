@@ -24,6 +24,7 @@ import PowerUps from "./powerups.js";
 import Telefrags from "./telefrags.js";
 import Message from "./message.js";
 import { getPlayerMatchCTFData } from "./ctf.js";
+import { getPlayersBasic as getBasicWinrateStats } from "./winrate.js";
 
 export default class Players{
 
@@ -1085,147 +1086,7 @@ export default class Players{
 
     async updatePlayerTotal(playerId, gametypeId, mapId, data){
 
-        if(data === undefined){
-       
-            console.log(`-----------playerID--${playerId}- gametypeId---${gametypeId}--mapId-${mapId}---------------------------------`);
-            return;
-        }
-
-        const query = `UPDATE nstats_player_totals SET 
-        first=?,
-        last=?,
-        matches=?,
-        wins=?,
-        losses=?,
-        draws=?,
-        winrate=?,
-        playtime=?,
-        team_0_playtime=?,
-        team_1_playtime=?,
-        team_2_playtime=?,
-        team_3_playtime=?,
-        spec_playtime=?,
-        first_bloods=?,
-        frags=?,
-        score=?,
-        kills=?,
-        deaths=?,
-        suicides=?,
-        team_kills=?,
-        spawn_kills=?,
-        efficiency=?,
-        multi_1=?,
-        multi_2=?,
-        multi_3=?,
-        multi_4=?,
-        multi_5=?,
-        multi_6=?,
-        multi_7=?,
-        multi_best=?,
-        spree_1=?,
-        spree_2=?,
-        spree_3=?,
-        spree_4=?,
-        spree_5=?,
-        spree_6=?,
-        spree_7=?,
-        spree_best=?,
-        best_spawn_kill_spree=?,
-        assault_objectives=?,
-        dom_caps=?,
-        dom_caps_best=?,
-        dom_caps_best_life=?,
-        accuracy=?,
-        k_distance_normal=?,
-        k_distance_long=?,
-        k_distance_uber=?,
-        headshots=?,
-        shield_belt=?,
-        amp=?,
-        amp_time=?,
-        invisibility=?,
-        invisibility_time=?,
-        pads=?,
-        armor=?,
-        boots=?,
-        super_health=?,
-        mh_kills=?,
-        mh_kills_best_life=?,
-        mh_kills_best=?,
-        mh_deaths=?,
-        mh_deaths_worst=?
-        WHERE ${(gametypeId === 0 && mapId === 0) ? "id" : "player_id" }=? AND gametype=? AND map=?`;
-
-        const vars = [
-            data.first_match ?? data.first,
-            data.last_match ?? data.last,
-            data.total_matches,
-            data.wins,
-            data.losses,
-            data.draws,
-            data.winRate,
-            data.playtime,
-            data.team_0_playtime,
-            data.team_1_playtime,
-            data.team_2_playtime,
-            data.team_3_playtime,
-            data.spec_playtime,
-            data.first_bloods,
-            data.frags,
-            data.score,
-            data.kills,
-            data.deaths,
-            data.suicides,
-            data.team_kills,
-            data.spawn_kills,
-            data.efficiency,
-            data.multi_1,
-            data.multi_2,
-            data.multi_3,
-            data.multi_4,
-            data.multi_5,
-            data.multi_6,
-            data.multi_7,
-            data.multi_best,
-            data.spree_1,
-            data.spree_2,
-            data.spree_3,
-            data.spree_4,
-            data.spree_5,
-            data.spree_6,
-            data.spree_7,
-            data.spree_best,
-
-            data.best_spawn_kill_spree,
-            data.assault_objectives,
-            data.dom_caps,
-            data.dom_caps_best,
-            data.dom_caps_best_life,
-            data.accuracy,
-            data.k_distance_normal,
-            data.k_distance_long,
-            data.k_distance_uber,
-            data.headshots,
-            data.shield_belt,
-            data.amp,
-            data.amp_time,
-            data.invisibility,
-            data.invisibility_time,
-            data.pads,
-            data.armor,
-            data.boots,
-            data.super_health,
-            data.mh_kills,
-            data.mh_kills_best_life,
-            data.mh_kills_best,
-            data.mh_deaths,
-            data.mh_deaths_worst,
-            playerId, gametypeId, mapId
-        ];
-
-        const result = await simpleQuery(query, vars);
-
-        return result;
+        return await updatePlayerTotal(playerId, gametypeId, mapId, data);
     }
 
     updateCurrentTotals(totals, id, data){
@@ -1286,114 +1147,7 @@ export default class Players{
         
     }
 
-    async recalculatePlayerTotalsAfterMerge(playerId, playerName){
-
-        
-        //const mapsData = await this.getGametypeTotals(playerId, false);
-        //const allTotals = await this.getGametypeTotals(playerId, true);
-
-        const data = await this.getPlayerTotalsFromMatchData(playerId, "all");
-        const combinedData = await this.getPlayerTotalsFromMatchData(playerId, "combined");
-
-
-        const mapTotals = {};
-        const gametypeTotals = {};
-
-        for(let i = 0; i < data.length; i++){
-
-            const d = data[i];
-
-            console.log(`gametype = ${d.gametype}, map = ${d.map_id}, playedMatches = ${d.total_matches}`);
-
-            this.updateCurrentTotals(mapTotals, d.map_id, d);
-            this.updateCurrentTotals(gametypeTotals, d.gametype, d);
-
-        }
-        
-        //first do all the map + gametype totals
-
-        for(let i = 0; i < data.length; i++){
-
-            const d = data[i];
-
-            d.name = playerName.name;
-
-            const updateResult = await this.updatePlayerTotal(playerId, d.gametype, d.map_id, d);
-
-            if(updateResult.affectedRows === 0){
-                await this.createTotalsFromMerge(playerId, d.gametype, d.map_id, d);
-            }
-        }
-
-        //map totals
-
-        for(const [mapId, mapData] of Object.entries(mapTotals)){
-
-            mapData.name = playerName.name;
-
-            const updateResult = await this.updatePlayerTotal(playerId, 0, mapId, mapData);
-
-            if(updateResult.affectedRows === 0){
-                await this.createTotalsFromMerge(playerId, 0, mapId, mapData);
-            }
-        }
-        
-        for(const [gametypeId, gametypeData] of Object.entries(gametypeTotals)){
-
-            gametypeData.name = playerName.name;
-
-            const updateResult = await this.updatePlayerTotal(playerId, gametypeId, 0, gametypeData);
-
-            if(updateResult.affectedRows === 0){
-                await this.createTotalsFromMerge(playerId, gametypeId, 0, gametypeData);
-            }
-        }
-
-        //update combined totals
-
-        await this.updatePlayerTotal(playerId, 0, 0, combinedData[0]);
-
-    }
-
-    async createTotalsFromMerge(playerId, gametypeId, mapId, data){
-
-        console.log(`createTotalsFromMerge(playerId=${playerId}, gametypeId=${gametypeId}, mapId=${mapId})`);
-
-        const query = `INSERT INTO nstats_player_totals VALUES(NULL,
-        ?,?,?,?,?,
-        ?,?,?,?,?,?,
-        ?,?,?,?,?, 
-        ?,?,?,?, 
-        ?,?,?,?,?,  
-        ?,?,?,?,?,?, 
-        ?,?,?,?,?,?,?,?, 
-        ?,?,?,?,?,?,?,?,  
-        ?,?,?,?,   
-        ?,?,?,?,  
-        ?,?,?,?,   
-        ?,?,?,?,?,  
-        ?,?,?,?,?, 
-        ?,?,?,?,?)`;  
-
-        const vars = [
-            "", data.name, playerId, data.first, data.last,  
-            "", "", 0, 0, gametypeId, mapId,
-            data.total_matches, data.wins, data.losses, data.draws, data.winRate, //5
-            data.playtime, data.team_0_playtime, data.team_1_playtime, data.team_2_playtime, //4
-            data.team_3_playtime, data.spec_playtime, data.first_bloods, data.frags, data.score, //5
-            data.kills, data.deaths, data.suicides, data.team_kills, data.spawn_kills, data.efficiency, //6
-            data.multi_1, data.multi_2, data.multi_3, data.multi_4, data.multi_5, data.multi_6, data.multi_7, data.multi_best, //8
-            data.spree_1, data.spree_2, data.spree_3, data.spree_4, data.spree_5, data.spree_6, data.spree_7, data.spree_best, //8
-            0,0, data.best_spawn_kill_spree, data.assault_objectives, //4
-            data.dom_caps, data.dom_caps_best, data.dom_caps_best_life, data.accuracy,  //44       
-            data.k_distance_normal, data.k_distance_long, data.k_distance_uber, data.headshots,  //4
-            data.shield_belt, data.amp, data.amp_time, data.invisibility, data.invisibility_time,  //5
-            data.pads, data.armor, data.boots, data.super_health, data.mh_kills, //5
-            data.mh_kills_best_life, data.mh_kills_best, 0, data.mh_deaths, data.mh_deaths_worst, //5
-        ];
-
-        return await simpleQuery(query, vars);
-    }
+    
 
     async deletePlayerTotals(id){
         await simpleQuery("DELETE FROM nstats_player_totals WHERE player_id=?", [id]);
@@ -1550,102 +1304,7 @@ export default class Players{
         return getAllPlayersGametypeMatchData(gametypeId, playerId);
     }
 
-    async reducePlayerGametypeTotals(gametypeId, playerId, data){
-
-        playerId = parseInt(playerId);
-        
-        const query = `UPDATE nstats_player_totals SET
-            matches=matches-?,
-            wins=wins-?,
-            draws=draws-?,
-            losses=losses-?,
-            winrate = IF(matches > 0, IF(wins > 0, (wins / matches * 100), 0) ,0)
-            playtime=playtime-?,
-            first_bloods=first_bloods-?,
-            frags=frags-?,
-            score=score-?,
-            kills=kills-?,
-            deaths=deaths-?,
-            suicides=suicides-?,
-            team_kills=team_kills-?,
-            spawn_kills=spawn_kills-?,
-            efficiency = IF(kills > 0, IF(deaths > 0, (kills / (deaths + kills)) * 100 ,100), 0),
-            multi_1=multi_1-?,
-            multi_2=multi_2-?,
-            multi_3=multi_3-?,
-            multi_4=multi_4-?,
-            multi_5=multi_5-?,
-            multi_6=multi_6-?,
-            multi_7=multi_7-?,
-            spree_1=spree_1-?,
-            spree_2=spree_2-?,
-            spree_3=spree_3-?,
-            spree_4=spree_4-?,
-            spree_5=spree_5-?,
-            spree_6=spree_7-?,
-            spree_7=spree_7-?,
-            flag_assist=flag_assist-?,
-            flag_return=flag_return-?,
-            flag_taken=flag_taken-?,
-            flag_dropped=flag_dropped-?,
-            flag_capture=flag_capture-?,
-            flag_pickup=flag_pickup-?,
-            flag_seal=flag_seal-?,
-            flag_cover=flag_cover-?,
-            flag_cover_pass=flag_cover_pass-?,
-            flag_cover_fail=flag_cover_fail-?,
-            flag_self_cover=flag_self_cover-?,
-            flag_self_cover_pass=flag_self_cover_pass-?,
-            flag_self_cover_fail=flag_self_cover_fail-?,
-            flag_multi_cover=flag_multi_cover-?,
-            flag_spree_cover=flag_spree_cover-?,
-            flag_kill=flag_kill-?,
-            flag_save=flag_save-?,
-            flag_carry_time=flag_carry_time-?,
-            assault_objectives=assault_objectives-?,
-            dom_caps=dom_caps-?,
-            k_distance_normal=k_distance_normal-?,
-            k_distance_long=k_distance_long-?,
-            k_distance_uber=k_distance_uber-?,
-            headshots=headshots-?,
-            shield_belt=shield_belt-?,
-            amp=amp-?,
-            amp_time=amp_time-?,
-            invisibility=invisibility-?,
-            invisibility_time=invisibility_time-?,
-            pads=pads-?,
-            armor=armor-?,
-            boots=boots-?,
-            super_health=super_health-?
-
-            WHERE gametype=? AND player_id=?
-        `;
-
-
-        const vars = [
-            data.matches, data.wins, data.draws, data.losses,
-            data.playtime, data.first_bloods, data.frags, data.score,
-            data.kills, data.deaths, data.suicides, data.team_kills, data.spawn_kills,
-            data.multi_1, data.multi_2, data.multi_3, data.multi_4, data.multi_5, data.multi_6, data.multi_7,
-            data.spree_1, data.spree_2, data.spree_3, data.spree_4, data.spree_5, data.spree_6, data.spree_7,
-            data.flag_assist, data.flag_return, data.flag_taken, data.flag_dropped, data.flag_capture,
-            data.flag_pickup, data.flag_seal, data.flag_cover, data.flag_cover_pass,
-            data.flag_cover_fail, data.flag_self_cover, data.flag_self_cover_pass, data.flag_self_cover_fail, data.flag_multi_cover,
-            data.flag_spree_cover, data.flag_kill, data.flag_save, data.flag_carry_time,
-            data.assault_objectives, data.dom_caps, data.k_distance_normal, data.k_distance_long, data.k_distance_uber,
-            data.headshots, data.shield_belt, data.amp, data.amp_time, data.invisibility, data.invisibility_time, data.pads,
-            data.armor, data.boots, data.super_health,
-
-
-            gametypeId, playerId
-
-        ];
-
-
-
-        await simpleQuery(query, vars);
-    }
-
+    
     async deleteGametypeTotals(id){
 
         console.log(`delete gametype ${id}`);
@@ -3554,4 +3213,285 @@ export async function getAllPlayersGametypeMatchData(gametypeId, playerId){
     const query = "SELECT * FROM nstats_player_matches WHERE gametype=? AND player_id=?";
 
     return await simpleQuery(query, [gametypeId, playerId]);
+}
+
+
+async function updatePlayerTotal(playerId, gametypeId, mapId, data){
+
+    if(data === undefined){
+    
+        console.log(`-----------playerID--${playerId}- gametypeId---${gametypeId}--mapId-${mapId}---------------------------------`);
+        return;
+    }
+
+    const query = `UPDATE nstats_player_totals SET 
+    first=?,
+    last=?,
+    matches=?,
+    wins=?,
+    losses=?,
+    draws=?,
+    winrate=?,
+    playtime=?,
+    team_0_playtime=?,
+    team_1_playtime=?,
+    team_2_playtime=?,
+    team_3_playtime=?,
+    spec_playtime=?,
+    first_bloods=?,
+    frags=?,
+    score=?,
+    kills=?,
+    deaths=?,
+    suicides=?,
+    team_kills=?,
+    spawn_kills=?,
+    efficiency=?,
+    multi_1=?,
+    multi_2=?,
+    multi_3=?,
+    multi_4=?,
+    multi_5=?,
+    multi_6=?,
+    multi_7=?,
+    multi_best=?,
+    spree_1=?,
+    spree_2=?,
+    spree_3=?,
+    spree_4=?,
+    spree_5=?,
+    spree_6=?,
+    spree_7=?,
+    spree_best=?,
+    best_spawn_kill_spree=?,
+    assault_objectives=?,
+    dom_caps=?,
+    dom_caps_best=?,
+    dom_caps_best_life=?,
+    accuracy=?,
+    k_distance_normal=?,
+    k_distance_long=?,
+    k_distance_uber=?,
+    headshots=?,
+    shield_belt=?,
+    amp=?,
+    amp_time=?,
+    invisibility=?,
+    invisibility_time=?,
+    pads=?,
+    armor=?,
+    boots=?,
+    super_health=?,
+    mh_kills=?,
+    mh_kills_best_life=?,
+    mh_kills_best=?,
+    mh_deaths=?,
+    mh_deaths_worst=?
+    WHERE ${(gametypeId === 0 && mapId === 0) ? "id" : "player_id" }=? AND gametype=? AND map=?`;
+
+    const vars = [
+        data.first_match ?? data.first,
+        data.last_match ?? data.last,
+        data.total_matches,
+        data.wins,
+        data.losses,
+        data.draws,
+        data.winRate ?? data.winrate,
+        data.playtime,
+        data.team_0_playtime,
+        data.team_1_playtime,
+        data.team_2_playtime,
+        data.team_3_playtime,
+        data.spec_playtime,
+        data.first_bloods,
+        data.frags,
+        data.score,
+        data.kills,
+        data.deaths,
+        data.suicides,
+        data.team_kills,
+        data.spawn_kills,
+        data.efficiency,
+        data.multi_1,
+        data.multi_2,
+        data.multi_3,
+        data.multi_4,
+        data.multi_5,
+        data.multi_6,
+        data.multi_7,
+        data.multi_best,
+        data.spree_1,
+        data.spree_2,
+        data.spree_3,
+        data.spree_4,
+        data.spree_5,
+        data.spree_6,
+        data.spree_7,
+        data.spree_best,
+
+        data.best_spawn_kill_spree,
+        data.assault_objectives,
+        data.dom_caps,
+        data.dom_caps_best,
+        data.dom_caps_best_life,
+        data.accuracy,
+        data.k_distance_normal,
+        data.k_distance_long,
+        data.k_distance_uber,
+        data.headshots,
+        data.shield_belt,
+        data.amp,
+        data.amp_time,
+        data.invisibility,
+        data.invisibility_time,
+        data.pads,
+        data.armor,
+        data.boots,
+        data.super_health,
+        data.mh_kills,
+        data.mh_kills_best_life,
+        data.mh_kills_best,
+        data.mh_deaths,
+        data.mh_deaths_worst,
+        playerId, gametypeId, mapId
+    ];
+
+    const result = await simpleQuery(query, vars);
+
+    return result;
+}
+
+
+export async function recalculateTotals(playerIds, gametypeId, mapId){
+
+    if(playerIds.length === 0) return;
+
+    //const test = await simpleQuery(`SHOW COLUMNS FROM nstats_player_matches`);
+
+   // console.log(test);
+
+   // console.log(test.map((t) =>{
+   //     return `SUM(${t.Field}) as ${t.Field}`;
+   // }));
+
+    let query = `SELECT
+    player_id,
+    COUNT(*) as total_matches,
+    SUM(playtime) as playtime,
+    MIN(match_date) as first_match,
+    MAX(match_date) as last_match,
+    SUM(team_0_playtime) as team_0_playtime,
+    SUM(team_1_playtime) as team_1_playtime,
+    SUM(team_2_playtime) as team_2_playtime,
+    SUM(team_3_playtime) as team_3_playtime,
+    SUM(spec_playtime) as spec_playtime,
+    SUM(first_blood) as first_bloods,
+    SUM(frags) as frags,
+    SUM(score) as score,
+    SUM(kills) as kills,
+    SUM(deaths) as deaths,
+    SUM(suicides) as suicides,
+    SUM(team_kills) as team_kills,
+    SUM(spawn_kills) as spawn_kills,
+    SUM(multi_1) as multi_1,
+    SUM(multi_2) as multi_2,
+    SUM(multi_3) as multi_3,
+    SUM(multi_4) as multi_4,
+    SUM(multi_5) as multi_5,
+    SUM(multi_6) as multi_6,
+    SUM(multi_7) as multi_7,
+    MAX(multi_best) as multi_best,
+    SUM(spree_1) as spree_1,
+    SUM(spree_2) as spree_2,
+    SUM(spree_3) as spree_3,
+    SUM(spree_4) as spree_4,
+    SUM(spree_5) as spree_5,
+    SUM(spree_6) as spree_6,
+    SUM(spree_7) as spree_7,
+    MAX(spree_best) as spree_best,
+    MAX(best_spawn_kill_spree) as best_spawn_kill_spree,
+    SUM(assault_objectives) as assault_objectives,
+    SUM(dom_caps) as dom_caps,
+    MAX(dom_caps) as dom_caps_best,
+    MAX(dom_caps_best_life) as dom_caps_best_life,
+    AVG(accuracy) as accuracy,
+    SUM(k_distance_normal) as k_distance_normal,
+    SUM(k_distance_long) as k_distance_long,
+    SUM(k_distance_uber) as k_distance_uber,
+    SUM(headshots) as headshots,
+    SUM(shield_belt) as shield_belt,
+    SUM(amp) as amp,
+    SUM(amp_time) as amp_time,
+    SUM(invisibility) as invisibility,
+    SUM(invisibility_time) as invisibility_time,
+    SUM(pads) as pads,
+    SUM(armor) as armor,
+    SUM(boots) as boots,
+    SUM(super_health) as super_health,
+    SUM(mh_kills) as mh_kills,
+    MAX(mh_kills) as mh_kills_best,
+    MAX(mh_kills_best_life) as mh_kills_best_life,
+    SUM(mh_deaths) as mh_deaths,
+    MAX(mh_deaths) as mh_deaths_worst,
+    SUM(telefrag_kills) as telefrag_kills,
+    SUM(telefrag_deaths) as telefrag_deaths,
+    MAX(telefrag_best_spree) as telefrag_best_spree,
+    MAX(telefrag_best_multi) as telefrag_best_multi,
+    SUM(tele_disc_kills) as tele_disc_kills,
+    SUM(tele_disc_deaths) as tele_disc_deaths,
+    MAX(tele_disc_best_spree) as tele_disc_best_spree,
+    MAX(tele_disc_best_multi) as tele_disc_best_multi
+    FROM nstats_player_matches WHERE player_id IN(?)`;
+
+
+    const vars = [playerIds];
+
+    if(gametypeId !== 0){
+        vars.push(gametypeId);
+        query += ` AND gametype=?`;
+    }
+
+    if(mapId !== 0){
+        vars.push(mapId);
+        query += ` AND map_id=?`;
+    }
+
+    const result = await simpleQuery(`${query} GROUP BY player_id`, vars);
+
+    //console.log(result);
+
+    const winrateData = await getBasicWinrateStats(playerIds, gametypeId, mapId);
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        r.wins = 0;
+        r.draws = 0;
+        r.losses = 0;
+        r.winrate = 0;
+        r.efficiency = 0;
+
+        if(winrateData[r.player_id] !== undefined){
+
+            const w = winrateData[r.player_id];
+
+            r.wins = w.wins; 
+            r.draws = w.draws; 
+            r.losses = w.losses;
+            r.winrate = w.winrate; 
+        }
+
+        if(r.kills > 0){
+
+            if(r.deaths === 0){
+                r.efficiency = 100;
+            }else{
+                r.efficiency = r.kills / (r.kills + r.deaths);
+            }
+        }
+
+        await updatePlayerTotal(r.player_id, gametypeId, mapId, r);
+    }
+   
 }

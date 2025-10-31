@@ -1704,71 +1704,64 @@ export default class PlayerManager{
 
     async updateCurrentWinRates(gametypeId, mapId, matchDate, matchId, bNeedToRecalulate){
 
-        try{
+    
+        // const playerIds = new Set();
 
-           // const playerIds = new Set();
+        const playerResults = {};
 
-            const playerResults = {};
+        for(let i = 0; i < this.players.length; i++){
 
-            for(let i = 0; i < this.players.length; i++){
+            const p = this.players[i];
 
-                const p = this.players[i];
+            if(this.bIgnoreBots && p.bBot) continue;
+            const playtime = p.getTotalPlaytime(this.totalTeams);
 
-                if(this.bIgnoreBots && p.bBot) continue;
-                const playtime = p.getTotalPlaytime(this.totalTeams);
+            if(playtime === 0) continue;
+        
+            let currentResult = p.matchResult;
+            
 
-                if(playtime === 0) continue;
-          
-                let currentResult = p.matchResult;
-                
+            //playerIds.add(p.masterId);
 
-                //playerIds.add(p.masterId);
+            playerResults[p.masterId] = currentResult;
 
-                playerResults[p.masterId] = currentResult;
-
-                /*
-                //map + gametype win rates
-                await this.winRateManager.updatePlayerLatest(p.masterId, gametypeId, mapId, currentResult, matchDate, matchId);
-                //gametype win rates
-                await this.winRateManager.updatePlayerLatest(p.masterId, gametypeId, 0, currentResult, matchDate, matchId);
-                //map win rates
-                await this.winRateManager.updatePlayerLatest(p.masterId, 0, mapId, currentResult, matchDate, matchId);
-                //all time win rate
-                await this.winRateManager.updatePlayerLatest(p.masterId, 0, 0, currentResult, matchDate, matchId);
-                */
-            }
-
-            // gametype & map combo
-            await updatePlayerWinrates(playerResults, matchId, gametypeId, mapId, matchDate);
-            //map
-            await updatePlayerWinrates(playerResults, matchId, 0, mapId, matchDate);
-            //gametype
-            await updatePlayerWinrates(playerResults, matchId, gametypeId, 0, matchDate);
-            //all time
-            await updatePlayerWinrates(playerResults, matchId, 0, 0, matchDate);
-
-        }catch(err){
-            new Message(`PlayerManager.updateCurrentWinRates() ${err}`,'error');
-            console.trace(err);
+            /*
+            //map + gametype win rates
+            await this.winRateManager.updatePlayerLatest(p.masterId, gametypeId, mapId, currentResult, matchDate, matchId);
+            //gametype win rates
+            await this.winRateManager.updatePlayerLatest(p.masterId, gametypeId, 0, currentResult, matchDate, matchId);
+            //map win rates
+            await this.winRateManager.updatePlayerLatest(p.masterId, 0, mapId, currentResult, matchDate, matchId);
+            //all time win rate
+            await this.winRateManager.updatePlayerLatest(p.masterId, 0, 0, currentResult, matchDate, matchId);
+            */
         }
+
+        // gametype & map combo
+        await updatePlayerWinrates(playerResults, gametypeId, mapId, matchDate);
+        //map
+        await updatePlayerWinrates(playerResults, 0, mapId, matchDate);
+        //gametype
+        await updatePlayerWinrates(playerResults, gametypeId, 0, matchDate);
+        //all time
+        await updatePlayerWinrates(playerResults,  0, 0, matchDate);
+
     }
 
     async updateWinRates(matchId, date, gametypeId, mapId){
 
-        try{
     
-            //date = -1//Math.floor(Math.random() * 10000000);
-            
-            //TODO change this so that it's an admin tool from the website, 
-            //it makes more sense to do it there once instead of after each log if there is an older log
 
-            //const bNeedToRecalulate = await this.winRateManager.bNeedToRecalulate(date);
+        //date = -1//Math.floor(Math.random() * 10000000);
         
-            await this.updateCurrentWinRates(gametypeId, mapId, date, matchId, false/*bNeedToRecalulate*/);
+        //TODO change this so that it's an admin tool from the website, 
+        //it makes more sense to do it there once instead of after each log if there is an older log
 
-        }catch(err){
-            new Message(`PlayerManager.updateWinRates() ${err}`,'error');
-        }
+        //const bNeedToRecalulate = await this.winRateManager.bNeedToRecalulate(date);
+    
+        await this.updateCurrentWinRates(gametypeId, mapId, date, matchId, false/*bNeedToRecalulate*/);
+
+        
     }
 
     async getPlayerTotals(gametype){
