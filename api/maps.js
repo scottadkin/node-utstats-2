@@ -661,9 +661,7 @@ export default class Maps{
     }
 
     async deleteMap(id){
-        const query = `DELETE FROM nstats_maps WHERE id=?`;
-
-        return await simpleQuery(query, [id]);
+        return await deleteMap(id);
     }
 
     /*async updateTotalsFromMergeData(mapId, first, last, matches, playtime){
@@ -847,6 +845,13 @@ export function getImages(names){
     return exists;
 }
 
+async function deleteMap(id){
+
+    const query = `DELETE FROM nstats_maps WHERE id=?`;
+
+    return await simpleQuery(query, [id]);
+}
+
 async function getTotalResults(name){
 
     if(name === undefined) name = "";
@@ -961,7 +966,6 @@ async function calcBasicTotals(gametypeId, mapId){
         vars.push(mapId);
     }
 
-    console.log(where, vars);
     const result = await simpleQuery(`${query} ${where}`, vars);
 
     if(result[0].total_matches === 0) return null;
@@ -1129,7 +1133,6 @@ export async function getGraphHistoryData(id){
     const day = hour * 24;
     const year = day * 365;
     const now = Date.now();
-    console.log(now, now-year);
     const data = await getHistoryBetween(id, toMysqlDate(new Date(now - year)), toMysqlDate(now));
 
     const dayData = [];
@@ -1328,6 +1331,11 @@ export async function getTotalPlaytime(mapId, gametypeId){
 
 async function setBasicTotals(mapId, first, last, matches, playtime){
 
+    if(matches === 0){
+        await deleteMap(mapId);
+        return;
+    }
+
     const query = `UPDATE nstats_maps SET 
     first = IF(first > ?, ?, first),
     last = IF(last < ?, ?, last),
@@ -1347,6 +1355,8 @@ async function insertMapTotals(gametypeId, mapId, data){
     await deleteMapTotals(gametypeId, mapId);
 
     const d = data;
+
+    if(d.total_matches === 0) return;
 
     const query = `INSERT INTO nstats_map_totals VALUES(NULL,?,?,
     ?,?,?,?,?,
@@ -1448,7 +1458,10 @@ export async function recalculateTotals(gametypeId, mapId){
     
     const result = await simpleQuery(query, vars);
 
-    if(result.length === 0) return;
+    if(result[0].total_matches === 0){
+        if(gametypeId === 0 && mapId !== 0) return await deleteMap(mapId);
+        return;
+    }
 
     //need to delete old map totals
     return await insertMapTotals(gametypeId, mapId, result[0]);

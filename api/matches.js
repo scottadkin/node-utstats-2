@@ -528,20 +528,14 @@ export default class Matches{
 
         const result = await simpleQuery(query, [matchIds]);
 
-        console.log(result);
-
         return result.map((r) => r.id);
 
     }
 
     async recalculateDmWinners(matchIds){
 
-        console.log("recalculateDmWinners");
-        console.log(matchIds);
-
         const dmMatches = await this.getValidDMMatches(matchIds);
 
-        console.log(dmMatches);
     }
 
     async getDmWinner(matchId){

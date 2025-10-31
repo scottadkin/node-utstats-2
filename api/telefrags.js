@@ -385,9 +385,9 @@ export async function recalculatePlayerTotals(playerId){
 
     if(result.length > 0){
         await insertCustomTotal(playerId, result);
-    }else{
-        console.log(`No data to create telefrag totals for playerId ${playerId}`);
-    }
+    }//else{
+      //  console.log(`No data to create telefrag totals for playerId ${playerId}`);
+    //}
 }
 
 

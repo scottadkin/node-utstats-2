@@ -3218,6 +3218,7 @@ export async function getAllPlayersGametypeMatchData(gametypeId, playerId){
 
 async function updatePlayerTotal(playerId, gametypeId, mapId, data){
 
+
     if(data === undefined){
     
         console.log(`-----------playerID--${playerId}- gametypeId---${gametypeId}--mapId-${mapId}---------------------------------`);
@@ -3361,18 +3362,23 @@ async function updatePlayerTotal(playerId, gametypeId, mapId, data){
     return result;
 }
 
+async function deletePlayerTotal(playerId, gametypeId, mapId){
+
+    let query = `DELETE FROM nstats_player_totals WHERE player_id=? AND gametype=? AND map=?`;
+    let vars = [playerId, gametypeId, mapId];
+
+    if(gametypeId === 0 && mapId === 0){
+        query = `DELETE FROM nstats_player_totals WHERE id=?`;
+        vars = [playerId];
+    }
+
+    return await simpleQuery(query, vars);
+
+}
 
 export async function recalculateTotals(playerIds, gametypeId, mapId){
 
     if(playerIds.length === 0) return;
-
-    //const test = await simpleQuery(`SHOW COLUMNS FROM nstats_player_matches`);
-
-   // console.log(test);
-
-   // console.log(test.map((t) =>{
-   //     return `SUM(${t.Field}) as ${t.Field}`;
-   // }));
 
     let query = `SELECT
     player_id,
@@ -3457,6 +3463,15 @@ export async function recalculateTotals(playerIds, gametypeId, mapId){
     }
 
     const result = await simpleQuery(`${query} GROUP BY player_id`, vars);
+
+    if(result.length === 0 && gametypeId === 0 && mapId === 0){
+
+        for(let i = 0; i < playerIds.length; i++){
+
+            const id = playerIds[i];
+            await deletePlayerTotal(id, gametypeId, mapId);
+        }
+    }
 
     //console.log(result);
 
