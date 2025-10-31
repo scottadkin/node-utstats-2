@@ -1,23 +1,13 @@
 import { simpleQuery } from "./database.js";
-import Match from "./match.js";
 import CountriesManager from "./countriesmanager.js";
 import CTF from "./ctf.js";
-import Domination from "./domination.js";
-import Faces from "./faces.js";
 import Gametypes from "./gametypes.js";
-import Headshots from "./headshots.js";
-import Items from "./items.js";
-import Kills from "./kills.js";
 import Maps, { getImages } from "./maps.js";
-import Connections from "./connections.js";
-import Weapons from "./weapons.js";
-import Rankings from "./rankings.js";
 import Servers from "./servers.js";
 import Voices from "./voices.js";
 import { getUniqueValues, setIdNames, removeUnr, getPlayer, cleanMapName, sanatizePage, sanatizePerPage } from "./generic.mjs";
 import { getObjectName } from "./genericServerSide.mjs";
 import { deleteFromDatabase as logsDeleteFromDatabase } from "./logs.js";
-import MonsterHunt from "./monsterhunt.js";
 import {getSettings} from "./sitesettings.js";
 import { getAllInMatch, getBasicPlayersByIds, deletePlayersMatchData } from "./players.js";
 import { deleteMatch as assaultDeleteMatch } from "./assault.js";
@@ -38,6 +28,7 @@ import { deleteMatchData as deleteMatchPowerupData } from "./powerups.js";
 import { deleteMatchData as deleteMatchRankingData } from "./rankings.js";
 import { deleteMatchData as deleteMatchWinRateData } from "./winrate.js";
 import { recalculateTotals as recalculateMapTotals } from "./maps.js";
+import { recalculateGametypeTotals } from "./gametypes.js";
 
 export default class Matches{
 
@@ -2049,7 +2040,7 @@ export async function adminDeleteMatch(id){
     await recalculateMapTotals(gametypeId, mapId);
     await recalculateMapTotals(0, mapId);
 
-    //nstats_gametypes recaclc gametype totals
+    await recalculateGametypeTotals(gametypeId);
     
     //nstats_player_totals recalc
 

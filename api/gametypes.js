@@ -207,13 +207,6 @@ export default class Gametypes{
         return await simpleQuery(query, [limit]);
     }
 
-    async reduceMatchStats(gametype, playtime){
-
-        const query = "UPDATE nstats_gametypes SET matches=matches-1, playtime=playtime-? WHERE id=?";
-
-        return await simpleQuery(query, [playtime, gametype]);
-    }
-
     async getAll(){
     
         const query = `SELECT * FROM nstats_gametypes ORDER BY name ASC`;
@@ -1011,4 +1004,29 @@ export default class Gametypes{
         }
 
     }
+}
+
+
+
+export async function recalculateGametypeTotals(gametypeId){
+
+    const query = `SELECT COUNT(*) as total_matches,MIN(date) as first_match, 
+    MAX(date) as last_match,SUM(playtime) as playtime FROM nstats_matches WHERE gametype=?`;
+
+    const result = await simpleQuery(query, [gametypeId]);
+
+    if(result.length === 0) return;
+
+    const r = result[0];
+
+    if(r.total_matches === 0){
+        r.first_match = DEFAULT_DATE;
+        r.last_match = DEFAULT_DATE;
+        r.playtime = 0;
+    }
+
+    const updateQuery = `UPDATE nstats_gametypes SET first=?,last=?,matches=?,playtime=? WHERE id=?`;
+
+    return await simpleQuery(updateQuery, [r.first_match, r.last_match,r.total_matches,r.playtime, gametypeId]);
+
 }
