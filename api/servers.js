@@ -98,46 +98,6 @@ export default class Servers{
         await simpleQuery(query, [current, name]);
     }
 
-    deleteServer(ip, port){
-
-        return new Promise((resolve, reject) =>{
-
-            port = parseInt(port);
-
-            if(port !== port) reject(`Port must be a valid integer.`);
-
-            const query = "DELETE FROM nstats_servers WHERE ip=? AND port=?";
-
-            simpleQuery(query, [ip, port], (err, result) =>{
-
-                if(err) reject(err);
-
-                (result.affectedRows > 0) ? resolve(true) : resolve(false);
-
-            });
-        });
-    }
-
-    deleteServerById(id){
-
-        return new Promise((resolve, reject) =>{
-
-            id = parseInt(id);
-
-            if(id !== id) reject(`Id must be a valid integer.`);
-
-            const query = "DELETE FROM nstats_servers WHERE id=?";
-
-            simpleQuery(query, [id], (err, result) =>{
-
-                if(err) reject(err);
-
-                (result.affectedRows > 0) ? resolve(true) : resolve(false);       
-                
-            });      
-        });
-    }
-
 
     async getServerId(ip, port){
 
@@ -283,96 +243,6 @@ export default class Servers{
     }
 
 
-    async adminUpdateServer(serverId, serverName, serverIP, serverPort, serverPassword, country){  
-
-
-        if(!await this.bServerIDExist(serverId)) throw new Error(`There are no servers with the id of ${serverId}`);
-
-        const query = `UPDATE nstats_servers SET name=?,ip=?,port=?,password=?,country=? WHERE id=?`;
-
-        if(serverPort !== ""){
-            serverPort = parseInt(serverPort);
-            if(serverPort !== serverPort) throw new Error("ServerPort must be a valid integer.");
-        }else{
-            serverPort = 7777;
-        }
-
-        const result = await simpleQuery(query, [serverName, serverIP, serverPort, serverPassword, country, serverId]);
-
-        if(result.affectedRows !== 0) return true;
-
-        return false;
-    }
-
-
-    async adminDeleteServerById(serverId){
-
-        serverId = parseInt(serverId);
-
-        if(serverId !== serverId) throw new Error("Server ID must be a valid integer.");
-
-        const query = `DELETE FROM nstats_servers WHERE id=?`;
-
-        return await simpleQuery(query, [serverId]);
-    }
-
-
-    async adminMergeServers(oldId, newId){
-
-        oldId = parseInt(oldId);
-        newId = parseInt(newId);
-
-        if(oldId !== oldId || newId !== newId) throw new Error("Server ids must be valid intergers");
-
-        const matchesQuery = `UPDATE nstats_matches SET server=? WHERE server=?`;
-        await simpleQuery(matchesQuery, [newId, oldId]);
-
-        const serversQuery = `SELECT * FROM nstats_servers WHERE id IN(?)`;
-        const serversResult = await simpleQuery(serversQuery, [[oldId, newId]]);
-
-        const totals = {};
-
-        let master = null;
-
-        for(let i = 0; i < serversResult.length; i++){
-
-            const s = serversResult[i];
-
-            if(s.id === newId){
-                master = {...s};
-            }
-
-            if(i === 0){
-                totals.first = s.first;
-                totals.last = s.last;
-                totals.matches = s.matches;
-                totals.playtime = s.playtime;
-                totals.lastMatchId = s.last_match_id;
-                totals.lastMapId = s.last_map_id;
-                continue;
-            }
-
-            totals.matches += s.matches;
-            totals.playtime += s.playtime;
-
-            if(s.last > totals.last){
-                totals.last = s.last;
-                totals.lastMatchId = s.last_match_id;
-                totals.lastMapId = s.last_map_id;
-            }
-        }
-
-        const updateQuery = `UPDATE nstats_servers SET first=?,last=?,matches=?,playtime=?,last_match_id=?,last_map_id=? WHERE id=?`;
-
-        await simpleQuery(updateQuery, [
-            totals.first, totals.last,
-            totals.matches, totals.playtime, totals.lastMatchId, 
-            totals.lastMapId, newId]
-        );
-
-        const deleteQuery = `DELETE FROM nstats_servers WHERE id=?`;
-        await simpleQuery(deleteQuery, [oldId]);
-    }
 
     async getQueryList(){
 
@@ -524,4 +394,49 @@ export default class Servers{
 
         return await simpleQuery(query);
     }
+}
+
+
+export async function deleteServerById(id){
+    const query = `DELETE FROM nstats_servers WHERE id=?`;
+    return await simpleQuery(query, [id]);
+}
+
+async function updateTotals(serverId, first, last, totalMatches, playtime, lastMatchId, lastMapId){
+
+    const query = `UPDATE nstats_servers SET first=?,last=?,matches=?,playtime=?,last_match_id=?,last_map_id=?
+    WHERE id=?`;
+
+    return await simpleQuery(query, [first, last, totalMatches, playtime, lastMatchId, lastMapId, serverId]);
+}
+
+async function getLatestMatchPlayedIds(serverId){
+
+    const query = `SELECT id,map FROM nstats_matches WHERE server=? ORDER BY date DESC LIMIT 1`;
+
+    const result = await simpleQuery(query, [serverId]);
+
+    if(result.length === 0) return {"mapId": -1, "matchId": -1};
+
+    return {"mapId": result[0].map, "matchId": result[0].id}
+}
+
+export async function recalculateTotals(serverId){
+
+
+    const query = `SELECT COUNT(*) as total_matches,MAX(date) as last_match,MIN(date) as first_match,SUM(playtime) as playtime FROM nstats_matches WHERE server=?`;
+
+    const result = await simpleQuery(query, [serverId]);
+
+    const r = result[0];
+
+    if(r.total_matches === 0){  
+        return await deleteServerById(serverId);
+    }
+
+
+    const {mapId, matchId} = await getLatestMatchPlayedIds(serverId);
+
+    await updateTotals(serverId, r.first_match, r.last_match, r.total_matches, r.playtime, matchId, mapId);
+
 }

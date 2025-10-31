@@ -29,6 +29,7 @@ import { deleteMatchData as deleteMatchRankingData } from "./rankings.js";
 import { deleteMatchData as deleteMatchWinRateData } from "./winrate.js";
 import { recalculateTotals as recalculateMapTotals } from "./maps.js";
 import { recalculateGametypeTotals } from "./gametypes.js";
+import { recalculateTotals as recalculateServerTotals } from "./servers.js";
 
 export default class Matches{
 
@@ -1983,6 +1984,7 @@ export async function adminDeleteMatch(id){
 
     const gametypeId = basic.gametype;
     const mapId = basic.map;
+    const serverId = basic.server;
 
     const players = await getAllInMatch(id);
 
@@ -2040,5 +2042,6 @@ export async function adminDeleteMatch(id){
     await recalculatePlayerTotals([...playerIds], 0, mapId);
     await recalculatePlayerTotals([...playerIds], gametypeId, mapId);
  
+    await recalculateServerTotals(serverId);
 
 }
