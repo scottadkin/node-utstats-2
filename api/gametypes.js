@@ -637,27 +637,6 @@ export default class Gametypes{
 
     
 
-    async recalculateGametypeTotals(gametypeId, playerManager){
-
-
-        await this.deleteGametypeTotals(gametypeId);
-        const mapData = await this.getGametypeTotalsFromMatchData(gametypeId, true);
-
-        for(let i = 0; i < mapData.length; i++){
-
-            await playerManager.insertNewPlayerTotalFromData(gametypeId, mapData[i]);
-        }
-
-        const allTimeData = await this.getGametypeTotalsFromMatchData(gametypeId, false);
-
-        if(allTimeData.length > 0){
-            
-            await playerManager.insertNewPlayerTotalFromData(gametypeId, allTimeData[0]);
-            //console.log(allTimeData);
-        }
-        
-        
-    }
 
     async merge(oldId, newId, rankingManager, winrateManager, ctfManager, weaponsManager, playersManager, bAutoMergeAfter){
 
@@ -675,7 +654,7 @@ export default class Gametypes{
 
             //merge player gametype totals here
 
-            await this.recalculateGametypeTotals(newId, playersManager);
+            //await this.recalculateGametypeTotals(newId, playersManager);
             //await this.mergePlayerGametypeTotals(oldGametypePlayerTotals, newId);
             await this.deleteGametypePlayerTotals(oldId);
 

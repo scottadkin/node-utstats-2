@@ -666,7 +666,7 @@ export default class Maps{
         return await simpleQuery(query, [id]);
     }
 
-    async updateTotalsFromMergeData(mapId, first, last, matches, playtime){
+    /*async updateTotalsFromMergeData(mapId, first, last, matches, playtime){
 
         const query = `UPDATE nstats_maps SET 
         first = IF(first > ?, ?, first),
@@ -678,7 +678,7 @@ export default class Maps{
         const vars = [first, first, last, last, matches, playtime, mapId];
 
         return await simpleQuery(query, vars);
-    }
+    }*/
 
     async deleteFlags(mapId){
 
@@ -1323,4 +1323,133 @@ export async function getTotalPlaytime(mapId, gametypeId){
 
     return result[0].playtime;
 
+}
+
+
+async function setBasicTotals(mapId, first, last, matches, playtime){
+
+    const query = `UPDATE nstats_maps SET 
+    first = IF(first > ?, ?, first),
+    last = IF(last < ?, ?, last),
+    matches=matches+?,
+    playtime=playtime+?
+    WHERE id=?`;
+
+    const vars = [first, first, last, last, matches, playtime, mapId];
+
+    return await simpleQuery(query, vars);
+}
+
+
+async function insertMapTotals(gametypeId, mapId, data){
+
+
+    await deleteMapTotals(gametypeId, mapId);
+
+    const d = data;
+
+    const query = `INSERT INTO nstats_map_totals VALUES(NULL,?,?,
+    ?,?,?,?,?,
+    ?,?,?,?,?,?,
+    ?,?,?,?,?,?,?,?,
+    ?,?,?,?,?,?,?,?,
+    ?,?,?,?,?,
+    ?,?,?,?,?,
+    ?,?,?,?,?,
+    ?,?,?,?,?,
+    ?,?,?,?,?,
+    ?,?,?,?,?,
+    ?)`;
+
+    const playtime = await getTotalPlaytime(mapId, gametypeId);
+
+    await setBasicTotals(mapId, d.first_match, d.last_match, d.total_matches, playtime);
+
+    const vars = [
+        gametypeId, mapId,
+        d.first_match, d.last_match, d.total_matches, playtime, d.frags,
+        d.score, d.kills, d.deaths, d.suicides, d.team_kills, d.spawn_kills, 
+        d.multi_1, d.multi_2, d.multi_3, d.multi_4, d.multi_5, d.multi_6, d.multi_7, d.multi_best,
+        d.spree_1, d.spree_2, d.spree_3, d.spree_4, d.spree_5, d.spree_6, d.spree_7, d.spree_best,
+        d.best_spawn_kill_spree, d.assault_objectives, d.dom_caps, d.dom_caps_best, d.dom_caps_best_life,
+        d.k_distance_normal, d.k_distance_long, d.k_distance_uber, d.headshots, d.shield_belt,
+        d.amp, d.amp_time, d.invisibility, d.invisibility_time, d.pads,
+        d.armor, d.boots, d.super_health, d.mh_kills, d.mh_kills_best_life,
+        d.mh_kills_best, d.mh_deaths, d.mh_deaths_worst, d.telefrag_kills, d.telefrag_kills_best,
+        d.telefrag_deaths, d.telefrag_best_spree, d.tele_disc_kills, d.tele_disc_kills_best, d.tele_disc_deaths,
+        d.tele_disc_best_spree
+    ];
+
+    return await simpleQuery(query, vars);
+}
+
+
+export async function recalculateTotals(gametypeId, mapId){
+
+    let query = `SELECT COUNT(*) as total_matches,MIN(match_date) as first_match, MAX(match_date) as last_match,
+    SUM(frags) as frags, SUM(score) as score, SUM(kills) as kills, SUM(deaths) as deaths,
+    SUM(suicides) as suicides, SUM(team_kills) as team_kills, SUM(spawn_kills) as spawn_kills,
+    SUM(multi_1) as multi_1,
+    SUM(multi_2) as multi_2,
+    SUM(multi_3) as multi_3,
+    SUM(multi_4) as multi_4,
+    SUM(multi_5) as multi_5,
+    SUM(multi_6) as multi_6,
+    SUM(multi_7) as multi_7,
+    MAX(multi_best) as multi_best,
+    SUM(spree_1) as spree_1,
+    SUM(spree_2) as spree_2,
+    SUM(spree_3) as spree_3,
+    SUM(spree_4) as spree_4,
+    SUM(spree_5) as spree_5,
+    SUM(spree_6) as spree_6,
+    SUM(spree_7) as spree_7,
+    MAX(spree_best) as spree_best,
+    MAX(best_spawn_kill_spree) as best_spawn_kill_spree,
+    SUM(assault_objectives) as assault_objectives,
+    SUM(dom_caps) as dom_caps,
+    MAX(dom_caps) as dom_caps_best,
+    MAX(dom_caps_best_life) as dom_caps_best_life,
+    SUM(k_distance_normal) as k_distance_normal,
+    SUM(k_distance_long) as k_distance_long,
+    SUM(k_distance_uber) as k_distance_uber,
+    SUM(headshots) as headshots,
+    SUM(shield_belt) as shield_belt,
+    SUM(amp) as amp,
+    SUM(amp_time) as amp_time,
+    SUM(invisibility) as invisibility,
+    SUM(invisibility_time) as invisibility_time,
+    SUM(pads) as pads,
+    SUM(armor) as armor,
+    SUM(boots) as boots,
+    SUM(super_health) as super_health,
+    SUM(mh_kills) as mh_kills,
+    MAX(mh_kills) as mh_kills_best,
+    MAX(mh_kills_best_life) as mh_kills_best_life,
+    SUM(mh_deaths) as mh_deaths,
+    MAX(mh_deaths) as mh_deaths_worst,
+    SUM(telefrag_kills) as telefrag_kills,
+    MAX(telefrag_kills) as telefrag_kills_best,
+    SUM(telefrag_deaths) as telefrag_deaths,
+    MAX(telefrag_best_spree) as telefrag_best_spree,
+    SUM(tele_disc_kills) as tele_disc_kills,
+    MAX(tele_disc_kills) as tele_disc_kills_best,
+    SUM(tele_disc_deaths) as tele_disc_deaths,
+    MAX(tele_disc_best_spree) as tele_disc_best_spree
+    FROM nstats_player_matches WHERE map_id=?
+    `;
+
+    const vars = [mapId];
+
+    if(gametypeId !== 0){
+        query += ` AND gametype=?`;
+        vars.push(gametypeId);
+    }
+    
+    const result = await simpleQuery(query, vars);
+
+    if(result.length === 0) return;
+
+    //need to delete old map totals
+    return await insertMapTotals(gametypeId, mapId, result[0]);
 }

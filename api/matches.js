@@ -37,6 +37,7 @@ import { deleteMatchData as deleteMatchWeaponData } from "./weapons.js";
 import { deleteMatchData as deleteMatchPowerupData } from "./powerups.js";
 import { deleteMatchData as deleteMatchRankingData } from "./rankings.js";
 import { deleteMatchData as deleteMatchWinRateData } from "./winrate.js";
+import { recalculateTotals as recalculateMapTotals } from "./maps.js";
 
 export default class Matches{
 
@@ -1982,6 +1983,11 @@ async function deletePlayerScoreData(id){
 }
 
 
+async function deleteMatch(id){
+
+    return await simpleQuery(`DELETE FROM nstats_matches WHERE id=?`, [id]);
+}
+
 
 export async function adminDeleteMatch(id){
 
@@ -2006,6 +2012,7 @@ export async function adminDeleteMatch(id){
 
 
     
+    //await deleteMatch(id);
 
     await assaultDeleteMatch(id);
     await deleteMatchHeadshots(id);
@@ -2029,8 +2036,6 @@ export async function adminDeleteMatch(id){
 
 
 
-
-
     //make sure to delete all player match data before recalculating totals
     await recaclFaceTotals([...faceIds]);
     await recalculateTelefragPlayersTotals([...playerIds]);
@@ -2041,11 +2046,10 @@ export async function adminDeleteMatch(id){
 
     await deleteMatchWinRateData([...playerIds], gametypeId, mapId);
     
+    await recalculateMapTotals(gametypeId, mapId);
+    await recalculateMapTotals(0, mapId);
+
     //nstats_gametypes recaclc gametype totals
-    //nstats_maps recalc totals
-    
-    //nstats_map_totals recacl totals
-    //nstats_matches delete
     
     //nstats_player_totals recalc
 
