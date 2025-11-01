@@ -3464,7 +3464,7 @@ export async function recalculateTotals(playerIds, gametypeId, mapId){
 
     const result = await simpleQuery(`${query} GROUP BY player_id`, vars);
 
-    if(result.length === 0 && gametypeId === 0 && mapId === 0){
+    if(result.length === 0){
 
         for(let i = 0; i < playerIds.length; i++){
 

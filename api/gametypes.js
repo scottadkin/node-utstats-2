@@ -519,12 +519,6 @@ export default class Gametypes{
     }
 
 
-    async deleteGametype(id){
-
-        await simpleQuery("DELETE FROM nstats_gametypes WHERE id=?", [id]);
-
-    }
-
     async getGametypeTotalsFromMatchData(gametypeId, bSeparateByMap){
 
 
@@ -620,13 +614,6 @@ export default class Gametypes{
         return result;
     }
 
-
-    async deleteGametypeTotals(gametypeId){
-
-        const query = `DELETE FROM nstats_player_totals WHERE gametype=?`;
-
-        return await simpleQuery(query, [gametypeId]);
-    }
 
     
 
@@ -1006,7 +993,18 @@ export default class Gametypes{
     }
 }
 
+async function deleteGametypeTotals(gametypeId){
 
+    const query = `DELETE FROM nstats_player_totals WHERE gametype=?`;
+
+    return await simpleQuery(query, [gametypeId]);
+}
+
+async function deleteGametype(id){
+
+    await simpleQuery("DELETE FROM nstats_gametypes WHERE id=?", [id]);
+
+}
 
 export async function recalculateGametypeTotals(gametypeId){
 
@@ -1020,9 +1018,8 @@ export async function recalculateGametypeTotals(gametypeId){
     const r = result[0];
 
     if(r.total_matches === 0){
-        r.first_match = DEFAULT_DATE;
-        r.last_match = DEFAULT_DATE;
-        r.playtime = 0;
+        
+        return await deleteGametype(gametypeId);
     }
 
     const updateQuery = `UPDATE nstats_gametypes SET first=?,last=?,matches=?,playtime=? WHERE id=?`;

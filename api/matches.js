@@ -30,6 +30,7 @@ import { deleteMatchData as deleteMatchWinRateData } from "./winrate.js";
 import { recalculateTotals as recalculateMapTotals } from "./maps.js";
 import { recalculateGametypeTotals } from "./gametypes.js";
 import { recalculateTotals as recalculateServerTotals } from "./servers.js";
+import { deleteMatchData as deleteMatchKills } from "./kills.js";
 
 export default class Matches{
 
@@ -2000,6 +2001,7 @@ export async function adminDeleteMatch(id){
 
     
     await deleteMatch(id);
+    await deletePlayersMatchData(id);
 
     await assaultDeleteMatch(id);
     await deleteMatchHeadshots(id);
@@ -2011,7 +2013,7 @@ export async function adminDeleteMatch(id){
     await deleteMatchPings(id);
     await deleteMatchTeamChanges(id);
 
-    await deletePlayersMatchData(id);
+    
     await deleteMatchConnections(id);
     await deleteMatchItems(id, [...playerIds]);
     await deleteMatchCombogibData(id, [...playerIds], gametypeId, mapId);
@@ -2019,6 +2021,8 @@ export async function adminDeleteMatch(id){
     await deleteMatchWeaponData(id, [...playerIds], gametypeId, mapId);
     await deleteMatchPowerupData(id, [...playerIds], gametypeId, mapId);
     await deleteMatchRankingData(id, [...playerIds], gametypeId, mapId);
+
+    await deleteMatchKills(id);
 
 
 
@@ -2037,10 +2041,12 @@ export async function adminDeleteMatch(id){
 
     await recalculateGametypeTotals(gametypeId);
 
-    await recalculatePlayerTotals([...playerIds], 0, 0);
+
+    await recalculatePlayerTotals([...playerIds], gametypeId, mapId);
     await recalculatePlayerTotals([...playerIds], gametypeId, 0);
     await recalculatePlayerTotals([...playerIds], 0, mapId);
-    await recalculatePlayerTotals([...playerIds], gametypeId, mapId);
+    await recalculatePlayerTotals([...playerIds], 0, 0);
+    
  
     await recalculateServerTotals(serverId);
 

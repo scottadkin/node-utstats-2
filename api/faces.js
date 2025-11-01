@@ -500,7 +500,19 @@ async function getFacesTotalUsesFromMatchesTable(faceIds){
     const query = `SELECT face,COUNT(*) as total_uses,MIN(match_date) as first_match,MAX(match_date) as last_match 
     FROM nstats_player_matches WHERE face IN(?) GROUP BY face`;
 
-    return await simpleQuery(query, [faceIds]);
+    const result = await simpleQuery(query, [faceIds]);
+
+    const data = {};
+
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        data[r.face] = r;
+    }
+
+    return data;
 
 }
 
@@ -533,12 +545,23 @@ export async function recalculateSelectedTotals(faceIds){
 
     const query = `UPDATE nstats_faces SET first=?,last=?,uses=? WHERE id=?`;
 
-    for(let i = 0; i < totals.length; i++){
+    const toDelete = [];
 
-        const t = totals[i];
+    for(let i = 0; i < faceIds.length; i++){
+
+        const fId = faceIds[i];
+
+        if(totals[fId] === undefined || totals[fId].total_uses === 0){
+            toDelete.push(fId);
+            continue;
+        }
+
+        const t = totals[fId];
 
         await simpleQuery(query, [t.first_match,t.last_match,t.uses,t.id]);
     }
+
+    await deleteFacesTotals(toDelete);
 
   
 }

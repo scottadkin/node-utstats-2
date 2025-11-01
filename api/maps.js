@@ -1459,8 +1459,12 @@ export async function recalculateTotals(gametypeId, mapId){
     const result = await simpleQuery(query, vars);
 
     if(result[0].total_matches === 0){
-        if(gametypeId === 0 && mapId !== 0) return await deleteMap(mapId);
+
+        await deleteMapTotals(gametypeId, mapId);
+
+        if(gametypeId === 0) await deleteMap(mapId);
         return;
+      
     }
 
     //need to delete old map totals

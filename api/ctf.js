@@ -1758,16 +1758,7 @@ export default class CTF{
         return duplicates;
     }
 
-    async deletePlayerCTFBestRecords(playerId, gametypeId, bBestLife){
-
-        if(bBestLife === undefined) bBestLife = false;
-
-        const table = (!bBestLife) ? "nstats_player_ctf_best" : "nstats_player_ctf_best_life";
-
-        const query = `DELETE FROM ${table} WHERE player_id=? AND gametype_id=?`;
-
-        return await simpleQuery(query, [playerId, gametypeId]);
-    }
+   
 
     async fixDuplicatePlayerBestRecords(playerId, gametypeId, bBestLife){
 
@@ -1815,7 +1806,7 @@ export default class CTF{
             return;
         }
 
-        await this.deletePlayerCTFBestRecords(playerId, gametypeId, bBestLife);
+        //await this.deletePlayerCTFBestRecords(playerId, gametypeId, bBestLife);
 
         if(!bBestLife){
            // await this.insertNewPlayerBest(playerId, result[0]);
@@ -3642,8 +3633,28 @@ async function recalculatePlayerBestAfterMatchDelete(playerId, gametypeId, mapId
     await insertNewPlayerBestAfterMatchDelete(playerId, result[0], gametypeId, mapId);
 }
 
+async function deletePlayerBestLife(playerId, gametypeId, mapId){
+
+    let query = `DELETE FROM nstats_player_ctf_best_life WHERE player_id=?`;
+
+    const vars = [playerId];
+
+    if(gametypeId !== 0){
+        query += ` AND gametype_id=?`;
+        vars.push(gametypeId);
+    }
+
+    if(mapId !== 0){
+        query += ` AND map_id=?`;
+        vars.push(mapId);
+    }
+
+    return await simpleQuery(query, vars);
+}
 
 async function recalculatePlayerBestLifeAfterMatchDelete(playerId, gametypeId, mapId){
+
+    await deletePlayerBestLife();
 
     let query = `SELECT 
     IFNULL(SUM(playtime), 0) as playtime,
@@ -3690,7 +3701,9 @@ async function recalculatePlayerBestLifeAfterMatchDelete(playerId, gametypeId, m
 
     const result = await simpleQuery(query, vars);
 
-    if(result[0].playtime === 0) return;
+    if(result[0].playtime === 0){
+        return await deletePlayerBestLife(playerId, gametypeId, mapId);
+    }
 
     await insertNewPlayerBestSingleLife(playerId, result[0], gametypeId, mapId);
 }

@@ -32,13 +32,6 @@ export default class Kills{
         return await simpleQuery(query, [id]);
     }
 
-    async deleteMatchData(id){
-
-        const query = "DELETE FROM nstats_kills WHERE match_id=?";
-
-        return await simpleQuery(query, [id]);   
-    }
-
     async deletePlayerMatchData(playerId, matchId){
 
         const query = "DELETE FROM nstats_kills WHERE (killer=? AND match_id=?) OR (victim=? AND match_id=?)";
@@ -435,4 +428,11 @@ export async function getKillsMatchUp(matchId){
     }
 
     return data;
+}
+
+export async function deleteMatchData(id){
+
+    const query = "DELETE FROM nstats_kills WHERE match_id=?";
+
+    return await simpleQuery(query, [id]);   
 }

@@ -306,6 +306,7 @@ async function recalculatePlayer(playerId, gametypeId, mapId, matchDate){
     const matchResults = await getPlayerMatchResultHistory(playerId, gametypeId, mapId);
 
     if(matchResults.length === 0){
+        await deletePlayerLatest(playerId, gametypeId, mapId);
         new Message(`recalculatePlayer matchResults is null`, "error");
         return;
     }

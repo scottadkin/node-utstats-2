@@ -583,7 +583,6 @@ export default class Rankings{
 
     async recalculatePlayerGametype(playerId, gametypeId){
 
-        console.log(`recalculate player ranking for playerId=${playerId} and gametypeId=${gametypeId}`);
 
         const matchHistory = await getAllPlayersGametypeMatchData(gametypeId, playerId);
 
