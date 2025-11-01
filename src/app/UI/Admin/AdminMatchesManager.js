@@ -89,6 +89,53 @@ function reducer(state, action){
 
             return newState;
         }
+
+        case "add-delete-match": {
+
+            const id = parseInt(action.id);
+
+            const matchesToDelete = [...state.pendingDeleteMatches];
+
+            if(matchesToDelete.indexOf(id) === -1){
+                matchesToDelete.push(id);
+            }
+
+            return {
+                ...state,
+                "pendingDeleteMatches": [...matchesToDelete]
+            }
+        }
+
+        case "finished-delete-match": {
+
+            const id = parseInt(action.id);
+            const matchesToDelete = [...state.pendingDeleteMatches];
+
+            const index = matchesToDelete.indexOf(id);
+
+            if(index !== -1){
+                matchesToDelete.splice(index, 1);
+            }
+
+            //dispatch({"type": "set-active-delete-id", "id": id});
+
+            let currentDeleteId = -1;
+
+            if(matchesToDelete.length > 0) currentDeleteId = matchesToDelete[0];
+
+            return {
+                ...state,
+                "pendingDeleteMatches": [...matchesToDelete],
+                "currentDeleteMatchId": currentDeleteId
+            }
+        }
+
+        case "set-active-delete-id": {
+            return {
+                ...state,
+                "currentDeleteMatchId": action.id
+            }
+        }
     }
 
 
@@ -130,9 +177,19 @@ async function loadMatches(page, perPage, order, sortBy, selectedServer, selecte
     }
 }
 
-async function deleteMatch(id, dispatch){
+async function deleteMatch(id, dispatch, state){
 
     try{
+
+        dispatch({"type": "add-delete-match", "id": id});
+
+        
+        if(state.currentDeleteMatchId === -1){
+            dispatch({"type": "set-active-delete-id", "id": id});
+        }
+
+
+     
 
         const req = await fetch(`/api/admin`, {
             "headers": {"Content-type": "application/json"},
@@ -141,10 +198,16 @@ async function deleteMatch(id, dispatch){
         });
 
         const res = await req.json();
-        console.log(res);
+        
+        if(res.error !== undefined) throw new Error(res.error);
+        dispatch({"type": "finished-delete-match", "id": id});
+
+        await loadMatches(state.page, state.perPage, state.order, state.sortBy, state.selectedServer, state.selectedGametype, state.selectedMap, dispatch);
 
     }catch(err){
         console.trace(err);
+        dispatch({"type": "set-message", "messageType": "error", "title": "Failed To Delete Match", "content": err.toString()});
+        dispatch({"type": "finished-delete-match", "id": id});
     }
 }
 
@@ -176,6 +239,23 @@ function renderGeneral(state, dispatch){
     ];
 
     const rows = state.matches.map((d) =>{
+
+        let elem = <td key={d.id} className="team-yellow">In Queue</td>;
+
+        if(state.currentDeleteMatchId === d.id){
+
+            elem = <td key={d.id} className="team-yellow">Deleting...</td>
+
+
+        }else if(state.pendingDeleteMatches.indexOf(d.id) === -1){
+            
+            elem = <td key={d.id} className="team-red pointer" onClick={() =>{
+                deleteMatch(d.id, dispatch, state);
+            }}>
+                Delete Match
+            </td>
+        }
+
         return [
              <>
                 <Link target="_blank" href={`/match/${d.id}`}>Link</Link>
@@ -186,11 +266,7 @@ function renderGeneral(state, dispatch){
             {"className": "small-font", "value": d.mapName},
             d.players,
             {"className": "playtime", "value": toPlaytime(d.playtime)},
-            {"bSkipTd": true, "value": <td key={d.id} className="team-red pointer" onClick={() =>{
-                deleteMatch(d.id, dispatch);
-            }}>
-                Delete Match
-            </td>}
+            {"bSkipTd": true, "value": elem}
            
         ];
     });
@@ -289,7 +365,9 @@ export default function AdminMatchesManager(){
             "title": null,
             "content": null,
             "timestamp": 0
-        }
+        },
+        "currentDeleteMatchId": -1,
+        "pendingDeleteMatches": []
     });
 
     useEffect(() =>{

@@ -3376,9 +3376,9 @@ async function deletePlayerTotal(playerId, gametypeId, mapId){
 
 }
 
-export async function recalculateTotals(playerIds, gametypeId, mapId){
+async function getTotalsFromMatchTable(playerIds, gametypeId, mapId){
 
-    if(playerIds.length === 0) return;
+    if(playerIds.length === 0) return {};
 
     let query = `SELECT
     player_id,
@@ -3464,11 +3464,28 @@ export async function recalculateTotals(playerIds, gametypeId, mapId){
 
     const result = await simpleQuery(`${query} GROUP BY player_id`, vars);
 
-    if(result.length === 0){
+    const data = {};
 
-        for(let i = 0; i < playerIds.length; i++){
+    for(let i = 0; i < result.length; i++){
 
-            const id = playerIds[i];
+        const r = result[i];
+        data[r.player_id] = r;
+    }
+
+    return data;
+}
+
+export async function recalculateTotals(playerIds, gametypeId, mapId){
+
+    if(playerIds.length === 0) return;
+
+    const totals = await getTotalsFromMatchTable(playerIds, gametypeId, mapId);
+
+    for(let i = 0; i < playerIds.length; i++){
+
+        const id = playerIds[i];
+
+        if(totals[id] === undefined){
             await deletePlayerTotal(id, gametypeId, mapId);
         }
     }
@@ -3477,9 +3494,9 @@ export async function recalculateTotals(playerIds, gametypeId, mapId){
 
     const winrateData = await getBasicWinrateStats(playerIds, gametypeId, mapId);
 
-    for(let i = 0; i < result.length; i++){
+    for(let i = 0; i < totals.length; i++){
 
-        const r = result[i];
+        const r = totals[i];
 
         r.wins = 0;
         r.draws = 0;

@@ -55,9 +55,17 @@ async function getPlayerLatestWinrateInfo(playerIds, gametypeId, mapId){
         query += ` AND map_id=?`;
     }
 
-    return await simpleQuery(`${query} GROUP BY player_id`, vars);
+    const result = await simpleQuery(`${query} GROUP BY player_id`, vars);
 
+    const data = {};
 
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        data[r.player_id] = r;
+    }
+
+    return data;
 }
 
 /**
@@ -75,31 +83,34 @@ export async function deleteMatchData(playerIds, gametypeId, mapId){
     const mapLatest = await getPlayerLatestWinrateInfo(playerIds, 0, mapId);
     const allTime = await getPlayerLatestWinrateInfo(playerIds, 0, 0);
 
+    for(let i = 0; i < playerIds.length; i++){
 
-    for(let i = 0; i < mapGametypeCombos.length; i++){
+        const id = playerIds[i];
 
-        const d = mapGametypeCombos[i];
-        await recalculatePlayer(d.player_id, gametypeId, mapId, d.latest_date);
+        if(mapGametypeCombos[id] !== undefined){
+            await recalculatePlayer(id, gametypeId, mapId, mapGametypeCombos[id].latest_date);
+        }else{
+            await deletePlayerLatest(id, gametypeId, mapId);
+        }
+
+        if(gametypeLatest[id] !== undefined){
+            await recalculatePlayer(id, gametypeId, 0, gametypeLatest[id].latest_date);
+        }else{
+            await deletePlayerLatest(id, gametypeId, 0);
+        }
+
+        if(mapLatest[id] !== undefined){
+            await recalculatePlayer(id, 0, mapId, mapLatest[id].latest_date);
+        }else{
+            await deletePlayerLatest(id, 0, mapId);
+        }
+
+        if(allTime[id] !== undefined){
+            await recalculatePlayer(id, 0, 0, allTime[id].latest_date);
+        }else{
+            await deletePlayerLatest(id, 0, 0);
+        }
     }
-
-    for(let i = 0; i < gametypeLatest.length; i++){
-
-        const d = gametypeLatest[i];
-        await recalculatePlayer(d.player_id, gametypeId, 0, d.latest_date);
-    }
-
-    for(let i = 0; i < mapLatest.length; i++){
-
-        const d = mapLatest[i];
-        await recalculatePlayer(d.player_id, 0, mapId, d.latest_date);
-    }
-
-     for(let i = 0; i < allTime.length; i++){
-
-        const d = allTime[i];
-        await recalculatePlayer(d.player_id, 0, 0, d.latest_date);
-    }
-
 }
 
 

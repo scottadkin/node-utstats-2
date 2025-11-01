@@ -4,7 +4,6 @@ import CTF from "./ctf.js";
 import Gametypes from "./gametypes.js";
 import Maps, { getImages } from "./maps.js";
 import Servers from "./servers.js";
-import Voices from "./voices.js";
 import { getUniqueValues, setIdNames, removeUnr, getPlayer, cleanMapName, sanatizePage, sanatizePerPage } from "./generic.mjs";
 import { getObjectName } from "./genericServerSide.mjs";
 import { deleteFromDatabase as logsDeleteFromDatabase } from "./logs.js";
@@ -31,6 +30,7 @@ import { recalculateTotals as recalculateMapTotals } from "./maps.js";
 import { recalculateGametypeTotals } from "./gametypes.js";
 import { recalculateTotals as recalculateServerTotals } from "./servers.js";
 import { deleteMatchData as deleteMatchKills } from "./kills.js";
+import { recalculateTotals as recalculateVoiceTotals } from "./voices.js";
 
 export default class Matches{
 
@@ -483,11 +483,7 @@ export default class Matches{
                 }
             }
 
-            const voiceManager = new Voices();
-
-            for(const [key, value] of Object.entries(uses)){
-                await voiceManager.reduceTotals(key, value);
-            }
+ 
 
         }catch(err){
             console.trace(err);
@@ -1991,11 +1987,13 @@ export async function adminDeleteMatch(id){
 
     const playerIds = new Set();
     const faceIds = new Set();
+    const voiceIds = new Set();
 
     for(let i = 0; i < players.length; i++){
         const p = players[i];
         playerIds.add(p.player_id);
         faceIds.add(p.face);
+        voiceIds.add(p.voice);
     }
 
 
@@ -2028,6 +2026,7 @@ export async function adminDeleteMatch(id){
 
     //make sure to delete all player match data before recalculating totals
     await recaclFaceTotals([...faceIds]);
+    await recalculateVoiceTotals([...voiceIds]);
     await recalculateTelefragPlayersTotals([...playerIds]);
     await recalcultePlayersCTF([...playerIds], gametypeId, mapId);
     await recalculateCapRecordsAfterMatchDelete(id, gametypeId, mapId);

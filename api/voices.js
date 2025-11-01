@@ -186,3 +186,56 @@ export default class Voices{
         }
     }
 }
+
+
+async function calculateTotalsFromMatchTable(voiceIds){
+
+    if(voiceIds.length === 0) return {};
+
+    const query = `SELECT voice,COUNT(*) as total_uses,MIN(match_date) as first_match,MAX(match_Date) as last_date FROM nstats_player_matches WHERE face IN (?) GROUP BY voice`;
+
+    const result = await simpleQuery(query, [voiceIds]);
+
+    const data = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        data[r.voice] = r;
+    }
+
+    return data;
+}
+
+async function deleteVoice(id){
+
+    const query = `DELETE FROM nstats_voices WHERE id=?`;
+
+    return await simpleQuery(query, [id]);
+}
+
+export async function recalculateTotals(voiceIds){
+
+    if(voiceIds.length === 0) return;
+
+    const totals = await calculateTotalsFromMatchTable(voiceIds);
+
+    const query = `UPDATE nstats_voices SET uses=?,first=?,last=? WHERE id=?`;
+
+
+    for(let i = 0; i < voiceIds.length; i++){
+
+        const id = voiceIds[i];
+
+        if(totals[id] === undefined){
+
+            await deleteVoice(id);
+
+        }else{
+
+            const t = totals[id];
+            await simpleQuery(query, [t.total_uses, t.first_match, t.last_match, t.voice]);
+        }
+    }
+}

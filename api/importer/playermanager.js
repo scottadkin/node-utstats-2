@@ -695,7 +695,7 @@ export default class PlayerManager{
                         const player = this.getPlayerById(faceResult[1]);
 
                         if(player !== null){
-
+                        
                             player.setFace(faceResult[2].toLowerCase());
                         }
 

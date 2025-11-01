@@ -223,6 +223,8 @@ export async function POST(req){
             const id = res.id ?? 0;
 
             await adminDeleteMatch(id);
+
+            return Response.json({"message": "Passed"});
         }
 
 

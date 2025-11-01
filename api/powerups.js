@@ -453,6 +453,7 @@ async function getPlayersBestSingleUse(playerIds, gametypeId, mapId){
 
 async function recalculatePlayerTotals(playerIds, gametypeId, mapId){
 
+    if(playerIds.length === 0) return;
 
     let query =  `SELECT COUNT(*) as total_matches,powerup_id,player_id,
     SUM(times_used) as times_used,
