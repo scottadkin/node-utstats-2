@@ -1879,9 +1879,6 @@ async function recalculateWeaponTotals(weaponIds){
 export async function deleteMatchData(matchId, playerIds, gametypeId, mapId){
 
     const usedWeapons = await getUsedWeaponIdsFromMatch(matchId);
-
-    console.log("usedWeapons fro match id", matchId);
-    console.log(usedWeapons);
     
 
     await deleteMatchPlayerData(matchId);

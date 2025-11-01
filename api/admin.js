@@ -2,6 +2,7 @@ import { bulkInsert, simpleQuery } from "./database.js";
 import {writeFileSync} from "fs";
 import { DEFAULT_PAGE_SETTINGS } from "./sitesettings.js";
 import { DEFAULT_DATE, DEFAULT_MIN_DATE } from "./generic.mjs";
+import { resetAllTotals as resetAllItemTotals } from "./items.js";
 
 async function bHostPortFolderComboInUse(host, port, targetFolder){
     
@@ -75,7 +76,7 @@ export default class Admin{
             "gametypes",
             "headshots",
             "hwid_to_name",
-            "items",
+           // "items",
             "items_match",
             "items_player",
             "kills",
@@ -131,6 +132,9 @@ export default class Admin{
             const query = `TRUNCATE TABLE nstats_${t}`;
             await simpleQuery(query);
         }
+
+
+        await resetAllItemTotals();
     }
 
 

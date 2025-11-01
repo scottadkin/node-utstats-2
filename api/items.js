@@ -1,5 +1,5 @@
 import { simpleQuery, bulkInsert } from "./database.js";
-import { toMysqlDate } from "./generic.mjs";
+import { DEFAULT_DATE, DEFAULT_MIN_DATE, toMysqlDate } from "./generic.mjs";
 import { getObjectName } from "./genericServerSide.mjs";
 import Message from "./message.js";
 
@@ -653,8 +653,8 @@ async function updateTotalsAfterRecalculate(data){
     for(const [weaponId, d] of Object.entries(data)){
 
         const vars = [
-            toMysqlDate(d.minDate),
-            toMysqlDate(d.maxDate),
+            d.minDate,
+            d.maxDate,
             d.uses,
             d.matchIds.size,
             weaponId
@@ -665,22 +665,42 @@ async function updateTotalsAfterRecalculate(data){
     
 }
 
-async function recalculateMultipleTotals(itemIds){
+async function calcTotalsFromMatchTable(itemIds){
 
     if(itemIds.length === 0) return;
 
     const query = `SELECT nstats_items_match.item,
     nstats_items_match.match_id,
     SUM(nstats_items_match.uses) as uses,
-    MIN(nstats_matches.date) as match_date
+    nstats_matches.date as match_date
     FROM nstats_items_match
     INNER JOIN nstats_matches ON nstats_items_match.match_id = nstats_matches.id
     WHERE item IN (?) GROUP BY nstats_items_match.item,nstats_items_match.match_id`;
 
     const result = await simpleQuery(query, [itemIds]);
 
-    const totals = {};
+    for(let i = 0; i < result.length; i++){
 
+        const r = result[i];
+
+        if(r.uses === null) r.uses = 0;
+        if(r.match_date === null) r.match_date = DEFAULT_DATE;
+     
+    }
+
+    return result;
+}
+
+async function recalculateMultipleTotals(itemIds){
+
+    if(itemIds.length === 0) return;
+
+    const result = await calcTotalsFromMatchTable(itemIds);
+
+
+    //dont want to delete as we lose the categories the items are in
+
+    const totals = {};
 
     for(let i = 0; i < result.length; i++){
 
@@ -707,8 +727,21 @@ async function recalculateMultipleTotals(itemIds){
         }
     }
 
-    await updateTotalsAfterRecalculate(totals);
+    for(let i = 0; i < itemIds.length; i++){
 
+        const id = itemIds[i];
+
+        if(totals[id] === undefined){
+            totals[id] = {
+                "matchIds": new Set(),
+                "uses": 0,
+                "minDate": DEFAULT_MIN_DATE,
+                "maxDate": DEFAULT_DATE
+            };
+        }
+    }
+
+    await updateTotalsAfterRecalculate(totals);
 }
 
 
@@ -810,4 +843,12 @@ export async function deleteMatchData(matchId, playerIds){
     await recalculateMultipleTotals(usedIds);
     await recalculateMultiplePlayerTotals(usedIds, playerIds);
 
+}
+
+
+export async function resetAllTotals(){
+
+    const query = `UPDATE nstats_items SET first=?,last=?,uses=0,matches=0`;
+
+    return await simpleQuery(query, [DEFAULT_MIN_DATE, DEFAULT_DATE]);
 }

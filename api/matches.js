@@ -2049,4 +2049,5 @@ export async function adminDeleteMatch(id){
  
     await recalculateServerTotals(serverId);
 
+
 }

@@ -1,6 +1,6 @@
 import Message from "./api/message.js";
 import { existsSync, writeFileSync } from "fs";
-import { DEFAULT_MIN_DATE, generateRandomString } from "./api/generic.mjs";
+import { DEFAULT_MIN_DATE, DEFAULT_DATE, generateRandomString } from "./api/generic.mjs";
 import mysql from "mysql2/promise";
 import config from "./config.json" with {"type": "json"};
 import { DEFAULT_PAGE_SETTINGS } from "./api/sitesettings.js";
@@ -1643,7 +1643,7 @@ async function insertItems(){
 		
 		if(!await bItemExist(d.name)){
 
-			await simpleQuery(query, [d.name, d.display_name,"1999-11-30","1999-11-30", d.type]);
+			await simpleQuery(query, [d.name, d.display_name, DEFAULT_MIN_DATE, DEFAULT_DATE, d.type]);
 			new Message(`Inserted item ${d.name} into items table.`,"pass");
 
 		}else{
