@@ -287,28 +287,6 @@ export default class Matches{
         return 0;
     }
 
-    async getDuplicates(){
-
-
-        const query = `SELECT name, COUNT(*) as total_found, MAX(imported) as last_import, MIN(imported) as first_import,
-        MIN(match_id) as first_id, MAX(match_id) as last_id
-         FROM nstats_logs GROUP BY name`;
-
-        const result = await simpleQuery(query);
-
-        const found = [];
-
-        for(let i = 0; i < result.length; i++){
-
-            const r = result[i];
-
-            if(r.total_found > 1){
-                found.push(r);
-            }
-        }
-
-        return found;
-    }
 
     async getMatchLogFileNames(matchIds){
 
@@ -317,25 +295,6 @@ export default class Matches{
         const query = "SELECT name,match_id FROM nstats_logs WHERE match_id IN (?)";
 
         return await simpleQuery(query, [matchIds]);    
-    }
-
-
-    async getPreviousDuplicates(logFileName, latestId){
-
-        const query = "SELECT match_id FROM nstats_logs WHERE name=? AND match_id != ?";
-
-        const vars = [logFileName, latestId];
-
-        const result = await simpleQuery(query, vars);
-
-        const found = [];
-        
-        for(let i = 0; i < result.length; i++){
-
-            found.push(result[i].match_id);
-        }
-
-        return found;
     }
 
 
@@ -752,20 +711,6 @@ export default class Matches{
         return await simpleQuery(query, [newId, oldId]);
     }
 
-    async getDuplicatePlayerEntries(targetPlayer){
-
-        const query = `SELECT COUNT(*) as total_entries, match_id FROM nstats_player_matches WHERE player_id=? GROUP BY match_id ORDER BY total_entries DESC`;
-
-        const result = await simpleQuery(query, [targetPlayer]);
-
-        const matchIds = [];
-
-        for(let i = 0; i < result.length; i++){
-            matchIds.push(result[i].match_id);
-        }
-
-        return matchIds;
-    }
 
     async mergePlayerMatchData(matchId, playerId){
 
@@ -2046,8 +1991,65 @@ export async function adminDeleteMatch(id){
     await recalculatePlayerTotals([...playerIds], 0, mapId);
     await recalculatePlayerTotals([...playerIds], 0, 0);
     
- 
     await recalculateServerTotals(serverId);
 
+}
 
+export async function getDuplicateMatches(){
+
+    //only get the latest server,gametype,map ids for each match as they are the most recent
+    const query = `SELECT match_hash,MAX(date) as date, MAX(server) as server,MAX(gametype) as gametype,MAX(map) as map,
+    COUNT(*) as total_logs FROM nstats_matches GROUP BY match_hash`;
+
+    const result = await simpleQuery(query);
+
+    const data = [];
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        if(r.total_logs <= 1) continue;
+        //matchHashes.add(r.match_hash);
+        data.push(r);
+    }
+
+
+    const serverIds = new Set();
+    const gametypeIds = new Set();
+    const mapIds = new Set();
+
+
+    for(let i = 0; i < data.length; i++){
+
+        const {server, gametype, map} = data[i];
+
+        serverIds.add(server);
+        gametypeIds.add(gametype);
+        mapIds.add(map);
+    }
+
+    const serverNames = await getObjectName("servers", [...serverIds]);
+    const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
+    const mapNames = await getObjectName("maps", [...mapIds]);
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        d.serverName = serverNames[d.server] ?? "Not Found";
+        d.gametypeName = gametypeNames[d.gametype] ?? "Not Found";
+        d.mapName = mapNames[d.map] ?? "Not Found";
+    }
+
+
+    data.sort((a, b) =>{
+        a =a.date;
+        b =b.date;
+
+        if(a > b) return -1;
+        if(a < b) return 1;
+        return 0;
+    });
+
+    return data;
 }

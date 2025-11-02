@@ -6,6 +6,7 @@ import { BasicTable } from "../Tables";
 import { convertTimestamp, removeUnr, toPlaytime } from "../../../../api/generic.mjs";
 import Link from "next/link";
 import Pagination from "../Pagination";
+import AdminMatchesDuplicates from "./AdminMatchesDuplicates";
 
 function reducer(state, action){
 
@@ -355,7 +356,7 @@ export default function AdminMatchesManager(){
         "page": 1,
         "order": "desc",
         "sortBy": "date",
-        "mode": "general",
+        "mode": "duplicates",
         "perPage": 50,
         "selectedServer": 0,
         "selectedGametype": 0,
@@ -395,5 +396,8 @@ export default function AdminMatchesManager(){
         }}/>
         <MessageBox type={state.messageBox.type} title={state.messageBox.title}>{state.messageBox.content}</MessageBox>
         {renderGeneral(state, dispatch)}
+        <AdminMatchesDuplicates mode={state.mode} changeMode={(v) =>{
+            dispatch({"type": "set-mode", "value": v});
+        }}/>
     </>
 }

@@ -6,7 +6,7 @@ import { getAllUploadedImages as getAllUploadedMapImages, getImages } from "../.
 import { getAllObjectNames } from "../../../../api/genericServerSide.mjs";
 import { cleanMapName, sortByName } from "../../../../api/generic.mjs";
 import { getAllFaces, getAllFacesWithFileStatuses, getFacesWithFileStatuses } from "../../../../api/faces";
-import { adminMatchesSearch, adminDeleteMatch } from "../../../../api/matches";
+import { adminMatchesSearch, adminDeleteMatch, getDuplicateMatches } from "../../../../api/matches";
 
 
 
@@ -225,6 +225,13 @@ export async function POST(req){
             await adminDeleteMatch(id);
 
             return Response.json({"message": "Passed"});
+        }
+
+        if(mode === "get-duplicates"){
+
+            const data = await getDuplicateMatches();
+
+            return Response.json({"data": data});
         }
 
 
