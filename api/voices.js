@@ -235,7 +235,6 @@ export async function recalculateTotals(voiceIds){
         }else{
 
             const t = totals[id];
-            console.log(t);
             await simpleQuery(query, [t.total_uses, t.first_match, t.last_match, t.voice]);
         }
     }

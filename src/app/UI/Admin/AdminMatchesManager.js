@@ -148,7 +148,6 @@ async function loadMatches(page, perPage, order, sortBy, selectedServer, selecte
 
     try{
 
-
         const req = await fetch("/api/admin", {
             "headers": {"Content-type": "application/json"},
             "method": "POST",
@@ -166,7 +165,6 @@ async function loadMatches(page, perPage, order, sortBy, selectedServer, selecte
 
         const res = await req.json();
 
-        console.log(res);
 
         if(res.error !== undefined) throw new Error(res.error);
 

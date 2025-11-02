@@ -1919,7 +1919,6 @@ async function deleteMatch(id){
 
 export async function adminDeleteMatch(id){
 
-    console.log(`attempt to delete match ${id}`);
     const basic = await getMatch(id);
 
     if(basic === null) throw new Error(`Match does not exist`);
@@ -2087,7 +2086,6 @@ async function getNonLatestHashIds(targetHash, ignoreId){
  */
 export async function deleteHashDuplicates(targetHash){
 
-    console.log(`deletehahahahahahhahahsssssssshshshhshssh`);
 
     const latestMatchId = await getLatestHashMatchId(targetHash);
 

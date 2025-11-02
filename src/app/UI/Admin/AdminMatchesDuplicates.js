@@ -24,16 +24,89 @@ function reducer(state, action){
                 }
             }
         }
+        case "add-pending": {
+
+            const pending = [...state.pending];
+
+            const index = pending.indexOf(action.hash);
+
+            if(index === -1){
+                pending.push(action.hash);
+            }
+            
+
+            let active = state.activeDelete;
+
+            if(active === -1){
+                active = action.hash;
+            }
+
+            return {
+                ...state,
+                "pending": pending
+            }
+        }
+
+        case "remove-pending": {
+
+            const pending = JSON.parse(JSON.stringify(state.pending));
+
+            const index = pending.indexOf(action.value);
+
+            if(index !== -1){
+                pending.splice(index, 1);
+            }
+
+            let active = -1;
+
+            if(pending.length > 0){
+                active = pending[0];
+            }
+
+            const data = [...state.data];
+
+            let previousIndex = -1;
+
+
+            for(let i = 0; i < data.length; i++){
+
+                const d =data[i];
+
+                if(d.match_hash === action.value){
+                    previousIndex = i;
+                    break;
+                }
+            }
+
+            if(previousIndex === -1){
+                throw new Error(`Can't find previousIndex`);
+            }
+
+            data.splice(previousIndex, 1);
+
+            return {
+                ...state,
+                "pending": [...pending],
+                "activeDelete": active,
+                "data": [...data]
+            }
+        }
+
+
     }
 
     return {...state};
 }
 
-async function deleteDuplicate(dispatch, targetHash){
+async function deleteDuplicate(state, dispatch, targetHash){
 
     try{
+ 
 
-        console.log(`delete ${targetHash}`);
+
+       dispatch({"type": "add-pending", "hash": targetHash});
+
+
 
         const req = await fetch("/api/admin", {
             "headers": {"Content-type": "application/json"},
@@ -43,7 +116,10 @@ async function deleteDuplicate(dispatch, targetHash){
 
         const res = await req.json();
 
-        console.log(res);
+        if(res.error !== undefined) throw new Error(res.error);
+        dispatch({"type": "remove-pending", "value": targetHash});
+
+       // console.log(res);
 
     }catch(err){
         console.trace(err);
@@ -57,16 +133,36 @@ function renderDuplicates(state, dispatch){
     const headers = [
         "Date", "Server", "Gametype", "Map", "Total Duplicates", "Delete"
     ];
+
     const rows = state.data.map((d,i) =>{
+
+        const bPending = state.pending.indexOf(d.match_hash) !== -1;
+        const bActive = state.activeDelete === d.match_hash;
+
+
+        let elem = null;
+
+
+        if(!bPending && !bActive){
+
+            elem = {"bSkipTd": true, "value": <td key={i} className="team-red pointer" onClick={() =>{
+                deleteDuplicate(state, dispatch, d.match_hash);
+            }}>Delete Duplicates</td>};
+
+        }else if(bActive){
+            elem = {"className": "team-yellow", "value": "Deleting..."};
+        }else if(bPending){
+            elem = {"className": "team-yellow", "value": "In Queue..."};
+        }
+
         return [
             {"className": "date", "value": convertTimestamp(d.date, true)},
             d.serverName,
             d.gametypeName,
             d.mapName,
             d.total_logs,
-            {"bSkipTd": true, "value": <td key={i} className="team-red pointer" onClick={() =>{
-                deleteDuplicate(dispatch, d.match_hash);
-            }}>Delete Duplicates</td>}
+            elem
+            
         ];
     });
 
@@ -106,12 +202,14 @@ export default function AdminMatchesDuplicates({mode, changeMode}){
 
     const [state, dispatch] = useReducer(reducer, {
         "data": [],
+        "pending": [],
+        "activeDelete": -1,
         "messageBox": {
-                "type": null,
-                "title": null,
-                "content": null,
-                "timestamp": performance.now()
-            }
+            "type": null,
+            "title": null,
+            "content": null,
+            "timestamp": performance.now()
+        }
     });
 
 
@@ -119,6 +217,11 @@ export default function AdminMatchesDuplicates({mode, changeMode}){
 
         loadData(dispatch);
     }, []);
+
+    useEffect(() =>{
+
+        console.log(state.activeDelete);
+    }, [state.activeDelete]);
 
 
     return <>

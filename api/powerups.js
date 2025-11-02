@@ -496,8 +496,8 @@ async function recalculatePlayerTotals(playerIds, gametypeId, mapId){
 
 export async function deleteMatchData(matchId, playerIds, gametypeId, mapId){
 
-   // await deleteMatchPlayerData(matchId);
-   // await deleteMatchPlayerCarryTimes(matchId);
+    await deleteMatchPlayerData(matchId);
+    await deleteMatchPlayerCarryTimes(matchId);
 
 
     //map gametype combo
