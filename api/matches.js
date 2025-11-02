@@ -1919,7 +1919,7 @@ async function deleteMatch(id){
 
 export async function adminDeleteMatch(id){
 
-
+    console.log(`attempt to delete match ${id}`);
     const basic = await getMatch(id);
 
     if(basic === null) throw new Error(`Match does not exist`);
@@ -2043,13 +2043,70 @@ export async function getDuplicateMatches(){
 
 
     data.sort((a, b) =>{
-        a =a.date;
-        b =b.date;
+
+        a = a.date;
+        b = b.date;
 
         if(a > b) return -1;
         if(a < b) return 1;
+
         return 0;
     });
 
     return data;
+}
+
+
+async function getLatestHashMatchId(hash){
+
+    const query = `SELECT MAX(id) as latest_id FROM nstats_matches WHERE match_hash=?`;
+    const result = await simpleQuery(query, [hash]);
+
+    if(result.length === 0) return null;
+
+    return result[0].latest_id;
+}
+
+
+async function getNonLatestHashIds(targetHash, ignoreId){
+
+    const query = `SELECT id FROM nstats_matches WHERE match_hash=? AND id!=?`;
+
+    const result = await simpleQuery(query, [targetHash, ignoreId]);
+
+    console.log(result);
+
+    return result.map((r) =>{
+        return r.id;
+    });
+}
+
+/**
+ * Delete all but the latest match import for this log hash
+ * @param {*} targetHash 
+ */
+export async function deleteHashDuplicates(targetHash){
+
+    console.log(`deletehahahahahahhahahsssssssshshshhshssh`);
+
+    const latestMatchId = await getLatestHashMatchId(targetHash);
+
+    if(latestMatchId === null) throw new Error(`LatestMatchId is null`);
+
+    //delete all but latest match id
+
+    const matchIdsToDelete = await getNonLatestHashIds(targetHash, latestMatchId);
+
+    if(matchIdsToDelete.length === 0) return [];
+
+    console.log(`ignore`, latestMatchId);
+    console.log(`delete`, matchIdsToDelete);
+
+    for(let i = 0; i < matchIdsToDelete.length; i++){
+
+        const id = matchIdsToDelete[i];
+        await adminDeleteMatch(id);
+    }
+
+
 }

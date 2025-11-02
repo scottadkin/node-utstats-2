@@ -6,7 +6,7 @@ import { getAllUploadedImages as getAllUploadedMapImages, getImages } from "../.
 import { getAllObjectNames } from "../../../../api/genericServerSide.mjs";
 import { cleanMapName, sortByName } from "../../../../api/generic.mjs";
 import { getAllFaces, getAllFacesWithFileStatuses, getFacesWithFileStatuses } from "../../../../api/faces";
-import { adminMatchesSearch, adminDeleteMatch, getDuplicateMatches } from "../../../../api/matches";
+import { adminMatchesSearch, adminDeleteMatch, getDuplicateMatches, deleteHashDuplicates } from "../../../../api/matches";
 
 
 
@@ -232,6 +232,17 @@ export async function POST(req){
             const data = await getDuplicateMatches();
 
             return Response.json({"data": data});
+        }
+
+
+        if(mode === "delete-target-duplicates"){
+
+            const hash = res.hash ?? null;
+
+            if(hash === null) throw new Error(`Target hash is null`);
+
+            const result = await deleteHashDuplicates(hash);
+            return Response.json({"message": "ok"});
         }
 
 

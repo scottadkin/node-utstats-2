@@ -29,18 +29,44 @@ function reducer(state, action){
     return {...state};
 }
 
+async function deleteDuplicate(dispatch, targetHash){
+
+    try{
+
+        console.log(`delete ${targetHash}`);
+
+        const req = await fetch("/api/admin", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "delete-target-duplicates", "hash": targetHash})
+        });
+
+        const res = await req.json();
+
+        console.log(res);
+
+    }catch(err){
+        console.trace(err);
+        dispatch({"type": "set-message", "messageType": "error", "title": "Failed To Delete Duplicate", "content": err.toString()});
+    }
+}
+
+
 function renderDuplicates(state, dispatch){
 
     const headers = [
-        "Date", "Server", "Gametype", "Map", "Total Duplicates"
+        "Date", "Server", "Gametype", "Map", "Total Duplicates", "Delete"
     ];
-    const rows = state.data.map((d) =>{
+    const rows = state.data.map((d,i) =>{
         return [
             {"className": "date", "value": convertTimestamp(d.date, true)},
             d.serverName,
             d.gametypeName,
             d.mapName,
-            d.total_logs
+            d.total_logs,
+            {"bSkipTd": true, "value": <td key={i} className="team-red pointer" onClick={() =>{
+                deleteDuplicate(dispatch, d.match_hash);
+            }}>Delete Duplicates</td>}
         ];
     });
 
@@ -73,6 +99,7 @@ async function loadData(dispatch){
     }
 }
 
+
 export default function AdminMatchesDuplicates({mode, changeMode}){
 
     if(mode !== "duplicates") return null;
@@ -100,7 +127,7 @@ export default function AdminMatchesDuplicates({mode, changeMode}){
                 Duplicate matches are matches that have been imported more than once.<br/>
                 Deleting duplicate matches deletes the earlier matches keeping only the most recent imported match data.
             </div>
-            <button className="button delete-button">Delete Duplicate Matches</button>
+            <button className="button delete-button">Delete All Duplicate Matches</button>
         </div>
         <MessageBox type={state.messageBox.type} title={state.messageBox.title} timestamp={state.messageBox.timestamp}>
             {state.messageBox.content}

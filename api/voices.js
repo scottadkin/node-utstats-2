@@ -192,7 +192,7 @@ async function calculateTotalsFromMatchTable(voiceIds){
 
     if(voiceIds.length === 0) return {};
 
-    const query = `SELECT voice,COUNT(*) as total_uses,MIN(match_date) as first_match,MAX(match_Date) as last_date FROM nstats_player_matches WHERE face IN (?) GROUP BY voice`;
+    const query = `SELECT voice,COUNT(*) as total_uses,MIN(match_date) as first_match,MAX(match_Date) as last_match FROM nstats_player_matches WHERE face IN (?) GROUP BY voice`;
 
     const result = await simpleQuery(query, [voiceIds]);
 
@@ -235,6 +235,7 @@ export async function recalculateTotals(voiceIds){
         }else{
 
             const t = totals[id];
+            console.log(t);
             await simpleQuery(query, [t.total_uses, t.first_match, t.last_match, t.voice]);
         }
     }
