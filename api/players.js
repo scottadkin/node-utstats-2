@@ -1,5 +1,5 @@
 import Player from "./player.js";
-import { simpleQuery, bulkInsert } from "./database.js";
+import { simpleQuery, bulkInsert, updateReturnAffectedRows } from "./database.js";
 import { removeIps, setIdNames, getUniqueValues, getPlayer, DEFAULT_DATE, DEFAULT_MIN_DATE } from "./generic.mjs";
 import Matches from "./matches.js";
 import Assault from "./assault.js";
@@ -3225,7 +3225,7 @@ async function updatePlayerTotal(playerId, gametypeId, mapId, data){
         return;
     }
 
-    const query = `UPDATE nstats_player_totals SET 
+    let query = `UPDATE nstats_player_totals SET 
     first=?,
     last=?,
     matches=?,
@@ -3288,7 +3288,8 @@ async function updatePlayerTotal(playerId, gametypeId, mapId, data){
     mh_kills_best=?,
     mh_deaths=?,
     mh_deaths_worst=?
-    WHERE ${(gametypeId === 0 && mapId === 0) ? "id" : "player_id" }=? AND gametype=? AND map=?`;
+    WHERE ${(gametypeId === 0 && mapId === 0) ? "id" : "player_id" }=?`;
+
 
     const vars = [
         data.first_match ?? data.first,
@@ -3354,12 +3355,23 @@ async function updatePlayerTotal(playerId, gametypeId, mapId, data){
         data.mh_kills_best,
         data.mh_deaths,
         data.mh_deaths_worst,
-        playerId, gametypeId, mapId
+        playerId
     ];
 
-    const result = await simpleQuery(query, vars);
+    if(gametypeId !== 0){
 
-    return result;
+        query += ` AND gametype=?`;
+        vars.push(gametypeId);
+    }
+
+    if(mapId !== 0){
+
+        query += ` AND map=?`;
+        vars.push(mapId);
+    }
+
+    return await simpleQuery(query, vars);
+
 }
 
 async function deletePlayerTotal(playerId, gametypeId, mapId){
@@ -3477,6 +3489,7 @@ async function getTotalsFromMatchTable(playerIds, gametypeId, mapId){
 
 export async function recalculateTotals(playerIds, gametypeId, mapId){
 
+
     if(playerIds.length === 0) return;
 
     const totals = await getTotalsFromMatchTable(playerIds, gametypeId, mapId);
@@ -3490,11 +3503,42 @@ export async function recalculateTotals(playerIds, gametypeId, mapId){
         }
     }
 
-    //console.log(result);
 
     const winrateData = await getBasicWinrateStats(playerIds, gametypeId, mapId);
 
-    for(let i = 0; i < totals.length; i++){
+    for(const [playerId, playerData] of Object.entries(totals)){
+
+        const r = playerData;
+
+        r.wins = 0;
+        r.draws = 0;
+        r.losses = 0;
+        r.winrate = 0;
+        r.efficiency = 0;
+
+        if(winrateData[r.player_id] !== undefined){
+
+            const w = winrateData[r.player_id];
+
+            r.wins = w.wins; 
+            r.draws = w.draws; 
+            r.losses = w.losses;
+            r.winrate = w.winrate; 
+        }
+
+        if(r.kills > 0){
+
+            if(r.deaths === 0){
+                r.efficiency = 100;
+            }else{
+                r.efficiency = r.kills / (r.kills + r.deaths);
+            }
+        }
+
+        await updatePlayerTotal(playerId, gametypeId, mapId, r);
+    }
+
+    /*for(let i = 0; i < totals.length; i++){
 
         const r = totals[i];
 
@@ -3524,6 +3568,6 @@ export async function recalculateTotals(playerIds, gametypeId, mapId){
         }
 
         await updatePlayerTotal(r.player_id, gametypeId, mapId, r);
-    }
+    }*/
    
 }
