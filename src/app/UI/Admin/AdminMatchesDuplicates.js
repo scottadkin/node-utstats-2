@@ -2,6 +2,7 @@ import { useReducer, useEffect } from "react";
 import MessageBox from "../MessageBox";
 import { BasicTable } from "../Tables";
 import { convertTimestamp } from "../../../../api/generic.mjs";
+import Loading from "../Loading";
 
 function reducer(state, action){
 
@@ -65,30 +66,43 @@ function reducer(state, action){
 
             const data = [...state.data];
 
-            let previousIndex = -1;
 
+            const bFailed = action.bFailed;
 
-            for(let i = 0; i < data.length; i++){
+            if(!bFailed){
 
-                const d =data[i];
+                let previousIndex = -1;
 
-                if(d.match_hash === action.value){
-                    previousIndex = i;
-                    break;
+                for(let i = 0; i < data.length; i++){
+
+                    const d = data[i];
+
+                    if(d.match_hash === action.value){
+                        previousIndex = i;
+                        break;
+                    }
                 }
-            }
 
-            if(previousIndex === -1){
-                throw new Error(`Can't find previousIndex`);
-            }
+                if(previousIndex === -1){
+                    throw new Error(`Can't find previousIndex`);
+                }
 
-            data.splice(previousIndex, 1);
+                data.splice(previousIndex, 1);
+
+            }
 
             return {
                 ...state,
                 "pending": [...pending],
                 "activeDelete": active,
                 "data": [...data]
+            }
+        }
+
+        case "set-delete-all-inprogress": {
+            return {
+                ...state,
+                "bDeleteAllInProgress": action.value
             }
         }
 
@@ -117,18 +131,24 @@ async function deleteDuplicate(state, dispatch, targetHash){
         const res = await req.json();
 
         if(res.error !== undefined) throw new Error(res.error);
-        dispatch({"type": "remove-pending", "value": targetHash});
-
+        dispatch({"type": "remove-pending", "value": targetHash, "bFailed": false});
+        dispatch({"type": "set-message", "messageType": null, "title": null, "content": null});
        // console.log(res);
 
     }catch(err){
         console.trace(err);
         dispatch({"type": "set-message", "messageType": "error", "title": "Failed To Delete Duplicate", "content": err.toString()});
+        dispatch({"type": "remove-pending", "value": targetHash, "bFailed": true});
     }
 }
 
 
 function renderDuplicates(state, dispatch){
+
+    if(state.bDeleteAllInProgress){
+
+        return <Loading>Deleting Duplicates Please Wait...<br/>You can leave this area and the matches will still be processed and deleted.</Loading>
+    }
 
     const headers = [
         "Date", "Server", "Gametype", "Map", "Total Duplicates", "Delete"
@@ -196,6 +216,33 @@ async function loadData(dispatch){
 }
 
 
+async function deleteAllDuplicates(dispatch){
+
+    try{
+
+        dispatch({"type": "set-delete-all-inprogress", "value": true});
+
+        const req = await fetch("/api/admin", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "delete-all-duplicates"})
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined) throw new Error(res.error);
+
+        await loadData(dispatch);
+
+    }catch(err){
+        console.trace(err);
+        dispatch({"type": "set-message", "messageType": "error", "title": "Failed To Delete Duplicates", "content": err.toString()});
+    }
+
+    dispatch({"type": "set-delete-all-inprogress", "value": false});
+}
+
+
 export default function AdminMatchesDuplicates({mode, changeMode}){
 
     if(mode !== "duplicates") return null;
@@ -204,6 +251,7 @@ export default function AdminMatchesDuplicates({mode, changeMode}){
         "data": [],
         "pending": [],
         "activeDelete": -1,
+        "bDeleteAllInProgress": false,
         "messageBox": {
             "type": null,
             "title": null,
@@ -218,11 +266,10 @@ export default function AdminMatchesDuplicates({mode, changeMode}){
         loadData(dispatch);
     }, []);
 
-    useEffect(() =>{
 
-        console.log(state.activeDelete);
-    }, [state.activeDelete]);
-
+    let button = (state.bDeleteAllInProgress) ? null : <button className="button delete-button" onClick={() =>{
+        deleteAllDuplicates(dispatch);
+    }}>Delete All Duplicate Matches</button>;
 
     return <>
         <div className="form">
@@ -230,7 +277,7 @@ export default function AdminMatchesDuplicates({mode, changeMode}){
                 Duplicate matches are matches that have been imported more than once.<br/>
                 Deleting duplicate matches deletes the earlier matches keeping only the most recent imported match data.
             </div>
-            <button className="button delete-button">Delete All Duplicate Matches</button>
+            {button}
         </div>
         <MessageBox type={state.messageBox.type} title={state.messageBox.title} timestamp={state.messageBox.timestamp}>
             {state.messageBox.content}

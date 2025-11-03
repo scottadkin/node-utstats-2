@@ -1991,10 +1991,11 @@ export async function adminDeleteMatch(id){
     await recalculatePlayerTotals([...playerIds], 0, 0);
     
     await recalculateServerTotals(serverId);
-
 }
 
-export async function getDuplicateMatches(){
+export async function getDuplicateMatches(bSkipNames){
+
+    if(bSkipNames === undefined) bSkipNames = false;
 
     //only get the latest server,gametype,map ids for each match as they are the most recent
     const query = `SELECT match_hash,MAX(date) as date, MAX(server) as server,MAX(gametype) as gametype,MAX(map) as map,
@@ -2018,39 +2019,41 @@ export async function getDuplicateMatches(){
     const mapIds = new Set();
 
 
-    for(let i = 0; i < data.length; i++){
+    if(!bSkipNames){
+        for(let i = 0; i < data.length; i++){
 
-        const {server, gametype, map} = data[i];
+            const {server, gametype, map} = data[i];
 
-        serverIds.add(server);
-        gametypeIds.add(gametype);
-        mapIds.add(map);
+            serverIds.add(server);
+            gametypeIds.add(gametype);
+            mapIds.add(map);
+        }
+
+        const serverNames = await getObjectName("servers", [...serverIds]);
+        const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
+        const mapNames = await getObjectName("maps", [...mapIds]);
+
+        for(let i = 0; i < data.length; i++){
+
+            const d = data[i];
+
+            d.serverName = serverNames[d.server] ?? "Not Found";
+            d.gametypeName = gametypeNames[d.gametype] ?? "Not Found";
+            d.mapName = mapNames[d.map] ?? "Not Found";
+        }
+
+
+        data.sort((a, b) =>{
+
+            a = a.date;
+            b = b.date;
+
+            if(a > b) return -1;
+            if(a < b) return 1;
+
+            return 0;
+        });
     }
-
-    const serverNames = await getObjectName("servers", [...serverIds]);
-    const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
-    const mapNames = await getObjectName("maps", [...mapIds]);
-
-    for(let i = 0; i < data.length; i++){
-
-        const d = data[i];
-
-        d.serverName = serverNames[d.server] ?? "Not Found";
-        d.gametypeName = gametypeNames[d.gametype] ?? "Not Found";
-        d.mapName = mapNames[d.map] ?? "Not Found";
-    }
-
-
-    data.sort((a, b) =>{
-
-        a = a.date;
-        b = b.date;
-
-        if(a > b) return -1;
-        if(a < b) return 1;
-
-        return 0;
-    });
 
     return data;
 }
@@ -2097,14 +2100,49 @@ export async function deleteHashDuplicates(targetHash){
 
     if(matchIdsToDelete.length === 0) return [];
 
-    console.log(`ignore`, latestMatchId);
-    console.log(`delete`, matchIdsToDelete);
-
     for(let i = 0; i < matchIdsToDelete.length; i++){
 
         const id = matchIdsToDelete[i];
         await adminDeleteMatch(id);
     }
+}
+
+async function getLatestDuplicateIds(){
+
+    const query = `SELECT COUNT(*) as total_matches,MAX(id) as latest_match_id,match_hash FROM nstats_matches GROUP BY match_hash ORDER BY total_matches DESC`;
+
+    const result = await simpleQuery(query);
 
 
+    const toDelete = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        if(r.total_matches <= 1) break;
+        toDelete[r.match_hash] = r.latest_match_id;
+    }
+
+
+    return toDelete;
+}
+
+export async function deleteAllDuplicates(){
+
+    
+    const toDelete = await getLatestDuplicateIds();
+
+    if(Object.keys(toDelete).length === 0) return;
+
+    const query = `SELECT id FROM nstats_matches WHERE match_hash IN (?) AND id NOT IN(?)`;
+
+    const result = await simpleQuery(query, [Object.keys(toDelete), Object.values(toDelete)]);
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        await adminDeleteMatch(r.id);
+    }
 }
