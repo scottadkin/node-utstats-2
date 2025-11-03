@@ -1,5 +1,4 @@
 import { simpleQuery } from "./database.js";
-import CountriesManager from "./countriesmanager.js";
 import CTF from "./ctf.js";
 import Gametypes from "./gametypes.js";
 import Maps, { getImages } from "./maps.js";
@@ -31,6 +30,7 @@ import { recalculateGametypeTotals } from "./gametypes.js";
 import { recalculateTotals as recalculateServerTotals } from "./servers.js";
 import { deleteMatchData as deleteMatchKills } from "./kills.js";
 import { recalculateTotals as recalculateVoiceTotals } from "./voices.js";
+import { recalculateTotals as recalculateCountryTotals } from "./countriesmanager.js";
 
 export default class Matches{
 
@@ -351,76 +351,7 @@ export default class Matches{
         return await simpleQuery(query, [logNames]);
     }
 
-    async deleteMatchCountryData(playersData){
 
-        try{
-
-            const countryData = {};
-
-            for(let i = 0; i < playersData.length; i++){
-
-                if(countryData[playersData[i].country] !== undefined){
-                    countryData[playersData[i].country]++;
-                }else{
-                    countryData[playersData[i].country] = 1;
-                }
-            }
-
-            const countriesManager = new CountriesManager();
-
-            for(const [key, value] of Object.entries(countryData)){
-
-                await countriesManager.reduceUses(key, value);
-
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-    async deleteCtfData(id){
-
-        try{
-
-            const ctf = new CTF();
-
-            await ctf.deleteMatchCapData(id);
-
-            await ctf.deleteMatchEvents(id);
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-
-    async reducePlayerMapTotals(mapId, playerId, playtime){
-
-        const query = "UPDATE nstats_player_maps SET matches=matches-1, playtime=playtime-? WHERE map=? AND player=?";
-
-        return await simpleQuery(query, [playtime, mapId, playerId]);
-    }
-
-
-    async removeMatchFromPlayerMapTotals(mapId, playersData){
-
-        try{
-
-            let p = 0;
-
-            for(let i = 0; i < playersData.length; i++){
-
-                p = playersData[i];
-
-                await this.reducePlayerMapTotals(mapId, p.player_id, p.playtime);
-
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
 
 
     async removeVoiceData(playerData){
@@ -457,13 +388,6 @@ export default class Matches{
         return await simpleQuery(query, [id]);
     }
 
-    async reducePlayerCount(matchId, amount){
-
-        return await simpleQuery("UPDATE nstats_matches SET players=players-? WHERE id=?", [
-            amount, matchId
-        ]);
-    }
-
 
     async changeDMWinner(oldPlayerId, newPlayerId){
 
@@ -486,12 +410,6 @@ export default class Matches{
         const result = await simpleQuery(query, [matchIds]);
 
         return result.map((r) => r.id);
-
-    }
-
-    async recalculateDmWinners(matchIds){
-
-        const dmMatches = await this.getValidDMMatches(matchIds);
 
     }
 
@@ -1983,6 +1901,9 @@ export async function adminDeleteMatch(id){
     await recalculateMapTotals(0, mapId);
 
     await recalculateGametypeTotals(gametypeId);
+
+
+    await recalculateCountryTotals();
 
 
     await recalculatePlayerTotals([...playerIds], gametypeId, mapId);

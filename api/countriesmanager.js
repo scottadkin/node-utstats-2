@@ -1,4 +1,4 @@
-import { simpleQuery } from "./database.js";
+import { bulkInsert, simpleQuery } from "./database.js";
 import countries from "./countries.js";
 
 export default class CountriesManager{
@@ -83,4 +83,39 @@ export default class CountriesManager{
 
         return uses;
     }
+}
+
+
+async function deleteAllTotals(){
+
+    const query = `DELETE FROM nstats_countries`;
+    return await simpleQuery(query);
+}
+
+async function bulkInsertTotals(data){
+
+    const query = `INSERT INTO nstats_countries (code,first,last,total) VALUES ?`;
+
+    const insertVars = data.map((d) =>{
+        return [d.country, d.first_used, d.last_used, d.total_uses];
+    });
+
+    return await bulkInsert(query, insertVars);
+}
+
+export async function recalculateTotals(){
+
+
+    await deleteAllTotals();
+
+    const query = `SELECT COUNT(*) as total_uses,country,MIN(match_date) as first_used,
+    MAX(match_date) as last_used FROM nstats_player_matches GROUP BY country`;
+
+    const result = await simpleQuery(query);
+
+    if(result.length === 0) return;
+
+    await bulkInsertTotals(result);
+
+
 }
