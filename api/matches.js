@@ -31,6 +31,7 @@ import { recalculateTotals as recalculateServerTotals } from "./servers.js";
 import { deleteMatchData as deleteMatchKills } from "./kills.js";
 import { recalculateTotals as recalculateVoiceTotals } from "./voices.js";
 import { recalculateTotals as recalculateCountryTotals } from "./countriesmanager.js";
+import { deleteLogImportInfo } from "./logs.js";
 
 export default class Matches{
 
@@ -1912,6 +1913,9 @@ export async function adminDeleteMatch(id){
     await recalculatePlayerTotals([...playerIds], 0, 0);
     
     await recalculateServerTotals(serverId);
+
+
+    await deleteLogImportInfo(id);
 }
 
 export async function getDuplicateMatches(bSkipNames){

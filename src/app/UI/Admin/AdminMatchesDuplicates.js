@@ -203,8 +203,6 @@ async function loadData(dispatch){
 
         const res = await req.json();
 
-        console.log(res);
-
         if(res.error !== undefined) throw new Error(res.error);
 
         dispatch({"type": "loaded", "data": res.data});

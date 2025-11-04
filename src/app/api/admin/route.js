@@ -9,6 +9,7 @@ import { getAllFaces, getAllFacesWithFileStatuses, getFacesWithFileStatuses } fr
 import { adminMatchesSearch, adminDeleteMatch, 
     getDuplicateMatches, deleteHashDuplicates, 
     deleteAllDuplicates as deleteAllMatchDuplicates } from "../../../../api/matches";
+import { getLogImportInfo } from "../../../../api/logs";
 
 
 
@@ -252,6 +253,17 @@ export async function POST(req){
 
             await deleteAllMatchDuplicates();
             return Response.json({"message": "ok"});
+        }
+
+
+        if(mode === "get-match-info"){
+
+            let matchId = (res.matchId !== undefined) ? parseInt(res.matchId) : null;
+            if(matchId !== matchId || matchId === null) throw new Error(`matchId must be an integer`);
+            //get log file name, import date
+            const info = await getLogImportInfo(matchId);
+
+            return Response.json({"data": info});
         }
 
 

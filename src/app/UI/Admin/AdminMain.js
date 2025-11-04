@@ -8,16 +8,18 @@ import AdminPageSettings from "./AdminPageSettings";
 import AdminMapScreenshots from "./AdminMapScreenshots";
 import AdminFaces from "./AdminFaces";
 import AdminMatchesManager from "./AdminMatchesManager";
+import AdminPlayerManager from "./AdminPlayerManager";
 
 
 export default function AdminMain({}){
 
-    const [mode, setMode] = useState("matches");
+    const [mode, setMode] = useState("players");
 
     const options = [
         {"name": "Site Settings", "value": "page-settings"},
         {"name": "FTP Manager", "value": "ftp"},
         {"name": "Logs Folder Settings", "value": "logs-folder"},
+        {"name": "Player Manager", "value": "players"},
         {"name": "Matches Manager", "value": "matches"},
         {"name": "Map Screenshots", "value": "map-sshots"},
         {"name": "Player Faces", "value": "faces"},
@@ -58,6 +60,10 @@ export default function AdminMain({}){
     if(mode === "matches"){
 
         elems.push(<AdminMatchesManager key="matches" />);
+    }
+
+    if(mode === "players"){
+        elems.push(<AdminPlayerManager key="matches"/>);
     }
 
     return <>

@@ -308,6 +308,7 @@ export default function CombogibMapTotals({mapId}){
 
     if(state.data === null) return null;
     if(state.data.length === 0) return null;
+    if(state.data.combo_kills === 0) return null
 
     if(state.error !== null){
 

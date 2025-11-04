@@ -38,8 +38,8 @@ import MatchPlayerPingHistory from "../../UI/Match/MatchPlayerPingHistory";
 import CombogibMatchStats from "../../UI/Match/CombogibMatchStats";
 import MatchPowerupSummary from "../../UI/Match/MatchPowerupSummary";
 import { convertTimestamp, plural, toPlaytime } from "../../../../api/generic.mjs";
-import ErrorMessage from "../../UI/ErrorMessage";
 import ErrorPage from "../../UI/ErrorPage";
+import MatchAdmin from "../../UI/Match/MatchAdmin";
 
 function setQueryValues(params, searchParams){
 
@@ -113,6 +113,10 @@ export default async function Page({params, searchParams}){
     const pageSettings = await getSettings("Match Pages");
     const pageOrder = await getPageOrder("Match Pages");
     const sessionSettings = session.settings;
+
+    const bUserAdmin = await session.bUserAdmin();
+
+    console.log(bUserAdmin);
 
     const elems = [];
 
@@ -360,11 +364,19 @@ export default async function Page({params, searchParams}){
         players={players} totalTeams={info.total_teams}/>
     );
 
+    let adminElem = null;
+
+    if(bUserAdmin){
+
+        adminElem = <MatchAdmin matchId={matchId}/>;
+    }
+
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
         <div id="content">
             <div className="default">
                 {(pageSettings["Display Match Report Title"] === "true") ? <div className="default-header">Match Report</div> : <div className="blank-header"></div>}
+                {adminElem}
                 {elems}
             </div>    
         </div>   

@@ -328,8 +328,6 @@ async function loadNames(dispatch){
 
         const res = await req.json();
 
-        console.log(res);
-
         if(res.error !== undefined) throw new Error(res.error);
 
         dispatch({"type": "set-names", "names": res});
@@ -342,7 +340,6 @@ async function loadNames(dispatch){
 
 export default function AdminMatchesManager(){
 
-
     const [state, dispatch] = useReducer(reducer, {
         "names": {
             "servers": [],
@@ -354,7 +351,7 @@ export default function AdminMatchesManager(){
         "page": 1,
         "order": "desc",
         "sortBy": "date",
-        "mode": "duplicates",
+        "mode": "general",
         "perPage": 50,
         "selectedServer": 0,
         "selectedGametype": 0,

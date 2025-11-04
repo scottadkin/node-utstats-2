@@ -68,3 +68,21 @@ export async function getAllMatchIds(){
 
     return ids;
 }
+
+export async function getLogImportInfo(matchId){
+
+    const query = `SELECT id,name,imported FROM nstats_logs WHERE match_id=?`;
+
+    const result = await simpleQuery(query, [matchId]);
+
+    if(result.length > 0) return result[0];
+
+    return null;
+}
+
+export async function deleteLogImportInfo(matchId){
+
+    const query = `DELETE FROM nstats_logs WHERE match_id=?`;
+
+    return await simpleQuery(query, [matchId]);
+}
