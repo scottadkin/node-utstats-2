@@ -2993,6 +2993,17 @@ export default class Players{
 }
 
 
+/**
+ * get every id,name,country
+ */
+export async function getAllPlayerBasic(){
+
+    const query = `SELECT id,name,country FROM nstats_player_totals WHERE player_id=0 ORDER BY name ASC`;
+
+    return await simpleQuery(query);
+}
+
+
 export async function getBasicPlayersByIds(playerIds){
 
     if(playerIds.length === 0) return {};

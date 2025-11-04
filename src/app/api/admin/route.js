@@ -10,6 +10,7 @@ import { adminMatchesSearch, adminDeleteMatch,
     getDuplicateMatches, deleteHashDuplicates, 
     deleteAllDuplicates as deleteAllMatchDuplicates } from "../../../../api/matches";
 import { getLogImportInfo } from "../../../../api/logs";
+import { getAllPlayerBasic } from "../../../../api/players";
 
 
 
@@ -266,6 +267,13 @@ export async function POST(req){
             return Response.json({"data": info});
         }
 
+        if(mode === "get-all-player-names"){
+
+            const data = await getAllPlayerBasic();
+
+            return Response.json({"data": data});
+
+        }
 
         return Response.json({"error": "Unknown Request"});
 
