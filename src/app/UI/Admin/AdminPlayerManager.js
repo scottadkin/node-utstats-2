@@ -3,6 +3,9 @@ import Tabs from "../Tabs";
 import { useReducer, useEffect } from "react";
 import useMessageBoxReducer from "../../reducers/useMessageBoxReducer";
 import MessageBox from "../MessageBox";
+import InteractiveTable from "../InteractiveTable";
+import CountryFlag from "../CountryFlag";
+import React from "react";
 
 
 function reducer(state, action){
@@ -15,7 +18,7 @@ function reducer(state, action){
                 "mode": action.value
             }
         }
-        case "load-names": {
+        case "set-names": {
             return {
                 ...state,
                 "playerNames": action.data
@@ -25,6 +28,12 @@ function reducer(state, action){
             return {
                 ...state,
                 "searchName": action.value
+            }
+        }
+        case "set-selected-player": {
+            return {
+                ...state,
+                "selectedPlayerId": parseInt(action.value)
             }
         }
     }
@@ -50,6 +59,8 @@ async function loadNames(dispatch, mDispatch){
 
         if(res.error !== undefined) throw new Error(res.error);
 
+        dispatch({"type": "set-names", "data": res.data});
+
     }catch(err){
         console.trace(err);
         mDispatch({"type": "set-message", "messageType": "error", "title": `Failed To Load Player List`, "content": err.toString()});
@@ -58,14 +69,51 @@ async function loadNames(dispatch, mDispatch){
 
 function renderSearchForm(state, dispatch){
 
+    const rows = [];
+
+    for(let i = 0; i < state.playerNames.length; i++){
+
+        const p = state.playerNames[i];
+        
+        if(state.searchName !== ""){
+
+            const name = p.name.toLowerCase();
+
+            if(!name.includes(state.searchName.toLowerCase())) continue;
+        }
+
+        rows.push({
+            "name": {
+                "value": p.name.toLowerCase(), 
+                "displayValue": <React.Fragment><CountryFlag country={p.country}/>{p.name}</React.Fragment>,
+                "className": "text-left"
+            },
+            "select": {
+                "value": null,
+                "displayValue": (state.selectedPlayerId === p.id) ? "Selected"  : "",
+                "className": (state.selectedPlayerId === p.id) ? "team-green" : "team-grey" ,
+                "onClick": () =>{
+                    dispatch({"type": "set-selected-player", "value": p.id});
+                }
+            }
+        });
+
+    }
+
+    const tableHeaders = {
+        "name": "Name",
+        "select": "Select Player"
+    };
+
     return <div className="form">
-        <div className="form-info">Search Players</div>
+        <div className="form-info">Filter Players</div>
         <div className="form-row">
             <label htmlFor="name">Name</label>
             <input type="text" className="default-textbox" value={state.searchName} onChange={(e) =>{
                 dispatch({"type": "set-search-name", "value": e.target.value});
             }}/>
         </div>
+        <InteractiveTable width={2} perPage={5} headers={tableHeaders} bDisableSorting={true} data={rows}/>
     </div>
 }
 
@@ -75,7 +123,8 @@ export default function AdminPlayerManager({}){
     const [state, dispatch] = useReducer(reducer, {
         "mode": "rename",
         "playerNames": [],
-        "searchName": ""
+        "searchName": "",
+        "selectedPlayerId": -1
     });
 
     const [mState, mDispatch] = useMessageBoxReducer();

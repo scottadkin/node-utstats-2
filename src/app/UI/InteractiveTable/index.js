@@ -147,11 +147,26 @@ function renderData(props, changeOrder, orderBy, bAsc, bDisplayAll, currentPage,
                 value = <Link href={d[key].url}>{value}</Link>
             }
 
+           
+            let className = "";
+
             if(d[key].className !== undefined){
-                columns.push(<td className={d[key].className} key={`${i}-${key}`}>{value}</td>);
-            }else{
-                columns.push(<td key={`${i}-${key}`}>{value}</td>);
+                className = d[key].className;
             }
+
+
+             let onClick = null;
+
+            if(d[key].onClick !== undefined){
+
+                onClick = () =>{ d[key].onClick() }
+
+                className = `${className} hover no-select`;
+            }
+
+
+            columns.push(<td onClick={onClick} className={className} key={`${i}-${key}`}>{value}</td>);
+       
 
             
         }
@@ -266,7 +281,7 @@ export default function InteractiveTable(props){
                 <div className={styles["p-button"]} onClick={() =>{ changePage(false)}}>Previous</div>
                 <div className={styles["p-info"]}>Display page {currentPage + 1} out of {totalPages}</div>     
                 <div className={styles["p-button"]} onClick={() =>{ changePage(true)}}>Next</div>
-                <div className={styles["p-alt-button"]} onClick={() =>{ setbDisplayAll(true)}}>Display All</div>
+                <div className={`${styles["p-alt-button"]} hover`} onClick={() =>{ setbDisplayAll(true)}}>Display All</div>
             </div>
         </div>
     }
@@ -281,7 +296,5 @@ export default function InteractiveTable(props){
         {tableTitle}
         {renderPagination()}
         {renderData(props, changeOrder, orderBy, bAsc, bDisplayAll, currentPage, displayPerPage, props.width, totalPages)}
-        
-        {renderPagination()}
     </div>
 }
