@@ -31,9 +31,22 @@ function reducer(state, action){
             }
         }
         case "set-selected-player": {
+
+            let newId = parseInt(action.value);
+
+            if(newId === state.selectedPlayerId) newId = -1;
+
             return {
                 ...state,
-                "selectedPlayerId": parseInt(action.value)
+                "selectedPlayerId": newId
+            }
+        }
+
+        case "set-rename-name": {
+
+            return {
+                ...state,
+                "renameName": action.value
             }
         }
     }
@@ -86,7 +99,10 @@ function renderSearchForm(state, dispatch){
             "name": {
                 "value": p.name.toLowerCase(), 
                 "displayValue": <React.Fragment><CountryFlag country={p.country}/>{p.name}</React.Fragment>,
-                "className": "text-left"
+                "className": (state.selectedPlayerId === p.id) ? "team-green text-left" : "team-grey text-left",
+                "onClick": () =>{
+                    dispatch({"type": "set-selected-player", "value": p.id});
+                }
             },
             "select": {
                 "value": null,
@@ -101,11 +117,10 @@ function renderSearchForm(state, dispatch){
     }
 
     const tableHeaders = {
-        "name": "Name",
-        "select": "Select Player"
+        "name": "Name"
     };
 
-    return <div className="form">
+    return <div className="form m-bottom-25">
         <div className="form-info">Filter Players</div>
         <div className="form-row">
             <label htmlFor="name">Name</label>
@@ -117,6 +132,62 @@ function renderSearchForm(state, dispatch){
     </div>
 }
 
+
+function getSelectedPlayerName(state){
+
+    if(state.selectedPlayerId === -1) return "";
+
+    for(let i = 0; i < state.playerNames.length; i++){
+
+        const p = state.playerNames[i];
+        if(p.id === state.selectedPlayerId) return <><CountryFlag country={p.country}/>{p.name}</>;
+    }
+
+    return "";
+}
+
+function renderRename(state, dispatch){
+
+
+    //need to check if name already taken
+
+    let elems = null;
+    let renameButton = null;
+
+    if(state.selectedPlayerId !== -1){
+
+        const selectedPlayer = getSelectedPlayerName(state);
+
+        elems = <>
+            <div className="form-row">
+                <label htmlFor="new-name">Old Name</label>
+                <div>{selectedPlayer}</div>
+            </div>
+            <div className="form-row">
+                <label htmlFor="new-name">New Name</label>
+                <input type="text" className="default-textbox" value={state.renameName} onChange={(e) =>{
+                    dispatch({"type": "set-rename-name", "value": e.target.value});
+                }}/>
+            </div>
+        </>;
+
+        if(state.renameName !== ""){
+            renameButton = <button className="search-button">Rename Player</button>
+        }
+
+    }else{
+
+        elems = <div className="form-info">You have not selected a player to rename</div>;
+    }
+
+    return <div className="form">
+        <div className="form-info">Rename Selected Player</div>
+        {elems}
+        {renameButton}
+    </div>
+}
+
+
 export default function AdminPlayerManager({}){
 
 
@@ -124,7 +195,8 @@ export default function AdminPlayerManager({}){
         "mode": "rename",
         "playerNames": [],
         "searchName": "",
-        "selectedPlayerId": -1
+        "selectedPlayerId": -1,
+        "renameName": ""
     });
 
     const [mState, mDispatch] = useMessageBoxReducer();
@@ -149,5 +221,6 @@ export default function AdminPlayerManager({}){
             {mState.content}
         </MessageBox>
         {renderSearchForm(state, dispatch)}
+        {renderRename(state, dispatch)}
     </>
 }
