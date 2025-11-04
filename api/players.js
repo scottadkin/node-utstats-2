@@ -696,23 +696,6 @@ export default class Players{
         return await simpleQuery(query);
     }
     
-    async renamePlayer(oldName, newName){
-
-        try{
-
-            await simpleQuery("UPDATE nstats_player_totals SET name=? WHERE name=?", [newName, oldName]);
-
-            const matchManager = new Matches();
-
-            //await matchManager.renameDmWinner(oldName, newName);
-            return true;
-
-
-        }catch(err){
-            console.trace(err);
-            return false;
-        }
-    }
 
     async bNameInUse(name){
 
@@ -3548,37 +3531,9 @@ export async function recalculateTotals(playerIds, gametypeId, mapId){
 
         await updatePlayerTotal(playerId, gametypeId, mapId, r);
     }
+}
 
-    /*for(let i = 0; i < totals.length; i++){
+export async function renamePlayer(playerId, newName){
 
-        const r = totals[i];
-
-        r.wins = 0;
-        r.draws = 0;
-        r.losses = 0;
-        r.winrate = 0;
-        r.efficiency = 0;
-
-        if(winrateData[r.player_id] !== undefined){
-
-            const w = winrateData[r.player_id];
-
-            r.wins = w.wins; 
-            r.draws = w.draws; 
-            r.losses = w.losses;
-            r.winrate = w.winrate; 
-        }
-
-        if(r.kills > 0){
-
-            if(r.deaths === 0){
-                r.efficiency = 100;
-            }else{
-                r.efficiency = r.kills / (r.kills + r.deaths);
-            }
-        }
-
-        await updatePlayerTotal(r.player_id, gametypeId, mapId, r);
-    }*/
-   
+    await simpleQuery("UPDATE nstats_player_totals SET name=? WHERE id=? OR player_id=?", [newName, playerId, playerId]);
 }

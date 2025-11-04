@@ -6,6 +6,7 @@ import MessageBox from "../MessageBox";
 import InteractiveTable from "../InteractiveTable";
 import CountryFlag from "../CountryFlag";
 import React from "react";
+import Loading from "../Loading";
 
 
 function reducer(state, action){
@@ -47,6 +48,13 @@ function reducer(state, action){
             return {
                 ...state,
                 "renameName": action.value
+            }
+        }
+
+        case "set-rename-in-progress": {
+            return {
+                ...state,
+                "renameInProgress": action.value
             }
         }
     }
@@ -146,9 +154,55 @@ function getSelectedPlayerName(state){
     return "";
 }
 
-function renderRename(state, dispatch){
+function bNameAlreadyTaken(playerNames, name){
+
+    name = name.toLowerCase();
+
+    for(let i = 0; i < playerNames.length; i++){
+
+        const p = playerNames[i];
+
+        if(p.name.toLowerCase() === name) return true;
+    }
 
 
+    return false;
+}
+
+async function renamePlayer(state, dispatch, mDispatch){
+
+    try{
+
+        dispatch({"type": "set-rename-in-progress", "value": true});
+
+
+        const req = await fetch("/api/admin", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "rename-player", "playerId": state.selectedPlayerId, "newName": state.renameName})
+        });
+
+
+        const res = await req.json();
+
+        if(res.error !== undefined) throw new Error(res.error);
+
+        dispatch({"type": "set-rename-in-progress", "value": false});
+        await loadNames(dispatch, mDispatch);
+
+    }catch(err){
+        console.trace(err);
+        mDispatch({"type": "set-message", "messageType": "error", "title": "Failed To Rename Player", "content": err.toString()});
+    }
+}
+
+
+function renderRename(state, dispatch, mDispatch){
+
+
+    if(state.renameInProgress){
+        return <Loading>Rename in progress please wait..</Loading>
+    }
     //need to check if name already taken
 
     let elems = null;
@@ -172,7 +226,14 @@ function renderRename(state, dispatch){
         </>;
 
         if(state.renameName !== ""){
-            renameButton = <button className="search-button">Rename Player</button>
+
+            if(bNameAlreadyTaken(state.playerNames, state.renameName)){
+                renameButton = <div className="team-red padding-1">Name Already In Use</div>
+            }else{
+                renameButton = <button className="search-button" onClick={() =>{
+                    renamePlayer(state, dispatch, mDispatch);
+                }}>Rename Player</button>
+            }
         }
 
     }else{
@@ -196,7 +257,8 @@ export default function AdminPlayerManager({}){
         "playerNames": [],
         "searchName": "",
         "selectedPlayerId": -1,
-        "renameName": ""
+        "renameName": "",
+        "bRenameInProgress": false
     });
 
     const [mState, mDispatch] = useMessageBoxReducer();
@@ -221,6 +283,6 @@ export default function AdminPlayerManager({}){
             {mState.content}
         </MessageBox>
         {renderSearchForm(state, dispatch)}
-        {renderRename(state, dispatch)}
+        {renderRename(state, dispatch, mDispatch)}
     </>
 }

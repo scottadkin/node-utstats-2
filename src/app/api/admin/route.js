@@ -10,7 +10,7 @@ import { adminMatchesSearch, adminDeleteMatch,
     getDuplicateMatches, deleteHashDuplicates, 
     deleteAllDuplicates as deleteAllMatchDuplicates } from "../../../../api/matches";
 import { getLogImportInfo } from "../../../../api/logs";
-import { getAllPlayerBasic } from "../../../../api/players";
+import { getAllPlayerBasic, renamePlayer } from "../../../../api/players";
 
 
 
@@ -273,6 +273,18 @@ export async function POST(req){
 
             return Response.json({"data": data});
 
+        }
+
+        if(mode === "rename-player"){
+
+            const targetPlayerId = (res.playerId !== undefined) ? parseInt(res.playerId) : NaN
+            const newName = res.newName ?? null;
+
+            if(targetPlayerId !== targetPlayerId || newName === null) throw new Error(`Old name or new name is not set.`);
+
+            await renamePlayer(targetPlayerId, newName);
+
+            return Response.json({"message": "passed"});
         }
 
         return Response.json({"error": "Unknown Request"});
