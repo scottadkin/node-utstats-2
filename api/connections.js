@@ -65,3 +65,10 @@ export async function deleteMatchData(matchId){
     return await simpleQuery(query, [matchId]);
 
 }
+
+export async function deletePlayerData(playerId){
+
+
+    const query = `DELETE FROM nstats_match_connections WHERE player=?`;
+    return await simpleQuery(query, [playerId]);
+}

@@ -782,3 +782,21 @@ export async function deleteMatchData(matchId, playerIds){
     await recalculateSelectedMonsterTotals(affectedMonsters);
     //TODO create nstats_monsters_deaths table and save each time a player dies to a monster
 }
+
+
+export async function deletePlayerData(playerId){
+
+    //nstats_monsters_player_match player
+    //nstats_monsters_player_totals player recalc totals
+    //nstats_monster_kills player
+
+    const tables = ["monsters_player_match", "monsters_player_totals", "monster_kills"];
+
+    for(let i = 0; i < tables.length; i++){
+
+        const t = tables[i];
+
+        const query = `DELETE FROM nstats_${t} WHERE player=?`;
+        await simpleQuery(query, [playerId]);
+    }
+}

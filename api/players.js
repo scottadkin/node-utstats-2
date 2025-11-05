@@ -28,6 +28,8 @@ import { deletePlayerData as deletePlayerSprees } from "./sprees.js";
 import { deletePlayerData as deletePlayerTeamChanges} from "./teams.js";
 import { deletePlayerData as deletePlayerTeleFrags } from "./telefrags.js";
 import { deletePlayerData as deletePlayerDomData} from "./domination.js";
+import { deletePlayerData as deletePlayerConnections} from "./connections.js";
+import { deletePlayerData as deletePlayerMonsterhuntData} from "./monsterhunt.js";
 
 export default class Players{
 
@@ -3556,6 +3558,8 @@ export async function deletePlayer(playerId){
     await deletePlayerTeamChanges(playerId);
     await deletePlayerTeleFrags(playerId);
     await deletePlayerDomData(playerId);
+    await deletePlayerConnections(playerId);
+    await deletePlayerMonsterhuntData(playerId);
 
     //only do these after match_date is deleted
     await reclaculateCountryTotals();
@@ -3581,12 +3585,8 @@ export async function deletePlayer(playerId){
     //nstats_map_combogib recalc totals
     //nstats_map_totals recalc totals
     //nstats_match_combogib player_id
-    //nstats_match_connections player
     
-    
-    //nstats_monsters_player_match player
-    //nstats_monsters_player_totals player recalc totals
-    //nstats_monster_kills player
+
     //nstats_player_combogib player_id recalc
 
     //nstats_player_ctf_best player_id recalc
@@ -3595,7 +3595,6 @@ export async function deletePlayer(playerId){
     //nstats_player_ctf_totals player_id recalc
 
     //nstats_player_matches player_id match_id
-    //nstats_player_telefrags player_id recalc
     //nstats_player_totals id || player_id recalc
     //nstats_player_weapon_best player_id recalc
 
