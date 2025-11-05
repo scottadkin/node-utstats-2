@@ -1,7 +1,6 @@
 import Player from "./player.js";
 import { simpleQuery, bulkInsert, updateReturnAffectedRows } from "./database.js";
 import { removeIps, setIdNames, getUniqueValues, getPlayer, DEFAULT_DATE, DEFAULT_MIN_DATE } from "./generic.mjs";
-import Matches from "./matches.js";
 import Assault from "./assault.js";
 import CTF from "./ctf.js";
 import Domination from "./domination.js";
@@ -13,18 +12,19 @@ import Pings from "./pings.js";
 import Maps from "./maps.js";
 import Weapons from "./weapons.js";
 import Rankings from "./rankings.js";
-import CountriesManager from "./countriesmanager.js";
-import Faces, { getFacesById } from "./faces.js";
-import Teams from "./teams.js";
-import Voices from "./voices.js";
 import Sprees from "./sprees.js";
-import MonsterHunt from "./monsterhunt.js";
-import Combogib from "./combogib.js";
 import PowerUps from "./powerups.js";
 import Telefrags from "./telefrags.js";
 import Message from "./message.js";
 import { getPlayerMatchCTFData } from "./ctf.js";
 import { getPlayersBasic as getBasicWinrateStats } from "./winrate.js";
+import { deletePlayer as deletePlayerAssaultData } from "./assault.js";
+import { recalculateTotals as reclaculateCountryTotals } from "./countriesmanager.js";
+import { deletePlayerData as deletePlayerHeadshots } from "./headshots.js";
+import { deletePlayerData as deletePlayerKills} from "./kills.js";
+import { deletePlayerScoreData } from "./player.js";
+import { deletePlayerData as deletePlayerPingData} from "./pings.js";
+import { deletePlayerData as deletePlayerSprees } from "./sprees.js";
 
 export default class Players{
 
@@ -1170,7 +1170,7 @@ export default class Players{
         await simpleQuery("DELETE FROM nstats_player_matches WHERE player_id=?", [playerId]);
     }
 
-    async deletePlayer(playerId, matchManager){
+    /*async deletePlayer(playerId, matchManager){
 
         try{
             const assaultManager = new Assault();
@@ -1275,7 +1275,7 @@ export default class Players{
             console.trace(err);
             return false;
         }
-    }
+    }*/
 
     async getAllGametypeMatchData(gametypeId){
 
@@ -3536,4 +3536,70 @@ export async function recalculateTotals(playerIds, gametypeId, mapId){
 export async function renamePlayer(playerId, newName){
 
     await simpleQuery("UPDATE nstats_player_totals SET name=? WHERE id=? OR player_id=?", [newName, playerId, playerId]);
+}
+
+
+export async function deletePlayer(playerId){
+
+    //set ids to -1 for ctf,assault,& dom
+
+   
+    await deletePlayerAssaultData(playerId);
+    await deletePlayerHeadshots(playerId);
+    await deletePlayerKills(playerId);
+    await deletePlayerScoreData(playerId);
+    await deletePlayerPingData(playerId);
+    await deletePlayerSprees(playerId);
+
+    //only do these after match_date is deleted
+    await reclaculateCountryTotals();
+
+    //nstats_ctf_assists player_id 
+    //nstats_ctf_caps grab_player,cap_player
+    //nstats_ctf_cap_records check if cap_id was deleted if it has recalc map/gametype record
+    //nstats_ctf_carry_times player_id
+    //nstats_ctf_covers killer_id,victim_id
+    //nstats_ctf_cr_kills player_id
+    //nstats_ctf_events player
+    //nstats_ctf_flag_deaths killer_id,victim_id
+    //nstats_ctf_flag_drops player_id
+    //nstats_ctf_flag_pickups player_id
+    //nstats_ctf_returns grab_player, return player
+    //nstats_ctf_seals killer_id, victim_id
+    //nstats_ctf_self_covers killer_id, victim_id
+
+    //nstats_dom_match_caps player
+    //nstats_dom_match_player_score player
+
+    //nstats_items_match player_id
+    //nstats_items_player player recalc totals
+    //nstats_map_combogib recalc totals
+    //nstats_map_totals recalc totals
+    //nstats_match_combogib player_id
+    //nstats_match_connections player
+    
+    //nstats_match_team_changes player
+    //nstats_monsters_player_match player
+    //nstats_monsters_player_totals player recalc totals
+    //nstats_monster_kills player
+    //nstats_player_combogib player_id recalc
+    //nstats_player_ctf_best player_id recalc
+    //nstats_player_ctf_best_life player_id recalc
+    //nstats_player_ctf_match player_id
+    //nstats_player_ctf_totals player_id recalc
+    //nstats_player_matches player_id match_id
+    //nstats_player_telefrags player_id recalc
+    //nstats_player_totals id || player_id recalc
+    //nstats_player_weapon_best player_id recalc
+    
+    //nstats_powerups_carry_times player_id,match_id
+    //nstats_powerups_player_match player_id,match_id
+    //nstats_powerups_player_totals player_id recalc
+    //nstats_ranking_player_current player_id
+    //nstats_ranking_player_history player_id recalc
+
+    //nstats_tele_frags killer_id,victim_id
+    //nstats_weapons recalc
+    //nstats_winrates_latest player
+
 }

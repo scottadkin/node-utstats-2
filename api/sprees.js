@@ -62,3 +62,10 @@ export async function deleteMatchData(id){
 
     return await simpleQuery(query, [id]);
 }
+
+
+export async function deletePlayerData(id){
+
+    const query = `DELETE FROM nstats_sprees WHERE player=?`;
+    return await simpleQuery(query, [id]);
+}

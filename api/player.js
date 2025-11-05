@@ -646,119 +646,6 @@ export default class Player{
     }
     
 
-    async removeFromMatch(playerId, matchId, mapId, matchManager){
-
-        try{
-
-            const matchData = await this.getMatchData(playerId, matchId);
-
-            let playerNames = await this.getNames([playerId]);
-
-            const mapIterator = playerNames.values();
-
-            matchData.name = mapIterator.next().value;
-
-            let currentDMWinner = "";
-
-            if(matchData !== null){
-
-                const gametypeId = matchData.gametype;
-
-
-                const countriesManager = new CountriesManager();
-
-                await countriesManager.reduceUses(matchData.country, 1);
-
-                const assaultManager = new Assault();
-
-                await assaultManager.deletePlayerFromMatch(playerId, matchId);
-
-                const ctfManager = new CTF();
-
-                await ctfManager.deletePlayerFromMatch(playerId, matchId);
-
-                const domManager = new Domination();
-
-                await domManager.deletePlayerFromMatch(playerId, matchId);
-
-                const monsterHuntManager = new MonsterHunt();
-
-                await monsterHuntManager.removePlayerFromMatch(playerId, matchId);
-
-                const faceManager = new Faces();
-
-                await faceManager.reduceUsage(matchData.face, 1);
-
-                const headshotsManager = new Headshots();
-
-                await headshotsManager.deletePlayerFromMatch(playerId, matchId);
-
-                const itemsManager = new Items();
-
-                await itemsManager.deletePlayerFromMatch(playerId, matchId);
-
-                const killsManager = new Kills();
-
-                await killsManager.deletePlayerMatchData(playerId, matchId);
-
-                const connectionsManager = new Connections();
-
-                await connectionsManager.deletePlayerFromMatch(playerId, matchId);
-
-                const pingManager = new Pings();
-
-                await pingManager.deletePlayerMatchData(playerId, matchId);
-
-                await this.deletePlayerScoreData(playerId, matchId);
-
-                await this.deletePlayerTeamChanges(playerId, matchId);
-
-                await this.reduceMapTotals(playerId, mapId, matchData.playtime);
-
-                //now called in matchadmin.js after this function
-                //await this.reduceTotals(matchData, matchData.gametype);
-
-                const weaponManager = new Weapons();
-
-                await weaponManager.deletePlayerFromMatch(playerId, matchId);
-
-                const voiceManager = new Voices();
-
-                await voiceManager.reduceTotals(matchData.voice, 1);
-
-                //const winRateManager = new WinRate();
-
-                //await winRateManager.deletePlayerFromMatch(playerId, matchId, matchData.gametype);
-
-
-                const spreeManager = new Sprees();
-                await spreeManager.deletePlayerMatchData(playerId, matchId);
-
-                await this.deletePlayerMatch(playerId, matchId);
-
-                await matchManager.reducePlayerCount(matchId, 1);
-
-                
-                currentDMWinner = await matchManager.getDmWinner(matchId);
-
-                
-                if(currentDMWinner === matchData.name){
-                    await matchManager.recalculateDmWinner(matchId, this);
-                }
-
-                const comboManager = new Combogib();
-
-                await comboManager.deletePlayerFromMatch(playerId, mapId, matchData.gametype, matchId);
-               // await matchManager.renameSingleDMMatchWinner(matchId, oldName, matchData.name);
-
-
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
 
     async getPlayerCapRecords(playerId){
 
@@ -1215,3 +1102,13 @@ export async function getProfileMapStats(playerId){
 
     return {"gametypeNames": gametypeNames, "data": result}
 }
+
+
+async function deletePlayerScoreData(playerId){
+
+    const query = `DELETE FROM nstats_match_player_score WHERE player=?`;
+
+    return await simpleQuery(query, [playerId]);
+}
+
+

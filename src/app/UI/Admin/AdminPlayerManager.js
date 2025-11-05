@@ -199,6 +199,7 @@ async function renamePlayer(state, dispatch, mDispatch){
 
 function renderRename(state, dispatch, mDispatch){
 
+    if(state.mode !== "rename") return null;
 
     if(state.renameInProgress){
         return <Loading>Rename in progress please wait..</Loading>
@@ -270,14 +271,15 @@ export default function AdminPlayerManager({}){
     }, []);
 
     const tabOptions = [
-        {"name": "Rename Player", "value": "rename"}
+        {"name": "Rename Player", "value": "rename"},
+        {"name": "Delete Player", "value": "delete"},
     ];
 
     return <>
         <div className="default-header">Player Manager</div>
         <Tabs options={tabOptions} selectedValue={state.mode} changeSelected={(v) =>{
             dispatch({"type": "set-mode", "value": v});
-            mDispatch({"type": "set-message", "messageType": "error", "title": "fart", "content": <b>test</b>});
+           // mDispatch({"type": "set-message", "messageType": "error", "title": "fart", "content": <b>test</b>});
         }}/>
         <MessageBox type={mState.type} title={mState.title} timestamp={mState.timestamp}>
             {mState.content}

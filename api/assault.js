@@ -429,3 +429,29 @@ export async function deleteMatch(id){
         console.trace(err);
     }   
 }
+
+
+async function deletePlayerMatchObjectives(playerId){
+
+    const query = `DELETE FROM nstats_assault_match_objectives WHERE player=?`;
+
+    return await simpleQuery(query, [playerId]);
+}
+
+async function recalcObjTotals(){
+
+    const query = `SELECT map,obj_id,COUNT(*) as total_matches FROM nstats_assault_match_objectives GROUP BY map,obj_id`;
+
+    const result = await simpleQuery(query);
+
+    
+}
+
+export async function deletePlayer(playerId){
+
+     //nstats_assault_match_objectives player
+    //nstats_assault_objects //recalc totals
+
+    await deletePlayerMatchObjectives(playerId);
+
+}
