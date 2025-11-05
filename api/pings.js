@@ -271,6 +271,6 @@ export async function deleteMatchData(matchId){
 
 export async function deletePlayerData(playerId){
 
-    const query = `DELETE FROM nstats_match_ping WHERE player=?`;
+    const query = `DELETE FROM nstats_match_pings WHERE player=?`;
     return await simpleQuery(query, [playerId]);
 }

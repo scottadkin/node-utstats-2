@@ -250,11 +250,58 @@ function renderRename(state, dispatch, mDispatch){
 }
 
 
+async function deletePlayer(state, dispatch, mDispatch){
+
+    try{
+
+        const req = await fetch("/api/admin", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "delete-player", "playerId": state.selectedPlayerId})
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined) throw new Error(res.error);
+
+    }catch(err){
+        console.trace(err);
+        mDispatch({"type": "set-message", "messageType": "error", "title": "Failed To Delete Player", "content": err.toString()});
+    }
+}
+
+function renderDeletePlayer(state, dispatch, mDispatch){
+
+    if(state.mode !== "delete") return null;
+
+    const selectedPlayer = getSelectedPlayerName(state);
+
+
+
+    let button = null;
+    let elems = <div className="form-info">You have not selected a player to delete.</div>
+
+    if(selectedPlayer !== ""){
+        button = <button className="button delete-button" onClick={() =>{
+            deletePlayer(state, dispatch, mDispatch);
+        }}>Delete Player</button>
+        elems = <div className="form-info">You have selected <b>{selectedPlayer}</b> to be deleted.</div>
+    }
+
+
+    return <div className="form">
+        <div className="form-info">Delete Selected Player</div>
+        {elems}
+
+        {button}
+    </div>
+}
+
 export default function AdminPlayerManager({}){
 
 
     const [state, dispatch] = useReducer(reducer, {
-        "mode": "rename",
+        "mode": "delete",
         "playerNames": [],
         "searchName": "",
         "selectedPlayerId": -1,
@@ -286,5 +333,6 @@ export default function AdminPlayerManager({}){
         </MessageBox>
         {renderSearchForm(state, dispatch)}
         {renderRename(state, dispatch, mDispatch)}
+        {renderDeletePlayer(state, dispatch, mDispatch)}
     </>
 }

@@ -11,6 +11,7 @@ import { adminMatchesSearch, adminDeleteMatch,
     deleteAllDuplicates as deleteAllMatchDuplicates } from "../../../../api/matches";
 import { getLogImportInfo } from "../../../../api/logs";
 import { getAllPlayerBasic, renamePlayer } from "../../../../api/players";
+import { deletePlayer } from "../../../../api/players";
 
 
 
@@ -285,6 +286,14 @@ export async function POST(req){
             await renamePlayer(targetPlayerId, newName);
 
             return Response.json({"message": "passed"});
+        }
+
+
+        if(mode === "delete-player"){
+
+            const playerId = (res.playerId !== undefined) ? parseInt(res.playerId) : NaN;
+            if(playerId !== playerId) throw new Error(`PlayerId must be a valid integer`); 
+            await deletePlayer(playerId);
         }
 
         return Response.json({"error": "Unknown Request"});

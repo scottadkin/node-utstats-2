@@ -1104,7 +1104,7 @@ export async function getProfileMapStats(playerId){
 }
 
 
-async function deletePlayerScoreData(playerId){
+export async function deletePlayerScoreData(playerId){
 
     const query = `DELETE FROM nstats_match_player_score WHERE player=?`;
 

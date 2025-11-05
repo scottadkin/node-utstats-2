@@ -724,3 +724,19 @@ export async function bulkInsertControlPointCapData(matchId, data){
 
     return await bulkInsert(query, insertVars);
 }
+
+
+export async function deletePlayerData(playerId){
+    //nstats_dom_match_caps player
+    //nstats_dom_match_player_score player
+
+    const tables = ["dom_match_caps", "dom_match_player_score"];
+
+    for(let i = 0; i < tables.length; i++){
+
+        const t = tables[i];
+
+        const query = `DELETE FROM nstats_${t} WHERE player=?`;
+        await simpleQuery(query, [playerId]);
+    }
+}

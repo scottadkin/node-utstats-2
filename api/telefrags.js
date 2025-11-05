@@ -416,3 +416,11 @@ export async function recalculateTelefragPlayersTotals(ids){
         await recalculatePlayerTotals(ids[i]);
     }
 }
+
+
+export async function deletePlayerData(playerId){
+
+    const query = `DELETE FROM nstats_tele_frags WHERE killer_id=? OR victim_id=?`;
+
+    return await simpleQuery(query, [playerId, playerId]);
+}

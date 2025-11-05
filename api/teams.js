@@ -50,3 +50,11 @@ export async function deleteMatchTeamChanges(id){
 
     return await simpleQuery(query, [id]);
 }
+
+
+export async function deletePlayerData(playerId){
+
+    const query = `DELETE FROM nstats_match_team_changes WHERE player=?`;
+
+    return await simpleQuery(query, [playerId]);
+}

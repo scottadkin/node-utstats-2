@@ -25,6 +25,9 @@ import { deletePlayerData as deletePlayerKills} from "./kills.js";
 import { deletePlayerScoreData } from "./player.js";
 import { deletePlayerData as deletePlayerPingData} from "./pings.js";
 import { deletePlayerData as deletePlayerSprees } from "./sprees.js";
+import { deletePlayerData as deletePlayerTeamChanges} from "./teams.js";
+import { deletePlayerData as deletePlayerTeleFrags } from "./telefrags.js";
+import { deletePlayerData as deletePlayerDomData} from "./domination.js";
 
 export default class Players{
 
@@ -3550,6 +3553,9 @@ export async function deletePlayer(playerId){
     await deletePlayerScoreData(playerId);
     await deletePlayerPingData(playerId);
     await deletePlayerSprees(playerId);
+    await deletePlayerTeamChanges(playerId);
+    await deletePlayerTeleFrags(playerId);
+    await deletePlayerDomData(playerId);
 
     //only do these after match_date is deleted
     await reclaculateCountryTotals();
@@ -3568,8 +3574,7 @@ export async function deletePlayer(playerId){
     //nstats_ctf_seals killer_id, victim_id
     //nstats_ctf_self_covers killer_id, victim_id
 
-    //nstats_dom_match_caps player
-    //nstats_dom_match_player_score player
+   
 
     //nstats_items_match player_id
     //nstats_items_player player recalc totals
@@ -3578,27 +3583,29 @@ export async function deletePlayer(playerId){
     //nstats_match_combogib player_id
     //nstats_match_connections player
     
-    //nstats_match_team_changes player
+    
     //nstats_monsters_player_match player
     //nstats_monsters_player_totals player recalc totals
     //nstats_monster_kills player
     //nstats_player_combogib player_id recalc
+
     //nstats_player_ctf_best player_id recalc
     //nstats_player_ctf_best_life player_id recalc
     //nstats_player_ctf_match player_id
     //nstats_player_ctf_totals player_id recalc
+
     //nstats_player_matches player_id match_id
     //nstats_player_telefrags player_id recalc
     //nstats_player_totals id || player_id recalc
     //nstats_player_weapon_best player_id recalc
-    
+
     //nstats_powerups_carry_times player_id,match_id
     //nstats_powerups_player_match player_id,match_id
     //nstats_powerups_player_totals player_id recalc
     //nstats_ranking_player_current player_id
     //nstats_ranking_player_history player_id recalc
 
-    //nstats_tele_frags killer_id,victim_id
+
     //nstats_weapons recalc
     //nstats_winrates_latest player
 
