@@ -237,7 +237,7 @@ export default function CombogibMapRecords({mapId}){
 
     if(!state.loaded) return <div><Loading /></div>;
 
-    if(state.data.length === 0) return null;
+    if(state.data !== null && state.data.length === 0) return null;
     if(state.error !== null){
 
         if(state.error !== "none"){

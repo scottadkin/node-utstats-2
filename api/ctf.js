@@ -542,141 +542,7 @@ export default class CTF{
         await simpleQuery(query, [data.id]);
     }
 
-    async deletePlayerMatchEvents(playerId, matchId){
 
-        const query = "DELETE FROM nstats_ctf_events WHERE match_id=? AND player=?";
-        await simpleQuery(query, [matchId, playerId]);
-    }
-
-    async deletePlayerMatchAssists(playerId, matchId){
-
-        const query = `DELETE FROM nstats_ctf_assists WHERE player_id=? AND match_id=?`;
-        return await simpleQuery(query, [playerId, matchId]);
-    }
-
-    async removePlayerMatchAssists(playerId, matchId){
-
-        const query = `UPDATE nstats_ctf_assists SET player_id=-1 WHERE player_id=? AND match_id=?`;
-        return await simpleQuery(query, [playerId, matchId]);
-    }
-
-    async removePlayerMatchCaps(playerId, matchId){
-
-        const query = `UPDATE nstats_ctf_caps SET
-        grab_player = IF(grab_player = ?, -1, grab_player),
-        cap_player = IF(cap_player = ?, -1, cap_player)
-        WHERE match_id=?`;
-        return await simpleQuery(query, [playerId, playerId, matchId]);
-    }
-
-    async removePlayerMatchCarryTimes(playerId, matchId){
-
-        const query = `UPDATE nstats_ctf_carry_times SET player_id=-1 WHERE player_id=? AND match_id=?`;
-        return await simpleQuery(query, [playerId, matchId]);
-    }
-
-    async removePlayerMatchCovers(playerId, matchId){
-
-        const query = `UPDATE nstats_ctf_covers SET
-        killer_id = IF(killer_id = ?, -1, killer_id),
-        victim_id = IF(victim_id = ?, -1, victim_id)
-        WHERE match_id=?`;
-
-        return await simpleQuery(query, [playerId, playerId, matchId]);
-    }
-
-    async removePlayerMatchCRKills(playerId, matchId){
-
-        const query = `UPDATE nstats_ctf_cr_kills SET player_id=-1 WHERE player_id=? AND match_id=?`;
-        return await simpleQuery(query, [playerId, matchId]);
-    }
-
-    async removePlayerMatchFlagDeaths(playerId, matchId){
-
-        const query = `UPDATE nstats_ctf_flag_deaths SET
-        killer_id = IF(killer_id = ?, -1, killer_id),
-        victim_id = IF(victim_id = ?, -1, victim_id)
-        WHERE match_id=?`;
-
-        return await simpleQuery(query, [playerId, playerId, matchId]);
-    }
-
-    async removePlayerMatchFlagDrops(playerId, matchId){
-
-        const query = `UPDATE nstats_ctf_flag_drops SET player_id=-1 WHERE player_id=? AND match_id=?`;
-        return await simpleQuery(query, [playerId, matchId]);
-    }
-
-    async removePlayerMatchFlagPickups(playerId, matchId){
-
-        const query = `UPDATE nstats_ctf_flag_pickups SET player_id=-1 WHERE player_id=? AND match_id=?`;
-        return await simpleQuery(query, [playerId, matchId]);
-    }
-
-    async removePlayerMatchReturns(playerId, matchId){
-
-        const query = `UPDATE nstats_ctf_returns SET
-        grab_player = IF(grab_player = ?, -1, grab_player),
-        return_player = IF(return_player = ?, -1, return_player)
-        WHERE match_id=?`;
-        return await simpleQuery(query, [playerId, playerId, matchId]);
-    }
-
-    async removePlayerMatchSeals(playerId, matchId){
-
-        const query = `UPDATE nstats_ctf_seals SET
-        killer_id = IF(killer_id = ?, -1, killer_id),
-        victim_id = IF(victim_id = ?, -1, victim_id)
-        WHERE match_id=?`;
-
-        return await simpleQuery(query, [playerId, playerId, matchId]);
-    }
-
-    async removePlayerMatchSelfCovers(playerId, matchId){
-
-        const query = `UPDATE nstats_ctf_self_covers SET
-        killer_id = IF(killer_id = ?, -1, killer_id),
-        victim_id = IF(victim_id = ?, -1, victim_id)
-        WHERE match_id=?`;
-
-        return await simpleQuery(query, [playerId, playerId, matchId]);
-    }
-
-    async deletePlayerMatchStats(playerId, matchId){
-
-        const query = `DELETE FROM nstats_player_ctf_match WHERE player_id=? AND match_id=?`;
-
-        return await simpleQuery(query, [playerId, matchId]);
-    }
-    /**
-     * 
-     * @param {*} playerId 
-     * @param {*} matchId 
-     * @param {*} bIgnoreEvents only set this if you want to ignore events
-     */
-    async deletePlayerFromMatch(playerId, matchId){
-
-        try{
-
-            await this.removePlayerMatchAssists(playerId, matchId);
-            await this.removePlayerMatchCaps(playerId, matchId);
-            await this.removePlayerMatchCarryTimes(playerId, matchId);
-            await this.removePlayerMatchCovers(playerId, matchId);
-            await this.removePlayerMatchCRKills(playerId, matchId);
-            await this.removePlayerMatchFlagDeaths(playerId, matchId);
-            await this.removePlayerMatchFlagDrops(playerId, matchId);
-            await this.removePlayerMatchFlagPickups(playerId, matchId);
-            await this.removePlayerMatchReturns(playerId, matchId);
-            await this.removePlayerMatchSeals(playerId, matchId);
-            await this.removePlayerMatchSelfCovers(playerId, matchId);
-            await this.deletePlayerMatchStats(playerId, matchId);
-
-            await this.deletePlayerMatchEvents(playerId, matchId);
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
 
 
     async getAllCapData(){
@@ -3757,10 +3623,31 @@ async function bMatchWasCapRecord(matchId, gametypeId, mapId){
     return result[0].total_rows > 0;
 }
 
-async function deleteCapRecord(gametypeId, mapId){
+async function deleteCapRecord(gametypeId, mapId, capType){
 
-    const query = `DELETE FROM nstats_ctf_cap_records WHERE gametype_id=? AND map_id=?`;
-    return await simpleQuery(query, [gametypeId, mapId]);
+    if(capType === undefined) capType = null;
+
+
+    let query = `DELETE FROM nstats_ctf_cap_records WHERE gametype_id=? AND map_id=?`;
+
+    const vars = [gametypeId, mapId];
+
+    if(capType !== null){
+
+        capType = capType.toLowerCase();
+
+        if(capType !== "solo" && capType !== "assist"){
+            throw new Error(`Not a valid cap type`);
+        }
+        
+        query += ` AND cap_type=?`;
+        vars.push((capType === "solo") ? 0 : 1);
+    }
+
+    console.log(query);
+    console.log(vars);
+    
+    return await simpleQuery(query, vars);
 }
 
 
@@ -3785,6 +3672,27 @@ async function insertNewCapRecord(capId, mapId, matchId, gametypeId, capType, tr
     const query = `INSERT INTO nstats_ctf_cap_records VALUES(NULL,?,?,?,?,?,?,?,?)`;
 
     return await simpleQuery(query, [capId, mapId, gametypeId, matchId, travelTime, carryTime, dropTime, capType]);
+}
+
+async function recalculateSoloCapRecord(gametypeId, mapId){
+    
+    await deleteCapRecord(gametypeId, mapId, "solo");
+    const soloRecord = await getCapRecordFromMatchesTable(gametypeId, mapId, true);
+
+    if(soloRecord !== null){
+        await insertNewCapRecord(soloRecord.id, mapId, soloRecord.match_id, gametypeId, 0, soloRecord.travel_time, soloRecord.carry_time, soloRecord.drop_time);
+    }
+}
+
+async function recalculateAssistCapRecord(gametypeId, mapId){
+
+    await deleteCapRecord(gametypeId, mapId, "assist");
+
+    const assistRecord = await getCapRecordFromMatchesTable(gametypeId, mapId, false);
+
+    if(assistRecord !== null){
+        await insertNewCapRecord(assistRecord.id, mapId, assistRecord.match_id, gametypeId, 1, assistRecord.travel_time, assistRecord.carry_time, assistRecord.drop_time);
+    }
 }
 
 export async function recalculateCapRecordsAfterMatchDelete(matchId, gametypeId, mapId){
@@ -3822,4 +3730,72 @@ export async function recalculateCapRecordsAfterMatchDelete(matchId, gametypeId,
             await insertNewCapRecord(assistRecord.id, mapId, matchId, 0, 1, assistRecord.travel_time, assistRecord.carry_time, assistRecord.drop_time);
         }
     }
+}
+
+
+async function getPlayerCapRecords(playerId){
+
+
+    //get gametype and map from cap_records because we have gametype records & gametype + mapRecords
+    //ctf_caps does not know if its a gametype alltime record or map gametype combo
+    //we won't have to do another check later to see if gametype all time record has been beaten
+    const query = `SELECT nstats_ctf_cap_records.id,
+    nstats_ctf_cap_records.cap_id,
+    nstats_ctf_cap_records.cap_type,
+    nstats_ctf_cap_records.gametype_id,
+    nstats_ctf_cap_records.map_id,
+    nstats_ctf_caps.match_id 
+    FROM nstats_ctf_cap_records 
+    INNER JOIN nstats_ctf_caps ON nstats_ctf_cap_records.cap_id = nstats_ctf_caps.id
+    WHERE nstats_ctf_caps.grab_player=? OR nstats_ctf_caps.cap_player=?`;
+
+    return await simpleQuery(query, [playerId, playerId]);
+
+}
+
+export async function deletePlayerData(playerId){
+
+    //need to fetch this before deleting data so we can check if a map record has been deleted
+    const capRecords = await getPlayerCapRecords(playerId);
+
+    const queries = [
+        ["DELETE FROM nstats_ctf_assists WHERE player_id=?", [playerId]],
+        ["DELETE FROM nstats_ctf_caps WHERE grab_player=? OR cap_player=?", [playerId, playerId]],
+    ];
+
+    for(let i = 0; i < queries.length; i++){
+
+        const q = queries[i];
+ 
+        await simpleQuery(q[0], q[1]);
+    }
+
+
+    for(let i = 0; i < capRecords.length; i++){
+
+        const c = capRecords[i];
+
+        if(c.cap_type === 0){
+            await recalculateSoloCapRecord(c.gametype_id, c.map_id);
+        }else if(c.cap_type === 1){
+            await recalculateAssistCapRecord(c.gametype_id, c.map_id);
+        }
+    }
+
+
+
+    //nstats_ctf_carry_times player_id
+    //nstats_ctf_covers killer_id,victim_id
+    //nstats_ctf_cr_kills player_id
+    //nstats_ctf_events player
+    //nstats_ctf_flag_deaths killer_id,victim_id
+    //nstats_ctf_flag_drops player_id
+    //nstats_ctf_flag_pickups player_id
+    //nstats_ctf_returns grab_player, return player
+    //nstats_ctf_seals killer_id, victim_id
+    //nstats_ctf_self_covers killer_id, victim_id
+    //nstats_player_ctf_best player_id recalc
+    //nstats_player_ctf_best_life player_id recalc
+    //nstats_player_ctf_match player_id
+    //nstats_player_ctf_totals player_id recalc
 }

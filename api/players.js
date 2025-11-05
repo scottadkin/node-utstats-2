@@ -16,7 +16,7 @@ import Sprees from "./sprees.js";
 import PowerUps from "./powerups.js";
 import Telefrags from "./telefrags.js";
 import Message from "./message.js";
-import { getPlayerMatchCTFData } from "./ctf.js";
+import { getPlayerMatchCTFData ,  deletePlayerData as deletePlayerCTFData} from "./ctf.js";
 import { getPlayersBasic as getBasicWinrateStats } from "./winrate.js";
 import { deletePlayer as deletePlayerAssaultData } from "./assault.js";
 import { recalculateTotals as reclaculateCountryTotals } from "./countriesmanager.js";
@@ -3561,22 +3561,12 @@ export async function deletePlayer(playerId){
     await deletePlayerConnections(playerId);
     await deletePlayerMonsterhuntData(playerId);
 
+    await deletePlayerCTFData(playerId);
+
     //only do these after match_date is deleted
     await reclaculateCountryTotals();
 
-    //nstats_ctf_assists player_id 
-    //nstats_ctf_caps grab_player,cap_player
-    //nstats_ctf_cap_records check if cap_id was deleted if it has recalc map/gametype record
-    //nstats_ctf_carry_times player_id
-    //nstats_ctf_covers killer_id,victim_id
-    //nstats_ctf_cr_kills player_id
-    //nstats_ctf_events player
-    //nstats_ctf_flag_deaths killer_id,victim_id
-    //nstats_ctf_flag_drops player_id
-    //nstats_ctf_flag_pickups player_id
-    //nstats_ctf_returns grab_player, return player
-    //nstats_ctf_seals killer_id, victim_id
-    //nstats_ctf_self_covers killer_id, victim_id
+    
 
    
 
@@ -3588,11 +3578,6 @@ export async function deletePlayer(playerId){
     
 
     //nstats_player_combogib player_id recalc
-
-    //nstats_player_ctf_best player_id recalc
-    //nstats_player_ctf_best_life player_id recalc
-    //nstats_player_ctf_match player_id
-    //nstats_player_ctf_totals player_id recalc
 
     //nstats_player_matches player_id match_id
     //nstats_player_totals id || player_id recalc
