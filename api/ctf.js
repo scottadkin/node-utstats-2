@@ -3761,6 +3761,20 @@ export async function deletePlayerData(playerId){
     const queries = [
         ["DELETE FROM nstats_ctf_assists WHERE player_id=?", [playerId]],
         ["DELETE FROM nstats_ctf_caps WHERE grab_player=? OR cap_player=?", [playerId, playerId]],
+        ["DELETE FROM nstats_ctf_carry_times WHERE player_id=?", [playerId]],
+        ["DELETE FROM nstats_ctf_covers WHERE killer_id=? OR victim_id=?", [playerId, playerId]],
+        ["DELETE FROM nstats_ctf_cr_kills WHERE player_id=?", [playerId]],
+        ["DELETE FROM nstats_ctf_events WHERE player=?", [playerId]],
+        ["DELETE FROM nstats_ctf_flag_deaths WHERE killer_id=? OR victim_id=?", [playerId, playerId]],
+        ["DELETE FROM nstats_ctf_flag_drops WHERE player_id=?", [playerId]],
+        ["DELETE FROM nstats_ctf_flag_pickups WHERE player_id=?", [playerId]],
+        ["DELETE FROM nstats_ctf_returns WHERE grab_player=? OR return_player=?", [playerId, playerId]],
+        ["DELETE FROM nstats_ctf_seals WHERE killer_id=? OR victim_id=?", [playerId, playerId]],
+        ["DELETE FROM nstats_ctf_self_covers WHERE killer_id=? OR victim_id=?", [playerId, playerId]],
+        ["DELETE FROM nstats_player_ctf_match WHERE player_id=?", [playerId]],
+        ["DELETE FROM nstats_player_ctf_best WHERE player_id=?", [playerId]],
+        ["DELETE FROM nstats_player_ctf_best_life WHERE player_id=?", [playerId]],
+        ["DELETE FROM nstats_player_ctf_totals WHERE player_id=?", [playerId]],
     ];
 
     for(let i = 0; i < queries.length; i++){
@@ -3784,18 +3798,5 @@ export async function deletePlayerData(playerId){
 
 
 
-    //nstats_ctf_carry_times player_id
-    //nstats_ctf_covers killer_id,victim_id
-    //nstats_ctf_cr_kills player_id
-    //nstats_ctf_events player
-    //nstats_ctf_flag_deaths killer_id,victim_id
-    //nstats_ctf_flag_drops player_id
-    //nstats_ctf_flag_pickups player_id
-    //nstats_ctf_returns grab_player, return player
-    //nstats_ctf_seals killer_id, victim_id
-    //nstats_ctf_self_covers killer_id, victim_id
-    //nstats_player_ctf_best player_id recalc
-    //nstats_player_ctf_best_life player_id recalc
-    //nstats_player_ctf_match player_id
-    //nstats_player_ctf_totals player_id recalc
+    
 }
