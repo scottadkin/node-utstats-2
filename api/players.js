@@ -30,6 +30,7 @@ import { deletePlayerData as deletePlayerTeleFrags } from "./telefrags.js";
 import { deletePlayerData as deletePlayerDomData} from "./domination.js";
 import { deletePlayerData as deletePlayerConnections} from "./connections.js";
 import { deletePlayerData as deletePlayerMonsterhuntData} from "./monsterhunt.js";
+import { deletePlayerData as deletePlayerWeaponData} from "./weapons.js";
 
 export default class Players{
 
@@ -3560,6 +3561,7 @@ export async function deletePlayer(playerId){
     await deletePlayerDomData(playerId);
     await deletePlayerConnections(playerId);
     await deletePlayerMonsterhuntData(playerId);
+    await deletePlayerWeaponData(playerId);
 
     await deletePlayerCTFData(playerId);
 
@@ -3581,7 +3583,7 @@ export async function deletePlayer(playerId){
 
     //nstats_player_matches player_id match_id
     //nstats_player_totals id || player_id recalc
-    //nstats_player_weapon_best player_id recalc
+    
 
     //nstats_powerups_carry_times player_id,match_id
     //nstats_powerups_player_match player_id,match_id
@@ -3590,7 +3592,7 @@ export async function deletePlayer(playerId){
     //nstats_ranking_player_history player_id recalc
 
 
-    //nstats_weapons recalc
+    
     //nstats_winrates_latest player
 
 }

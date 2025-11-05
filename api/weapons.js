@@ -1809,7 +1809,7 @@ async function setWeaponTotals(weaponId, matches, kills, deaths, shots, hits, ac
 
     const query = `UPDATE nstats_weapons SET matches=?,kills=?,deaths=?,accuracy=?,shots=?,hits=?,damage=? WHERE id=?`;
 
-    return await simpleQuery(query, [matches, kills, deaths, shots, hits, accuracy, damage, weaponId]);
+    return await simpleQuery(query, [matches, kills, deaths, accuracy, shots, hits, damage, weaponId]);
 }
 
 async function getWeaponTotalsFromMatchTable(weaponIds){
@@ -1835,7 +1835,7 @@ async function getWeaponTotalsFromMatchTable(weaponIds){
         r.accuracy = 0;
 
         if(r.hits > 0 && r.shots > 0){
-            r.accuracy = r.hits / r.shots;
+            r.accuracy = r.hits / r.shots * 100;
         }
 
         data[r.weapon_id] = r;
@@ -1852,6 +1852,8 @@ async function deleteWeaponTotals(id){
 }
 
 async function recalculateWeaponTotals(weaponIds){
+
+    if(weaponIds.length === 0) return;
 
     const totals = await getWeaponTotalsFromMatchTable(weaponIds);
 
@@ -1908,4 +1910,36 @@ export async function updateWeaponTotals(weapon, kills, deaths, shots, hits, dam
         WHERE id=?`;
     
     return await simpleQuery(query, [kills, deaths, shots, hits, damage, weapon]);
+}
+
+async function getAllIdsUsedByPlayer(playerId){
+
+    const query = `SELECT DISTINCT weapon_id FROM nstats_player_weapon_match WHERE player_id=?`;
+
+    const result = await simpleQuery(query, [playerId]);
+
+    return result.map((r) =>{
+        return r.weapon_id;
+    });
+}
+
+export async function deletePlayerData(playerId){
+
+
+    const usedWeaponIds = await getAllIdsUsedByPlayer(playerId);
+
+    const tables = [
+        "player_weapon_best",
+        "player_weapon_match",
+        "player_weapon_totals"
+    ];
+
+    for(let i = 0; i < tables.length; i++){
+
+        const t = tables[i];
+
+        await simpleQuery(`DELETE FROM nstats_${t} WHERE player_id=?`, [playerId]);
+    }
+
+    await recalculateWeaponTotals(usedWeaponIds);
 }
