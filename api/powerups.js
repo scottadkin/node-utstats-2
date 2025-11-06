@@ -1,4 +1,5 @@
 import { bulkInsert, simpleQuery } from "./database.js";
+import { getObjectName } from "./genericServerSide.mjs";
 
 export default class PowerUps{
 
@@ -601,4 +602,55 @@ export async function deletePlayerData(playerId){
         const t = tables[i];
         await simpleQuery(`DELETE FROM ${t} WHERE player_id=?`, [playerId]);
     }
+}
+
+export async function getPlayerProfileData(playerId){
+
+    const query = `SELECT gametype_id,map_id,total_matches,total_playtime,powerup_id,times_used,times_used_best,
+    carry_time,carry_time_best,total_kills,best_kills,best_kills_single_use,end_deaths,end_suicides,end_timeouts,end_match_end,
+    total_carrier_kills,carrier_kills_best,carrier_kills_single_life FROM nstats_powerups_player_totals WHERE player_id=?`;
+
+    const result = await simpleQuery(query, [playerId]);
+
+    const powerUpIds = new Set();
+    const gametypeIds = new Set();
+    const mapIds = new Set();
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        powerUpIds.add(r.powerup_id);
+
+        if(r.gametype_id !== 0){
+            gametypeIds.add(r.gametype_id);
+        }
+
+        if(r.map_id !== 0){
+             mapIds.add(r.map_id);
+        }
+    }
+
+    //get powerup names
+    const powerupNames = await getObjectName("powerups", [...powerUpIds]);
+    const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
+    const mapNames = await getObjectName("maps", [...mapIds]);
+
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        if(r.gametype_id !== 0){
+            r.gametypeName = gametypeNames[r.gametype_id] ?? "Not Found";
+        }
+
+        if(r.map_id !== 0){
+            r.mapName = mapNames[r.map_id] ?? "Not Found";
+        }
+
+        r.powerupName = powerupNames[r.powerup_id] ?? "Not Found";
+    }
+
+    return result;
 }

@@ -36,6 +36,8 @@ import PlayerMonsterHuntStats from "../../UI/Player/PlayerMonsterHuntStats";
 import { getPlayerProfileMonsters } from "../../../../api/monsterhunt";
 import PlayerMonsters from "../../UI/Player/PlayerMonsters";
 import { convertTimestamp } from "../../../../api/generic.mjs";
+import PlayerPowerupSummary from "../../UI/Player/PlayerPowerupSummary";
+import { getPlayerProfileData as getPowerupData } from "../../../../api/powerups";
 
 
 function setQueryVars(params, searchParams){
@@ -243,9 +245,13 @@ export default async function Page({params, searchParams}){
         pageManager.addComponent("Display Monsterhunt Monster Stats", <PlayerMonsters key="mh-monsters" data={data}/>);
     }
 
+    pageManager.addComponent("Display Summary",<PlayerGeneral key="sum" data={basic} country={getCountryName(basic.country)} face={faces[basic.face].name}/> );
 
-   pageManager.addComponent("Display Summary",<PlayerGeneral key="sum" data={basic} country={getCountryName(basic.country)} face={faces[basic.face].name}/> );
 
+    if(pageManager.bEnabled("Display Powerups Summary")){
+        const data = await getPowerupData(playerId);
+        pageManager.addComponent("Display Powerups Summary", <PlayerPowerupSummary data={data} key="powerups"/>);
+    }
 
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		

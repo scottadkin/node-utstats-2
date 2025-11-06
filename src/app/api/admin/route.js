@@ -294,6 +294,8 @@ export async function POST(req){
             const playerId = (res.playerId !== undefined) ? parseInt(res.playerId) : NaN;
             if(playerId !== playerId) throw new Error(`PlayerId must be a valid integer`); 
             await deletePlayer(playerId);
+
+            return Response.json({"message": "passed"});
         }
 
         return Response.json({"error": "Unknown Request"});

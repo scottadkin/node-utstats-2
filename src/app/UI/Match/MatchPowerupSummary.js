@@ -85,7 +85,7 @@ function renderTable(state, matchId, totalTeams, players, targetPowerup){
         return {
             "player": {
                 "value": player.name.toLowerCase(),
-                "displayValue": <Link href={`/pmatch/${matchId}/${player.id}`}>
+                "displayValue": <Link href={`/pmatch/${matchId}?player=${player.id}`}>
                     <CountryFlag country={player.country}/>{player.name}
                 </Link>,
                 "className": `player ${teamColor}`

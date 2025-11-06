@@ -54,7 +54,13 @@ function reducer(state, action){
         case "set-rename-in-progress": {
             return {
                 ...state,
-                "renameInProgress": action.value
+                "bRenameInProgress": action.value
+            }
+        }
+        case "set-delete-in-progress": {
+            return {
+                ...state,
+                "bDeleteInProgress": action.value
             }
         }
     }
@@ -110,14 +116,7 @@ function renderSearchForm(state, dispatch){
                 "className": (state.selectedPlayerId === p.id) ? "team-green text-left" : "team-grey text-left",
                 "onClick": () =>{
                     dispatch({"type": "set-selected-player", "value": p.id});
-                }
-            },
-            "select": {
-                "value": null,
-                "displayValue": (state.selectedPlayerId === p.id) ? "Selected"  : "",
-                "className": (state.selectedPlayerId === p.id) ? "team-green" : "team-grey" ,
-                "onClick": () =>{
-                    dispatch({"type": "set-selected-player", "value": p.id});
+                    dispatch({"type": "set-search-name", "value": p.name});
                 }
             }
         });
@@ -254,6 +253,8 @@ async function deletePlayer(state, dispatch, mDispatch){
 
     try{
 
+        dispatch({"type": "set-delete-in-progress", "value": true});
+
         const req = await fetch("/api/admin", {
             "headers": {"Content-type": "application/json"},
             "method": "POST",
@@ -264,15 +265,25 @@ async function deletePlayer(state, dispatch, mDispatch){
 
         if(res.error !== undefined) throw new Error(res.error);
 
+        await loadNames(dispatch, mDispatch);
+        dispatch({"type": "set-selected-player", "value": -1});
+
     }catch(err){
         console.trace(err);
         mDispatch({"type": "set-message", "messageType": "error", "title": "Failed To Delete Player", "content": err.toString()});
     }
+
+    dispatch({"type": "set-delete-in-progress", "value": false});
 }
 
 function renderDeletePlayer(state, dispatch, mDispatch){
 
     if(state.mode !== "delete") return null;
+
+    if(state.bDeleteInProgress){
+
+        return <Loading>Deleting Player Please Wait</Loading>
+    }
 
     const selectedPlayer = getSelectedPlayerName(state);
 
