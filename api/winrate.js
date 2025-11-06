@@ -423,3 +423,11 @@ export async function getPlayersBasic(playerIds, gametypeId, mapId){
 
     return data;
 }
+
+
+export async function deletePlayerData(playerId){
+
+    const query = `DELETE FROM nstats_winrates_latest WHERE player=?`;
+
+    return await simpleQuery(query, [playerId]);
+}

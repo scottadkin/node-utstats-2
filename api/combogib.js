@@ -1726,6 +1726,9 @@ async function recalculateMapTotals(mapId, gametypeId){
     }
 
     await deleteMapTotals(mapId, gametypeId);
+
+    if(totals.combo.kills === 0 && totals.insane.kills === 0 && totals.shockball.kills === 0 && totals.primary.kills === 0) return;
+
     await insertNewMapTotals(mapId, gametypeId, null, totalPlaytime, totals.combo, totals.shockball, totals.primary, totals.insane);
 
     
@@ -1754,4 +1757,56 @@ export async function deleteMatchData(matchId, playerIds, gametypeId, mapId){
     //map + gametype totals
     await recalculateMapTotals(mapId, gametypeId);
     
+}
+
+async function getUniquePlayerGametypeMapsPlayed(playerId){
+
+    const query = `SELECT DISTINCT gametype_id,map_id FROM nstats_match_combogib WHERE player_id=? GROUP BY gametype_id,map_id`;
+
+    const result = await simpleQuery(query, [playerId]);
+
+
+    const played = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        if(played[r.map_id] === undefined) played[r.map_id] = new Set();
+
+        //map all time totals
+        played[r.map_id].add(0);
+        //map gametype all time totals
+        played[r.map_id].add(r.gametype_id);
+    }
+
+    return played;
+}
+
+export async function deletePlayerData(playerId){
+
+    const playedCombos = await getUniquePlayerGametypeMapsPlayed(playerId);
+
+    const tables = [
+        "nstats_match_combogib",
+        "nstats_player_combogib"
+    ];
+
+    for(let i = 0; i < tables.length; i++){
+
+        const t = tables[i];
+
+        await simpleQuery(`DELETE FROM ${t} WHERE player_id=?`, [playerId]);
+    }
+
+
+    for(const [mapId, gametypes] of Object.entries(playedCombos)){
+
+        const gametypeIds = [...gametypes];
+
+        for(let i = 0; i < gametypeIds.length; i++){
+
+            await recalculateMapTotals(mapId, gametypeIds[i]);
+        }
+    }
 }

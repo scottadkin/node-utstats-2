@@ -852,3 +852,19 @@ export async function resetAllTotals(){
 
     return await simpleQuery(query, [DEFAULT_MIN_DATE, DEFAULT_DATE]);
 }
+
+
+export async function deletePlayerData(playerId){
+
+    const queries = [
+        ["nstats_items_match", "player_id"],
+        ["nstats_items_player", "player"]
+    ];
+
+    for(let i = 0; i < queries.length; i++){
+
+        const q = queries[i];
+
+        await simpleQuery(`DELETE FROM ${q[0]} WHERE ${q[1]}=?`, [playerId]);
+    }
+}

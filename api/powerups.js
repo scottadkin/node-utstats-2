@@ -585,3 +585,20 @@ export async function bulkUpdatePlayerTotals(playerIds, powerUpIds, gametypeId, 
     await recalculatePlayerTotals(playerIds, 0, 0);
 
 }
+
+
+export async function deletePlayerData(playerId){
+
+
+    const tables = [
+        "nstats_powerups_carry_times",
+        "nstats_powerups_player_match",
+        "nstats_powerups_player_totals",
+    ];
+
+    for(let i = 0; i < tables.length; i++){
+
+        const t = tables[i];
+        await simpleQuery(`DELETE FROM ${t} WHERE player_id=?`, [playerId]);
+    }
+}

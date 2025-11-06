@@ -905,6 +905,19 @@ export async function deleteMatchData(matchId, playerIds, gametypeId){
         
         await rankingManager.recalculatePlayerGametype(id, gametypeId);
     }
+}
 
+export async function deletePlayerData(playerId){
+    
+    const tables = [
+        "nstats_ranking_player_current",
+        "nstats_ranking_player_history"
+    ];
 
+    for(let i = 0; i < tables.length; i++){
+
+        const t = tables[i];
+
+        await simpleQuery(`DELETE FROM ${t} WHERE player_id=?`, [playerId]);
+    }
 }

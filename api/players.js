@@ -31,6 +31,11 @@ import { deletePlayerData as deletePlayerDomData} from "./domination.js";
 import { deletePlayerData as deletePlayerConnections} from "./connections.js";
 import { deletePlayerData as deletePlayerMonsterhuntData} from "./monsterhunt.js";
 import { deletePlayerData as deletePlayerWeaponData} from "./weapons.js";
+import { deletePlayerData as deletePlayerWinRateData } from "./winrate.js";
+import { deletePlayerData as deletePlayerItemData } from "./items.js";
+import { deletePlayerData as deletePlayerPowerUpData } from "./powerups.js";
+import { deletePlayerData as deletePlayerRankingData } from "./rankings.js";
+import { deletePlayerData as deletePlayerCombogibData } from "./combogib.js";
 
 export default class Players{
 
@@ -3564,35 +3569,27 @@ export async function deletePlayer(playerId){
     await deletePlayerWeaponData(playerId);
 
     await deletePlayerCTFData(playerId);
+    await deletePlayerWinRateData(playerId);
+    await deletePlayerItemData(playerId);
+    await deletePlayerPowerUpData(playerId);
+    await deletePlayerRankingData(playerId);
+    await deletePlayerCombogibData(playerId);
 
     //only do these after match_date is deleted
     await reclaculateCountryTotals();
 
     
 
-   
 
-    //nstats_items_match player_id
-    //nstats_items_player player recalc totals
-    //nstats_map_combogib recalc totals
     //nstats_map_totals recalc totals
-    //nstats_match_combogib player_id
+    
     
 
-    //nstats_player_combogib player_id recalc
+    
 
     //nstats_player_matches player_id match_id
     //nstats_player_totals id || player_id recalc
-    
-
-    //nstats_powerups_carry_times player_id,match_id
-    //nstats_powerups_player_match player_id,match_id
-    //nstats_powerups_player_totals player_id recalc
-    //nstats_ranking_player_current player_id
-    //nstats_ranking_player_history player_id recalc
 
 
-    
-    //nstats_winrates_latest player
 
 }
