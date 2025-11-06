@@ -36,6 +36,7 @@ import { deletePlayerData as deletePlayerItemData } from "./items.js";
 import { deletePlayerData as deletePlayerPowerUpData } from "./powerups.js";
 import { deletePlayerData as deletePlayerRankingData } from "./rankings.js";
 import { deletePlayerData as deletePlayerCombogibData } from "./combogib.js";
+import { recalculateTotals as recalculateMapTotals } from "./maps.js";
 
 export default class Players{
 
@@ -1141,13 +1142,6 @@ export default class Players{
         
     }
 
-    
-
-    async deletePlayerTotals(id){
-        await simpleQuery("DELETE FROM nstats_player_totals WHERE player_id=?", [id]);
-        await simpleQuery("DELETE FROM nstats_player_totals WHERE id=?", [id]);
-
-    }
 
 
     async getPlayerName(player){
@@ -1170,129 +1164,7 @@ export default class Players{
         }
     }
 
-    async deleteScoreHistory(playerId){
-        await simpleQuery("DELETE FROM nstats_match_player_score WHERE player=?", [playerId]);
-    }
-
-
-
-    async deleteAllMatches(playerId){
-
-        await simpleQuery("DELETE FROM nstats_player_matches WHERE player_id=?", [playerId]);
-    }
-
-    /*async deletePlayer(playerId, matchManager){
-
-        try{
-            const assaultManager = new Assault();
-
-            await assaultManager.deletePlayer(playerId);
-
-            const matches = await matchManager.getAllPlayerMatches(playerId);
-
-            const matchIds = await matchManager.getAllPlayerMatchIds(playerId);
-
-            const countriesManager = new CountriesManager();
-
-            await countriesManager.deletePlayerViaMatchData(matches);
-
-            const ctfManager = new CTF();
-
-            await ctfManager.deletePlayerViaMatchData(playerId, matchIds);
-
-            const domManager = new Domination();
-
-            await domManager.deletePlayer(playerId);
-
-            const monsterHuntManager = new MonsterHunt();
-
-            await monsterHuntManager.deletePlayer(playerId);
-
-            const faceManager = new Faces();
-
-            await faceManager.deletePlayer(matches);
-
-            const headshotsManager = new Headshots();
-
-            await headshotsManager.deletePlayer(playerId);
-
-            const itemsManager = new Items();
-
-            await itemsManager.deletePlayer(playerId);
-
-            const killsManager = new Kills();
-
-            await killsManager.deletePlayer(playerId);
-
-
-            //const name = await this.getPlayerName(playerId);
-
-            await matchManager.recalculateDmWinners(matchIds);
-            
-
-            const connectionManager = new Connections();
-
-            await connectionManager.deletePlayer(playerId);
-
-
-            const pingManager = new Pings();
-
-            await pingManager.deletePlayer(playerId);
-
-
-            await this.deleteScoreHistory(playerId);
-
-            const teamManager = new Teams();
-
-            await teamManager.deletePlayer(playerId);
-
-            await this.deleteMapTotals(playerId);
-
-            await this.deleteAllMatches(playerId);
-
-
-            const weaponsManager = new Weapons();
-
-            await weaponsManager.deletePlayer(playerId);
-
-            const rankingManager = new Rankings();
-
-            await rankingManager.deletePlayer(playerId);
-
-            const voiceManager = new Voices();
-
-            await voiceManager.deletePlayer(matches);
-
-            //const winrateManager = new WinRate();
-
-            //await winrateManager.deletePlayer(playerId);
-
-            const spreeManager = new Sprees();
-
-            await spreeManager.deletePlayer(playerId);
-
-            //delete player totals last
-
-            await this.deletePlayerTotals(playerId);
-
-
-            const comboManager = new Combogib();
-
-            await comboManager.deletePlayer(playerId);
-
-            return true;
-
-        }catch(err){    
-            console.trace(err);
-            return false;
-        }
-    }*/
-
-    async getAllGametypeMatchData(gametypeId){
-
-        return await simpleQuery("SELECT * FROM nstats_player_matches WHERE gametype=?", [gametypeId]);
-    }
-
+  
     async getAllPlayersGametypeMatchData(gametypeId, playerId){
 
         return getAllPlayersGametypeMatchData(gametypeId, playerId);
@@ -3550,11 +3422,47 @@ export async function renamePlayer(playerId, newName){
 }
 
 
+
+async function deletePlayerTotals(id){
+
+    await simpleQuery("DELETE FROM nstats_player_totals WHERE player_id=?", [id]);
+    await simpleQuery("DELETE FROM nstats_player_totals WHERE id=?", [id]);
+}
+
+
+async function deletePlayerMatchData(playerId){
+
+    return await simpleQuery(`DELETE FROM nstats_player_matches WHERE player_id=?`, [playerId]);
+}
+
+
+async function getUniquePlayedGametypeMaps(playerId){
+
+    const query = `SELECT DISTINCT gametype,map_id FROM nstats_player_matches WHERE player_id=?`;
+
+    const result = await simpleQuery(query, [playerId]);
+
+    const played = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        if(played[r.map_id] === undefined) played[r.map_id] = new Set();
+
+        //map all time totals
+        played[r.map_id].add(0);
+        //map gametype totals
+        played[r.map_id].add(r.gametype);
+    }
+
+    return played;
+}
+
 export async function deletePlayer(playerId){
 
-    //set ids to -1 for ctf,assault,& dom
+    const uniquePlayed = await getUniquePlayedGametypeMaps(playerId);
 
-   
     await deletePlayerAssaultData(playerId);
     await deletePlayerHeadshots(playerId);
     await deletePlayerKills(playerId);
@@ -3575,21 +3483,22 @@ export async function deletePlayer(playerId){
     await deletePlayerRankingData(playerId);
     await deletePlayerCombogibData(playerId);
 
+    await deletePlayerMatchData(playerId);
+
     //only do these after match_date is deleted
     await reclaculateCountryTotals();
 
-    
 
+    for(const [mapId, gametypes] of Object.entries(uniquePlayed)){
 
-    //nstats_map_totals recalc totals
-    
-    
+        const gametypeIds = [...gametypes];
 
-    
+        for(let i = 0; i < gametypeIds.length; i++){
+            await recalculateMapTotals(gametypeIds[i], mapId);
+        }
+        
+    }
 
-    //nstats_player_matches player_id match_id
-    //nstats_player_totals id || player_id recalc
-
-
+    await deletePlayerTotals(playerId);
 
 }
