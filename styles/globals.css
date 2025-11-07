@@ -39,6 +39,13 @@
 	--padding-1:5px;
 	--padding-2:10px;
 	--font-small:12px;
+	
+	--team-color-none:rgba(0,0,0, 0.25);
+	--team-color-red:rgba(89,0,0,0.75);
+	--team-color-blue:rgba(20,61,116,0.75);
+	--team-color-green:rgba(0,66,0,0.75);
+	--team-color-yellow:rgba(95,95,0, 0.75);
+	
 }
 
 .color3{
@@ -279,26 +286,26 @@ tr:nth-child(odd):hover, tr:nth-child(even):hover{
 }
 
 .team-none{
-	background-color:rgba(0,0,0, 0.25);
+	background-color:var(--team-color-none);
 	
 }
 
 
 .team-red{
-	background-color:var(--red-2);
+	background-color:var(--team-color-red);
 }
 
 
 .team-blue{
-	background-color:rgba(20,61,116,0.75);
+	background-color:var(--team-color-blue);
 }
 
 .team-green{
-	background-color:rgba(0,66,0,0.75);
+	background-color:var(--team-color-green);
 }
 
 .team-yellow{
-	background-color:var(--yellow-2)
+	background-color:var(--team-color-yellow);
 }
 
 

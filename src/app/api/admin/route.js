@@ -12,7 +12,7 @@ import { adminMatchesSearch, adminDeleteMatch,
 import { getLogImportInfo } from "../../../../api/logs";
 import { getAllPlayerBasic, renamePlayer } from "../../../../api/players";
 import { deletePlayer } from "../../../../api/players";
-import { getAllSettings as getAllRankingSettings } from "../../../../api/rankings";
+import { getAllSettings as getAllRankingSettings, adminUpdateSettings as updateRankingValues } from "../../../../api/rankings";
 
 
 
@@ -304,6 +304,17 @@ export async function POST(req){
             const data = await getAllRankingSettings();
 
             return Response.json(data);
+        }
+
+        if(mode === "save-ranking-changes"){
+
+            const changed = res.data ?? null;
+
+            if(changed === null) throw new Error(`No data provided`);
+            
+            await updateRankingValues(changed);
+
+            return Response.json({"message": "ok"});
         }
 
         return Response.json({"error": "Unknown Request"});

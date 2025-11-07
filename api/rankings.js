@@ -42,7 +42,7 @@ export const DEFAULT_RANKING_VALUES = [
 	{"cat": "General","name":"spree_5","display_name":"Godlike","description":"Player killed 25 to 29 players in one life","value":1800},
 	{"cat": "General","name":"spree_6","display_name":"Too Easy","description":"Player killed 30 to 34 players in one life","value":2400},
 	{"cat": "General","name":"spree_7","display_name":"Brutalizing the competition","description":"Player killed 35 or more players in one life","value":3600},
-	{"cat": "Monster Hunt","name":"mh_kills","display_name":"Monster Kills(MonsterHunt)","description":"Player killed a monster","value":360},
+	{"cat": "Monster Hunt","name":"mh_kills","display_name":"Monster Kills","description":"Player killed a monster","value":360},
 	{"cat": "Penalty","name":"sub_hour_multiplier","display_name":"Sub 1 Hour Playtime Penalty Multiplier","description":"Reduce the player's score to a percentage of it's original value","value":0.2},
 	{"cat": "Penalty","name":"sub_2hour_multiplier","display_name":"Sub 2 Hour Playtime Penalty Multiplier","description":"Reduce the player's score to a percentage of it's original value","value":0.5},
 	{"cat": "Penalty","name":"sub_3hour_multiplier","display_name":"Sub 3 Hour Playtime Penalty Multiplier","description":"Reduce the player's score to a percentage of it's original value","value":0.75},
@@ -929,4 +929,16 @@ export async function getAllSettings(){
     const current = await simpleQuery(query);
 
     return {current, "defaultValues": DEFAULT_RANKING_VALUES}
+}
+
+
+export async function adminUpdateSettings(changes){
+
+    const query = `UPDATE nstats_ranking_values SET value=? WHERE id=?`;
+
+    for(let i = 0; i < changes.length; i++){
+
+        const c = changes[i];
+        await simpleQuery(query, [c.value, c.id]);
+    }
 }
