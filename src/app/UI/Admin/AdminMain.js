@@ -9,11 +9,12 @@ import AdminMapScreenshots from "./AdminMapScreenshots";
 import AdminFaces from "./AdminFaces";
 import AdminMatchesManager from "./AdminMatchesManager";
 import AdminPlayerManager from "./AdminPlayerManager";
+import AdminRankingManager from "./AdminRankingManager";
 
 
 export default function AdminMain({}){
 
-    const [mode, setMode] = useState("players");
+    const [mode, setMode] = useState("rankings");
 
     const options = [
         {"name": "Site Settings", "value": "page-settings"},
@@ -21,6 +22,7 @@ export default function AdminMain({}){
         {"name": "Logs Folder Settings", "value": "logs-folder"},
         {"name": "Player Manager", "value": "players"},
         {"name": "Matches Manager", "value": "matches"},
+        {"name": "Rankings Manager", "value": "rankings"},
         {"name": "Map Screenshots", "value": "map-sshots"},
         {"name": "Player Faces", "value": "faces"},
         {"name": "Clear Database", "value": "admin-clear-database"},
@@ -64,6 +66,10 @@ export default function AdminMain({}){
 
     if(mode === "players"){
         elems.push(<AdminPlayerManager key="matches"/>);
+    }
+
+    if(mode === "rankings"){
+        elems.push(<AdminRankingManager key="rankings"/>);
     }
 
     return <>

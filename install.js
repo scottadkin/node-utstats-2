@@ -789,6 +789,7 @@ const queries = [
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_ranking_values (
         id int(11) NOT NULL AUTO_INCREMENT,
+        cat varchar(255) NOT NULL,
         name varchar(30) NOT NULL,
         display_name varchar(75) NOT NULL,
         description varchar(250) NOT NULL,
@@ -1438,47 +1439,6 @@ const queries = [
       item_display_name varchar(100) NOT NULL,
       PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
 
-      `CREATE TABLE IF NOT EXISTS nstats_server_query(
-        id int(11) NOT NULL AUTO_INCREMENT,
-        ip varchar(100) NOT NULL,
-        port int(11) NOT NULL,
-        last_response DATETIME NOT NULL,
-        server_name varchar(100) NOT NULL,
-        gametype_name varchar(100) NOT NULL,
-        map_name varchar(100) NOT NULL,
-        current_players int(3) NOT NULL,
-        max_players int(3) NOT NULL,
-        PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-
-        `CREATE TABLE IF NOT EXISTS nstats_server_query_history(
-        id int(11) NOT NULL AUTO_INCREMENT,
-        server int(11) NOT NULL,
-        timestamp int(11) NOT NULL,
-        player_count int(3) NOT NULL,
-        map_id int(11) NOT NULL,
-        PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-  
-        `CREATE TABLE IF NOT EXISTS nstats_server_query_maps(
-        id int(11) NOT NULL AUTO_INCREMENT,
-        name varchar(100) NOT NULL,
-        PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-
-        `CREATE TABLE IF NOT EXISTS nstats_server_query_players(
-          id int(11) NOT NULL AUTO_INCREMENT,
-          server int(11) NOT NULL,
-          timestamp DATETIME NOT NULL,
-          name varchar(30) NOT NULL,
-          face varchar(100) NOT NULL,
-          country varchar(2) NOT NULL,
-          team int(3) NOT NULL,
-          ping int(11) NOT NULL,
-          time int(11) NOT NULL,
-          frags int(11) NOT NULL,
-          deaths int(11) NOT NULL,
-          spree int(11) NOT NULL, 
-          PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
-
-
           `CREATE TABLE IF NOT EXISTS nstats_hwid_to_name(
             id int(11) NOT NULL AUTO_INCREMENT,
             hwid varchar(32) NOT NULL,
@@ -1609,7 +1569,7 @@ async function bRankingValueExist(name){
 
 async function insertRankingValues(){
 
-	const query = `INSERT INTO nstats_ranking_values VALUES(NULL,?,?,?,?)`;
+	const query = `INSERT INTO nstats_ranking_values VALUES(NULL,?,?,?,?,?)`;
 
 	for(let i = 0; i < DEFAULT_RANKING_VALUES.length; i++){
 
@@ -1617,7 +1577,7 @@ async function insertRankingValues(){
 
 		if(!await bRankingValueExist(r.name)){
 
-			await simpleQuery(query, [r.name, r.display_name, r.description, r.value]);
+			await simpleQuery(query, [r.cat, r.name, r.display_name, r.description, r.value]);
 			new Message(`Inserted Ranking value for event: ${r.display_name} `, "pass");
 		}else{
 			new Message(`Ranking value for event: ${r.display_name} already exists`, "pass");

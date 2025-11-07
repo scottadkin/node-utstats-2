@@ -12,6 +12,7 @@ import { adminMatchesSearch, adminDeleteMatch,
 import { getLogImportInfo } from "../../../../api/logs";
 import { getAllPlayerBasic, renamePlayer } from "../../../../api/players";
 import { deletePlayer } from "../../../../api/players";
+import { getAllSettings as getAllRankingSettings } from "../../../../api/rankings";
 
 
 
@@ -296,6 +297,13 @@ export async function POST(req){
             await deletePlayer(playerId);
 
             return Response.json({"message": "passed"});
+        }
+
+        if(mode === "load-ranking-values"){
+
+            const data = await getAllRankingSettings();
+
+            return Response.json(data);
         }
 
         return Response.json({"error": "Unknown Request"});

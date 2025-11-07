@@ -108,6 +108,7 @@ function renderData(mode, selectedPowerup, data, cat){
         if(mode === "all" && (d.gametype_id !== 0 || d.map_id !== 0)) continue;
         if(mode === "gametypes" && (d.gametype_id === 0 || d.map_id !== 0)) continue;
         if(mode === "maps" && (d.gametype_id !== 0 || d.map_id === 0)) continue;
+        if(d.powerupName !== selectedPowerup) continue;
 
         let currentRow = {};
 
@@ -126,7 +127,7 @@ function renderData(mode, selectedPowerup, data, cat){
 
             currentRow = {
                 "mostUses": {"value": d.times_used_best, "displayValue": ignore0(d.times_used_best)},
-                "bestCarryTime": {"value": d.carry_time_best, "displayValue": ignore0(d.carry_time_best)},
+                "bestCarryTime": {"value": d.carry_time_best, "displayValue": toPlaytime(d.carry_time_best), "className": "date"},
                 "bestKills": {"value": d.best_kills, "displayValue": ignore0(d.best_kills)},
                 "bestSpree": {"value": d.best_kills_single_use, "displayValue": ignore0(d.best_kills_single_use)},
                 "bestCarrier": {"value": d.carrier_kills_best, "displayValue": ignore0(d.carrier_kills_best)},

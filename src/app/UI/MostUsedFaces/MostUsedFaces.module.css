@@ -1,0 +1,20 @@
+.wrapper{
+    display:inline-block;
+    background-color: var(--color-8);
+    margin-right:10px;
+    margin-bottom:10px;
+    max-width:300px; 
+    width:250px;
+    padding-top:10px;
+}
+
+.inner{
+    font-size:12px;
+    line-height:24px;
+    padding-bottom:5px;
+    color:var(--color-6);
+}
+
+.face img{
+    border:1px solid rgba(255,255,255,0.25);
+}

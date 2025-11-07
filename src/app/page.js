@@ -15,7 +15,7 @@ import PopularCountries from "./UI/Home/PopularCountries";
 import CountriesManager from "../../api/countriesmanager";
 import HomeGeneralStats from "./UI/Home/HomeGeneralStats";
 import BasicPlayers from "./UI/Home/BasicPlayers";
-import MostUsedFaces from "../../components/MostUsedFaces";
+import MostUsedFaces from "./UI/MostUsedFaces";
 import { getAllInMatch } from "../../api/players";
 import { getFacesWithFileStatuses, getMostUsed as getMostUsedFaces } from "../../api/faces";
 import MatchesDefaultView from "./UI/MatchesDefaultView";
