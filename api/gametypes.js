@@ -1027,3 +1027,15 @@ export async function recalculateGametypeTotals(gametypeId){
     return await simpleQuery(updateQuery, [r.first_match, r.last_match,r.total_matches,r.playtime, gametypeId]);
 
 }
+
+
+export async function getAllIds(){
+
+    const query = `SELECT id FROM nstats_gametypes`;
+
+    const result = await simpleQuery(query);
+
+    return result.map((r) =>{
+        return r.id;
+    });
+}

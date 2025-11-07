@@ -1,6 +1,6 @@
 import { simpleQuery } from "./database.js";
 import Message from "./message.js";
-import { getAllGametypeNames } from "./gametypes.js";
+import { getAllGametypeNames, getAllIds as getAllGametypeIds } from "./gametypes.js";
 import { getBasicPlayersByIds, getAllPlayersGametypeMatchData } from "./players.js";
 import { DEFAULT_MIN_DATE, toMysqlDate } from "./generic.mjs";
 
@@ -422,13 +422,6 @@ export default class Rankings{
     }
 
 
-    async deleteGametype(gametypeId){
-
-        const currentResult = await this.deleteGametypeCurrent(gametypeId);
-        const historyResult = await this.deleteGametypeHistory(gametypeId);
-
-        return {"deletedCurrentCount": currentResult.affectedRows, "deletedHistoryCount": historyResult.affectedRows};
-    }
     
     updateCurrentPlayerTotal(totals, data){
 
@@ -468,55 +461,6 @@ export default class Rankings{
         return player;
     }
 
-    async recalculateGametypeRankings(gametypesManager, gametypeId){
-
-        gametypeId = parseInt(gametypeId);
-
-        console.log(`Perform full recalculation of gametype rankings.`);
-
-        const deletedHistoryResult = await this.deleteGametypeHistory(gametypeId);
-        const deletedCurrentResult = await this.deleteGametypeCurrent(gametypeId);
-        
-        const data = await gametypesManager.getAllPlayerMatchData(gametypeId);
-
-        const currentTotals = {};
-        let insertedHistoryCount = 0;
-
-        for(let i = 0; i < data.length; i++){
-
-            const d = data[i];
-
-            const matchScore = this.calculateRanking(d);
-
-            const playerTotalData = this.updateCurrentPlayerTotal(currentTotals, d);
-            const totalScore = this.calculateRanking(playerTotalData);
-            
-
-            const rankingChange = totalScore - playerTotalData.previousScore;
-
-            await this.insertPlayerHistory(d.match_id, d.player_id, gametypeId, totalScore, matchScore, rankingChange);
-
-            insertedHistoryCount++;
-
-            playerTotalData.previousScore = totalScore;  
-            playerTotalData.rankingChange = rankingChange;
-        }
-
-        let insertedCurrentCount = 0;
-
-        for(const [playerId, data] of Object.entries(currentTotals)){
-
-            await this.insertPlayerCurrent(playerId, gametypeId, data.matches, data.playtime, data.previousScore, data.rankingChange);
-            insertedCurrentCount++;
-        }
-
-        return {
-            "deletedHistoryCount": deletedHistoryResult.affectedRows,
-            "deletedCurrentCount": deletedCurrentResult.affectedRows,
-            "insertedHistoryCount": insertedHistoryCount,
-            "insertedCurrentCount": insertedCurrentCount
-        };
-    }
 
 
     async updateEvent(name, displayName, description, value){
@@ -941,4 +885,52 @@ export async function adminUpdateSettings(changes){
         const c = changes[i];
         await simpleQuery(query, [c.value, c.id]);
     }
+}
+
+
+async function recalculateGametype(gametypeId, settings, generalColumns, ctfColumns){
+
+    //delete player current
+    //delete player history
+
+    const test = `SELECT match_id,match_date,player_id,${generalColumns.toString()} FROM nstats_player_matches WHERE gametype=?`;
+   // const 
+
+    const result = await simpleQuery(test, [gametypeId])
+
+    console.log(result);
+
+}
+
+export async function recalculateAll(){
+
+    const settings = await getAllSettings();
+
+    const generalColumns = [];
+    const ctfColumns = [];
+
+    const genCats = ["General", "Domination", "Assault"];
+
+    for(let i = 0; i < settings.current.length; i++){
+
+        const s = settings.current[i];
+        console.log(s);
+        if(genCats.indexOf(s.cat) !== -1) generalColumns.push(s.name);
+        if(s.cat === "Capture The Flag") ctfColumns.push(s.name);
+            
+       
+    }
+
+    console.log(generalColumns);
+    console.log(ctfColumns);
+
+    const gametypeIds = await getAllGametypeIds();
+
+    console.log(gametypeIds);
+
+    for(let i = 0; i < gametypeIds.length; i++){
+
+        await recalculateGametype(gametypeIds[i], settings, generalColumns, ctfColumns);
+    }
+
 }

@@ -22,6 +22,12 @@ function reducer(state, action){
                 "selectedCategory": action.value
             }
         }
+        case "set-tab": {
+            return {
+                ...state,
+                "selectedTab": action.value
+            }
+        }
         case "update-setting": {
 
             const settings = JSON.parse(JSON.stringify(state.settings));
@@ -164,20 +170,10 @@ function renderSaveChanges(state, dispatch, mDispatch){
     </div>
 }
 
-export default function AdminRankingManager(){
 
-    const [state, dispatch] = useReducer(reducer, {
-        "selectedCategory": "General",
-        "settings": [],
-        "savedSettings": [],
-        "defaultSettings": []
-    });
+function renderSettingsManager(state, dispatch, mState, mDispatch){
 
-    const [mState, mDispatch] = useMessageBoxReducer();
-
-    useEffect(() =>{
-        loadSettings(dispatch, mDispatch);
-    }, []);
+    if(state.selectedTab !== "settings") return null;
 
     const uniqueCats = new Set();
 
@@ -191,13 +187,75 @@ export default function AdminRankingManager(){
         return {"name": c, "value": c};
     });
 
-    return <>
-        <div className="default-header">Ranking Manager</div>
-        <Tabs options={tabOptions} selectedValue={state.selectedCategory} changeSelected={(v) =>{
+    return <><Tabs options={tabOptions} selectedValue={state.selectedCategory} changeSelected={(v) =>{
             dispatch({"type": "set-category", "value": v});
         }}/>
         <MessageBox type={mState.type} title={mState.title} timestamp={mState.timestamp}>{mState.content}</MessageBox>
         {renderSaveChanges(state, dispatch, mDispatch)}
-        {renderOptions(state, dispatch)}
+        {renderOptions(state, dispatch)}</>
+}
+
+
+async function recalculateRankings(dispatch){
+
+    try{
+
+        const req = await fetch("/api/admin", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "recalculate-rankings"})
+        });
+
+        const res = await req.json();
+
+        console.log(res);
+
+    }catch(err){
+        console.trace(err);
+    }
+}
+
+function renderRecalculate(state, dispatch, mDispatch){
+
+    if(state.selectedTab !== "recalculate") return null;
+
+    return <div className="form">
+        <div className="form-info">
+            Once you have modified ranking values you need to use this tools to update all the existing player rankings.
+        </div>
+        <button className="search-button" onClick={() =>{
+            recalculateRankings(dispatch)
+        }}>Recalculate Player Rankings</button>
+    </div>
+}
+
+export default function AdminRankingManager(){
+
+    const [state, dispatch] = useReducer(reducer, {
+        "selectedTab": "settings",
+        "selectedCategory": "General",
+        "settings": [],
+        "savedSettings": [],
+        "defaultSettings": []
+    });
+
+    const [mState, mDispatch] = useMessageBoxReducer();
+
+    useEffect(() =>{
+        loadSettings(dispatch, mDispatch);
+    }, []);
+
+    
+
+    return <>
+        <div className="default-header">Ranking Manager</div>
+        <Tabs options={[
+            {"name": "Event Values", "value": "settings"},
+            {"name": "Recalculate Rankings", "value": "recalculate"},
+        ]} selectedValue={state.selectedTab} changeSelected={(v) =>{
+            dispatch({"type": "set-tab", "value": v});
+        }}/>
+        {renderSettingsManager(state, dispatch,mState, mDispatch)}
+        {renderRecalculate(state, dispatch, mDispatch)}
     </>
 }
