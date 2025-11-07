@@ -651,6 +651,5 @@ export async function getPlayerProfileData(playerId){
 
         r.powerupName = powerupNames[r.powerup_id] ?? "Not Found";
     }
-
     return result;
 }
