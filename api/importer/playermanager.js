@@ -11,6 +11,7 @@ import TeamsManager from "./teamsmanager.js";
 import SpreeManager  from "./spreemanager.js";
 import {scalePlaytime} from "../functions.js";
 import { updatePlayerWinrates } from "../winrate.js";
+import { updatePlayerRankings } from "../rankings.js";
 
 export default class PlayerManager{
 
@@ -1895,20 +1896,35 @@ export default class PlayerManager{
         
     }
 
-    async updateRankings(rankingsManager, gametypeId, matchId){
+    async updateRankings(rankingsManager, gametypeId, matchId, matchDate){
 
+        const start = performance.now();
+
+        const playerIds = [];
+    
         for(let i = 0; i < this.players.length; i++){
 
             const p = this.players[i];
 
-            if(p.bBot){
-                if(this.bIgnoreBots) continue;
-            }
+            if(p.bBot && this.bIgnoreBots) continue;
+            
+            playerIds.push(p.masterId);
 
-            if(p.stats.time_on_server > 0){
-                await rankingsManager.updatePlayerRankings(Player, p.masterId, gametypeId, matchId);    
-            }
+            //if(p.stats.time_on_server > 0){
+               // await rankingsManager.updatePlayerRankings(Player, p.masterId, gametypeId, matchId);    
+            //}
         }
+
+
+        await updatePlayerRankings(gametypeId, matchId, matchDate, playerIds);
+
+        console.log(playerIds);
+
+        const end = performance.now();
+
+        const diff = (end - start) * 0.001;
+        console.log(diff);
+        process.exit();
     }
 
     ignoreWarmpup(timestamp){

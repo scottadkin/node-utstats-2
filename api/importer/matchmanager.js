@@ -478,7 +478,7 @@ export default class MatchManager{
 
             //need to get player current totals then add them to the scores
             new Message("Updating player rankings.","note");
-            await this.playerManager.updateRankings(this.rankingsManager, this.gametype.currentMatchGametype, this.matchId);
+            await this.playerManager.updateRankings(this.rankingsManager, this.gametype.currentMatchGametype, this.matchId, this.serverInfo.date);
 
 
             //map + gametype totals

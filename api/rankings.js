@@ -219,70 +219,6 @@ export default class Rankings{
 
     }
 
-    async updatePlayerRankings(playerManager, playerId, gametypeId, matchId){
-
-        const playerMatchData = await playerManager.getMatchData(playerId, matchId);;
-
-        if(playerMatchData === null){
-            new Message(`Rankings.updatePlayerRankings() playerMatchData is null!`, "error");
-            return;
-        }
-
-
-        if(playerMatchData.playtime === undefined){
-            new Message(`Rankings.updatePlayerRankings() playtime is undefined!`, "error");
-            return;
-        }
-
-        const playtime = playerMatchData.playtime;
-
-        const playerTotalData = await playerManager.getPlayerGametypeTotals(playerId, gametypeId);
-
-        const newGametypeRanking = this.calculateRanking(playerTotalData);
-        const matchRankingScore = this.calculateRanking(playerMatchData);
-
-        if(!await this.playerCurrentRankingExists(playerId, gametypeId)){
-
-            await this.insertPlayerCurrent(playerId, gametypeId, 1, playtime, newGametypeRanking, newGametypeRanking);
-            await this.insertPlayerHistory(matchId, playerId, gametypeId, newGametypeRanking, matchRankingScore, 0);
-
-        }else{
-       
-
-            const previousGametypeRanking = await this.getPlayerGametypeRanking(playerId, gametypeId);
-            
-            const rankingDiff = newGametypeRanking - previousGametypeRanking;
-
-            await this.updatePlayerCurrentQuery(playerId, gametypeId, playtime, newGametypeRanking, rankingDiff);
-
-            await this.insertPlayerHistory(matchId, playerId, gametypeId, newGametypeRanking, matchRankingScore, rankingDiff);
-        }
-    }
-
-    async playerCurrentRankingExists(playerId, gametypeId){
-
-        const query = "SELECT COUNT(*) as total_players FROM nstats_ranking_player_current WHERE player_id=? AND gametype=?";
-
-        const result = await simpleQuery(query, [playerId, gametypeId]);
-
-        if(result.length > 0){
-
-            if(result[0].total_players > 0){
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    async insertPlayerHistory(matchId, playerId, gametypeId, ranking, matchRanking, rankingChange){
-
-        const query = "INSERT INTO nstats_ranking_player_history VALUES(NULL,?,?,?,?,?,?)";
-
-        const vars = [matchId, playerId, gametypeId, ranking, matchRanking, rankingChange];
-
-        await simpleQuery(query, vars);
-    }
 
     calculateRanking(data){
 
@@ -918,7 +854,7 @@ export async function adminUpdateSettings(changes){
 }
 
 
-function applyTimePenalty(data, settings, currentScore, playtime){
+function applyTimePenalty(settings, currentScore, playtime){
 
 
     if(playtime > 0 && currentScore > 0){
@@ -1005,12 +941,12 @@ function calculateRanking(data, settings, generalColumns, ctfColumns){
     //score without time penalties and other reduction
     const totalScore = currentScore;
 
-    currentScore = applyTimePenalty(data, settings, currentScore, data.playtime);
+    currentScore = applyTimePenalty(settings, currentScore, data.playtime);
 
     return {
         "matchId": data.match_id, 
         "matchDate": data.match_date, 
-        "matchScore": currentScore, 
+        "currentScore": currentScore, 
         "playtime": data.playtime,
         "totalScore": totalScore
     };
@@ -1058,7 +994,7 @@ async function bulkInsertGametypeRecalcData(gametypeId, data){
 
             historyVars.push([
                 r.matchId, playerId, gametypeId,
-                r.rankingAfterMatch, r.matchScore, r.rankingChange
+                r.rankingAfterMatch, r.currentScore, r.rankingChange
             ]);
         }
     }
@@ -1113,12 +1049,12 @@ async function recalculateGametype(gametypeId, settings, generalColumns, ctfColu
 
         if(previousResult === undefined){
 
-            players[r.player_id].rankingChange = matchResult.matchScore;
+            players[r.player_id].rankingChange = matchResult.currentScore;
             players[r.player_id].latestDate = matchResult.matchDate;
 
         }else{
 
-            const diff = matchResult.matchScore - previousResult.matchScore;
+            const diff = matchResult.currentScore - previousResult.currentScore;
             players[r.player_id].rankingChange = diff;
 
             if(matchResult.matchDate > players[r.player_id].latestDate){
@@ -1126,14 +1062,14 @@ async function recalculateGametype(gametypeId, settings, generalColumns, ctfColu
             }
         }
 
-        matchResult.rankingChange = matchResult.matchScore;
+        matchResult.rankingChange = matchResult.currentScore;
 
         players[r.player_id].playtime += matchResult.playtime;
         players[r.player_id].matchResults.push(matchResult);
 
         players[r.player_id].totalScore += matchResult.totalScore;
 
-        const finalScore = applyTimePenalty(players[r.player_id], settings, players[r.player_id].totalScore,  players[r.player_id].playtime);
+        const finalScore = applyTimePenalty(settings, players[r.player_id].totalScore,  players[r.player_id].playtime);
         
 
         players[r.player_id].score = finalScore;
@@ -1145,10 +1081,7 @@ async function recalculateGametype(gametypeId, settings, generalColumns, ctfColu
     await bulkInsertGametypeRecalcData(gametypeId, players);
 }
 
-export async function recalculateAll(){
-
-    const settings = await getAllSettings(true);
-
+function splitGeneralCTFColumns(settings){
 
     const mustExist = ["Capture The Flag", "General", "Domination", "Assault", "Monster Hunt"];
 
@@ -1172,13 +1105,171 @@ export async function recalculateAll(){
         return s.name;
     });
 
+    return {generalColumns, ctfColumns};
+}
+
+export async function recalculateAll(){
+
+    const settings = await getAllSettings(true);
+
+    const {generalColumns, ctfColumns} = splitGeneralCTFColumns(settings);
 
     const gametypeIds = await getAllGametypeIds();
-;
+
 
     for(let i = 0; i < gametypeIds.length; i++){
 
         await recalculateGametype(gametypeIds[i], settings, generalColumns, ctfColumns);
     }
+}
 
+async function getMultiplePlayerCurrent(gametypeId, playerIds){
+
+    const query = `SELECT player_id,matches,playtime,ranking FROM nstats_ranking_player_current WHERE gametype=? AND player_id IN(?)`;
+    const result = await simpleQuery(query, [gametypeId, playerIds]);
+
+    const data = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        data[r.player_id] = {
+            "matches": r.matches,
+            "playtime": r.playtime,
+            "ranking": parseFloat(r.ranking)
+        };
+    }
+
+    return data;
+}
+
+async function insertPlayerHistory(data, gametypeId){
+
+    const insertVars = [];
+
+    const query = `INSERT INTO nstats_ranking_player_history (match_id, player_id, gametype,
+    ranking, match_ranking, ranking_change) VALUES ?`;
+
+    for(const [playerId, pData] of Object.entries(data)){
+
+        insertVars.push([
+            pData.matchId, playerId, gametypeId,
+            pData.currentScore, pData.matchScore,
+            pData.rankingChange
+        ]);
+    }
+
+    console.log(insertVars);
+
+    await bulkInsert(query, insertVars);
+}
+
+async function calcMatchScores(matchId, settings, generalColumns, ctfColumns){
+
+    const gColoumns = generalColumns.map((r) =>{ return `nstats_player_matches.${r}`});
+    const cColoumns = ctfColumns.map((r) =>{ return `nstats_player_ctf_match.${r}`});
+
+    const query = `SELECT nstats_player_matches.player_id,${gColoumns.toString()},${cColoumns.toString()} FROM nstats_player_matches
+    LEFT JOIN nstats_player_ctf_match ON nstats_player_ctf_match.match_id = nstats_player_matches.match_id 
+    AND nstats_player_ctf_match.player_id = nstats_player_matches.player_id
+    WHERE nstats_player_matches.match_id=?
+    `;
+
+
+    const result = await simpleQuery(query, [matchId]);
+
+    const scores = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        scores[r.player_id] = calculateRanking(r, settings, generalColumns, ctfColumns);
+    }
+
+
+    return scores;
+}
+
+async function updatePlayers(gametypeId, playerIds, settings, generalColumns, ctfColumns, matchId, matchDate){
+
+    const gColoumns = generalColumns.map((r) =>{ return `nstats_player_totals.${r}`});
+    const cColoumns = ctfColumns.map((r) =>{ return `nstats_player_ctf_totals.${r}`});
+
+
+    const matchScores = await calcMatchScores(matchId, settings, generalColumns, ctfColumns);
+
+    console.log(matchScores);
+
+
+    const query = `SELECT nstats_player_totals.player_id,nstats_player_totals.playtime,nstats_player_totals.matches,
+    ${gColoumns.toString()},${cColoumns.toString()} FROM nstats_player_totals 
+    LEFT JOIN nstats_player_ctf_totals ON nstats_player_ctf_totals.player_id = nstats_player_totals.player_id AND 
+    nstats_player_ctf_totals.gametype_id = nstats_player_totals.gametype
+    
+    WHERE nstats_player_totals.player_id IN (?) AND nstats_player_totals.gametype=?`;
+
+    const result = await simpleQuery(query, [playerIds, gametypeId]);
+
+    console.log(query);
+    console.log(result);
+
+
+    const currentPlayerRankings = await getMultiplePlayerCurrent(gametypeId, playerIds);
+
+    console.log(currentPlayerRankings);
+
+    const players = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        
+
+        //lazy...
+        r.match_date = matchDate;
+        r.match_id = matchId;
+
+        players[r.player_id] = calculateRanking(r, settings, generalColumns, ctfColumns);
+
+        const currentScore = matchScores?.[r.player_id]?.currentScore ?? 0;
+        players[r.player_id].matchScore = currentScore;
+
+   
+        players[r.player_id].rankingChange = currentScore;
+
+        if(currentPlayerRankings[r.player_id] !== undefined){
+
+            const old = currentPlayerRankings[r.player_id].ranking;
+
+            const diff = currentScore - old;
+            players[r.player_id].rankingChange = diff;
+        }
+
+       
+
+    }
+
+    console.log(players);
+    //process.exit();
+    
+    //process.exit();
+
+    await insertPlayerHistory(players, gametypeId);
+}
+
+export async function updatePlayerRankings(gametypeId, matchId, matchDate, playerIds){
+
+    if(playerIds.length === 0) return;
+
+    const settings = await getAllSettings(true);
+
+    const {generalColumns, ctfColumns} = splitGeneralCTFColumns(settings);
+
+    console.log(settings);
+
+    console.log(generalColumns);
+    console.log(ctfColumns);
+
+    await updatePlayers(gametypeId, playerIds, settings, generalColumns, ctfColumns, matchId, matchDate);
 }
