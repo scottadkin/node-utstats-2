@@ -773,8 +773,8 @@ const queries = [
         gametype int(11) NOT NULL,
         matches int(11) NOT NULL,
         playtime float NOT NULL,
-        ranking Decimal(10,4) NOT NULL,
-        ranking_change Decimal(10,4) NOT NULL,
+        ranking Decimal(16,2) NOT NULL,
+        ranking_change Decimal(16,2) NOT NULL,
         last_active DATETIME NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_ranking_player_history (
@@ -782,9 +782,9 @@ const queries = [
         match_id int(11) NOT NULL,
         player_id int(11) NOT NULL,
         gametype int(11) NOT NULL,
-        ranking Decimal(10,4) NOT NULL,
-        match_ranking Decimal(10,4) NOT NULL,
-        ranking_change Decimal(10,4) NOT NULL
+        ranking Decimal(16,2) NOT NULL,
+        match_ranking Decimal(16,2) NOT NULL,
+        ranking_change Decimal(16,2) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_ranking_values (
         id int(11) NOT NULL AUTO_INCREMENT,

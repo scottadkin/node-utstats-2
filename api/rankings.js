@@ -737,14 +737,14 @@ export async function getRankingData(gametypeId, page, perPage, lastActive, minP
 
 async function getMatchRankingChanges(matchId){
 
-    const query = "SELECT player_id,ranking,match_ranking,ranking_change,match_ranking_change FROM nstats_ranking_player_history WHERE match_id=?";
+    const query = "SELECT player_id,ranking,match_ranking,ranking_change FROM nstats_ranking_player_history WHERE match_id=?";
     return await simpleQuery(query, [matchId]);
 }
 
 
 async function getPlayerMatchRankingChange(matchId, playerId){
 
-    const query = `SELECT ranking,match_ranking,ranking_change,match_ranking_change 
+    const query = `SELECT ranking,match_ranking,ranking_change 
     FROM nstats_ranking_player_history WHERE match_id=? AND player_id=?`;
 
     const result = await simpleQuery(query, [matchId, playerId]);
@@ -918,7 +918,19 @@ export async function adminUpdateSettings(changes){
 }
 
 
-function applyTimePenalty(data, settings, currentScore){
+function applyTimePenalty(data, settings, currentScore, playtime){
+
+
+    if(playtime > 0 && currentScore > 0){
+
+        const mins = playtime / 60;
+
+        if(mins > 0){
+            currentScore = currentScore / mins;
+        }else{
+            currentScore = -99999;
+        }
+    }
 
     let subHalfHourPenalty = 0;
     let subHourPenalty = 0;
@@ -935,13 +947,13 @@ function applyTimePenalty(data, settings, currentScore){
         if(s.name === "sub_3hour_multiplier") sub3HourPenalty = parseFloat(s.value);
     }
 
-    if(data.playtime < 60 * 30){     
+    if(playtime < 60 * 30){     
         currentScore = currentScore * subHalfHourPenalty;
-    }else if(data.playtime >= 60 * 30 && data.playtime < 60 * 60){
+    }else if(playtime >= 60 * 30 && playtime < 60 * 60){
         currentScore = currentScore * subHourPenalty;
-    }else if(data.playtime >= 60 * 60 && data.playtime < 60 * 120){
+    }else if(playtime >= 60 * 60 && playtime < 60 * 120){
         currentScore = currentScore * sub2HourPenalty;
-    }else if(data.playtime >= 60 * 120 && data.playtime < 60 * 180){
+    }else if(playtime >= 60 * 120 && playtime < 60 * 180){
         currentScore = currentScore * sub3HourPenalty;
     }
 
@@ -993,20 +1005,7 @@ function calculateRanking(data, settings, generalColumns, ctfColumns){
     //score without time penalties and other reduction
     const totalScore = currentScore;
 
-    if(data.playtime > 0 && currentScore > 0){
-
-        const mins = data.playtime / 60;
-
-        if(mins > 0){
-            currentScore = currentScore / mins;
-        }else{
-            currentScore = -99999;
-        }
-    }
-
-
-    currentScore = applyTimePenalty(data, settings, currentScore);
-
+    currentScore = applyTimePenalty(data, settings, currentScore, data.playtime);
 
     return {
         "matchId": data.match_id, 
@@ -1015,13 +1014,19 @@ function calculateRanking(data, settings, generalColumns, ctfColumns){
         "playtime": data.playtime,
         "totalScore": totalScore
     };
-
 }
 
 
 async function deleteGametypeCurrent(gametypeId){
 
     const query = `DELETE FROM nstats_ranking_player_current WHERE gametype=?`;
+
+    return await simpleQuery(query, [gametypeId]);
+}
+
+async function deleteGametypeHistory(gametypeId){
+
+    const query = `DELETE FROM nstats_ranking_player_history WHERE gametype=?`;
 
     return await simpleQuery(query, [gametypeId]);
 }
@@ -1035,23 +1040,36 @@ async function bulkInsertGametypeRecalcData(gametypeId, data){
         INSERT INTO nstats_ranking_player_current (player_id,gametype,matches,playtime,ranking,ranking_change,last_active) VALUES ?
     `;
 
+    const historyQuery = `
+        INSERT INTO nstats_ranking_player_history (
+        match_id, player_id, gametype, ranking, match_ranking, ranking_change) VALUES ?
+    `;
+
     for(const [playerId, playerData] of Object.entries(data)){
 
         currentRankingVars.push([
-            playerId, gametypeId, playerData.matchResults.length, playerData.playtime, playerData.score, playerData.rankingChange, toMysqlDate(playerData.latestDate)
+            playerId, gametypeId, playerData.matchResults.length, playerData.playtime, 
+            playerData.score, playerData.rankingChange, toMysqlDate(playerData.latestDate)
         ]);
+
+        for(let i = 0; i < playerData.matchResults.length; i++){
+
+            const r = playerData.matchResults[i];
+
+            historyVars.push([
+                r.matchId, playerId, gametypeId,
+                r.rankingAfterMatch, r.matchScore, r.rankingChange
+            ]);
+        }
     }
 
     await bulkInsert(currentQuery, currentRankingVars);
+    await bulkInsert(historyQuery, historyVars)
 
 
 }
 
 async function recalculateGametype(gametypeId, settings, generalColumns, ctfColumns){
-
-    //delete player current
-    //delete player history
-
 
     const gColoumns = generalColumns.map((c) =>{
         return `nstats_player_matches.${c}`;
@@ -1108,19 +1126,22 @@ async function recalculateGametype(gametypeId, settings, generalColumns, ctfColu
             }
         }
 
-        matchResult.ranking_change = matchResult.matchScore;
+        matchResult.rankingChange = matchResult.matchScore;
 
         players[r.player_id].playtime += matchResult.playtime;
         players[r.player_id].matchResults.push(matchResult);
 
         players[r.player_id].totalScore += matchResult.totalScore;
-        players[r.player_id].score = applyTimePenalty(players[r.player_id], settings, players[r.player_id].totalScore);
 
+        const finalScore = applyTimePenalty(players[r.player_id], settings, players[r.player_id].totalScore,  players[r.player_id].playtime);
+        
+
+        players[r.player_id].score = finalScore;
+        matchResult.rankingAfterMatch = finalScore;
     }
 
-    console.log(players);
-
     await deleteGametypeCurrent(gametypeId);
+    await deleteGametypeHistory(gametypeId);
     await bulkInsertGametypeRecalcData(gametypeId, players);
 }
 
@@ -1152,10 +1173,8 @@ export async function recalculateAll(){
     });
 
 
-
     const gametypeIds = await getAllGametypeIds();
-
-    console.log(gametypeIds);
+;
 
     for(let i = 0; i < gametypeIds.length; i++){
 
