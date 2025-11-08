@@ -23,9 +23,9 @@ export const DEFAULT_RANKING_VALUES = [
 	{"cat": "Capture The Flag","name":"flag_self_cover","display_name":"Flag Self Cover","description":"Player killed an enemy while carrying the flag","value":600},
 	{"cat": "Capture The Flag","name":"flag_self_cover_pass","display_name":"Successful Flag Self Cover","description":"Player killed an enemy while carrying the flag that was later capped","value":1000},
 	{"cat": "Capture The Flag","name":"flag_self_cover_fail","display_name":"Failed Flag Self Cover","description":"Player killed an enemy while carrying the flag, but the flag was returned","value":-600},
-	{"cat": "Capture The Flag","name":"flag_multi_cover","display_name":"Flag Multi Cover","description":"Player covered the flag carrier 3 times while the enemy flag was taken one time","value":3600},
-	{"cat": "Capture The Flag","name":"flag_spree_cover","display_name":"Flag Cover Spree","description":"Player covered the flag carrier 4 or more times while the enemy flag was taken one time","value":4200},
-	{"cat": "Capture The Flag","name":"flag_save","display_name":"Flag Close Save","description":"Player returned their flag that was close to being capped by the enemy team","value":4000},
+	{"cat": "Capture The Flag","name":"flag_cover_multi","display_name":"Flag Multi Cover","description":"Player covered the flag carrier 3 times while the enemy flag was taken one time","value":3600},
+	{"cat": "Capture The Flag","name":"flag_cover_spree","display_name":"Flag Cover Spree","description":"Player covered the flag carrier 4 or more times while the enemy flag was taken one time","value":4200},
+	{"cat": "Capture The Flag","name":"flag_return_save","display_name":"Flag Close Save","description":"Player returned their flag that was close to being capped by the enemy team","value":4000},
 	{"cat": "Domination","name":"dom_caps","display_name":"Domination Control Point Caps","description":"Player captured a contol point.","value":6000},
 	{"cat": "Assault","name":"assault_objectives","display_name":"Assault Objectives","description":"Player captured an assault objective.","value":6000},
 	{"cat": "General","name":"multi_1","display_name":"Double Kill","description":"Player killed 2 people in a short amount of time without dying","value":100},
@@ -866,11 +866,41 @@ export async function deletePlayerData(playerId){
     }
 }
 
-export async function getAllSettings(){
+export async function getAllSettings(bReturnJustCurrentObject){
+
+    if(bReturnJustCurrentObject === undefined){
+        bReturnJustCurrentObject = false;
+    }
 
     const query = `SELECT * FROM nstats_ranking_values`;
 
     const current = await simpleQuery(query);
+
+    if(bReturnJustCurrentObject){
+
+        const data = {};
+
+        for(let i = 0; i < current.length; i++){
+
+            const c = current[i];
+
+            if(data[c.cat] === undefined){
+                data[c.cat] = [];
+            }
+
+            data[c.cat].push(
+                {
+                    "id": c.id,
+                    "name": c.name,
+                    "display_name": c.display_name,
+                    "description": c.description,
+                    "value": c.value
+                }
+            );
+        }
+
+        return data;
+    }
 
     return {current, "defaultValues": DEFAULT_RANKING_VALUES}
 }
@@ -888,41 +918,105 @@ export async function adminUpdateSettings(changes){
 }
 
 
+async function calculateRanking(data, settings, generalColumns, ctfColumns){
+
+
+    let bSkipCTF = true;
+
+    for(let i = 0; i < ctfColumns.length; i++){
+
+        if(data[ctfColumns[i]] !== null){
+            bSkipCTF = false;
+            break;
+        }
+    }
+
+    let currentScore = 0;
+
+
+    /*for(let i = 0; i < settings.length; i++){
+
+        const s = settings[i];
+
+        const cat = s.cat;
+
+        if(cat === "General"){
+            console.log(s.name);
+            continue;
+        }
+    }*/
+    //console.log(settings);
+
+}
+
 async function recalculateGametype(gametypeId, settings, generalColumns, ctfColumns){
 
     //delete player current
     //delete player history
 
-    const test = `SELECT match_id,match_date,player_id,${generalColumns.toString()} FROM nstats_player_matches WHERE gametype=?`;
+
+    const gColoumns = generalColumns.map((c) =>{
+        return `nstats_player_matches.${c}`;
+    });
+
+    const cColumns = ctfColumns.map((c) =>{
+        return `nstats_player_ctf_match.${c}`;
+    });
+
+    const query = `SELECT nstats_player_matches.match_id,
+    nstats_player_matches.match_date,
+    nstats_player_matches.player_id,${gColoumns.toString()},${cColumns.toString()} FROM nstats_player_matches 
+    LEFT JOIN nstats_player_ctf_match ON nstats_player_ctf_match.player_id = nstats_player_matches.player_id AND 
+    nstats_player_ctf_match.match_id = nstats_player_matches.match_id
+    WHERE gametype=? ORDER BY match_date ASC`;
    // const 
 
-    const result = await simpleQuery(test, [gametypeId])
+    const result = await simpleQuery(query, [gametypeId])
 
-    console.log(result);
+    //if(gametypeId === 9){
+      //  console.log(result);
+        //console.log(test);
+       // console.log(result.length);
+    //}
+    console.log(result.length);
+   // console.log(result);
 
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        calculateRanking(r, settings, generalColumns, ctfColumns);
+    }
 }
 
 export async function recalculateAll(){
 
-    const settings = await getAllSettings();
+    const settings = await getAllSettings(true);
 
-    const generalColumns = [];
-    const ctfColumns = [];
 
-    const genCats = ["General", "Domination", "Assault"];
+    const mustExist = ["Capture The Flag", "General", "Domination", "Assault", "Monster Hunt"];
 
-    for(let i = 0; i < settings.current.length; i++){
+    for(let i = 0; i < mustExist.length; i++){
 
-        const s = settings.current[i];
-        console.log(s);
-        if(genCats.indexOf(s.cat) !== -1) generalColumns.push(s.name);
-        if(s.cat === "Capture The Flag") ctfColumns.push(s.name);
-            
-       
+        if(settings[mustExist[i]] === undefined){
+            throw new Error(`Could not find ranking settings category ${mustExist[i]}`);
+        }
     }
 
-    console.log(generalColumns);
-    console.log(ctfColumns);
+    const generalColumns = settings["General"].map((s) =>{
+        return s.name;
+    });
+
+    generalColumns.push(...settings["Domination"].map((s) => s.name));
+    generalColumns.push(...settings["Assault"].map((s) => s.name));
+    generalColumns.push(...settings["Monster Hunt"].map((s) => s.name));
+
+
+    const ctfColumns = settings["Capture The Flag"].map((s) =>{
+        return s.name;
+    });
+
+
 
     const gametypeIds = await getAllGametypeIds();
 
