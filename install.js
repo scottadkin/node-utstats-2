@@ -784,8 +784,7 @@ const queries = [
         gametype int(11) NOT NULL,
         ranking Decimal(10,4) NOT NULL,
         match_ranking Decimal(10,4) NOT NULL,
-        ranking_change Decimal(10,4) NOT NULL,
-        match_ranking_change Decimal(10,4) NOT NULL
+        ranking_change Decimal(10,4) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_ranking_values (
         id int(11) NOT NULL AUTO_INCREMENT,
