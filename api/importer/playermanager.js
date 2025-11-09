@@ -1896,9 +1896,7 @@ export default class PlayerManager{
         
     }
 
-    async updateRankings(rankingsManager, gametypeId, matchId, matchDate){
-
-        const start = performance.now();
+    async updateRankings(gametypeId, matchId, matchDate){
 
         const playerIds = [];
     
@@ -1908,23 +1906,16 @@ export default class PlayerManager{
 
             if(p.bBot && this.bIgnoreBots) continue;
             
-            playerIds.push(p.masterId);
+            
 
-            //if(p.stats.time_on_server > 0){
-               // await rankingsManager.updatePlayerRankings(Player, p.masterId, gametypeId, matchId);    
-            //}
+            if(p.stats.time_on_server > 0){
+                playerIds.push(p.masterId);
+            }
         }
 
 
         await updatePlayerRankings(gametypeId, matchId, matchDate, playerIds);
 
-        console.log(playerIds);
-
-        const end = performance.now();
-
-        const diff = (end - start) * 0.001;
-        console.log(diff);
-        process.exit();
     }
 
     ignoreWarmpup(timestamp){

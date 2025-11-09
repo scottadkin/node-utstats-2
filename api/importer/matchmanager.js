@@ -18,7 +18,6 @@ import SpawnManager from "./spawnmanager.js";
 import WeaponsManager from "./weaponsmanager.js";
 import ItemsManager from "./itemsmanager.js";
 import CountriesManager from "./countriesmanager.js";
-import Rankings from "../rankings.js";
 import MonsterHuntManager from "./monsterhuntmanager.js";
 import CombogibManager from "./combogibmanager.js";
 import geoip from "geoip-lite";
@@ -471,14 +470,8 @@ export default class MatchManager{
             }
 
             
-
-            this.rankingsManager = new Rankings();
-
-            await this.rankingsManager.init();
-
-            //need to get player current totals then add them to the scores
             new Message("Updating player rankings.","note");
-            await this.playerManager.updateRankings(this.rankingsManager, this.gametype.currentMatchGametype, this.matchId, this.serverInfo.date);
+            await this.playerManager.updateRankings(this.gametype.currentMatchGametype, this.matchId, this.serverInfo.date);
 
 
             //map + gametype totals
