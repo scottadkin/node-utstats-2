@@ -14,6 +14,7 @@ import { getAllPlayerBasic, renamePlayer } from "../../../../api/players";
 import { deletePlayer } from "../../../../api/players";
 import { getAllSettings as getAllRankingSettings, adminUpdateSettings as updateRankingValues, 
     recalculateAll as recalculateAllRankings } from "../../../../api/rankings";
+import { getAll as getAllItems, ITEM_TYPES, saveItemChanges } from "../../../../api/items";
 
 
 
@@ -322,6 +323,22 @@ export async function POST(req){
 
             await recalculateAllRankings();
             return Response.json({"message": "ok"});
+        }
+
+        if(mode === "get-items"){
+
+            const items = await getAllItems();
+            return Response.json({"data": items, "types": ITEM_TYPES});
+        }
+
+        if(mode === "save-item-changes"){
+
+            const data = res.data ?? null;
+
+            if(data === null) throw new Error(`No data provided`);
+
+            await saveItemChanges(data);
+            return Response.json({"message": "passed"});
         }
 
         return Response.json({"error": "Unknown Request"});

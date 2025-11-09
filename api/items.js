@@ -3,6 +3,14 @@ import { DEFAULT_DATE, DEFAULT_MIN_DATE, toMysqlDate } from "./generic.mjs";
 import { getObjectName } from "./genericServerSide.mjs";
 import Message from "./message.js";
 
+export const ITEM_TYPES = {
+    "0": "Unsorted",
+    "1": "Weapon",
+    "2": "Ammo",
+    "3": "Health/Armour",
+    "4": "Powerup",
+    "5": "Special"
+};
 
 export const DEFAULT_ITEMS = [
     {"name":"AntiGrav Boots","display_name":"Jump Boots","type":4},
@@ -32,7 +40,7 @@ export const DEFAULT_ITEMS = [
 	{"name":"ShieldBelt","display_name":"Shield Belt","type":4},
 	{"name":"Shock Rifle","display_name":"Shock Rifle","type":1},
 	{"name":"Sniper Rifle","display_name":"Sniper Rifle","type":1},
-	{"name":"Super Health Pack","display_name":"Super Health Pack","type":4},
+	{"name":"Super Health Pack","display_name":"Super Health Pack","type":3},
 	{"name":"Thigh Pads","display_name":"Thigh Pads","type":3},
 	{"name":"Ammor Percing Slugs Pads","display_name":"Armor Percing Slugs","type":2},
 	{"name":"AP CAS12","display_name":"AP CAS12s","type":1},
@@ -226,70 +234,6 @@ export default class Items{
     }
 
 
-    async changePlayerIdsMatch(oldId, newId){
-
-        await simpleQuery("UPDATE nstats_items_match SET player_id=? WHERE player_id=?", [newId, oldId]);
-    }
-
-
-    async createNewPlayerTotalFromMerge(player, item, first, last, uses, matches){
-
-        const query = "INSERT INTO nstats_items_player VALUES(NULL,?,?,?,?,?,?)";
-        const vars = [player, item, first, last, uses, matches];
-
-        await simpleQuery(query, vars);
-    }
-
-    async mergePlayerTotals(oldId, newId){
-
-        try{
-
-            const oldData = await this.getPlayerTotalData(oldId);
-            const newData = await this.getPlayerTotalData(newId);
-
-            const mergedData = {};
-
-            const merge = (array) =>{
-
-                for(let i = 0; i < array.length; i++){
-
-                    const d = array[i];
-    
-                    if(mergedData[d.item] === undefined){
-                        mergedData[d.item] = d;
-                    }else{
-    
-                        mergedData[d.item].uses += d.uses;
-                        mergedData[d.item].matches += d.matches;
-    
-                        if(d.first < mergedData[d.item].first){
-                            mergedData[d.item].first = d.first;
-                        }
-    
-                        if(d.last > mergedData[d.item].last){
-                            mergedData[d.item].last = d.last;
-                        }
-                    }
-                }
-            }
-
-            merge(oldData);
-            merge(newData);
-
-            await deletePlayerTotals(oldId);
-            await deletePlayerTotals(newId);
-
-            for(const [key, value] of Object.entries(mergedData)){
-
-                await this.createNewPlayerTotalFromMerge(newId, key, value.first, value.last, value.uses, value.matches);
-            }
-
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
 
 
     async getAllPlayerMatchData(playerId){
@@ -312,36 +256,7 @@ export default class Items{
     }
 
 
-    async getAll(){
 
-        return await simpleQuery("SELECT * FROM nstats_items ORDER BY name ASC");
-    }
-
-    async updateEntry(id, displayName, type){
-
-        const query = "UPDATE nstats_items SET display_name=?,type=? WHERE id=?";
-        const vars = [displayName, type, id];
-
-        await simpleQuery(query, vars);
-    }
-
-    async adminUpdateEntries(data){
-
-        try{
-
-            let d = 0;
-
-            for(let i = 0; i < data.length; i++){
-
-                d = data[i];
-
-                await this.updateEntry(d.id, d.display_name, d.type);
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
 
     async updateMatchAmpKills(matchId, ampKills){
 
@@ -866,5 +781,26 @@ export async function deletePlayerData(playerId){
         const q = queries[i];
 
         await simpleQuery(`DELETE FROM ${q[0]} WHERE ${q[1]}=?`, [playerId]);
+    }
+}
+
+
+export async function getAll(){
+
+    const query = `SELECT * FROM nstats_items ORDER BY display_name ASC`;
+
+    return await simpleQuery(query);
+}
+
+
+export async function saveItemChanges(changes){
+    
+    const query = `UPDATE nstats_items SET display_name=?,type=? WHERE id=?`;
+
+    for(let i = 0; i < changes.length; i++){
+
+        const c = changes[i];
+
+        await simpleQuery(query, [c.displayName, c.type, c.id]);
     }
 }
