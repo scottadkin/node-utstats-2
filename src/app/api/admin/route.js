@@ -321,6 +321,7 @@ export async function POST(req){
         if(mode === "recalculate-rankings"){
 
             await recalculateAllRankings();
+            return Response.json({"message": "ok"});
         }
 
         return Response.json({"error": "Unknown Request"});

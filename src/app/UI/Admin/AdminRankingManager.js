@@ -4,6 +4,7 @@ import MessageBox from "../MessageBox";
 import useMessageBoxReducer from "../../reducers/useMessageBoxReducer";
 import Tabs from "../Tabs";
 import { BasicTable } from "../Tables";
+import Loading from "../Loading";
 
 function reducer(state, action){
 
@@ -45,6 +46,12 @@ function reducer(state, action){
             return {
                 ...state,
                 "settings": settings
+            }
+        }
+        case "set-in-progress": {
+            return {
+                ...state,
+                "bInProgress": action.value
             }
         }
     }
@@ -97,22 +104,6 @@ function renderOptions(state, dispatch){
     return <BasicTable width={1} headers={headers} rows={rows}/>
 }
 
-function bAnyUnsavedChanges(state){
-
-
-    const current = state.settings;
-    const saved = state.savedSettings;
-
-    for(let i = 0; i < current.length; i++){
-
-        const c = current[i];
-        const s = saved[i];
-
-        if(c.value != s.value) return true;
-    }
-
-    return false;
-}
 
 function getChangedSettings(state){
 
@@ -190,15 +181,16 @@ function renderSettingsManager(state, dispatch, mState, mDispatch){
     return <><Tabs options={tabOptions} selectedValue={state.selectedCategory} changeSelected={(v) =>{
             dispatch({"type": "set-category", "value": v});
         }}/>
-        <MessageBox type={mState.type} title={mState.title} timestamp={mState.timestamp}>{mState.content}</MessageBox>
         {renderSaveChanges(state, dispatch, mDispatch)}
         {renderOptions(state, dispatch)}</>
 }
 
 
-async function recalculateRankings(dispatch){
+async function recalculateRankings(dispatch, mDispatch){
 
     try{
+
+        dispatch({"type": "set-in-progress", "value": true});
 
         const req = await fetch("/api/admin", {
             "headers": {"Content-type": "application/json"},
@@ -209,23 +201,36 @@ async function recalculateRankings(dispatch){
         const res = await req.json();
 
         console.log(res);
+        if(res.error !== undefined) throw new Error(res.error);
+
+        mDispatch({"type": "set-message", "messageType": "pass", "title": "Recalculated Rankings", "content": `Rankings recalculated successfully`});
 
     }catch(err){
         console.trace(err);
+        mDispatch({"type": "set-message", "messageType": "error", "title": "Failed To Recalculate Rankings", "content": err.toString()});
     }
+
+    dispatch({"type": "set-in-progress", "value": false});
 }
 
 function renderRecalculate(state, dispatch, mDispatch){
 
+  
     if(state.selectedTab !== "recalculate") return null;
+
+    let button = <button className="search-button" onClick={() =>{
+        recalculateRankings(dispatch, mDispatch);
+    }}>Recalculate Player Rankings</button>;
+
+    if(state.bInProgress){
+        button = <Loading>Recalculating Rankings...</Loading>
+    }
 
     return <div className="form">
         <div className="form-info">
             Once you have modified ranking values you need to use this tools to update all the existing player rankings.
         </div>
-        <button className="search-button" onClick={() =>{
-            recalculateRankings(dispatch)
-        }}>Recalculate Player Rankings</button>
+        {button}
     </div>
 }
 
@@ -236,7 +241,8 @@ export default function AdminRankingManager(){
         "selectedCategory": "General",
         "settings": [],
         "savedSettings": [],
-        "defaultSettings": []
+        "defaultSettings": [],
+        "bInProgress": false
     });
 
     const [mState, mDispatch] = useMessageBoxReducer();
@@ -255,6 +261,7 @@ export default function AdminRankingManager(){
         ]} selectedValue={state.selectedTab} changeSelected={(v) =>{
             dispatch({"type": "set-tab", "value": v});
         }}/>
+        <MessageBox type={mState.type} title={mState.title} timestamp={mState.timestamp}>{mState.content}</MessageBox>
         {renderSettingsManager(state, dispatch,mState, mDispatch)}
         {renderRecalculate(state, dispatch, mDispatch)}
     </>

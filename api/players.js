@@ -11,7 +11,6 @@ import Connections from "./connections.js";
 import Pings from "./pings.js";
 import Maps from "./maps.js";
 import Weapons from "./weapons.js";
-import Rankings from "./rankings.js";
 import Sprees from "./sprees.js";
 import PowerUps from "./powerups.js";
 import Telefrags from "./telefrags.js";
@@ -892,12 +891,12 @@ export default class Players{
             await combogibManager.mergePlayers(first, second);
 
 
-            const rankingsManager = new Rankings();
+            /*const rankingsManager = new Rankings();
             await rankingsManager.init();
 
             await rankingsManager.deletePlayer(first);
             await rankingsManager.deletePlayer(second);
-            await rankingsManager.fullPlayerRecalculate(this, second);
+            await rankingsManager.fullPlayerRecalculate(this, second);*/
 
 
             const powerupManager = new PowerUps();

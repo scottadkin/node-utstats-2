@@ -12,7 +12,6 @@ import Maps from "./maps.js";
 import Connections from "./connections.js";
 import Pings from "./pings.js";
 import Weapons from "./weapons.js";
-import Rankings from "./rankings.js";
 import Servers from "./servers.js";
 import Voices from "./voices.js";
 import fs from "fs";
@@ -649,7 +648,7 @@ export default class Gametypes{
 
             //update rankings
 
-            await rankingManager.changeGametypeId(this, oldId, newId);
+           // await rankingManager.changeGametypeId(this, oldId, newId);
 
             //await winrateManager.changeGametypeId(oldId, newId);
 
@@ -805,9 +804,9 @@ export default class Gametypes{
 
         await weaponsManager.deleteMatches(gametypeId, matchIds);
 
-        const rankingsManager = new Rankings();
+        //const rankingsManager = new Rankings();
 
-        await rankingsManager.deleteGametype(gametypeId);
+       // await rankingsManager.deleteGametype(gametypeId);
 
         const serverManager = new Servers();
 
