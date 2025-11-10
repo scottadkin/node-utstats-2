@@ -11,11 +11,12 @@ import AdminMatchesManager from "./AdminMatchesManager";
 import AdminPlayerManager from "./AdminPlayerManager";
 import AdminRankingManager from "./AdminRankingManager";
 import AdminItemManager from "./AdminItemManager";
+import AdminGametypeManager from "./AdminGametypeManager";
 
 
 export default function AdminMain({}){
 
-    const [mode, setMode] = useState("items");
+    const [mode, setMode] = useState("gametypes");
 
     const options = [
         {"name": "Site Settings", "value": "page-settings"},
@@ -23,6 +24,7 @@ export default function AdminMain({}){
         {"name": "Logs Folder Settings", "value": "logs-folder"},
         {"name": "Player Manager", "value": "players"},
         {"name": "Matches Manager", "value": "matches"},
+        {"name": "Gametype Manager", "value": "gametypes"},
         {"name": "Rankings Manager", "value": "rankings"},
         {"name": "Items Manager", "value": "items"},
         {"name": "Map Screenshots", "value": "map-sshots"},
@@ -76,6 +78,11 @@ export default function AdminMain({}){
 
     if(mode === "items"){
         elems.push(<AdminItemManager key="items"/>);
+    }
+
+    if(mode === "gametypes"){
+
+        elems.push(<AdminGametypeManager key="gametypes"/>);
     }
 
     return <>

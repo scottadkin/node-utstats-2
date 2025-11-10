@@ -208,9 +208,7 @@ export default class Gametypes{
 
     async getAll(){
     
-        const query = `SELECT * FROM nstats_gametypes ORDER BY name ASC`;
-        
-        return await simpleQuery(query);
+        return await getAll();
     }
 
 
@@ -227,19 +225,6 @@ export default class Gametypes{
         }catch(err){
             console.trace(err);
             return true;
-        }
-    }
-
-
-    async rename(id, newName){
-
-        if(!await this.bNameInUse(newName)){
-
-            return await mysql.updateReturnAffectedRows("UPDATE nstats_gametypes SET name=? WHERE id=?", [newName, id]);
-
-        }else{
-            console.log(`gametype name already in use`);
-            return 0;
         }
     }
 
@@ -959,21 +944,6 @@ export default class Gametypes{
         return currentGametype;
     }
 
-    /**
-     * 
-     * @param {*} targetGametype the gametype that the auto merge id will be
-     * @param {*} masterGametype the auto merge id
-     */
-    async setAutoMergeId(targetGametype, masterGametype){
-
-        const query = `UPDATE nstats_gametypes SET auto_merge_id=? WHERE id=?`;
-
-        const result = await simpleQuery(query, [masterGametype, targetGametype]);
-
-        if(result.affectedRows > 0) return true;
-        return false;
-    }
-
     deleteImage(image){
 
         const imageDir = "./public/images/gametypes/";
@@ -1037,4 +1007,27 @@ export async function getAllIds(){
     return result.map((r) =>{
         return r.id;
     });
+}
+
+
+export async function getAll(){
+
+    const query = `SELECT * FROM nstats_gametypes ORDER BY name ASC`;
+
+    return await simpleQuery(query);
+}
+
+
+export async function saveChanges(changes){
+
+    if(changes.length === 0) return;
+
+    const query = `UPDATE nstats_gametypes SET name=?,auto_merge_id=? WHERE id=?`;
+
+    for(let i = 0; i < changes.length; i++){
+
+        const c = changes[i];
+
+        await simpleQuery(query, [c.name, c.mergeId, c.id]);
+    }
 }

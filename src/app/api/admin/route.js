@@ -15,6 +15,7 @@ import { deletePlayer } from "../../../../api/players";
 import { getAllSettings as getAllRankingSettings, adminUpdateSettings as updateRankingValues, 
     recalculateAll as recalculateAllRankings } from "../../../../api/rankings";
 import { getAll as getAllItems, ITEM_TYPES, saveItemChanges } from "../../../../api/items";
+import { getAll as getAllGametypes, saveChanges as saveGametypeChanges} from "../../../../api/gametypes";
 
 
 
@@ -338,6 +339,24 @@ export async function POST(req){
             if(data === null) throw new Error(`No data provided`);
 
             await saveItemChanges(data);
+            return Response.json({"message": "passed"});
+        }
+
+        if(mode === "get-gametypes"){
+
+            const data = await getAllGametypes();
+
+            return Response.json({"data": data});
+        }
+
+        if(mode === "save-gametype-changes"){
+
+            const data = res.data ?? null;
+
+            if(data === null) throw new Error(`No data provided`);
+
+            await saveGametypeChanges(data);
+
             return Response.json({"message": "passed"});
         }
 
