@@ -15,7 +15,7 @@ import { deletePlayer } from "../../../../api/players";
 import { getAllSettings as getAllRankingSettings, adminUpdateSettings as updateRankingValues, 
     recalculateAll as recalculateAllRankings } from "../../../../api/rankings";
 import { getAll as getAllItems, ITEM_TYPES, saveItemChanges } from "../../../../api/items";
-import { getAll as getAllGametypes, saveChanges as saveGametypeChanges} from "../../../../api/gametypes";
+import { getAll as getAllGametypes, saveChanges as saveGametypeChanges, create as createGametype} from "../../../../api/gametypes";
 
 
 
@@ -356,6 +356,17 @@ export async function POST(req){
             if(data === null) throw new Error(`No data provided`);
 
             await saveGametypeChanges(data);
+
+            return Response.json({"message": "passed"});
+        }
+
+        if(mode === "create-gametype"){
+
+            const name = res.name ?? "";
+
+            if(name === "") throw new Error(`Gametype name can not be an empty string.`);
+
+            await createGametype(name);
 
             return Response.json({"message": "passed"});
         }

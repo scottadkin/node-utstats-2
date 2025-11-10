@@ -16,7 +16,8 @@ function reducer(state, action){
             return {
                 ...state,
                 "data": action.data,
-                "savedData": action.data
+                "savedData": action.data,
+                "newGametypeName": ""
             }
         }
 
@@ -52,6 +53,12 @@ function reducer(state, action){
             return {
                 ...state,
                 "bSaving": action.value
+            }
+        }
+        case "set-new-gametype-name": {
+            return {
+                ...state,
+                "newGametypeName": action.value
             }
         }
     }
@@ -102,6 +109,8 @@ function getUnsavedChanges(state){
 }
 
 function renderList(state, dispatch){
+
+    if(state.mode !== "list") return null;
 
     const headers = [
         "Name",
@@ -198,12 +207,70 @@ function renderSavingInProgress(state, dispatch, mDispatch){
     return <Loading>Saving Changes Please Wait...</Loading>
 }
 
+
+
+async function createGametype(state, dispatch, mDispatch){
+
+    try{
+
+        mDispatch({"type": "clear"});
+
+        if(state.newGametypeName === "") return;
+
+        for(let i = 0; i < state.savedData.length; i++){
+
+            const d = state.savedData[i];
+            if(d.name.toLowerCase() === state.newGametypeName.toLowerCase()){
+                throw new Error(`Name is already in use`);
+            }
+        }
+
+        const req = await fetch("/api/admin", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "create-gametype", "name": state.newGametypeName})
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined) throw new Error(res.error);
+
+        await loadData(dispatch, mDispatch);
+        mDispatch({"type": "set-message", "messageType": "pass", "title": `Created Gametype`, "content": `Gametype created successfully`});
+
+    }catch(err){
+        console.trace(err);
+        mDispatch({"type": "set-message", "messageType": "error", "title": `Failed To Create Gametype`, "content": err.toString()});
+    }
+}
+
+function renderCreateGametype(state, dispatch, mDispatch){
+
+    if(state.mode !== "create") return null;
+
+    return <div className="form">
+        <div className="form-info">
+            You may want to create a gametype to have other gametypes import as it.
+        </div>
+        <div className="form-row">
+            <label htmlFor="name">Name</label>
+            <input type="textbox" name="name" className="default-textbox" value={state.newGametypeName} onChange={(e) =>{
+                dispatch({"type": "set-new-gametype-name", "value": e.target.value});
+            }}/>
+        </div>
+        <button className="search-button" onClick={() =>{
+            createGametype(state, dispatch, mDispatch);
+        }}>Create Gametype</button>
+    </div>
+}
+
 export default function AdminGametypeManager(){
 
     const [state, dispatch] = useReducer(reducer, {
         "data": [],
-        "mode": "list",
-        "bSaving": false
+        "mode": "create",
+        "bSaving": false,
+        "newGametypeName": ""
     });
 
     const [mState, mDispatch] = useMessageBoxReducer();
@@ -214,7 +281,8 @@ export default function AdminGametypeManager(){
     }, []);
 
     const tabOptions = [
-        {"name": "Current Gametypes", "value": "list"}
+        {"name": "Current Gametypes", "value": "list"},
+        {"name": "Create Gametype", "value": "create"},
     ];
 
     const test = getUnsavedChanges(state);
@@ -231,5 +299,6 @@ export default function AdminGametypeManager(){
         </MessageBox>
         {renderSavingInProgress(state, dispatch, mDispatch)}
         {renderList(state, dispatch, mDispatch)}
+        {renderCreateGametype(state, dispatch, mDispatch)}
     </>
 }

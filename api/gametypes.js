@@ -44,23 +44,13 @@ export default class Gametypes{
 
     async bExists(name){
 
-        const query = `SELECT COUNT(*) as total_matches FROM nstats_gametypes WHERE name=?`;
-        const result = await simpleQuery(query, [name]);
-
-        if(result[0].total_matches > 0) return true;
-        return false;
+        return await bExists(name);
     }
 
     async create(name){
 
-        if(name === undefined) throw new Error("Gametype name is undefined");
+        return await create(name);
 
-        if(await this.bExists(name)) throw new Error("Gametype already exists");
-
-        const query = "INSERT INTO nstats_gametypes VALUES(NULL,?,?,?,0,0,0)";
-        const result = await simpleQuery(query, [name, DEFAULT_MIN_DATE, DEFAULT_DATE]);
-
-        return result.insertId;
     }
 
     async getIdByName(name){
@@ -960,6 +950,28 @@ export default class Gametypes{
         }
 
     }
+}
+
+async function bExists(name){
+
+    const query = `SELECT COUNT(*) as total_matches FROM nstats_gametypes WHERE name=?`;
+    const result = await simpleQuery(query, [name]);
+
+    if(result[0].total_matches > 0) return true;
+    return false;
+}
+
+export async function create(name){
+
+
+    if(name === undefined) throw new Error("Gametype name is undefined");
+
+    if(await bExists(name)) throw new Error("Gametype already exists");
+
+    const query = "INSERT INTO nstats_gametypes VALUES(NULL,?,?,?,0,0,0)";
+    const result = await simpleQuery(query, [name, DEFAULT_DATE, DEFAULT_MIN_DATE]);
+
+    return result.insertId;
 }
 
 async function deleteGametypeTotals(gametypeId){

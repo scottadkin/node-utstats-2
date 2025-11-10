@@ -22,6 +22,12 @@ function reducer(state, action){
                 "content": action.content
             }
         }
+        case "clear": {
+            return {
+                ...state,
+                ...INIT_DATA
+            }
+        }
     }
 
     return state;
