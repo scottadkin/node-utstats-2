@@ -279,14 +279,18 @@ class MatchScreenshot{
     }
 
     bCTF(){
-        const reg = /capture the flag/i;
-        const reg2 = /ctf/i;
 
-         if(reg.test(this.gametype) || reg2.test(this.gametype)){
-             return true;
-         }
+        if(this.players.length === 0) return false;
 
-         return false;
+        for(let i = 0; i < this.players.length; i++){
+
+            const p = this.players[i];
+
+            if(p.ctfData !== undefined) return true;
+        }
+        
+        return false;
+
     }
 
     getDate(){
@@ -1361,7 +1365,6 @@ class MatchScreenshot{
     }
 
     render(){
-
 
         const c = this.context;
 
