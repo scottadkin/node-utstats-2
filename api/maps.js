@@ -1393,10 +1393,18 @@ async function insertMapTotals(gametypeId, mapId, data){
     return await simpleQuery(query, vars);
 }
 
+async function getTotalPlayedMatches(mapId, gametypeId){
+
+    const query = `SELECT COUNT(*) as total_matches FROM nstats_matches WHERE map=? AND gametype=?`;
+
+    const result = await simpleQuery(query, [mapId, gametypeId]);
+
+    return result[0].total_matches;
+}
 
 export async function recalculateTotals(gametypeId, mapId){
 
-    let query = `SELECT COUNT(*) as total_matches,MIN(match_date) as first_match, MAX(match_date) as last_match,
+    let query = `SELECT MIN(match_date) as first_match, MAX(match_date) as last_match,
     SUM(frags) as frags, SUM(score) as score, SUM(kills) as kills, SUM(deaths) as deaths,
     SUM(suicides) as suicides, SUM(team_kills) as team_kills, SUM(spawn_kills) as spawn_kills,
     SUM(multi_1) as multi_1,
@@ -1452,21 +1460,62 @@ export async function recalculateTotals(gametypeId, mapId){
     const vars = [mapId];
 
     if(gametypeId !== 0){
-        query += ` AND gametype=?`;
+        query += ` AND gametype=? GROUP BY gametype,map_id`;
         vars.push(gametypeId);
     }
     
     const result = await simpleQuery(query, vars);
 
-    if(result[0].total_matches === 0){
+    for(let i = 0; i < result.length; i++){
 
-        await deleteMapTotals(gametypeId, mapId);
+        const r = result[i];
 
-        if(gametypeId === 0) await deleteMap(mapId);
-        return;
+        const totalMatches = await getTotalPlayedMatches(mapId, gametypeId);
+
+        if(totalMatches === 0){
+
+            await deleteMapTotals(gametypeId, mapId);
+
+            if(gametypeId === 0) await deleteMap(mapId);
+            continue;
       
+        }else{
+            r.total_matches = totalMatches;
+            await insertMapTotals(gametypeId, mapId, r);
+        }
     }
 
-    //need to delete old map totals
-    return await insertMapTotals(gametypeId, mapId, result[0]);
+    
+}
+
+async function deleteGametypeTotals(gametypeId){
+
+    const query = `DELETE FROM nstats_map_totals WHERE gametype_id=?`;
+
+    return await simpleQuery(query, [gametypeId]);
+}
+
+async function getMapsPlayedWithGametype(gametypeId){
+
+    const query = `SELECT DISTINCT map FROM nstats_matches WHERE gametype=?`;
+
+    const result = await simpleQuery(query, [gametypeId]);
+
+    return result.map((r) =>{
+        return r.map;
+    });
+}
+
+export async function mergeGametypes(oldId, newId){
+
+    await deleteGametypeTotals(oldId);
+
+    const playedMaps = await getMapsPlayedWithGametype(newId);
+
+
+    for(let i = 0; i < playedMaps.length; i++){
+
+        const p = playedMaps[i];
+        await recalculateTotals(newId, p);
+    }
 }

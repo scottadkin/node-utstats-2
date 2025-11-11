@@ -323,22 +323,20 @@ async function deletePlayerMatchData(matchId){
 }
 
 
-
 export async function deleteMatchData(matchId, playerIds, gametypeId){
 
 
     if(playerIds.length === 0) return;
-
-    const rankingManager = new Rankings();
-    await rankingManager.loadCurrentSettings();
     
     await deletePlayerMatchData(matchId);
 
-    for(let i = 0; i < playerIds.length; i++){
-        const id = playerIds[i];
+    await recalculateGametype(gametypeId);
+
+   // for(let i = 0; i < playerIds.length; i++){
+     //   const id = playerIds[i];
         
-        await rankingManager.recalculatePlayerGametype(id, gametypeId);
-    }
+      //  await recalculatePlayerGametype(id, gametypeId);
+    //}
 }
 
 export async function deletePlayerData(playerId){
@@ -559,7 +557,8 @@ async function bulkInsertGametypeRecalcData(gametypeId, data){
 
 }
 
-async function recalculateGametype(gametypeId, settings, generalColumns, ctfColumns){
+async function recalculateGametypeIncSettings(gametypeId, settings, generalColumns, ctfColumns){
+
 
     const gColoumns = generalColumns.map((c) =>{
         return `nstats_player_matches.${c}`;
@@ -672,8 +671,18 @@ export async function recalculateAll(){
 
     for(let i = 0; i < gametypeIds.length; i++){
 
-        await recalculateGametype(gametypeIds[i], settings, generalColumns, ctfColumns);
+        await recalculateGametypeIncSettings(gametypeIds[i], settings, generalColumns, ctfColumns);
     }
+}
+
+export async function recalculateGametype(gametypeId){
+
+    const settings = await getAllSettings(true);
+
+    const {generalColumns, ctfColumns} = splitGeneralCTFColumns(settings);
+
+    await recalculateGametypeIncSettings(gametypeId, settings, generalColumns, ctfColumns);
+    
 }
 
 async function getMultiplePlayerCurrent(gametypeId, playerIds){

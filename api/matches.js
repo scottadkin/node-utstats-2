@@ -1049,19 +1049,6 @@ export default class Matches{
         }
     }
 
-    async deletePlayerScores(matchIds){
-
-        if(matchIds.length === 0) return;
-
-        await simpleQuery("DELETE FROM nstats_match_player_score WHERE match_id IN (?)", [matchIds]);
-    }
-
-    async deleteTeamChanges(matchIds){
-
-        if(matchIds.length === 0) return;
-
-        await simpleQuery("DELETE FROM nstats_match_team_changes WHERE match_id IN (?)", [matchIds]);
-    }
 
     async deleteMultiple(ids){
 
@@ -2055,7 +2042,6 @@ async function getLatestDuplicateIds(){
 
 export async function deleteAllDuplicates(){
 
-    
     const toDelete = await getLatestDuplicateIds();
 
     if(Object.keys(toDelete).length === 0) return;
@@ -2070,4 +2056,11 @@ export async function deleteAllDuplicates(){
 
         await adminDeleteMatch(r.id);
     }
+}
+
+export async function changeGametype(oldId, newId){
+
+    const query = `UPDATE nstats_matches SET gametype=? WHERE gametype=?`;
+
+    return await simpleQuery(query, [newId, oldId]);
 }
