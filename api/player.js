@@ -1096,14 +1096,3 @@ export async function deletePlayerScoreData(playerId){
     return await simpleQuery(query, [playerId]);
 }
 
-async function changeMatchDataGametypeId(oldGametypeId, newGametypeId){
-
-    const query = `UPDATE nstats_player_matches SET gametype=? WHERE gametype=?`;
-
-    return await simpleQuery(query, [newGametypeId, oldGametypeId]);
-}
-
-export async function mergeGametypes(oldGametypeId, newGametypeId){
-
-    await changeMatchDataGametypeId(oldGametypeId, newGametypeId);
-}
