@@ -1,22 +1,10 @@
 import { simpleQuery, updateReturnAffectedRows } from "./database.js";
 import Message from "./message.js";
-import CTF from "./ctf.js";
-import Assault from "./assault.js";
-import Domination from "./domination.js";
-import Faces from "./faces.js";
-import Headshots from "./headshots.js";
-import Items from "./items.js";
-import Kills from "./kills.js";
-import { deleteMatches as logsDeleteMatches } from "./logs.js";
-import Maps from "./maps.js";
-import Connections from "./connections.js";
-import Pings from "./pings.js";
-import Weapons from "./weapons.js";
-import Servers from "./servers.js";
-import Voices from "./voices.js";
 import fs from "fs";
 import { getObjectName } from "./genericServerSide.mjs";
 import { DEFAULT_DATE, DEFAULT_MIN_DATE } from "./generic.mjs";
+import { mergeGametypes as mergeGametypesTelefrags } from "./telefrags.js";
+import { mergeGametypes as mergePlayerGametypes } from "./player.js";
 
 export async function getAllGametypeNames(){
     
@@ -237,157 +225,6 @@ export default class Gametypes{
         return await simpleQuery("SELECT * FROM nstats_player_totals WHERE gametype=?", [oldId]);
     }
 
-    async mergePlayerGametypeTotals(data, newId){
-
-        try{
-
-            const query = `UPDATE nstats_player_totals SET
-            matches=matches+?,
-            wins=wins+?,
-            losses=losses+?,
-            draws=draws+?,
-            winrate = IF(wins > 0, (wins / matches) * 100, 0),
-            playtime=playtime+?,
-            first_bloods=first_bloods+?,
-            frags=frags+?,
-            score=score+?,
-            kills=kills+?,
-            deaths=deaths+?,
-            suicides=suicides+?,
-            team_kills=team_kills+?,
-            spawn_kills=spawn_kills+?,
-            efficiency = IF (kills > 0, 
-                    IF(deaths > 0, (kills / (deaths + kills) * 100), 100), 
-                    0
-            ),
-            multi_1=multi_1+?,
-            multi_2=multi_2+?,
-            multi_3=multi_3+?,
-            multi_4=multi_4+?,
-            multi_5=multi_5+?,
-            multi_6=multi_6+?,
-            multi_7=multi_7+?,
-            multi_best = IF(multi_best < ?, ?, multi_best),
-            spree_1=spree_1+?,
-            spree_2=spree_2+?,
-            spree_3=spree_3+?,
-            spree_4=spree_4+?,
-            spree_5=spree_5+?,
-            spree_6=spree_6+?,
-            spree_7=spree_7+?,
-            spree_best = IF(spree_best < ?, ?, spree_best),
-            fastest_kill = IF(fastest_kill > ?, ?, fastest_kill),
-            slowest_kill = IF(slowest_kill < ?, ?, slowest_kill),
-            best_spawn_kill_spree = IF(best_spawn_kill_spree < ?, ?, best_spawn_kill_spree),
-            assault_objectives=assault_objectives+?,
-            dom_caps=dom_caps+?,
-            dom_caps_best = IF(dom_caps_best < ?, ?, dom_caps_best),
-            dom_caps_best_life = IF(dom_caps_best_life < ?, ?, dom_caps_best_life),
-            k_distance_normal=k_distance_normal+?,
-            k_distance_long=k_distance_long+?,
-            k_distance_uber=k_distance_uber+?,
-            headshots=headshots+?,
-            shield_belt=shield_belt+?,
-            amp=amp+?,
-            amp_time=amp_time+?,
-            invisibility=invisibility+?,
-            invisibility_time=invisibility_time+?,
-            pads=pads+?,
-            armor=armor+?,
-            boots=boots+?,
-            super_health=super_health+?,
-            
-            mh_kills=mh_kills+?,
-            mh_kills_best_life=IF(mh_kills_best_life < ?, ?, mh_kills_best_life),
-            mh_kills_best=IF(mh_kills_best < ?, ?, mh_kills_best),
-            mh_deaths=mh_deaths+?,
-            mh_deaths_worst=IF(mh_deaths_worst < ?, ?, mh_deaths_worst)
-
-
-
-            WHERE player_id=? AND gametype=?`;
-
-            
-            for(let i = 0; i < data.length; i++){
-
-                const d = data[i];
-
-                const vars = [
-                    d.matches,
-                    d.wins,
-                    d.losses,
-                    d.draws,
-                    d.playtime,
-                    d.first_bloods,
-                    d.frags,
-                    d.score,
-                    d.kills,
-                    d.deaths,
-                    d.suicides,
-                    d.team_kills,
-                    d.spawn_kills,
-                    d.multi_1,
-                    d.multi_2,
-                    d.multi_3,
-                    d.multi_4,
-                    d.multi_5,
-                    d.multi_6,
-                    d.multi_7,
-                    d.multi_best,
-                    d.multi_best,
-                    d.spree_1,
-                    d.spree_2,
-                    d.spree_3,
-                    d.spree_4,
-                    d.spree_5,
-                    d.spree_6,
-                    d.spree_7,
-                    d.spree_best,
-                    d.spree_best,
-                    d.fastest_kill,
-                    d.fastest_kill,
-                    d.slowest_kill,
-                    d.slowest_kill,
-                    d.best_spawn_kill_spree,
-                    d.best_spawn_kill_spree,
-                    d.assault_objectives,
-                    d.dom_caps,
-                    d.dom_caps_best,
-                    d.dom_caps_best,
-                    d.dom_caps_best_life,
-                    d.dom_caps_best_life,
-                    d.k_distance_normal,
-                    d.k_distance_long,
-                    d.k_distance_uber,
-                    d.headshots,
-                    d.shield_belt,
-                    d.amp,
-                    d.amp_time,
-                    d.invisibility,
-                    d.invisibility_time,
-                    d.pads,
-                    d.armor,
-                    d.boots,
-                    d.super_health,
-
-                    d.mh_kills,
-                    d.mh_kills_best_life, d.mh_kills_best_life,
-                    d.mh_kills_best, d.mh_kills_best,
-                    d.mh_deaths,
-                    d.mh_deaths_worst, d.mh_deaths_worst,
-
-
-                    d.player_id,
-                    newId
-                ];
-
-                await simpleQuery(query, vars);
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
 
     async deleteGametypePlayerTotals(oldId){
 
@@ -589,217 +426,9 @@ export default class Gametypes{
     }
 
 
-    
-
-
-    async merge(oldId, newId, rankingManager, winrateManager, ctfManager, weaponsManager, playersManager, bAutoMergeAfter){
-
-        try{
-
-            //const oldGametypePlayerTotals = await this.getOldIdPlayerGametypeTotals(oldId);
-
-            await this.changeMatchGametypes(oldId, newId);
-            await this.changePlayerMatchGametypes(oldId, newId);
-           // await this.changePlayerTotalsGametype(oldId, newId);
-
-            
-
-           // console.log(oldGametypePlayerTotals);
-
-            //merge player gametype totals here
-
-            //await this.recalculateGametypeTotals(newId, playersManager);
-            //await this.mergePlayerGametypeTotals(oldGametypePlayerTotals, newId);
-            await this.deleteGametypePlayerTotals(oldId);
-
-            //TODO add ctf stuff here
-
-            await ctfManager.mergeGametypes(oldId, newId);
-
-
-            //TODO: Fix weapon stats
-            await weaponsManager.mergeGametypes(oldId, newId);
-
-
-            //update rankings
-
-           // await rankingManager.changeGametypeId(this, oldId, newId);
-
-            //await winrateManager.changeGametypeId(oldId, newId);
-
-            //await winrateManager.recalculateGametype(newId);
-
-            if(!bAutoMergeAfter){
-                await this.deleteGametype(oldId);
-            }else{
-                const autoMergeResult = await this.setAutoMergeId(oldId, newId);
-
-                if(!autoMergeResult){
-                    throw new Error(`Failed to set auto merge id.`);
-                }
-            }
-
-            
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-
 
     async delete(id){
         await simpleQuery("DELETE FROM nstats_gametypes WHERE id=?", [id]);
-    }
-
-
-    async deleteAllData(gametypeId, matchManager, playerManager, countriesManager){
-
-    
-
-        const matches = await matchManager.getAll(gametypeId);
-        const playersData = await playerManager.getAllGametypeMatchData(gametypeId);
-
-
-        const matchIds = [];
-        const mapMatches = {};
-        const mapStats = {};
-        const serverStats = {};
-
-        const playerIds = [];
-
-        for(let i = 0; i < matches.length; i++){
-
-            const m = matches[i];
-
-            matchIds.push(m.id);
-
-            if(mapMatches[m.map] === undefined){
-                mapMatches[m.map] = 0;
-            }
-
-            mapMatches[m.map]++;
-
-            if(mapStats[m.map] === undefined){
-                mapStats[m.map] = {
-                    "matches": 0,
-                    "playtime": 0
-                };
-            }
-
-            mapStats[m.map].matches++;
-            mapStats[m.map].playtime += m.playtime;
-
-            if(serverStats[m.server] === undefined){
-
-                serverStats[m.server] = {
-                    "matches": 0,
-                    "playtime": 0
-                };
-            }
-
-            serverStats[m.server].matches++;
-            serverStats[m.server].playtime+=m.playtime;
-        }
-
-
-        for(let i = 0; i < playersData.length; i++){
-
-            const p = playersData[i];
-
-            if(playerIds.indexOf(p.player_id) === -1){
-                playerIds.push(p.player_id);
-            }
-        }
-        
-
-        const countryUses = countriesManager.countCountriesUses(playersData);
-
-        for(const [key, value] of Object.entries(countryUses)){
-            await countriesManager.reduceUses(key, value);
-        }
-
-        
-        // console.log(matchIds);
-        //console.log(mapMatches);
-
-        //console.log(`Trying to delete gametype ${gametypeId}`);
-        //console.log(`Found ${matches.length} matches to delete.`);
-        //console.log(`Found ${playersData.length} player data to delete.`);
-
-
-
-        const assaultManager = new Assault();
-        await assaultManager.deleteMatches(matchIds, mapMatches);
-
-        const ctfManager = new CTF();
-        await ctfManager.deleteMatches(matchIds);
-
-
-        const domManager = new Domination();
-        await domManager.deleteMatches(matchIds);
-
-        const faceManager = new Faces();
-
-        await faceManager.deleteViaPlayerMatchesData(playersData);
-
-        const headshotsManager = new Headshots();  
-        await headshotsManager.deleteMatches(matchIds);
-
-
-        const itemsManager = new Items();
-
-        await itemsManager.deleteMatches(matchIds);
-
-
-        const killManager = new Kills();
-
-        await killManager.deleteMatches(matchIds);
-
-        await logsDeleteMatches(matchIds);
-
-        const mapsManager = new Maps();
-
-        await mapsManager.reduceTotals(mapStats);
-        await mapsManager.reducePlayersTotals(playersData);
-
-
-        const connectionsManager = new Connections();
-
-        await connectionsManager.deleteMatches(matchIds);
-
-        const pingManager = new Pings();
-
-        await pingManager.deleteMatches(matchIds);
-
-        await playerManager.deleteMatches(matchIds, playersData, gametypeId);
-
-
-        const weaponsManager = new Weapons();
-
-        await weaponsManager.deleteMatches(gametypeId, matchIds);
-
-        //const rankingsManager = new Rankings();
-
-       // await rankingsManager.deleteGametype(gametypeId);
-
-        const serverManager = new Servers();
-
-        await serverManager.reduceMultipleTotals(serverStats);
-
-        const voiceManager = new Voices();
-        
-        await voiceManager.reduceViaPlayerMatchData(playersData);
-
-        //const winrateManager = new WinRate();
-
-        //await winrateManager.deleteMatches(matchIds, gametypeId, playerIds);
-
-
-        await matchManager.deleteMatches(matchIds);
-
-        await this.delete(gametypeId);
-
     }
 
 
@@ -880,23 +509,6 @@ export default class Gametypes{
         return await simpleQuery(query, [gametypeId]);
     }
 
-    async getDropDownOptions(){
-
-        const gametypeNames = await this.getAllNames();
-
-        const options = [
-            {"value": 0, "displayValue": "All Gametypes"}
-        ];
-
-        for(const [id, name] of Object.entries(gametypeNames)){
-
-            options.push({
-                "value": parseInt(id), "displayValue": name
-            });
-        }
-
-        return options;
-    }
 
     async getGametypeAutoMergeId(gametypeId){
 
@@ -1042,4 +654,47 @@ export async function saveChanges(changes){
 
         await simpleQuery(query, [c.name, c.mergeId, c.id]);
     }
+}
+
+
+export async function mergeGametypes(oldId, newId){
+
+
+    await mergePlayerGametypes(oldId, newId);
+
+    await mergeGametypesTelefrags(oldId, newId);
+
+
+    //nstats_ctf_caps gametype_id
+    //nstats_ctf_cap_records gametype_id
+    //nstats_gametypes delete old recalculate totals gametype
+    //nstats_map_combogib gametype_id
+    //nstats_map_totals gametype_id delete old recalculate totals
+    //nstats_matches gametype
+    //nstats_match_combogib gametype_id
+    //nstats_player_combogib gametype_id delete old recalculate totals
+    //nstats_player_ctf_best gametype_id delete old recalculate totals
+    //nstats_player_ctf_best_life gametype_id delete old recalculate totals
+    //nstats_player_ctf_match gametype_id
+    //nstats_player_ctf_totals gametype_id delete old recalculate totals
+
+    
+
+    //nstats_player_totals delete old recalculate totals
+
+    //nstats_player_weapon_best gametype_id recalculate
+    //nstats_player_weapon_match gametype_id
+    //nstats_player_weapon_totals gametype delete old recalculate new
+
+    //nstats_powerups_carry_times gametype_id
+    //nstats_powerups_player_match gametype_id
+    //nstats_powerups_player_totals gametype_id delete old recalc new
+    //nstats_ranking_player_current gametype delete old recalc new
+    //nstats_ranking_player_history gametype delete old recalc new
+    
+    //nstats_winrates_latest gametype delete old reacl new
+
+
+
+
 }

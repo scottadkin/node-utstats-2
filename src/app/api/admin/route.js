@@ -15,7 +15,7 @@ import { deletePlayer } from "../../../../api/players";
 import { getAllSettings as getAllRankingSettings, adminUpdateSettings as updateRankingValues, 
     recalculateAll as recalculateAllRankings } from "../../../../api/rankings";
 import { getAll as getAllItems, ITEM_TYPES, saveItemChanges } from "../../../../api/items";
-import { getAll as getAllGametypes, saveChanges as saveGametypeChanges, create as createGametype} from "../../../../api/gametypes";
+import { getAll as getAllGametypes, saveChanges as saveGametypeChanges, create as createGametype, mergeGametypes} from "../../../../api/gametypes";
 
 
 
@@ -367,6 +367,20 @@ export async function POST(req){
             if(name === "") throw new Error(`Gametype name can not be an empty string.`);
 
             await createGametype(name);
+
+            return Response.json({"message": "passed"});
+        }
+
+        if(mode === "merge-gametypes"){
+
+            const oldId = (res.oldId !== undefined) ? parseInt(res.oldId) : NaN;
+            const newId = (res.newId !== undefined) ? parseInt(res.newId) : NaN;
+
+            if(oldId !== oldId) throw new Error(`Old gametype id must be a valid integer`);
+            if(newId !== newId) throw new Error(`New gametype id must be a valid integer`);
+
+
+            await mergeGametypes(oldId, newId);
 
             return Response.json({"message": "passed"});
         }

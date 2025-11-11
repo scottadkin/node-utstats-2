@@ -61,6 +61,16 @@ function reducer(state, action){
                 "newGametypeName": action.value
             }
         }
+        case "set-merge-id": {
+
+            const value = parseInt(action.value);
+
+            return {
+                ...state,
+                "mergeNewGametypeId": (action.gametype === "new") ? value : state.mergeNewGametypeId,
+                "mergeOldGametypeId": (action.gametype === "old") ? value : state.mergeOldGametypeId,
+            }
+        }
     }
 
     return state;
@@ -264,13 +274,80 @@ function renderCreateGametype(state, dispatch, mDispatch){
     </div>
 }
 
+
+async function mergeGametypes(oldGametypeId, newGametypeId, dispatch, mDispatch){
+
+    try{
+
+        if(oldGametypeId === -1) throw new Error(`You have not selected a gametype to be merged into the new gametype`);
+        if(newGametypeId === -1) throw new Error(`You have not selected a target gametype for data to be merged into`);
+
+        const req = await fetch("/api/admin", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "merge-gametypes", "newId": newGametypeId, "oldId": oldGametypeId})
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined) throw new Error(res.error);
+
+    }catch(err){
+
+        console.trace(err);
+        mDispatch({"type": "set-message", "messageType": "error", "title": `Failed To Merge Gametypes`, "content": err.toString()});
+    }
+}
+
+function renderMergeGametypes(state, dispatch, mDispatch){
+
+    if(state.mode !== "merge") return null;
+
+    const selectOptions = state.data.map((d) =>{
+        return <option key={d.id} value={d.id}>{d.name}</option>
+    });
+
+    selectOptions.unshift(<option key="-1" value="-1">- Please Select A Gametype -</option>);
+
+    return <div className="form">
+        <div className="form-info">
+            Merge one gametype into another.
+        </div>
+        <div className="form-row">
+            <label htmlFor="old-gametype">Old Gametype</label>
+            <select name="old-gametype" className="default-select" value={state.mergeOldGametypeId} onChange={(e) =>{
+
+                if(e.target.value != "-1" && parseInt(e.target.value) === state.mergeNewGametypeId) return;
+
+                dispatch({"type": "set-merge-id", "gametype": "old", "value": e.target.value});
+            }}>
+                {selectOptions}
+            </select>
+        </div>
+        <div className="form-row">
+            <label htmlFor="new-gametype">New Gametype</label>
+            <select name="new-gametype" className="default-select" value={state.mergeNewGametypeId} onChange={(e) =>{
+                if(e.target.value != "-1" && parseInt(e.target.value) === state.mergeOldGametypeId) return;
+                dispatch({"type": "set-merge-id", "gametype": "new", "value": e.target.value});
+            }}>
+                {selectOptions}
+            </select>
+        </div>
+        <button className="search-button" onClick={() =>{
+            mergeGametypes(state.mergeOldGametypeId, state.mergeNewGametypeId, dispatch, mDispatch);
+        }}>Merge Gametypes</button>
+    </div>
+}
+
 export default function AdminGametypeManager(){
 
     const [state, dispatch] = useReducer(reducer, {
         "data": [],
-        "mode": "create",
+        "mode": "merge",
         "bSaving": false,
-        "newGametypeName": ""
+        "newGametypeName": "",
+        "mergeNewGametypeId": -1,
+        "mergeOldGametypeId": -1
     });
 
     const [mState, mDispatch] = useMessageBoxReducer();
@@ -283,11 +360,9 @@ export default function AdminGametypeManager(){
     const tabOptions = [
         {"name": "Current Gametypes", "value": "list"},
         {"name": "Create Gametype", "value": "create"},
+        {"name": "Merge Gametypes", "value": "merge"},
     ];
 
-    const test = getUnsavedChanges(state);
-
-    console.log(test);
 
     return <>
         <div className="default-header">Gametype Manager</div>
@@ -300,5 +375,6 @@ export default function AdminGametypeManager(){
         {renderSavingInProgress(state, dispatch, mDispatch)}
         {renderList(state, dispatch, mDispatch)}
         {renderCreateGametype(state, dispatch, mDispatch)}
+        {renderMergeGametypes(state, dispatch, mDispatch)}
     </>
 }

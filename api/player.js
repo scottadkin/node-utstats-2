@@ -1,21 +1,6 @@
 import { simpleQuery, bulkInsert } from "./database.js";
 import { setValueIfUndefined, calculateKillEfficiency, removeIps, removeUnr, getPlayer, DEFAULT_DATE, DEFAULT_MIN_DATE } from "./generic.mjs";
-import CountriesManager from "./countriesmanager.js";
-import Assault from "./assault.js";
-import CTF from "./ctf.js";
-import Domination from "./domination.js";
-import Faces from "./faces.js";
-import Headshots from "./headshots.js";
-import Items from "./items.js";
-import Kills from "./kills.js";
-import Connections from "./connections.js";
-import Pings from "./pings.js";
-import Weapons from "./weapons.js";
-import Voices from "./voices.js";
-import Sprees from "./sprees.js";
-import MonsterHunt from "./monsterhunt.js";
 import { getSettings } from "./sitesettings.js";
-import Combogib from "./combogib.js";
 import { getObjectName } from "./genericServerSide.mjs";
 import { getGametypePosition } from "./rankings.js";
 import { getBasicPlayersByIds } from "./players.js";
@@ -1111,4 +1096,14 @@ export async function deletePlayerScoreData(playerId){
     return await simpleQuery(query, [playerId]);
 }
 
+async function changeMatchDataGametypeId(oldGametypeId, newGametypeId){
 
+    const query = `UPDATE nstats_player_matches SET gametype=? WHERE gametype=?`;
+
+    return await simpleQuery(query, [newGametypeId, oldGametypeId]);
+}
+
+export async function mergeGametypes(oldGametypeId, newGametypeId){
+
+    await changeMatchDataGametypeId(oldGametypeId, newGametypeId);
+}

@@ -1,4 +1,4 @@
-import { simpleQuery } from "./database.js";
+import { bulkInsert, simpleQuery } from "./database.js";
 import { getObjectName } from "./genericServerSide.mjs";
 
 export default class Telefrags{
@@ -310,6 +310,7 @@ async function updatePlayerTotalCustom(playerId, mapId, gametypeId, data){
 
 async function insertCustomTotal(playerId, data){
 
+
     const query = `INSERT INTO nstats_player_telefrags VALUES(
         NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
     )`;
@@ -354,9 +355,13 @@ async function insertCustomTotal(playerId, data){
         await simpleQuery(query, vars);
 
         //all time total
+ 
         await updatePlayerTotalCustom(playerId, 0, 0, d);
         await updatePlayerTotalCustom(playerId, d.map_id, 0, d);
+        
+
         await updatePlayerTotalCustom(playerId, 0, d.gametype, d);
+        await updatePlayerTotalCustom(playerId, d.map_id, d.gametype, d);
     }
 
     
@@ -429,4 +434,187 @@ export async function deletePlayerData(playerId){
     const query = `DELETE FROM nstats_tele_frags WHERE killer_id=? OR victim_id=?`;
 
     return await simpleQuery(query, [playerId, playerId]);
+}
+
+async function getUniqueMapIdsForGametype(gametypeId){
+
+    const query = `SELECT DISTINCT map_id FROM nstats_tele_frags WHERE gametype_id=?`;
+    const result = await simpleQuery(query, [gametypeId]);
+
+    return result.map((r) =>{
+        return r.map_id;
+    });
+}
+
+export async function deleteGametypeTotals(gametypeId){
+
+    const query = `DELETE FROM nstats_player_telefrags WHERE gametype_id=?`;
+    return await simpleQuery(query, [gametypeId]);
+}
+
+async function bulkInsertGametype(data){
+
+    const query = `INSERT INTO nstats_player_telefrags (
+        player_id,map_id,gametype_id,playtime,total_matches,tele_kills,
+        tele_deaths,tele_efficiency,best_tele_kills,worst_tele_deaths,
+        best_tele_multi,best_tele_spree,disc_kills,disc_deaths,disc_efficiency,
+        best_disc_kills,worst_disc_deaths,best_disc_multi,best_disc_spree
+    ) VALUES ?`;
+    const insertVars = [];
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        let teleEff = 0;
+
+        if(d.telefrag_kills > 0){
+            if(d.telefrag_deaths === 0){
+                teleEff = 100;
+            }else{
+                teleEff = d.telefrag_kills / (d.telefrag_kills + d.telefrag_deaths) * 100;
+            }
+        }
+
+        let discEff = 0;
+
+        if(d.tele_disc_kills > 0){
+            if(d.tele_disc_deaths === 0){
+                discEff = 100;
+            }else{
+                discEff = d.tele_disc_kills / (d.tele_disc_kills + d.tele_disc_deaths) * 100;
+            }
+        }
+
+        insertVars.push([
+            d.player_id, d.map_id, d.gametype, d.playtime, d.total_matches, d.telefrag_kills,
+            d.telefrag_deaths, teleEff, d.best_telefrag_kills, d.worst_telefrag_deaths,
+            d.telefrag_best_multi, d.telefrag_best_spree, d.tele_disc_kills, d.tele_disc_deaths,
+            discEff, d.best_tele_disc_kills, d.worst_tele_disc_deaths, d.tele_disc_best_multi,
+            d.tele_disc_best_spree
+        ]);
+
+    }
+
+
+    await bulkInsert(query, insertVars);
+
+    //console.log(insertVars);
+}
+
+async function recalculateGametypeTotals(gametypeId){
+
+    const query = `SELECT gametype,map_id,player_id,
+    COUNT(*) as total_matches,
+    SUM(playtime) as playtime,
+    SUM(telefrag_kills) as telefrag_kills,
+    MAX(telefrag_kills) as best_telefrag_kills,
+    SUM(telefrag_deaths) as telefrag_deaths,
+    MAX(telefrag_deaths) as worst_telefrag_deaths,
+    MAX(telefrag_best_spree) as telefrag_best_spree,
+    MAX(telefrag_best_multi) as telefrag_best_multi,
+    SUM(tele_disc_kills) as tele_disc_kills,
+    MAX(tele_disc_kills) as best_tele_disc_kills,
+    SUM(tele_disc_deaths) as tele_disc_deaths,
+    MAX(tele_disc_deaths) as worst_tele_disc_deaths,
+    MAX(tele_disc_best_spree) as tele_disc_best_spree,
+    MAX(tele_disc_best_multi) as tele_disc_best_multi
+    FROM nstats_player_matches WHERE gametype=? GROUP BY player_id,map_id`;
+
+    const result = await simpleQuery(query, [gametypeId]);
+
+
+    const gametypeTotals = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        if(gametypeTotals[r.player_id] === undefined){
+
+            gametypeTotals[r.player_id] = {
+                "map_id":  0,
+                "gametype":  gametypeId,
+                "player_id": r.player_id,
+                "total_matches": 0,
+                "playtime": 0,
+                "telefrag_kills": 0,
+                "best_telefrag_kills": 0,
+                "telefrag_deaths": 0,
+                "worst_telefrag_deaths": 0,
+                "telefrag_best_spree": 0,
+                "telefrag_best_multi": 0,
+                "tele_disc_kills": 0,
+                "best_tele_disc_kills": 0,
+                "tele_disc_deaths": 0,
+                "worst_tele_disc_deaths": 0,
+                "tele_disc_best_spree": 0,
+                "tele_disc_best_multi": 0
+            }
+        }
+
+        const p = gametypeTotals[r.player_id];
+
+        p.total_matches++;
+
+        p.playtime += r.playtime;
+        p.telefrag_kills += parseInt(r.telefrag_kills);
+
+        if(p.best_telefrag_kills < r.best_telefrag_kills){
+            p.best_telefrag_kills = r.best_telefrag_kills
+        }
+
+        p.telefrag_deaths += parseInt(r.telefrag_deaths);
+
+        if(p.worst_telefrag_deaths < r.worst_telefrag_deaths){
+            p.worst_telefrag_deaths = r.worst_telefrag_deaths;
+        }
+
+        if(p.telefrag_best_spree < r.telefrag_best_spree){
+            p.telefrag_best_spree = r.telefrag_best_spree;
+        }
+
+        if(p.telefrag_best_multi < r.telefrag_best_multi){
+            p.telefrag_best_multi = r.telefrag_best_multi;
+        }
+
+        if(p.best_tele_disc_kills < r.best_tele_disc_kills){
+            p.best_tele_disc_kills = r.best_tele_disc_kills;
+        }
+
+        if(p.worst_tele_disc_deaths < r.worst_tele_disc_deaths){
+            p.worst_tele_disc_deaths = r.worst_tele_disc_deaths;
+        }
+
+        if(p.tele_disc_best_spree < r.tele_disc_best_spree){
+            p.tele_disc_best_spree = r.tele_disc_best_spree;
+        }
+
+        if(p.tele_disc_best_multi < r.tele_disc_best_multi){
+            p.tele_disc_best_multi = r.tele_disc_best_multi;
+        }
+        
+        p.tele_disc_kills += parseInt(r.tele_disc_kills);
+        p.tele_disc_deaths += parseInt(r.tele_disc_deaths);
+    }
+
+    for(const p of Object.values(gametypeTotals)){
+        result.push(p);
+    }
+
+    await deleteGametypeTotals(gametypeId);
+
+    await bulkInsertGametype(result); 
+}
+
+
+export async function mergeGametypes(oldId, newId){
+
+    const query = `UPDATE nstats_tele_frags SET gametype_id=? WHERE gametype_id=?`;
+
+    await simpleQuery(query, [newId, oldId]);
+
+    await deleteGametypeTotals(oldId);
+    await recalculateGametypeTotals(newId);
+   
 }

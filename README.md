@@ -11,16 +11,20 @@ Unreal Tournament stats tracking website using node.js and mysql.
 - Version 2.0.0 to 2.7.X are compatable with each other.
 
 # Current Features
-- Match reports
-- Player Match reports
-- Player profiles
-- Player gametype totals
-- Player map totals
-- Ranking system
-- Records system
-- Maps system
-- Capture The Flag Records
-- Cap records for ctf maps
+- Match Reports
+- Match Screenshots
+ ![ddddddddd](https://github.com/user-attachments/assets/0e648855-6797-4b52-9c85-9ba78de06b75)
+- Player Match Reports
+- Player Profiles
+  <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/1820d1b7-b306-4d72-9d2a-90a9db9ac31b" />
+- Player Ranking System
+  <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/612b594b-9945-47f5-b5ee-a1344bc0280e" />
+- Records System, see who has the most kills on a map/gametype and many more.
+  <img width="1901" height="1080" alt="adfffffffff" src="https://github.com/user-attachments/assets/0fa44120-c24b-4cae-bc77-779bd51fc51a" />
+- Capture The Flag Records, this includes flag capture records for all ctf maps, solo caps and assisted caps are split into two different categories.
+  <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/fb2f1948-d0ee-4ff2-9048-310c45512390" />
+
+- Map Stats
 - Admin management system, change what the site displays and how it's displayed. You can also give a user permission to upload map images
 - ACE support
 - SFTP Support
@@ -43,6 +47,7 @@ Unreal Tournament stats tracking website using node.js and mysql.
 - Run the command **npm install** to install all the dependencies.
 - Open config.json, and change the mysql settings to match your mysql setup.
 - Also in config.json you will see the variable called **importInterval**, this will tell the importer how long to wait(in seconds) between looking for new logs to import. IF you set this to 0 the import will run once only.
+- 
 ![alt text](https://i.imgur.com/qcVGOvd.png "config.json image")
 - Now run the command **node install** this will create the database and all the tables needed by node utstats 2.
 
@@ -73,7 +78,7 @@ ServerActors=NodeUTStats2.NodeUTStatsServerActor
 - FTP accounts require read, write, and delete privileges. 
 - To add FTP servers to node utstats 2, go to the admin area of the website, then "Importer Manager", then finally "Add Server", there is no limit in the amount of servers you can add.
 - Target Folder must link to your UnrealTournament main folder(CASE SENSITIVE), e.g /Servers/UnrealTournament/ for an FTP user with entry point of C:/
-![alt text](https://i.imgur.com/7lQX7zT.png "ftp image")
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/d3ed4c4a-39ed-4139-9228-aec5db17071f" />
 - You can later edit settings if required.
 
 # Running the importer
