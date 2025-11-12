@@ -842,6 +842,7 @@ export default class CombogibManager{
                 await this.combogib.updatePlayerTotals(key, this.gametypeId, this.mapId, this.matchId, playtime, combos, insane, shockBalls, primary);
                 await this.combogib.updatePlayerTotals(key, this.gametypeId, 0, this.matchId, playtime, combos, insane, shockBalls, primary);
                 await this.combogib.updatePlayerTotals(key, 0, this.mapId, this.matchId, playtime, combos, insane, shockBalls, primary);
+                await this.combogib.updatePlayerTotals(key, 0, 0, this.matchId, playtime, combos, insane, shockBalls, primary);
             }       
             
             await this.combogib.bulkInsertPlayerMatchData(matchInsertVars);
