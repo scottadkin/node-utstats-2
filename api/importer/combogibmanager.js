@@ -810,6 +810,9 @@ export default class CombogibManager{
 
     async insertPlayerMatchData(){
 
+        //TODO: rewrite this similar to the newer totals method
+
+
         try{
 
 
@@ -851,6 +854,7 @@ export default class CombogibManager{
             console.trace(err);
             new Message(err,"error");
         }
+
     }
 
 

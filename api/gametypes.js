@@ -8,6 +8,7 @@ import { mergeGametypes as mergePlayerGametypes } from "./players.js";
 import { changeGametype as changeMatchGametype } from "./matches.js";
 import { mergeGametypes as mergeMapGametypes } from "./maps.js";
 import { mergeGametypes as mergeCombogibGametypes } from "./combogib.js";
+import { mergeGametypes as mergeCTFGametypes } from "./ctf.js";
 
 export async function getAllGametypeNames(){
     
@@ -665,34 +666,14 @@ export async function mergeGametypes(oldId, newId){
 
     await changeMatchGametype(oldId, newId);
     await mergePlayerGametypes(oldId, newId);
-
-
     await mergeGametypesTelefrags(oldId, newId);
-
     await mergeMapGametypes(oldId, newId);
-
     await mergeCombogibGametypes(oldId, newId);
-
-
-
+    await mergeCTFGametypes(oldId, newId);
 
 
     await deleteGametype(oldId);
     await recalculateGametypeTotals(newId);
-    
-
-
-
-    //nstats_ctf_caps gametype_id
-    //nstats_ctf_cap_records gametype_id
-
-    
-
-    //nstats_player_ctf_best gametype_id delete old recalculate totals
-    //nstats_player_ctf_best_life gametype_id delete old recalculate totals
-    //nstats_player_ctf_match gametype_id
-    //nstats_player_ctf_totals gametype_id delete old recalculate totals
-
 
     
 
