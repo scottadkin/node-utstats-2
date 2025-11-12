@@ -1,4 +1,4 @@
-import { simpleQuery, bulkInsert } from "./database.js";
+import { simpleQuery, bulkInsert, mysqlGetColumns } from "./database.js";
 import Message from "./message.js";
 import { getTeamName, getPlayer, sanatizePage, sanatizePerPage } from "./generic.mjs";
 import { getObjectName } from "./genericServerSide.mjs";
@@ -36,33 +36,33 @@ const PLAYER_CTF_MATCH_TOTALS_COLUMNS = `COUNT(*) as total_matches,
     SUM(flag_solo_capture) as flag_solo_capture`;
 
 const PLAYER_CTF_MATCH_BEST_COLUMNS = `SUM(playtime) as playtime,
-    MAX(flag_assist_best) as flag_assist,
-    MAX(flag_return_best) as flag_return,
-    MAX(flag_return_base_best) as flag_return_base,
-    MAX(flag_return_mid_best) as flag_return_mid,
-    MAX(flag_return_enemy_base_best) as flag_return_enemy_base,
-    MAX(flag_return_save_best) as flag_return_save,
-    MAX(flag_dropped_best) as flag_dropped,
-    MAX(flag_kill_best) as flag_kill,
-    MAX(flag_seal_best) as flag_seal,
-    MAX(flag_seal_pass_best) as flag_seal_pass,
-    MAX(flag_seal_fail_best) as flag_seal_fail,
+    MAX(flag_assist) as flag_assist,
+    MAX(flag_return) as flag_return,
+    MAX(flag_return_base) as flag_return_base,
+    MAX(flag_return_mid) as flag_return_mid,
+    MAX(flag_return_enemy_base) as flag_return_enemy_base,
+    MAX(flag_return_save) as flag_return_save,
+    MAX(flag_dropped) as flag_dropped,
+    MAX(flag_kill) as flag_kill,
+    MAX(flag_seal) as flag_seal,
+    MAX(flag_seal_pass) as flag_seal_pass,
+    MAX(flag_seal_fail) as flag_seal_fail,
     MAX(best_single_seal) as best_single_seal,
-    MAX(flag_cover_best) as flag_cover,
-    MAX(flag_cover_pass_best) as flag_cover_pass,
-    MAX(flag_cover_fail_best) as flag_cover_fail,
-    MAX(flag_cover_multi_best) as flag_cover_multi,
-    MAX(flag_cover_spree_best) as flag_cover_spree,
+    MAX(flag_cover) as flag_cover,
+    MAX(flag_cover_pass) as flag_cover_pass,
+    MAX(flag_cover_fail) as flag_cover_fail,
+    MAX(flag_cover_multi) as flag_cover_multi,
+    MAX(flag_cover_spree) as flag_cover_spree,
     MAX(best_single_cover) as best_single_cover,
-    MAX(flag_capture_best) as flag_capture,
-    MAX(flag_carry_time_best) as flag_carry_time,
-    MAX(flag_taken_best) as flag_taken,
-    MAX(flag_pickup_best) as flag_pickup,
-    MAX(flag_self_cover_best) as flag_self_cover,
-    MAX(flag_self_cover_pass_best) as flag_self_cover_pass,
-    MAX(flag_self_cover_fail_best) as flag_self_cover_fail,
+    MAX(flag_capture) as flag_capture,
+    MAX(flag_carry_time) as flag_carry_time,
+    MAX(flag_taken) as flag_taken,
+    MAX(flag_pickup) as flag_pickup,
+    MAX(flag_self_cover) as flag_self_cover,
+    MAX(flag_self_cover_pass) as flag_self_cover_pass,
+    MAX(flag_self_cover_fail) as flag_self_cover_fail,
     MAX(best_single_self_cover) as best_single_self_cover,
-    MAX(flag_solo_capture_best) as flag_solo_capture,
+    MAX(flag_solo_capture) as flag_solo_capture,
     MAX(flag_suicide) as flag_suicide`;
 
 const PLAYER_CTF_MATCH_BEST_LIFE_COLUMNS = `SUM(playtime) as playtime,
@@ -2867,7 +2867,9 @@ async function insertNewPlayerTotal(playerId, data, gametypeId, mapId){
     return await simpleQuery(query, vars);
 }
 
-async function deletePlayerTotals(gametypeId, mapId){
+async function deletePlayerType(type, gametypeId, mapId){
+
+    type = type.toLowerCase();
 
     gametypeId = parseInt(gametypeId);
     mapId = parseInt(mapId);
@@ -2880,7 +2882,20 @@ async function deletePlayerTotals(gametypeId, mapId){
         throw new Error(`GametypeId or mapId can't both be 0`);
     }
 
-    const query = `DELETE FROM nstats_player_ctf_totals`;
+    const types = {
+        "totals": "nstats_player_ctf_totals", 
+        "best": "nstats_player_ctf_best", 
+        "best_life": "nstats_player_ctf_best_life"
+    };
+
+    if(types[type] === undefined){
+        throw new Error(`not a valid deletePlayerX type (${type})`);
+    }
+
+    const table = types[type];
+
+
+    const query = `DELETE FROM ${table}`;
 
     const vars = [];
     let where = ``;
@@ -2903,8 +2918,14 @@ async function deletePlayerTotals(gametypeId, mapId){
 
 
     return await simpleQuery(`${query}${where}`, vars);
+}
+
+async function deletePlayerTotals(gametypeId, mapId){
+
+    return await deletePlayerType("totals", gametypeId, mapId);
 
 }
+
 
 async function recalculatePlayerTotal(playerId, gametypeId, mapId){
 
@@ -3403,10 +3424,131 @@ async function recalculateGametypePlayerTotals(gametypeId){
     return await bulkInsertPlayerTotals(result);
 }
 
+async function deleteGametypePlayerBest(gametypeId, mapId){
+
+    return await deletePlayerType("best", gametypeId, mapId);
+}
+
+
+async function bulkInsertPlayerBest(data){
+
+    const query = `INSERT INTO nstats_player_ctf_best (
+        player_id,
+        gametype_id,            map_id,
+        flag_assist,            flag_return,
+        flag_return_base,       flag_return_mid,
+        flag_return_enemy_base, flag_return_save,
+        flag_dropped,           flag_kill,
+        flag_suicide,           flag_seal,
+        flag_seal_pass,         flag_seal_fail,
+        best_single_seal,       flag_cover,
+        flag_cover_pass,        flag_cover_fail,
+        flag_cover_multi,       flag_cover_spree,
+        best_single_cover,      flag_capture,
+        flag_carry_time,        flag_taken,
+        flag_pickup,            flag_self_cover,
+        flag_self_cover_pass,   flag_self_cover_fail,
+        best_single_self_cover, flag_solo_capture) VALUES ?`;
+
+    const insertVars = [];
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        insertVars.push([
+            d.player_id,
+            d.gametype_id,            d.map_id,
+            d.flag_assist,         d.flag_return,
+            d.flag_return_base,       d.flag_return_mid,
+            d.flag_return_enemy_base, d.flag_return_save,
+            d.flag_dropped,         d.flag_kill,
+            d.flag_suicide,          d.flag_seal,
+            d.flag_seal_pass,        d.flag_seal_fail,
+            d.best_single_seal,      d.flag_cover,
+            d.flag_cover_pass,       d.flag_cover_fail,
+            d.flag_cover_multi,      d.flag_cover_spree,
+            d.best_single_cover,      d.flag_capture,
+            d.flag_carry_time,       d.flag_taken,
+            d.flag_pickup,           d.flag_self_cover,
+            d.flag_self_cover_pass,  d.flag_self_cover_fail,
+            d.best_single_self_cover, d.flag_solo_capture
+        ]);
+    }
+    
+    return await bulkInsert(query, insertVars);
+}
+
+async function recalculateGametypePlayerBest(gametypeId){
+
+    const query = `SELECT map_id,player_id,${PLAYER_CTF_MATCH_BEST_COLUMNS} FROM nstats_player_ctf_match WHERE gametype_id=? GROUP BY map_id,player_id`;
+
+    console.log(query);
+
+    const data = await simpleQuery(query, [gametypeId]);
+
+    const higherBetterKeys = [
+        "flag_assist",            "flag_return",
+        "flag_return_base",       "flag_return_mid",
+        "flag_return_enemy_base", "flag_return_save",
+        "flag_dropped",           "flag_kill",
+        "flag_suicide",           "flag_seal",
+        "flag_seal_pass",         "flag_seal_fail",
+        "best_single_seal",       "flag_cover",
+        "flag_cover_pass",        "flag_cover_fail",
+        "flag_cover_multi",       "flag_cover_spree",
+        "best_single_cover",      "flag_capture",
+        "flag_carry_time",        "flag_taken",
+        "flag_pickup",            "flag_self_cover",
+        "flag_self_cover_pass",   "flag_self_cover_fail",
+        "best_single_self_cover", "flag_solo_capture"
+    ];
+
+    const gametypeTotals = {};
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        d.gametype_id = gametypeId;
+
+        if(gametypeTotals[d.player_id] === undefined){
+            
+            gametypeTotals[d.player_id] = {...d};
+            gametypeTotals[d.player_id].map_id = 0;
+            continue;
+        }
+
+        const g = gametypeTotals[d.player_id];
+
+        for(let x = 0; x < higherBetterKeys.length; x++){
+
+            const k = higherBetterKeys[x];
+
+            if(g[k] < d[k]) g[k] = d[k];
+        }
+
+        g.playtime += d.playtime;
+    }
+
+    for(const playerData of Object.values(gametypeTotals)){
+
+        data.push(playerData);
+    }
+
+    //console.log(data);
+
+    await deleteGametypePlayerBest(gametypeId, 0);
+
+    await bulkInsertPlayerBest(data);
+    
+}
+
 async function recalculateGametype(gametypeId){
 
     await deletePlayerTotals(gametypeId, 0);
     await recalculateGametypePlayerTotals(gametypeId);
+    await recalculateGametypePlayerBest(gametypeId);
 }
 
 
@@ -3428,10 +3570,11 @@ export async function mergeGametypes(oldId, newId){
         await recalculateSoloCapRecord(newId, m);
         await recalculateAssistCapRecord(newId, m);
     }
+
     await deletePlayerTotals(oldId, 0);
+    await deleteGametypePlayerBest(oldId, 0);
     await recalculateGametype(newId);
 
-    //nstats_player_ctf_best gametype_id delete old recalculate totals
     //nstats_player_ctf_best_life gametype_id delete old recalculate totals
     
 }

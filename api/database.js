@@ -64,3 +64,15 @@ export async function bulkInsert(query, vars, maxPerInsert){
 
     return;
 }
+
+
+export async function mysqlGetColumns(table){
+
+    const result = await simpleQuery(`SHOW COLUMNS FROM ${table}`);
+
+    if(result.length === 0) return [];
+
+    return result.map((r) =>{
+        return r.Field;
+    });
+}
