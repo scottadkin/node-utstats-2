@@ -684,6 +684,7 @@ export async function mergeGametypes(oldId, newId){
     //nstats_powerups_carry_times gametype_id
     //nstats_powerups_player_match gametype_id
     //nstats_powerups_player_totals gametype_id delete old recalc new
+    
     //nstats_ranking_player_current gametype delete old recalc new
     //nstats_ranking_player_history gametype delete old recalc new
     
