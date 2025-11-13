@@ -171,7 +171,7 @@ async function deletePlayersTotals(playerIds, gametypeId, mapId){
     return await simpleQuery(query, vars);
 }
 
-async function bulkInsertPlayersTotals(data, bestSingleUses, gametypeId, mapId){
+async function bulkInsertPlayersTotals(data, gametypeId, mapId){
 
    // if(data.length === 0) return;
 
@@ -192,10 +192,10 @@ async function bulkInsertPlayersTotals(data, bestSingleUses, gametypeId, mapId){
             d.player_id, gametypeId, mapId, d.total_matches, d.powerup_id,
             d.times_used, d.times_used_best,
             d.carry_time,
-            bestSingleUses?.[d.player_id]?.[d.powerup_id]?.best_carry_time ?? 0,
+            d.carry_time_best,
             d.total_kills,
             d.best_kills,
-            bestSingleUses?.[d.player_id]?.[d.powerup_id]?.best_single_use_kills ?? 0,
+            d.best_kills_single_use,
             d.end_deaths,d.end_suicides,d.end_timeouts,d.end_match_end, d.carrier_kills,
             d.max_carrier_kills,
             d.carrier_kills_best,
@@ -253,9 +253,10 @@ async function recalculatePlayerTotals(playerIds, gametypeId, mapId){
     SUM(times_used) as times_used,
     MAX(times_used) as times_used_best,
     SUM(carry_time) as carry_time,
-    MAX(carry_time_best) as carry_times_best,
+    MAX(carry_time_best) as carry_time_best,
     SUM(total_kills) as total_kills,
     MAX(best_kills) as best_kills,
+    MAX(best_kills_single_use) as best_kills_single_use,
     SUM(end_deaths) as end_deaths,
     SUM(end_suicides) as end_suicides,
     SUM(end_timeouts) as end_timeouts,
@@ -281,10 +282,10 @@ async function recalculatePlayerTotals(playerIds, gametypeId, mapId){
 
     await deletePlayersTotals(playerIds, gametypeId, mapId);
 
-    const bestSingleUses = await getPlayersBestSingleUse(playerIds, gametypeId, mapId);
+   // const bestSingleUses = await getPlayersBestSingleUse(playerIds, gametypeId, mapId);
 
 
-    await bulkInsertPlayersTotals(result, bestSingleUses, gametypeId, mapId);
+    await bulkInsertPlayersTotals(result, gametypeId, mapId);
 
 }
 
