@@ -16,6 +16,16 @@ const PLAYER_BEST_MATCH_COLUMNS = `
     CAST(MAX(damage) AS UNSIGNED) as damage,
     MAX(efficiency) as efficiency`;
 
+const PLAYER_TOTALS_MATCH_COLUMNS = `
+    COUNT(*) as total_matches,
+    CAST(SUM(kills) AS UNSIGNED) as kills,
+    CAST(SUM(deaths) AS UNSIGNED) as deaths,
+    CAST(SUM(suicides) AS UNSIGNED) as suicides,
+    CAST(SUM(team_kills) AS UNSIGNED) as team_kills,
+    CAST(SUM(shots) AS UNSIGNED) as shots,
+    CAST(SUM(hits) AS UNSIGNED) as hits,
+    CAST(SUM(damage) AS UNSIGNED) as damage`;
+
 export default class Weapons{
 
     constructor(){
@@ -1216,7 +1226,7 @@ export async function getPlayerProfileData(playerId){
     const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
     const mapNames = await getObjectName("maps", [...mapIds]);
 
-    console.log(gametypeNames);
+    //console.log(gametypeNames);
     for(let i = 0; i < totals.length; i++){
 
         const t = totals[i];
@@ -1355,7 +1365,12 @@ export async function deletePlayerTypeTotals(type, targetId, playerIds, weaponId
 
 }
 
-
+/**
+ *  If gametypeId or mapId are not supplied used gametype_id or map_id from data itself
+ * @param {*} data 
+ * @param {*} gametypeId 
+ * @param {*} mapId 
+ */
 export async function bulkInsertPlayerTotals(data, gametypeId, mapId){
 
     const query = `INSERT INTO nstats_player_weapon_totals (player_id,map_id,gametype,playtime,weapon,
@@ -1383,8 +1398,17 @@ export async function bulkInsertPlayerTotals(data, gametypeId, mapId){
             acc = d.hits / d.shots * 100;
         }
 
+        if(gametypeId === undefined && d.gametype_id === undefined){
+            throw new Error(`weapons.bulkInsertPlayerTotals gametypeId is undefined and d.gametype_id is undefined`);
+        }
+
+        if(mapId === undefined && d.map_id === undefined){
+            throw new Error(`weapons.bulkInsertPlayerTotals mapId is undefined and d.map_id is undefined`);
+        }
+
         return [
-            d.player_id, mapId, gametypeId, 0/*<---playtime */,
+            d.player_id, (mapId !== undefined) ? mapId : d.map_id, 
+            (gametypeId !== undefined) ? gametypeId : d.gametype_id, 0/*<---playtime */,
             d.weapon_id, d.kills, d.team_kills,
             d.deaths, d.suicides, eff, acc,
             d.shots, d.hits, d.damage, d.total_matches
@@ -1911,7 +1935,7 @@ async function deletePlayerGametypeBest(gametypeId){
 }
 
 
-async function calculateGametypePlayerBest(gametypeId){
+async function recalculateGametypePlayerBest(gametypeId){
 
     const query = `SELECT player_id,weapon_id,map_id,
     ${PLAYER_BEST_MATCH_COLUMNS}
@@ -1959,34 +1983,117 @@ async function calculateGametypePlayerBest(gametypeId){
 
         for(const weaponData of Object.values(playerData)){
 
-            console.log(weaponData.weapon_id);
             data.push(weaponData);
         }
     }
 
 
     await deletePlayerGametypeBest(gametypeId);
-
-    console.log(data);
-
     
     await bulkInsertPlayerBest(data);
 
-    //..console.log(gametypeBest);
+}
+
+
+async function deletePlayerGametypeTotals(gametypeId){
+
+    const query = `DELETE FROM nstats_player_weapon_totals WHERE gametype=?`;
+    return await simpleQuery(query, [gametypeId]);
+}
+
+async function recalculateGametypePlayerTotals(gametypeId){
+
+
+    const query = `SELECT player_id,map_id,weapon_id,${PLAYER_TOTALS_MATCH_COLUMNS}
+    FROM nstats_player_weapon_match
+    WHERE gametype_id=?
+    GROUP BY player_id,map_id,weapon_id`;
+
+    const data = await simpleQuery(query, [gametypeId]);
+
+
+    const addKeys = [
+        "total_matches",
+        "kills",
+        "deaths",
+        "suicides",
+        "team_kills",
+        "shots",
+        "hits",
+        "damage"
+    ];
+
+    const gametypeTotals = {};
+
+   
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+        d.gametype_id = gametypeId;
+        
+        d.efficiency = 0;
+        d.accuracy = 0;
+
+        let bSkipMerge = false;
+
+        if(gametypeTotals[d.player_id] === undefined){
+            gametypeTotals[d.player_id] = {};
+        }
+
+        if(gametypeTotals[d.player_id][d.weapon_id] === undefined){
+            gametypeTotals[d.player_id][d.weapon_id] = {...d};
+            gametypeTotals[d.player_id][d.weapon_id].map_id = 0;
+            bSkipMerge = true;
+        }
+
+        const g = gametypeTotals[d.player_id][d.weapon_id];
+
+        if(!bSkipMerge){
+
+            for(let x = 0; x < addKeys.length; x++){
+
+                const k = addKeys[x];
+
+                g[k] += d[k];
+            }
+        }
+
+        if(g.kills > 0){
+
+            if(g.deaths === 0){
+                g.efficiency = 100;
+            }else{
+                g.efficiency = g.kills / (g.kills + g.deaths) * 100;
+            }
+        }
+
+        if(g.hits > 0 && g.shots > 0){
+
+            g.accuracy = g.hits / g.shots * 100;
+        }
+    }
+
+
+    for(const playerData of Object.values(gametypeTotals)){
+
+        for(const weaponData of Object.values(playerData)){
+
+            data.push(weaponData);
+        }
+    }
+
+    await deletePlayerGametypeTotals(gametypeId);
+    await bulkInsertPlayerTotals(data);
 }
 
 export async function mergeGametypes(oldId, newId){
 
-   
-    // there are no gametype & map combo
 
     await changePlayerMatchGametypes(oldId, newId);
 
-
     await deletePlayerGametypeBest(oldId);
-    await calculateGametypePlayerBest(newId);
+    await recalculateGametypePlayerBest(newId);
 
-    //console.log(await mysqlGetColumns("nstats_player_weapon_match"));
-    //nstats_player_weapon_best gametype_id recalculate
-    //nstats_player_weapon_totals gametype delete old recalculate new
+    await deletePlayerGametypeTotals(oldId);
+    await recalculateGametypePlayerTotals(newId);
 }
