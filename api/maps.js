@@ -1476,7 +1476,7 @@ export async function recalculateTotals(gametypeId, mapId){
 
             await deleteMapTotals(gametypeId, mapId);
 
-            if(gametypeId === 0) await deleteMap(mapId);
+            if(gametypeId === 0 && mapId === 0) await deleteMap(mapId);
             continue;
       
         }else{
