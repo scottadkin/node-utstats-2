@@ -39,6 +39,7 @@ export default class PowerUpManager{
                 "bestCarryTime": 0,
                 "totalKills": 0,
                 "bestKills": 0,
+                "bestKillsSingleUse": 0,
                 "timesUsed": 0,
                 "totalDeaths": 0,
                 "totalSuicides": 0,
@@ -53,6 +54,10 @@ export default class PowerUpManager{
 
         item.carryTime += event.carryTime;
         if(item.bestCarryTime < event.carryTime) item.bestCarryTime = event.carryTime;
+
+        if(event.totalKills > item.bestKillsSingleUse){
+            item.bestKillsSingleUse = event.totalKills;
+        }
 
         item.totalKills += event.totalKills;
         if(item.bestKills < event.totalKills) item.bestKills = event.totalKills;
