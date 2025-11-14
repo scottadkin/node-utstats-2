@@ -846,3 +846,9 @@ export async function updatePlayerRankings(gametypeId, matchId, matchDate, playe
 
     await updatePlayers(gametypeId, playerIds, settings, generalColumns, ctfColumns, matchId, matchDate);
 }
+
+
+
+export async function mergeGametypes(oldId, newId){
+    
+}

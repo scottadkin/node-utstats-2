@@ -11,6 +11,8 @@ import { mergeGametypes as mergeCombogibGametypes } from "./combogib.js";
 import { mergeGametypes as mergeCTFGametypes } from "./ctf.js";
 import { mergeGametypes as mergeWeaponsGametypes } from "./weapons.js";
 import { mergeGametypes as mergePowerupsGametypes} from "./powerups.js";
+import { mergeGametypes as mergeRankingGametypes } from "./rankings.js";
+import { mergeGametypes as mergeWinrateGametypes } from "./winrate.js";
 
 export async function getAllGametypeNames(){
     
@@ -674,12 +676,16 @@ export async function mergeGametypes(oldId, newId){
     await mergeCTFGametypes(oldId, newId);
     await mergeWeaponsGametypes(oldId, newId);
     await mergePowerupsGametypes(oldId, newId);
+    
 
 
+    //await mergeRankingGametypes(oldId, newId);
 
     await deleteGametype(oldId);
     await recalculateGametypeTotals(newId);
 
+
+    await mergeWinrateGametypes(oldId, newId);
 
     
     //nstats_ranking_player_current gametype delete old recalc new

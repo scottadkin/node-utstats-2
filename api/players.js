@@ -3746,7 +3746,7 @@ export async function mergeGametypes(oldGametypeId, newGametypeId){
 
     console.log(`PLAYER.MERGEGAMETYPES`);
 
-    //await changeMatchDataGametypeId(oldGametypeId, newGametypeId);
+    await changeMatchDataGametypeId(oldGametypeId, newGametypeId);
 
     //delete oldID data
 

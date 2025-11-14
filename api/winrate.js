@@ -3,6 +3,17 @@ import { simpleQuery, bulkInsert } from "./database.js";
 import { getObjectName } from "./genericServerSide.mjs";
 import { DEFAULT_DATE, DEFAULT_MIN_DATE } from "./generic.mjs";
 
+const DEFAULT_HISTORY_OBJECT = {
+    "matches": 0,
+    "wins": 0,
+    "draws": 0,
+    "losses": 0,
+    "current_streak_type": "l",
+    "current_streak": 0,
+    "max_win_streak": 0,
+    "max_draw_streak": 0,
+    "max_lose_streak": 0,
+};
 
 export async function getAllPlayerCurrent(playerId){
 
@@ -430,4 +441,103 @@ export async function deletePlayerData(playerId){
     const query = `DELETE FROM nstats_winrates_latest WHERE player=?`;
 
     return await simpleQuery(query, [playerId]);
+}
+
+
+async function deleteGametype(gametypeId){
+
+    const query = `DELETE FROM nstats_winrates_latest WHERE gametype=?`;
+
+    return await simpleQuery(query, [gametypeId]);
+}
+
+
+async function bulkInsertGametype(data, gametypeId){
+
+    const query = `INSERT INTO nstats_winrates_latest (
+        date,player,gametype,map,matches,wins,draws,losses,winrate,
+        current_streak_type,current_streak,max_win_streak,max_draw_streak
+        ,max_lose_streak
+    ) VALUES ?`;
+
+    const insertVars = [];
+
+
+    for(const [playerId, playerData] of Object.entries(data)){
+
+        for(const [mapId, d] of Object.entries(playerData)){
+
+            insertVars.push([
+                d.latest_match, playerId, gametypeId, mapId,
+                d.matches,d.wins,d.draws,d.losses,d.winrate,
+                d.current_streak_type,d.current_streak,d.max_win_streak,d.max_draw_streak,
+                d.max_lose_streak
+            ]);
+        }
+    }
+
+    return await bulkInsert(query, insertVars);
+}
+
+
+
+async function recalculateGametype(gametypeId){
+
+    const query = `SELECT player_id,map_id,match_result,match_date FROM nstats_player_matches WHERE gametype=? ORDER BY match_date ASC`;
+
+    const data = await simpleQuery(query, [gametypeId]);
+
+    const winRates = {};
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        if(winRates[d.player_id] === undefined){
+            winRates[d.player_id] = {};
+        }
+
+
+        //gametype complete totals
+        if(winRates[d.player_id][0] === undefined){
+            winRates[d.player_id][0] = {
+                ...DEFAULT_HISTORY_OBJECT,
+                "latest_match": new Date(0)
+            };
+        }
+
+        if(winRates[d.player_id][d.map_id] === undefined){
+            winRates[d.player_id][d.map_id] = {
+                ...DEFAULT_HISTORY_OBJECT,
+                "latest_match": new Date(0)
+            };
+        }
+
+        if(d.match_date > winRates[d.player_id][0].latest_match){
+             winRates[d.player_id][0].latest_match = d.match_date;
+        }
+
+        if(d.match_date > winRates[d.player_id][d.map_id].latest_match){
+             winRates[d.player_id][d.map_id].latest_match = d.match_date;
+        }
+   
+        //gametype totals
+        updateHistoryObject(winRates[d.player_id][0], d.match_result);
+        //gametype + map 
+        updateHistoryObject(winRates[d.player_id][d.map_id], d.match_result);
+
+    }
+
+    await deleteGametype(gametypeId);
+
+    await bulkInsertGametype(winRates, gametypeId);
+    //console.log(winRates);
+}
+
+export async function mergeGametypes(oldId, newId){
+
+
+    await deleteGametype(oldId);
+
+    await recalculateGametype(newId);
 }
