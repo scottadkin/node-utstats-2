@@ -3217,9 +3217,7 @@ async function bulkInsertGametypeTotals(gametypeId, data){
         ]);
     }
 
-    console.log(insertVars);
-
-    //await bulkInsert(query, insertVars);
+    await bulkInsert(query, insertVars);
 }
 
 async function recalculateGametypeTotals(gametypeId){
@@ -3366,7 +3364,7 @@ async function recalculateGametypeTotals(gametypeId){
         result.push(totals);
     }
 
-    //TODO: DELETE OLD GAMETYPE TOTALS, set wins,losses,draws & winrate
+    await deleteGametypeTotals(gametypeId);
     await bulkInsertGametypeTotals(gametypeId, result);
 
 }
@@ -3385,9 +3383,7 @@ async function deleteGametypeTotals(gametypeId){
  */
 export async function mergeGametypes(oldGametypeId, newGametypeId){
 
-    //we have already changed the player_match_data gametype ids
-    console.log(`PLAYER.MERGEGAMETYPES`);
-
+    //we have already changed the player_match_data gametype ids at the start of gametypes.mergeGametypes
 
     await deleteGametypeTotals(oldGametypeId);
 

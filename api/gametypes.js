@@ -4,7 +4,7 @@ import fs from "fs";
 import { getObjectName } from "./genericServerSide.mjs";
 import { DEFAULT_DATE, DEFAULT_MIN_DATE } from "./generic.mjs";
 import { mergeGametypes as mergeGametypesTelefrags } from "./telefrags.js";
-import { mergeGametypes as mergePlayerGametypes } from "./players.js";
+import { mergeGametypes as mergePlayerGametypes, changeMatchDataGametypeId as changePlayerMatchDataGametype } from "./players.js";
 import { changeGametype as changeMatchGametype } from "./matches.js";
 import { mergeGametypes as mergeMapGametypes } from "./maps.js";
 import { mergeGametypes as mergeCombogibGametypes } from "./combogib.js";
@@ -668,6 +668,7 @@ export async function saveChanges(changes){
 export async function mergeGametypes(oldId, newId){
 
 
+    await changePlayerMatchDataGametype(oldId, newId);
     await changeMatchGametype(oldId, newId);
     await mergePlayerGametypes(oldId, newId);
     await mergeGametypesTelefrags(oldId, newId);
@@ -691,7 +692,6 @@ export async function mergeGametypes(oldId, newId){
     //nstats_ranking_player_current gametype delete old recalc new
     //nstats_ranking_player_history gametype delete old recalc new
     
-    //nstats_winrates_latest gametype delete old reacl new
 
 
     //nstats_player_totals delete old recalculate totals

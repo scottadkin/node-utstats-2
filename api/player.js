@@ -268,7 +268,11 @@ export default class Player{
     }
 
 
-    async updateWinStats(id, win, drew, gametype, mapId){
+    async updateWinStats(id, matchResult, gametype, mapId){
+
+        //we dont want to update player totals for spectator matches
+        if(matchResult === "s") return;
+
 
         if(gametype === undefined) gametype = 0;
         if(mapId === undefined) mapId = 0;
@@ -277,12 +281,10 @@ export default class Player{
 
         let query = `UPDATE nstats_player_totals SET wins=wins+1, ${winRateString} WHERE id=? AND gametype=? AND map=?`;
 
-        if(!win){
-            if(!drew){
-                query = `UPDATE nstats_player_totals SET losses=losses+1, ${winRateString} WHERE id=? AND gametype=? AND map=?`;
-            }else{
-                query = `UPDATE nstats_player_totals SET draws=draws+1, ${winRateString} WHERE id=? AND gametype=? AND map=?`;
-            }
+        if(matchResult === "d"){
+            query = `UPDATE nstats_player_totals SET draws=draws+1, ${winRateString} WHERE id=? AND gametype=? AND map=?`;
+        }else if(matchResult === "l"){
+            query = `UPDATE nstats_player_totals SET losses=losses+1, ${winRateString} WHERE id=? AND gametype=? AND map=?`;
         }
 
         return await simpleQuery(query, [id, gametype, mapId]);

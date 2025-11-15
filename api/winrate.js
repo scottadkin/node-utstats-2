@@ -541,3 +541,64 @@ export async function mergeGametypes(oldId, newId){
 
     await recalculateGametype(newId);
 }
+
+/**
+ * Get players total wins,losses,draws & winrate for said gametype
+ * @param {} gametypeId 
+ */
+export async function getGametypeMatchResults(gametypeId){
+
+    const query = `SELECT player_id,map_id,match_result FROM nstats_player_matches WHERE gametype=?`;
+
+    const result = await simpleQuery(query, [gametypeId]);
+
+    const data = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        if(data[r.player_id] === undefined){
+            data[r.player_id] = {};
+        }
+
+         if(data[r.player_id][0] === undefined){
+            data[r.player_id][0] = {
+                "matches": 0,
+                "wins": 0,
+                "draws": 0,
+                "losses": 0,
+                "winRate": 0
+            };
+        }
+
+        if(data[r.player_id][r.map_id] === undefined){
+            data[r.player_id][r.map_id] = {
+                "matches": 0,
+                "wins": 0,
+                "draws": 0,
+                "losses": 0,
+                "winRate": 0
+            };
+        }
+
+        const maps = [0, r.map_id];
+
+        for(let x = 0; x < maps.length; x++){
+
+            const d = data[r.player_id][maps[x]];
+
+            if(r.match_result === "s") continue;
+            if(r.match_result === "w") d.wins++;
+            if(r.match_result === "d") d.draws++;
+            if(r.match_result === "l") d.losses++;
+            d.matches++;
+
+            if(d.wins > 0){
+                d.winRate = d.wins / d.matches * 100;
+            }
+        }
+    }
+
+    return data;
+}

@@ -1506,13 +1506,13 @@ export default class PlayerManager{
        
                 if(playtime > 0){
                     //all time totals
-                    await Player.updateWinStats(p.masterId, p.bWinner, p.bDrew, 0, 0);
+                    await Player.updateWinStats(p.masterId, p.matchResult, 0, 0);
                     //gametype totals
-                    await Player.updateWinStats(p.gametypeId, p.bWinner, p.bDrew, gametypeId, 0);
+                    await Player.updateWinStats(p.gametypeId, p.matchResult, gametypeId, 0);
                     //map totals
-                    await Player.updateWinStats(p.mapId, p.bWinner, p.bDrew, 0, mapId);
+                    await Player.updateWinStats(p.mapId, p.matchResult, 0, mapId);
                     //map + gametype totals
-                    await Player.updateWinStats(p.mapGametypeId, p.bWinner, p.bDrew, gametypeId, mapId);
+                    await Player.updateWinStats(p.mapGametypeId, p.matchResult, gametypeId, mapId);
                 }
             }
             
