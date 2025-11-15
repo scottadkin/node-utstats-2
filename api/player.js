@@ -16,7 +16,7 @@ export default class Player{
 
         const query = `INSERT INTO nstats_player_totals VALUES(
             NULL,?,?,0,?,?,0,"",0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
@@ -49,7 +49,7 @@ export default class Player{
 
         const query = `INSERT INTO nstats_player_totals VALUES(
             NULL,?,?,?,?,?,0,"",0,0,?,?,
-            0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,0,0,
@@ -195,8 +195,6 @@ export default class Player{
         spree_1 = spree_1+?, spree_2 = spree_2+?, spree_3 = spree_3+?, spree_4 = spree_4+?,
         spree_5 = spree_5+?, spree_6 = spree_6+?, spree_7 = spree_7+?,
         spree_best = IF(spree_best < ?, ?, spree_best),
-        fastest_kill = IF(fastest_kill > ? OR fastest_kill = 0 AND ? != 0, ?, fastest_kill),
-        slowest_kill = IF(slowest_kill < ? OR slowest_kill = 0 AND ? != 0, ?, slowest_kill),
         best_spawn_kill_spree = IF(best_spawn_kill_spree < ?, ?, best_spawn_kill_spree),
         first_bloods=first_bloods+?,
         accuracy=?, k_distance_normal=k_distance_normal+?, k_distance_long=k_distance_long+?, k_distance_uber=k_distance_uber+?,
@@ -240,12 +238,6 @@ export default class Player{
             sprees.brutalizing,
             bestSpree,
             bestSpree,
-            fastestKill,
-            fastestKill,
-            fastestKill,
-            slowestKill,
-            slowestKill,
-            slowestKill,
             bestSpawnKillSpree,
             bestSpawnKillSpree,
             firstBlood,

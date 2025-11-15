@@ -684,8 +684,6 @@ const queries = [
         spree_6 int(11) NOT NULL,
         spree_7 int(11) NOT NULL,
         spree_best int(11) NOT NULL,
-        fastest_kill float NOT NULL,
-        slowest_kill float NOT NULL,
         best_spawn_kill_spree int(11) NOT NULL,
         assault_objectives int(11) NOT NULL,
         dom_caps int(11) NOT NULL,
