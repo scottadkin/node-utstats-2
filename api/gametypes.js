@@ -679,9 +679,6 @@ export async function mergeGametypes(oldId, newId){
     await mergePowerupsGametypes(oldId, newId);
     
 
-
-    //await mergeRankingGametypes(oldId, newId);
-
     await deleteGametype(oldId);
     await recalculateGametypeTotals(newId);
 
@@ -693,9 +690,8 @@ export async function mergeGametypes(oldId, newId){
     //nstats_ranking_player_history gametype delete old recalc new
     
 
-
-    //nstats_player_totals delete old recalculate totals
     await mergePlayerGametypes(oldId, newId);
 
+    await mergeRankingGametypes(oldId, newId);
 
 }

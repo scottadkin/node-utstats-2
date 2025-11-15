@@ -858,4 +858,6 @@ async function deleteGametype(gametypeId){
 export async function mergeGametypes(oldId, newId){
     
     await deleteGametype(oldId);
+
+    await recalculateGametype(newId);
 }

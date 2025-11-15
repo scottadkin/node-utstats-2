@@ -292,6 +292,9 @@ async function mergeGametypes(oldGametypeId, newGametypeId, dispatch, mDispatch)
 
         if(res.error !== undefined) throw new Error(res.error);
 
+        await loadData(dispatch, mDispatch);
+        mDispatch({"type": "set-message", "messageType": "pass", "title": `Success`, "content": `Gametypes merged successfully`});
+
     }catch(err){
 
         console.trace(err);
