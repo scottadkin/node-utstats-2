@@ -1148,9 +1148,15 @@ async function deletePlayersTotals(playerIds, gametypeId, mapId){
     return await simpleQuery(query, [playerIds, gametypeId, mapId]);
 }
 
-async function deletePlayersGametypeTotals(gametypeId){
+async function deleteAllPlayerTotals(type, gametypeId){
 
-    const query = `DELETE FROM nstats_player_combogib WHERE gametype_id=?`;
+    type = type.toLowerCase();
+
+    const valid = ["gametype", "map"];
+
+    if(valid.indexOf(type) === -1) throw new Error(`${type} is not a valid type for deleteAllPlayerTotals`);
+
+    const query = `DELETE FROM nstats_player_combogib WHERE ${(type === "gametype") ? "gametype_id" : "map_id"}=?`;
 
     return await simpleQuery(query, [gametypeId]);
 }
@@ -1612,15 +1618,32 @@ async function bulkInsertPlayerTotals(data){
 
 }
 
-async function recalcPlayerGametypeTotals(gametypeId){
+async function recalcAllPlayerTotals(type, id){
 
-    await deletePlayersGametypeTotals(gametypeId);
+    type = type.toLowerCase();
 
-    const query = `SELECT map_id,${PLAYER_MATCH_COLUMNS_TOTALS}
-    FROM nstats_match_combogib WHERE gametype_id=? GROUP BY player_id,map_id`;
+    const valid = ["gametype", "map"];
+
+    if(valid.indexOf(type) === -1) throw new Error(`${type} is not a valid type for recalcAllPlayerTotals`);
+
+    await deleteAllPlayerTotals("gametype", id);
+
+    let query = "";
+
+    if(type === "gametype"){
+
+        query = `SELECT map_id,${PLAYER_MATCH_COLUMNS_TOTALS}
+        FROM nstats_match_combogib WHERE gametype_id=? GROUP BY player_id,map_id`;
+
+    }else if(type === "map"){
+
+        query = `SELECT gametype_id,${PLAYER_MATCH_COLUMNS_TOTALS}
+        FROM nstats_match_combogib WHERE map_id=? GROUP BY player_id,gametype_id`;
+
+    }
 
 
-    const result = await simpleQuery(query, [gametypeId]);
+    const result = await simpleQuery(query, [id]);
 
 
     const addKeys = [
@@ -1650,25 +1673,36 @@ async function recalcPlayerGametypeTotals(gametypeId){
         "best_insane_spree",
     ];
 
-    const gametypeTotals = {};
+    const totals = {};
     
     for(let i = 0; i < result.length; i++){
 
         const r = result[i];
-        r.gametype_id = gametypeId;
+
+        if(type === "gametype"){
+            r.gametype_id = id;
+        }else if(type === "map"){
+            r.map_id = id;
+        }
 
         if(r.playtime === 0) continue;
 
-        if(gametypeTotals[r.player_id] === undefined){
+        if(totals[r.player_id] === undefined){
             
-            gametypeTotals[r.player_id] = {...r};
-            gametypeTotals[r.player_id].map_id = 0;
+            totals[r.player_id] = {...r};
+
+            if(type === "gametype"){
+                totals[r.player_id].map_id = 0;
+            }else if(type === "map"){
+                totals[r.player_id].gametype_id = 0;
+            }
+
             setKPMAndEfficiency(r);
-            setKPMAndEfficiency(gametypeTotals[r.player_id]);
+            setKPMAndEfficiency(totals[r.player_id]);
             continue;
         }
 
-        const g = gametypeTotals[r.player_id];
+        const g = totals[r.player_id];
 
         for(let x = 0; x < addKeys.length; x++){
 
@@ -1689,8 +1723,8 @@ async function recalcPlayerGametypeTotals(gametypeId){
     }
 
 
-    for(const gametypeData of Object.values(gametypeTotals)){
-        result.push(gametypeData);
+    for(const totalData of Object.values(totals)){
+        result.push(totalData);
     }
 
     await bulkInsertPlayerTotals(result);
@@ -1710,7 +1744,35 @@ export async function mergeGametypes(oldId, newId){
         await deleteMapTotals(m,oldId);
     }
 
-    await recalcPlayerGametypeTotals(newId);
-    await deletePlayersGametypeTotals(oldId);
+    await recalcAllPlayerTotals("gametype", newId);
+    await deleteAllPlayerTotals("gametype", oldId);
+
+}
+
+
+export async function deleteGametype(id){
+
+    const mapIds = await getUniqueGametypeMapsPlayed(id);
+
+    const tables = [
+        "nstats_match_combogib",
+        "nstats_map_combogib",
+        "nstats_player_combogib"
+    ];
+
+    for(let i = 0; i < tables.length; i++){
+
+        const t = tables[i];
+
+        await simpleQuery(`DELETE FROM ${t} WHERE gametype_id=?`, [id]);
+    }
+
+    for(let i = 0; i < mapIds.length; i++){
+
+        const m = mapIds[i];
+        await recalculateMapTotals(m, 0);
+        await deleteAllPlayerTotals("map", m);
+        await recalcAllPlayerTotals("map", m);
+    }
 
 }
