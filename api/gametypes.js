@@ -3,7 +3,7 @@ import Message from "./message.js";
 import fs from "fs";
 import { getObjectName } from "./genericServerSide.mjs";
 import { DEFAULT_DATE, DEFAULT_MIN_DATE } from "./generic.mjs";
-import { mergeGametypes as mergeGametypesTelefrags } from "./telefrags.js";
+import { mergeGametypes as mergeGametypesTelefrags, deleteGametype as deleteGametypeTelefrags } from "./telefrags.js";
 import { mergeGametypes as mergePlayerGametypes, changeMatchDataGametypeId as changePlayerMatchDataGametype,
     deleteGametype as deleteGametypePlayers
  } from "./players.js";
@@ -708,14 +708,12 @@ export async function deleteGametypeFull(id){
     await deleteGametypePlayers(id);
     await deleteGametypeCTF(id);
     await deleteGametypeCombogib(id);
+    await deleteGametypeTelefrags(id);
     /*
 
     nstats_player_weapon_match "gametype_id",
     nstats_player_weapon_totals "gametype",
     nstats_player_weapon_best "gametype_id",
-    
-    nstats_tele_frags "gametype_id",
-    nstats_player_telefrags "gametype_id",
 
     nstats_map_totals "gametype_id",
     

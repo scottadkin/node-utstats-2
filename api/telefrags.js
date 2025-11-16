@@ -1,6 +1,21 @@
 import { bulkInsert, simpleQuery } from "./database.js";
 import { getObjectName } from "./genericServerSide.mjs";
 
+const PLAYER_TOTALS_MATCH_COLUMNS = `COUNT(*) as total_matches,
+SUM(playtime) as playtime,
+SUM(telefrag_kills) as telefrag_kills,
+MAX(telefrag_kills) as best_telefrag_kills,
+SUM(telefrag_deaths) as telefrag_deaths,
+MAX(telefrag_deaths) as worst_telefrag_deaths,
+MAX(telefrag_best_spree) as telefrag_best_spree,
+MAX(telefrag_best_multi) as telefrag_best_multi,
+SUM(tele_disc_kills) as tele_disc_kills,
+MAX(tele_disc_kills) as best_tele_disc_kills,
+SUM(tele_disc_deaths) as tele_disc_deaths,
+MAX(tele_disc_deaths) as worst_tele_disc_deaths,
+MAX(tele_disc_best_spree) as tele_disc_best_spree,
+MAX(tele_disc_best_multi) as tele_disc_best_multi`;
+
 export default class Telefrags{
 
     constructor(){}
@@ -94,43 +109,6 @@ export default class Telefrags{
         ];
 
         return await simpleQuery(query, vars);
-    }
-
-    /*async recalculatePlayerTotals(playerId){
-
-        const query = `SELECT gametype,map_id,
-        COUNT(*) as total_matches,
-        SUM(playtime) as playtime,
-        SUM(telefrag_kills) as telefrag_kills,
-        MAX(telefrag_kills) as best_telefrag_kills,
-        SUM(telefrag_deaths) as telefrag_deaths,
-        MAX(telefrag_deaths) as worst_telefrag_deaths,
-        MAX(telefrag_best_spree) as telefrag_best_spree,
-        MAX(telefrag_best_multi) as telefrag_best_multi,
-        SUM(tele_disc_kills) as tele_disc_kills,
-        MAX(tele_disc_kills) as best_tele_disc_kills,
-        SUM(tele_disc_deaths) as tele_disc_deaths,
-        MAX(tele_disc_deaths) as worst_tele_disc_deaths,
-        MAX(tele_disc_best_spree) as tele_disc_best_spree,
-        MAX(tele_disc_best_multi) as tele_disc_best_multi
-        FROM nstats_player_matches WHERE player_id=? GROUP BY gametype, map_id`;
-    
-        const result = await simpleQuery(query, [playerId]);
-
-        if(result.length > 0){
-            await this.insertCustomTotal(playerId, result);
-        }else{
-            console.log(`No data to create telefrag totals for playerId ${playerId}`);
-        }
-
-    }*/
-
-    async mergePlayers(oldId, newId){
-
-       // await this.deletePlayer(oldId);
-      //  await this.deletePlayer(newId);
-      //  await this.changePlayerIds(oldId, newId);
-      //  await this.recalculatePlayerTotals(newId);
     }
 
     async changeMapId(oldId, newId){
@@ -370,20 +348,7 @@ async function insertCustomTotal(playerId, data){
 export async function recalculatePlayerTotals(playerId){
 
     const query = `SELECT gametype,map_id,
-    COUNT(*) as total_matches,
-    SUM(playtime) as playtime,
-    SUM(telefrag_kills) as telefrag_kills,
-    MAX(telefrag_kills) as best_telefrag_kills,
-    SUM(telefrag_deaths) as telefrag_deaths,
-    MAX(telefrag_deaths) as worst_telefrag_deaths,
-    MAX(telefrag_best_spree) as telefrag_best_spree,
-    MAX(telefrag_best_multi) as telefrag_best_multi,
-    SUM(tele_disc_kills) as tele_disc_kills,
-    MAX(tele_disc_kills) as best_tele_disc_kills,
-    SUM(tele_disc_deaths) as tele_disc_deaths,
-    MAX(tele_disc_deaths) as worst_tele_disc_deaths,
-    MAX(tele_disc_best_spree) as tele_disc_best_spree,
-    MAX(tele_disc_best_multi) as tele_disc_best_multi
+    ${PLAYER_TOTALS_MATCH_COLUMNS}
     FROM nstats_player_matches WHERE player_id=? GROUP BY gametype, map_id`;
 
     const result = await simpleQuery(query, [playerId]);
@@ -446,10 +411,17 @@ async function getUniqueMapIdsForGametype(gametypeId){
     });
 }
 
-export async function deleteGametypeTotals(gametypeId){
+export async function deleteTotals(type, id){
 
-    const query = `DELETE FROM nstats_player_telefrags WHERE gametype_id=?`;
-    return await simpleQuery(query, [gametypeId]);
+    type = type.toLowerCase();
+
+    const valid = ["gametype", "map"];
+
+    if(valid.indexOf(type) === -1) throw new Error(`${type} is no a valid type of deleteTotals`);
+
+    const query = `DELETE FROM nstats_player_telefrags WHERE ${(type === "gametype") ? "gametype_id" : "map_id"}=?`;
+    
+    return await simpleQuery(query, [id]);
 }
 
 async function bulkInsertGametype(data){
@@ -502,39 +474,41 @@ async function bulkInsertGametype(data){
     //console.log(insertVars);
 }
 
-async function recalculateGametypeTotals(gametypeId){
+async function recalculateTotals(type, id){
 
-    const query = `SELECT gametype,map_id,player_id,
-    COUNT(*) as total_matches,
-    SUM(playtime) as playtime,
-    SUM(telefrag_kills) as telefrag_kills,
-    MAX(telefrag_kills) as best_telefrag_kills,
-    SUM(telefrag_deaths) as telefrag_deaths,
-    MAX(telefrag_deaths) as worst_telefrag_deaths,
-    MAX(telefrag_best_spree) as telefrag_best_spree,
-    MAX(telefrag_best_multi) as telefrag_best_multi,
-    SUM(tele_disc_kills) as tele_disc_kills,
-    MAX(tele_disc_kills) as best_tele_disc_kills,
-    SUM(tele_disc_deaths) as tele_disc_deaths,
-    MAX(tele_disc_deaths) as worst_tele_disc_deaths,
-    MAX(tele_disc_best_spree) as tele_disc_best_spree,
-    MAX(tele_disc_best_multi) as tele_disc_best_multi
-    FROM nstats_player_matches WHERE gametype=? GROUP BY player_id,map_id`;
+    type = type.toLowerCase();
 
-    const result = await simpleQuery(query, [gametypeId]);
+    const valid = ["gametype", "map"];
+
+    if(valid.indexOf(type) === -1) throw new Error(`${type} is not a valid type for recalculateTotals`);
+
+    let query = "";
+
+    if(type === "gametype"){
+
+        query = `SELECT gametype,map_id,player_id,
+        ${PLAYER_TOTALS_MATCH_COLUMNS}
+        FROM nstats_player_matches WHERE gametype=? GROUP BY player_id,map_id`;
+
+    }else if(type === "map"){
+        query = `SELECT gametype,map_id,player_id,
+        ${PLAYER_TOTALS_MATCH_COLUMNS}
+        FROM nstats_player_matches WHERE map_id=? GROUP BY player_id,gametype`;
+    }
+
+    const result = await simpleQuery(query, [id]);
 
 
-    const gametypeTotals = {};
+    const totals = {};
 
     for(let i = 0; i < result.length; i++){
 
         const r = result[i];
 
-        if(gametypeTotals[r.player_id] === undefined){
+        if(totals[r.player_id] === undefined){
 
-            gametypeTotals[r.player_id] = {
+            totals[r.player_id] = {
                 "map_id":  0,
-                "gametype":  gametypeId,
                 "player_id": r.player_id,
                 "total_matches": 0,
                 "playtime": 0,
@@ -551,9 +525,18 @@ async function recalculateGametypeTotals(gametypeId){
                 "tele_disc_best_spree": 0,
                 "tele_disc_best_multi": 0
             }
+
+            if(type === "gametype"){
+
+                totals[r.player_id].gametype = id;
+
+            }else if(type === "map"){
+
+                totals[r.player_id].map_id = id;
+            }
         }
 
-        const p = gametypeTotals[r.player_id];
+        const p = totals[r.player_id];
 
         p.total_matches++;
 
@@ -598,11 +581,11 @@ async function recalculateGametypeTotals(gametypeId){
         p.tele_disc_deaths += parseInt(r.tele_disc_deaths);
     }
 
-    for(const p of Object.values(gametypeTotals)){
+    for(const p of Object.values(totals)){
         result.push(p);
     }
 
-    await deleteGametypeTotals(gametypeId);
+    await deleteTotals(type, id);
 
     await bulkInsertGametype(result); 
 }
@@ -614,7 +597,25 @@ export async function mergeGametypes(oldId, newId){
 
     await simpleQuery(query, [newId, oldId]);
 
-    await deleteGametypeTotals(oldId);
-    await recalculateGametypeTotals(newId);
+    await deleteTotals("gametype", oldId);
+    await recalculateTotals("gametype", newId);
    
+}
+
+
+export async function deleteGametype(id){
+
+
+    const tables = [
+        "nstats_tele_frags",
+        "nstats_player_telefrags"
+    ];
+
+
+    for(let i = 0; i < tables.length; i++){
+
+        const t = tables[i];
+
+        await simpleQuery(`DELETE FROM ${t} WHERE gametype_id=?`, [id]);
+    }
 }
