@@ -2310,73 +2310,6 @@ export default class Players{
         }
     }
 
-    async recalculateAllPlayerMapGametypeRecords(){
-
-        const data = await this.getPlayerMapGametypeRecords();
-
-        const playerIds = [...new Set(data.map((d) =>{
-            return d.player_id;
-        }))];
-
-
-        const playerNames = await this.getNamesByIds(playerIds, true);
-
-        //update gametype = 0, map = 0, but delete everything else for player totals
-        await this.deleteAllPlayerGametypeMapTotals();
-
-
-        const currentTotals = {};
-
-        for(let i = 0; i < data.length; i++){
-
-            const d = data[i];
-
-            if(currentTotals[d.player_id] === undefined){
-                currentTotals[d.player_id] = {};
-            }
-
-            this.updateRecalulatePlayerCurrent(currentTotals, d.player_id, d.gametype, d.map_id, d);
-            
-        }
-
-
-        for(const [player, map] of Object.entries(currentTotals)){
-
-            const currentPlayer = playerNames[player] ?? {"name": ""};
-
-            for(const [mapId, data] of Object.entries(map)){
-
-                //console.log(mapId, "gametypeID = 0", data[0].total_matches);
-
-                for(const [gametypeId, gametypeData] of Object.entries(data)){
-
-                    //map all time totals
-                    if(!await this.bGametypeMapStatsExist(player, 0, mapId)){
-
-                        await this.createNewGametypeMapStats(currentPlayer.name, player, 0, mapId);
-                    }
-
-                    await this.updateNewGametypeMapStats(player, 0, mapId, gametypeData);
-
-                    //map and gametype totals
-                    if(!await this.bGametypeMapStatsExist(player, gametypeId, mapId)){
-                        await this.createNewGametypeMapStats(currentPlayer.name, player, gametypeId, mapId);
-                    }
-
-                    await this.updateNewGametypeMapStats(player, gametypeId, mapId, gametypeData);
-                    
-                    // gametype totals
-                    if(!await this.bGametypeMapStatsExist(player, gametypeId, 0)){
-                        await this.createNewGametypeMapStats(currentPlayer.name, player, gametypeId, 0);
-                    }
-                    
-                    await this.updateNewGametypeMapStats(player, gametypeId, 0, gametypeData);
-                    
-                }
-            }
-        }
-    }
-
     
     async adminHWIDSearch(hwid){
 
@@ -3430,5 +3363,4 @@ export async function deleteGametype(id){
         await simpleQuery(`DELETE FROM ${t} WHERE gametype=?`, [id]);
     }
     
-    await recalculateAllPlayerMapGametypeRecords();
 }

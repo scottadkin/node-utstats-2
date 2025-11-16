@@ -1,7 +1,7 @@
 import Session from "../../../../api/session";
 import { headers, cookies } from "next/headers";
 import Admin from "../../../../api/admin";
-import { getAllGametypeNames } from "../../../../api/gametypes";
+import { getAllGametypeNames, deleteGametypeFull } from "../../../../api/gametypes";
 import { getAllUploadedImages as getAllUploadedMapImages, getImages } from "../../../../api/maps";
 import { getAllObjectNames } from "../../../../api/genericServerSide.mjs";
 import { cleanMapName, sortByName } from "../../../../api/generic.mjs";
@@ -16,7 +16,7 @@ import { getAllSettings as getAllRankingSettings, adminUpdateSettings as updateR
     recalculateAll as recalculateAllRankings } from "../../../../api/rankings";
 import { getAll as getAllItems, ITEM_TYPES, saveItemChanges } from "../../../../api/items";
 import { getAll as getAllGametypes, saveChanges as saveGametypeChanges, create as createGametype, mergeGametypes} from "../../../../api/gametypes";
-import { getAllTablesContainingColumns } from "../../../../api/database";
+
 
 
 export async function POST(req){
@@ -383,6 +383,15 @@ export async function POST(req){
 
             await mergeGametypes(oldId, newId);
 
+            return Response.json({"message": "passed"});
+        }
+
+        if(mode === "delete-gametype"){
+
+            const id = (res.id !== undefined) ? parseInt(res.id) : NaN;
+            if(id !== id) throw new Error(`GametypeId was not set or was not a valid integer`);
+
+            await deleteGametypeFull(id);
             return Response.json({"message": "passed"});
         }
 

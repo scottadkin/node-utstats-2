@@ -3698,3 +3698,56 @@ export async function mergeGametypes(oldId, newId){
     await recalculateGametype(newId);
     
 }
+
+
+async function getUniqueMapsFromCaps(){
+
+    const query = `SELECT DISTINCT map_id FROM nstats_ctf_caps`;
+
+    const result = await simpleQuery(query);
+
+    return result.map((r) =>{
+        return r.map_id;
+    })
+}
+
+/**
+ * gametypeId = 0 only
+ */
+async function recalculateAllTimeCapRecords(){
+
+    const mapIds = await getUniqueMapsFromCaps();
+
+
+    for(let i = 0; i < mapIds.length; i++){
+
+        const m = mapIds[i];
+        console.log(`recalculate all time map cap records for mapId =${m}`);
+        await recalculateSoloCapRecord(0, m);
+        await recalculateAssistCapRecord(0, m);
+    }
+
+}
+
+export async function deleteGametype(id){
+
+    const tables = [
+        "nstats_ctf_caps",
+        "nstats_player_ctf_match",
+        "nstats_player_ctf_totals",
+        "nstats_player_ctf_best",
+        "nstats_player_ctf_best_life",
+        "nstats_ctf_cap_records",
+    ];
+
+    for(let i = 0; i < tables.length; i++){
+
+        const t = tables[i];
+        await simpleQuery(`DELETE FROM ${t} WHERE gametype_id=?`, [id]);
+    }
+
+    await recalculateAllTimeCapRecords();
+
+    //TODO: recalculate totals, best, best_life
+
+}

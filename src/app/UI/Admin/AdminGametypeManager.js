@@ -73,6 +73,18 @@ function reducer(state, action){
                 "mergeOldGametypeId": (action.gametype === "old") ? value : state.mergeOldGametypeId,
             }
         }
+        case "set-selected-delete-gametype": {
+            return {
+                ...state,
+                "selectedDeleteGametypeId": action.value
+            }
+        }
+        case "set-delete-in-progress": {
+            return {
+                ...state,
+                "bDeleteInProgress": action.value
+            }
+        }
     }
 
     return state;
@@ -344,15 +356,66 @@ function renderMergeGametypes(state, dispatch, mDispatch){
     </div>
 }
 
+
+async function deleteGametype(state, dispatch, mDispatch){
+
+    try{
+
+        if(state.selectedDeleteGametypeId === -1) return;
+
+        dispatch({"type": "set-delete-in-progress", "value": true});
+
+
+        const req = await fetch("/api/admin", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "delete-gametype", "id": state.selectedDeleteGametypeId})
+        });
+
+        const res = await req.json();
+        console.log(res);
+
+        if(res.error !== undefined) throw new Error(res.error);
+
+        
+
+    }catch(err){
+        console.trace(err);
+        mDispatch({"type": "set-message", "messageType": "error", "title": `Failed To Delete Gametypes`, "content": err.toString()});
+    }
+
+    dispatch({"type": "set-delete-in-progress", "value": false});
+}
+
 function renderDeleteGametype(state, dispatch, mDispatch){
 
     if(state.mode !== "delete") return null;
 
+    let elem = <button className="button delete-button" onClick={() =>{
+        deleteGametype(state, dispatch, mDispatch);
+    }}>Delete Gametype</button>;
+
+    if(state.bDeleteInProgress){
+
+        elem = <Loading>Deleting in progress please wait.</Loading>
+    }
 
     return <div className="form">
         <div className="form-info">
             Delete a gametype and all matches and data associated with it.
         </div>
+        <div className="form-row">
+            <label htmlFor="gametype">Gametype</label>
+            <select className="default-select" value={state.selectedDeleteGametypeId} onChange={(e) =>{
+                dispatch({"type": "set-selected-delete-gametype", "value": e.target.value});
+            }}>
+                <option value="-1">- Please Select A Gametype -</option>
+                {state.data.map((d) =>{
+                    return <option key={d.id} value={d.id}>{d.name}</option>
+                })}
+            </select>
+        </div>
+        {elem}
     </div>
 }
 
@@ -364,7 +427,9 @@ export default function AdminGametypeManager(){
         "bSaving": false,
         "newGametypeName": "",
         "mergeNewGametypeId": -1,
-        "mergeOldGametypeId": -1
+        "mergeOldGametypeId": -1,
+        "selectedDeleteGametypeId": -1,
+        "bDeleteInProgress": false
     });
 
     const [mState, mDispatch] = useMessageBoxReducer();

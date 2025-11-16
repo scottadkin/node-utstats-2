@@ -125,7 +125,5 @@ export async function getAllTablesContainingColumns(columnNames){
             }
         }
     }
-
-    console.log(found);
     return found;
 }

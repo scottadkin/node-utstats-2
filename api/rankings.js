@@ -849,15 +849,10 @@ export async function updatePlayerRankings(gametypeId, matchId, matchDate, playe
 
 
 
-async function deleteGametype(gametypeId){
-
-    const query = `DELETE FROM nstats_ranking_player_current WHERE gametype=?`;
-    return await simpleQuery(query, [gametypeId]);
-}
 
 export async function mergeGametypes(oldId, newId){
     
-    await deleteGametype(oldId);
+    await deleteGametypeCurrent(oldId);
 
     await recalculateGametype(newId);
 }
