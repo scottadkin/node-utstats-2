@@ -606,6 +606,8 @@ export async function mergeGametypes(oldId, newId){
 export async function deleteGametype(id){
 
 
+    const mapIds = await getUniqueMapIdsForGametype(id);
+
     const tables = [
         "nstats_tele_frags",
         "nstats_player_telefrags"
@@ -617,5 +619,11 @@ export async function deleteGametype(id){
         const t = tables[i];
 
         await simpleQuery(`DELETE FROM ${t} WHERE gametype_id=?`, [id]);
+    }
+
+    for(let i = 0; i < mapIds.length; i++){
+
+        const m = mapIds[i];
+        await recalculateTotals("map", m);
     }
 }

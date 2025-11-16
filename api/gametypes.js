@@ -11,7 +11,7 @@ import { changeGametype as changeMatchGametype, deleteGametype as deleteGametype
 import { mergeGametypes as mergeMapGametypes } from "./maps.js";
 import { mergeGametypes as mergeCombogibGametypes, deleteGametype as deleteGametypeCombogib } from "./combogib.js";
 import { mergeGametypes as mergeCTFGametypes, deleteGametype as deleteGametypeCTF } from "./ctf.js";
-import { mergeGametypes as mergeWeaponsGametypes } from "./weapons.js";
+import { mergeGametypes as mergeWeaponsGametypes, deleteGametype as deleteGametypeWeapons } from "./weapons.js";
 import { mergeGametypes as mergePowerupsGametypes} from "./powerups.js";
 import { mergeGametypes as mergeRankingGametypes, deleteGametype as deleteGametypeRankings } from "./rankings.js";
 import { mergeGametypes as mergeWinrateGametypes } from "./winrate.js";
@@ -709,11 +709,10 @@ export async function deleteGametypeFull(id){
     await deleteGametypeCTF(id);
     await deleteGametypeCombogib(id);
     await deleteGametypeTelefrags(id);
+    await deleteGametypeWeapons(id);
     /*
 
-    nstats_player_weapon_match "gametype_id",
-    nstats_player_weapon_totals "gametype",
-    nstats_player_weapon_best "gametype_id",
+    
 
     nstats_map_totals "gametype_id",
     

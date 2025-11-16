@@ -121,8 +121,8 @@ export default class WeaponsManager{
         const mapTotals = await calculatePlayerTotalsFromMatchRows([...playerIds], "maps", this.mapId);
 
         await deletePlayerAllTimeTotals([...playerIds], weaponIds);
-        await deletePlayerTypeTotals("gametypes", this.gametypeId, [...playerIds], weaponIds)
-        await deletePlayerTypeTotals("maps", this.mapId, [...playerIds], weaponIds)
+        await deletePlayerTypeTotals("gametype", this.gametypeId, [...playerIds], weaponIds)
+        await deletePlayerTypeTotals("map", this.mapId, [...playerIds], weaponIds)
 
 
         await bulkInsertPlayerTotals(allTimeTotals, 0, 0);
