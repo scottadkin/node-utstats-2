@@ -2064,3 +2064,11 @@ export async function changeGametype(oldId, newId){
 
     return await simpleQuery(query, [newId, oldId]);
 }
+
+
+export async function deleteGametype(id){
+
+    const query = `DELETE FROM nstats_matches WHERE gametype=?`;
+
+    return await simpleQuery(query, [id]);
+}

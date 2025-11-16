@@ -3389,3 +3389,46 @@ export async function mergeGametypes(oldGametypeId, newGametypeId){
 
     await recalculateGametypeTotals(newGametypeId);
 }
+
+
+async function getUniquePlayedMaps(gametypeId){
+
+    let query = `SELECT DISTINCT map FROM nstats_player_matches`;
+    const vars = [];
+
+    if(gametypeId !== 0){
+        query += ` WHERE gametype=?`;
+        vars.push(gametypeId);
+    }
+
+    const result = await simpleQuery(query, vars);
+    
+    const ids = [];
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        ids.push(r.map);
+    }
+
+    return ids;
+
+}
+
+export async function deleteGametype(id){
+
+
+    const tables = [
+        "nstats_player_totals",
+        "nstats_player_matches"
+    ];
+
+    for(let i = 0; i < tables.length; i++){
+
+        const t = tables[i];
+
+        await simpleQuery(`DELETE FROM ${t} WHERE gametype=?`, [id]);
+    }
+    
+    await recalculateAllPlayerMapGametypeRecords();
+}

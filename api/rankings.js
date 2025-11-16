@@ -861,3 +861,20 @@ export async function mergeGametypes(oldId, newId){
 
     await recalculateGametype(newId);
 }
+
+
+export async function deleteGametype(id){
+
+
+    const tables = [
+        "nstats_ranking_player_current",
+        "nstats_ranking_player_history"
+    ];
+
+    for(let i = 0; i < tables.length; i++){
+
+        const t = tables[i];
+
+        await simpleQuery(`DELETE FROM ${t} WHERE gametype=?`, [id]);
+    }
+}

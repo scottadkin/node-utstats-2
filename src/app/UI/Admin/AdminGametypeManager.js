@@ -17,7 +17,9 @@ function reducer(state, action){
                 ...state,
                 "data": action.data,
                 "savedData": action.data,
-                "newGametypeName": ""
+                "newGametypeName": "",
+                "mergeNewGametypeId": -1,
+                "mergeOldGametypeId": -1,
             }
         }
 
@@ -342,11 +344,23 @@ function renderMergeGametypes(state, dispatch, mDispatch){
     </div>
 }
 
+function renderDeleteGametype(state, dispatch, mDispatch){
+
+    if(state.mode !== "delete") return null;
+
+
+    return <div className="form">
+        <div className="form-info">
+            Delete a gametype and all matches and data associated with it.
+        </div>
+    </div>
+}
+
 export default function AdminGametypeManager(){
 
     const [state, dispatch] = useReducer(reducer, {
         "data": [],
-        "mode": "merge",
+        "mode": "delete",
         "bSaving": false,
         "newGametypeName": "",
         "mergeNewGametypeId": -1,
@@ -364,6 +378,7 @@ export default function AdminGametypeManager(){
         {"name": "Current Gametypes", "value": "list"},
         {"name": "Create Gametype", "value": "create"},
         {"name": "Merge Gametypes", "value": "merge"},
+        {"name": "Delete Gametype", "value": "delete"},
     ];
 
 
@@ -379,5 +394,6 @@ export default function AdminGametypeManager(){
         {renderList(state, dispatch, mDispatch)}
         {renderCreateGametype(state, dispatch, mDispatch)}
         {renderMergeGametypes(state, dispatch, mDispatch)}
+        {renderDeleteGametype(state, dispatch, mDispatch)}
     </>
 }

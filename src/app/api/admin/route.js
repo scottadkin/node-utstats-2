@@ -16,10 +16,11 @@ import { getAllSettings as getAllRankingSettings, adminUpdateSettings as updateR
     recalculateAll as recalculateAllRankings } from "../../../../api/rankings";
 import { getAll as getAllItems, ITEM_TYPES, saveItemChanges } from "../../../../api/items";
 import { getAll as getAllGametypes, saveChanges as saveGametypeChanges, create as createGametype, mergeGametypes} from "../../../../api/gametypes";
-
+import { getAllTablesContainingColumns } from "../../../../api/database";
 
 
 export async function POST(req){
+
 
     try{
 

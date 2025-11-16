@@ -4,14 +4,16 @@ import fs from "fs";
 import { getObjectName } from "./genericServerSide.mjs";
 import { DEFAULT_DATE, DEFAULT_MIN_DATE } from "./generic.mjs";
 import { mergeGametypes as mergeGametypesTelefrags } from "./telefrags.js";
-import { mergeGametypes as mergePlayerGametypes, changeMatchDataGametypeId as changePlayerMatchDataGametype } from "./players.js";
-import { changeGametype as changeMatchGametype } from "./matches.js";
+import { mergeGametypes as mergePlayerGametypes, changeMatchDataGametypeId as changePlayerMatchDataGametype,
+    deleteGametype as deleteGametypePlayers
+ } from "./players.js";
+import { changeGametype as changeMatchGametype, deleteGametype as deleteGametypeMatches } from "./matches.js";
 import { mergeGametypes as mergeMapGametypes } from "./maps.js";
 import { mergeGametypes as mergeCombogibGametypes } from "./combogib.js";
 import { mergeGametypes as mergeCTFGametypes } from "./ctf.js";
 import { mergeGametypes as mergeWeaponsGametypes } from "./weapons.js";
 import { mergeGametypes as mergePowerupsGametypes} from "./powerups.js";
-import { mergeGametypes as mergeRankingGametypes } from "./rankings.js";
+import { mergeGametypes as mergeRankingGametypes, deleteGametype as deleteGametypeRankings } from "./rankings.js";
 import { mergeGametypes as mergeWinrateGametypes } from "./winrate.js";
 
 export async function getAllGametypeNames(){
@@ -694,4 +696,39 @@ export async function mergeGametypes(oldId, newId){
 
     await mergeRankingGametypes(oldId, newId);
 
+}
+
+/**
+ * delete a gametype and all matches and data associated with it
+ */
+export async function deleteGametypeFull(id){
+
+    await deleteGametypeRankings(id);
+    await deleteGametypeMatches(id);
+    await deleteGametypePlayers(id);
+    /*
+    nstats_ctf_caps "gametype_id",
+    nstats_player_weapon_match "gametype_id",
+    nstats_player_weapon_totals "gametype",
+    nstats_player_weapon_best "gametype_id",
+    nstats_match_combogib "gametype_id",
+    nstats_map_combogib "gametype_id",
+    nstats_player_ctf_match "gametype_id",
+    nstats_player_ctf_totals "gametype_id",
+    nstats_player_ctf_best "gametype_id",
+    nstats_player_ctf_best_life "gametype_id",
+    nstats_ctf_cap_records "gametype_id",
+    nstats_tele_frags "gametype_id",
+    nstats_player_telefrags "gametype_id",
+    nstats_map_totals "gametype_id",
+    nstats_player_combogib "gametype_id",
+    nstats_powerups_carry_times "gametype_id",
+    
+    nstats_winrates_latest "gametype",
+    nstats_powerups_player_totals "gametype_id",
+    nstats_powerups_player_match "gametype_id",
+    
+    
+    */
+    
 }
