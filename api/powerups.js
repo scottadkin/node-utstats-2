@@ -663,6 +663,34 @@ async function getUniquePlayedMaps(gametypeId){
     });
 }
 
+
+async function deleteAllTimeTotals(){
+
+    const query = `DELETE FROM nstats_powerups_player_totals WHERE gametype_id=0 AND map_id=0`;
+
+    return await simpleQuery(query);
+}
+
+async function recalculateAllTimeTotals(){
+
+    const query = `SELECT player_id,${PLAYER_MATCH_TOTALS_COLUMNS}
+    FROM nstats_powerups_player_match
+    GROUP BY player_id,powerup_id`;
+
+    const data = await simpleQuery(query);
+
+  
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+        d.gametype_id = 0;
+        d.map_id = 0;
+    }
+
+    await deleteAllTimeTotals();
+    await bulkInsertPlayerTotals(data);
+}
+
 export async function deleteGametype(id){
 
     const mapIds = await getUniquePlayedMaps(id);
@@ -677,10 +705,10 @@ export async function deleteGametype(id){
     for(let i = 0; i < tables.length; i++){
 
         const t = tables[i];
-
         await simpleQuery(`DELETE FROM ${t} WHERE gametype_id=?`, [id]);
     }
 
+    await recalculateAllTimeTotals();
 
     for(let i = 0; i < mapIds.length; i++){
 
