@@ -2077,6 +2077,7 @@ async function recalculatePlayerTotals(type, id){
     await bulkInsertPlayerTotals(data);
 }
 
+
 export async function mergeGametypes(oldId, newId){
 
 
@@ -2108,6 +2109,50 @@ async function getUniquePlayedMaps(type, id){
 }
 
 
+async function deleteAllTimeTotals(){
+ 
+    const query = `DELETE FROM nstats_player_weapon_totals WHERE gametype=0 AND map_id=0`;
+
+    return await simpleQuery(query);
+}
+
+async function recalculateAllTimeTotals(){
+
+    const query =  `SELECT player_id,weapon_id,${PLAYER_TOTALS_MATCH_COLUMNS}
+    FROM nstats_player_weapon_match
+    GROUP BY player_id,weapon_id`;
+
+    const data = await simpleQuery(query);
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+        d.gametype_id = 0;
+        d.map_id = 0;
+        
+        d.efficiency = 0;
+        d.accuracy = 0;
+
+
+        if(d.kills > 0){
+
+            if(d.deaths === 0){
+                d.efficiency = 100;
+            }else{
+                d.efficiency = d.kills / (d.kills + d.deaths) * 100;
+            }
+        }
+
+        if(d.hits > 0 && d.shots > 0){
+
+            d.accuracy = d.hits / d.shots * 100;
+        }
+    }
+
+    await deleteAllTimeTotals();
+    await bulkInsertPlayerTotals(data);
+}
+
 export async function deleteGametype(id){
 
     const mapIds = await getUniquePlayedMaps("gametype", id);
@@ -2125,7 +2170,7 @@ export async function deleteGametype(id){
     }
 
     await deletePlayerTotals("gametype", id);
-
+    await recalculateAllTimeTotals();
 
     for(let i = 0; i < mapIds.length; i++){
 
