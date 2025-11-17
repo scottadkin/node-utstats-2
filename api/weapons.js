@@ -1871,6 +1871,8 @@ async function deletePlayerBest(type, id){
 
     const query = `DELETE FROM nstats_player_weapon_best WHERE ${(type === "gametype") ? "gametype_id" : "map_id"}=?`;
 
+    console.log(query);
+
     return await simpleQuery(query, [id]);
 }
 
@@ -1879,7 +1881,7 @@ async function recalculatePlayerBest(type, id){
 
     type = type.toLowerCase();
 
-    if(VALID_TYPES.indexOf(type) === -1) throw new Error(`${type} is not a valod type for recalculatePlayerBest`);
+    if(VALID_TYPES.indexOf(type) === -1) throw new Error(`${type} is not a valid type for recalculatePlayerBest`);
 
     let query = `SELECT player_id,weapon_id,map_id,
     ${PLAYER_BEST_MATCH_COLUMNS}
@@ -2023,12 +2025,15 @@ async function recalculatePlayerTotals(type, id){
         }
 
         if(totals[d.player_id][d.weapon_id] === undefined){
+
             totals[d.player_id][d.weapon_id] = {...d};
+
             if(type === "gametype"){
                 totals[d.player_id][d.weapon_id].map_id = 0;
             }else if(type === "map"){
                 totals[d.player_id][d.weapon_id].gametype_id = 0;
             }
+
             bSkipMerge = true;
         }
 
@@ -2091,7 +2096,9 @@ async function getUniquePlayedMaps(type, id){
 
     if(VALID_TYPES.indexOf(type) === -1) throw new Error(`${type} is not a valid type for getUniquePlayedMaps`);
 
-    const query = `SELECT DISTINCT ${(type === "gametype") ? "gametype_id" : "map_id"} as target_id FROM nstats_player_weapon_match`;
+    const col = (type === "gametype") ? "gametype_id" : "map_id";
+
+    const query = `SELECT DISTINCT ${col} as target_id FROM nstats_player_weapon_match WHERE ${col}=?`;
 
     const result = await simpleQuery(query, [id]);
 
@@ -2124,7 +2131,10 @@ export async function deleteGametype(id){
 
         const m = mapIds[i];
 
+        await deletePlayerTotals("map", m);
         await recalculatePlayerTotals("map", m);
+        await deletePlayerBest("map", m);
         await recalculatePlayerBest("map", m);
     }
+
 }
