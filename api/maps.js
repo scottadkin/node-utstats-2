@@ -342,18 +342,7 @@ export default class Maps{
         const query = "SELECT name FROM nstats_maps ORDER BY name ASC";
         return await simpleQuery(query);
     }
-
-    async reduceMapTotals(id, playtime){
-
-        throw new Error(`Use mysql instead...`);
-        const query = "UPDATE nstats_maps SET matches=matches-1, playtime=playtime-? WHERE id=?";
-        return await simpleQuery(query, [playtime, id]);
-
-    }
-
-
  
-
     async recalculatePlayerTotalsAfterMerge(playerId){
 
         try{
@@ -407,69 +396,6 @@ export default class Maps{
             for(const [key, value] of Object.entries(totals)){
 
                 await this.insertPlayerTotals(playerId, key, value);
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-    async reduceTotal(mapId, playtime, matches){
-
-        throw new Error(`use mysql instead`);
-        const query = "UPDATE nstats_maps SET playtime=playtime-?, matches=matches-? WHERE id=?";
-        const vars = [playtime, matches, mapId];
-
-        await simpleQuery(query, vars);
-    }
-
-    async reduceTotals(mapStats){
-
-        try{
-
-            for(const [map, data] of Object.entries(mapStats)){
-
-                await this.reduceTotal(parseInt(map), data.playtime, data.matches);
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-
-    async reducePlayersTotals(playerData){
-
-        try{
-
-            const stats = {};
-
-            for(let i = 0; i < playerData.length; i++){
-
-                const p = playerData[i];
-
-                if(stats[p.player_id] === undefined){
-                    stats[p.player_id] = {};
-                }
-
-                if(stats[p.player_id][p.map_id] === undefined){
-
-                    stats[p.player_id][p.map_id] = {
-                        "matches": 0,
-                        "playtime": 0
-                    };
-                }
-
-                stats[p.player_id][p.map_id].matches++;
-                stats[p.player_id][p.map_id].playtime += p.playtime;
-            }
-
-            for(const [player, maps] of Object.entries(stats)){
-
-                for(const [mapId, values] of Object.entries(maps)){
-
-                    await this.reducePlayerTotals(parseInt(player), parseInt(mapId), values.matches, values.playtime);
-                }
             }
 
         }catch(err){
@@ -664,19 +590,6 @@ export default class Maps{
         return await deleteMap(id);
     }
 
-    /*async updateTotalsFromMergeData(mapId, first, last, matches, playtime){
-
-        const query = `UPDATE nstats_maps SET 
-        first = IF(first > ?, ?, first),
-        last = IF(last < ?, ?, last),
-        matches=matches+?,
-        playtime=playtime+?
-        WHERE id=?`;
-
-        const vars = [first, first, last, last, matches, playtime, mapId];
-
-        return await simpleQuery(query, vars);
-    }*/
 
     async deleteFlags(mapId){
 
@@ -1328,6 +1241,31 @@ export async function getTotalPlaytime(mapId, gametypeId){
 
 }
 
+async function deleteBasicTotals(id){
+
+    const query =  `DELETE FROM nstats_maps WHERE id=?`;
+
+    return await simpleQuery(query, [id]);
+}
+
+export async function recalcBasicTotals(id){
+
+    const query = `SELECT COUNT(*) as total_matches, SUM(playtime) as playtime, 
+    MIN(date) as first_match,MAX(date) as last_match
+    FROM nstats_matches
+    WHERE map=?`;
+
+    const data = await simpleQuery(query, [id]);
+
+    if(data[0].total_matches === 0){
+        await deleteBasicTotals(id);
+        return;
+    }
+    
+    const d = data[0];
+
+    await setBasicTotals(id, d.first_match, d.last_match, d.total_matches, d.playtime);
+}
 
 async function setBasicTotals(mapId, first, last, matches, playtime){
 
@@ -1516,6 +1454,23 @@ export async function mergeGametypes(oldId, newId){
     for(let i = 0; i < playedMaps.length; i++){
 
         const p = playedMaps[i];
+        await recalcBasicTotals(p);
         await recalculateTotals(newId, p);
     }
+}
+
+
+export async function deleteGametype(id, mapIds){
+
+
+    await recalcBasicTotals(id);
+    await deleteMapTotals(id, 0);
+
+    for(let i = 0; i < mapIds.length; i++){
+
+        const m = mapIds[i];
+
+        await recalculateTotals(0, m);
+    }
+
 }

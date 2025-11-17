@@ -20,6 +20,7 @@ function reducer(state, action){
                 "newGametypeName": "",
                 "mergeNewGametypeId": -1,
                 "mergeOldGametypeId": -1,
+                "selectedDeleteGametypeId": -1
             }
         }
 
@@ -377,7 +378,7 @@ async function deleteGametype(state, dispatch, mDispatch){
 
         if(res.error !== undefined) throw new Error(res.error);
 
-        
+        await loadData(dispatch, mDispatch);
 
     }catch(err){
         console.trace(err);

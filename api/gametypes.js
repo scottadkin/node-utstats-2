@@ -8,7 +8,7 @@ import { mergeGametypes as mergePlayerGametypes, changeMatchDataGametypeId as ch
     deleteGametype as deleteGametypePlayers
  } from "./players.js";
 import { changeGametype as changeMatchGametype, deleteGametype as deleteGametypeMatches } from "./matches.js";
-import { mergeGametypes as mergeMapGametypes } from "./maps.js";
+import { mergeGametypes as mergeMapGametypes, deleteGametype as deleteGametypeMaps } from "./maps.js";
 import { mergeGametypes as mergeCombogibGametypes, deleteGametype as deleteGametypeCombogib } from "./combogib.js";
 import { mergeGametypes as mergeCTFGametypes, deleteGametype as deleteGametypeCTF } from "./ctf.js";
 import { mergeGametypes as mergeWeaponsGametypes, deleteGametype as deleteGametypeWeapons } from "./weapons.js";
@@ -698,10 +698,23 @@ export async function mergeGametypes(oldId, newId){
 
 }
 
+async function getUniquePlayedMaps(id){
+
+    const query = `SELECT DISTINCT map FROM nstats_matches WHERE gametype=?`;
+
+    const result = await simpleQuery(query, [id]);
+
+    return result.map((r) =>{
+        return r.map;
+    })
+}
+
 /**
  * delete a gametype and all matches and data associated with it
  */
 export async function deleteGametypeFull(id){
+
+    const mapIds = await getUniquePlayedMaps(id);
 
     await deleteGametypeRankings(id);
     await deleteGametypeMatches(id);
@@ -711,14 +724,13 @@ export async function deleteGametypeFull(id){
     await deleteGametypeTelefrags(id);
     await deleteGametypeWeapons(id);
     await deleteGametypePowerups(id);
+    await deleteGametypeMaps(id, mapIds);
+
+    await deleteGametype(id);
+
+
     /*
-
-    
-
-    nstats_map_totals "gametype_id",
-
     nstats_winrates_latest "gametype",
-    
     
     */
     
