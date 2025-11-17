@@ -10,9 +10,15 @@ export default class CountriesManager{
 
         if(limit === undefined) limit = 5;
 
-        const query = `SELECT COUNT(*) as total_uses, country, MIN(first) as first_match, MAX(last) as last_match
-        FROM nstats_player_totals WHERE country!="xx" AND gametype=0 AND map=0
-        GROUP BY(country) ORDER BY total_uses DESC LIMIT ?`;
+        const query = `SELECT COUNT(*) as total_uses, 
+        nstats_player.country, 
+        MIN(nstats_player_totals.first) as first_match, 
+        MAX(nstats_player_totals.last) as last_match
+        FROM nstats_player 
+        INNER JOIN nstats_player_totals ON nstats_player_totals.player_id = nstats_player.id AND nstats_player_totals.gametype=0 AND nstats_player_totals.map=0
+        WHERE nstats_player.country!="xx"
+
+        GROUP BY(nstats_player.country) ORDER BY total_uses DESC LIMIT ?`;
 
         const result = await simpleQuery(query, [limit]);
 

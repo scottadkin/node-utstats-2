@@ -12,6 +12,7 @@ import SpreeManager  from "./spreemanager.js";
 import {scalePlaytime} from "../functions.js";
 import { updatePlayerWinrates } from "../winrate.js";
 import { updatePlayerRankings } from "../rankings.js";
+import { recalculateTotals } from "../players.js";
 
 export default class PlayerManager{
 
@@ -526,7 +527,7 @@ export default class PlayerManager{
 
             const p = this.preliminaryPlayers[i];
 
-            new Message(`Player.getMasterIds(${p.name}, ${gametypeId}, ${mapId})`,"note");
+            new Message(`Player.getMasterIds(${p.name}`,"note");
 
             if(p.hwid !== ""){
 
@@ -538,10 +539,10 @@ export default class PlayerManager{
                 }
             }
 
-            const masterIds = await Player.getMasterIds(p.name, gametypeId, mapId);
+            const masterId = await Player.getMasterIds(p.name);
             
             if(p.hwid !== ""){
-                await Player.setLatestHWIDInfo(masterIds.masterId, p.hwid);
+                await Player.setLatestHWIDInfo(masterId, p.hwid);
             }
 
             //this.masterIdsToNames[masterIds.masterId] = p.name.toLowerCase();
@@ -549,10 +550,7 @@ export default class PlayerManager{
             const player = new PlayerInfo(
                 p.ids, 
                 p.name, 
-                masterIds.masterId, 
-                masterIds.gametypeId, 
-                masterIds.mapId, 
-                masterIds.mapGametypeId, 
+                masterId, 
                 p.hwid, 
                 p.bSpectator,
             );
@@ -564,13 +562,6 @@ export default class PlayerManager{
             this.players.push(player);
         }
 
-
-
-        /*for(let i = 0; i < this.players.length; i++){
-
-            const p = this.players[i];
-            console.log(p.name, p.ids, p.masterId);
-        }*/
     }
 
 
@@ -1224,186 +1215,42 @@ export default class PlayerManager{
     }
 
 
-    async updateFragPerformance(gametypeId, mapId, date){
+    async updateFragPerformance(gametypeId, mapId){
+
+        const playerIds = [];
 
         try{
-
-
-            const updatedMasterIds = [];
-            const updatedGametypeIds = [];
-            const updatedMapIds = [];
-            const updatedMapGametypeIds = [];
-   
-            //get current gametype id here
 
             for(let i = 0; i < this.players.length; i++){
 
                 const p = this.players[i];
 
                 if(this.bIgnoreBots && p.bBot) continue;
-                
-                const totalPlaytime = p.getTotalPlaytime(this.totalTeams);
 
-                const teamPlaytime = p.getPlaytimeByTeam(this.totalTeams);
-
-                //update combined gametypes totals
-                await Player.updateFrags(
-                    p.masterId, 
-                    date,
-                    totalPlaytime, 
-                    teamPlaytime.red,
-                    teamPlaytime.blue,
-                    teamPlaytime.green,
-                    teamPlaytime.yellow,
-                    teamPlaytime.spec,
-                    p.stats.frags,
-                    p.stats.score,  
-                    p.stats.kills, 
-                    p.stats.deaths, 
-                    p.stats.suicides, 
-                    p.stats.teamkills,
-                    p.stats.spawnKills,
-                    p.stats.multis,
-                    p.stats.bestMulti,
-                    p.stats.sprees,
-                    p.stats.bestSpree,
-                    p.stats.fastestKill,
-                    p.stats.slowestKill,
-                    p.stats.bestspawnkillspree,
-                    p.stats.firstBlood,
-                    p.stats.accuracy,
-                    p.stats.killsNormalRange,
-                    p.stats.killsLongRange,
-                    p.stats.killsUberRange,
-                    p.stats.headshots,
-                    0,
-                    0
-                );
-
-                //update gametype specific totals
-                await Player.updateFrags(
-                    p.gametypeId, 
-                    date,
-                    totalPlaytime, 
-                    teamPlaytime.red,
-                    teamPlaytime.blue,
-                    teamPlaytime.green,
-                    teamPlaytime.yellow,
-                    teamPlaytime.spec,
-                    p.stats.frags,
-                    p.stats.score, 
-                    p.stats.kills, 
-                    p.stats.deaths, 
-                    p.stats.suicides, 
-                    p.stats.teamkills,
-                    p.stats.spawnKills,
-                    p.stats.multis,
-                    p.stats.bestMulti,
-                    p.stats.sprees,
-                    p.stats.bestSpree,
-                    p.stats.fastestKill,
-                    p.stats.slowestKill,
-                    p.stats.bestspawnkillspree,
-                    p.stats.firstBlood,
-                    p.stats.accuracy,
-                    p.stats.killsNormalRange,
-                    p.stats.killsLongRange,
-                    p.stats.killsUberRange,
-                    p.stats.headshots,
-                    gametypeId,
-                    0
-                );
-
-                //update map specific totals
-                await Player.updateFrags(
-                    p.mapId, 
-                    date,
-                    totalPlaytime, 
-                    teamPlaytime.red,
-                    teamPlaytime.blue,
-                    teamPlaytime.green,
-                    teamPlaytime.yellow,
-                    teamPlaytime.spec,
-                    p.stats.frags,
-                    p.stats.score, 
-                    p.stats.kills, 
-                    p.stats.deaths, 
-                    p.stats.suicides, 
-                    p.stats.teamkills,
-                    p.stats.spawnKills,
-                    p.stats.multis,
-                    p.stats.bestMulti,
-                    p.stats.sprees,
-                    p.stats.bestSpree,
-                    p.stats.fastestKill,
-                    p.stats.slowestKill,
-                    p.stats.bestspawnkillspree,
-                    p.stats.firstBlood,
-                    p.stats.accuracy,
-                    p.stats.killsNormalRange,
-                    p.stats.killsLongRange,
-                    p.stats.killsUberRange,
-                    p.stats.headshots,
-                    0,
-                    mapId
-                );
-
-                //update map+gametype specific totals
-                await Player.updateFrags(
-                    p.mapGametypeId, 
-                    date,
-                    totalPlaytime, 
-                    teamPlaytime.red,
-                    teamPlaytime.blue,
-                    teamPlaytime.green,
-                    teamPlaytime.yellow,
-                    teamPlaytime.spec,
-                    p.stats.frags,
-                    p.stats.score, 
-                    p.stats.kills, 
-                    p.stats.deaths, 
-                    p.stats.suicides, 
-                    p.stats.teamkills,
-                    p.stats.spawnKills,
-                    p.stats.multis,
-                    p.stats.bestMulti,
-                    p.stats.sprees,
-                    p.stats.bestSpree,
-                    p.stats.fastestKill,
-                    p.stats.slowestKill,
-                    p.stats.bestspawnkillspree,
-                    p.stats.firstBlood,
-                    p.stats.accuracy,
-                    p.stats.killsNormalRange,
-                    p.stats.killsLongRange,
-                    p.stats.killsUberRange,
-                    p.stats.headshots,
-                    gametypeId,
-                    mapId
-                );
-
-                //to prevent players that used multiple names during a match to update matches played by more than 1
-                if(updatedMasterIds.indexOf(p.masterId) === -1){
-                    await Player.incrementMatchesPlayed(p.masterId);
-                    updatedMasterIds.push(p.masterId);
-                }
-
-                if(updatedGametypeIds.indexOf(p.gametypeId) === -1){
-                    await Player.incrementMatchesPlayed(p.gametypeId);
-                    updatedGametypeIds.push(p.gametypeId);
-                }
-
-                if(updatedMapIds.indexOf(p.mapId) === -1){
-                    await Player.incrementMatchesPlayed(p.mapId);
-                    updatedMapIds.push(p.mapId);
-                }
-
-                if(updatedMapGametypeIds.indexOf(p.mapGametypeId) === -1){
-                    await Player.incrementMatchesPlayed(p.mapGametypeId);
-                    updatedMapGametypeIds.push(p.mapGametypeId);
-                }
-            
+                playerIds.push(p.masterId);
             }
+
+            console.log(playerIds);
+
+
+            //process.exit();
+
+
+            await recalculateTotals(playerIds, 0, 0);
+            await recalculateTotals(playerIds, gametypeId, 0);
+            await recalculateTotals(playerIds, gametypeId, mapId);
+            await recalculateTotals(playerIds, 0, mapId);
+
+            //NEED TO DELETE OLD TOTALS FIRST
+
+            //all time totals
+            //gametype totals
+            //map totals
+            // map + gametype totals
+
+
+            //get current gametype id here
+
 
 
         }catch(err){
@@ -1443,9 +1290,9 @@ export default class PlayerManager{
         if(ip === undefined) ip = "";
         if(country === undefined) country = "xx";
 
-        const query = "UPDATE nstats_player_totals SET ip=?,country=? WHERE id=? OR player_id=?";
+        const query = "UPDATE nstats_player SET ip=?,country=? WHERE id=?";
 
-        return await simpleQuery(query, [ip, country, id, id]);
+        return await simpleQuery(query, [ip, country, id]);
     }
 
     async setIpCountry(){

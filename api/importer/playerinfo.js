@@ -5,18 +5,13 @@ import { scalePlaytime, convertTimestamp } from "../functions.js";
 
 export default class PlayerInfo{
 
-    constructor(ids, name, masterId, gametypeId, mapId, mapGametypeId, HWID, bSpectator){
+    constructor(ids, name, masterId, HWID, bSpectator){
 
         this.ids = ids;
         this.name = name;
         //all time totals id
         this.masterId = masterId;
-        //gametype totals id
-        this.gametypeId = gametypeId;
-        //map totals id
-        this.mapId = mapId;
-        //map + gametype totals id
-        this.mapGametypeId = mapGametypeId;
+ 
         this.connects = [];
         this.disconnects = [];
         this.teams = [];

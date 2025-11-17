@@ -550,6 +550,15 @@ const queries = [
         position int(11) NOT NULL,
         enabled tinyint(1) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+      `CREATE TABLE IF NOT EXISTS nstats_player (
+        id int(11) NOT NULL AUTO_INCREMENT,
+        name varchar(100) NOT NULL,
+        hwid varchar(32) NOT NULL,
+        ip varchar(50) NOT NULL,
+        country varchar(5) NOT NULL,
+        face int(11) NOT NULL,
+        voice int(11) NOT NULL
+      ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_player_matches (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
@@ -637,15 +646,9 @@ const queries = [
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_player_totals (
         id int(11) NOT NULL AUTO_INCREMENT,
-        hwid varchar(32) NOT NULL,
-        name varchar(30) NOT NULL,
         player_id int(11) NOT NULL,
         first DATETIME NOT NULL,
         last DATETIME NOT NULL,
-        ip varchar(50) NOT NULL,
-        country varchar(2) NOT NULL,
-        face int(100) NOT NULL,
-        voice int(11) NOT NULL,
         gametype int(11) NOT NULL,
         map int(11) NOT NULL,
         matches int(11) NOT NULL,

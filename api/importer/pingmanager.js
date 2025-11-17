@@ -50,6 +50,7 @@ export default class PingManager{
                             const masterId = currentPlayer.masterId;
 
                             if(masterId === undefined){
+                                console.log(currentPlayer);
                                 new Message(`parsePings() masterId is undefined.`, "Warning");
                                 continue;
                             }

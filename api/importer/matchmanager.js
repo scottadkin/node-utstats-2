@@ -246,7 +246,7 @@ export default class MatchManager{
 
             //this.playerManager.mergeDuplicates(bLMS);
 
-            
+
             await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype, this.mapInfo.mapId, this.serverInfo.date);
 
             new Message(`Updated player frag performance.`,'pass');

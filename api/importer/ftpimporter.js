@@ -11,8 +11,7 @@ export default class FTPImporter{
 
     constructor(host, port, user, password, targetDir, bDeleteAfter, bDeleteTmpFiles, bIgnoreDuplicates, bImportAce, bDeleteAceLogs, bDeleteAceScreenshots){
 
-        //this.events = new MyEmitter();
-
+     
         this.host = host;
         this.port = port;
         this.user = user;
@@ -70,6 +69,7 @@ export default class FTPImporter{
 
                 }catch(err){
             
+                    console.trace(err);
                     new Message(err.toString(), "error");
           
                 }finally{

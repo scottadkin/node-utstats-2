@@ -174,7 +174,7 @@ export default class Faces{
         face = parseInt(face);
         if(face !== face) face = 0;
 
-        const query = `UPDATE nstats_player_totals SET face=? WHERE id=?`;
+        const query = `UPDATE nstats_player SET face=? WHERE id=?`;
 
         return await simpleQuery(query, [face, player]);
     }

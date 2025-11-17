@@ -44,32 +44,45 @@ export default class PlayerSearch{
 
         const vars = [];
 
-        let where = "WHERE playtime>0 AND player_id=0 AND gametype=0";
+        let where = "WHERE nstats_player_totals.playtime>0 AND nstats_player_totals.gametype=0 AND nstats_player_totals.map=0";
 
         if(name !== ""){
-            where += ` AND name LIKE ?`;
+            where += ` AND nstats_player.name LIKE ?`;
             vars.push(`%${name}%`);
         }
 
         if(country !== ""){
-            where += ` AND country=?`;
+            where += ` AND nstats_player.country=?`;
             vars.push(country);
         }
 
-        where += ` AND last>=? AND last<=?`;
+        where += ` AND nstats_player_totals.last>=? AND nstats_player_totals.last<=?`;
         vars.push(minTimestamp, maxTimestamp);
 
         if(order !== "asc" && order !== "desc") order = "asc";
 
-        const normalSelect = `SELECT id,name,last,country,face,playtime,score,kills,matches `;
+        const normalSelect = `SELECT nstats_player.id,
+        nstats_player.name,
+        nstats_player.country,
+        nstats_player.face,
+        nstats_player_totals.last,
+        nstats_player_totals.playtime,
+        nstats_player_totals.score,
+        nstats_player_totals.kills,
+        nstats_player_totals.matches `;
         const countSelect = `SELECT COUNT(*) as total_matches `;
 
         const limit = (!bOnlyCount) ? `LIMIT ?, ?` : "";
 
 
         const query = `${(bOnlyCount) ? countSelect : normalSelect} 
-        FROM nstats_player_totals ${where} ORDER BY ${validSortBy[sortIndex]} ${order.toUpperCase()} ${limit}`; 
+        FROM nstats_player 
+        INNER JOIN nstats_player_totals ON nstats_player_totals.player_id = nstats_player.id
+        ${where} ORDER BY ${validSortBy[sortIndex]} ${order.toUpperCase()} ${limit}`; 
 
+
+
+        console.log(query);
 
         if(!bOnlyCount){
             perPage = cleanInt(perPage, 1, 100);

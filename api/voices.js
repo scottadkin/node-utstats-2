@@ -65,7 +65,7 @@ export default class Voices{
 
     async updatePlayerVoice(playerId, voiceId){
 
-        const query = "UPDATE nstats_player_totals SET voice=? WHERE id=?";
+        const query = "UPDATE nstats_player SET voice=? WHERE id=?";
         return await simpleQuery(query, [voiceId, playerId]);
     }
 
@@ -97,27 +97,23 @@ export default class Voices{
 
     async setPlayerVoices(players){
 
-        try{
+        for(let i = 0; i < players.length; i++){
 
-            for(let i = 0; i < players.length; i++){
+            const p = players[i];
 
-                const p = players[i];
+            const currentId = this.getIdFromVoices(p.voice);
 
-                const currentId = this.getIdFromVoices(p.voice);
+            if(currentId !== null){
 
-                if(currentId !== null){
-
-                    await this.updatePlayerVoice(p.masterId, currentId);
-                    p.voiceId = currentId;
-                }else{
-                    p.voiceId = 0;
-                    //new Message(`Failed to update player voice`,'warning');
-                }
-
+                await this.updatePlayerVoice(p.masterId, currentId);
+                p.voiceId = currentId;
+            }else{
+                p.voiceId = 0;
+                //new Message(`Failed to update player voice`,'warning');
             }
-        }catch(err){
-            new Message(`setPlayerVoices ${err}`,'error');
+
         }
+   
     }
 
 

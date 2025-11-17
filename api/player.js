@@ -14,25 +14,18 @@ export default class Player{
 
         if(hwid === undefined) hwid = "";
 
-        const query = `INSERT INTO nstats_player_totals VALUES(
-            NULL,?,?,0,?,?,0,"",0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0)`;
+        const query = `INSERT INTO nstats_player VALUES(
+            NULL,?,?,"0.0.0.0","xx",0,0)`;
 
-        const result = await simpleQuery(query, [hwid, playerName, DEFAULT_MIN_DATE, DEFAULT_DATE]);
+        const result = await simpleQuery(query, [playerName, hwid]);
 
-            //55
         return result.insertId;
     }
 
 
     async getMasterId(playerName){
 
-        const query = "SELECT id FROM nstats_player_totals WHERE name=? AND gametype=0 AND map=0";
+        const query = "SELECT id FROM nstats_player WHERE name=?";
 
         const result = await simpleQuery(query, [playerName]);
 
@@ -43,66 +36,33 @@ export default class Player{
         return result[0].id;
     }
 
-    async createGametypeId(playerName, playerMasterId, gametypeId, mapId, hwid){
+    async createGametypeId(playerMasterId, gametypeId, mapId, hwid){
 
         if(hwid === undefined) hwid = "";
 
         const query = `INSERT INTO nstats_player_totals VALUES(
-            NULL,?,?,?,?,?,0,"",0,0,?,?,
+            NULL,?,?,?,?,?,
+            0,0,0,0,0,
+            0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,
-            0,0,0,0,0,0,0,0,0,0,0,0,0)`;
+            0,0,0,0,0,0,0,0,
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0
+            )`;
 
-        const result = await simpleQuery(query, [hwid, playerName, playerMasterId, DEFAULT_MIN_DATE, DEFAULT_DATE, gametypeId, mapId]);
+        const result = await simpleQuery(query, [playerMasterId, DEFAULT_MIN_DATE, DEFAULT_DATE, gametypeId, mapId]);
 
         return result.insertId;
     }
     
-    async getGametypeId(playerName, playerMasterId, gametypeId, mapId){
+   
+    async getMasterIds(playerName){
 
-        const query = "SELECT id FROM nstats_player_totals WHERE player_id=? AND gametype=? AND map=?";
+        return await this.getMasterId(playerName);
 
-        const result = await simpleQuery(query, [playerMasterId, gametypeId, mapId]);
-
-        if(result.length === 0){
-            return await this.createGametypeId(playerName, playerMasterId, gametypeId, mapId);
-        }
-
-        return result[0].id;
-    }
-
-
-    async getMapId(playerName, playerMasterId, gametypeId, mapId){
-
-        const query = `SELECT id FROM nstats_player_totals WHERE player_id=? AND gametype=? AND map=?`;
-        const result = await simpleQuery(query, [playerMasterId, gametypeId, mapId]);
-
-        if(result.length === 0){
-            //create new map id
-            return await this.createGametypeId(playerName, playerMasterId, gametypeId, mapId);
-        }
-
-        return result[0].id;
-    }
-
-    async getMasterIds(playerName, gametypeId, mapId){
-
-        //all time totals id
-        const masterId = await this.getMasterId(playerName);
-
-        //all time gametype ids
-        const gametypeMasterId = await this.getGametypeId(playerName, masterId, gametypeId, 0);
-
-        //map totals id
-        const mapMasterId = await this.getMapId(playerName, masterId, 0, mapId);
-
-        //map + gametype totals id 
-        const mapGametypeMasterId = await this.getMapId(playerName, masterId, gametypeId, mapId);
-
-        return {"masterId": masterId, "gametypeId": gametypeMasterId, "mapId": mapMasterId, "mapGametypeId": mapGametypeMasterId};
     }
 
     async updatePlayerNameHWID(hwid, playerName){
@@ -141,36 +101,8 @@ export default class Player{
         gametypeId = parseInt(gametypeId);
 
         // all time totals
-        let masterId = await this.getHWIDMasterId(hwid, playerName);
+        return await this.getHWIDMasterId(hwid, playerName);
 
-        if(masterId === null){
-            masterId = await this.createMasterId(playerName, hwid);
-        }
-
-        // gametype all time totals
-        let gametypeMasterId = await this.getHWIDGametypeId(hwid, gametypeId, 0);
-
-        if(gametypeMasterId === null){
-            gametypeMasterId = await this.createGametypeId(playerName, masterId, gametypeId, 0, hwid);
-        }
-
-
-        //map all time totals
-        let mapMasterId = await this.getHWIDGametypeId(hwid, 0, mapId);
-
-        if(mapMasterId === null){
-            mapMasterId = await this.createGametypeId(playerName, masterId, 0, mapId, hwid);
-        }
-
-        //map + gametype all time totals
-
-        let mapGametypeMasterId = await this.getHWIDGametypeId(hwid, gametypeId, mapId);
-
-        if(mapGametypeMasterId === null){
-            mapGametypeMasterId = await this.createGametypeId(playerName, masterId, gametypeId, mapId, hwid);
-        }
-
-        return {"masterId": masterId, "gametypeId": gametypeMasterId, "mapId": mapMasterId, "mapGametypeId": mapGametypeMasterId};
     }
 
     async updateFrags(id, date, playtime, redPlaytime, bluePlaytime, greenPlaytime, yellowPlaytime, specPlaytime,
@@ -200,7 +132,7 @@ export default class Player{
         accuracy=?, k_distance_normal=k_distance_normal+?, k_distance_long=k_distance_long+?, k_distance_uber=k_distance_uber+?,
         headshots=headshots+?,
         efficiency = IF(kills > 0, IF(deaths > 0, (kills / (deaths + kills) * 100), 100), 0)
-        WHERE id=? AND gametype=? AND map=?`;
+        WHERE player_id=? AND gametype=? AND map=?`;
 
         const vars = [
             date,
@@ -682,7 +614,7 @@ export default class Player{
 
     async setLatestHWIDInfo(playerId, hwid){
 
-        const query = "UPDATE nstats_player_totals SET hwid=? WHERE player_id=0 AND id=?";
+        const query = "UPDATE nstats_player SET hwid=? WHERE id=?";
 
         return await simpleQuery(query, [hwid, playerId]);
     }
