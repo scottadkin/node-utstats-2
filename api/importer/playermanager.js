@@ -1168,13 +1168,6 @@ export default class PlayerManager{
     }
 
 
-    mergePlayer(master, duplicate){
-
-        new Message(`PlayerManager.mergePlayer() is deprecated`,"error");
-        return;
-
-    }
-
     setWeaponStats(){
 
         //console.log(this.data);
@@ -1230,28 +1223,10 @@ export default class PlayerManager{
                 playerIds.push(p.masterId);
             }
 
-            console.log(playerIds);
-
-
-            //process.exit();
-
-
             await recalculateTotals(playerIds, 0, 0);
             await recalculateTotals(playerIds, gametypeId, 0);
             await recalculateTotals(playerIds, gametypeId, mapId);
             await recalculateTotals(playerIds, 0, mapId);
-
-            //NEED TO DELETE OLD TOTALS FIRST
-
-            //all time totals
-            //gametype totals
-            //map totals
-            // map + gametype totals
-
-
-            //get current gametype id here
-
-
 
         }catch(err){
             console.trace(err);

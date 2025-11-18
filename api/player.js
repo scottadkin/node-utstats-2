@@ -1,4 +1,4 @@
-import { simpleQuery, bulkInsert } from "./database.js";
+import { simpleQuery, bulkInsert, mysqlGetColumns } from "./database.js";
 import { setValueIfUndefined, calculateKillEfficiency, removeIps, removeUnr, getPlayer, DEFAULT_DATE, DEFAULT_MIN_DATE } from "./generic.mjs";
 import { getSettings } from "./sitesettings.js";
 import { getObjectName } from "./genericServerSide.mjs";
@@ -528,27 +528,6 @@ export default class Player{
     }
 
 
-    async deletePlayerMatch(playerId, matchId){
-
-        return await simpleQuery("DELETE FROM nstats_player_matches WHERE player_id=? AND match_id=?", [
-            playerId, matchId
-        ]);
-    }
-
-    async deletePlayerScoreData(playerId, matchId){
-
-        return await simpleQuery("DELETE FROM nstats_match_player_score WHERE player=? AND match_id=?",
-        [playerId, matchId]);
-    }
-
-
-    async deletePlayerTeamChanges(playerId, matchId){
-
-        return await simpleQuery("DELETE FROM nstats_match_team_changes WHERE player=? AND match_id=?",[
-            playerId, matchId
-        ]);
-    }
-
     async getPlayerGametypeData(playerName, gametypeId){
 
         return await simpleQuery("SELECT * FROM nstats_player_totals WHERE name=? AND gametype=?", 
@@ -557,14 +536,6 @@ export default class Player{
     }
     
 
-
-    async getPlayerCapRecords(playerId){
-
-        const query = "SELECT match_id,match_date,map_id FROM nstats_ctf_cap_records WHERE cap=?";
-
-        const result = await simpleQuery(query, [playerId]);
-
-    }
 
     async bPlayerInMatch(playerId, matchId){
 
@@ -637,14 +608,39 @@ export async function getPlayerById(id){
 
     id = parseInt(id);
 
-    const query = "SELECT * FROM nstats_player_totals WHERE id=? LIMIT 1";
+    const query = `SELECT nstats_player.id,
+    nstats_player.name,
+    nstats_player.country,
+    nstats_player.face,
+    nstats_player_totals.first, nstats_player_totals.last,
+    nstats_player_totals.matches,               nstats_player_totals.wins,               nstats_player_totals.losses,
+    nstats_player_totals.draws,                 nstats_player_totals.winrate,            nstats_player_totals.playtime,
+    nstats_player_totals.team_0_playtime,       nstats_player_totals.team_1_playtime,    nstats_player_totals.team_2_playtime,
+    nstats_player_totals.team_3_playtime,       nstats_player_totals.spec_playtime,      nstats_player_totals.first_bloods,
+    nstats_player_totals.frags,                 nstats_player_totals.score,              nstats_player_totals.kills,
+    nstats_player_totals.deaths,                nstats_player_totals.suicides,           nstats_player_totals.team_kills,
+    nstats_player_totals.spawn_kills,           nstats_player_totals.efficiency,         nstats_player_totals.multi_1,
+    nstats_player_totals.multi_2 ,              nstats_player_totals.multi_3,            nstats_player_totals.multi_4,
+    nstats_player_totals.multi_5,               nstats_player_totals.multi_6,            nstats_player_totals.multi_7,
+    nstats_player_totals.multi_best,            nstats_player_totals.spree_1,            nstats_player_totals.spree_2,
+    nstats_player_totals.spree_3,               nstats_player_totals.spree_4,            nstats_player_totals.spree_5,
+    nstats_player_totals.spree_6,               nstats_player_totals.spree_7,            nstats_player_totals.spree_best,
+    nstats_player_totals.best_spawn_kill_spree, nstats_player_totals.assault_objectives, nstats_player_totals.dom_caps,
+    nstats_player_totals.dom_caps_best,         nstats_player_totals.dom_caps_best_life, nstats_player_totals.accuracy,
+    nstats_player_totals.k_distance_normal,     nstats_player_totals.k_distance_long,    nstats_player_totals.k_distance_uber,
+    nstats_player_totals.headshots,             nstats_player_totals.shield_belt,        nstats_player_totals.amp,
+    nstats_player_totals.amp_time,              nstats_player_totals.invisibility,       nstats_player_totals.invisibility_time,
+    nstats_player_totals.pads,                  nstats_player_totals.armor,              nstats_player_totals.boots,
+    nstats_player_totals.super_health,          nstats_player_totals.mh_kills,           nstats_player_totals.mh_kills_best_life,
+    nstats_player_totals.mh_kills_best,         nstats_player_totals.mh_deaths,
+    nstats_player_totals.mh_deaths_worst 
+    FROM nstats_player 
+    INNER JOIN nstats_player_totals ON nstats_player_totals.player_id = nstats_player.id AND nstats_player_totals.gametype=0 AND nstats_player_totals.map=0
+    WHERE nstats_player.id=?`;
 
     const result = await simpleQuery(query, [id]);
 
     if(result.length === 0) return null;
-
-    delete result[0].hwid;
-    delete result[0].ip;
 
     return result[0];
 

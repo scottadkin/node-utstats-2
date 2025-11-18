@@ -154,34 +154,6 @@ async function getPlayerCurrent(playerIds, gametypeId, mapId){
     return data;
 }
 
-/*
-//players first game
-async function insertNewPlayerWinrateHistory(playerId, playerResult, matchDate, matchId, gametypeId, mapId){
-
-
-    const query = `INSERT INTO nstats_winrates VALUES(NULL,
-    ?,?,?,?,?,?,
-    1,?,?,?,?,
-    ?,1,?,?,?
-    )`;
-
-    const vars = [
-        matchDate, matchId, playerId, gametypeId, mapId,
-        playerResult,
-        (playerResult === "w") ? 1 : 0,
-        (playerResult === "d") ? 1 : 0,
-        (playerResult === "l") ? 1 : 0,
-        (playerResult === "w") ? 100 : 0,
-        playerResult,
-        (playerResult === "w") ? 1 : 0,
-        (playerResult === "d") ? 1 : 0,
-        (playerResult === "l") ? 1 : 0,
-    ];
-
-    await simpleQuery(query, vars);
-}
-*/
-
 async function insertNewPlayerWinrateLatest(playerId, playerResult, matchDate, gametypeId, mapId){
 
 
@@ -246,25 +218,6 @@ function updateHistoryObject(playerData, matchResult){
     playerData.winrate = winrate;
 }
 
-/*async function updateExistingPlayer(playerId, playerData, matchResult, matchDate, matchId, gametypeId, mapId){
-
-
-    updateHistoryObject(playerData, matchResult);
-
-    const query = `UPDATE nstats_winrates_latest SET date=?,match_id=?,matches=?,
-    wins=?,draws=?,losses=?,winrate=?,current_streak_type=?,
-    current_streak=?,max_win_streak=?,max_draw_streak=?,max_lose_streak=?
-    WHERE player=? AND gametype=? AND map=?`;
-
-    const vars = [
-        matchDate, matchId, playerData.matches, playerData.wins, playerData.draws,
-        playerData.losses, playerData.winrate, playerData.current_streak_type, playerData.current_streak,
-        playerData.max_win_streak, playerData.max_draw_streak,playerData.max_lose_streak,
-        playerId, gametypeId, mapId
-    ];
-
-    return await simpleQuery(query, vars);
-}*/
 
 async function getPlayerMatchResultHistory(playerId, gametypeId, mapId){
 

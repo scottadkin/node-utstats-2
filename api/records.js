@@ -311,16 +311,25 @@ export async function getTotalGametypeMapEntries(gametype, map){
 async function getPlayerTotalAllGametypes(map, type, start, perPage){
 
 
-    const normalSelect = `SELECT name,id as player_id,country,matches,last,playtime,${type} as tvalue`;
+    const normalSelect = `SELECT nstats_player.name,
+    nstats_player.id as player_id,
+    nstats_player.country,
+    nstats_player_totals.matches,
+    nstats_player_totals.last,
+    nstats_player_totals.playtime,nstats_player_totals.${type} as tvalue`;
     const totalSelect = `SELECT COUNT(*) as total_results`;
 
-    const query = ` FROM nstats_player_totals WHERE gametype=0 AND map=? ${(type !== "spec_playtime") ? "AND playtime>0" : ""}`;
+    const query = ` FROM nstats_player INNER JOIN nstats_player_totals ON nstats_player_totals.player_id = nstats_player.id 
+    WHERE nstats_player_totals.gametype=0 AND nstats_player_totals.map=? ${(type !== "spec_playtime") ? "AND nstats_player_totals.playtime>0" : ""}`;
 
-    const orderBy = ` ORDER BY ${type} DESC LIMIT ?, ?`;
+    const orderBy = ` ORDER BY nstats_player_totals.${type} DESC LIMIT ?, ?`;
 
     const vars = [map, start, perPage];
 
     const result = await simpleQuery(`${normalSelect}${query}${orderBy}`, vars);
+
+    console.log(result);
+
     const totalResults = await simpleQuery(`${totalSelect}${query}`, vars);
 
     if(map !== 0){
@@ -346,12 +355,18 @@ async function getPlayerTotalAllGametypes(map, type, start, perPage){
 
 async function getPlayerTotalSingleGametype(gametype, map, type, start, perPage){
 
-    const normalSelect = `SELECT player_id,name,matches,last,playtime,${type} as tvalue`;
+    const normalSelect = `SELECT nstats_player_totals.player_id,
+    nstats_player.name,
+    nstats_player_totals.matches,
+    nstats_player_totals.last,
+    nstats_player_totals.playtime,nstats_player_totals.${type} as tvalue`;
     const totalSelect = `SELECT COUNT(*) as total_matches`;
 
-    const query = ` FROM nstats_player_totals WHERE gametype=? AND map=? ${(type !== "spec_playtime") ? " AND playtime > 0" : ""}`;
+    const query = ` FROM nstats_player_totals 
+    INNER JOIN nstats_player ON nstats_player.id = nstats_player_totals.player_id
+    WHERE nstats_player_totals.gametype=? AND nstats_player_totals.map=? ${(type !== "spec_playtime") ? " AND nstats_player_totals.playtime > 0" : ""}`;
 
-    const orderBy = ` ORDER BY ${type} DESC LIMIT ?, ?`;
+    const orderBy = ` ORDER BY nstats_player_totals.${type} DESC LIMIT ?, ?`;
 
     const vars = [gametype, map, start, perPage];
 

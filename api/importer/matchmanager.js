@@ -247,11 +247,7 @@ export default class MatchManager{
             //this.playerManager.mergeDuplicates(bLMS);
 
 
-            await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype, this.mapInfo.mapId, this.serverInfo.date);
-
-            new Message(`Updated player frag performance.`,'pass');
-            await this.playerManager.updateWinStats(this.gametype.currentMatchGametype, this.mapInfo.mapId);
-            new Message(`Updated player winstats performance.`,'pass');
+           
             
 
             if(this.domManager !== undefined){
@@ -480,6 +476,11 @@ export default class MatchManager{
             await calculateMapTotals(0, this.mapInfo.mapId);
 
 
+            await this.playerManager.updateFragPerformance(this.gametype.currentMatchGametype, this.mapInfo.mapId, this.serverInfo.date);
+
+            new Message(`Updated player frag performance.`,'pass');
+            await this.playerManager.updateWinStats(this.gametype.currentMatchGametype, this.mapInfo.mapId);
+            new Message(`Updated player winstats performance.`,'pass');
 
             const logId = await logsInsert(this.fileName);
 

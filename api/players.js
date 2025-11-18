@@ -136,12 +136,12 @@ export default class Players{
 
     async getTotalPlayers(name){
 
-        let query = "SELECT COUNT(*) as total_players FROM nstats_player_totals WHERE gametype=0 AND map=0 AND playtime>0";
+        let query = "SELECT COUNT(*) as total_players FROM nstats_player";
         let vars = [];
 
         if(name !== undefined){
 
-            query = "SELECT COUNT(*) as total_players FROM nstats_player_totals WHERE gametype=0 AND map=0 AND playtime>0 AND name LIKE(?) ";
+            query = "SELECT COUNT(*) as total_players FROM nstats_player WHERE name LIKE(?) ";
             vars = [`%${name}%`];
         }
 
@@ -507,138 +507,6 @@ export default class Players{
         return data;
     }
 
-
-    async getPlayerTotalsFromMatchesTable(playerId, gametypeId, mapId){
-
-        let query = `SELECT
-        COUNT(*) as total_matches,
-        player_id,
-        COUNT(*) as total_matches,
-        MIN(match_date) as first_match,
-        MAX(match_date) as last_match,
-        SUM(winner) as wins,
-        SUM(draw) as draws,
-        SUM(playtime) as playtime,
-        SUM(team_0_playtime) as team_0_playtime,
-        SUM(team_1_playtime) as team_1_playtime,
-        SUM(team_2_playtime) as team_2_playtime,
-        SUM(team_3_playtime) as team_3_playtime,
-        SUM(spec_playtime) as spec_playtime,
-        SUM(first_blood) as first_bloods,
-        SUM(frags) as frags,
-        SUM(score) as score,
-        SUM(kills) as kills,
-        SUM(deaths) as deaths,
-        SUM(suicides) as suicides,
-        SUM(team_kills) as team_kills,
-        SUM(spawn_kills) as spawn_kills,
-        SUM(multi_1) as multi_1,
-        SUM(multi_2) as multi_2,
-        SUM(multi_3) as multi_3,
-        SUM(multi_4) as multi_4,
-        SUM(multi_5) as multi_5,
-        SUM(multi_6) as multi_6,
-        SUM(multi_7) as multi_7,
-        MAX(multi_best) as multi_best,
-        SUM(spree_1) as spree_1,
-        SUM(spree_2) as spree_2,
-        SUM(spree_3) as spree_3,
-        SUM(spree_4) as spree_4,
-        SUM(spree_5) as spree_5,
-        SUM(spree_6) as spree_6,
-        SUM(spree_7) as spree_7,
-        MAX(spree_best) as spree_best,
-        MAX(best_spawn_kill_spree) as best_spawn_kill_spree,
-        SUM(assault_objectives) as assault_objectives,
-        SUM(dom_caps) as dom_caps,
-        MAX(dom_caps) as dom_caps_best,
-        MAX(dom_caps_best_life) as dom_caps_best_life,
-        AVG(accuracy) as accuracy,
-        SUM(k_distance_normal) as k_distance_normal,
-        SUM(k_distance_long) as k_distance_long,
-        SUM(k_distance_uber) as k_distance_uber,
-        SUM(headshots) as headshots,
-        SUM(shield_belt) as shield_belt,
-        SUM(amp) as amp,
-        SUM(amp_time) as amp_time,
-        SUM(invisibility) as invisibility,
-        SUM(invisibility_time) as invisibility_time,
-        SUM(pads) as pads,
-        SUM(armor) as armor,
-        SUM(boots) as boots,
-        SUM(super_health) as super_health,
-        SUM(mh_kills) as mh_kills,
-        MAX(mh_kills_best_life) as mh_kills_best_life,
-        MAX(mh_kills) as mh_kills_best,
-        SUM(mh_deaths) as mh_deaths,
-        MAX(mh_deaths) as mh_deaths_worst,
-        SUM(telefrag_kills) as telefrag_kills,
-        MAX(telefrag_kills) as telefrag_kills_best,
-        SUM(telefrag_deaths) as telefrag_deaths,
-        MAX(telefrag_deaths) as telefrag_deaths_worst,
-        MAX(telefrag_best_spree) as telefrag_best_spree,
-        MAX(telefrag_best_multi) as telefrag_best_multi,
-        SUM(tele_disc_kills) as tele_disc_kills,
-        MAX(tele_disc_kills) as tele_disc_kills_best,
-        SUM(tele_disc_deaths) as tele_disc_deaths,
-        MAX(tele_disc_deaths) as tele_disc_deaths_worst,
-        MAX(tele_disc_best_spree) as tele_disc_best_spree,
-        MAX(tele_disc_best_multi) as tele_disc_best_multi
-        FROM nstats_player_matches
-        WHERE playtime>0 AND player_id=?`;
-
-        const vars = [playerId];
-
-        if(gametypeId !== 0){
-
-            query += " AND gametype=?";
-
-            vars.push(gametypeId);
-        }
-
-        if(mapId !== 0){
-
-            query += " AND map_id=?";
-            vars.push(mapId);
-        }
-
-        
-
-        const result = await simpleQuery(query, vars);
-
-        if(result.length > 0){
-
-            result[0].efficiency = 0;
-
-            if(result[0].total_matches === 0) return null;
-
-            result[0].winRate = 0;
-            result[0].losses = 0;
-
-            if(result[0].total_matches > 0 && result[0].wins > 0){        
-                result[0].winRate = (result[0].wins / result[0].total_matches) * 100;
-            }
-
-            result[0].losses = result[0].total_matches - result[0].draws - result[0].wins;
-
-            if(result[0].kills > 0){
-
-                if(result[0].deaths > 0){
-
-                    result[0].efficiency = (result[0].kills / (result[0].kills + result[0].deaths)) * 100;
-
-                }else{
-                    result[0].efficiency = 100;
-                }
-            }
-
-            return result[0];
-        }
-
-        return null;
-
-    }
-
     async resetPlayerTotals(playerId, gametypeId, mapId){
 
         const query = `UPDATE nstats_player_totals SET
@@ -710,75 +578,7 @@ export default class Players{
     }
 
     
-    async reduceTotals(playerIds, gametypeId, mapId){
 
-        for(let i = 0; i < playerIds.length; i++){
-
-            const playerId = playerIds[i];
-
-            const playerGametypeMapTotals = await this.getPlayerTotalsFromMatchesTable(playerId, gametypeId, mapId);
-            const playerGametypeTotals = await this.getPlayerTotalsFromMatchesTable(playerId, gametypeId, 0);
-            const playerMapTotals = await this.getPlayerTotalsFromMatchesTable(playerId, 0, mapId);
-            const playerTotals = await this.getPlayerTotalsFromMatchesTable(playerId, 0, 0);
-            
-            if(playerTotals === null){
-                await this.resetPlayerTotals(playerId, 0, 0);
-            }else{
-                await this.updatePlayerTotal(playerId, 0, 0, playerTotals);
-            }
-
-            if(playerMapTotals === null){
-                await this.resetPlayerTotals(playerId, 0, mapId);
-            }else{
-                await this.updatePlayerTotal(playerId, 0, mapId, playerMapTotals);
-            }
-
-            if(playerGametypeTotals === null){
-                await this.resetPlayerTotals(playerId, gametypeId, 0);
-            }else{
-                await this.updatePlayerTotal(playerId, gametypeId, 0, playerGametypeTotals);
-            }
-
-            if(playerGametypeMapTotals === null){
-                await this.resetPlayerTotals(playerId, gametypeId, mapId);
-            }else{
-                await this.updatePlayerTotal(playerId, gametypeId, mapId, playerGametypeMapTotals);
-            }
-        }
-    }
-
-    async getAllNames(bOnlyNames, bObject){
-
-        if(bOnlyNames === undefined) bOnlyNames = false;
-
-        if(bObject === undefined) bObject = false;
-
-        const names = (bObject) ? {} : [];
-
-        const nameOnlyQuery = "SELECT name FROM nstats_player_totals WHERE gametype=0 AND map=0 ORDER BY name ASC";
-        const normalQuery = "SELECT id,name,country FROM nstats_player_totals WHERE gametype=0 AND map=0 ORDER BY name ASC";
-
-        const result = await simpleQuery((bOnlyNames) ? nameOnlyQuery : normalQuery);
-
-        for(let i = 0; i < result.length; i++){
-
-            if(!bObject){
-
-                if(bOnlyNames){
-                    names.push({"name":result[i].name});
-                }else{
-                    names.push(result[i]);
-                }
-
-
-            }else{
-
-                names[result[i].id] = {...result[i]};
-            }
-        }
-
-        return names;
-    }
 
     async getNameIdPairs(){
 
@@ -1133,9 +933,6 @@ export default class Players{
 
         return getAllPlayersGametypeMatchData(gametypeId, playerId);
     }
-
-
-
 
 
     async setPlayerMatchNames(players){
@@ -2254,7 +2051,7 @@ export async function getPlayersCountries(playerIds){
 
     if(playerIds.length === 0) return {};
 
-    const query = `SELECT id,country FROM nstats_player_totals WHERE id IN(?)`;
+    const query = `SELECT id,country FROM nstats_player WHERE id IN(?)`;
 
     const result = await simpleQuery(query, [playerIds]);
 
@@ -2469,7 +2266,7 @@ async function getTotalsFromMatchTable(playerIds, gametypeId, mapId){
 
     let query = `SELECT
     ${PLAYER_TOTALS_FROM_MATCHES_COLUMNS}
-    FROM nstats_player_matches WHERE player_id IN(?)`;
+    FROM nstats_player_matches WHERE player_id IN(?) AND match_result!='s'`;
 
 
     const vars = [playerIds];
@@ -2550,12 +2347,15 @@ export async function recalculateTotals(playerIds, gametypeId, mapId){
             r.winrate = w.winrate; 
         }
 
-        if(r.kills > 0){
+        const kills = parseInt(r.kills);
+        const deaths = parseInt(r.deaths);
 
-            if(r.deaths === 0){
+        if(kills > 0){
+
+            if(deaths === 0){
                 r.efficiency = 100;
             }else{
-                r.efficiency = r.kills / (r.kills + r.deaths);
+                r.efficiency = kills / (kills + deaths) * 100;
             }
         }
 
@@ -2565,7 +2365,6 @@ export async function recalculateTotals(playerIds, gametypeId, mapId){
         //process.exit("BULK INSERT INSTEAD");
         //await updatePlayerTotal(playerId, gametypeId, mapId, r);
     }
-
 
     await deleteTotals(playerIds, gametypeId, mapId);
     await bulkInsertTotals(gametypeId, mapId, data);

@@ -100,6 +100,7 @@ export default class Admin{
             "monsters_player_totals",
             "monster_kills",
             "nexgen_stats_viewer",
+            "player",
             "player_combogib",
             "player_ctf_best",
             "player_ctf_best_life",
