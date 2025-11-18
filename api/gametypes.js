@@ -5,7 +5,7 @@ import { getObjectName } from "./genericServerSide.mjs";
 import { DEFAULT_DATE, DEFAULT_MIN_DATE } from "./generic.mjs";
 import { mergeGametypes as mergeGametypesTelefrags, deleteGametype as deleteGametypeTelefrags } from "./telefrags.js";
 import { mergeGametypes as mergePlayerGametypes, changeMatchDataGametypeId as changePlayerMatchDataGametype,
-    deleteGametype as deleteGametypePlayers
+    deleteGametype as deleteGametypePlayers, recalculateTotals as recalculatePlayerTotals
  } from "./players.js";
 import { changeGametype as changeMatchGametype, deleteGametype as deleteGametypeMatches } from "./matches.js";
 import { mergeGametypes as mergeMapGametypes, deleteGametype as deleteGametypeMaps } from "./maps.js";
@@ -709,12 +709,22 @@ async function getUniquePlayedMaps(id){
     })
 }
 
+async function getUniquePlayedPlayers(gametypeId){
+
+    const query = `SELECT DISTINCT player_id FROM nstats_player_matches WHERE gametype=?`;
+    const result = await simpleQuery(query, [gametypeId]);
+
+    return result.map((r) =>{
+        return r.player_id;
+    });
+}
 /**
  * delete a gametype and all matches and data associated with it
  */
 export async function deleteGametypeFull(id){
 
     const mapIds = await getUniquePlayedMaps(id);
+    const playerIds = await getUniquePlayedPlayers(id);
 
     await deleteGametypeRankings(id);
     await deleteGametypeMatches(id);
@@ -729,6 +739,11 @@ export async function deleteGametypeFull(id){
     await deleteGametype(id);
 
     
-    //need to recalculate player all time totals
+    await recalculatePlayerTotals(playerIds, 0, 0);
+    
+    for(let i = 0; i < mapIds.length; i++){
+        await recalculatePlayerTotals(playerIds, 0, mapIds);
+    }
+
     
 }

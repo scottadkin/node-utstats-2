@@ -2212,14 +2212,12 @@ export async function recalculateTotals(playerIds, gametypeId, mapId){
 
 
         data.push(r);
-
-        //process.exit("BULK INSERT INSTEAD");
-        //await updatePlayerTotal(playerId, gametypeId, mapId, r);
     }
 
     await deleteTotals(playerIds, gametypeId, mapId);
     await bulkInsertTotals(gametypeId, mapId, data);
 }
+
 
 
 
