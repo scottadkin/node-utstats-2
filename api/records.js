@@ -328,8 +328,6 @@ async function getPlayerTotalAllGametypes(map, type, start, perPage){
 
     const result = await simpleQuery(`${normalSelect}${query}${orderBy}`, vars);
 
-    console.log(result);
-
     const totalResults = await simpleQuery(`${totalSelect}${query}`, vars);
 
     if(map !== 0){

@@ -1,20 +1,6 @@
 import Player from "./player.js";
 import { simpleQuery, bulkInsert, updateReturnAffectedRows } from "./database.js";
 import { removeIps, setIdNames, getUniqueValues, getPlayer, DEFAULT_DATE, DEFAULT_MIN_DATE } from "./generic.mjs";
-import Assault from "./assault.js";
-import CTF from "./ctf.js";
-import Domination from "./domination.js";
-import Headshots from "./headshots.js";
-import Items from "./items.js";
-import Kills from "./kills.js";
-import Connections from "./connections.js";
-import Pings from "./pings.js";
-import Maps from "./maps.js";
-import Weapons from "./weapons.js";
-import Sprees from "./sprees.js";
-import PowerUps from "./powerups.js";
-import Telefrags from "./telefrags.js";
-import Message from "./message.js";
 import { getPlayerMatchCTFData ,  deletePlayerData as deletePlayerCTFData} from "./ctf.js";
 import { getPlayersBasic as getBasicWinrateStats } from "./winrate.js";
 import { deletePlayer as deletePlayerAssaultData } from "./assault.js";
@@ -624,141 +610,6 @@ export default class Players{
         return true;
     }
     
-
-    //first player gets merged into second
-    async mergePlayersById(first, second, matchManager, combogibManager){
-
-        try{
-
-
-            console.log(`Merge ${first} into ${second}`);
-
-            first = parseInt(first);
-            second = parseInt(second);
-
-            if(first !== first || second !== second){
-                return false;
-            }
-
-            if(first === second) return false;
-
-            const names = await this.getNamesByIds([second]);
-            
-
-            await matchManager.mergePlayerMatches(first, second);
-   
-
-            const assaultManager = new Assault();
-            await assaultManager.changeCapDataPlayerId(first, second);
-
-            const ctfManager = new CTF();
-            await ctfManager.mergePlayers(first, second, matchManager);
-
-
-            const domManager = new Domination();
-
-            await domManager.changeCapPlayerId(first, second);
-            await domManager.changeScoreHistoryPlayerId(first, second);
-
-            const headshotManager = new Headshots();
-            await headshotManager.changePlayerIds(first, second);
-
-            const itemsManager = new Items();
-
-            await itemsManager.changePlayerIdsMatch(first, second);
-            await itemsManager.mergePlayerTotals(first, second);
-
-            const connectionsManager = new Connections();
-            await connectionsManager.changePlayerIds(first, second);
-
-            const pingManager = new Pings();
-            await pingManager.changePlayerIds(first, second);
-
-            await matchManager.changeDMWinner(first, second);
-            await matchManager.changePlayerScoreHistoryIds(first, second);
-            await matchManager.changeTeamChangesPlayerIds(first, second);
-
-            const killsManager = new Kills();
-            await killsManager.changePlayerIds(first, second);
-
-            const mapManager = new Maps();
-
-            //await mapManager.mergePlayerHistory(first.id, second.id);
-            await mapManager.deletePlayer(first);
-            await mapManager.deletePlayer(second);
-            await mapManager.recalculatePlayerTotalsAfterMerge(second);
-
-
-            await this.deletePlayerTotals(first);
-
-
-            //const playerGametypeTotals = await this.getPlayerTotalsPerGametypeByMatches(second);
-            //const playerTotals = await this.getPlayerTotalsByMatches(second);
-            
-            //const updatedPlayerMatches = await matchManager.getAllPlayerMatches(second);
-            await this.recalculatePlayerTotalsAfterMerge(second, names[0]);
-
-            const weaponsManager = new Weapons();
-            await weaponsManager.mergePlayers(first, second, matchManager);
-
-
-           // const winrateManager = new WinRate();
-
-            //await winrateManager.deletePlayer(first);
-            //await winrateManager.deletePlayer(second);
-            //await winrateManager.recalculatePlayerHistoryAfterMerge(second);
-
-
-            const spreeManager = new Sprees();
-            await spreeManager.changePlayerIds(first, second);
-
-            await combogibManager.mergePlayers(first, second);
-
-
-            /*const rankingsManager = new Rankings();
-            await rankingsManager.init();
-
-            await rankingsManager.deletePlayer(first);
-            await rankingsManager.deletePlayer(second);
-            await rankingsManager.fullPlayerRecalculate(this, second);*/
-
-
-            const powerupManager = new PowerUps();
-
-            await powerupManager.mergePlayers(first, second);
-
-            const teleFragManager = new Telefrags();
-
-            await teleFragManager.mergePlayers(first, second);
-
-
-            return true;
-        }catch(err){
-            console.trace(err);
-            return false;
-        }
-
-        /*try{    
-
-
-            if(names.length > 1){
-
-    
-                const matchIds = await matchManager.getAllPlayerMatchIds(first.id);
-
-                const monsterHuntManager = new MonsterHunt();
-                await monsterHuntManager.mergePlayers(first.id, second.id);
-
-                return true;
-            }else{
-                throw new Error("Only found 1 player out of 2, can't merge players.");
-            }
-
-        }catch(err){
-            console.trace(err);
-            return false;
-        }*/
-    }
 
 
     async getPlayerTotalsFromMatchData(playerId, type){
@@ -2482,6 +2333,7 @@ async function getUniquePlayedGametypeMaps(playerId){
     return played;
 }
 
+
 export async function deletePlayer(playerId){
 
     const uniquePlayed = await getUniquePlayedGametypeMaps(playerId);
@@ -2524,6 +2376,9 @@ export async function deletePlayer(playerId){
 
     await deletePlayerTotals(playerId);
 
+    const query = `DELETE FROM nstats_player WHERE id=?`;
+
+    await simpleQuery(query, [playerId]);
 }
 
 export async function changeMatchDataGametypeId(oldGametypeId, newGametypeId){

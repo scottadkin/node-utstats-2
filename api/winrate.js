@@ -15,6 +15,8 @@ const DEFAULT_HISTORY_OBJECT = {
     "max_lose_streak": 0,
 };
 
+const VALID_RECALCULATE_TYPES = ["gametype", "map"];
+
 export async function getAllPlayerCurrent(playerId){
 
     const query = `SELECT date,gametype,map,matches,wins,draws,losses,winrate,current_streak,
@@ -397,15 +399,32 @@ export async function deletePlayerData(playerId){
 }
 
 
-async function deleteGametype(gametypeId){
+async function deleteEntries(type, gametypeId){
 
-    const query = `DELETE FROM nstats_winrates_latest WHERE gametype=?`;
+    type = type.toLowerCase();
+
+    if(VALID_RECALCULATE_TYPES.indexOf(type) === -1){
+        throw new Error(`${type} is not a valid type for winrate.deleteEntries`);
+    }
+
+    const query = `DELETE FROM nstats_winrates_latest WHERE ${(type === "gametype") ? "gametype" : "map"}=?`;
 
     return await simpleQuery(query, [gametypeId]);
 }
 
 
-async function bulkInsertGametype(data, gametypeId){
+/**
+ * bulk insert gametype or map data aftre recalculate
+ * @param {*} type 
+ * @param {*} data 
+ * @param {*} targetId 
+ * @returns 
+ */
+async function bulkInsertEntries(type, data, targetId){
+
+    type = type.toLowerCase();
+
+    if(VALID_RECALCULATE_TYPES.indexOf(type) === -1) throw new Error(`${type} is not a valid type for winrate.bulkInsertEntries`);
 
     const query = `INSERT INTO nstats_winrates_latest (
         date,player,gametype,map,matches,wins,draws,losses,winrate,
@@ -418,9 +437,13 @@ async function bulkInsertGametype(data, gametypeId){
 
     for(const [playerId, playerData] of Object.entries(data)){
 
-        for(const [mapId, d] of Object.entries(playerData)){
+        for(const [currentId, d] of Object.entries(playerData)){
+
+            const gametypeId = (type === "gametype") ? targetId : currentId;
+            const mapId = (type === "gametype") ? currentId : targetId
 
             insertVars.push([
+                //d.latest_match, playerId, gametypeId, mapId,
                 d.latest_match, playerId, gametypeId, mapId,
                 d.matches,d.wins,d.draws,d.losses,d.winrate,
                 d.current_streak_type,d.current_streak,d.max_win_streak,d.max_draw_streak,
@@ -434,11 +457,36 @@ async function bulkInsertGametype(data, gametypeId){
 
 
 
-async function recalculateGametype(gametypeId){
+async function recalculate(type, targetId){
 
-    const query = `SELECT player_id,map_id,match_result,match_date FROM nstats_player_matches WHERE gametype=? ORDER BY match_date ASC`;
+    type = type.toLowerCase();
 
-    const data = await simpleQuery(query, [gametypeId]);
+    if(VALID_RECALCULATE_TYPES.indexOf(type) === -1) throw new Error(`${type} is not a valid type for winrate.recalculate`);
+
+    const vars = [];
+
+    let query = "";
+
+    if(type === "map"){
+        
+        query = `SELECT player_id,gametype,match_result,match_date FROM nstats_player_matches`;
+
+        if(targetId !== 0){
+            query += ` WHERE map_id=?`;
+        }
+
+    }else if(type === "gametype"){
+
+        query = `SELECT player_id,map_id,match_result,match_date FROM nstats_player_matches`;
+
+        if(targetId !== 0){
+            query += ` WHERE gametype=?`;
+        }
+    }
+
+    if(targetId !== 0) vars.push(targetId);
+
+    const data = await simpleQuery(`${query} ORDER BY match_date ASC`, vars);
 
     const winRates = {};
 
@@ -451,7 +499,8 @@ async function recalculateGametype(gametypeId){
         }
 
 
-        //gametype complete totals
+
+        //complete totals
         if(winRates[d.player_id][0] === undefined){
             winRates[d.player_id][0] = {
                 ...DEFAULT_HISTORY_OBJECT,
@@ -459,40 +508,43 @@ async function recalculateGametype(gametypeId){
             };
         }
 
-        if(winRates[d.player_id][d.map_id] === undefined){
-            winRates[d.player_id][d.map_id] = {
+        const currentId = (type === "gametype") ? d.map_id : d.gametype;
+
+        if(winRates[d.player_id][currentId] === undefined){
+            winRates[d.player_id][currentId] = {
                 ...DEFAULT_HISTORY_OBJECT,
                 "latest_match": new Date(0)
             };
         }
 
         if(d.match_date > winRates[d.player_id][0].latest_match){
-             winRates[d.player_id][0].latest_match = d.match_date;
+            winRates[d.player_id][0].latest_match = d.match_date;
         }
 
-        if(d.match_date > winRates[d.player_id][d.map_id].latest_match){
-             winRates[d.player_id][d.map_id].latest_match = d.match_date;
+
+        if(d.match_date > winRates[d.player_id][currentId].latest_match){
+            winRates[d.player_id][currentId].latest_match = d.match_date;
         }
    
-        //gametype totals
+        //gametype or map all time totals
         updateHistoryObject(winRates[d.player_id][0], d.match_result);
-        //gametype + map 
-        updateHistoryObject(winRates[d.player_id][d.map_id], d.match_result);
+        //gametype or map totals
+        updateHistoryObject(winRates[d.player_id][currentId], d.match_result);
 
     }
 
-    await deleteGametype(gametypeId);
+    await deleteEntries(type, targetId);
 
-    await bulkInsertGametype(winRates, gametypeId);
+    await bulkInsertEntries(type, winRates, targetId);
     //console.log(winRates);
 }
 
 export async function mergeGametypes(oldId, newId){
 
 
-    await deleteGametype(oldId);
+    await deleteEntries("gametype", oldId);
 
-    await recalculateGametype(newId);
+    await recalculate("gametype", newId);
 }
 
 /**
@@ -554,4 +606,16 @@ export async function getGametypeMatchResults(gametypeId){
     }
 
     return data;
+}
+
+
+export async function deleteGametype(id, mapIds){
+
+    await deleteEntries("gametype", id);
+    await recalculate("map", 0);
+
+    for(let i = 0; i < mapIds.length; i++){
+
+        await recalculate("map", mapIds[i]);
+    }
 }

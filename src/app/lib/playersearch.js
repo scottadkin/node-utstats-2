@@ -80,10 +80,6 @@ export default class PlayerSearch{
         INNER JOIN nstats_player_totals ON nstats_player_totals.player_id = nstats_player.id
         ${where} ORDER BY ${validSortBy[sortIndex]} ${order.toUpperCase()} ${limit}`; 
 
-
-
-        console.log(query);
-
         if(!bOnlyCount){
             perPage = cleanInt(perPage, 1, 100);
 

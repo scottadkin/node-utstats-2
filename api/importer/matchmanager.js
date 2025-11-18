@@ -203,15 +203,9 @@ export default class MatchManager{
             new Message(`Updated player match data.`,'pass');
             
             await this.serverInfo.setLastIds(this.serverId, this.matchId, this.mapInfo.mapId);
-
-            
-
-            
-
-            //this.playerManager.mergeDuplicates(bLMS);
             
     
-            
+
             if(this.assaultManager !== undefined){
 
                 this.assaultManager.mapId = this.mapInfo.mapId;
@@ -242,12 +236,6 @@ export default class MatchManager{
 
                 new Message(`Domination stats update complete.`,'pass');
             }
-
-
-            //this.playerManager.mergeDuplicates(bLMS);
-
-
-           
             
 
             if(this.domManager !== undefined){
@@ -356,14 +344,6 @@ export default class MatchManager{
 
             await this.playerManager.insertSprees(this.matchId);
 
-
-            //new Message(`Updating Player Map History.`,'note');
-            //await this.maps.updateAllPlayersHistory(this.playerManager.players, this.mapInfo.mapId, this.matchId, this.serverInfo.date);
-           // new Message(`Updated player map history.`,'pass');
-            //this.maps.updatePlayerHistory(this.playerManager.players[0].masterId, this.mapInfo.matchId);
-
-
-
             //if(this.combogibLines.length !== 0){
 
                 this.combogibManager = new CombogibManager(
@@ -427,22 +407,6 @@ export default class MatchManager{
                 await this.CTFManager.bulkInsertFlagPickups();
                 await this.CTFManager.bulkInsertSelfCovers();
                 await this.CTFManager.insertCapReturnKills();
-                
-                /*if(this.CTFManager.bHasData()){
-                    new Message(`Found ${this.CTFManager.data.length} Capture The Flag Data to parse`,'note');
-                    // console.table(this.CTFManager.data);
-                    
-                    this.CTFManager.parseData(this.killManager, matchTimings.start);
-                    this.CTFManager.createCapData();
-                    this.CTFManager.setPlayerStats();
-                    await this.CTFManager.insertCaps(this.matchId, this.mapInfo.mapId, this.serverInfo.date);
-                    await this.CTFManager.insertFlagLocations(this.mapInfo.mapId);
-                    await this.CTFManager.addCTF4Data();
-                    await this.CTFManager.updateMapCapRecords(this.mapInfo.mapId, this.matchId, this.serverInfo.date);
-                   
-
-                    new Message(`Capture The Flag stats update complete.`,'pass');
-                }*/
             }       
 
             if(bLMS){
