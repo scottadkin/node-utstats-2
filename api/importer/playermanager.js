@@ -508,20 +508,12 @@ export default class PlayerManager{
         //work around connect name issue
         this.setNamesToIds();
 
-        //process.exit();
-
         this.createPreliminaryPlayers();
 
         //console.log(this.delayedDisconnects);
 
         //now fix the player's team being set to -1, either delete the team change from player
         //or set it to the teamId the highestUsedId used before the delayed disconnect
-
-       // console.log(this.preliminaryPlayers);
-
-        //process.exit();
-
-        //process.exit();
 
         for(let i = 0; i < this.preliminaryPlayers.length; i++){
 
@@ -561,7 +553,6 @@ export default class PlayerManager{
 
             this.players.push(player);
         }
-
     }
 
 

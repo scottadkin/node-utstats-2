@@ -780,84 +780,6 @@ export default class CTF{
     }
 
 
-
-
-    async insertPlayerMatchData(playerId, matchId, mapId, gametypeId, serverId, matchDate, player){
-
-        const query = `INSERT INTO nstats_player_ctf_match VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,
-            ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
-
-        const vars = [
-            playerId,
-            matchId, 
-            gametypeId, 
-            serverId, 
-            mapId,
-            matchDate, 
-            player.stats.time_on_server,
-            //player.stats.teamPlaytime[0],
-            //player.stats.teamPlaytime[1],
-            //player.stats.teamPlaytime[2],
-            //player.stats.teamPlaytime[3],
-            //player.stats.teamPlaytime[255],
-            player.stats.ctfNew.assist.total,//flag assist
-            player.stats.ctfNew.assist.bestLife,
-            player.stats.ctfNew.return.total,
-            player.stats.ctfNew.return.bestLife,
-            player.stats.ctfNew.returnBase.total,
-            player.stats.ctfNew.returnBase.bestLife,
-            player.stats.ctfNew.returnMid.total,
-            player.stats.ctfNew.returnMid.bestLife,
-            player.stats.ctfNew.returnEnemyBase.total,
-            player.stats.ctfNew.returnEnemyBase.bestLife,
-            player.stats.ctfNew.returnSave.total,
-            player.stats.ctfNew.returnSave.bestLife,
-            player.stats.ctfNew.dropped.total,
-            player.stats.ctfNew.dropped.bestLife,
-            player.stats.ctfNew.kill.total,
-            player.stats.ctfNew.kill.bestLife,
-            player.stats.ctfNew.suicide.total,
-            player.stats.ctfNew.seal.total,
-            player.stats.ctfNew.seal.bestLife,
-            player.stats.ctfNew.sealPass.total,
-            player.stats.ctfNew.sealPass.bestLife,
-            player.stats.ctfNew.sealFail.total,
-            player.stats.ctfNew.sealFail.bestLife,
-            player.stats.ctfNew.bestSingleSeal,
-            player.stats.ctfNew.cover.total,
-            player.stats.ctfNew.cover.bestLife,
-            player.stats.ctfNew.coverPass.total,
-            player.stats.ctfNew.coverPass.bestLife,
-            player.stats.ctfNew.coverFail.total,
-            player.stats.ctfNew.coverFail.bestLife,
-            player.stats.ctfNew.coverMulti.total,
-            player.stats.ctfNew.coverMulti.bestLife,
-            player.stats.ctfNew.coverSpree.total,
-            player.stats.ctfNew.coverSpree.bestLife,
-            player.stats.ctfNew.bestSingleCover,
-            player.stats.ctfNew.capture.total,
-            player.stats.ctfNew.capture.bestLife,
-            player.stats.ctfNew.carryTime.total,
-            player.stats.ctfNew.carryTime.bestLife,
-            player.stats.ctfNew.taken.total,
-            player.stats.ctfNew.taken.bestLife,
-            player.stats.ctfNew.pickup.total,
-            player.stats.ctfNew.pickup.bestLife,
-            player.stats.ctfNew.selfCover.total,
-            player.stats.ctfNew.selfCover.bestLife,
-            player.stats.ctfNew.selfCoverPass.total,
-            player.stats.ctfNew.selfCoverPass.bestLife,
-            player.stats.ctfNew.selfCoverFail.total,
-            player.stats.ctfNew.selfCoverFail.bestLife,
-            player.stats.ctfNew.bestSingleSelfCover,
-            player.stats.ctfNew.soloCapture.total,
-            player.stats.ctfNew.soloCapture.bestLife,
-        ];
-
-        return await simpleQuery(query, vars);
-    }
-
-
     async bMatchCTF(matchId){
  
         const query = `SELECT COUNT(*) as total_players FROM nstats_player_ctf_match WHERE match_id=?`;
@@ -1142,7 +1064,6 @@ export default class CTF{
             new Message(`New cap record for map ${mapId} type ${capType} travelTime ${travelTime}`,"note");
             await this.updateCapRecord(capId, mapId, matchId, gametypeId, capType, travelTime, carryTime, dropTime);
         }
-
 
         //all time record no matter what gametype
         if(gametypeId !== 0){
@@ -3806,4 +3727,142 @@ export async function deleteGametype(id){
         await recalculateAllPlayerBestLife("map", m);
     }
     
+}
+
+export async function bulkInsertPlayerMatchData(players, matchId, mapId, gametypeId, serverId, matchDate){
+
+    const query = `INSERT INTO nstats_player_ctf_match 
+        (player_id,
+        match_id,
+        gametype_id,
+        server_id,
+        map_id,
+        match_date,
+        playtime,
+        flag_assist,
+        flag_assist_best,
+        flag_return,
+        flag_return_best,
+        flag_return_base,
+        flag_return_base_best,
+        flag_return_mid,
+        flag_return_mid_best,
+        flag_return_enemy_base,
+        flag_return_enemy_base_best,
+        flag_return_save,
+        flag_return_save_best,
+        flag_dropped,
+        flag_dropped_best,
+        flag_kill,
+        flag_kill_best,
+        flag_suicide,
+        flag_seal,
+        flag_seal_best,
+        flag_seal_pass,
+        flag_seal_pass_best,
+        flag_seal_fail,
+        flag_seal_fail_best,
+        best_single_seal,
+        flag_cover,
+        flag_cover_best,
+        flag_cover_pass,
+        flag_cover_pass_best,
+        flag_cover_fail,
+        flag_cover_fail_best,
+        flag_cover_multi,
+        flag_cover_multi_best,
+        flag_cover_spree,
+        flag_cover_spree_best,
+        best_single_cover,
+        flag_capture,
+        flag_capture_best,
+        flag_carry_time,
+        flag_carry_time_best,
+        flag_taken,
+        flag_taken_best,
+        flag_pickup,
+        flag_pickup_best,
+        flag_self_cover,
+        flag_self_cover_best,
+        flag_self_cover_pass,
+        flag_self_cover_pass_best,
+        flag_self_cover_fail,
+        flag_self_cover_fail_best,
+        best_single_self_cover,
+        flag_solo_capture,
+        flag_solo_capture_best)
+        VALUES ?
+    `;
+
+
+    const insertVars = [];
+
+    for(let i = 0; i < players.length; i++){
+
+        const player = players[i];
+
+        insertVars.push([
+            player.masterId,
+            matchId, 
+            gametypeId, 
+            serverId, 
+            mapId,
+            matchDate, 
+            player.stats.time_on_server,
+            player.stats.ctfNew.assist.total,//flag assist
+            player.stats.ctfNew.assist.bestLife,
+            player.stats.ctfNew.return.total,
+            player.stats.ctfNew.return.bestLife,
+            player.stats.ctfNew.returnBase.total,
+            player.stats.ctfNew.returnBase.bestLife,
+            player.stats.ctfNew.returnMid.total,
+            player.stats.ctfNew.returnMid.bestLife,
+            player.stats.ctfNew.returnEnemyBase.total,
+            player.stats.ctfNew.returnEnemyBase.bestLife,
+            player.stats.ctfNew.returnSave.total,
+            player.stats.ctfNew.returnSave.bestLife,
+            player.stats.ctfNew.dropped.total,
+            player.stats.ctfNew.dropped.bestLife,
+            player.stats.ctfNew.kill.total,
+            player.stats.ctfNew.kill.bestLife,
+            player.stats.ctfNew.suicide.total,
+            player.stats.ctfNew.seal.total,
+            player.stats.ctfNew.seal.bestLife,
+            player.stats.ctfNew.sealPass.total,
+            player.stats.ctfNew.sealPass.bestLife,
+            player.stats.ctfNew.sealFail.total,
+            player.stats.ctfNew.sealFail.bestLife,
+            player.stats.ctfNew.bestSingleSeal,
+            player.stats.ctfNew.cover.total,
+            player.stats.ctfNew.cover.bestLife,
+            player.stats.ctfNew.coverPass.total,
+            player.stats.ctfNew.coverPass.bestLife,
+            player.stats.ctfNew.coverFail.total,
+            player.stats.ctfNew.coverFail.bestLife,
+            player.stats.ctfNew.coverMulti.total,
+            player.stats.ctfNew.coverMulti.bestLife,
+            player.stats.ctfNew.coverSpree.total,
+            player.stats.ctfNew.coverSpree.bestLife,
+            player.stats.ctfNew.bestSingleCover,
+            player.stats.ctfNew.capture.total,
+            player.stats.ctfNew.capture.bestLife,
+            player.stats.ctfNew.carryTime.total,
+            player.stats.ctfNew.carryTime.bestLife,
+            player.stats.ctfNew.taken.total,
+            player.stats.ctfNew.taken.bestLife,
+            player.stats.ctfNew.pickup.total,
+            player.stats.ctfNew.pickup.bestLife,
+            player.stats.ctfNew.selfCover.total,
+            player.stats.ctfNew.selfCover.bestLife,
+            player.stats.ctfNew.selfCoverPass.total,
+            player.stats.ctfNew.selfCoverPass.bestLife,
+            player.stats.ctfNew.selfCoverFail.total,
+            player.stats.ctfNew.selfCoverFail.bestLife,
+            player.stats.ctfNew.bestSingleSelfCover,
+            player.stats.ctfNew.soloCapture.total,
+            player.stats.ctfNew.soloCapture.bestLife,
+        ]);
+    }
+
+    return await bulkInsert(query, insertVars);
 }

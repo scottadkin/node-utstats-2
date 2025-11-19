@@ -1,6 +1,8 @@
 import CTF from "../ctf.js";
+import { mysqlGetColumns } from "../database.js";
 import Message from "../message.js";
 import CTFFlag from "./ctfflag.js";
+import { bulkInsertPlayerMatchData } from "../ctf.js";
 
 export default class CTFManager{
 
@@ -944,13 +946,7 @@ export default class CTFManager{
 
         new Message("CTFManager.insertPlayerMatchData()", "note");
 
-        for(let i = 0; i < this.playerManager.players.length; i++){
-
-            const p = this.playerManager.players[i];
-
-            await this.ctf.insertPlayerMatchData(p.masterId, this.matchId, mapId, gametypeId, serverId, this.matchDate, p);
-
-        }
+        await bulkInsertPlayerMatchData(this.playerManager.players, this.matchId, mapId, gametypeId, serverId, this.matchDate);
     }
 
     //determine if a flag cover was capped or returned
