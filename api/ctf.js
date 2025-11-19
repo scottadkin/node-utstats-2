@@ -2938,7 +2938,13 @@ async function recalculatePlayerBestLife(playerId, gametypeId, mapId){
     await insertNewPlayerBestSingleLife(playerId, result[0], gametypeId, mapId);
 }
 
-
+/**
+ * recalculate player totals, best, and bestLife for all time, gametype, map, gametype + map
+ * @param {*} playerIds 
+ * @param {*} gametypeId 
+ * @param {*} mapId 
+ * @returns 
+ */
 export async function recalculatePlayers(playerIds, gametypeId, mapId){
 
     if(playerIds.length === 0) return;

@@ -2,7 +2,7 @@ import CTF from "../ctf.js";
 import { mysqlGetColumns } from "../database.js";
 import Message from "../message.js";
 import CTFFlag from "./ctfflag.js";
-import { bulkInsertPlayerMatchData } from "../ctf.js";
+import { bulkInsertPlayerMatchData, recalculatePlayers } from "../ctf.js";
 
 export default class CTFManager{
 
@@ -1085,60 +1085,23 @@ export default class CTFManager{
 
 
     async updatePlayerTotals(serverId, mapId, gametypeId){
+        
+        const playerIds = [];
 
         for(let i = 0; i < this.playerManager.players.length; i++){
 
             const p = this.playerManager.players[i];
 
             const playtime = p.getTotalPlaytime(this.totalTeams);
-            const stats = p.stats.ctfNew;
 
-            //combined totals
-            await this.ctf.updatePlayerTotals(p.masterId, 0, 0, playtime, stats);
-            //gametype totals
-            await this.ctf.updatePlayerTotals(p.masterId, gametypeId, 0, playtime, stats);
-            //map totals
-            await this.ctf.updatePlayerTotals(p.masterId, 0, mapId, playtime, stats);
-            //map and gametype ids
-            await this.ctf.updatePlayerTotals(p.masterId, gametypeId, mapId, playtime, stats);
+            if(playtime === 0) continue;
 
-
-            //console.log(p.stats.ctfNew);
+            playerIds.push(p.masterId);
         }
+
+        await recalculatePlayers(playerIds, gametypeId, mapId)
+
     }
-
-    async updatePlayerBestValues(gametypeId, mapId){
-
-        for(let i = 0; i < this.playerManager.players.length; i++){
-
-            const p = this.playerManager.players[i];
-            //combined totals
-            await this.ctf.updatePlayerBestValues(p.masterId, 0, 0, p.stats.ctfNew);
-            //gametype totals
-            await this.ctf.updatePlayerBestValues(p.masterId, gametypeId, 0, p.stats.ctfNew);
-            //map Totals
-            await this.ctf.updatePlayerBestValues(p.masterId, 0, mapId, p.stats.ctfNew);
-            //map + gametype Totals
-            await this.ctf.updatePlayerBestValues(p.masterId, gametypeId, mapId, p.stats.ctfNew);
-        }
-    }
-
-    async updatePlayerBestValuesSingleLife(gametypeId, mapId){
-
-        for(let i = 0; i < this.playerManager.players.length; i++){
-
-            const p = this.playerManager.players[i];
-            //combined totals
-            await this.ctf.updatePlayerBestValuesSingleLife(p.masterId, 0, 0, p.stats.ctfNew);
-            //gametype totals
-            await this.ctf.updatePlayerBestValuesSingleLife(p.masterId, gametypeId, 0, p.stats.ctfNew);
-            //map totals
-            await this.ctf.updatePlayerBestValuesSingleLife(p.masterId, 0, mapId, p.stats.ctfNew);
-            //map & gametype totals
-            await this.ctf.updatePlayerBestValuesSingleLife(p.masterId, gametypeId, mapId, p.stats.ctfNew);
-        }
-    }
-    
 
     getFlagFastestCap(flag){
 
