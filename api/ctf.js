@@ -2826,19 +2826,21 @@ async function deletePlayerType(type, gametypeId, mapId){
     return await simpleQuery(`${query}${where}`, vars);
 }
 
-async function recalculatePlayerTotal(playerId, gametypeId, mapId){
+async function recalculateMultiplePlayerTotals(playerIds, gametypeId, mapId){
 
+    if(playerIds.length === 0) return;
 
-    const deleteQuery = `DELETE FROM nstats_player_ctf_totals WHERE player_id=? AND gametype_id=? AND map_id=?`;
+    const deleteQuery = `DELETE FROM nstats_player_ctf_totals WHERE player_id IN(?) AND gametype_id=? AND map_id=?`;
 
-    await simpleQuery(deleteQuery, [playerId, gametypeId, mapId]);
+    await simpleQuery(deleteQuery, [playerIds, gametypeId, mapId]);
 
-    let query = `SELECT
+    let query = `SELECT player_id,
     ${PLAYER_CTF_MATCH_TOTALS_COLUMNS}
     FROM nstats_player_ctf_match
-    WHERE player_id=?`;
+    WHERE player_id IN (?)`;
 
-    const vars = [playerId];
+    const vars = [playerIds];
+    
 
     if(gametypeId !== 0){
         vars.push(gametypeId);
@@ -2850,28 +2852,34 @@ async function recalculatePlayerTotal(playerId, gametypeId, mapId){
         query += ` AND map_id=?`;
     }
 
-    const result = await simpleQuery(query, vars);
+    const result = await simpleQuery(`${query} GROUP BY player_id`, vars);
 
+    for(let i = 0; i < result.length; i++){
 
-    //ignore spectator matches
-    if(result[0].playtime === 0) return;
+        const r = result[i];
+        r.gametype_id = gametypeId;
+        r.map_id = mapId;
+    }
 
-    await insertNewPlayerTotal(playerId, result[0], gametypeId, mapId);
+    await bulkInsertPlayerTotals(result);
+
 }
 
-async function recalculatePlayerBest(playerId, gametypeId, mapId){
+async function recalculateMultiplePlayerBest(playerIds, gametypeId, mapId){
 
-    const deleteQuery = `DELETE FROM nstats_player_ctf_best WHERE player_id=? AND gametype_id=? AND map_id=?`;
+    if(playerIds.length === 0) return;
 
-    await simpleQuery(deleteQuery, [playerId, gametypeId, mapId]);
+    const deleteQuery = `DELETE FROM nstats_player_ctf_best WHERE player_id IN(?) AND gametype_id=? AND map_id=?`;
+
+    await simpleQuery(deleteQuery, [playerIds, gametypeId, mapId]);
 
     //is ifnull even needed?
-    let query = `SELECT
+    let query = `SELECT player_id,
     ${PLAYER_CTF_MATCH_BEST_COLUMNS}
     FROM nstats_player_ctf_match
-    WHERE player_id=?`;
+    WHERE player_id IN(?)`;
 
-    const vars = [playerId];
+    const vars = [playerIds];
 
     if(gametypeId !== 0){
         vars.push(gametypeId);
@@ -2883,41 +2891,44 @@ async function recalculatePlayerBest(playerId, gametypeId, mapId){
         query += ` AND map_id=?`;
     }
 
-    const result = await simpleQuery(query, vars);
+    const result = await simpleQuery(`${query} GROUP BY player_id`, vars);
 
-    if(result[0].playtime === 0) return;
+    for(let i = 0; i < result.length; i++){
 
-    await insertNewPlayerBestAfterMatchDelete(playerId, result[0], gametypeId, mapId);
+        const r = result[i];
+        r.gametype_id = gametypeId;
+        r.map_id = mapId;
+    }
+
+    await bulkInsertPlayerBest(result);
+
+    //if(result[0].playtime === 0) return;
+
+   // await insertNewPlayerBestAfterMatchDelete(playerId, result[0], gametypeId, mapId);
 }
 
-async function deletePlayerBestLife(playerId, gametypeId, mapId){
+async function deleteMultiplePlayerBestLife(playerIds, gametypeId, mapId){
 
-    let query = `DELETE FROM nstats_player_ctf_best_life WHERE player_id=?`;
+    if(playerIds.length === 0) return;
 
-    const vars = [playerId];
+    let query = `DELETE FROM nstats_player_ctf_best_life WHERE player_id IN (?) AND gametype_id=? AND map_id=?`;
 
-    if(gametypeId !== 0){
-        query += ` AND gametype_id=?`;
-        vars.push(gametypeId);
-    }
-
-    if(mapId !== 0){
-        query += ` AND map_id=?`;
-        vars.push(mapId);
-    }
+    const vars = [playerIds, gametypeId, mapId];
 
     return await simpleQuery(query, vars);
 }
 
-async function recalculatePlayerBestLife(playerId, gametypeId, mapId){
+async function recalculateMultiplePlayerBestLife(playerIds, gametypeId, mapId){
 
-    await deletePlayerBestLife();
+    if(playerIds.length === 0) return;
 
-    let query = `SELECT 
+    await deleteMultiplePlayerBestLife(playerIds, gametypeId, mapId);
+
+    let query = `SELECT player_id,
     ${PLAYER_CTF_MATCH_BEST_LIFE_COLUMNS}
-    FROM nstats_player_ctf_match WHERE player_id=?`;
+    FROM nstats_player_ctf_match WHERE player_id IN (?)`;
 
-    const vars = [playerId];
+    const vars = [playerIds];
 
     if(gametypeId !== 0){
         query += ` AND gametype_id=?`;
@@ -2929,13 +2940,24 @@ async function recalculatePlayerBestLife(playerId, gametypeId, mapId){
         vars.push(mapId);
     }
 
-    const result = await simpleQuery(query, vars);
+    const result = await simpleQuery(`${query} GROUP BY player_id`, vars);
 
-    if(result[0].playtime === 0){
-        return await deletePlayerBestLife(playerId, gametypeId, mapId);
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        r.gametype_id = gametypeId;
+        r.map_id = mapId;
     }
 
-    await insertNewPlayerBestSingleLife(playerId, result[0], gametypeId, mapId);
+
+    return await bulkInsertPlayerBestLife(result);
+
+   // if(result[0].playtime === 0){
+   //     return await deletePlayerBestLife(playerId, gametypeId, mapId);
+   // }
+
+   // await insertNewPlayerBestSingleLife(playerId, result[0], gametypeId, mapId);
 }
 
 /**
@@ -2949,35 +2971,27 @@ export async function recalculatePlayers(playerIds, gametypeId, mapId){
 
     if(playerIds.length === 0) return;
 
-    for(let i = 0; i < playerIds.length; i++){
 
-        const pId = playerIds[i];
-
-      
-        //gametype totals
-        await recalculatePlayerTotal(pId, gametypeId, 0);
-        await recalculatePlayerBest(pId, gametypeId, 0);
-        await recalculatePlayerBestLife(pId, gametypeId, 0);
-
-        //map & gametype combo
-        await recalculatePlayerTotal(pId, gametypeId, mapId);
-        await recalculatePlayerBest(pId, gametypeId, mapId);
-        await recalculatePlayerBestLife(pId, gametypeId, mapId);
-
-        //map totals
-        await recalculatePlayerTotal(pId, 0, mapId);
-        await recalculatePlayerBest(pId, 0, mapId);
-        await recalculatePlayerBestLife(pId, 0, mapId);
+    await recalculateMultiplePlayerTotals(playerIds, gametypeId, 0);
+    await recalculateMultiplePlayerTotals(playerIds, gametypeId, mapId);
+    await recalculateMultiplePlayerTotals(playerIds, 0, mapId);
+    await recalculateMultiplePlayerTotals(playerIds, 0, 0);
 
 
-      
-        //all time totals
-        await recalculatePlayerTotal(pId, 0, 0);
-        await recalculatePlayerBest(pId, 0, 0);
-        await recalculatePlayerBestLife(pId, 0, 0);
+    await recalculateMultiplePlayerBest(playerIds, gametypeId, 0);
+    await recalculateMultiplePlayerBest(playerIds, gametypeId, mapId);
+    await recalculateMultiplePlayerBest(playerIds, 0, mapId);
+    await recalculateMultiplePlayerBest(playerIds, 0, 0);
+
+
+    await recalculateMultiplePlayerBestLife(playerIds, 0, 0);
+    await recalculateMultiplePlayerBestLife(playerIds, 0, mapId);
+    await recalculateMultiplePlayerBestLife(playerIds, gametypeId, 0);
     
+    await recalculateMultiplePlayerBestLife(playerIds, gametypeId, mapId);
+    
+   
 
-    }
 }
 
 //check if the match_id helds a cap record, recalcultate map cap record if it is
@@ -3204,6 +3218,8 @@ async function getGametypeUniquePlayedMaps(gametypeId){
 }
 
 async function bulkInsertPlayerTotals(data){
+
+    if(data.length === 0) return;
 
     const query = `INSERT INTO nstats_player_ctf_totals (
                                 player_id,
@@ -3489,7 +3505,7 @@ async function recalculateAllPlayerBest(type, id){
     if(type === "gametype"){
         await deletePlayerType("best", id, 0);
     }else if(type === "map"){
-         await deletePlayerType("best", 0, id);
+        await deletePlayerType("best", 0, id);
     }
 
     await bulkInsertPlayerBest(data);
@@ -3526,7 +3542,6 @@ async function bulkInsertPlayerBestLife(data){
 
         if(d.playtime === 0) continue;
 
-
         insertVars.push([
             d.player_id,
             d.gametype_id,            d.map_id,
@@ -3546,7 +3561,6 @@ async function bulkInsertPlayerBestLife(data){
             d.flag_solo_capture
         ]);
     }
-
 
     return await bulkInsert(query, insertVars);
 }
