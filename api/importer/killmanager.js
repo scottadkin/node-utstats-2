@@ -2,7 +2,7 @@ import Kill from "./kill.js";
 import Message from "../message.js";
 import Kills from "../kills.js";
 import Headshots from "../headshots.js";
-import Telefrags from "../telefrags.js";
+import { bulkUpdatePlayers } from "../telefrags.js";
 
 export default class KillManager{
 
@@ -737,18 +737,22 @@ export default class KillManager{
 
     async insertTeleFrags(matchId, mapId, gametypeId){
 
-        const teleFragManager = new Telefrags();
-
         await this.killsManager.insertTeleFrags(matchId, mapId, gametypeId, this.teleFrags);
+
+        const playerIds = [];
 
         for(let i = 0; i < this.playerManager.players.length; i++){
 
             const p = this.playerManager.players[i];
 
-            const playtime = p.getTotalPlaytime(this.playerManager.totalTeams);
+            playerIds.push(p.masterId);
 
-            await teleFragManager.updatePlayerTotals(p.masterId, mapId, gametypeId, playtime, p.stats.teleFrags);
+            //await teleFragManager.updatePlayerTotals(p.masterId, mapId, gametypeId, playtime, p.stats.teleFrags);
         }
         //updatePlayerTotals(playerId, mapId, gametypeId, playtime, stats)
+
+
+        await bulkUpdatePlayers(playerIds);
+
     }
 }

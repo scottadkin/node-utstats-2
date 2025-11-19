@@ -380,6 +380,8 @@ async function deleteGametype(state, dispatch, mDispatch){
 
         await loadData(dispatch, mDispatch);
 
+        mDispatch({"type": "set-message", "messageType": "pass", "title": `Success`, "content": `Gametype deleted successfully`});
+
     }catch(err){
         console.trace(err);
         mDispatch({"type": "set-message", "messageType": "error", "title": `Failed To Delete Gametypes`, "content": err.toString()});
