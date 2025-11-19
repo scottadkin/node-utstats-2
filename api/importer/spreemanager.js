@@ -1,4 +1,5 @@
 import Sprees from "../sprees.js";
+import { bulkInsertMatchSprees } from "../sprees.js";
 
 
 export default class SpreeManager{
@@ -27,13 +28,9 @@ export default class SpreeManager{
         });
     }
 
-    async insertSprees(matchId){
+    async insertSprees(gametypeId, mapId, matchId){
 
-        for(let i = 0; i < this.spreeList.length; i++){
+        await bulkInsertMatchSprees(this.spreeList, gametypeId, mapId, matchId);
 
-            const s = this.spreeList[i];
-
-            await this.sprees.insertSpree(matchId, s.player, s.kills, s.start, s.end, s.totalTime, s.killedBy);
-        }
     }
 }

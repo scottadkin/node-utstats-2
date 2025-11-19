@@ -831,6 +831,8 @@ const queries = [
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_sprees (
         id int(11) NOT NULL AUTO_INCREMENT,
+        gametype_id int(11) NOT NULL,
+        map_id int(11) NOT NULL,
         match_id int(11) NOT NULL,
         player int(11) NOT NULL,
         kills int(11) NOT NULL,

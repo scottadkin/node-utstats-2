@@ -1,18 +1,8 @@
-import { simpleQuery } from "./database.js";
+import { bulkInsert, simpleQuery } from "./database.js";
 
 export default class Sprees{
 
     constructor(){}
-
-    async insertSpree(matchId, playerId, totalKills, startTimestamp, endTimestamp, totalTime, killerId){
-
-        const query = `INSERT INTO nstats_sprees VALUES(NULL,?,?,?,?,?,?,?)`;
-
-        const vars = [matchId, playerId, totalKills, startTimestamp, endTimestamp, totalTime, killerId];
-
-        return await simpleQuery(query, vars);
-
-    }
 
     async getPlayerMatchData(matchId, playerId){
 
@@ -68,4 +58,29 @@ export async function deletePlayerData(id){
 
     const query = `DELETE FROM nstats_sprees WHERE player=?`;
     return await simpleQuery(query, [id]);
+}
+
+
+export async function bulkInsertMatchSprees(sprees, gametypeId, mapId, matchId){
+
+    const query = `INSERT INTO nstats_sprees (
+    gametype_id,map_id,match_id,player,
+    kills,start_timestamp,end_timestamp,total_time,
+    killer) VALUES ?`;
+
+
+    const insertVars = [];
+
+    for(let i = 0; i < sprees.length; i++){
+
+        const s = sprees[i];
+
+        insertVars.push([
+            gametypeId, mapId, matchId, s.player, s.kills,
+            s.start, s.end, s.totalTime, s.killedBy
+        ]);
+    }
+
+
+    return await bulkInsert(query, insertVars);
 }

@@ -1612,11 +1612,11 @@ export default class PlayerManager{
     }
 
 
-    async insertSprees(matchId){
+    async insertSprees(gametypeId, mapId, matchId){
 
         try{
 
-            await this.spreeManager.insertSprees(matchId);
+            await this.spreeManager.insertSprees(gametypeId, mapId, matchId);
             /*if(this.sprees.currentSprees !== undefined){
                 await this.sprees.insertCurrentSprees(matchId);
             }*/

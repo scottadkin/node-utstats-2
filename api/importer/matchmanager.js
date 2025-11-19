@@ -342,7 +342,7 @@ export default class MatchManager{
     
             new Message(`Update player spree history`,'note');
 
-            await this.playerManager.insertSprees(this.matchId);
+            await this.playerManager.insertSprees(this.gametype.currentMatchGametype, this.mapInfo.mapId, this.matchId);
 
             //if(this.combogibLines.length !== 0){
 
