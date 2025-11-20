@@ -27,6 +27,18 @@ function reducer(state, action){
                 "files": action.files
             }
         }
+        case "set-restore-in-progress": {
+            return {
+                ...state,
+                "bRestoreInProgress": action.value
+            }
+        }
+        case "set-selected-backup-file": {
+            return {
+                ...state,
+                "selectedBackupFile": action.value
+            }
+        }
     }
 
     return state;
@@ -49,7 +61,7 @@ async function createBackup(dispatch, mDispatch){
         if(res.error !== undefined) throw new Error(res.error);
 
         mDispatch({"type": "set-message", "messageType": "pass", "title": "Created Backup", "content": `Backup created ${res.message}`});
-        loadBackupList(dispatch, mDispatch);
+        await loadBackupList(dispatch, mDispatch);
 
     }catch(err){
         console.trace(err);
@@ -105,25 +117,74 @@ async function loadBackupList(dispatch, mDispatch){
     }
 }
 
+
+async function restoreDatabase(state, dispatch, mDispatch){
+
+    try{
+
+        if(state.selectedBackupFile == "-1"){
+            throw new Error(`You have not selected a file to restore from!`);
+        }
+
+        mDispatch({"type": "clear"});
+
+        if(window.confirm("Doing this will delete all current data, are you sure you want to restore the database to a previous state")){
+
+            dispatch({"type": "set-restore-in-progress", "value": true});
+
+            const req = await fetch("/api/admin", {
+                "headers": {"Content-type": "application/json"},
+                "method": "POST",
+                "body": JSON.stringify({"mode": "restore-database", "fileName": state.selectedBackupFile})
+            });
+
+            const res = await req.json();
+
+            if(res.error !== undefined) throw new Error(res.error);
+            
+
+            dispatch({"type": "set-restore-in-progress", "value": false});
+            mDispatch({"type": "set-message", "messageType": "pass", "title": "Database Restored", "content": `Database restored successfully`});
+
+        }else{
+            throw new Error(`User changed their mind.`);
+        }
+        
+
+    }catch(err){
+        console.trace(err);
+        mDispatch({"type": "set-message", "messageType": "error", "title": "Failed To restore database", "content": err.toString()});
+        dispatch({"type": "set-restore-in-progress", "value": false});
+}
+    }
+
+    
+
 function renderRestoreFrom(state, dispatch, mDispatch){
 
     if(state.mode !== "restore") return null;
 
-    console.log(state.files);
-
     return <div className="form">
         <div className="form-info">
-            Restore the database to a previous state from a backup file.
+            Restore the database to a previous state from a backup file.<br/>
+            Make sure your importer is turned off while doing this to prevent possible issues.<br/>
+            <div className="team-red">All current data will be deleted, make sure you backup the current database if you wish to restore to the current state.</div>
         </div>
         <div className="form-row">
             <label htmlFor="backup-file">Restore From</label>
-            <select className="default-select">
+            <select className="default-select" onChange={(e) =>{
+                console.log(e.target.value, typeof e.target.value);
+                dispatch({"type": "set-selected-backup-file", "value": e.target.value});
+            }}>
                 <option value={-1}>-- Please Select A File --</option>
                 {state.files.map((f) =>{
                     return <option key={f} value={f}>{f}</option>
                 })}
             </select>
         </div>
+        <button className="button delete-button" onClick={() =>{
+            restoreDatabase(state, dispatch, mDispatch);
+        }}>Restore Database</button>
     </div>
 }
 
@@ -132,7 +193,9 @@ export default function AdminBackupManager(){
     const [state, dispatch] = useReducer(reducer, {
         "bInProgress": false,
         "mode": "restore",
-        "files": []
+        "files": [],
+        "bRestoreInProgress": false,
+        "selectedBackupFile": "-1"
     });
     const [mState, mDispatch] = useMessageBoxReducer();
 
@@ -141,6 +204,11 @@ export default function AdminBackupManager(){
         loadBackupList(dispatch, mDispatch);
 
     }, []);
+
+    if(state.bRestoreInProgress){
+
+        return <Loading>Restoring Database, this may take a while. Please wait until the process is finished before doing anything else.</Loading>
+    }
 
     const tabOptions = [
         {"name": "Create Database Backup", "value": "create"},

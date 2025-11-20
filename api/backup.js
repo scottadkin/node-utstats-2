@@ -111,38 +111,32 @@ async function restoreTable(table, columns, rows){
     return await bulkInsert(query, rows);
 }
 
-export async function readBackupFile(){
+export async function restoreDatabaseFromFile(fileName){
 
-    console.log(`fart`);
+    const targetFile = fs.readFileSync(`./backups/${fileName}`);
 
-    fs.readFile(`./backups/backup-2025-11-20-19-20-44.zip`, function(err, data) {
+    const zip = await JSZip.loadAsync(targetFile);
 
-        if (err) throw err;
+    const fileList = Object.keys(zip.files);
 
+    for(let i = 0; i < fileList.length; i++){
 
+        const file = zip.files[fileList[i]];
+
+        let data = await file.async('string');
+
+        data = JSON.parse(data);
+
+        const reg = /^(.+)\.json$/i;
+
+        const regResult = reg.exec(file.name);
+
+        if(regResult === null) throw new Error(`Unexpected file found ${file.name}`);
         
-        JSZip.loadAsync(data).then(function (zip) {
-
-            zip.forEach(async (relativePath, file) => {
-
-                let data = await file.async('string');
-
-                data = JSON.parse(data);
-
-                const reg = /^(.+)\.json$/i;
-
-                const regResult = reg.exec(file.name);
-
-                if(regResult === null) throw new Error(`Unexpected file found ${file.name}`);
-                
-                const {columns, rows} = data;
-           
-
-                await restoreTable(regResult[1], columns, rows);
-            
-            });
-        });
-    });
+        const {columns, rows} = data;
+    
+        await restoreTable(regResult[1], columns, rows);
+    }  
 }
 
 

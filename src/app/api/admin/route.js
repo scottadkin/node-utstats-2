@@ -16,7 +16,7 @@ import { getAllSettings as getAllRankingSettings, adminUpdateSettings as updateR
     recalculateAll as recalculateAllRankings } from "../../../../api/rankings";
 import { getAll as getAllItems, ITEM_TYPES, saveItemChanges } from "../../../../api/items";
 import { getAll as getAllGametypes, saveChanges as saveGametypeChanges, create as createGametype, mergeGametypes} from "../../../../api/gametypes";
-import { createBackup, getBackupList, readBackupFile } from "../../../../api/backup";
+import { createBackup, getBackupList, restoreDatabaseFromFile } from "../../../../api/backup";
 
 
 export async function POST(req){
@@ -397,7 +397,7 @@ export async function POST(req){
 
         if(mode === "get-backup-files"){
 
-            await readBackupFile();
+            //await readBackupFile();
 
             const files = await getBackupList();
 
@@ -409,6 +409,17 @@ export async function POST(req){
             const zipName = await createBackup();
 
             return Response.json({"message": zipName});
+        }
+
+        if(mode === "restore-database"){
+
+            const fileName = res.fileName ?? null;
+
+            if(fileName === null) throw new Error(`No file selected`);
+
+            await restoreDatabaseFromFile(res.fileName);
+
+            return Response.json({"message": "passed"});
         }
 
         return Response.json({"error": "Unknown Request"});
