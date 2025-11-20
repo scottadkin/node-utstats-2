@@ -12,11 +12,12 @@ import AdminPlayerManager from "./AdminPlayerManager";
 import AdminRankingManager from "./AdminRankingManager";
 import AdminItemManager from "./AdminItemManager";
 import AdminGametypeManager from "./AdminGametypeManager";
+import AdminBackupManager from "./AdminBackupManager";
 
 
 export default function AdminMain({}){
 
-    const [mode, setMode] = useState("gametypes");
+    const [mode, setMode] = useState("backup");
 
     const options = [
         {"name": "Site Settings", "value": "page-settings"},
@@ -29,6 +30,7 @@ export default function AdminMain({}){
         {"name": "Items Manager", "value": "items"},
         {"name": "Map Screenshots", "value": "map-sshots"},
         {"name": "Player Faces", "value": "faces"},
+        {"name": "Create Backup", "value": "backup"},
         {"name": "Clear Database", "value": "admin-clear-database"},
         
     ];
@@ -83,6 +85,10 @@ export default function AdminMain({}){
     if(mode === "gametypes"){
 
         elems.push(<AdminGametypeManager key="gametypes"/>);
+    }
+
+    if(mode === "backup"){
+        elems.push(<AdminBackupManager key="backup"/>);
     }
 
     return <>
