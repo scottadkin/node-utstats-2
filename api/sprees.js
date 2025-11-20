@@ -84,3 +84,19 @@ export async function bulkInsertMatchSprees(sprees, gametypeId, mapId, matchId){
 
     return await bulkInsert(query, insertVars);
 }
+
+
+export async function deleteGametype(id){
+
+    const query = `DELETE FROM nstats_sprees WHERE gametype_id=?`;
+
+    return await simpleQuery(query, [id]);
+}
+
+
+export async function mergeGametypes(oldId, newId){
+
+    const query = `UPDATE nstats_sprees SET gametype_id=? WHERE gametype_id=?`;
+
+    return await simpleQuery(query, [newId, oldId]);
+}
