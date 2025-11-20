@@ -21,6 +21,12 @@ function reducer(state, action){
                 "mode": action.value
             }
         }
+        case "set-backup-files": {
+            return {
+                ...state,
+                "files": action.files
+            }
+        }
     }
 
     return state;
@@ -43,6 +49,7 @@ async function createBackup(dispatch, mDispatch){
         if(res.error !== undefined) throw new Error(res.error);
 
         mDispatch({"type": "set-message", "messageType": "pass", "title": "Created Backup", "content": `Backup created ${res.message}`});
+        loadBackupList(dispatch, mDispatch);
 
     }catch(err){
         console.trace(err);
@@ -73,22 +80,71 @@ function renderCreateBackup(state, dispatch, mDispatch){
     </div>
 }
 
+
+async function loadBackupList(dispatch, mDispatch){
+
+    try{
+
+        const req = await fetch("/api/admin", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "get-backup-files"})
+        });
+
+        const res = await req.json();
+
+        console.log(res);
+
+        if(res.error !== undefined) throw new Error(res.error);
+
+        dispatch({"type": "set-backup-files", "files": res.files});
+
+    }catch(err){
+        console.trace(err);
+        mDispatch({"type": "set-message", "messageType": "error", "title": "Failed To Load Backup list", "content": err.toString()});
+    }
+}
+
+function renderRestoreFrom(state, dispatch, mDispatch){
+
+    if(state.mode !== "restore") return null;
+
+    console.log(state.files);
+
+    return <div className="form">
+        <div className="form-info">
+            Restore the database to a previous state from a backup file.
+        </div>
+        <div className="form-row">
+            <label htmlFor="backup-file">Restore From</label>
+            <select className="default-select">
+                <option value={-1}>-- Please Select A File --</option>
+                {state.files.map((f) =>{
+                    return <option key={f} value={f}>{f}</option>
+                })}
+            </select>
+        </div>
+    </div>
+}
+
 export default function AdminBackupManager(){
 
     const [state, dispatch] = useReducer(reducer, {
         "bInProgress": false,
-        "mode": "create"
+        "mode": "restore",
+        "files": []
     });
     const [mState, mDispatch] = useMessageBoxReducer();
 
     useEffect(() =>{
 
-        //createBackup();
+        loadBackupList(dispatch, mDispatch);
 
     }, []);
 
     const tabOptions = [
-        {"name": "Create Database Backup", "value": "create"}
+        {"name": "Create Database Backup", "value": "create"},
+        {"name": "Restore Database From Backup", "value": "restore"},
     ];
 
     return <>
@@ -98,5 +154,6 @@ export default function AdminBackupManager(){
         }}/>
         <MessageBox type={mState.type} title={mState.title} timestamp={mState.timestamp}>{mState.content}</MessageBox>
         {renderCreateBackup(state, dispatch, mDispatch)}
+        {renderRestoreFrom(state, dispatch, mDispatch)}
     </>
 }

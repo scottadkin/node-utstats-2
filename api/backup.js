@@ -1,6 +1,8 @@
-import { simpleQuery, mysqlGetAllTableNames, mysqlGetColumns } from "./database.js";
+import { simpleQuery, mysqlGetAllTableNames, mysqlGetColumns, bulkInsert } from "./database.js";
 import fs from "fs";
 import JSZip from "jszip";
+import { readdir } from 'node:fs/promises';
+import { toMysqlDate } from "./generic.mjs";
 
 
 function columnsToArray(columns){
@@ -11,7 +13,17 @@ function columnsToArray(columns){
         
         const data = [];
 
-        for(const value of Object.values(columns[i])){
+        for(let value of Object.values(columns[i])){
+
+            if(typeof value != "string" && typeof value != "number"){
+                console.log(typeof value);
+                console.log(value);
+            }
+
+            if(typeof value === "object"){
+
+                value = toMysqlDate(value);
+            }
 
             data.push(value);
         }
@@ -50,13 +62,16 @@ export async function createBackup(){
     const now = new Date();
 
     const year = now.getFullYear();
-    const month = now.getMonth() + 1;
-    const date = now.getDate();
+    let month = now.getMonth() + 1;
+    let date = now.getDate();
+    
 
     let hours = now.getHours();
     let minutes = now.getMinutes();
     let seconds = now.getSeconds();
 
+    if(month < 10) month = `0${month}`;
+    if(date < 10) date = `0${date}`;
     if(hours < 10) hours = `0${hours}`;
     if(minutes < 10) minutes = `0${minutes}`;
     if(seconds < 10) seconds = `0${seconds}`;
@@ -74,5 +89,94 @@ export async function createBackup(){
 
 
     return fileName;
+}
 
+
+async function resetTable(table){
+
+    console.log(`TRUNCATE ${table}`);
+
+    return await simpleQuery(`TRUNCATE ${table}`);
+}
+
+
+async function restoreTable(table, columns, rows){
+
+    await resetTable(table);
+
+    const query = `INSERT INTO ${table} (${columns.toString()}) VALUES ?`;
+
+    console.log(query);
+
+    return await bulkInsert(query, rows);
+}
+
+export async function readBackupFile(){
+
+    console.log(`fart`);
+
+    fs.readFile(`./backups/backup-2025-11-20-19-20-44.zip`, function(err, data) {
+
+        if (err) throw err;
+
+
+        
+        JSZip.loadAsync(data).then(function (zip) {
+
+            zip.forEach(async (relativePath, file) => {
+
+                let data = await file.async('string');
+
+                data = JSON.parse(data);
+
+                const reg = /^(.+)\.json$/i;
+
+                const regResult = reg.exec(file.name);
+
+                if(regResult === null) throw new Error(`Unexpected file found ${file.name}`);
+                
+                const {columns, rows} = data;
+           
+
+                await restoreTable(regResult[1], columns, rows);
+            
+            });
+        });
+    });
+}
+
+
+export async function getBackupList(){
+
+    const files = await readdir("./backups/");
+
+    const found = [];
+
+    const reg = /^backup-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}\.zip$/i;
+
+    for(let i = 0; i < files.length; i++){
+
+        const f = files[i];
+
+        if(reg.test(f)) found.push(f);
+
+    }
+
+    found.sort((a, b) =>{
+        a = a.toLowerCase();
+        b = b.toLowerCase();
+
+        if(a < b) return 1;
+        if(a > b) return -1;
+        return 0;
+    });
+
+    return found;
+}
+
+export async function restoreFrom(){
+
+    //get list of nstats_xxx.json files in folder restore-from
+    //trunicate each of the found tables
+    //bulk insert found data
 }

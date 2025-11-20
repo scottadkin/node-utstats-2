@@ -16,7 +16,7 @@ import { getAllSettings as getAllRankingSettings, adminUpdateSettings as updateR
     recalculateAll as recalculateAllRankings } from "../../../../api/rankings";
 import { getAll as getAllItems, ITEM_TYPES, saveItemChanges } from "../../../../api/items";
 import { getAll as getAllGametypes, saveChanges as saveGametypeChanges, create as createGametype, mergeGametypes} from "../../../../api/gametypes";
-import { createBackup } from "../../../../api/backup";
+import { createBackup, getBackupList, readBackupFile } from "../../../../api/backup";
 
 
 export async function POST(req){
@@ -395,8 +395,16 @@ export async function POST(req){
             return Response.json({"message": "passed"});
         }
 
-        if(mode === "create-backup"){
+        if(mode === "get-backup-files"){
 
+            await readBackupFile();
+
+            const files = await getBackupList();
+
+            return Response.json({"files": files});
+        }
+
+        if(mode === "create-backup"){
 
             const zipName = await createBackup();
 
