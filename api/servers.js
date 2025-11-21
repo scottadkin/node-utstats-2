@@ -440,3 +440,15 @@ export async function recalculateTotals(serverId){
     await updateTotals(serverId, r.first_match, r.last_match, r.total_matches, r.playtime, matchId, mapId);
 
 }
+
+
+export async function getServer(id){
+
+    const query = `SELECT * FROM nstats_servers WHERE id=?`;
+
+    const result = await simpleQuery(query, [id]);
+
+    if(result.length > 0) return result[0];
+    
+    return null;
+}
