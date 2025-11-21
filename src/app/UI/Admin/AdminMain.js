@@ -17,7 +17,7 @@ import AdminBackupManager from "./AdminBackupManager";
 
 export default function AdminMain({}){
 
-    const [mode, setMode] = useState("backup");
+    const [mode, setMode] = useState("page-settings");
 
     const options = [
         {"name": "Site Settings", "value": "page-settings"},

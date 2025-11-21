@@ -843,7 +843,6 @@ export async function updatePlayerRankings(gametypeId, matchId, matchDate, playe
 
     const {generalColumns, ctfColumns} = splitGeneralCTFColumns(settings);
 
-
     await updatePlayers(gametypeId, playerIds, settings, generalColumns, ctfColumns, matchId, matchDate);
 }
 

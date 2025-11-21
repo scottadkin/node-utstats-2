@@ -439,8 +439,6 @@ export default class MatchManager{
             }
 
             
-            new Message("Updating player rankings.","note");
-            await this.playerManager.updateRankings(this.gametype.currentMatchGametype, this.matchId, this.serverInfo.date);
 
 
             //map + gametype totals
@@ -454,6 +452,9 @@ export default class MatchManager{
             new Message(`Updated player frag performance.`,'pass');
             await this.playerManager.updateWinStats(this.gametype.currentMatchGametype, this.mapInfo.mapId);
             new Message(`Updated player winstats performance.`,'pass');
+
+            new Message("Updating player rankings.","note");
+            await this.playerManager.updateRankings(this.gametype.currentMatchGametype, this.matchId, this.serverInfo.date);
 
             const logId = await logsInsert(this.fileName);
 
