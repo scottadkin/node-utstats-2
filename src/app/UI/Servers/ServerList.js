@@ -15,10 +15,23 @@ function renderTable(display, servers){
 
     const rows = servers.map((r) =>{
 
+        let address = "";
+
+        if(r.display_address === ""){
+            address = r.ip;
+        }else{
+            address = r.display_address;
+        }
+
+        if(r.display_port === 0){
+            address += `:${r.port}`;
+        }else{
+            address += `:${r.display_port}`;
+        }
        
         return [
             <Link href={`/server/${r.id}`}>{r.name}</Link>,
-            <Link href={`/server/${r.id}`}>{(r.display_address === "") ? "Not Set" : ""}</Link>,
+            <Link href={`/server/${r.id}`}>{address}</Link>,
             <Link href={`/server/${r.id}`}>{convertTimestamp(r.first, true)}</Link>,
             <Link href={`/server/${r.id}`}>{convertTimestamp(r.last, true)}</Link>,
             <Link href={`/server/${r.id}`}>{r.matches}</Link>,

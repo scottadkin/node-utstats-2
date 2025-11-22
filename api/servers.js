@@ -23,15 +23,15 @@ export default class Servers{
         return result[0].total_servers > 0;   
     }
 
-    async insertServer(/*ip, port,*/ name, date, playtime, country){
+    async insertServer(ip, port, name, date, playtime, country){
 
-        const query = `INSERT INTO nstats_servers VALUES(NULL,?,"",7777,?,?,1,?,"","","",?,0,0)`;
-        const vars = [name, /*ip, port,*/ date, date, playtime, country];
+        const query = `INSERT INTO nstats_servers VALUES(NULL,?,?,?,?,?,1,?,"","",0,"",?,0,0)`;
+        const vars = [name, ip, port, date, date, playtime, country];
 
         return await simpleQuery(query, vars);
     }
 
-    async updateServer(/*ip, port,*/ name, date, playtime, country){
+    async updateServer(ip, port, name, date, playtime, country){
 
         try{
 
@@ -42,8 +42,8 @@ export default class Servers{
             //if(port !== port) throw new Error(`Port must be a valid integer.`);
 
             //If server doesn't exist create it
-            if(!await this.updateBasicInfo(/*ip, port,*/ name, 1, playtime, country)){
-                await this.insertServer(/*ip, port,*/ name, date, playtime, country);
+            if(!await this.updateBasicInfo(ip, port, name, 1, playtime, country)){
+                await this.insertServer(ip, port, name, date, playtime, country);
             }
 
             const dates = await this.getFirstLast(name);
@@ -60,13 +60,13 @@ export default class Servers{
         }
     }
 
-    async updateBasicInfo(/*ip, port,*/ name, matches, playtime, country){
+    async updateBasicInfo(ip, port, name, matches, playtime, country){
 
         const query = `UPDATE nstats_servers SET
-            name=?, playtime=playtime+?, matches=matches+?, country=?
+            ip=?,port=?,name=?, playtime=playtime+?, matches=matches+?, country=?
             WHERE name=?`;
         
-        const vars = [name, playtime, matches, country, name];
+        const vars = [ip,port,name, playtime, matches, country, name];
 
         const result = await simpleQuery(query, vars);
 
@@ -157,39 +157,7 @@ export default class Servers{
         return data;
     }
 
-    async reduceServerTotals(id, playtime){
 
-        const query = "UPDATE nstats_servers SET matches=matches-1, playtime=playtime-? WHERE id=?";
-
-        return await simpleQuery(query, [playtime, id]);
-    }
-
-    async reduceTotals(id, matches, playtime){
-
-        await simpleQuery("UPDATE nstats_servers SET matches=matches-?, playtime=playtime-? WHERE id=?",[matches, playtime, id]);
-    }
-
-    async reduceMultipleTotals(data){
-
-        try{
-
-            for(const [server, stats] of Object.entries(data)){
-
-                await this.reduceTotals(parseInt(server), stats.matches, stats.playtime);
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-
-    async getAll(){
-
-        const query = "SELECT * FROM nstats_servers ORDER BY name ASC";
-
-        return await simpleQuery(query);
-    }
 
     async setLastIds(serverId, matchId, mapId){
 
@@ -451,4 +419,11 @@ export async function getServer(id){
     if(result.length > 0) return result[0];
     
     return null;
+}
+
+export async function getAll(){
+
+    const query = `SELECT * FROM nstats_servers ORDER BY name ASC`;
+
+    return await simpleQuery(query);
 }

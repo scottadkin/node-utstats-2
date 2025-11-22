@@ -17,6 +17,7 @@ import { getAllSettings as getAllRankingSettings, adminUpdateSettings as updateR
 import { getAll as getAllItems, ITEM_TYPES, saveItemChanges } from "../../../../api/items";
 import { getAll as getAllGametypes, saveChanges as saveGametypeChanges, create as createGametype, mergeGametypes} from "../../../../api/gametypes";
 import { createBackup, getBackupList, restoreDatabaseFromFile } from "../../../../api/backup";
+import {getAll as getALlServers} from "../../../../api/servers";
 
 
 export async function POST(req){
@@ -420,6 +421,14 @@ export async function POST(req){
             await restoreDatabaseFromFile(res.fileName);
 
             return Response.json({"message": "passed"});
+        }
+
+        if(mode === "load-servers"){
+
+
+            const data = await getALlServers();
+
+            return Response.json({"servers": data});
         }
 
         return Response.json({"error": "Unknown Request"});

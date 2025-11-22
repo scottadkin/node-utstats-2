@@ -806,6 +806,7 @@ const queries = [
         playtime double NOT NULL,
         display_name varchar(100) NOT NULL,
         display_address varchar(100) NOT NULL,
+        display_port int(5) NOT NULL,
         password varchar(100) NOT NULL,
         country varchar(2) NOT NULL,
         last_match_id INT(11) NOT NULL,

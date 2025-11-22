@@ -32,11 +32,14 @@ export default function ServerDefaultView({mapImages, mapNames, data}){
 
     let joinElem = null;
 
-    if(d.ip !== ""){
+    const displayAddress = (d.display_address !== "") ? d.display_address : d.ip;
+    const displayPort = (d.display_port !== "") ? d.display_port : d.port;
 
-        joinElem = <a href={`unreal://${d.ip}:${d.port}${password}`}>
+    if(displayAddress !== ""){
+
+        joinElem = <a href={`unreal://${displayAddress}:${displayPort}${password}`}>
             <div className={`${styles.join} purple ellipsis`}>
-                <span className="yellow">Join the server</span> {d.ip}:{d.port}{passwordElem}
+                <span className="yellow">Join the server</span> {displayAddress}:{displayPort}{passwordElem}
             </div>
         </a>;
 

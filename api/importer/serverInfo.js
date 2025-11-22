@@ -29,8 +29,8 @@ export default class ServerInfo{
         }*/
         
         await this.servers.updateServer(
-            //this.ip, 
-            //this.server_port, 
+            this.ip, 
+            this.server_port, 
             this.server_servername, 
             this.date, 
             this.matchTimings.length,

@@ -2,7 +2,7 @@ import Nav from "../UI/Nav";
 import Session from "../../../api/session";
 import {getNavSettings, getSettings} from "../../../api/sitesettings";
 import { headers, cookies } from "next/headers";
-import Servers from "../../../api/servers";
+import { getAll } from "../../../api/servers";
 import {getImages as getMapImages} from "../../../api/maps";
 import ServerList from "../UI/Servers/ServerList";
 import { getObjectName } from "../../../api/genericServerSide.mjs";
@@ -31,9 +31,8 @@ export default async function Page(){
     const navSettings = await getNavSettings();
     const sessionSettings = session.settings;
 
-    const serverManager = new Servers();
     
-    const serverList = await serverManager.getAll();
+    const serverList = await getAll();
 
     const mapIds = [...new Set([...serverList.map((s) =>{
         return s.last_map_id;

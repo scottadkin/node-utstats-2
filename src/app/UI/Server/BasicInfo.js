@@ -13,9 +13,13 @@ export default function BasicInfo({data}){
         "Total Matches", 
         "Total Playtime"
     ];
+
+    let ip = (data.display_address !== "") ? data.display_address : data.ip;
+    let port = (data.display_port !== 0) ? data.display_port : data.port;
+
     const rows = [
        [
-            `${data.ip}:${data.port}`,
+            `${ip}:${port}`,
             data.password,
             {"className": "date", "value": convertTimestamp(data.first, true)},
             {"className": "date", "value": convertTimestamp(data.last, true)},

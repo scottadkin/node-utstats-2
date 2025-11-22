@@ -13,19 +13,21 @@ import AdminRankingManager from "./AdminRankingManager";
 import AdminItemManager from "./AdminItemManager";
 import AdminGametypeManager from "./AdminGametypeManager";
 import AdminBackupManager from "./AdminBackupManager";
+import AdminServersManager from "./AdminServersManager";
 
 
 export default function AdminMain({}){
 
-    const [mode, setMode] = useState("page-settings");
+    const [mode, setMode] = useState("servers");
 
     const options = [
         {"name": "Site Settings", "value": "page-settings"},
         {"name": "FTP Manager", "value": "ftp"},
         {"name": "Logs Folder Settings", "value": "logs-folder"},
         {"name": "Player Manager", "value": "players"},
-        {"name": "Matches Manager", "value": "matches"},
         {"name": "Gametype Manager", "value": "gametypes"},
+        {"name": "Server Manager", "value": "servers"},
+        {"name": "Matches Manager", "value": "matches"},
         {"name": "Rankings Manager", "value": "rankings"},
         {"name": "Items Manager", "value": "items"},
         {"name": "Map Screenshots", "value": "map-sshots"},
@@ -89,6 +91,10 @@ export default function AdminMain({}){
 
     if(mode === "backup"){
         elems.push(<AdminBackupManager key="backup"/>);
+    }
+
+    if(mode === "servers"){
+        elems.push(<AdminServersManager key="servers"/>);
     }
 
     return <>
