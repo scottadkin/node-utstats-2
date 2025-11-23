@@ -182,7 +182,7 @@ function renderEdit(state, dispatch, mDispatch){
             </div>
             <div className="form-row">
                 <label htmlFor="password">Password</label>
-                <input name="password" type="number"  value={settings.password} className="default-textbox" onChange={(e) =>{
+                <input name="password" type="text"  value={settings.password} className="default-textbox" onChange={(e) =>{
                     dispatch({"type": "update-server", "key": "password", "value": e.target.value});
                 }}/>
             </div>
@@ -197,7 +197,6 @@ function renderEdit(state, dispatch, mDispatch){
                     })}
                 </select>
             </div>
-            <button className="search-button">Update Server</button>
         </>
     }
 

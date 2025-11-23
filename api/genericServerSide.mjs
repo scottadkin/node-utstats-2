@@ -2,6 +2,9 @@
 
 import { simpleQuery } from "./database.js";
 import { removeUnr } from "./generic.mjs";
+import { getServerNames, getAllNames as getAllServerNames } from "./servers.js";
+
+
 
 /**
  * 
@@ -28,6 +31,9 @@ export async function getObjectName(type, ids){
     const index = validTypes.indexOf(type);
 
     if(index === -1) throw new Error(`${type} is not a valid type for getObjectName`);
+
+
+    if(type === "servers") return getServerNames(ids);
 
     let nameKey = "name";
 
@@ -80,6 +86,8 @@ export async function getAllObjectNames(type, bReturnArray){
     const index = validTypes.indexOf(type);
 
     if(index === -1) throw new Error(`${type} is not a valid type for getAllObjectNames`);
+
+    if(type === "servers") return await getAllServerNames();
 
     if(bReturnArray === undefined) bReturnArray = false;
 

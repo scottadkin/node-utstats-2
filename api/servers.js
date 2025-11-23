@@ -131,12 +131,12 @@ export default class Servers{
 
     async getName(id){
 
-        return await getObjectName("servers", [id]);
+        return await getServerNames([id]);
     }
 
     async getNames(ids){
 
-         return await getObjectName("servers", ids);
+         return await getServerNames(ids);
     }
 
     async getAllNames(){
@@ -410,13 +410,70 @@ export async function recalculateTotals(serverId){
 }
 
 
+/**
+ * We need to check for a display name & address for this table
+ */
+export async function getServerNames(ids){
+
+    if(ids.length === 0) return {};
+
+    const query = `SELECT id,name,display_name FROM nstats_servers WHERE id IN(?)`;
+
+    const result = await simpleQuery(query, [ids]);
+
+    const found = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        if(r.display_name !== ""){
+            found[r.id] = r.display_name;
+        }else{
+            found[r.id] = r.name;
+        }
+    }
+
+    return found;
+}
+
+export async function getAllNames(){
+
+    const query = `SELECT id,name,display_name FROM nstats_servers`;
+
+    const result = await simpleQuery(query);
+
+    const found = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        if(r.display_name !== ""){
+            found[r.id] = r.display_name;
+        }else{
+            found[r.id] = r.name;
+        }
+    }
+
+    return found;
+}
+
+
 export async function getServer(id){
 
     const query = `SELECT * FROM nstats_servers WHERE id=?`;
 
     const result = await simpleQuery(query, [id]);
 
-    if(result.length > 0) return result[0];
+    if(result.length > 0){
+
+        if(result[0].display_name !== "") result[0].name = result[0].display_name;
+        if(result[0].display_address !== "") result[0].address = result[0].display_address;
+        if(result[0].display_port !== "") result[0].port = result[0].display_port;
+
+        return result[0];
+    }
     
     return null;
 }
