@@ -427,3 +427,22 @@ export async function getAll(){
 
     return await simpleQuery(query);
 }
+
+
+export async function saveChanges(changes){
+
+    const query = `UPDATE nstats_servers SET display_name=?,display_address=?,
+    display_port=?,password=?,country=? WHERE id=?`;
+
+    for(let i = 0; i < changes.length; i++){
+
+        const c = changes[i];
+
+        const vars = [
+            c.display_name,c.display_address,
+            c.display_port,c.password,c.country,c.id
+        ];
+
+        await simpleQuery(query, vars);
+    }
+}

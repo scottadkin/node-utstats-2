@@ -808,7 +808,7 @@ const queries = [
         display_address varchar(100) NOT NULL,
         display_port int(5) NOT NULL,
         password varchar(100) NOT NULL,
-        country varchar(2) NOT NULL,
+        country varchar(10) NOT NULL,
         last_match_id INT(11) NOT NULL,
         last_map_id INT(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
