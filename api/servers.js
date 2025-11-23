@@ -437,23 +437,29 @@ export async function getServerNames(ids){
     return found;
 }
 
-export async function getAllNames(){
+export async function getAllNames(bReturnArray){
+
+    if(bReturnArray === undefined) bReturnArray = false;
 
     const query = `SELECT id,name,display_name FROM nstats_servers`;
 
     const result = await simpleQuery(query);
 
-    const found = {};
+
+    const found = (bReturnArray) ? []: {};
 
     for(let i = 0; i < result.length; i++){
 
         const r = result[i];
 
-        if(r.display_name !== ""){
-            found[r.id] = r.display_name;
+        const name = (r.display_name !== "") ? r.display_name : r.name; 
+
+        if(!bReturnArray){
+            found[r.id] = name;
         }else{
-            found[r.id] = r.name;
+            found.push({"id": r.id, "name": name});
         }
+        
     }
 
     return found;

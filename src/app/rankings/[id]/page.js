@@ -129,7 +129,7 @@ export default async function Page({params, searchParams}){
 
             const {id, name} = gametypeNames[i];
 
-            if(data[id] === undefined) continue;
+            if(data[id] === undefined || data[id].length === 0) continue;
 
             elems.push(<RankingTable 
                 key={id} 

@@ -87,9 +87,11 @@ export async function getAllObjectNames(type, bReturnArray){
 
     if(index === -1) throw new Error(`${type} is not a valid type for getAllObjectNames`);
 
-    if(type === "servers") return await getAllServerNames();
-
     if(bReturnArray === undefined) bReturnArray = false;
+
+    if(type === "servers") return await getAllServerNames(bReturnArray);
+
+    
 
     const query = `SELECT id,name FROM nstats_${validTypes[index]}`;
 

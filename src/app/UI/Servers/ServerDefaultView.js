@@ -35,6 +35,9 @@ export default function ServerDefaultView({mapImages, mapNames, data}){
     const displayAddress = (d.display_address !== "") ? d.display_address : d.ip;
     const displayPort = (d.display_port !== "") ? d.display_port : d.port;
 
+
+    const name = (d.display_name !== "") ? d.display_name : d.name;
+
     if(displayAddress !== ""){
 
         joinElem = <a href={`unreal://${displayAddress}:${displayPort}${password}`}>
@@ -56,7 +59,7 @@ export default function ServerDefaultView({mapImages, mapNames, data}){
         <Link href={`/server/${d.id}`}>       
             <div className={`${styles.title} ellipsis`}>
                 <CountryFlag country={d.country}/>
-                {d.name}
+                {name}
             </div>      
         </Link>
         <Link href={`/match/${d.last_match_id}`}>   

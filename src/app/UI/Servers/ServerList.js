@@ -30,7 +30,7 @@ function renderTable(display, servers){
         }
        
         return [
-            <Link href={`/server/${r.id}`}>{r.name}</Link>,
+            <Link href={`/server/${r.id}`}>{(r.display_name !== "") ? r.display_name : r.name}</Link>,
             <Link href={`/server/${r.id}`}>{address}</Link>,
             <Link href={`/server/${r.id}`}>{convertTimestamp(r.first, true)}</Link>,
             <Link href={`/server/${r.id}`}>{convertTimestamp(r.last, true)}</Link>,
