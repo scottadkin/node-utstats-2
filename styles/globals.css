@@ -101,6 +101,7 @@ footer{
 
 
 .default{
+	margin-top:50px;
 	text-align:center;
 	color:white;
 }
@@ -109,19 +110,19 @@ footer{
 .default-header{
 	text-align:center;
 	font-size:18px;
-	line-height:52px;
+	line-height:46px;
 	color:white;
 	font-weight:400;
 	background-color:var(--color-9);
 	margin-left:auto;
 	margin-right:auto;
-	margin-bottom:35px;
-	margin-top:35px;
+	margin-bottom:25px;
+	margin-top:25px;
 }
 
 .blank-header{
-	margin-bottom:35px;
-	margin-top:35px;
+	margin-bottom:25px;
+	margin-top:25px;
 	
 }
 

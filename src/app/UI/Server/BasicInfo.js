@@ -3,8 +3,6 @@ import { BasicTable } from "../Tables";
 
 export default function BasicInfo({data}){
 
-    console.log(data);
-
     const headers = [
         "Address",
         "Password",
@@ -29,6 +27,7 @@ export default function BasicInfo({data}){
     ];
 
     return <>
+        <div className="default-header">Basic Summary</div>
         <BasicTable width={1} headers={headers} rows={rows}/>
     </>
 }

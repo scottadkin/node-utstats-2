@@ -5,6 +5,10 @@ import { cookies, headers } from "next/headers";
 import { getServer } from "../../../../api/servers";
 import ErrorPage from "../../UI/ErrorPage";
 import BasicInfo from "../../UI/Server/BasicInfo";
+import Screenshot from "../../UI/Screenshot";
+import { getMatch } from "../../../../api/matches";
+import { getAllInMatch } from "../../../../api/players";
+import { getFacesWithFileStatuses } from "../../../../api/faces";
 
 export async function generateMetadata({ params, searchParams }, parent) {
 
@@ -45,10 +49,8 @@ export default async function Page({params, searchParams}){
     const navSettings = await getNavSettings();
     const sessionSettings = session.settings;
 
-    console.log(sessionSettings);
-
-    const pageSettings = await getSettings("Server Pages");
-    const pageOrder = await getPageOrder("Server Pages");
+    const pageSettings = await getSettings("Server Page");
+    const pageOrder = await getPageOrder("Server Page");
 
     console.log(query);
 
@@ -69,12 +71,48 @@ export default async function Page({params, searchParams}){
         </ErrorPage>
     }
 
+    const elems = [];
+
+
+    const pageManager = new PageComponentManager(pageSettings, pageOrder, elems);
+
+    if(pageManager.bEnabled("Display Latest Match Screenshot")){
+
+        const lastMatchData = await getMatch(basicInfo.last_match_id);
+
+        if(lastMatchData !== null){
+
+            const playerData = await getAllInMatch(basicInfo.last_match_id);
+            const faceIds = new Set(playerData.map((p) =>{
+                return p.face;
+            }));
+        
+            const faces = await getFacesWithFileStatuses([...faceIds]);
+
+            pageManager.addComponent("Display Latest Match Screenshot", <Screenshot 
+                key="latest-sshot"
+                title="Latest Match Screenshot"
+                map={lastMatchData.mapName} 
+                totalTeams={lastMatchData.total_teams} 
+                players={playerData} 
+                image={`/images/maps/${lastMatchData.image}.jpg`} 
+                matchData={lastMatchData} 
+                serverName={lastMatchData.serverName} 
+                gametypeName={lastMatchData.gametypeName} 
+                faces={faces} 
+            />);
+        }
+    }
+
+    pageManager.addComponent("Display Basic Summary", <BasicInfo key="basic" data={basicInfo}/>);
+
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
         <div id="content">
             <div className="default">
                 <div className="default-header">{basicInfo.name}</div>        
-                <BasicInfo data={basicInfo}/>
+                
+                {elems}
             </div>    
         </div>   
     </main>

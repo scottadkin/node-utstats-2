@@ -1395,7 +1395,7 @@ class MatchScreenshot{
 
 
 
-const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gametypeName, faces, highlight, bHome, bClassic}) =>{
+const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gametypeName, faces, highlight, bHome, bClassic, title}) =>{
 
 
     const sshot = useRef(null);
@@ -1430,10 +1430,16 @@ const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gam
     },[map, totalTeams, players, image, matchData, serverName, gametypeName, faces, highlight, bHome, bClassic]);
     
 
+    let titleText = (!bHome) ? "Match Screenshot" : "Latest Match Screenshot";
+
+    if(title !== undefined){
+        titleText = title;
+    }
+
 
     return (<div className={`${styles.wrapper} center`}>
         <div className="default-header">
-            {(!bHome) ? "Match Screenshot" : "Latest Match Screenshot"}
+            {titleText}
         </div>
         <div className={`${styles.content} center`}>
             <canvas ref={sshot} id="m-sshot" className="match-screenshot center m-bottom-10" 
