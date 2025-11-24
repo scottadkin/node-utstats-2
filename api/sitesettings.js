@@ -150,6 +150,7 @@ export const DEFAULT_PAGE_SETTINGS = {
     "Server Page": [
             {"name":"Display Basic Summary","value":"true","valueType":"bool","pageOrder":0,"moveable":1},
             {"name":"Display Latest Match Screenshot","value":"true","valueType":"bool","pageOrder":1,"moveable":1},
+            {"name":"Display Ping Graph","value":"true","valueType":"bool","pageOrder":2,"moveable":1},
     ],
 };
 

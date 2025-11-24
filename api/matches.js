@@ -33,6 +33,16 @@ import { recalculateTotals as recalculateVoiceTotals } from "./voices.js";
 import { recalculateTotals as recalculateCountryTotals } from "./countriesmanager.js";
 import { deleteLogImportInfo } from "./logs.js";
 
+
+const VALID_SEARCH_SORT_BY = [
+    "date",
+    "gametype",
+    "map",
+    "server",
+    "players",
+    "playtime"
+];
+
 export default class Matches{
 
     constructor(){}
@@ -1343,19 +1353,14 @@ export default class Matches{
     }
 
 
+
+    //need to update matches page to use the new searchMatches function exported below
     async searchMatches(serverId, gametypeId, mapId, page, perPage, sortBy, order){
 
         sortBy = sortBy.toLowerCase();
         order = order.toLowerCase();
 
-        const validSortBys = [
-            "date",
-            "gametype",
-            "map",
-            "server",
-            "players",
-            "playtime"
-        ];
+        const validSortBys = VALID_SEARCH_SORT_BY;
 
         if(validSortBys.indexOf(sortBy) === -1){
             throw new Error(`Not a valid match sort by`);
@@ -2071,4 +2076,102 @@ export async function deleteGametype(id){
     const query = `DELETE FROM nstats_matches WHERE gametype=?`;
 
     return await simpleQuery(query, [id]);
+}
+
+
+
+export async function searchMatches(serverId, gametypeId, mapId, page, perPage, sortBy, order){
+
+    serverId = parseInt(serverId);
+    gametypeId = parseInt(gametypeId);
+    mapId = parseInt(mapId);
+    page = sanatizePage(page);
+    perPage = sanatizePerPage(perPage, 25);
+
+    if(serverId !== serverId) throw new Error(`ServerId must be a valid integer`);
+    if(gametypeId !== gametypeId) throw new Error(`gametypeId must be a valid integer`);
+    if(mapId !== mapId) throw new Error(`mapId must be a valid integer`);
+
+    sortBy = sortBy.toLowerCase();
+    order = order.toLowerCase();
+
+    if(VALID_SEARCH_SORT_BY.indexOf(sortBy) === -1){
+        throw new Error(`Not a valid match sort by`);
+    }
+
+    if(order !== "asc" && order !== "desc") order = "desc";
+    order = order.toUpperCase();
+
+
+    const query = `SELECT nstats_matches.id as id,
+        nstats_matches.match_hash as match_hash,
+        nstats_matches.date as date,
+        nstats_matches.server as server,
+        nstats_matches.gametype as gametype,
+        nstats_matches.map as map,
+        nstats_matches.playtime as playtime,
+        nstats_matches.end_type as end_type,
+        nstats_matches.team_game as team_game,
+        nstats_matches.total_teams as total_teams,
+        nstats_matches.players as players,
+        nstats_matches.dm_winner as dm_winner,
+        nstats_matches.dm_score as dm_score,
+        nstats_matches.team_score_0 as team_score_0,
+        nstats_matches.team_score_1 as team_score_1,
+        nstats_matches.team_score_2 as team_score_2,
+        nstats_matches.team_score_3 as team_score_3,
+        nstats_matches.mh as mh,
+        nstats_gametypes.name as gametype_name,
+        nstats_maps.name as map_name,
+        IF(nstats_servers.display_name = "", nstats_servers.name, nstats_servers.display_name) as server_name,
+        IF(nstats_matches.dm_winner > 0, nstats_player.name, "") as dm_winner_name,
+        IF(nstats_matches.dm_winner > 0, nstats_player.country, "") as dm_winner_country
+        FROM nstats_matches 
+        LEFT JOIN nstats_gametypes on nstats_gametypes.id = nstats_matches.gametype
+        LEFT JOIN nstats_maps on nstats_maps.id = nstats_matches.map
+        LEFT JOIN nstats_servers on nstats_servers.id = nstats_matches.server
+        LEFT JOIN nstats_player on nstats_player.id = nstats_matches.dm_winner`;
+
+        let where = ``;
+        const vars = [];
+
+        if(serverId !== 0){
+            
+            if(where === ""){
+                where = ` WHERE server=?`;
+            }else{
+                where += ` AND WHERE server=?`;
+            }
+            vars.push(serverId);
+        }
+
+        if(gametypeId !== 0){
+
+            if(where === ""){
+                where = ` WHERE gametype=?`;
+            }else{
+                where += ` AND WHERE gametype=?`;
+            }
+            vars.push(gametypeId);
+        }
+
+        if(mapId !== 0){
+
+            if(where === ""){
+                where = ` WHERE map=?`;
+            }else{
+                where += ` AND map=?`;
+            }
+
+            vars.push(mapId);
+        }
+
+    const result = await simpleQuery(`${query}${where}`, vars);
+
+    for(let i = 0; i < result.length; i++){
+
+        result[i].map_name = removeUnr(result[i].map_name);
+    }
+    console.log(result);
+
 }
