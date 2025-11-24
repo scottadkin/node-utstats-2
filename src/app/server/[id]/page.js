@@ -9,6 +9,8 @@ import Screenshot from "../../UI/Screenshot";
 import { getMatch } from "../../../../api/matches";
 import { getAllInMatch } from "../../../../api/players";
 import { getFacesWithFileStatuses } from "../../../../api/faces";
+import { getRecentPingInfo } from "../../../../api/servers";
+import PingGraph from "../../UI/Server/PingGraph";
 
 export async function generateMetadata({ params, searchParams }, parent) {
 
@@ -51,8 +53,6 @@ export default async function Page({params, searchParams}){
 
     const pageSettings = await getSettings("Server Page");
     const pageOrder = await getPageOrder("Server Page");
-
-    console.log(query);
 
     const serverId = (query.id !== undefined) ? parseInt(query.id) : NaN;
 
@@ -106,12 +106,14 @@ export default async function Page({params, searchParams}){
 
     pageManager.addComponent("Display Basic Summary", <BasicInfo key="basic" data={basicInfo}/>);
 
+
+    const pingData = await getRecentPingInfo(serverId, 50);
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		
         <div id="content">
             <div className="default">
                 <div className="default-header">{basicInfo.name}</div>        
-                
+                <PingGraph data={pingData}/>
                 {elems}
             </div>    
         </div>   

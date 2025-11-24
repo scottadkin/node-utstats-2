@@ -4,6 +4,7 @@ import { BasicTable } from "../Tables";
 export default function BasicInfo({data}){
 
     const headers = [
+        "Name",
         "Address",
         "Password",
         "First Played",
@@ -17,6 +18,7 @@ export default function BasicInfo({data}){
 
     const rows = [
        [
+            data.name,
             `${ip}:${port}`,
             data.password,
             {"className": "date", "value": convertTimestamp(data.first, true)},

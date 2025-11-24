@@ -318,7 +318,6 @@ class Graph{
         this.currentLabels = labels;
 
 
-
         let mostDataPoints = 0;
 
         for(let i = 0; i < data.length; i++){
@@ -327,6 +326,12 @@ class Graph{
 
             if(values.length > mostDataPoints){
                 mostDataPoints = values.length;
+            }
+
+            //current data is hidden skip to adjust min/max values
+            if(this.hiddenKeys[this.selectedTab] !== undefined){
+                
+                if(this.hiddenKeys[this.selectedTab].indexOf(i) !== -1) continue;
             }
 
             for(let x = 0; x < values.length; x++){
@@ -928,6 +933,8 @@ class Graph{
         }else{
             currentHiddenKeys.splice(index, 1);
         }
+
+        this.setMinMax();
     }
 
     bKeyDisabled(tabId, keyId){
@@ -980,6 +987,7 @@ class Graph{
             if(this.bMouseOverArea(x, y, width, height, true)){
 
                 this.toggleKey(i);
+
 
                 this.bNeedToReRender = true;
             }
