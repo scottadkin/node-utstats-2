@@ -2,7 +2,7 @@ import { convertTimestamp, cleanMapName, removeUnr } from '../../../api/generic.
 import MatchResultDisplay from './MatchResultDisplay';
 import MatchResult from './MatchResult';
 
-export default function MatchesDefaultView({data, images}){
+export default function MatchesDefaultView({data}){
 
     const elems = [];
     

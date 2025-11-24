@@ -12,6 +12,7 @@ import { getFacesWithFileStatuses } from "../../../../api/faces";
 import { getRecentPingInfo } from "../../../../api/servers";
 import PingGraph from "../../UI/Server/PingGraph";
 import { searchMatches } from "../../../../api/matches";
+import RecentMatches from "../../UI/Server/RecentMatches";
 
 export async function generateMetadata({ params, searchParams }, parent) {
 
@@ -113,9 +114,19 @@ export default async function Page({params, searchParams}){
         pageManager.addComponent("Display Ping Graph", <PingGraph key="pings" data={pingData}/>);
     }
 
-    let page = 1;
-    const a = await searchMatches(serverId, 0, 0, page - 1, 25, "date", "DESC");
-    console.log(a);
+
+    console.log(pageSettings);
+
+    if(pageManager.bEnabled("Display Recent Matches")){
+
+        pageManager.addComponent(
+            "Display Recent Matches", 
+            <RecentMatches key="recent-matches" serverId={serverId} displayMode={pageSettings["Default Display Type"]}/>
+        );
+
+    }
+    
+
     
     return <main>
         <Nav settings={navSettings} session={sessionSettings}/>		

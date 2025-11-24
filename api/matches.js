@@ -1,7 +1,7 @@
 import { simpleQuery } from "./database.js";
 import CTF from "./ctf.js";
 import Gametypes from "./gametypes.js";
-import Maps, { getImages } from "./maps.js";
+import Maps, { getImages as getMapImages } from "./maps.js";
 import Servers from "./servers.js";
 import { getUniqueValues, setIdNames, removeUnr, getPlayer, cleanMapName, sanatizePage, sanatizePerPage } from "./generic.mjs";
 import { getObjectName } from "./genericServerSide.mjs";
@@ -132,72 +132,6 @@ export default class Matches{
     }
 
 
-    async getRecent(page, perPage, gametype, playerManager){
-
-        page = parseInt(page);
-        perPage = parseInt(perPage);
-        gametype = parseInt(gametype);
-
-        if(page !== page) page = 0;
-        if(perPage !== perPage) perPage = 25;
-        if(gametype !== gametype) gametype = 0;
-
-        const start = page * perPage;
-
-        const defaultQuery = `SELECT * FROM nstats_matches WHERE playtime >= ? AND players >=? 
-        ORDER BY date DESC, id DESC LIMIT ?, ?`;
-        const gametypeQuery = `SELECT * FROM nstats_matches WHERE gametype=? AND playtime >=? AND players >=? 
-        ORDER BY date DESC, id DESC LIMIT ?, ?`;
-
-        const settings = await getSettings("Matches Page");
-
-        const vars = [settings["Minimum Playtime"], settings["Minimum Players"], start, perPage];
-
-
-        const query = (gametype === 0) ? defaultQuery : gametypeQuery
-
-        if(gametype !== 0) vars.unshift(gametype);
-
-        const result = await simpleQuery(query, vars);
-
-        const mgsIds = getUniqueMGS(result);
-   
-
-        const serverNames = await getObjectName("servers", mgsIds.servers);
-        const gametypeNames = await getObjectName("gametypes", mgsIds.gametypes);
-        const mapNames = await getObjectName("maps", mgsIds.maps);
-
-        const mNames = Object.values(mapNames);
-        const mapImages = getImages(mNames);
-
-        setIdNames(result, serverNames, "server", "serverName");
-        setIdNames(result, gametypeNames, "gametype", "gametypeName");
-        setIdNames(result, mapNames, "map", "mapName");
-        
-        const dmWinners = new Set(result.map(r => r.dm_winner));
-
-        const players = await playerManager.getNamesByIds([...dmWinners], true);
-
-        for(let i = 0; i < result.length; i++){
-            const r = result[i];
-
-            if(r.dm_winner !== 0){
-                r.dmWinner = players[r.dm_winner];
-            }
-
-            const cleanName = cleanMapName(r.mapName).toLowerCase();
-
-            if(mapImages[cleanName] !== undefined){
-                r.mapImage = mapImages[cleanName];
-            }else{
-                r.mapImage = "default";
-            }
-        }
-
-        return result;
-    }
-
-
     async getTotal(gametype){
 
         if(gametype === undefined){
@@ -318,40 +252,6 @@ export default class Matches{
         return await simpleQuery(query, [logNames]);
     }
 
-    async getMatchesToDelete(latestIds){
-
-        try{
-
-            const logFileNames = await this.getMatchLogFileNames(latestIds);
-            //get older ids
-            //the delete them one by one
-
-            //console.log(logFileNames);
-
-
-            const names = [];
-
-            for(let i = 0; i < logFileNames.length; i++){
-
-                names.push(logFileNames[i].name);
-            }
-
-            //console.log(names);
-
-            const matchIds = await this.getLogIds(names);
-
-            //console.log("matchIds");
-            //console.log(matchIds);
-           // return await this.getPreviousDuplicates(latestIds, names);
-
-            
-
-        }catch(err){
-            console.trace(err);
-            return [];
-        }
-    }
-
 
     async getLogMatches(logNames){
 
@@ -362,34 +262,6 @@ export default class Matches{
         return await simpleQuery(query, [logNames]);
     }
 
-
-
-
-    async removeVoiceData(playerData){
-
-        try{
-
-            const uses = {};
-
-            let p = 0;
-
-            for(let i = 0; i < playerData.length; i++){
-
-                p = playerData[i];
-
-                if(uses[p.vouce] !== undefined){
-                    uses[p.voice]++;
-                }else{
-                    uses[p.voice] = 1;
-                }
-            }
-
- 
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
 
 
     async deleteMatchQuery(id){
@@ -532,455 +404,11 @@ export default class Matches{
         await simpleQuery("DELETE FROM nstats_player_matches WHERE id IN (?)", [ids]);
     }
 
-    async insertMergedPlayerData(data){
-
-        const query = `INSERT INTO nstats_player_matches VALUES(NULL,
-            ?,?,?,?,?,?,
-            ?,?,?,?,?,?,
-            ?,?,?,?,?,?,
-            ?,?,?,?,?,?,
-            ?,?,?,?,?,?,
-            ?,?,?,?,?,?,
-            ?,?,?,?,?,?,
-            ?,?,?,?,?,?,
-            ?,?,?,?,?,?,
-            ?,?,?,
-            ?,?,?,?,?,?,
-            ?,?,?,?,?,?,
-            ?,?,?,?,?,?,?)`;//62
-
-//77
-        const vars = [
-            data.match_id,
-            data.match_date,
-            data.map_id,
-            data.player_id,
-            data.bot,
-            data.spectator,
-            data.played,
-            data.ip,
-            data.country,
-            data.face,
-            data.voice,
-            data.gametype,
-            data.winner,
-            data.draw,
-            data.playtime,
-            data.team_0_playtime,
-            data.team_1_playtime,
-            data.team_2_playtime,
-            data.team_3_playtime,
-            data.spec_playtime,
-            data.team,
-            data.first_blood,
-            data.frags,
-            data.score,
-            data.kills,
-            data.deaths,
-            data.suicides,
-            data.team_kills,
-            data.spawn_kills,
-            data.efficiency,
-            data.multi_1,
-            data.multi_2,
-            data.multi_3,
-            data.multi_4,
-            data.multi_5,
-            data.multi_6,
-            data.multi_7,
-            data.multi_best,
-            data.spree_1,   
-            data.spree_2,
-            data.spree_3,
-            data.spree_4,
-            data.spree_5,
-            data.spree_6,
-            data.spree_7,
-            data.spree_best,
-            data.best_spawn_kill_spree,
-            data.assault_objectives,
-            data.dom_caps,
-            data.dom_caps_best_life,
-            data.ping_min,
-            data.ping_average,
-            data.ping_max,
-            data.accuracy,
-            data.shortest_kill_distance,
-            data.average_kill_distance,
-            data.longest_kill_distance,
-            data.k_distance_normal,
-            data.k_distance_long,
-            data.k_distance_uber,
-            data.headshots,
-            data.shield_belt,
-            data.amp,
-            data.amp_time,
-            data.amp_kills,
-            data.amp_kills_single_life,
-            data.invisibility,
-            data.invisibility_time,
-            data.invisibility_kills,
-            data.invisibility_single_life,
-            data.pads,
-            data.armor,
-            data.boots,
-            data.super_health,
-            data.mh_kills,
-            data.mh_kills_best_life,
-            data.views,
-            data.mh_deaths
-        ];
-
-        await simpleQuery(query, vars);
-    }
 
     async changePlayerIds(oldId, newId){
 
         const query = `UPDATE nstats_player_matches SET player_id=? WHERE player_id=?`;
         return await simpleQuery(query, [newId, oldId]);
-    }
-
-
-    async mergePlayerMatchData(matchId, playerId){
-
-        const query = `SELECT * FROM nstats_player_matches WHERE match_id=? AND player_id=?`;
-
-        const result = await simpleQuery(query, [matchId, playerId]);
-
-        const totals = Object.assign({}, result[0]);
-
-        const higherBetter = [
-            "multi_best", 
-            "spree_best", 
-            "best_spawn_kill_spree", 
-            "dom_caps_best_life", 
-            "longest_kill_distance", 
-            "mh_kills_best_life",
-            "telefrag_best_spree",
-            "telefrag_best_multi",
-            "tele_disc_best_spree",
-            "tele_disc_best_multi"
-        ];
-
-        const mergeTypes = [
-            "frags",
-            "score",
-            "kills",
-            "deaths",
-            "suicides",
-            "team_kills",
-            "spawn_kills",
-            "assault_objectives",
-            "dom_caps", 
-            "k_distance_normal",
-            "k_distance_long", 
-            "k_distance_uber",
-            "headshots",
-            "shield_belt",
-            "amp",
-            "amp_time",
-            "invisibility",
-            "invisibility_time",
-            "pads",
-            "armor",
-            "boots",
-            "super_health",
-            "mh_kills",
-            "mh_deaths",
-            "playtime", // || You complete twat, how did you forget playtime!
-            "team_0_playtime",
-            "team_1_playtime",
-            "team_2_playtime",
-            "team_3_playtime",
-            "spec_playtime",
-            "telefrag_kills",
-            "telefrag_deaths",
-            "tele_disc_kills",
-            "tele_disc_deaths"
-        ];
-
-        let totalAccuracy = 0;
-        let totalAverageKillDistance = 0;
-
-
-        const rowsToDelete = [];
-
-        if(result.length > 0){
-            rowsToDelete.push(result[0].id);
-        }
-
-        for(let i = 1; i < result.length; i++){
-
-            const r = result[i];
-
-            rowsToDelete.push(r.id);
-
-            if(r.bot) totals.bot = 1;
-
-            if(totals.spectator === undefined) totals.spectator = r.spectator;
-            if(r.spectator !== 1) totals.spectator = 0;
-
-            if(totals.played === undefined) totals.played = r.played;
-
-            if(r.played !== 0) totals.played = 1;
-
-            //if(r.spectator) totals.spectator = 1;
-            if(r.winner) totals.winner = 1;
-            if(r.draw) totals.draw = 1;
-            //totals.team = r.team;
-            if(r.first_blood) totals.first_blood = 1;
-
-            
-            if(totals.team === undefined) totals.team = r.team;
-
-            if(r.team !== 255) totals.team = r.team;
-
-            for(let x = 1; x < 8; x++){
-                totals[`spree_${x}`] += r[`spree_${x}`] ;
-                totals[`multi_${x}`] += r[`multi_${x}`] ;
-            }
-
-            for(let x = 0; x < mergeTypes.length; x++){
-                totals[mergeTypes[x]] += r[mergeTypes[x]];
-            }
-
-
-            for(let x = 0; x < higherBetter.length; x++){
-
-                if(r[higherBetter[x]] > totals[higherBetter[x]]){
-                    totals[higherBetter[x]] = r[higherBetter[x]];
-                }
-            }
-
-
-
-            totalAccuracy += r.accuracy;
-            totalAverageKillDistance += r.average_kill_distance;
-
-        }
-
-        totals.efficiency = 0;
-
-        if(totals.kills > 0){
-
-            if(totals.deaths > 0){
-
-                totals.efficiency = (totals.kills / (totals.kills + totals.deaths)) * 100;
-            }else{
-                totals.efficiency = 100;
-            }
-        }
-
-
-        if(totalAccuracy > 0){
-            totals.accuracy = totalAccuracy / result.length;
-        }
-
-        if(totalAverageKillDistance > 0){
-            totals.average_kill_distance = totalAverageKillDistance / result.length;
-        }
-
-
-        //test fix
-        if(totals.playtime > 0){
-            totals.spectator = 0;
-            totals.played = 1;
-        }
-
-   
-        await this.insertMergedPlayerMatchData(totals, matchId, playerId);
-        //await this.updatePlayerMatchDataFromMerge(totals);
-        //delete other ids
-
-       return rowsToDelete;
-
-    }
-
-
-    async insertMergedPlayerMatchData(data, matchId, playerId){
-
-        const query = `INSERT INTO nstats_player_matches VALUES(
-            NULL,?,?,?,?,
-            ?,?,?,?,?,
-            ?,?,?,?,?,
-            ?,?,?,?,?,
-            ?,?,?,?,?,
-            ?,?,?,?,?,
-            ?,?,?,?,?,
-            ?,?,?,?,?,
-            ?,?,?,?,?,
-            ?,?,?,?,?,
-            ?,?,?,?,?,
-            ?,?,?,?,?,
-            ?,?,?,?,
-            ?,?,?,?,?,
-            ?,?,?,?,?,
-            ?,?,?,?,?,
-            ?,?,?,?,?
-        )`;
-
-        const d = data;
-
-        const vars = [
-            matchId, d.match_date, d.map_id, playerId,
-            d.hwid, d.bot, d.spectator, d.played, d.ip,//x
-            d.country, d.face, d.voice, d.gametype, d.winner,//x
-            d.draw, d.playtime, d.team_0_playtime, d.team_1_playtime, d.team_2_playtime,//x
-            d.team_3_playtime, d.spec_playtime, d.team, d.first_blood, d.frags,//x
-            d.score, d.kills, d.deaths, d.suicides, d.team_kills,//x
-            d.spawn_kills, d.efficiency, d.multi_1, d.multi_2, d.multi_3,//x
-            d.multi_4, d.multi_5, d.multi_6, d.multi_7, d.multi_best,//x
-            d.spree_1, d.spree_2, d.spree_3, d.spree_4, d.spree_5,//x
-            d.spree_6, d.spree_7, d.spree_best, d.best_spawn_kill_spree, d.assault_objectives,//x
-            d.dom_caps, d.dom_caps_best_life, d.ping_min, d.ping_average, d.ping_max,//x
-            d.accuracy, d.shortest_kill_distance, d.average_kill_distance, d.longest_kill_distance, d.k_distance_normal,//
-            d.k_distance_long, d.k_distance_uber, d.headshots, d.shield_belt,//
-            d.amp, d.amp_time, d.invisibility, d.invisibility_time, d.pads, //
-            d.armor, d.boots, d.super_health, d.mh_kills, d.mh_kills_best_life,//
-            d.views, d.mh_deaths, d.telefrag_kills, d.telefrag_deaths, d.telefrag_best_spree,//
-            d.telefrag_best_multi, d.tele_disc_kills, d.tele_disc_deaths, d.tele_disc_best_spree, d.tele_disc_best_multi
-        ];
-
-        return await simpleQuery(query, vars);
-    }
-
-    async updatePlayerMatchDataFromMerge(data){
-
-        const query = `UPDATE nstats_player_matches SET
-        bot=?,
-        spectator=?,
-        played=?,
-        winner=?,
-        draw=?,
-        playtime=?,
-        team_0_playtime=?,
-        team_1_playtime=?,
-        team_2_playtime=?,
-        team_3_playtime=?,
-        spec_playtime=?,
-        team=?,
-        first_blood=?,
-        frags=?,
-        score=?,
-        kills=?,
-        deaths=?,
-        suicides=?,
-        team_kills=?,
-        spawn_kills=?,
-        efficiency=?,
-        multi_1=?,
-        multi_2=?,
-        multi_3=?,
-        multi_4=?,
-        multi_5=?,
-        multi_6=?,
-        multi_7=?,
-        multi_best=?,
-        spree_1=?,
-        spree_2=?,
-        spree_3=?,
-        spree_4=?,
-        spree_5=?,
-        spree_6=?,
-        spree_7=?,
-        spree_best=?,
-        best_spawn_kill_spree=?,
-        assault_objectives=?,
-        dom_caps=?,
-        dom_caps_best_life=?,
-        accuracy=?,
-        shortest_kill_distance=?,
-        average_kill_distance=?,
-        longest_kill_distance=?,
-        k_distance_normal=?,
-        k_distance_long=?,
-        k_distance_uber=?,
-        headshots=?,
-        shield_belt=?,
-        amp=?,
-        amp_time=?,
-        invisibility=?,
-        invisibility_time=?,
-        pads=?,
-        armor=?,
-        boots=?,
-        super_health=?,
-        mh_kills=?,
-        mh_kills_best_life=?,
-        mh_deaths=?
-        WHERE id=?`;
-
-       
-
-        const d = data;
-        const vars = [
-            d.bot,
-            d.spectator,
-            d.played,
-            d.winner,
-            d.draw,
-            d.playtime,
-            d.team_0_playtime,
-            d.team_1_playtime,
-            d.team_2_playtime,
-            d.team_3_playtime,
-            d.spec_playtime,
-            d.team,
-            d.first_blood,
-            d.frags,
-            d.score,
-            d.kills,
-            d.deaths,
-            d.suicides,
-            d.team_kills,
-            d.spawn_kills,
-            d.efficiency,
-            d.multi_1,
-            d.multi_2,
-            d.multi_3,
-            d.multi_4,
-            d.multi_5,
-            d.multi_6,
-            d.multi_7,
-            d.multi_best,
-            d.spree_1,
-            d.spree_2,
-            d.spree_3,
-            d.spree_4,
-            d.spree_5,
-            d.spree_6,
-            d.spree_7,
-            d.spree_best,
-
-            d.best_spawn_kill_spree,
-            d.assault_objectives,
-            d.dom_caps,
-            d.dom_caps_best_life,
-            d.accuracy,
-
-            d.shortest_kill_distance,
-            d.average_kill_distance,
-            d.longest_kill_distance,
-            d.k_distance_normal,
-            d.k_distance_long,
-            d.k_distance_uber,
-            d.headshots,
-            d.shield_belt,
-            d.amp,
-            d.amp_time,
-            d.invisibility,
-            d.invisibility_time,
-            d.pads,
-            d.armor,
-            d.boots,
-            d.super_health,
-            d.mh_kills,
-            d.mh_kills_best_life,
-            d.mh_deaths,
-            d.id
-        ];
-
-        return await simpleQuery(query, vars);
     }
 
     async deletePlayerMatchRows(rowIds){
@@ -1225,170 +653,6 @@ export default class Matches{
     }
 
 
-    createSearchQuery(serverId, gametypeId, mapId, perPage, page, sortBy, order){
-
-        
-        serverId = parseInt(serverId);
-        gametypeId = parseInt(gametypeId);
-        mapId = parseInt(mapId);
-        page = parseInt(page);
-        perPage = parseInt(perPage);
-
-        if(serverId !== serverId) throw new Error("ServerId must be a valid integer");
-        if(gametypeId !== gametypeId) throw new Error("gametypeId must be a valid integer");
-        if(mapId !== mapId) throw new Error("mapId must be a valid integer");
-        if(page !== page) throw new Error("page must be a valid integer");
-        if(perPage !== perPage) throw new Error("perPage must be a valid integer");
-
-        let start = `SELECT nstats_matches.id as id,
-        nstats_matches.match_hash as match_hash,
-        nstats_matches.date as date,
-        nstats_matches.server as server,
-        nstats_matches.gametype as gametype,
-        nstats_matches.map as map,
-        nstats_matches.playtime as playtime,
-        nstats_matches.end_type as end_type,
-        nstats_matches.team_game as team_game,
-        nstats_matches.total_teams as total_teams,
-        nstats_matches.players as players,
-        nstats_matches.dm_winner as dm_winner,
-        nstats_matches.dm_score as dm_score,
-        nstats_matches.team_score_0 as team_score_0,
-        nstats_matches.team_score_1 as team_score_1,
-        nstats_matches.team_score_2 as team_score_2,
-        nstats_matches.team_score_3 as team_score_3,
-        nstats_matches.mh as mh `;
-
-
-
-        if(sortBy === "gametype"){
-
-            start += `,nstats_gametypes.name as gametype_name `;
-
-        }else if(sortBy === "map"){
-
-            start += `,nstats_maps.name as map_name `;
-
-        }else if(sortBy === "server"){
-            start += `,nstats_servers.name as server_name `;
-        }
-    
-
-    start += ` FROM nstats_matches `;
-
-    let query = start;
-    const vars = [];
-
-    let where = "";
-
-    if(serverId !== 0){
-        where = " WHERE nstats_matches.server=? "
-        vars.push(serverId);
-    }
-
-    if(gametypeId !== 0){
-
-        if(where === ""){
-            where += " WHERE nstats_matches.gametype=? ";
-        }else{
-            where += " AND nstats_matches.gametype=? ";
-        }
-    
-        vars.push(gametypeId);
-    }
-
-    if(mapId !== 0){
-
-        if(where === ""){
-            where += " WHERE nstats_matches.map=? ";
-        }else{
-            where += " AND nstats_matches.map=? ";
-        }
-
-        vars.push(mapId);
-    }
-
-
-        if(perPage <= 0 || perPage > 100){
-            perPage = 25;
-        }
-
-        let startIndex = page * perPage;
-
-        if(startIndex < 0) startIndex = 0;
-
-        if(sortBy === undefined && order === undefined){
-            query += " ORDER BY date DESC, id DESC LIMIT ?, ?";
-        }else{
-            
-
-            let firstOrder = `nstats_matches.${sortBy}`;
-
-            if(sortBy === "server"){
-                
-                query += ` INNER JOIN nstats_servers ON nstats_matches.server = nstats_servers.id`;
-                firstOrder = `server_name`;
-
-            }else if(sortBy === "gametype"){
-
-                query += ` INNER JOIN nstats_gametypes ON nstats_matches.gametype = nstats_gametypes.id`;
-                firstOrder = `gametype_name`;
-
-            }else if(sortBy === "map"){
-
-                query += ` INNER JOIN nstats_maps ON nstats_matches.map = nstats_maps.id`;
-                firstOrder = `map_name`;
-
-            }
-
-            query += `${where} ORDER BY ${firstOrder} ${order.toUpperCase()}, nstats_matches.id DESC LIMIT ?, ?`;
-            
-        }
-        
-        vars.push(startIndex, perPage);
-        
-
-
-        return {"query": query, "vars": vars};
-    }
-
-
-
-    //need to update matches page to use the new searchMatches function exported below
-    async searchMatches(serverId, gametypeId, mapId, page, perPage, sortBy, order){
-
-        sortBy = sortBy.toLowerCase();
-        order = order.toLowerCase();
-
-        const validSortBys = VALID_SEARCH_SORT_BY;
-
-        if(validSortBys.indexOf(sortBy) === -1){
-            throw new Error(`Not a valid match sort by`);
-        }
-
-        if(order !== "asc" && order !== "desc") order = "desc";
-
-        const {query, vars} = this.createSearchQuery(serverId, gametypeId, mapId, perPage, page, sortBy, order);
-
-        return await simpleQuery(query, vars); 
-    }
-
-
-    async changePlayerScoreHistoryIds(oldPlayerId, newPlayerId){
-
-        const query = `UPDATE nstats_match_player_score SET player=? WHERE player=?`;
-
-        return await simpleQuery(query, [newPlayerId, oldPlayerId]);
-    }
-
-    async changeTeamChangesPlayerIds(oldPlayerId, newPlayerId){
-
-        const query = `UPDATE nstats_match_team_changes SET player=? WHERE player=?`;
-
-        return await simpleQuery(query, [newPlayerId, oldPlayerId]);
-    }
-
-
     /**
      * 
      * @param {*} matchIds 
@@ -1516,7 +780,7 @@ export async function getMatch(id){
     r.mapName = (mapNames[r.map] !== undefined) ? removeUnr(mapNames[r.map]) : "Not Found";
    // r.image = getImages([r.mapName]);
 
-    const images = getImages([r.mapName]);
+    const images = getMapImages([r.mapName]);
 
     const imageKeys = Object.keys(images);
     
@@ -2121,9 +1385,9 @@ export async function searchMatches(serverId, gametypeId, mapId, page, perPage, 
         nstats_matches.team_score_2 as team_score_2,
         nstats_matches.team_score_3 as team_score_3,
         nstats_matches.mh as mh,
-        nstats_gametypes.name as gametype_name,
-        nstats_maps.name as map_name,
-        IF(nstats_servers.display_name = "", nstats_servers.name, nstats_servers.display_name) as server_name,
+        nstats_gametypes.name as gametypeName,
+        nstats_maps.name as mapName,
+        IF(nstats_servers.display_name = "", nstats_servers.name, nstats_servers.display_name) as serverName,
         IF(nstats_matches.dm_winner > 0, nstats_player.name, "") as dm_winner_name,
         IF(nstats_matches.dm_winner > 0, nstats_player.country, "") as dm_winner_country
         FROM nstats_matches 
@@ -2132,46 +1396,67 @@ export async function searchMatches(serverId, gametypeId, mapId, page, perPage, 
         LEFT JOIN nstats_servers on nstats_servers.id = nstats_matches.server
         LEFT JOIN nstats_player on nstats_player.id = nstats_matches.dm_winner`;
 
-        let where = ``;
-        const vars = [];
+    let where = ``;
+    const vars = [];
 
-        if(serverId !== 0){
-            
-            if(where === ""){
-                where = ` WHERE server=?`;
-            }else{
-                where += ` AND WHERE server=?`;
-            }
-            vars.push(serverId);
+    if(serverId !== 0){
+        
+        if(where === ""){
+            where = ` WHERE server=?`;
+        }else{
+            where += ` AND WHERE server=?`;
         }
 
-        if(gametypeId !== 0){
+        vars.push(serverId);
+    }
 
-            if(where === ""){
-                where = ` WHERE gametype=?`;
-            }else{
-                where += ` AND WHERE gametype=?`;
-            }
-            vars.push(gametypeId);
+    if(gametypeId !== 0){
+
+        if(where === ""){
+            where = ` WHERE gametype=?`;
+        }else{
+            where += ` AND WHERE gametype=?`;
         }
 
-        if(mapId !== 0){
+        vars.push(gametypeId);
+    }
 
-            if(where === ""){
-                where = ` WHERE map=?`;
-            }else{
-                where += ` AND map=?`;
-            }
+    if(mapId !== 0){
 
-            vars.push(mapId);
+        if(where === ""){
+            where = ` WHERE map=?`;
+        }else{
+            where += ` AND map=?`;
         }
 
-    const result = await simpleQuery(`${query}${where}`, vars);
+        vars.push(mapId);
+    }
+
+    let orderBy = ` ORDER BY ${sortBy} ${order}`;
+    let limit = ` LIMIT ?, ?`;
+
+    let start = page * perPage;
+    vars.push(start, perPage);
+
+    const result = await simpleQuery(`${query}${where}${orderBy}${limit}`, vars);
+
+    const mapNames = new Set();
 
     for(let i = 0; i < result.length; i++){
 
-        result[i].map_name = removeUnr(result[i].map_name);
+        result[i].mapName = removeUnr(result[i].mapName);
+        mapNames.add(result[i].mapName);
     }
-    console.log(result);
+
+    const mapImages = getMapImages([...mapNames]);
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        const mapImageName = cleanMapName(r.mapName).toLowerCase();
+        r.mapImage = mapImages[mapImageName] ?? "default";
+    }
+
+    return result;
 
 }

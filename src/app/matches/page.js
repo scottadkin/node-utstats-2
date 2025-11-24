@@ -6,7 +6,7 @@ import SearchForm from "../UI/Matches/SearchForm";
 import { getAllObjectNames, getSingleObjectName } from "../../../api/genericServerSide.mjs";
 import MatchesDefaultView from "../UI/MatchesDefaultView";
 import MatchesTableView from "../UI/MatchesTableView";
-import Matches, { getSearchTotalMatches } from "../../../api/matches";
+import { getSearchTotalMatches, searchMatches } from "../../../api/matches";
 import Players from "../../../api/players";
 import {getImages as getMapImages} from "../../../api/maps";
 import Pagination from "../UI/Pagination";
@@ -113,8 +113,7 @@ export default async function Page({ searchParams}){
     const gametypeNames = await getAllObjectNames("gametypes");
     const mapNames = await getAllObjectNames("maps");
 
-    const matchManager = new Matches();
-    const data = await matchManager.searchMatches(selectedServer, selectedGametype, selectedMap, page - 1, perPage, sortBy, order);
+    const data = await searchMatches(selectedServer, selectedGametype, selectedMap, page - 1, perPage, sortBy, order);
 
     const dmWinners = new Set();
 
