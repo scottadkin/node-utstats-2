@@ -480,7 +480,7 @@ class MatchScreenshot{
     getSoloWinner(){
 
         if(!this.bClassic){
-            return `${this.matchData.dmWinner.name} Wins the match!`;
+            return `${this.matchData.dmWinnerName} Wins the match!`;
         }else{
 
             if(this.players.length > 0){

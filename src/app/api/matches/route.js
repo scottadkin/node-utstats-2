@@ -20,17 +20,19 @@ export async function GET(req){
             const serverId = params.get("serverId") ?? 0;
             const gametypeId = params.get("gametypeId") ?? 0;
             const mapId = params.get("mapId") ?? 0;
-            const page = params.get("page") ?? 0;
+            let page = params.get("page") ?? 1;
             const perPage = params.get("perPage") ?? 25;
             const sortBy = params.get("sortBy") ?? "date";
             const order = params.get("order") ?? "desc";
 
-            console.log(serverId, gametypeId, mapId, page, perPage, sortBy, order);
+            page--;
+            if(page < 0) page = 0;
 
-            const data = await searchMatches(serverId, gametypeId, mapId, page, perPage, sortBy, order);
 
-            console.log(data);
-            return Response.json({"data": data});
+            const {matches, totalMatches} = await searchMatches(serverId, gametypeId, mapId, page, perPage, sortBy, order);
+
+            //console.log(matches);
+            return Response.json({"matches": matches, "totalMatches": totalMatches});
         }
 
         return Response.json({"error": "Unknown mode"});

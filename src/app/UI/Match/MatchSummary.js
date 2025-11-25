@@ -47,7 +47,7 @@ export default function MatchSummary({info, bPlayerPage, settings}){
 
                 <MatchResult 
                     teamGame={info.team_game} 
-                    dmWinner={info.dmWinner} 
+                    dmWinner={info.dmWinnerName} 
                     dmScore={info.dm_score} 
                     totalTeams={info.total_teams}
                     redScore={Math.floor(info.team_score_0)} 

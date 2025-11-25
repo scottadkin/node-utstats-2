@@ -95,7 +95,7 @@ const CUSTOM_OPTIONS = {
     "Servers Page": {
         "Default Display Type": [...DEFAULT_DISPLAY_OPTIONS],
     },
-    "Server Page": {
+    "Server Pages": {
         "Default Display Type": [...DEFAULT_DISPLAY_OPTIONS],
     }
 };

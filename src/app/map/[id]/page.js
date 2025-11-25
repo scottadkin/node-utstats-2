@@ -2,7 +2,7 @@ import Nav from "../../UI/Nav";
 import Session from "../../../../api/session";
 import {getSettings, getNavSettings, getPageOrder} from "../../../../api/sitesettings";
 import { headers, cookies } from "next/headers";
-import { getBasic, getSpawns, getGraphHistoryData, getTopPlayersPlaytime, getLongestMatches, getRecent as getRecentMatches } from "../../../../api/maps";
+import { getBasic, getSpawns, getGraphHistoryData, getTopPlayersPlaytime } from "../../../../api/maps";
 import { removeUnr, getGametypePrefix, cleanMapName, convertTimestamp } from "../../../../api/generic.mjs";
 import MapSummary from "../../UI/Maps/MapSummary";
 import MapHistoryGraph from "../../UI/Maps/MapHistoryGraph";
@@ -15,9 +15,10 @@ import { getMapObjectives, getMapImages as getMapAssaultImages } from "../../../
 import MapAssaultObjectives from "../../UI/Maps/MapAssaultObjectives";
 import MapAddictedPlayers from "../../UI/Maps/MapAddictedPlayers";
 import MapLongestMatches from "../../UI/Maps/MapLongestMatches";
-import MapRecentMatches from "../../UI/Maps/MapRecentMatches";
 import CombogibMapRecords from "../../UI/Maps/CombogibMapRecords";
 import CombogibMapTotals from "../../UI/Maps/CombogibMapTotals";
+import { searchMatches } from "../../../../api/matches";
+import MapRecentMatches from "../../UI/Maps/MapRecentMatches";
 
 function setQueryValues(params, searchParams){
 
@@ -146,13 +147,15 @@ export default async function Page({params, searchParams}){
     }
 
     if(pageSettings["Display Longest Matches"] === "true"){
-        const longestMatches = await getLongestMatches(id, pageSettings["Max Longest Matches"], basic.name);
-        elems[pageOrder["Display Longest Matches"]] = <MapLongestMatches key="longest" data={longestMatches}/>;
+        //const longestMatches = await getLongestMatches(id, pageSettings["Max Longest Matches"], basic.name);
+        const longestMatches = await searchMatches(0,0,id,0,pageSettings["Max Longest Matches"], "playtime", "desc");
+        elems[pageOrder["Display Longest Matches"]] = <MapLongestMatches key="longest" data={longestMatches.matches}/>;
     }
 
     if(pageSettings["Display Recent Matches"] === "true"){
-        const recentMatches = await getRecentMatches(id, 1, 10, matchesSettings, basic.name);
-        elems[pageOrder["Display Recent Matches"]] = <MapRecentMatches key="recent"  data={recentMatches} />;
+
+        const recentMatches = await searchMatches(0,0,id, 0, 10, "date", "desc");
+        elems[pageOrder["Display Recent Matches"]] = <MapRecentMatches key="recent"  data={recentMatches.matches} />;
     }
 
     if(pageSettings["Display Combogib Player Records"] === "true"){

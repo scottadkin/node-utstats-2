@@ -82,7 +82,7 @@ function renderTable(mode, data, playerId){
             <Link href={url}>
                 <MatchResultSmall 
                     totalTeams={d.total_teams} 
-                    dmWinner={d.dmWinner} 
+                    dmWinner={d.dmWinnerName} 
                     dmScore={d.dm_score} 
                     redScore={d.team_score_0} 
                     blueScore={d.team_score_1} 

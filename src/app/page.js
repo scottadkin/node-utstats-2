@@ -19,6 +19,7 @@ import MostUsedFaces from "./UI/MostUsedFaces";
 import { getAllInMatch } from "../../api/players";
 import { getFacesWithFileStatuses, getMostUsed as getMostUsedFaces } from "../../api/faces";
 import MatchesDefaultView from "./UI/MatchesDefaultView";
+import { searchMatches } from "../../api/matches";
 
 export async function generateMetadata({ params, searchParams }, parent) {
 
@@ -61,15 +62,15 @@ export default async function Page(){
 
     if(pageManager.bEnabled("Display Recent Matches")){
 
-        const matchesData = await matchManager.getRecent(0, pageSettings["Recent Matches To Display"], 0, playerManager);
+        const matchesData = await searchMatches(0,0,0,0, pageSettings["Recent Matches To Display"], "date", "desc");
 
-        if(matchesData.length > 0){
+        if(matchesData.totalMatches > 0){
 
             pageManager.addComponent("Display Recent Matches", <div className="default" key="recent-matches">
                 <div className="default-header">Recent Matches</div>
                    
-                {(pageSettings["Recent Matches Display Type"] === "default") ? <MatchesDefaultView data={matchesData}/> : null}
-                {(pageSettings["Recent Matches Display Type"] === "table") ? <MatchesTableView bHome={true} data={matchesData}/>   : null}
+                {(pageSettings["Recent Matches Display Type"] === "default") ? <MatchesDefaultView data={matchesData.matches}/> : null}
+                {(pageSettings["Recent Matches Display Type"] === "table") ? <MatchesTableView bHome={true} data={matchesData.matches}/>   : null}
                    
             </div>)
         }
@@ -77,11 +78,11 @@ export default async function Page(){
 
     if(pageManager.bEnabled("Display Latest Match")){
 
-        const latestMatch = await matchManager.getRecent(0, 1, 0, playerManager);
+        const latestMatch = await searchMatches(0, 0, 0, 0, 1, "date", "desc");
 
-        if(latestMatch.length > 0){
+        if(latestMatch.totalMatches > 0){
 
-            const latestMatchPlayers = await getAllInMatch(latestMatch[0].id);
+            const latestMatchPlayers = await getAllInMatch(latestMatch.matches[0].id);
 
             const playerFaces = [];
 
@@ -94,7 +95,7 @@ export default async function Page(){
 
             const latestFaces = await getFacesWithFileStatuses(playerFaces);
 
-            const latestMapName = latestMatch[0].mapName;
+            const latestMapName = latestMatch.matches[0].mapName;
             const mapImage = getMapImages([latestMapName]);
 
             let latestMatchImage = "default";
@@ -105,13 +106,14 @@ export default async function Page(){
                 latestMatchImage = mapImage[mapImageName];
             }
 
+
             pageManager.addComponent("Display Latest Match", 
                 <div className="default" key="sshot">
                     <Screenshot 
-                    key={"match-sshot"} map={latestMatch[0].mapName} totalTeams={latestMatch[0].total_teams} players={latestMatchPlayers} 
+                    key={"match-sshot"} map={latestMatch.matches[0].mapName} totalTeams={latestMatch.matches[0].total_teams} players={latestMatchPlayers} 
                     image={`/images/maps/${latestMatchImage}.jpg`} 
-                    matchData={latestMatch[0]}
-                    serverName={latestMatch[0].serverName} gametypeName={latestMatch[0].gametypeName} faces={latestFaces} bHome={true}/>
+                    matchData={latestMatch.matches[0]}
+                    serverName={latestMatch.matches[0].serverName} gametypeName={latestMatch.matches[0].gametypeName} faces={latestFaces} bHome={true}/>
                 </div>);
         }
 

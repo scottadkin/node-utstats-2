@@ -113,14 +113,14 @@ export default async function Page({ searchParams}){
     const gametypeNames = await getAllObjectNames("gametypes");
     const mapNames = await getAllObjectNames("maps");
 
-    const data = await searchMatches(selectedServer, selectedGametype, selectedMap, page - 1, perPage, sortBy, order);
+    const {matches, totalMatches} = await searchMatches(selectedServer, selectedGametype, selectedMap, page - 1, perPage, sortBy, order);
 
     const dmWinners = new Set();
 
-    for(let i = 0; i < data.length; i++){
+    for(let i = 0; i < matches.length; i++){
 
-        if(data[i].dm_winner !== 0){
-            dmWinners.add(data[i].dm_winner);
+        if(matches[i].dm_winner !== 0){
+            dmWinners.add(matches[i].dm_winner);
         }
     }
 
@@ -134,9 +134,9 @@ export default async function Page({ searchParams}){
     }
 
 
-    for(let i = 0; i < data.length; i++){
+    for(let i = 0; i < matches.length; i++){
 
-        const d = data[i];
+        const d = matches[i];
 
         d.mapName = mapNames[d.map] ?? "Not Found";
         d.gametypeName = gametypeNames[d.gametype] ?? "Not Found"; 
@@ -156,7 +156,7 @@ export default async function Page({ searchParams}){
     }
 
    // const totalMatches = await matchManager.getSearchTotalResults(selectedServer, selectedGametype, selectedMap);
-    const totalMatches = await getSearchTotalMatches(selectedServer, selectedGametype, selectedMap);
+    //const totalMatches = await getSearchTotalMatches(selectedServer, selectedGametype, selectedMap);
 
     const pURL = `/matches?server=${selectedServer}&gametype=${selectedGametype}&map=${selectedMap}&pp=${perPage}&displayMode=${displayMode}&page=`;
 
@@ -180,7 +180,7 @@ export default async function Page({ searchParams}){
                 />
                 <Pagination currentPage={page} results={totalMatches} perPage={perPage} url={pURL} />
                 {(displayMode === "table") ? <MatchesTableView 
-                    data={data} 
+                    data={matches} 
                     server={selectedServer} 
                     gametype={selectedGametype} 
                     map={selectedMap} 
@@ -190,7 +190,7 @@ export default async function Page({ searchParams}){
                     order={order}
                     bHome={false}
                 /> : null }
-                {(displayMode === "default") ? <MatchesDefaultView data={data}/> : null }
+                {(displayMode === "default") ? <MatchesDefaultView data={matches}/> : null }
                 <Pagination currentPage={page} results={totalMatches} perPage={perPage} url={pURL} />
             </div>
             

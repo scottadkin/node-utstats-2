@@ -23,7 +23,7 @@ export default function MatchesDefaultView({data}){
             gametypeName={d.gametypeName}
         >
             <MatchResult 
-                dmWinner={d.dmWinner}
+                dmWinner={d.dmWinnerName}
                 dmScore={d.dm_score}
                 totalTeams={d.total_teams}
                 redScore={d.team_score_0}

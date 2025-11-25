@@ -906,53 +906,31 @@ export async function getRecentMatches(id, page, forcePerPage){
     nstats_matches.team_score_2,
     nstats_matches.team_score_3,
     nstats_matches.mh,
-    nstats_matches.end_type
+    nstats_matches.end_type,
+    if(nstats_matches.dm_winner != 0, nstats_player.name, "") as dmWinnerName,
+    nstats_servers.name as serverName,
+    nstats_gametypes.name as gametypeName,
+    nstats_maps.name as mapName
     FROM nstats_player_matches
     INNER JOIN nstats_matches ON nstats_player_matches.match_id = nstats_matches.id
+    LEFT JOIN nstats_player ON nstats_player.id = nstats_matches.dm_winner
+    LEFT JOIN nstats_servers ON nstats_servers.id = nstats_matches.server
+    LEFT JOIN nstats_gametypes ON nstats_gametypes.id = nstats_matches.gametype
+    LEFT JOIN nstats_maps ON nstats_maps.id = nstats_matches.map
+
     WHERE nstats_player_matches.player_id=? AND nstats_player_matches.match_id IN (?) AND nstats_player_matches.playtime > 0 AND nstats_player_matches.playtime >=? 
     ORDER BY nstats_player_matches.match_date DESC, nstats_player_matches.match_id DESC LIMIT ?,?`;
     const start = perPage * page;
     const vars = [id, validMatchIds, settings["Minimum Playtime"], start, perPage];
+
+
     const result = await simpleQuery(query, vars);
 
-    const mapIds = new Set();
-    const gametypeIds = new Set();
-    const playerIds = new Set();
-    const serverIds = new Set();
-
-
     for(let i = 0; i < result.length; i++){
 
         const r = result[i];
-
-        gametypeIds.add(r.gametype_id);
-        mapIds.add(r.map_id);
-        serverIds.add(r.server);
-
-        if(r.dm_winner !== 0){
-            playerIds.add(r.dm_winner);
-        }
+        r.mapName = removeUnr(r.mapName);
     }
-
-    const serverNames = await getObjectName("servers", [...serverIds]);
-    const gametypeNames = await getObjectName("gametypes", [...gametypeIds]);
-    const mapNames = await getObjectName("maps", [...mapIds]);
-    const playerNames = await getBasicPlayersByIds([...playerIds]);
-
-
-    for(let i = 0; i < result.length; i++){
-
-        const r = result[i];
-
-        r.serverName = serverNames[r.server] ?? "Not Found";
-        r.gametypeName = gametypeNames[r.gametype_id] ?? "Not Found";
-        r.mapName = mapNames[r.map_id] ?? "Not Found";
-
-        if(r.dm_winner !== 0){
-            r.dmWinner = getPlayer(playerNames, r.dm_winner, true);
-        }
-    }
-
 
     return result;
 

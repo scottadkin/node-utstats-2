@@ -22,19 +22,20 @@ export default function MatchResult({dmWinner, dmScore, totalTeams, redScore, bl
             default: { className = "solo"; } break;
         }
 
-
-        if(totalTeams < 2 && dmWinner !== undefined){
+        if(totalTeams < 2 && dmWinner !== ""){
             
-            if(dmScore === null){
+            if(dmScore === 0){
 
                 elems.push(<div key="dm" className={`${styles.wrapper} ${styles.dm}`}>
                     <img src={`/images/${defaultImage}`} alt="image"/><br/>
-                    {dmWinner.name} Won the Match
+                    {dmWinner} Won the Match
                 </div>);
+
             }else{
+
                 elems.push(<div key="dm" className={`${styles.wrapper} ${styles.dm}`}>
                     <img src={`/images/${defaultImage}`} alt="image"/><br/>
-                    {dmWinner.name} won with <span className="yellow">{dmScore}</span> Points
+                    {dmWinner} Won with <span className="yellow">{dmScore}</span> Points
                 </div>);
             }
 

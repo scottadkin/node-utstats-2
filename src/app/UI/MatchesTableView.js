@@ -25,7 +25,7 @@ function createRows(matches){
             <Link href={url}>{toPlaytime(m.playtime)}</Link>,
             <MatchResultSmall key={i}
                 totalTeams={m.total_teams} 
-                dmWinner={m.dmWinner} 
+                dmWinner={m.dmWinnerName} 
                 dmScore={m.dm_score} 
                 redScore={Math.floor(m.team_score_0)}
                 blueScore={Math.floor(m.team_score_1)}

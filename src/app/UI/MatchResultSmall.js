@@ -8,8 +8,9 @@ export default function MatchResultSmall({totalTeams, dmWinner, dmScore, redScor
     yellowScore = Math.floor(yellowScore);
     
     if(!bMonsterHunt){
-        if(dmWinner !== undefined && dmWinner !== 0){
-            return (<div className={`${styles.wrapper} solo`}><div className="team-none">{dmWinner.name} <span className="yellow">({dmScore})</span></div></div>);
+
+        if(dmWinner !== ""){
+            return (<div className={`${styles.wrapper} solo`}><div className="team-none">{dmWinner} <span className="yellow">({dmScore})</span></div></div>);
         }
 
         let wrapperClass = "solo";

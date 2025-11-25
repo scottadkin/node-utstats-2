@@ -1,4 +1,4 @@
-import { simpleQuery } from "./database.js";
+import { mysqlGetColumns, simpleQuery } from "./database.js";
 import CTF from "./ctf.js";
 import Gametypes from "./gametypes.js";
 import Maps, { getImages as getMapImages } from "./maps.js";
@@ -764,21 +764,45 @@ export async function getMatchIdFromHash(hash){
 
 export async function getMatch(id){
 
-    const query = `SELECT * FROM nstats_matches WHERE id=?`;
+    const query = `SELECT 
+        nstats_matches.id,                   nstats_matches.match_hash,       nstats_matches.date,
+        nstats_matches.server,               nstats_matches.gametype,         nstats_matches.map,
+        nstats_matches.version,              nstats_matches.min_version,      nstats_matches.admin,
+        nstats_matches.email,                nstats_matches.region,           nstats_matches.motd,
+        nstats_matches.mutators,             nstats_matches.playtime,         nstats_matches.end_type,
+        nstats_matches.start,                nstats_matches.end,              nstats_matches.insta,
+        nstats_matches.team_game,            nstats_matches.game_speed,       nstats_matches.hardcore,
+        nstats_matches.tournament,           nstats_matches.air_control,      nstats_matches.use_translocator,
+        nstats_matches.friendly_fire_scale,  nstats_matches.net_mode,         nstats_matches.max_spectators,
+        nstats_matches.max_players,          nstats_matches.total_teams,      nstats_matches.players,
+        nstats_matches.time_limit,           nstats_matches.target_score,     nstats_matches.dm_winner,
+        nstats_matches.dm_score,             nstats_matches.team_score_0,     nstats_matches.team_score_1,
+        nstats_matches.team_score_2,         nstats_matches.team_score_3,     nstats_matches.attacking_team,
+        nstats_matches.assault_caps,         nstats_matches.dom_caps,         nstats_matches.mh_kills,
+        nstats_matches.mh,                   nstats_matches.views,            nstats_matches.ping_min_average,
+        nstats_matches.ping_average_average, nstats_matches.ping_max_average, nstats_matches.amp_kills,
+        nstats_matches.amp_kills_team_0,     nstats_matches.amp_kills_team_1, nstats_matches.amp_kills_team_2,
+        nstats_matches.amp_kills_team_3,
+        IF(nstats_servers.display_name = "", nstats_servers.name, nstats_servers.display_name) as serverName,
+        nstats_gametypes.name as gametypeName,
+        nstats_maps.name as mapName,
+        IF(nstats_matches.dm_winner !=0 , nstats_player.name, "") as dmWinnerName,
+        IF(nstats_matches.dm_winner !=0 , nstats_player.country, "") as dmWinnerCountry
+        FROM nstats_matches 
+        LEFT JOIN nstats_servers ON nstats_servers.id = nstats_matches.server
+        LEFT JOIN nstats_gametypes ON nstats_gametypes.id = nstats_matches.gametype
+        LEFT JOIN nstats_maps ON nstats_maps.id = nstats_matches.map
+        LEFT JOIN nstats_player ON nstats_player.id = nstats_matches.dm_winner
+        WHERE nstats_matches.id=?`;
+
     const result = await simpleQuery(query, [id]);
+
 
     if(result.length === 0) return null;
 
     const r = result[0];
 
-    const serverNames = await getObjectName("servers", r.server);
-    const gametypeNames = await getObjectName("gametypes", r.gametype);
-    const mapNames = await getObjectName("maps", r.map);
-
-    r.serverName = serverNames[r.server] ?? "Not Found";
-    r.gametypeName = gametypeNames[r.gametype] ?? "Not Found";
-    r.mapName = (mapNames[r.map] !== undefined) ? removeUnr(mapNames[r.map]) : "Not Found";
-   // r.image = getImages([r.mapName]);
+    r.mapName = removeUnr(r.mapName);
 
     const images = getMapImages([r.mapName]);
 
@@ -788,13 +812,6 @@ export async function getMatch(id){
         r.image = images[imageKeys[0]];
     }else{
         r.image = "default";
-    }
-   
-
-    if(r.dm_winner !== 0){
-
-        const pInfo = await getBasicPlayersByIds(r.dm_winner);
-        r.dmWinner = getPlayer(pInfo, r.dm_winner, true);
     }
 
     return r;
@@ -1342,7 +1359,62 @@ export async function deleteGametype(id){
     return await simpleQuery(query, [id]);
 }
 
+function setWhereStringAndVars(serverId, gametypeId, mapId){
 
+    let where = ``;
+    const vars = [];
+
+    if(serverId !== 0){
+        
+        if(where === ""){
+            where = ` WHERE server=?`;
+        }else{
+            where += ` AND WHERE server=?`;
+        }
+
+        vars.push(serverId);
+    }
+
+    if(gametypeId !== 0){
+
+        if(where === ""){
+            where = ` WHERE gametype=?`;
+        }else{
+            where += ` AND WHERE gametype=?`;
+        }
+
+        vars.push(gametypeId);
+    }
+
+    if(mapId !== 0){
+
+        if(where === ""){
+            where = ` WHERE map=?`;
+        }else{
+            where += ` AND map=?`;
+        }
+
+        vars.push(mapId);
+    }
+
+    return {vars, where};
+}
+
+async function searchGetTotalMatches(serverId, gametypeId, mapId){
+
+    serverId = parseInt(serverId);
+    gametypeId = parseInt(gametypeId);
+    mapId = parseInt(mapId);
+
+    const {vars, where} = setWhereStringAndVars(serverId, gametypeId, mapId);
+
+    const query = `SELECT COUNT(*) as total_matches FROM nstats_matches`;
+
+    const result = await simpleQuery(`${query}${where}`, vars);
+
+    return result[0].total_matches;
+
+}
 
 export async function searchMatches(serverId, gametypeId, mapId, page, perPage, sortBy, order){
 
@@ -1388,51 +1460,18 @@ export async function searchMatches(serverId, gametypeId, mapId, page, perPage, 
         nstats_gametypes.name as gametypeName,
         nstats_maps.name as mapName,
         IF(nstats_servers.display_name = "", nstats_servers.name, nstats_servers.display_name) as serverName,
-        IF(nstats_matches.dm_winner > 0, nstats_player.name, "") as dm_winner_name,
-        IF(nstats_matches.dm_winner > 0, nstats_player.country, "") as dm_winner_country
+        IF(nstats_matches.dm_winner > 0, nstats_player.name, "") as dmWinnerName,
+        IF(nstats_matches.dm_winner > 0, nstats_player.country, "") as dmWinnerCountry
         FROM nstats_matches 
         LEFT JOIN nstats_gametypes on nstats_gametypes.id = nstats_matches.gametype
         LEFT JOIN nstats_maps on nstats_maps.id = nstats_matches.map
         LEFT JOIN nstats_servers on nstats_servers.id = nstats_matches.server
         LEFT JOIN nstats_player on nstats_player.id = nstats_matches.dm_winner`;
 
-    let where = ``;
-    const vars = [];
 
-    if(serverId !== 0){
-        
-        if(where === ""){
-            where = ` WHERE server=?`;
-        }else{
-            where += ` AND WHERE server=?`;
-        }
+    const {vars, where} = setWhereStringAndVars(serverId, gametypeId, mapId);
 
-        vars.push(serverId);
-    }
-
-    if(gametypeId !== 0){
-
-        if(where === ""){
-            where = ` WHERE gametype=?`;
-        }else{
-            where += ` AND WHERE gametype=?`;
-        }
-
-        vars.push(gametypeId);
-    }
-
-    if(mapId !== 0){
-
-        if(where === ""){
-            where = ` WHERE map=?`;
-        }else{
-            where += ` AND map=?`;
-        }
-
-        vars.push(mapId);
-    }
-
-    let orderBy = ` ORDER BY ${sortBy} ${order}`;
+    let orderBy = ` ORDER BY ${sortBy} ${order}, id DESC`;
     let limit = ` LIMIT ?, ?`;
 
     let start = page * perPage;
@@ -1457,6 +1496,8 @@ export async function searchMatches(serverId, gametypeId, mapId, page, perPage, 
         r.mapImage = mapImages[mapImageName] ?? "default";
     }
 
-    return result;
+    const totalMatches = await searchGetTotalMatches(serverId, gametypeId, mapId);
+
+    return {"matches": result, "totalMatches": totalMatches}
 
 }

@@ -53,8 +53,8 @@ export default async function Page({params, searchParams}){
     const navSettings = await getNavSettings();
     const sessionSettings = session.settings;
 
-    const pageSettings = await getSettings("Server Page");
-    const pageOrder = await getPageOrder("Server Page");
+    const pageSettings = await getSettings("Server Pages");
+    const pageOrder = await getPageOrder("Server Pages");
 
     const serverId = (query.id !== undefined) ? parseInt(query.id) : NaN;
 
@@ -121,7 +121,12 @@ export default async function Page({params, searchParams}){
 
         pageManager.addComponent(
             "Display Recent Matches", 
-            <RecentMatches key="recent-matches" serverId={serverId} displayMode={pageSettings["Default Display Type"]}/>
+            <RecentMatches 
+                key="recent-matches" 
+                serverId={serverId} 
+                displayMode={pageSettings["Default Display Type"]} 
+                perPage={pageSettings["Default Per Page"]}
+            />
         );
 
     }

@@ -5,6 +5,7 @@ import { toPlaytime, convertTimestamp, removeUnr } from '../../../../api/generic
 import { BasicTable } from "../Tables";
 import { useReducer, useEffect } from 'react';
 import MatchesDefaultView from "../MatchesDefaultView";
+import Pagination from "../Pagination";
 
 
 function reducer(state, action){
@@ -13,7 +14,14 @@ function reducer(state, action){
         case "loaded": {
             return {
                 ...state,
-                "data": action.data
+                "data": action.data,
+                "totalMatches": action.totalMatches
+            }
+        }
+        case "set-page": {
+            return {
+                ...state,
+                "page": action.page
             }
         }
     }
@@ -55,37 +63,18 @@ function createRows(matches){
     return rows;
 }
 
-/*
-let page = 1;
-        const recentMatches = await searchMatches(serverId, 0, 0, page - 1, 25, "date", "DESC");
-        console.log(recentMatches);
-
-        let matchElems = null;
-
-        if(pageSettings["Default Display Type"] === "default"){
-            matchElems = <MatchesDefaultView data={recentMatches}/>;
-        }else{
-            matchElems = <MatchesTableView data={recentMatches}/>;
-        }
-        
-        pageManager.addComponent("Display Recent Matches", <div key="recent">
-            <div className="default-header">Recent Matches</div>
-                {matchElems}
-            </div>
-        );*/
 
 async function loadData(serverId, page, perPage, dispatch){
 
     try{
 
-        console.log(`load data`);
 
-        const req = await fetch(`/api/matches?mode=search&serverId=${serverId}&gametypeId=0&mapId=0&page=${page - 1}&perPage=${perPage}`);
+        const req = await fetch(`/api/matches?mode=search&serverId=${serverId}&gametypeId=0&mapId=0&page=${page}&perPage=${perPage}`);
 
         const res = await req.json();
         
         if(res.error !== undefined) throw new Error(res.error);
-        dispatch({"type": "loaded", "data": res.data});
+        dispatch({"type": "loaded", "data": res.matches, "totalMatches": res.totalMatches});
 
         console.log(res);
 
@@ -94,12 +83,13 @@ async function loadData(serverId, page, perPage, dispatch){
     }
 }
 
-export default function RecentMatches({serverId, displayMode}){
+export default function RecentMatches({serverId, displayMode, perPage}){
 
     const [state, dispatch] = useReducer(reducer, {
         "page": 1,
-        "perPage": 25,
-        "data": []
+        "perPage": perPage,
+        "data": [],
+        "totalMatches": 0
     });
 
 
@@ -127,7 +117,9 @@ export default function RecentMatches({serverId, displayMode}){
 
     return <>
         <div className="default-header">Recent Matches</div>
-        pagination here
+        <Pagination currentPage={state.page} results={state.totalMatches} perPage={state.perPage} url={null} event={(v) =>{
+            dispatch({"type": "set-page", "page": v});
+        }}/>
         {(displayMode === "default") ? <MatchesDefaultView data={state.data}/> : <BasicTable width={1} columnStyles={styles} headers={headers} rows={rows} />}
     </>
 
