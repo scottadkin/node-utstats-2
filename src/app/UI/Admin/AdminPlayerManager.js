@@ -96,7 +96,7 @@ async function loadNames(dispatch, mDispatch){
 
 function renderSearchForm(state, dispatch){
 
-    const rows = [];
+    const options = [];
 
     for(let i = 0; i < state.playerNames.length; i++){
 
@@ -109,17 +109,7 @@ function renderSearchForm(state, dispatch){
             if(!name.includes(state.searchName.toLowerCase())) continue;
         }
 
-        rows.push({
-            "name": {
-                "value": p.name.toLowerCase(), 
-                "displayValue": <React.Fragment><CountryFlag country={p.country}/>{p.name}</React.Fragment>,
-                "className": (state.selectedPlayerId === p.id) ? "team-green text-left" : "team-grey text-left",
-                "onClick": () =>{
-                    dispatch({"type": "set-selected-player", "value": p.id});
-                    dispatch({"type": "set-search-name", "value": p.name});
-                }
-            }
-        });
+        options.push(<option key={p.id} value={p.id}>{p.name}</option>);
 
     }
 
@@ -135,7 +125,27 @@ function renderSearchForm(state, dispatch){
                 dispatch({"type": "set-search-name", "value": e.target.value});
             }}/>
         </div>
-        <InteractiveTable width={2} perPage={5} headers={tableHeaders} bDisableSorting={true} data={rows}/>
+        <div className="form-row">
+            <label htmlFor="target-player">Selected Player</label>
+            <select className="default-select" onChange={(e) =>{
+
+                const index = e.target.selectedIndex;
+
+                if(index === 0){
+                    dispatch({"type": "set-selected-player", "value": -1});
+                    dispatch({"type": "set-search-name", "value": ""});
+                    return;
+                }
+
+                let name = e.target[index].text ?? "";
+                
+                dispatch({"type": "set-selected-player", "value": parseInt(e.target.value)});
+                dispatch({"type": "set-search-name", "value": name});
+            }}>
+                <option value="0">-- Please Select A Player --</option>
+                {options}
+            </select>
+        </div>
     </div>
 }
 

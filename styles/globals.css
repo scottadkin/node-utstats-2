@@ -909,3 +909,18 @@ ul{
 	list-style: inside;
 	list-style-type: "- ";
 }
+
+
+.join-ut-server{
+	background-color:var(--color-8);
+	font-size:20px;
+	width:var(--max-width-1);
+	margin-left:auto;
+	margin-right:auto;
+	padding:10px;
+	transition: all 0.5s;
+}
+
+.join-ut-server:hover{
+	color:yellow;
+}

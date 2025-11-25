@@ -11,8 +11,8 @@ import { getAllInMatch } from "../../../../api/players";
 import { getFacesWithFileStatuses } from "../../../../api/faces";
 import { getRecentPingInfo } from "../../../../api/servers";
 import PingGraph from "../../UI/Server/PingGraph";
-import { searchMatches } from "../../../../api/matches";
 import RecentMatches from "../../UI/Server/RecentMatches";
+import Link from "next/link";
 
 export async function generateMetadata({ params, searchParams }, parent) {
 
@@ -114,9 +114,6 @@ export default async function Page({params, searchParams}){
         pageManager.addComponent("Display Ping Graph", <PingGraph key="pings" data={pingData}/>);
     }
 
-
-    console.log(pageSettings);
-
     if(pageManager.bEnabled("Display Recent Matches")){
 
         pageManager.addComponent(
@@ -138,7 +135,9 @@ export default async function Page({params, searchParams}){
         <div id="content">
             <div className="default">
                 <div className="default-header">{basicInfo.name}</div>        
-                
+                <Link href={`unreal://127.0.0.1:8888`}><div className="join-ut-server">
+                    Join The <b>{basicInfo.name}</b> Unreal Tournament Server
+                </div></Link>
                 {elems}
             </div>    
         </div>   
