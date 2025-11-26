@@ -321,7 +321,6 @@ export default function AdminMapScreenshots(){
 	];
  
     return <>
-        <div className="default-header">Map Screenshots Manager</div>
 		<Tabs options={tabs} selectedValue={state.mode} changeSelected={(v) =>{
 			dispatch({"type": "set-mode", "value": v});
 		}} />

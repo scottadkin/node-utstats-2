@@ -109,10 +109,10 @@ export default async function Page(){
 
             pageManager.addComponent("Display Latest Match", 
                 <div className="default" key="sshot">
-                    <Screenshot 
-                    key={"match-sshot"} map={latestMatch.matches[0].mapName} totalTeams={latestMatch.matches[0].total_teams} players={latestMatchPlayers} 
+                    <Screenshot map={latestMatch.matches[0].mapName} totalTeams={latestMatch.matches[0].total_teams} players={latestMatchPlayers} 
                     image={`/images/maps/${latestMatchImage}.jpg`} 
                     matchData={latestMatch.matches[0]}
+                    title="Latest Match Screenshot"
                     serverName={latestMatch.matches[0].serverName} gametypeName={latestMatch.matches[0].gametypeName} faces={latestFaces} bHome={true}/>
                 </div>);
         }

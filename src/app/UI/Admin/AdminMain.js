@@ -14,11 +14,12 @@ import AdminItemManager from "./AdminItemManager";
 import AdminGametypeManager from "./AdminGametypeManager";
 import AdminBackupManager from "./AdminBackupManager";
 import AdminServersManager from "./AdminServersManager";
+import AdminMapManager from "./AdminMapManager";
 
 
 export default function AdminMain({}){
 
-    const [mode, setMode] = useState("servers");
+    const [mode, setMode] = useState("maps");
 
     const options = [
         {"name": "Site Settings", "value": "page-settings"},
@@ -30,7 +31,7 @@ export default function AdminMain({}){
         {"name": "Matches Manager", "value": "matches"},
         {"name": "Rankings Manager", "value": "rankings"},
         {"name": "Items Manager", "value": "items"},
-        {"name": "Map Screenshots", "value": "map-sshots"},
+        {"name": "Maps Manager", "value": "maps"},
         {"name": "Player Faces", "value": "faces"},
         {"name": "Create Backup", "value": "backup"},
         {"name": "Clear Database", "value": "admin-clear-database"},
@@ -57,9 +58,9 @@ export default function AdminMain({}){
         elems.push(<AdminPageSettings key="page-settings" />);
     }
 
-    if(mode === "map-sshots"){
+    if(mode === "maps"){
 
-        elems.push(<AdminMapScreenshots key="map-sshots"/>);
+        elems.push(<AdminMapManager key="maps"/>);
     }
 
     if(mode === "faces"){

@@ -207,29 +207,6 @@ export default class Maps{
 
     }
 
-
-    async getAll(){
-
-        const query = "SELECT * FROM nstats_maps ORDER BY name ASC";
-
-        return await simpleQuery(query);
-
-    }
-
-
-     removeUnr(name){
-
-        const reg = /^(.+)\.unr$/i;
-    
-        const result = reg.exec(name);
-    
-        if(result !== null){
-            return result[1];
-        }
-        
-        return name;
-    }
-
     /**
      *  old get names by id function, use getNames instead
      * @param {*} ids 
@@ -252,10 +229,10 @@ export default class Maps{
             const r = result[i];
 
             if(!bSimpleObject){
-                data.push({"id": r.id, "name": this.removeUnr(r.name)});
+                data.push({"id": r.id, "name": removeUnr(r.name)});
             }else{
 
-                data[r.id] = this.removeUnr(r.name);
+                data[r.id] = removeUnr(r.name);
             }
         }
 
@@ -429,28 +406,6 @@ export default class Maps{
         return result[0].total_matches;
     }
 
-    /*getMissingThumbnails(){
-
-        const files = this.getAllUploadedImages();
-
-        const missing = [];
-
-        const ignore = "thumbs";
-
-        for(let i = 0; i < files.fullsize.length; i++){
-
-            const f = files.fullsize[i];
-
-            if(f === ignore) continue;
-            const index = files.thumbs.indexOf(f);
-
-            if(index === -1){
-                missing.push(f);
-            }
-        }
-
-        return missing;
-    }*/
 
 
     async getAllNameAndIds(bIncludeAutoMergeMaps){
@@ -472,7 +427,7 @@ export default class Maps{
 
             const r = result[i];
 
-            data[r.id] = this.removeUnr(r.name);
+            data[r.id] = removeUnr(r.name);
         }
 
         return data;
@@ -1371,9 +1326,7 @@ export async function mergeGametypes(oldId, newId){
     }
 }
 
-
 export async function deleteGametype(id, mapIds){
-
 
     await recalcBasicTotals(id);
     await deleteMapTotals(id, 0);
@@ -1384,5 +1337,11 @@ export async function deleteGametype(id, mapIds){
 
         await recalculateTotals(0, m);
     }
+}
 
+export async function getAll(){
+
+    const query = `SELECT * FROM nstats_maps ORDER BY name ASC`;
+
+    return await simpleQuery(query);
 }

@@ -2,7 +2,7 @@ import Session from "../../../../api/session";
 import { headers, cookies } from "next/headers";
 import Admin from "../../../../api/admin";
 import { getAllGametypeNames, deleteGametypeFull } from "../../../../api/gametypes";
-import { getAllUploadedImages as getAllUploadedMapImages, getImages } from "../../../../api/maps";
+import { getAllUploadedImages as getAllUploadedMapImages, getImages, getAll as getAllMaps } from "../../../../api/maps";
 import { getAllObjectNames } from "../../../../api/genericServerSide.mjs";
 import { cleanMapName, sortByName } from "../../../../api/generic.mjs";
 import { getAllFaces, getAllFacesWithFileStatuses, getFacesWithFileStatuses } from "../../../../api/faces";
@@ -438,6 +438,13 @@ export async function POST(req){
 
             await saveServerChanges(changes);
             return Response.json({"message": "passed"});
+        }
+
+        if(mode === "get-all-maps"){
+
+            const data = await getAllMaps();
+
+            return Response.json({data});
         }
 
         return Response.json({"error": "Unknown Request"});

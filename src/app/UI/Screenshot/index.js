@@ -1,7 +1,7 @@
 "use client"
 import styles from './Screenshot.module.css'
 import {useEffect, useRef} from "react";
-import { utDate, MMSS, toMysqlDate } from '../../../../api/generic.mjs';
+import { MMSS, toMysqlDate } from '../../../../api/generic.mjs';
 
 class MatchScreenshot{
 
@@ -1395,14 +1395,12 @@ class MatchScreenshot{
 
 
 
-const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gametypeName, faces, highlight, bHome, bClassic, title}) =>{
-
+export default function Screenshot({map, totalTeams, players, image, matchData, serverName, gametypeName, faces, highlight, bHome, bClassic, title}){
 
     const sshot = useRef(null);
 
     bHome = (bHome !== undefined) ? bHome : false;
 
-    
 
     useEffect(() =>{
         
@@ -1437,7 +1435,7 @@ const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gam
     }
 
 
-    return (<div className={`${styles.wrapper} center`}>
+    return <div className={`${styles.wrapper} center`}>
         <div className="default-header">
             {titleText}
         </div>
@@ -1446,7 +1444,5 @@ const Screenshot = ({map, totalTeams, players, image, matchData, serverName, gam
                 width="1920" height="1080">
             </canvas>
         </div>
-    </div>);
+    </div>;
 }
-
-export default Screenshot;
