@@ -2,7 +2,7 @@ import Session from "../../../../api/session";
 import { headers, cookies } from "next/headers";
 import Admin from "../../../../api/admin";
 import { getAllGametypeNames, deleteGametypeFull } from "../../../../api/gametypes";
-import { getAllUploadedImages as getAllUploadedMapImages, getImages, getAll as getAllMaps } from "../../../../api/maps";
+import { getAllUploadedImages as getAllUploadedMapImages, getImages, getAll as getAllMaps, editMapDetails } from "../../../../api/maps";
 import { getAllObjectNames } from "../../../../api/genericServerSide.mjs";
 import { cleanMapName, sortByName } from "../../../../api/generic.mjs";
 import { getAllFaces, getAllFacesWithFileStatuses, getFacesWithFileStatuses } from "../../../../api/faces";
@@ -445,6 +445,18 @@ export async function POST(req){
             const data = await getAllMaps();
 
             return Response.json({data});
+        }
+
+        if(mode === "save-map-changes"){
+
+            const targetId = res.targetId ?? null;
+            const data = res.data ?? null;
+
+            if(targetId === null) throw new Error(`No mapId set`);
+            if(data === null) throw new Error(`No data provided`);
+
+            await editMapDetails(targetId, data);
+            return Response.json({"message": "passed"});
         }
 
         return Response.json({"error": "Unknown Request"});

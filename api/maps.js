@@ -1345,3 +1345,29 @@ export async function getAll(){
 
     return await simpleQuery(query);
 }
+
+export async function editMapDetails(id, data){
+
+    const query = `UPDATE nstats_maps SET name=?,title=?,author=?,
+    ideal_player_count=?,level_enter_text=?,import_as_id=? WHERE id=?`;
+
+    const vars = [
+        `${data.name}.unr`, data.title, data.author,
+        data.idealPlayerCount, data.levelEnterText,
+        data.importAs,
+        id
+    ];
+
+    return await simpleQuery(query, vars);
+}
+
+async function getMapName(id){
+
+    const query = `SELECT name FROM nstats_maps WHERE id=?`;
+
+    const result = await simpleQuery(query, [id]);
+
+    if(result.length === 0) return null;
+
+    return removeUnr(result[0].name);
+}

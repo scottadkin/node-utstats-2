@@ -66,19 +66,12 @@ export default class MapInfo{
 
     async updateStats(date, matchLength){
 
+        await this.maps.updateStats(this.name, this.title, this.author, this.idealPlayerCount, this.levelEnterText, date, matchLength);
+        
+        if(this.maps.bMergeError) return;
 
-        try{
+        this.mapId = await this.maps.getIdSafe(this.name);
 
-            await this.maps.updateStats(this.name, this.title, this.author, this.idealPlayerCount, this.levelEnterText, date, matchLength);
-            
-            if(this.maps.bMergeError) return;
-
-            this.mapId = await this.maps.getIdSafe(this.name);
-
-
-        }catch(err){
-            console.trace(err);
-        }   
     }
 }
 
