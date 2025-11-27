@@ -87,24 +87,6 @@ ServerActors=NodeUTStats2.NodeUTStatsServerActor
 - Once completed you should see on your website new matches & players being displayed in their respected pages.
 
 
-# NexgenStatsViewer Support
-- There are many more data types to be displayed instead of the standard top player rankings for each gametype, you can create lists in the admin control panel.
-- To setup nexgenstatsviewer to work with Node UTstats 2 you must edit/add the following to Nexgen.ini in your UnrealTournament/System folder
-```
-[NexgenStatsViewer105.NSVConfigExt]
-lastInstalledVersion=105
-enableUTStatsClient=True
-utStatsHost=localhost
-utStatsPort=3000
-utStatsPath=/api/nexgenstatsviewer
-```
-
-# Experimental IPToCountry Support
-To add this feature to your server add the following entries in IpToCountry.ini in your UnrealTournament system folder.
-- QueryServerHost **127.0.0.1**(The ip you host node utstats on)
-- QueryServerFilePath **/api/iptocountry**
-- QueryServerPort **3000**(The port node ustats site uses)
-
 # Setting up ACE
 
 - By default ACE doesn't save player information to log files, to get the most out of this module you will have to change a few lines in UnrealTournament.ini so ACE will save player information that will help admins ban trouble makers.

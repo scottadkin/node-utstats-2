@@ -1346,17 +1346,34 @@ export async function getAll(){
     return await simpleQuery(query);
 }
 
+async function getIdByName(name){
+
+    const query = `SELECT id FROM nstats_maps WHERE name=?`;
+
+    const result = await simpleQuery(query, [name]);
+
+    if(result.length > 0) return result[0].id;
+
+    return null;
+}
+
 export async function editMapDetails(id, data){
 
     const query = `UPDATE nstats_maps SET name=?,title=?,author=?,
     ideal_player_count=?,level_enter_text=?,import_as_id=? WHERE id=?`;
 
+    const name = `${data.name}.unr`;
+
     const vars = [
-        `${data.name}.unr`, data.title, data.author,
+        name, data.title, data.author,
         data.idealPlayerCount, data.levelEnterText,
         data.importAs,
         id
     ];
+
+    const nameInUseBy = await getIdByName(name);
+
+    if(nameInUseBy !== null && nameInUseBy !== id) throw new Error(`That name is already in use by another map`);
 
     return await simpleQuery(query, vars);
 }
