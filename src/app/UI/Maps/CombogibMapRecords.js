@@ -1,13 +1,12 @@
 "use client"
 import Loading from "../Loading";
 import ErrorMessage from "../ErrorMessage";
-import TablePagination from "../../../../components/TablePagination";
 import CountryFlag from "../CountryFlag";
 import Link from "next/link";
-import TabsHeader from "../../../../components/TabsHeader";
 import { useReducer, useEffect } from "react";
 import { toPlaytime, getPlayer, getOrdinal } from "../../../../api/generic.mjs";
 import { BasicTable } from "../Tables";
+import TablePagination from "../TablePagination";
 
 function reducer(state, action){
 
@@ -93,7 +92,6 @@ function renderTabs(state, dispatch){
 
     const titles = getTitle("*");
 
-    const tabs = [];
     
     const tabsRow1 = [];
     const tabsRow2 = [];
@@ -125,15 +123,15 @@ function renderTabs(state, dispatch){
     }
 
     return <div>
-        <TabsHeader>Kill Types</TabsHeader>
+        <div className="table-title">Kill Types</div>
         <div className="tabs">
             {tabsRow1}
         </div>
-        <TabsHeader>Best Single Kill Events</TabsHeader>
+        <div className="table-title">Best Single Kill Events</div>
         <div className="tabs">
             {tabsRow2}
         </div>
-        <TabsHeader>Most Kill Types in a Single Life</TabsHeader>
+        <div className="table-title">Most Kill Types in a Single Life</div>
         <div className="tabs">
             {tabsRow3}
         </div>
@@ -171,20 +169,23 @@ function renderTable(state, dispatch){
     const styles = ["place", "text-left", "playtime", null];
     return <div>
         <BasicTable width={4} headers={headers} title={getTitle(state.dataType)} rows={rows} columnStyles={styles}/>
-        <TablePagination previous={() =>{
+        <TablePagination width={4} previous={() =>{
 
-            let page = state.page;
-            page--;
-            if(page < 0) page = 0;
+                let page = state.page;
+                page--;
+                if(page < 0) page = 0;
 
-            dispatch({"type": "set-page", "value": page});
+                dispatch({"type": "set-page", "value": page});
+            }}
+            next={() =>{
 
-        }} next={() =>{
-            dispatch({"type": "set-page", "value": state.page + 1});
-        }} width={4} page={state.page + 1}
-            perPage={state.perPage} totalResults={state.totalResults}    
+                const totalPages = (state.perPage > 0 && state.totalResults > 0) ? state.totalResults / state.perPage : 0;
+
+                if(state.page + 1 > totalPages) return;
+
+                dispatch({"type": "set-page", "value": state.page + 1});
+            }}
         />
-    
     </div>
 }
 

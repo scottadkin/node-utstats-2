@@ -691,11 +691,11 @@ input[type="range"]{
 .button{
 	padding:5px;
 	border:1px solid var(--border-color-1);
-	background-color:var(--color-3);
+	background-color:var(--color-8);
 	user-select: none;
 	transition:all 0.5s;
 	color:white;
-	font-size:inherit;
+	font-size:14px;
 }
 
 .button:hover{
@@ -923,4 +923,11 @@ ul{
 
 .join-ut-server:hover{
 	color:yellow;
+}
+
+.table-pagination{
+	background-color:var(--color-8);
+	margin-top:-25px;
+	display:grid;
+	grid-template-columns: 50% 50%;
 }

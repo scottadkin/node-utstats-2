@@ -1,5 +1,4 @@
 "use client"
-import styles from "../../../../styles/Login.module.css";
 import { registerUser } from "../../actions";
 import { useActionState } from "react";
 import ErrorMessage from "../ErrorMessage";
@@ -21,7 +20,7 @@ export default function RegisterForm(){
         });
     }
 
-    return <div className={`${styles.form} form`}>
+    return <div className={`form`}>
         <ErrorMessage title="Failed To Register Account" text={errorElems}/>
         <form action={formAction}>
             <div className="select-row">
