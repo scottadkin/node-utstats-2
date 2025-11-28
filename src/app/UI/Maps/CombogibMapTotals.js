@@ -118,7 +118,7 @@ function renderRecords(data, players){
                 {ignore0(d.max_ball_kills)}&nbsp;
                 <span className="small-font grey">
                     {plural(d.max_ball_kills, "Kill")} by&nbsp;
-                    <Link href={`/pmatch/${d.max_ball_kills_match_id}/?player=${d.max_ball_kills_player_id}`}>     
+                    <Link href={`/pmatch/${d.max_shockball_kills_match_id}/?player=${d.max_shockball_kills_player_id}`}>     
                         <CountryFlag small={true} country={ballKillsPlayer.country}/>{ballKillsPlayer.name}  
                     </Link>         
                 </span>
@@ -210,7 +210,7 @@ function renderBestSingle(data, players){
             {d.best_single_combo}&nbsp;
             <span className="small-font grey">
                 {plural(d.best_single_combo, "Kill")} by&nbsp;
-                <Link href={`/pmatch/${d.best_single_combo_match_id}?player=${comboPlayer.id}`}>
+                <Link href={`/pmatch/${d.best_single_combo_match_id}?player=${d.best_single_combo_player_id}`}>
                     <CountryFlag small={true} country={comboPlayer.country}/>
                     {comboPlayer.name}
                 </Link>
@@ -220,7 +220,7 @@ function renderBestSingle(data, players){
             {d.best_single_insane}&nbsp;
             <span className="small-font grey">
                 {plural(d.best_single_insane, "Kill")} by&nbsp;
-                <Link href={`/pmatch/${d.best_single_insane_match_id}?player=${insanePlayer.id}`}>
+                <Link href={`/pmatch/${d.best_single_insane_match_id}?player=${d.best_single_insane_player_id}`}>
                     <CountryFlag small={true} country={insanePlayer.country}/>
                     {insanePlayer.name}
                 </Link>
@@ -230,7 +230,7 @@ function renderBestSingle(data, players){
             {d.best_single_shockball}&nbsp;
             <span className="small-font grey">
                 {plural(d.best_single_shockball, "Kill")} by&nbsp;
-                <Link href={`/pmatch/${d.best_single_shockball_match_id}?player=${ballPlayer.id}`}>
+                <Link href={`/pmatch/${d.best_single_shockball_match_id}?player=${d.best_single_shockball_player_id}`}>
                     <CountryFlag small={true} country={ballPlayer.country}/>
                     {ballPlayer.name}  
                 </Link>

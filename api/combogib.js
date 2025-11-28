@@ -900,93 +900,6 @@ export default class Combogib{
         await simpleQuery(query, vars);
     }
 
-    //replace all data that has the id of playerOne with playerTwo
-    async mergePlayersData(playerOne, playerTwo){
-
-        const matchTableQuery = `UPDATE nstats_match_combogib SET player_id=? WHERE player_id=?`;
-        await simpleQuery(matchTableQuery, [playerTwo, playerOne]);
-
-        const duplicateMatchIds = await this.getDuplicatePlayerMatchIds(playerTwo);
-
-        const affectedMapIds = new Set();
-
-        for(let i = 0; i < duplicateMatchIds.length; i++){
-
-            const matchId = duplicateMatchIds[i];
-            const combined = await this.getCombinedPlayerMatchData(playerTwo, matchId);
-
-            await this.deletePlayerMatchData(playerTwo, matchId);
-
-            if(combined !== null){
-
-                const combos = {
-                    "bestSingle": combined.best_single_combo,
-                    "kills": combined.combo_kills,
-                    "deaths": combined.combo_deaths,
-                    "efficiency": combined.combo_efficiency,
-                    "kpm": combined.combo_kpm,
-                    "best": combined.best_combo_spree
-                };
-
-                const shockBalls = {
-                    "bestSingle": combined.best_single_shockball,
-                    "kills": combined.shockball_kills,
-                    "deaths": combined.shockball_deaths,
-                    "efficiency": combined.shockball_efficiency,
-                    "kpm": combined.shockball_kpm,
-                    "best": combined.best_shockball_spree
-                };
-
-                const insane = {
-                    "bestSingle": combined.best_single_insane,
-                    "kills": combined.insane_kills,
-                    "deaths": combined.insane_deaths,
-                    "efficiency": combined.insane_efficiency,
-                    "kpm": combined.insane_kpm,
-                    "best": combined.best_insane_spree
-                };
-
-                const primary = {
-                    "kills": combined.primary_kills,
-                    "deaths": combined.primary_deaths,
-                    "efficiency": combined.primary_efficiency,
-                    "kpm": combined.primary_kpm,
-                    "best": combined.best_primary_spree
-                };
-
-                await this.insertPlayerMatchData(playerTwo, combined.gametype_id, matchId, combined.map_id, 
-                    combined.playtime, combos, shockBalls, primary, insane);
-
-                await this.updatePlayerTotals(playerTwo, combined.gametype_id, combined.map_id, matchId, combined.playtime, combos, insane, shockBalls, primary);
-
-                affectedMapIds.add(combined.map_id);
-            }
-        }
-
-        for(const value of affectedMapIds.values()){
-            await this.recalculateMapBestValues(value, true);
-        }
-    }
-
-    //merge playerOnes's stats into playerTwo's
-    async mergePlayers(playerOne, playerTwo){
-        
-        const history = await this.getPlayerHistory(playerOne);
-
-        //nothing to do if there is no data for player one
-        if(history.length === 0) return true;
-
-        await this.mergePlayersData(playerOne, playerTwo);
- 
-    }
-
-    //for merging players, to delete from match and effect map/gametype totals use deletePlayerFromMatch instead
-    async deletePlayerMatchData(playerId, matchId){
-
-        const query = "DELETE FROM nstats_match_combogib WHERE player_id=? AND match_id=?";
-
-        await simpleQuery(query, [playerId, matchId]);
-    }
 
     async deleteMapTotalsData(mapId){
 
@@ -1033,26 +946,6 @@ export default class Combogib{
         return await simpleQuery(query, [playerId, gametypeId, mapId]);
     }
 
-    async fixDuplicatePlayerTotals(){
-
-        const getQuery = `SELECT MIN(id) as original_row, player_id,gametype_id,map_id,COUNT(*) as total_rows FROM nstats_player_combogib GROUP BY player_id,gametype_id,map_id`;
-
-        const getResult = await simpleQuery(getQuery);
-
-        const duplicates = getResult.filter((r) =>{
-            return r.total_rows > 1;
-        });
-        
-        console.log(duplicates);
-        console.log(`found ${duplicates.length} duplicates`);
-
-        for(let i = 0; i < duplicates.length; i++){
-
-            const d = duplicates[i];
-
-            await this.fixPlayerTotal(d.player_id, d.gametype_id, d.map_id);
-        }
-    }
 
     
 
