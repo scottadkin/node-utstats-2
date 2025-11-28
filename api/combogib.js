@@ -789,24 +789,6 @@ export default class Combogib{
         }   
     }
 
-    async getDuplicatePlayerMatchIds(playerId){
-
-        const query = "SELECT match_id,COUNT(match_id) as total_entries FROM nstats_match_combogib WHERE player_id=? GROUP BY match_id";
-
-        const result = await simpleQuery(query, [playerId]);
-
-        const duplicates = [];
-
-        for(let i = 0; i < result.length; i++){
-
-            if(result[i].total_entries > 1){
-                duplicates.push(result[i].match_id);
-            }
-        }
-
-        return duplicates;
-    }
-
 
     setCombinedPlayerMatchDataValues(data, key, playtime){
 

@@ -295,7 +295,7 @@ function renderEdit(state, dispatch, mDispatch){
 export default function AdminMapManager(){
   
     const [state, dispatch] = useReducer(reducer, {
-        "mode": "edit",
+        "mode": "list",
         "maps": [],
         "prefixes": [],
         "selectedMap": -1,

@@ -5,7 +5,6 @@ import AdminClearDatabase from "./AdminClearDatabase";
 import AdminFTPManager from "./AdminFTPManager";
 import AdminLogsFolder from "./AdminLogsFolder";
 import AdminPageSettings from "./AdminPageSettings";
-import AdminMapScreenshots from "./AdminMapScreenshots";
 import AdminFaces from "./AdminFaces";
 import AdminMatchesManager from "./AdminMatchesManager";
 import AdminPlayerManager from "./AdminPlayerManager";
@@ -19,7 +18,7 @@ import AdminMapManager from "./AdminMapManager";
 
 export default function AdminMain({}){
 
-    const [mode, setMode] = useState("maps");
+    const [mode, setMode] = useState("players");
 
     const options = [
         {"name": "Site Settings", "value": "page-settings"},

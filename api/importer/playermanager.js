@@ -3,6 +3,7 @@ import PlayerInfo from "./playerinfo.js";
 import Message from "../message.js";
 import Pl from "../player.js";
 const Player = new Pl();
+import {getHWIDNameOverride} from "../player.js";
 import Faces from "../faces.js";
 import Voices from "../voices.js";
 import ConnectionsManager from "./connectionsmanager.js";
@@ -17,6 +18,7 @@ import { recalculateTotals } from "../players.js";
 export default class PlayerManager{
 
     constructor(data, spawnManager, bIgnoreBots, matchTimings, geoip, bUsePlayerACEHWID, bHardcore){
+
 
         this.data = data;
 
@@ -521,17 +523,25 @@ export default class PlayerManager{
 
             new Message(`Player.getMasterIds(${p.name}`,"note");
 
+            let masterId = null;
+
             if(p.hwid !== ""){
 
-                const nameHWIDOverride = await Player.getHWIDNameOverride(p.hwid);
+                const nameHWIDOverride = await getHWIDNameOverride(p.hwid);
 
                 if(nameHWIDOverride !== null){
-                    p.name = nameHWIDOverride;
-                    //this.idsToNames[p.id] = p.name.toLowerCase();
+                    masterId = await Player.getMasterIds(nameHWIDOverride);
                 }
+
             }
 
-            const masterId = await Player.getMasterIds(p.name);
+            if(masterId === null){
+
+                masterId = await Player.getMasterIds(p.name);
+            }
+
+            if(masterId === null) throw new Error(`Player masterId is null (${p.name})`);
+            
             
             if(p.hwid !== ""){
                 await Player.setLatestHWIDInfo(masterId, p.hwid);

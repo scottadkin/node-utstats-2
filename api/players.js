@@ -110,15 +110,6 @@ export default class Players{
         });
     }
 
-    async debugGetAll(){
-
-        const query = "SELECT * FROM nstats_player_totals WHERE gametype=0 AND map=0 ORDER BY name ASC";
-
-        const result = await simpleQuery(query);
-
-        return removeIps(result);      
-            
-    }
 
     async getTotalPlayers(name){
 
@@ -809,38 +800,6 @@ export default class Players{
     }
 
 
-
-    async getSinglePlayerInMatch(matchId, playerId){
-
-        const query = "SELECT * FROM nstats_player_matches WHERE match_id=? AND player_id=?";
-
-        const players = await simpleQuery(query, [matchId, playerId]);
-
-        if(players.length === 0) return [];
-
-        
-
-        //for(let i = 0; i < players.length; i++){
-            delete players[0].ip;
-            delete players[0].hwid;
-        //}
-
-        const ctfData = await getPlayerMatchCTFData(matchId, [playerId]);
-        const playersInfo = await getBasicPlayersByIds([playerId]);
-        //await this.setPlayerMatchNames(players);
-        const pInfo = getPlayer(playersInfo, playerId, true);
-
-        players[0].name = pInfo.name;
-
-        if(ctfData[playerId] !== undefined){
-            players[0].ctfData = ctfData[playerId];
-        }
-
-
-        return players;
-
-
-    }
 
     async getUniquePlayersBetween(start, end){
 
@@ -1858,13 +1817,6 @@ export default class Players{
        // await this.fixDuplucateMapsData(newId);
         await this.fixDuplicateMapTotals(newId);
     }
-
-    async getAllHWIDtoNames(){
-
-        const query = `SELECT * FROM nstats_hwid_to_name ORDER BY player_name ASC`;
-
-        return await simpleQuery(query);
-    }
 }
 
 
@@ -2671,4 +2623,36 @@ export async function deleteGametype(id){
         await simpleQuery(`DELETE FROM ${t} WHERE gametype=?`, [id]);
     }
     
+}
+
+
+async function getAllHWIDToNames(){
+
+    const query = `SELECT * FROM nstats_hwid_to_name ORDER BY player_name ASC`;
+
+    const result = await simpleQuery(query);
+
+    const data = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        data[r.hwid] = r.player_name;
+
+    }
+
+    return data;
+}
+
+export async function getAllHWIDS(){
+
+    const query = `SELECT id,name,hwid,country FROM nstats_player WHERE hwid!="" ORDER BY name ASC`;
+
+    const latest = await simpleQuery(query);
+
+    const hwidsToName = await getAllHWIDToNames();
+
+
+    return {latest, hwidsToName};
+
 }

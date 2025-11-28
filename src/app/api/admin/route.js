@@ -4,14 +4,13 @@ import Admin from "../../../../api/admin";
 import { getAllGametypeNames, deleteGametypeFull } from "../../../../api/gametypes";
 import { getAllUploadedImages as getAllUploadedMapImages, getImages, getAll as getAllMaps, editMapDetails } from "../../../../api/maps";
 import { getAllObjectNames } from "../../../../api/genericServerSide.mjs";
-import { cleanMapName, sortByName } from "../../../../api/generic.mjs";
-import { getAllFaces, getAllFacesWithFileStatuses, getFacesWithFileStatuses } from "../../../../api/faces";
+import { cleanMapName } from "../../../../api/generic.mjs";
+import {  getAllFacesWithFileStatuses } from "../../../../api/faces";
 import { adminMatchesSearch, adminDeleteMatch, 
     getDuplicateMatches, deleteHashDuplicates, 
     deleteAllDuplicates as deleteAllMatchDuplicates } from "../../../../api/matches";
 import { getLogImportInfo } from "../../../../api/logs";
-import { getAllPlayerBasic, renamePlayer } from "../../../../api/players";
-import { deletePlayer } from "../../../../api/players";
+import { getAllPlayerBasic, renamePlayer, deletePlayer, getAllHWIDS } from "../../../../api/players";
 import { getAllSettings as getAllRankingSettings, adminUpdateSettings as updateRankingValues, 
     recalculateAll as recalculateAllRankings } from "../../../../api/rankings";
 import { getAll as getAllItems, ITEM_TYPES, saveItemChanges } from "../../../../api/items";
@@ -457,6 +456,15 @@ export async function POST(req){
 
             await editMapDetails(targetId, data);
             return Response.json({"message": "passed"});
+        }
+
+
+        if(mode === "get-all-hwids"){
+
+
+            const {latest, hwidsToName} = await getAllHWIDS();
+
+            return Response.json({latest, hwidsToName});
         }
 
         return Response.json({"error": "Unknown Request"});
