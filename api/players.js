@@ -1450,52 +1450,6 @@ export default class Players{
     }
 
 
-    async adminGetHWIDUsageFromMatchData(){
-
-        const query = `SELECT player_id,hwid,MIN(match_date) as first_match,MAX(match_date) as last_match,
-        SUM(playtime) as total_playtime,COUNT(*) as total_matches FROM nstats_player_matches WHERE hwid!="" GROUP BY hwid,player_id`;
-
-        return await simpleQuery(query);
-    }
-
-    async adminGetPlayersWithHWIDS(){
-
-        const query = `SELECT id,name,country,hwid,matches,last FROM nstats_player_totals WHERE gametype=0 AND map=0 AND hwid!="" ORDER BY name ASC`;
-
-        return await simpleQuery(query);
-    }
-
-
-    async bHWIDAlreadyAssigned(hwid){
-
-        const query = `SELECT COUNT(*) as total_rows FROM nstats_hwid_to_name WHERE hwid=?`;
-
-        const result = await simpleQuery(query, [hwid]);
-
-        if(result.length > 0) return result[0].total_rows !== 0;
-
-        return false;
-    }
-
-    async adminAssignHWIDToName(hwid, name){
-
-        if(await this.bHWIDAlreadyAssigned(hwid)){
-
-            throw new Error("HWID is already assigned to a name.");
-        }
-
-        //TODO: Check HWID isn't al;ready assigned to another player name, if it is throw error
-        const query = `INSERT INTO nstats_hwid_to_name VALUES(NULL,?,?)`;
-
-        await simpleQuery(query, [hwid, name]);
-    }
-
-    async adminDeleteHWIDToName(hwid){
-
-        const query = `DELETE FROM nstats_hwid_to_name WHERE hwid=?`;
-
-        return await simpleQuery(query, [hwid]);
-    }
 
     async adminGetPlayersBasic(){
 
@@ -2652,7 +2606,35 @@ export async function getAllHWIDS(){
 
     const hwidsToName = await getAllHWIDToNames();
 
-
     return {latest, hwidsToName};
 
+}
+
+async function bHWIDAlreadyAssignedToName(hwid){
+
+    const query = `SELECT COUNT(*) as total_rows FROM nstats_hwid_to_name WHERE hwid=?`;
+
+    const result = await simpleQuery(query, [hwid]);
+
+    return result[0].total_rows > 0;
+}
+
+export async function assignNameToHWID(name, hwid){
+
+    if(name === "") throw new Error(`Name can not be an empty string.`);
+    if(hwid === "") throw new Error(`HWID can not be an empty string.`);
+
+    if(await bHWIDAlreadyAssignedToName(hwid)) throw new Error(`HWID is already assigned to a name`);
+
+
+    const query = `INSERT INTO nstats_hwid_to_name VALUES(NULL,?,?)`;
+
+    return await simpleQuery(query, [hwid, name]);
+}
+
+export async function deleteAssignedNameToHWID(hwid){
+
+    const query = `DELETE FROM nstats_hwid_to_name WHERE hwid=?`;
+
+    return await simpleQuery(query, [hwid]);
 }
