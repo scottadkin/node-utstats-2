@@ -2612,6 +2612,8 @@ export async function getAllHWIDS(){
 
 async function bHWIDAlreadyAssignedToName(hwid){
 
+    if(hwid === "") return false;
+
     const query = `SELECT COUNT(*) as total_rows FROM nstats_hwid_to_name WHERE hwid=?`;
 
     const result = await simpleQuery(query, [hwid]);
@@ -2635,6 +2637,19 @@ export async function assignNameToHWID(name, hwid){
 export async function deleteAssignedNameToHWID(hwid){
 
     const query = `DELETE FROM nstats_hwid_to_name WHERE hwid=?`;
+
+    return await simpleQuery(query, [hwid]);
+}
+
+
+export async function addHWIDToDatabase(hwid){
+
+    if(hwid === "") throw new Error(`HWID can not be an empty string`);
+
+    if(await bHWIDAlreadyAssignedToName(hwid)) throw new Error(`That HWID is already in the database`);
+
+    const query = `INSERT INTO nstats_hwid_to_name VALUES(NULL,?,"")`;
+
 
     return await simpleQuery(query, [hwid]);
 }

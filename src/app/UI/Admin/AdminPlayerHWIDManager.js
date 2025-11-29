@@ -48,6 +48,13 @@ function reducer(state, action){
             }
         }
 
+        case "update-new-hwid": {
+            return {
+                ...state,
+                "newHWID": action.value
+            }
+        }
+
         
     }
 
@@ -171,12 +178,37 @@ async function deleteAssignNameToHWID(hwid, dispatch, mDispatch){
 
 function getHWIDToName(state, hwid){
 
+    
+
     if(state.hwidsToName[hwid] !== undefined){
 
+        if(state.hwidsToName[hwid] === "") return null;
         return state.hwidsToName[hwid];
     }
 
     return null;
+}
+
+
+function getUnusedHWIDs(state){
+
+    const unused = [];
+
+    for(const [key, value] of Object.entries(state.hwidsToName)){
+        
+        if(value === "") unused.push(key);
+    }
+
+    unused.sort((a, b) =>{
+        a = a.toLowerCase();
+        b = b.toLowerCase();
+
+        if(a < b) return -1;
+        if(a > b) return 1;
+        return 0;
+    });
+
+    return unused;
 }
 
 function renderAssignNameToHWID(state, dispatch, mDispatch){
@@ -198,6 +230,8 @@ function renderAssignNameToHWID(state, dispatch, mDispatch){
         if(a > b) return 1;
         return 0;
     });
+
+    const unused = getUnusedHWIDs(state);
 
 
     let inUseElem = null;
@@ -231,6 +265,9 @@ function renderAssignNameToHWID(state, dispatch, mDispatch){
                 {latest.map((d) =>{
                     return <option key={d.id} value={d.hwid}>{d.hwid} ({d.name})</option>
                 })}
+                {unused.map((d) =>{
+                    return <option key={d} value={d}>{d}</option>
+                })}
             </select>
         </div>
         <div className="form-row">
@@ -246,17 +283,76 @@ function renderAssignNameToHWID(state, dispatch, mDispatch){
     </div>
 }
 
+
+
+async function addHWIDToDatabase(state, dispatch, mDispatch){
+
+    try{
+        dispatch({"type": "set-loading", "value": true});
+
+        const req = await fetch("/api/admin", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "add-hwid-to-database", "hwid": state.newHWID})
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined) throw new Error(res.error);
+
+
+        await loadData(dispatch, mDispatch);
+
+        mDispatch({
+            "type": "set-message", 
+            "messageType": "pass", 
+            "title": "HWID Added To Database", 
+            "content": `HWID successfully added to the database`
+        });
+
+    }catch(err){
+        console.trace(err);
+        mDispatch({"type": "set-message", "messageType": "error", "title": "Failed To Add HWID To Database", "content": err.toString()});
+    }
+
+    dispatch({"type": "set-loading", "value": false});
+}
+
+
+function renderCreateHWID(state, dispatch, mDispatch){
+
+    if(state.mode !== "create") return null;
+
+    return <div className="form">
+        <div className="form-info">
+            Add a HWID that doesn't currently exist to the database.
+        </div>
+        <div className="form-row">
+            <label htmlFor="hwid">HWID</label>
+            <input type="text" className="default-textbox" placeholder="HWID..." value={state.newHWID} onChange={(e) =>{
+                dispatch({"type": "update-new-hwid", "value": e.target.value});
+            }}/>
+        </div>
+        <button className="search-button" onClick={() =>{
+            addHWIDToDatabase(state, dispatch, mDispatch);
+        }}>
+            Add HWID To Database
+        </button>
+    </div>
+}
+
 export default function AdminPlayerHWIDManager(){
 
     const [state, dispatch] = useReducer(reducer, {
-        "mode": "assign",
+        "mode": "create",
         "latest": [], 
         "hwidsToName": {},
         "bLoading": false,
         "assign": {
             "selectedHWID": "",
             "name": ""
-        }
+        },
+        "newHWID": ""
     });
 
     const [mState, mDispatch] = useMessageBoxReducer();
@@ -268,7 +364,8 @@ export default function AdminPlayerHWIDManager(){
 
     const tabOptions = [
         {"name": "HWID Usage", "value": "list"},
-        {"name": "Assign Name To HWID", "value": "assign"},
+        {"name": "Assign Name To Existing HWID", "value": "assign"},
+        {"name": "Create HWID", "value": "create"},
     ];
 
     return <>
@@ -281,5 +378,6 @@ export default function AdminPlayerHWIDManager(){
         </MessageBox>
         {renderLatestHWIDS(state, dispatch, mDispatch)}
         {renderAssignNameToHWID(state, dispatch, mDispatch)}
+        {renderCreateHWID(state, dispatch, mDispatch)}
     </>
 }
