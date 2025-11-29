@@ -5,7 +5,7 @@ import useMessageBoxReducer from "../../reducers/useMessageBoxReducer";
 import MessageBox from "../MessageBox";
 import CountryFlag from "../CountryFlag";
 import Loading from "../Loading";
-import {BasicTable} from "../Tables";
+import AdminPlayerHWIDManager from "./AdminPlayerHWIDManager";
 
 
 function reducer(state, action){
@@ -60,13 +60,6 @@ function reducer(state, action){
             return {
                 ...state,
                 "bDeleteInProgress": action.value
-            }
-        }
-
-        case "set-hwids": {
-            return {
-                ...state,
-                "hwids": action.hwids
             }
         }
     }
@@ -322,59 +315,6 @@ function renderDeletePlayer(state, dispatch, mDispatch){
     </div>
 }
 
-function renderAssignName(state, dispatch, mDispatch){
-
-    if(state.mode !== "hwid") return null;
-
-    const headers = [
-        "Name", "HWID", "Import As"
-    ];
-
-    const rows = state.hwids.latest.map((h) =>{
-
-        const importAs = state.hwids.hwidsToName?.[h.hwid] ?? "";
-
-        
-        return [
-            {"className": "text-left", "value": <><CountryFlag country={h.country}/>{h.name}</>},
-            h.hwid,
-            importAs
-        ];
-    });
-
-    return <>
-        <div className="form">
-            <div className="form-info">
-                Assign a HWID to a player name to force the importer to set the 
-                player name with that HWID no matter what name they use in a match.
-            </div>
-        </div>
-        <BasicTable width={1} headers={headers} rows={rows}/>
-    </>
-}
-
-async function loadHWIDS(dispatch, mDispatch){
-
-    try{
-
-        const req = await fetch("/api/admin", {
-            "headers": {"Content-type": "application/json"},
-            "method": "POST",
-            "body": JSON.stringify({"mode": "get-all-hwids"})
-        });
-
-        const res = await req.json();
-
-        if(res.error !== undefined) throw new Error(res.error);
-
-        dispatch({"type": "set-hwids", "hwids": res});
-        console.log(res);
-
-    }catch(err){
-        console.trace(err);
-        mDispatch({"type": "set-message", "messageType": "error", "title": "Failed To Load HWIDS", "content": err.toString()});
-    }
-}
 
 export default function AdminPlayerManager({}){
 
@@ -386,7 +326,6 @@ export default function AdminPlayerManager({}){
         "selectedPlayerId": -1,
         "renameName": "",
         "bRenameInProgress": false,
-        "hwids": {"latest": [], "hwidsToName": {}}
     });
 
     const [mState, mDispatch] = useMessageBoxReducer();
@@ -394,12 +333,11 @@ export default function AdminPlayerManager({}){
     useEffect(() =>{
 
         loadNames(dispatch, mDispatch);
-        loadHWIDS(dispatch, mDispatch);
 
     }, []);
 
     const tabOptions = [
-        {"name": "Assign HWID To Player Name", "value": "hwid"},
+        {"name": "HWID Manager", "value": "hwid"},
         {"name": "Rename Player", "value": "rename"},
         {"name": "Delete Player", "value": "delete"},
     ];
@@ -408,7 +346,6 @@ export default function AdminPlayerManager({}){
         <div className="default-header">Player Manager</div>
         <Tabs options={tabOptions} selectedValue={state.mode} changeSelected={(v) =>{
             dispatch({"type": "set-mode", "value": v});
-           // mDispatch({"type": "set-message", "messageType": "error", "title": "fart", "content": <b>test</b>});
         }}/>
         <MessageBox type={mState.type} title={mState.title} timestamp={mState.timestamp}>
             {mState.content}
@@ -416,6 +353,6 @@ export default function AdminPlayerManager({}){
         {renderSearchForm(state, dispatch)}
         {renderRename(state, dispatch, mDispatch)}
         {renderDeletePlayer(state, dispatch, mDispatch)}
-        {renderAssignName(state, dispatch, mDispatch)}
+        {(state.mode !== "hwid") ? null :<AdminPlayerHWIDManager />}
     </>
 }
