@@ -5,6 +5,8 @@ import useMessageBoxReducer from "../../reducers/useMessageBoxReducer";
 import CountryFlag from "../CountryFlag";
 import Tabs from "../Tabs";
 import Loading from "../Loading";
+import { convertTimestamp } from "../../../../api/generic.mjs";
+import Link from "next/link";
 
 
 function reducer(state, action){
@@ -52,6 +54,20 @@ function reducer(state, action){
             return {
                 ...state,
                 "newHWID": action.value
+            }
+        }
+
+        case "update-history-hwid": {
+            return {
+                ...state,
+                "historyHWID": action.value
+            }
+        }
+
+        case "set-hwid-history": {
+            return {
+                ...state,
+                "historyData": action.data
             }
         }
 
@@ -211,13 +227,8 @@ function getUnusedHWIDs(state){
     return unused;
 }
 
-function renderAssignNameToHWID(state, dispatch, mDispatch){
 
-    if(state.mode !== "assign") return null;
-
-    if(state.bLoading){
-        return <Loading value={!state.bLoading}>Processing, please wait...</Loading>
-    }
+function createHWIDSelectOptions(state){
 
     const latest = [...state.latest];
 
@@ -231,13 +242,42 @@ function renderAssignNameToHWID(state, dispatch, mDispatch){
         return 0;
     });
 
+    const options = [
+        <option key="-1" value="">-- Please Select A HWID --</option>
+    ];
+
+    for(let i = 0; i < latest.length; i++){
+
+        const d = latest[i];
+
+        options.push(<option key={d.id} value={d.hwid}>{d.hwid} ({d.name})</option>);
+    }
+
     const unused = getUnusedHWIDs(state);
+
+    for(let i = 0; i < unused.length; i++){
+        const d = unused[i];
+        options.push(<option key={d} value={d}>{d}</option>);
+    }
+
+    return options;
+}
+
+function renderAssignNameToHWID(state, dispatch, mDispatch){
+
+    if(state.mode !== "assign") return null;
+
+    if(state.bLoading){
+        return <Loading value={!state.bLoading}>Processing, please wait...</Loading>
+    }
 
 
     let inUseElem = null;
 
 
     const inUseBy = getHWIDToName(state, state.assign.selectedHWID);
+
+    const hwidOptions = createHWIDSelectOptions(state);
 
     if(inUseBy != null){
         inUseElem = <div className="form-info m-bottom-25">
@@ -261,13 +301,7 @@ function renderAssignNameToHWID(state, dispatch, mDispatch){
             <select name="hwid" className="default-select" value={state.assign.selectedHWID}  onChange={(e) =>{
                 dispatch({"type": "update-assign", "key": "selectedHWID", "value": e.target.value});
             }}>
-                <option value="">-- Please Select A HWID --</option>
-                {latest.map((d) =>{
-                    return <option key={d.id} value={d.hwid}>{d.hwid} ({d.name})</option>
-                })}
-                {unused.map((d) =>{
-                    return <option key={d} value={d}>{d}</option>
-                })}
+                {hwidOptions}
             </select>
         </div>
         <div className="form-row">
@@ -341,10 +375,91 @@ function renderCreateHWID(state, dispatch, mDispatch){
     </div>
 }
 
+async function loadHistory(hwid, dispatch, mDispatch){
+
+    try{
+
+        dispatch({"type": "update-history-hwid", "value": hwid});
+        dispatch({"type": "set-hwid-history", "data": null});
+
+        const req = await fetch("/api/admin", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "load-hwid-history", "hwid": hwid})
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined) throw new Error(res.error);
+
+        dispatch({"type": "set-hwid-history", "data": res});
+
+    }catch(err){
+
+        console.trace(err);
+
+        mDispatch({
+            "type": "set-message", 
+            "messageType": "error", 
+            "title": "Failed To Load HWID History",
+            "content": err.toString()
+        });
+    }
+}
+
+function renderHistory(state, dispatch, mDispatch){
+
+    if(state.mode !== "history") return null;
+
+    const matchHeaders = [
+        "Name Used",
+        "IP",
+        "Date",
+        "Gametype",
+        "Map",
+        "Match Link"
+    ];
+    const matchRows = [];
+
+    if(state.historyData !== null){
+
+        for(let i = 0; i < state.historyData.matchHistory.length; i++){
+
+            const m = state.historyData.matchHistory[i];
+
+            matchRows.push([
+                {"className": "text-left", "value": <Link target="_blank" href={`/player/${m.player_id}`}><CountryFlag country={m.country}/>{m.playerName}</Link>},
+                m.ip,
+                {"className": "date", "value": convertTimestamp(m.match_date, true)},
+                m.gametypeName,
+                m.mapName,
+                <Link target="_blank" href={`/match/${m.match_id}`}>Match Link</Link>
+            ]);
+        }
+    }
+
+    return <>
+        <div className="form m-bottom-25">
+            <div className="form-info">View A HWID's History.<br/>
+            If a player was only a spectator during a match their HWID will not have been available in the stats log.</div>
+            <div className="form-row">
+                <label htmlFor="hwid">HWID</label>
+                <select className="default-select" value={state.historyHWID} onChange={(e) =>{
+                    loadHistory(e.target.value, dispatch, mDispatch);
+                }}>
+                    <option value="">-- Please Select A HWID --</option>
+                    {createHWIDSelectOptions(state)}
+                </select>
+            </div>
+        </div>
+        <BasicTable width={1} headers={matchHeaders} rows={matchRows}/>
+    </>;
+}
+
 export default function AdminPlayerHWIDManager(){
 
     const [state, dispatch] = useReducer(reducer, {
-        "mode": "create",
+        "mode": "history",
         "latest": [], 
         "hwidsToName": {},
         "bLoading": false,
@@ -352,7 +467,9 @@ export default function AdminPlayerHWIDManager(){
             "selectedHWID": "",
             "name": ""
         },
-        "newHWID": ""
+        "newHWID": "",
+        "historyHWID": "",
+        "historyData": null
     });
 
     const [mState, mDispatch] = useMessageBoxReducer();
@@ -363,9 +480,10 @@ export default function AdminPlayerHWIDManager(){
 
 
     const tabOptions = [
-        {"name": "HWID Usage", "value": "list"},
+        {"name": "Latest HWID Usage", "value": "list"},
         {"name": "Assign Name To Existing HWID", "value": "assign"},
         {"name": "Create HWID", "value": "create"},
+        {"name": "HWID History", "value": "history"},
     ];
 
     return <>
@@ -379,5 +497,6 @@ export default function AdminPlayerHWIDManager(){
         {renderLatestHWIDS(state, dispatch, mDispatch)}
         {renderAssignNameToHWID(state, dispatch, mDispatch)}
         {renderCreateHWID(state, dispatch, mDispatch)}
+        {renderHistory(state, dispatch, mDispatch)}
     </>
 }

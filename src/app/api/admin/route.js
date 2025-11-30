@@ -10,7 +10,8 @@ import { adminMatchesSearch, adminDeleteMatch,
     getDuplicateMatches, deleteHashDuplicates, 
     deleteAllDuplicates as deleteAllMatchDuplicates } from "../../../../api/matches";
 import { getLogImportInfo } from "../../../../api/logs";
-import { getAllPlayerBasic, renamePlayer, deletePlayer, getAllHWIDS, assignNameToHWID, deleteAssignedNameToHWID, addHWIDToDatabase } from "../../../../api/players";
+import { getAllPlayerBasic, renamePlayer, deletePlayer, getAllHWIDS, assignNameToHWID, 
+    deleteAssignedNameToHWID, addHWIDToDatabase, getHWIDHistory } from "../../../../api/players";
 import { getAllSettings as getAllRankingSettings, adminUpdateSettings as updateRankingValues, 
     recalculateAll as recalculateAllRankings } from "../../../../api/rankings";
 import { getAll as getAllItems, ITEM_TYPES, saveItemChanges } from "../../../../api/items";
@@ -498,6 +499,17 @@ export async function POST(req){
             await addHWIDToDatabase(hwid);
 
             return Response.json({"message": "passed"});
+        }
+
+
+        if(mode === "load-hwid-history"){
+
+            const hwid = res.hwid ?? null;
+            if(hwid === null) throw new Error(`You have not provided a hwid`);
+
+            const data = await getHWIDHistory(hwid);
+
+            return Response.json(data);
         }
 
         return Response.json({"error": "Unknown Request"});

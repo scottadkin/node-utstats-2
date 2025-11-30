@@ -1,6 +1,6 @@
 import Player from "./player.js";
 import { simpleQuery, bulkInsert, updateReturnAffectedRows } from "./database.js";
-import { removeIps, setIdNames, getUniqueValues, getPlayer, DEFAULT_DATE, DEFAULT_MIN_DATE } from "./generic.mjs";
+import { removeIps, setIdNames, getUniqueValues, getPlayer, DEFAULT_DATE, DEFAULT_MIN_DATE, removeUnr } from "./generic.mjs";
 import { getPlayerMatchCTFData ,  deletePlayerData as deletePlayerCTFData} from "./ctf.js";
 import { getPlayersBasic as getBasicWinrateStats } from "./winrate.js";
 import { deletePlayer as deletePlayerAssaultData } from "./assault.js";
@@ -1252,51 +1252,6 @@ export default class Players{
         return result;
     }
 
-    async getUsedHWIDs(playerId){
-
-        const query = `SELECT hwid,MIN(match_date) as first_match, MAX(match_date) as last_match, COUNT(*) as total_uses 
-        FROM nstats_player_matches WHERE player_id=? GROUP BY hwid`;
-
-        return await simpleQuery(query, [playerId]);
-    }
-
-    async getAliasesByHWIDs(hwids){
-        
-        const cleanHWIDS = hwids.filter((h) => h !== "");
-
-        if(cleanHWIDS.length === 0) return [];
-
-        const query = `SELECT player_id, hwid, COUNT(*) as total_matches, 
-        MIN(match_date) as first_match, MAX(match_date) as last_match, 
-        SUM(playtime) as total_playtime FROM nstats_player_matches WHERE hwid IN (?) GROUP BY player_id,hwid`;
-
-        return await simpleQuery(query, [cleanHWIDS]);
-        
-    }
-
-    async getFullHistory(playerId){
-
-        const usedIps = await this.getUsedIps(playerId);
-        const aliasesByIp = await this.getAliasesByIPs(usedIps.ips);
-        const usedHWIDs = await this.getUsedHWIDs(playerId);
-        const aliasesByHWID = await this.getAliasesByHWIDs(usedHWIDs.map((h) =>{
-            return h.hwid;
-        }));
-
-        const uniquePlayerIds = [...new Set(aliasesByHWID.map(m => m.player_id))];
-
-        const names = await this.getBasicInfo(uniquePlayerIds, true);
-
-        for(let i = 0; i < aliasesByHWID.length; i++){
-
-            const a = aliasesByHWID[i];
-            a.playerInfo = names[a.player_id] ?? {"name": "Not Found", "country": "xx"};
-        }
-
-        return {"usedIps": usedIps, "aliasesByIp": aliasesByIp, "usedHWIDs": usedHWIDs, "aliasesByHWID": aliasesByHWID};
-        
-    }
-
     async getConnectionsById(playerId, page, perPage){
 
         const query = "SELECT match_id,ip,country,playtime,match_date FROM nstats_player_matches WHERE player_id=? ORDER BY match_date DESC LIMIT ?, ?";
@@ -1447,108 +1402,6 @@ export default class Players{
         }
 
         return found;
-    }
-
-
-
-    async adminGetPlayersBasic(){
-
-        const query = `SELECT id,name,country,hwid,matches,last FROM nstats_player_totals WHERE gametype=0 AND map=0 ORDER BY name ASC`;
-
-        return await simpleQuery(query);
-    }
-
-
-    async adminGetPlayerByHWID(hwid){
-
-        const query = `SELECT id,name,country FROM nstats_player_totals WHERE hwid=? AND gametype=0 LIMIT 1`;
-
-        const result = await simpleQuery(query, [hwid]);
-
-        if(result.length === 0) return null;
-        return result[0];
-    }
-
-
-    async adminSetPlayerHWID(playerId, hwid){
-
-        const query = `UPDATE nstats_player SET hwid=? WHERE id=?`;
-        return await simpleQuery(query, [hwid, playerId]);
-    }
-
-
-    async adminGetMostRecentPlayerTotalByHWID(hwid){
-
-        const query = `SELECT id,name,country,face FROM nstats_player_totals WHERE hwid=? AND gametype=0 ORDER BY last DESC LIMIT 1`;
-
-        const result = await simpleQuery(query, [hwid]);
-
-        if(result.length > 0) return result[0];
-
-        return null;
-    }
-
-
-    //delete left over data from merging players by HWID
-    async adminDeleteOutdatedPlayerHWID(hwid, ){
-
-    }
-
-
-    async adminFixPlayersHWID(hwid, affectedPlayerIds, matchManager, combogibManager){
-
-        const mostRecentPlayerInfo = await this.adminGetMostRecentPlayerTotalByHWID(hwid);
-
-        if(mostRecentPlayerInfo === null){
-            throw new Error(`There was a problem getting the most recent player total usage of HWID ${hwid}`);
-        }
-
-        console.log(`mostRecentPlayerInfo that used ${hwid}`);
-        console.log(mostRecentPlayerInfo);
-
-        for(let i = 0; i < affectedPlayerIds.length; i++){
-
-            const playerId = affectedPlayerIds[i];
-
-            console.log(mostRecentPlayerInfo.id, playerId);
-
-            if(playerId === mostRecentPlayerInfo.id) continue;
-
-            await this.mergePlayersById(playerId, mostRecentPlayerInfo.id, matchManager, combogibManager);
-            console.log(playerId);
-        }
-
-    }
-
-    async adminAssignPlayerHWID(playerIds, targetHWID, matchManager, combogibManager){
-
-        console.log(playerIds, targetHWID);
-
-        const hwidPlayer = await this.adminGetPlayerByHWID(targetHWID);
-
-        console.log(`hwidPlayer`);
-        console.log(hwidPlayer);
-
-        if(hwidPlayer === null){
-            throw new Error(`There are no players with the HWID of ${targetHWID}`);
-        }
-
-        const removedPlayerIds = [];
-
-        for(let i = 0; i < playerIds.length; i++){
-
-            const id = playerIds[i];
-            removedPlayerIds.push(id);
-            await this.adminSetPlayerHWID(id, targetHWID);
-        }
-
-        await this.adminFixPlayersHWID(targetHWID, playerIds, matchManager, combogibManager);
-
-        //set all playerIds to the hwidPlayer
-        //merge player data
-
-
-        return removedPlayerIds;
     }
 
 
@@ -1706,27 +1559,6 @@ export default class Players{
         }
     }
 
-    
-    async adminHWIDSearch(hwid){
-
-        const query = `SELECT COUNT(*) as total_matches, player_id, 
-        MIN(match_date) as first_match,
-        MAX(match_date) as last_match,
-        ip,
-        country
-        FROM nstats_player_matches WHERE hwid=? 
-        GROUP BY player_id, hwid, ip, country`;
-
-        const result = await simpleQuery(query, [hwid]);
-
-        const uniqueIds = [...new Set(result.map((r) =>{
-            return r.player_id;
-        }))];
-
-        const names = await this.getJustNamesByIds(uniqueIds);
-
-        return {"data": result, "playerNames": names};
-    }
 
 
     async deletePlayerTotalsByRowIds(rowIds){
@@ -2652,4 +2484,44 @@ export async function addHWIDToDatabase(hwid){
 
 
     return await simpleQuery(query, [hwid]);
+}
+
+
+async function getMatchHWIDHistory(hwid){
+
+    const query = `SELECT
+    nstats_player_matches.match_date,
+    nstats_player_matches.match_id, nstats_player_matches.player_id,
+    nstats_player_matches.map_id, nstats_player_matches.gametype,
+    nstats_player_matches.playtime,
+    nstats_player_matches.ip, 
+    nstats_player_matches.country,
+    nstats_maps.name as mapName,
+    nstats_gametypes.name as gametypeName,
+    nstats_player.name as playerName
+    FROM nstats_player_matches 
+    LEFT JOIN nstats_maps ON nstats_maps.id = nstats_player_matches.map_id
+    LEFT JOIN nstats_gametypes ON nstats_gametypes.id = nstats_player_matches.gametype
+    LEFT JOIN nstats_player ON nstats_player.id = nstats_player_matches.player_id
+    WHERE nstats_player_matches.hwid=?
+    ORDER BY nstats_player_matches.match_date DESC`;
+
+    const result = await simpleQuery(query, [hwid]);
+
+    return result.map((r) =>{
+
+        r.mapName = removeUnr(r.mapName);
+
+        return r;
+    });
+}
+
+export async function getHWIDHistory(hwid){
+
+    if(hwid === "") return null;
+
+    const matchHistory = await getMatchHWIDHistory(hwid);
+
+
+    return {matchHistory};
 }
