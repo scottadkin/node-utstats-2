@@ -1,7 +1,7 @@
 import Player from "./player.js";
-import { simpleQuery, bulkInsert, updateReturnAffectedRows } from "./database.js";
+import { simpleQuery, bulkInsert, updateReturnAffectedRows, getAllTablesContainingColumns } from "./database.js";
 import { removeIps, setIdNames, getUniqueValues, getPlayer, DEFAULT_DATE, DEFAULT_MIN_DATE, removeUnr } from "./generic.mjs";
-import { getPlayerMatchCTFData ,  deletePlayerData as deletePlayerCTFData} from "./ctf.js";
+import { getPlayerMatchCTFData ,  deletePlayerData as deletePlayerCTFData, deletePlayerFromMatch as deletePlayerMatchCTF} from "./ctf.js";
 import { getPlayersBasic as getBasicWinrateStats } from "./winrate.js";
 import { deletePlayer as deletePlayerAssaultData } from "./assault.js";
 import { recalculateTotals as reclaculateCountryTotals } from "./countriesmanager.js";
@@ -22,6 +22,7 @@ import { deletePlayerData as deletePlayerPowerUpData } from "./powerups.js";
 import { deletePlayerData as deletePlayerRankingData } from "./rankings.js";
 import { deletePlayerData as deletePlayerCombogibData } from "./combogib.js";
 import { recalculateTotals as recalculateMapTotals } from "./maps.js";
+import { getGametypeAndMapIds } from "./matches.js";
 
 
 const PLAYER_TOTALS_FROM_MATCHES_COLUMNS = `player_id,
@@ -2542,5 +2543,50 @@ export async function adminGetPlayersInMatch(matchId){
     `;
 
     return await simpleQuery(query, [matchId]);
+}
+
+export async function deletePlayerFromMatch(playerId, matchId){
+
+    const ids = await getGametypeAndMapIds(matchId);
+
+    if(ids === null) throw new Error(`Failed to get match gametype and map id`);
+
+
+    await deletePlayerMatchCTF(playerId, ids.gametype, ids.map, matchId);
+
+    /**
+     nstats_assault_match_objectives: 'player', DELETE
+    
+
+    nstats_dom_match_caps: 'player',
+    nstats_dom_match_player_score: 'player',
+    nstats_items_match: 'player_id',
+    nstats_items_player: 'player',
+    nstats_match_connections: 'player',
+    nstats_match_pings: 'player',
+    nstats_match_player_score: 'player',
+    nstats_match_team_changes: 'player',
+    nstats_monsters_player_match: 'player',
+    nstats_monsters_player_totals: 'player',
+    nstats_monster_kills: 'player',
+    nstats_player_matches: 'player_id',
+    nstats_player_totals: 'player_id',
+    nstats_player_weapon_match: 'player_id',
+    nstats_player_weapon_totals: 'player_id',
+    nstats_player_weapon_best: 'player_id',
+    nstats_ranking_player_current: 'player_id',
+    nstats_ranking_player_history: 'player_id',
+    nstats_winrates_latest: 'player',
+    nstats_ace_joins: 'player',
+    nstats_ace_sshot_requests: 'player',
+    nstats_match_combogib: 'player_id',
+    nstats_player_combogib: 'player_id',
+    nstats_powerups_carry_times: 'player_id',
+    nstats_powerups_player_match: 'player_id',
+    nstats_powerups_player_totals: 'player_id',
+  
+    nstats_player_telefrags: 'player_id',
+    nstats_sprees: 'player'
+        */
 
 }

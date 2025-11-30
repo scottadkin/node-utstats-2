@@ -700,29 +700,6 @@ export default class CTF{
         return false;
     }
     
-    async deletePlayerViaMatchData(playerId, matchIds){
-
-        try{
-
-            await this.deletePlayerEvents(playerId);
-
-            let m = 0;
-
-            for(let i = 0; i < matchIds.length; i++){
-
-                m = matchIds[i];
-
-                //if(this.bAnyCtfDataInMatch(matches[i])){
-
-                    await this.deletePlayerFromMatch(playerId, m, true);
-                //}
-            }
-
-        }catch(err){    
-            console.trace(err);
-        }
-    }
-
 
     bAnyPlayerData(playersMatchData){
 
@@ -1205,12 +1182,6 @@ export default class CTF{
     }
     
 
-    async deletePlayerMatchData(matchId, playerId){
-
-        const query = `DELETE FROM nstats_player_ctf_match WHERE match_id=? AND player_id=?`;
-
-        return await simpleQuery(query, [matchId, playerId]);
-    }
 
     async bulkInsertFlagPickups(vars){
 
@@ -2990,8 +2961,6 @@ export async function recalculatePlayers(playerIds, gametypeId, mapId){
     
     await recalculateMultiplePlayerBestLife(playerIds, gametypeId, mapId);
     
-   
-
 }
 
 //check if the match_id helds a cap record, recalcultate map cap record if it is
@@ -3885,4 +3854,30 @@ export async function bulkInsertPlayerMatchData(players, matchId, mapId, gametyp
     }
 
     return await bulkInsert(query, insertVars);
+}
+
+export async function deletePlayerFromMatch(playerId, gametypeId, mapId, matchId){
+
+    const basicDeleteQueries = [
+        "DELETE FROM nstats_ctf_assists WHERE player_id=? AND match_id=?",
+        "DELETE FROM nstats_ctf_carry_times WHERE player_id=? AND match_id=?",
+        "DELETE FROM nstats_ctf_flag_drops WHERE player_id=? AND match_id=?",
+        "DELETE FROM nstats_ctf_flag_pickups WHERE player_id=? AND match_id=?",
+        "DELETE FROM nstats_ctf_cr_kills WHERE player_id=? AND match_id=?",
+        "DELETE FROM nstats_ctf_events WHERE player=? AND match_id=?",
+        "DELETE FROM nstats_player_ctf_match WHERE player_id=? AND match_id=?",
+    ];
+
+    for(let i = 0; i < basicDeleteQueries.length; i++){
+
+        await simpleQuery(basicDeleteQueries[i], [playerId, matchId]);
+    }
+
+    await simpleQuery(`DELETE FROM nstats_ctf_caps WHERE (grab_player=? OR cap_player=?) AND match_id=?`, [playerId, playerId, matchId]);
+    await simpleQuery(`DELETE FROM nstats_ctf_covers WHERE (killer_id=? OR victim_id=?) AND match_id=?`, [playerId, playerId, matchId]);
+    await simpleQuery(`DELETE FROM nstats_ctf_returns WHERE (grab_player=? OR return_player=?) AND match_id=?`, [playerId, playerId, matchId]);
+    await simpleQuery(`DELETE FROM nstats_ctf_seals WHERE (killer_id=? OR victim_id=?) AND match_id=?`, [playerId, playerId, matchId]);
+    await simpleQuery(`DELETE FROM nstats_ctf_self_covers WHERE (killer_id=? OR victim_id=?) AND match_id=?`, [playerId, playerId, matchId]);
+
+    await recalculatePlayers([playerId], gametypeId, mapId)
 }

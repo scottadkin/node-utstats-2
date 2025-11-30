@@ -1501,3 +1501,17 @@ export async function searchMatches(serverId, gametypeId, mapId, page, perPage, 
     return {"matches": result, "totalMatches": totalMatches}
 
 }
+
+
+export async function getGametypeAndMapIds(matchId){
+
+    const query = `SELECT gametype,map FROM nstats_matches WHERE id=?`;
+
+    const result = await simpleQuery(query, [matchId]);
+
+    if(result.length === 0){
+        return null;
+    }
+
+    return result[0];
+}

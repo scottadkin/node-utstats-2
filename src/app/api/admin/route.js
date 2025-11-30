@@ -12,7 +12,8 @@ import { adminMatchesSearch, adminDeleteMatch,
 import { getLogImportInfo } from "../../../../api/logs";
 import { getAllPlayerBasic, renamePlayer, deletePlayer, getAllHWIDS, assignNameToHWID, 
     deleteAssignedNameToHWID, addHWIDToDatabase, getHWIDHistory, 
-    adminGetPlayersInMatch} from "../../../../api/players";
+    adminGetPlayersInMatch,
+    deletePlayerFromMatch} from "../../../../api/players";
 import { getAllSettings as getAllRankingSettings, adminUpdateSettings as updateRankingValues, 
     recalculateAll as recalculateAllRankings } from "../../../../api/rankings";
 import { getAll as getAllItems, ITEM_TYPES, saveItemChanges } from "../../../../api/items";
@@ -512,6 +513,19 @@ export async function POST(req){
             const data = await getHWIDHistory(hwid);
 
             return Response.json(data);
+        }
+
+        if(mode === "delete-player-from-match"){
+
+            const matchId = (res.matchId !== undefined) ? parseInt(res.matchId) : NaN;
+            const playerId = (res.playerId !== undefined) ? parseInt(res.playerId) : NaN;
+
+            if(matchId !== matchId) throw new Error(`MatchId must be a valid integer`);
+            if(playerId !== playerId) throw new Error(`PlayerId must be a valid integer`);
+
+            
+
+            await deletePlayerFromMatch(playerId, matchId);
         }
 
         return Response.json({"error": "Unknown Request"});

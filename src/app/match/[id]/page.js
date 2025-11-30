@@ -368,7 +368,7 @@ export default async function Page({params, searchParams}){
 
     if(bUserAdmin){
 
-        adminElem = <MatchAdmin matchId={matchId}/>;
+        adminElem = <MatchAdmin key="admin" matchId={matchId}/>;
     }
 
     return <main>

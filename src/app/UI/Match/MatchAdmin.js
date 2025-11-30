@@ -112,21 +112,46 @@ function renderDelete(mode, dispatch, mDispatch, matchId, router){
     </div>
 }
 
-function renderPlayerList(mode, playerData, dispatch, mDispatch){
+async function deletePlayerFromMatch(playerId, matchId, dispatch, mDispatch){
+
+    try{
+
+        const req = await fetch("/api/admin", {
+            "headers": {"Content-type": "application/json"},
+            "method": "POST",
+            "body": JSON.stringify({"mode": "delete-player-from-match", playerId, matchId})
+        });
+
+        const res = await req.json();
+
+        if(res.error !== undefined) throw new Error(res.error);
+
+    }catch(err){
+
+        console.trace(err);
+        mDispatch({"type": "set-message", "messageType": "error", "title": "Failed To Delete Player From Match", "content": err.toString()});
+    }
+}
+
+function renderPlayerList(mode, playerData, matchId, dispatch, mDispatch){
 
     if(mode !== "players") return null;
 
     const headers = [
         "Name",
         "HWID",
-        "IP"
+        "IP",
+        "Delete"
     ];
 
     const rows = playerData.map((p) =>{
         return [
             {"className": "text-left", "value": <><CountryFlag country={p.country}/>{p.playerName}</>},
             p.hwid,
-            p.ip
+            p.ip,
+            {"bSkipTd": true, "value": <td key={p.player_id} className="button delete-button" onClick={() =>{
+                deletePlayerFromMatch(p.player_id, matchId, dispatch, mDispatch);
+            }}>Delete</td>}
         ];
     });
 
@@ -165,7 +190,7 @@ export default function MatchAdmin({matchId}){
         elems = <>
             {renderInfo(state.mode, state.data)}
             {renderDelete(state.mode, dispatch, mDispatch, matchId, router)}
-            {renderPlayerList(state.mode, state.playerData, dispatch, mDispatch)}
+            {renderPlayerList(state.mode, state.playerData, matchId, dispatch, mDispatch)}
         </>;
 
     }else{
