@@ -11,7 +11,8 @@ import { adminMatchesSearch, adminDeleteMatch,
     deleteAllDuplicates as deleteAllMatchDuplicates } from "../../../../api/matches";
 import { getLogImportInfo } from "../../../../api/logs";
 import { getAllPlayerBasic, renamePlayer, deletePlayer, getAllHWIDS, assignNameToHWID, 
-    deleteAssignedNameToHWID, addHWIDToDatabase, getHWIDHistory } from "../../../../api/players";
+    deleteAssignedNameToHWID, addHWIDToDatabase, getHWIDHistory, 
+    adminGetPlayersInMatch} from "../../../../api/players";
 import { getAllSettings as getAllRankingSettings, adminUpdateSettings as updateRankingValues, 
     recalculateAll as recalculateAllRankings } from "../../../../api/rankings";
 import { getAll as getAllItems, ITEM_TYPES, saveItemChanges } from "../../../../api/items";
@@ -270,8 +271,9 @@ export async function POST(req){
             if(matchId !== matchId || matchId === null) throw new Error(`matchId must be an integer`);
             //get log file name, import date
             const info = await getLogImportInfo(matchId);
+            const playerData = await adminGetPlayersInMatch(matchId);
 
-            return Response.json({"data": info});
+            return Response.json({"data": info, "playerData": playerData});
         }
 
         if(mode === "get-all-player-names"){

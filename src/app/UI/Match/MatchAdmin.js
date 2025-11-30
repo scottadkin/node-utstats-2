@@ -2,10 +2,12 @@
 import { useEffect, useReducer } from "react";
 import Tabs from "../Tabs";
 import MessageBox from "../MessageBox";
+import useMessageBoxReducer from "../../reducers/useMessageBoxReducer";
 import { BasicTable } from "../Tables";
 import { convertTimestamp } from "../../../../api/generic.mjs";
 import Loading from "../Loading";
 import { useRouter } from "next/navigation";
+import CountryFlag from "../CountryFlag";
 
 function reducer(state, action){
 
@@ -14,24 +16,14 @@ function reducer(state, action){
         case "set-info": {
             return {
                 ...state,
-                "data": action.data
+                "data": action.data,
+                "playerData": action.playerData
             }
         }
         case "set-mode": {
             return {
                 ...state,
                 "mode": action.value
-            }
-        }
-        case "set-message": {
-            return {
-                ...state,
-                "messageBox": {
-                    "type": action.messageType,
-                    "title": action.title,
-                    "content": action.content,
-                    "timestamp": performance.now()
-                }
             }
         }
         case "set-progress": {
@@ -45,7 +37,7 @@ function reducer(state, action){
     return state;
 }
 
-async function loadData(dispatch, matchId){
+async function loadData(dispatch, mDispatch, matchId){
 
     try{
 
@@ -60,11 +52,11 @@ async function loadData(dispatch, matchId){
         if(res.error !== undefined) throw new Error(res.error);
         console.log(res);
 
-        dispatch({"type": "set-info", "data": res.data});
+        dispatch({"type": "set-info", "data": res.data, "playerData": res.playerData});
 
     }catch(err){
         console.trace(err);
-        dispatch({"type": "set-message", "messageType": "error", "title": "Failed To Load Admin Match Info", "content": err.toString()});
+        mDispatch({"type": "set-message", "messageType": "error", "title": "Failed To Load Admin Match Info", "content": err.toString()});
     }
 }
 
@@ -84,7 +76,7 @@ function renderInfo(mode, data){
     return <BasicTable width={2} headers={headers} rows={rows}/>
 }
 
-async function deleteMatch(dispatch, matchId, router){
+async function deleteMatch(dispatch, mDispatch, matchId, router){
 
     try{
 
@@ -105,44 +97,63 @@ async function deleteMatch(dispatch, matchId, router){
 
     }catch(err){
         console.trace(err);
-        dispatch({"type": "set-message", "messageType": "error", "title": "Failed To Delete Match", "content": err.toString()});
+        mDispatch({"type": "set-message", "messageType": "error", "title": "Failed To Delete Match", "content": err.toString()});
     }
 }
 
-function renderDelete(mode, dispatch, matchId, router){
+function renderDelete(mode, dispatch, mDispatch, matchId, router){
 
     if(mode !== "delete") return null;
 
     return <div className="m-bottom-25">
         <button className="button delete-button" onClick={() =>{
-            deleteMatch(dispatch, matchId, router);
+            deleteMatch(dispatch, mDispatch, matchId, router);
         }}>Delete Match</button>
     </div>
+}
+
+function renderPlayerList(mode, playerData, dispatch, mDispatch){
+
+    if(mode !== "players") return null;
+
+    const headers = [
+        "Name",
+        "HWID",
+        "IP"
+    ];
+
+    const rows = playerData.map((p) =>{
+        return [
+            {"className": "text-left", "value": <><CountryFlag country={p.country}/>{p.playerName}</>},
+            p.hwid,
+            p.ip
+        ];
+    });
+
+    return <BasicTable width={1} headers={headers} rows={rows}/>
 }
 
 export default function MatchAdmin({matchId}){
 
     const [state, dispatch] = useReducer(reducer, {
-        "mode": "info",
+        "mode": "players",
         "data": null,
+        "playerData": [],
         "bDeleteInProgress": false,
-        "messageBox": {
-            "type": null,
-            "title": null,
-            "content": null,
-            "timestamp": performance.now()
-        }
     });
+
+    const [mState, mDispatch] = useMessageBoxReducer();
 
     useEffect(() =>{
 
-        loadData(dispatch, matchId);
+        loadData(dispatch, mDispatch, matchId);
 
     }, []);
 
     const tabOptions = [
         {"name": "Match Info", "value": "info"},
         {"name": "Delete Match", "value": "delete"},
+        {"name": "Players", "value": "players"}
     ];
 
     const router = useRouter();
@@ -153,7 +164,8 @@ export default function MatchAdmin({matchId}){
 
         elems = <>
             {renderInfo(state.mode, state.data)}
-            {renderDelete(state.mode, dispatch, matchId, router)}
+            {renderDelete(state.mode, dispatch, mDispatch, matchId, router)}
+            {renderPlayerList(state.mode, state.playerData, dispatch, mDispatch)}
         </>;
 
     }else{
@@ -165,7 +177,7 @@ export default function MatchAdmin({matchId}){
         <Tabs options={tabOptions} selectedValue={state.mode} changeSelected={(v) =>{
             dispatch({"type": "set-mode", "value": v});
         }}/>
-        <MessageBox title={state.messageBox.title} type={state.messageBox.type}>{state.messageBox.content}</MessageBox>
+        <MessageBox timestamp={mState.timestamp} title={mState.title} type={mState.type}>{mState.content}</MessageBox>
         {elems}
     </>
 }

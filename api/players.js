@@ -2525,3 +2525,22 @@ export async function getHWIDHistory(hwid){
 
     return {matchHistory};
 }
+
+export async function adminGetPlayersInMatch(matchId){
+
+    const query = `SELECT nstats_player_matches.player_id,
+    nstats_player_matches.hwid,
+    nstats_player_matches.ip,
+    nstats_player_matches.country,
+    nstats_player_matches.spectator,
+    nstats_player_matches.bot,
+    nstats_player.name as playerName
+    FROM nstats_player_matches
+    LEFT JOIN nstats_player ON nstats_player.id = nstats_player_matches.player_id
+    WHERE nstats_player_matches.match_id=?
+    ORDER BY nstats_player.name ASC
+    `;
+
+    return await simpleQuery(query, [matchId]);
+
+}
