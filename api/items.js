@@ -297,52 +297,6 @@ export async function getMatchData(matchId){
 
 }
 
-
-async function getPlayerMatchItemData(playerId, matchId){
-
-    const query = "SELECT item,uses FROM nstats_items_match WHERE match_id=? AND player_id=?";
-    return await simpleQuery(query, [matchId, playerId]);
-}
-
-async function reduceItemTotalsByPlayerMatchUse(item, uses){
-
-    const query = "UPDATE nstats_items SET uses=uses-? WHERE id=?";
-
-    return await simpleQuery(query, [uses, item]);
-}
-
-export async function deletePlayerMatchUses(playerId, matchId){
-
-    const query = "DELETE FROM nstats_items_match WHERE player_id=? AND match_id=?";
-
-    return await simpleQuery(query, [playerId, matchId]);
-}
-
-export async function deletePlayerFromMatch(playerId, matchId){
-
-    try{
-
-        const matchData = await getPlayerMatchItemData(playerId, matchId);
-
-        if(matchData.length > 0){
-
-            let m = 0;
-
-            for(let i = 0; i < matchData.length; i++){
-
-                m = matchData[i];
-
-                await reduceItemPlayerTotal(m.item, playerId, m.uses);
-                await reduceItemTotalsByPlayerMatchUse(m.item, m.uses);
-                await deletePlayerMatchUses(playerId, matchId);
-
-            }
-        }
-    }catch(err){
-        console.trace(err);
-    }   
-}
-
 export async function getMatchTotals(matchId){
 
     const query = "SELECT item,SUM(uses) as total_uses FROM nstats_items_match WHERE match_id=? GROUP BY item";
@@ -763,7 +717,6 @@ async function calculatePlayerTotals(playerIds, itemIds){
    
 }
 
-
 async function deleteMultiplePlayerTotals(playerIds, itemIds){
 
     if(playerIds.length === 0 || itemIds.length === 0) return;
@@ -797,6 +750,32 @@ export async function bulkUpdatePlayerTotals(playerIds, itemIds){
     });
 
     return await bulkInsert(query, insertVars);
+}
 
 
+async function getPlayerUsedItemsInMatch(playerId, matchId){
+
+    const query = `SELECT DISTINCT item FROM nstats_items_match WHERE match_id=? AND player_id=?`;
+
+    const result = await simpleQuery(query, [matchId, playerId]);
+
+    return result.map((r) =>{
+        return r.item;
+    });
+}
+
+async function deletePlayerMatchData(playerId, matchId){
+
+    const query = `DELETE FROM nstats_items_match WHERE match_id=? AND player_id=?`;
+
+    return await simpleQuery(query, [matchId, playerId]);
+}
+
+export async function deletePlayerFromMatch(playerId, matchId){
+
+    const itemIds = await getPlayerUsedItemsInMatch(playerId, matchId);
+
+    await deletePlayerMatchData(playerId, matchId);
+
+    return await bulkUpdatePlayerTotals([playerId], itemIds);
 }

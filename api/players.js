@@ -3,7 +3,7 @@ import { simpleQuery, bulkInsert, updateReturnAffectedRows, getAllTablesContaini
 import { removeIps, setIdNames, getUniqueValues, getPlayer, DEFAULT_DATE, DEFAULT_MIN_DATE, removeUnr } from "./generic.mjs";
 import { getPlayerMatchCTFData ,  deletePlayerData as deletePlayerCTFData, deletePlayerFromMatch as deletePlayerMatchCTF} from "./ctf.js";
 import { getPlayersBasic as getBasicWinrateStats } from "./winrate.js";
-import { deletePlayer as deletePlayerAssaultData } from "./assault.js";
+import { deletePlayer as deletePlayerAssaultData, deletePlayerFromMatch as deletePlayerMatchAssault } from "./assault.js";
 import { recalculateTotals as reclaculateCountryTotals } from "./countriesmanager.js";
 import { deletePlayerData as deletePlayerHeadshots } from "./headshots.js";
 import { deletePlayerData as deletePlayerKills} from "./kills.js";
@@ -12,12 +12,12 @@ import { deletePlayerData as deletePlayerPingData} from "./pings.js";
 import { deletePlayerData as deletePlayerSprees } from "./sprees.js";
 import { deletePlayerData as deletePlayerTeamChanges} from "./teams.js";
 import { deletePlayerData as deletePlayerTeleFrags } from "./telefrags.js";
-import { deletePlayerData as deletePlayerDomData} from "./domination.js";
+import { deletePlayerData as deletePlayerDomData, deletePlayerFromMatch as deletePlayerMatchDomination} from "./domination.js";
 import { deletePlayerData as deletePlayerConnections} from "./connections.js";
 import { deletePlayerData as deletePlayerMonsterhuntData} from "./monsterhunt.js";
 import { deletePlayerData as deletePlayerWeaponData} from "./weapons.js";
 import { deletePlayerData as deletePlayerWinRateData, getGametypeMatchResults } from "./winrate.js";
-import { deletePlayerData as deletePlayerItemData } from "./items.js";
+import { deletePlayerData as deletePlayerItemData, deletePlayerFromMatch as deletePlayerMatchItems } from "./items.js";
 import { deletePlayerData as deletePlayerPowerUpData } from "./powerups.js";
 import { deletePlayerData as deletePlayerRankingData } from "./rankings.js";
 import { deletePlayerData as deletePlayerCombogibData } from "./combogib.js";
@@ -2553,15 +2553,13 @@ export async function deletePlayerFromMatch(playerId, matchId){
 
 
     await deletePlayerMatchCTF(playerId, ids.gametype, ids.map, matchId);
+    await deletePlayerMatchDomination(playerId, matchId);
+    await deletePlayerMatchItems(playerId, matchId);
+    await deletePlayerMatchAssault(playerId, matchId);
 
     /**
-     nstats_assault_match_objectives: 'player', DELETE
-    
 
-    nstats_dom_match_caps: 'player',
-    nstats_dom_match_player_score: 'player',
-    nstats_items_match: 'player_id',
-    nstats_items_player: 'player',
+    
     nstats_match_connections: 'player',
     nstats_match_pings: 'player',
     nstats_match_player_score: 'player',

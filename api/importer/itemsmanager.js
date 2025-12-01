@@ -521,7 +521,6 @@ export default class ItemsManager{
 
         try{
 
-
             for(const [pId, value] of Object.entries(this.playerPickups)){
 
                 const playerId = parseInt(pId);

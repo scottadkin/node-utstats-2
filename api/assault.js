@@ -455,3 +455,11 @@ export async function deletePlayer(playerId){
     await deletePlayerMatchObjectives(playerId);
 
 }
+
+
+export async function deletePlayerFromMatch(playerId, matchId){
+
+    const query = `DELETE FROM nstats_assault_match_objectives WHERE player=? AND match_id=?`;
+
+    await simpleQuery(query, [playerId, matchId]);
+}

@@ -136,36 +136,6 @@ export default class Domination{
         return await simpleQuery(query, [caps, caps, playerId, matchId]);
     }
 
-
-    async removePlayerMatchCaps(playerId, matchId){
-
-        const query = "UPDATE nstats_dom_match_caps SET player=-1 WHERE player=? AND match_id=?";
-
-        return await simpleQuery(query, [playerId, matchId]);
-    }
-
-
-    async deletePlayerMatchScore(playerId, matchId){
-
-        return await simpleQuery("DELETE FROM nstats_dom_match_player_score WHERE player=? AND match_id=?",
-        [playerId, matchId]);
-    }
-
-
-
-    async deletePlayerFromMatch(playerId, matchId){
-
-        try{
-
-            await this.removePlayerMatchCaps(playerId, matchId);
-
-            await this.deletePlayerMatchScore(playerId, matchId);
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
     async changeCapPlayerId(oldId, newId){
 
         return await simpleQuery("UPDATE nstats_dom_match_caps SET player=? WHERE player=?", [newId, oldId]);
@@ -738,5 +708,18 @@ export async function deletePlayerData(playerId){
 
         const query = `DELETE FROM nstats_${t} WHERE player=?`;
         await simpleQuery(query, [playerId]);
+    }
+}
+
+export async function deletePlayerFromMatch(playerId, matchId){
+
+     const tables = ["dom_match_caps", "dom_match_player_score"];
+
+    for(let i = 0; i < tables.length; i++){
+
+        const t = tables[i];
+
+        const query = `DELETE FROM nstats_${t} WHERE player=? AND match_id=?`;
+        await simpleQuery(query, [playerId, matchId]);
     }
 }
