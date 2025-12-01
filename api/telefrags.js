@@ -703,3 +703,11 @@ export async function bulkUpdatePlayers(playerIds){
     await deleteMultiplePlayerTotals(playerIds);
     return await bulkInsertPlayers(totals, gametypes, maps);
 }
+
+
+export async function deletePlayerFromMatch(playerId, matchId){
+
+    const query = `DELETE FROM nstats_tele_frags WHERE match_id=? AND (victim_id=? OR killer_id=?)`;
+
+    return await simpleQuery(query, [matchId, playerId, playerId]);
+}

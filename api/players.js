@@ -8,12 +8,12 @@ import { recalculateTotals as reclaculateCountryTotals } from "./countriesmanage
 import { deletePlayerData as deletePlayerHeadshots } from "./headshots.js";
 import { deletePlayerData as deletePlayerKills} from "./kills.js";
 import { deletePlayerScoreData } from "./player.js";
-import { deletePlayerData as deletePlayerPingData} from "./pings.js";
-import { deletePlayerData as deletePlayerSprees } from "./sprees.js";
-import { deletePlayerData as deletePlayerTeamChanges} from "./teams.js";
-import { deletePlayerData as deletePlayerTeleFrags } from "./telefrags.js";
+import { deletePlayerData as deletePlayerPingData, deletePlayerFromMatch as deletePlayerMatchPings} from "./pings.js";
+import { deletePlayerData as deletePlayerSprees, deletePlayerFromMatch as deletePlayerMatchSprees } from "./sprees.js";
+import { deletePlayerData as deletePlayerTeamChanges, deletePlayerFromMatch as deletePlayerMatchTeamChanges} from "./teams.js";
+import { deletePlayerData as deletePlayerTeleFrags, deletePlayerFromMatch as deletePlayerMatchTelefrags } from "./telefrags.js";
 import { deletePlayerData as deletePlayerDomData, deletePlayerFromMatch as deletePlayerMatchDomination} from "./domination.js";
-import { deletePlayerData as deletePlayerConnections} from "./connections.js";
+import { deletePlayerData as deletePlayerConnections, deletePlayerFromMatch as deletePlayerMatchConnections} from "./connections.js";
 import { deletePlayerData as deletePlayerMonsterhuntData, deletePlayerFromMatch as deletePlayerMatchMonsterhunt} from "./monsterhunt.js";
 import { deletePlayerData as deletePlayerWeaponData} from "./weapons.js";
 import { deletePlayerData as deletePlayerWinRateData, getGametypeMatchResults } from "./winrate.js";
@@ -2557,14 +2557,15 @@ export async function deletePlayerFromMatch(playerId, matchId){
     await deletePlayerMatchItems(playerId, matchId);
     await deletePlayerMatchAssault(playerId, matchId);
     await deletePlayerMatchMonsterhunt(playerId, matchId);
+    await deletePlayerMatchConnections(playerId, matchId);
+    await deletePlayerMatchPings(playerId, matchId);
+    await deletePlayerMatchSprees(playerId, matchId);
+    await deletePlayerMatchTelefrags(playerId, matchId);
+    await deletePlayerMatchTeamChanges(playerId, matchId);
+
     /**
 
-    
-    nstats_match_connections: 'player',
-    nstats_match_pings: 'player',
     nstats_match_player_score: 'player',
-    nstats_match_team_changes: 'player',
-
     nstats_player_matches: 'player_id',
     nstats_player_totals: 'player_id',
     nstats_player_weapon_match: 'player_id',
@@ -2573,16 +2574,12 @@ export async function deletePlayerFromMatch(playerId, matchId){
     nstats_ranking_player_current: 'player_id',
     nstats_ranking_player_history: 'player_id',
     nstats_winrates_latest: 'player',
-    nstats_ace_joins: 'player',
-    nstats_ace_sshot_requests: 'player',
     nstats_match_combogib: 'player_id',
     nstats_player_combogib: 'player_id',
     nstats_powerups_carry_times: 'player_id',
     nstats_powerups_player_match: 'player_id',
     nstats_powerups_player_totals: 'player_id',
-  
-    nstats_player_telefrags: 'player_id',
-    nstats_sprees: 'player'
-        */
+
+    */
 
 }

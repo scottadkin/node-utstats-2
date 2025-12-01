@@ -100,3 +100,11 @@ export async function mergeGametypes(oldId, newId){
 
     return await simpleQuery(query, [newId, oldId]);
 }
+
+
+export async function deletePlayerFromMatch(playerId, matchId){
+
+    const query = `DELETE FROM nstats_sprees WHERE match_id=? AND player=?`;
+
+    return await simpleQuery(query, [matchId, playerId]);
+}
