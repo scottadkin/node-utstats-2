@@ -6,7 +6,7 @@ import { getPlayersBasic as getBasicWinrateStats } from "./winrate.js";
 import { deletePlayer as deletePlayerAssaultData, deletePlayerFromMatch as deletePlayerMatchAssault } from "./assault.js";
 import { recalculateTotals as reclaculateCountryTotals } from "./countriesmanager.js";
 import { deletePlayerData as deletePlayerHeadshots } from "./headshots.js";
-import { deletePlayerData as deletePlayerKills} from "./kills.js";
+import { deletePlayerData as deletePlayerKills, deletePlayerFromMatch as deletePlayerMatchKills} from "./kills.js";
 import { deletePlayerScoreData } from "./player.js";
 import { deletePlayerData as deletePlayerPingData, deletePlayerFromMatch as deletePlayerMatchPings} from "./pings.js";
 import { deletePlayerData as deletePlayerSprees, deletePlayerFromMatch as deletePlayerMatchSprees } from "./sprees.js";
@@ -20,9 +20,9 @@ import { deletePlayerData as deletePlayerWinRateData, getGametypeMatchResults } 
 import { deletePlayerData as deletePlayerItemData, deletePlayerFromMatch as deletePlayerMatchItems } from "./items.js";
 import { deletePlayerData as deletePlayerPowerUpData } from "./powerups.js";
 import { deletePlayerData as deletePlayerRankingData } from "./rankings.js";
-import { deletePlayerData as deletePlayerCombogibData } from "./combogib.js";
+import { deletePlayerData as deletePlayerCombogibData, deletePlayerFromMatch as deletePlayerMatchCombogib } from "./combogib.js";
 import { recalculateTotals as recalculateMapTotals } from "./maps.js";
-import { getGametypeAndMapIds } from "./matches.js";
+import { getGametypeAndMapIds, deletePlayerFromMatch as deletePlayerFromAMatch } from "./matches.js";
 
 
 const PLAYER_TOTALS_FROM_MATCHES_COLUMNS = `player_id,
@@ -2562,24 +2562,22 @@ export async function deletePlayerFromMatch(playerId, matchId){
     await deletePlayerMatchSprees(playerId, matchId);
     await deletePlayerMatchTelefrags(playerId, matchId);
     await deletePlayerMatchTeamChanges(playerId, matchId);
+    await deletePlayerMatchKills(playerId, matchId);
+
+    await deletePlayerMatchCombogib(playerId, matchId, ids.gametype, ids.map);
+
+    await deletePlayerFromAMatch(playerId, matchId, ids.gametype, ids.map);
 
     /**
-
-    nstats_match_player_score: 'player',
-    nstats_player_matches: 'player_id',
-    nstats_player_totals: 'player_id',
     nstats_player_weapon_match: 'player_id',
     nstats_player_weapon_totals: 'player_id',
     nstats_player_weapon_best: 'player_id',
     nstats_ranking_player_current: 'player_id',
     nstats_ranking_player_history: 'player_id',
     nstats_winrates_latest: 'player',
-    nstats_match_combogib: 'player_id',
-    nstats_player_combogib: 'player_id',
     nstats_powerups_carry_times: 'player_id',
     nstats_powerups_player_match: 'player_id',
     nstats_powerups_player_totals: 'player_id',
-
     */
 
 }

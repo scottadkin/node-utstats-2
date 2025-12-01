@@ -176,6 +176,8 @@ function updateGraphData(data, index, newValue, bSkipUpdatedOthers){
 
     if(bSkipUpdatedOthers === undefined) bSkipUpdatedOthers = false;
 
+    if(index === -1) return;
+
     if(typeof newValue !== "string"){
 
         data[index].data.push(newValue);
@@ -443,4 +445,11 @@ export async function deletePlayerData(id){
     const query = `DELETE FROM nstats_kills WHERE killer=? OR victim=?`;
 
     return await simpleQuery(query, [id, id]);
+}
+
+export async function deletePlayerFromMatch(playerId, matchId){
+
+    const query = `DELETE FROM nstats_kills WHERE match_id=? AND (killer=? OR victim=?)`;
+
+    return await simpleQuery(query, [matchId, playerId, playerId]);
 }

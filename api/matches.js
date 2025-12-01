@@ -1515,3 +1515,15 @@ export async function getGametypeAndMapIds(matchId){
 
     return result[0];
 }
+
+
+export async function deletePlayerFromMatch(playerId, matchId, gametypeId, mapId){
+
+    await simpleQuery(`DELETE FROM nstats_match_player_score WHERE player=? AND match_id=?`, [playerId, matchId]);
+    await simpleQuery(`DELETE FROM nstats_player_matches WHERE player_id=? AND match_id=?`, [playerId, matchId]);
+
+    await recalculatePlayerTotals([playerId], gametypeId, mapId);
+    await recalculatePlayerTotals([playerId], gametypeId, 0);
+    await recalculatePlayerTotals([playerId], 0, mapId);
+    await recalculatePlayerTotals([playerId], 0, 0);
+}
