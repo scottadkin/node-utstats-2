@@ -1,5 +1,5 @@
 import Message from "../message.js";
-import Items from "../items.js";
+import Items, { bulkUpdatePlayerTotals } from "../items.js";
 import PowerUpManager from "./powerupmanager.js";
 import { getIdsByNames as getItemsByNames } from "../items.js";
 
@@ -205,6 +205,8 @@ export default class ItemsManager{
 
             const matchPlayerInsertVars = [];
 
+            const playerIds = new Set();
+            const itemIds = new Set();
 
             for(const [key, value] of this.matchData){
 
@@ -215,11 +217,14 @@ export default class ItemsManager{
                     for(const [subKey, subValue] of Object.entries(value.items)){
 
                         const currentId = this.getSavedItemId(subKey);
+                        playerIds.add(currentPlayer.masterId);  
 
                         if(currentId !== null){
+
+                            itemIds.add(currentId);
       
-                            matchPlayerInsertVars.push([matchId, currentPlayer.masterId, currentId, subValue]);      
-                            await this.items.updatePlayerTotal(currentPlayer.masterId, currentId, subValue, date);          
+                            matchPlayerInsertVars.push([matchId, date, currentPlayer.masterId, currentId, subValue]);      
+                           // await this.items.updatePlayerTotal(currentPlayer.masterId, currentId, subValue, date); 
                            
                         }else{
 
@@ -232,7 +237,9 @@ export default class ItemsManager{
                 }
             }
 
+            
             await this.items.insertAllPlayerMatchItems(matchPlayerInsertVars);
+            await bulkUpdatePlayerTotals([...playerIds], [...itemIds]);
 
         }catch(err){
             console.trace(err);

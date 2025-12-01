@@ -350,6 +350,7 @@ const queries = [
     `CREATE TABLE IF NOT EXISTS nstats_items_match (
         id int(11) NOT NULL AUTO_INCREMENT,
         match_id int(11) NOT NULL,
+        match_date DATETIME NOT NULL,
         player_id int(11) NOT NULL,
         item int(11) NOT NULL,
         uses int(11) NOT NULL

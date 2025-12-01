@@ -114,61 +114,12 @@ export default class Items{
         }
     }
 
-    async insertPlayerMatchItem(matchId, playerId, item, uses){
-
-        const query = "INSERT INTO nstats_items_match VALUES(NULL,?,?,?,?)";
-
-        return await simpleQuery(query, [matchId, playerId, item, uses]);
-    }
 
     async insertAllPlayerMatchItems(vars){
 
-        const query = "INSERT INTO nstats_items_match (match_id,player_id,item,uses) VALUES ?";
+        const query = "INSERT INTO nstats_items_match (match_id, match_date,player_id,item,uses) VALUES ?";
 
         await bulkInsert(query, vars);
-    }
-
-    async playerTotalExists(playerId, item){
-
-        const query = "SELECT COUNT(*) as total_items FROM nstats_items_player WHERE player=? AND item=?";
-
-        const result = await simpleQuery(query, [playerId, item]);
-        return result[0].total_items > 0;   
-    }
-
-    async insertPlayerTotal(playerId, item, uses, date){
-
-        const query = "INSERT INTO nstats_items_player VALUES(NULL,?,?,?,?,?,1)";
-
-        return await simpleQuery(query, [playerId, item, date, date, uses]);
-    }
-
-    async updatePlayerTotalQuery(playerId, item, uses, date){
-
- 
-        const query = `UPDATE nstats_items_player SET uses=uses+?,matches=matches+1,
-        first = IF(? < first, ?, first),
-        last = IF(? > last, ?, last)
-        WHERE player=? AND item=?`;
-
-        return await simpleQuery(query, [uses, date, date, date, date, playerId, item]);
-    }
-
-    async updatePlayerTotal(playerId, item, uses, date){
-
-        try{
-
-            if(await this.playerTotalExists(playerId, item)){
-
-                await this.updatePlayerTotalQuery(playerId, item, uses, date);
-            }else{
-
-                await this.insertPlayerTotal(playerId, item, uses, date);
-            }
-
-        }catch(err){
-            new Message(`items.updatePlayerTotals ${err}`,'error');
-        }
     }
 
     async getPlayerTotalData(player){
@@ -338,11 +289,6 @@ export default class Items{
     }
 }
 
-
-async function deletePlayerTotals(player){
-
-    await simpleQuery("DELETE FROM nstats_items_player WHERE player=?", [player]);
-}
 
 export async function getMatchData(matchId){
 
@@ -803,4 +749,54 @@ export async function saveItemChanges(changes){
 
         await simpleQuery(query, [c.displayName, c.type, c.id]);
     }
+}
+
+
+async function calculatePlayerTotals(playerIds, itemIds){
+
+    const query = `SELECT COUNT(*) as total_matches, player_id,item,SUM(uses) as total_uses,
+    MIN(match_date) as first_match, MAX(match_date) as last_match 
+    FROM nstats_items_match WHERE player_id IN(?) AND item IN(?) GROUP BY player_id,item`;
+
+    return await simpleQuery(query, [playerIds, itemIds]);
+
+   
+}
+
+
+async function deleteMultiplePlayerTotals(playerIds, itemIds){
+
+    if(playerIds.length === 0 || itemIds.length === 0) return;
+
+    const query = `DELETE FROM nstats_items_player WHERE player IN(?) AND item IN(?)`;
+
+    return await simpleQuery(query, [playerIds, itemIds]);
+}
+
+export async function bulkUpdatePlayerTotals(playerIds, itemIds){
+
+    if(playerIds.length === 0 || itemIds.length === 0) return;
+
+
+    const totals = await calculatePlayerTotals(playerIds, itemIds);
+
+     if(totals.length === 0) return;
+
+    await deleteMultiplePlayerTotals(playerIds, itemIds);
+
+
+    const query = `INSERT INTO nstats_items_player (
+    player,item,first,last,uses,matches) VALUES ?`;
+
+    const insertVars = totals.map((t) =>{
+        return [
+            t.player_id,t.item,t.first_match,
+            t.last_match,t.total_uses,
+            t.total_matches
+        ];
+    });
+
+    return await bulkInsert(query, insertVars);
+
+
 }
