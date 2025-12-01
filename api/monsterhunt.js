@@ -709,7 +709,7 @@ async function recalculateSelectedMonsterTotals(monsterIds){
 
     if(monsterIds.length === 0) return;
 
-    await deleteSelectedMonsterTotals(monsterIds);
+    //await deleteSelectedMonsterTotals(monsterIds);
 
     const query = `SELECT 
     CAST(SUM(kills) AS UNSIGNED) as kills, 
@@ -799,4 +799,34 @@ export async function deletePlayerData(playerId){
         const query = `DELETE FROM nstats_${t} WHERE player=?`;
         await simpleQuery(query, [playerId]);
     }
+}
+
+
+async function getPlayerMatchInteractedMonsters(playerId, matchId){
+
+    const query = `SELECT DISTINCT monster FROM nstats_monsters_player_match WHERE match_id=? AND player=?`;
+
+    const result = await simpleQuery(query, [matchId, playerId]);
+
+    return result.map((r) =>{
+        return r.monster;
+    });
+}
+
+export async function deletePlayerFromMatch(playerId, matchId){
+
+    const monsterIds = await getPlayerMatchInteractedMonsters(playerId, matchId);
+
+    const tables = [`nstats_monster_kills`, `nstats_monsters_player_match`];
+
+    for(let i = 0; i < tables.length; i++){
+
+        const t = tables[i];
+
+        await simpleQuery(`DELETE FROM ${t} WHERE player=? AND match_id=?`, [playerId, matchId]);
+    }
+
+    await recalculatePlayerMonsterTotals(monsterIds, [playerId]);
+    await recalculateSelectedMonsterTotals(monsterIds);
+    
 }

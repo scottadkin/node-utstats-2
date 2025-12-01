@@ -14,7 +14,7 @@ import { deletePlayerData as deletePlayerTeamChanges} from "./teams.js";
 import { deletePlayerData as deletePlayerTeleFrags } from "./telefrags.js";
 import { deletePlayerData as deletePlayerDomData, deletePlayerFromMatch as deletePlayerMatchDomination} from "./domination.js";
 import { deletePlayerData as deletePlayerConnections} from "./connections.js";
-import { deletePlayerData as deletePlayerMonsterhuntData} from "./monsterhunt.js";
+import { deletePlayerData as deletePlayerMonsterhuntData, deletePlayerFromMatch as deletePlayerMatchMonsterhunt} from "./monsterhunt.js";
 import { deletePlayerData as deletePlayerWeaponData} from "./weapons.js";
 import { deletePlayerData as deletePlayerWinRateData, getGametypeMatchResults } from "./winrate.js";
 import { deletePlayerData as deletePlayerItemData, deletePlayerFromMatch as deletePlayerMatchItems } from "./items.js";
@@ -2556,7 +2556,7 @@ export async function deletePlayerFromMatch(playerId, matchId){
     await deletePlayerMatchDomination(playerId, matchId);
     await deletePlayerMatchItems(playerId, matchId);
     await deletePlayerMatchAssault(playerId, matchId);
-
+    await deletePlayerMatchMonsterhunt(playerId, matchId);
     /**
 
     
@@ -2564,9 +2564,7 @@ export async function deletePlayerFromMatch(playerId, matchId){
     nstats_match_pings: 'player',
     nstats_match_player_score: 'player',
     nstats_match_team_changes: 'player',
-    nstats_monsters_player_match: 'player',
-    nstats_monsters_player_totals: 'player',
-    nstats_monster_kills: 'player',
+
     nstats_player_matches: 'player_id',
     nstats_player_totals: 'player_id',
     nstats_player_weapon_match: 'player_id',

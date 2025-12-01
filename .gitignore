@@ -41,3 +41,16 @@ yarn-error.log*
 .vercel
 
 /backups/*.zip
+/logs/*.tmp
+/logs/*.log
+/logs/*.zip
+/logs/imported/*.log
+/logs/imported/*.tmp
+/logs/rejected/*.tmp
+/logs/rejected/*.log
+/logs/rejected/generic-error/*.log
+/logs/rejected/map-merge-error/*.log
+/logs/rejected/missing-start/*.log
+/logs/rejected/null-lines/*.log
+/logs/rejected/under-player-limit/*.log
+/logs/rejected/under-playtime/*.log
