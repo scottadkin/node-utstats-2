@@ -19,7 +19,7 @@ import { deletePlayerData as deletePlayerWeaponData, deletePlayerFromMatch as de
 import { deletePlayerData as deletePlayerWinRateData, getGametypeMatchResults } from "./winrate.js";
 import { deletePlayerData as deletePlayerItemData, deletePlayerFromMatch as deletePlayerMatchItems } from "./items.js";
 import { deletePlayerData as deletePlayerPowerUpData, deletePlayerFromMatch as deletePlayerMatchPowerupData } from "./powerups.js";
-import { deletePlayerData as deletePlayerRankingData } from "./rankings.js";
+import { deletePlayerData as deletePlayerRankingData, deletePlayerFromMatch as deletePlayerMatchRankings } from "./rankings.js";
 import { deletePlayerData as deletePlayerCombogibData, deletePlayerFromMatch as deletePlayerMatchCombogib } from "./combogib.js";
 import { recalculateTotals as recalculateMapTotals } from "./maps.js";
 import { getGametypeAndMapIds, deletePlayerFromMatch as deletePlayerFromAMatch } from "./matches.js";
@@ -2572,11 +2572,21 @@ export async function deletePlayerFromMatch(playerId, matchId){
 
     await deletePlayerMatchWeapons(playerId, matchId, ids.gametype, ids.map);
 
+    await deletePlayerMatchRankings(playerId, matchId, ids.gametype, ids.map);
+
     /**
- 
-    nstats_ranking_player_current: 'player_id',
-    nstats_ranking_player_history: 'player_id',
     nstats_winrates_latest: 'player',
     */
 
+}
+
+export async function getPlayerLatestMatchDate(playerId, gametypeId){
+
+    const query = `SELECT match_date FROM nstats_player_matches WHERE player_id=? AND gametype=? ORDER BY match_date DESC`;
+
+    const result = await simpleQuery(query, [playerId, gametypeId]);
+
+    if(result.length === 0) return null;
+
+    return result[0].match_date;
 }

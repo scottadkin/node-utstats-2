@@ -1,7 +1,7 @@
 import { bulkInsert, simpleQuery } from "./database.js";
 import Message from "./message.js";
 import { getAllGametypeNames, getAllIds as getAllGametypeIds } from "./gametypes.js";
-import { getBasicPlayersByIds, getAllPlayersGametypeMatchData } from "./players.js";
+import { getBasicPlayersByIds, getAllPlayersGametypeMatchData, getPlayerLatestMatchDate } from "./players.js";
 import { DEFAULT_MIN_DATE, toMysqlDate } from "./generic.mjs";
 
 export const DEFAULT_RANKING_VALUES = [
@@ -390,7 +390,7 @@ export async function getAllSettings(bReturnJustCurrentObject){
         return data;
     }
 
-    return {current, "defaultValues": DEFAULT_RANKING_VALUES}
+    return {current, "defaultValues": DEFAULT_RANKING_VALUES};
 }
 
 
@@ -558,7 +558,6 @@ async function bulkInsertGametypeRecalcData(gametypeId, data){
 }
 
 async function recalculateGametypeIncSettings(gametypeId, settings, generalColumns, ctfColumns){
-
 
     const gColoumns = generalColumns.map((c) =>{
         return `nstats_player_matches.${c}`;
@@ -846,9 +845,6 @@ export async function updatePlayerRankings(gametypeId, matchId, matchDate, playe
     await updatePlayers(gametypeId, playerIds, settings, generalColumns, ctfColumns, matchId, matchDate);
 }
 
-
-
-
 export async function mergeGametypes(oldId, newId){
     
     await deleteGametypeCurrent(oldId);
@@ -858,7 +854,6 @@ export async function mergeGametypes(oldId, newId){
 
 
 export async function deleteGametype(id){
-
 
     const tables = [
         "nstats_ranking_player_current",
@@ -871,4 +866,104 @@ export async function deleteGametype(id){
 
         await simpleQuery(`DELETE FROM ${t} WHERE gametype=?`, [id]);
     }
+}
+
+async function deletePlayerGametype(playerId, gametypeId){
+
+    await simpleQuery(`DELETE FROM nstats_ranking_player_current WHERE player_id=? AND gametype=?`, [playerId, gametypeId]);
+    await simpleQuery(`DELETE FROM nstats_ranking_player_history WHERE player_id=? AND gametype=?`, [playerId, gametypeId]);
+}
+
+async function recalculatePlayerGametype(playerId, gametypeId, settings, generalColumns, ctfColumns){
+
+    const gColoumns = generalColumns.map((c) =>{
+        return `nstats_player_matches.${c}`;
+    });
+
+    const cColumns = ctfColumns.map((c) =>{
+        return `nstats_player_ctf_match.${c}`;
+    });
+
+    const query = `SELECT nstats_player_matches.match_id,
+    nstats_player_matches.match_date,
+    nstats_player_matches.playtime,
+    ${gColoumns.toString()},${cColumns.toString()} FROM nstats_player_matches 
+    LEFT JOIN nstats_player_ctf_match ON nstats_player_ctf_match.player_id = nstats_player_matches.player_id AND 
+    nstats_player_ctf_match.match_id = nstats_player_matches.match_id
+    WHERE gametype=? AND nstats_player_matches.match_result!='s' AND nstats_player_matches.player_id=? ORDER BY match_date ASC`;
+
+    const result = await simpleQuery(query, [gametypeId, playerId]);
+
+    const totals = {
+        "matchResults": [],
+        "playtime": 0,
+        "totalScore": 0,
+        "score": 0,
+        "latestDate": null,
+        "matches": 0
+    };
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        const matchResult = calculateRanking(r, settings, ctfColumns);
+        const previousResult = totals.matchResults[totals.matchResults.length - 1];
+
+        if(previousResult === undefined){
+
+            totals.rankingChange = matchResult.currentScore;
+            totals.latestDate = matchResult.matchDate;
+
+        }else{
+
+            const diff = matchResult.currentScore - previousResult.currentScore;
+            totals.rankingChange = diff;
+
+            if(matchResult.matchDate > totals.latestDate){
+                totals.latestDate = matchResult.matchDate;
+            }
+        }
+
+        //matchResult.rankingChange = matchResult.currentScore;
+        //matchResult.matchId = r.match_id;
+        totals.matchId = r.match_id;
+        totals.currentScore = matchResult.currentScore;
+        totals.matchScore = matchResult.currentScore;
+        totals.matchDate = r.match_date;
+        totals.matches++;
+
+        totals.playtime += matchResult.playtime;
+        totals.matchResults.push(matchResult);
+
+        totals.totalScore += matchResult.totalScore;
+
+        const finalScore = applyTimePenalty(settings, totals.totalScore,  totals.playtime);
+        
+        totals.score = finalScore;
+        matchResult.rankingAfterMatch = finalScore;
+    }
+
+    await deletePlayerGametype(playerId, gametypeId);
+
+    const test = {};
+
+    test[playerId] = totals;
+
+    await insertPlayerHistory(test, gametypeId);
+
+    
+
+    await bulkUpdatePlayerCurrent(gametypeId, [playerId], test);
+    //await bulkUpdatePlayerCurrent(gametypeId, [playerId], {"playerId": players});
+
+}
+
+
+
+export async function deletePlayerFromMatch(playerId, matchId, gametypeId, mapId){
+ 
+    const settings = await getAllSettings(true);
+    const {generalColumns, ctfColumns} = splitGeneralCTFColumns(settings);
+    await recalculatePlayerGametype(playerId, gametypeId, settings, generalColumns, ctfColumns)  
 }
