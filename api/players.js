@@ -15,10 +15,10 @@ import { deletePlayerData as deletePlayerTeleFrags, deletePlayerFromMatch as del
 import { deletePlayerData as deletePlayerDomData, deletePlayerFromMatch as deletePlayerMatchDomination} from "./domination.js";
 import { deletePlayerData as deletePlayerConnections, deletePlayerFromMatch as deletePlayerMatchConnections} from "./connections.js";
 import { deletePlayerData as deletePlayerMonsterhuntData, deletePlayerFromMatch as deletePlayerMatchMonsterhunt} from "./monsterhunt.js";
-import { deletePlayerData as deletePlayerWeaponData} from "./weapons.js";
+import { deletePlayerData as deletePlayerWeaponData, deletePlayerFromMatch as deletePlayerMatchWeapons} from "./weapons.js";
 import { deletePlayerData as deletePlayerWinRateData, getGametypeMatchResults } from "./winrate.js";
 import { deletePlayerData as deletePlayerItemData, deletePlayerFromMatch as deletePlayerMatchItems } from "./items.js";
-import { deletePlayerData as deletePlayerPowerUpData } from "./powerups.js";
+import { deletePlayerData as deletePlayerPowerUpData, deletePlayerFromMatch as deletePlayerMatchPowerupData } from "./powerups.js";
 import { deletePlayerData as deletePlayerRankingData } from "./rankings.js";
 import { deletePlayerData as deletePlayerCombogibData, deletePlayerFromMatch as deletePlayerMatchCombogib } from "./combogib.js";
 import { recalculateTotals as recalculateMapTotals } from "./maps.js";
@@ -2568,16 +2568,15 @@ export async function deletePlayerFromMatch(playerId, matchId){
 
     await deletePlayerFromAMatch(playerId, matchId, ids.gametype, ids.map);
 
+    await deletePlayerMatchPowerupData(playerId, matchId, ids.gametype, ids.map);
+
+    await deletePlayerMatchWeapons(playerId, matchId, ids.gametype, ids.map);
+
     /**
-    nstats_player_weapon_match: 'player_id',
-    nstats_player_weapon_totals: 'player_id',
-    nstats_player_weapon_best: 'player_id',
+ 
     nstats_ranking_player_current: 'player_id',
     nstats_ranking_player_history: 'player_id',
     nstats_winrates_latest: 'player',
-    nstats_powerups_carry_times: 'player_id',
-    nstats_powerups_player_match: 'player_id',
-    nstats_powerups_player_totals: 'player_id',
     */
 
 }

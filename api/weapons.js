@@ -3,7 +3,7 @@ import Message from "./message.js";
 import fs from "fs";
 import { getObjectName } from "./genericServerSide.mjs";
 
-const VALID_TYPES = ["gametype", "map"];
+const VALID_TYPES = ["gametype", "map", "allTime"];
 
 const PLAYER_BEST_MATCH_COLUMNS = `
     CAST(MAX(kills) AS UNSIGNED) as kills,
@@ -404,30 +404,6 @@ export default class Weapons{
         return await simpleQuery(query, [playerId]);
     }
 
-    async mergePlayerTotalData(newId){
-
-        const query = `SELECT 
-        map_id,gametype,weapon,playtime,kills,team_kills,deaths,suicides,efficiency,accuracy,shots,hits,damage,matches 
-        FROM nstats_player_weapon_totals WHERE player_id=?`;
-
-        const data = await simpleQuery(query, [newId]);
-
-        await this.deletePlayerTotalData(newId);
-
-        for(let i = 0; i < data.length; i++){
-
-            const d = data[i];
-
-            if(!await this.bPlayerTotalExists(d.map_id, d.gametype, newId, d.weapon)){
-
-                await this.createPlayerTotalCustom(newId, d.map_id, d.gametype, d.weapon, d.playtime, d.kills, d.team_kills, 
-                    d.deaths, d.suicides, d.efficiency, d.accuracy, d.shots, d.hits, d.damage, d.matches);
-            }else{
-                await this.updatePlayerTotalCustom(newId, d.map_id, d.gametype, d.weapon, d.playtime, d.kills, d.team_kills, d.deaths, d.suicides, 
-                    d.efficiency, d.accuracy, d.shots, d.hits, d.damage, d.matches);
-            }
-        }
-    }
 
     async createPlayerTotal(mapId, gametypeId, playerId, weaponId, playtime, kills, teamKills, deaths, suicides, accuracy, shots, hits, damage){
 
@@ -862,15 +838,6 @@ export default class Weapons{
         return data;
     }
 
-    async deleteTotalPlayerDataRowsById(ids){
-
-        if(ids.length === 0) return;
-
-        const query = `DELETE FROM nstats_player_weapon_totals WHERE id IN (?)`;
-
-        return await simpleQuery(query, [ids]);
-    }
-
     async insertNewPlayerTotalStats(data){
 
         const query = `INSERT INTO nstats_player_weapon_totals 
@@ -904,81 +871,6 @@ export default class Weapons{
 
         await bulkInsert(query, insertVars);
     }
-
-
-    async deleteOldTotalData(gametypeId, mapId, playerIds, weaponIds){
-
-        const query = `DELETE FROM nstats_player_weapon_totals WHERE gametype=? AND map_id=? AND player_id IN (?) AND weapon IN (?)`;
-
-        return await simpleQuery(query, [gametypeId, mapId, playerIds, weaponIds]);
-    }
-
-
-    async deletePlayerTotalDataCustom(playerId, gametypeId, mapId, weaponId){
-
-        const query = `DELETE FROM nstats_player_weapon_totals WHERE player_id=? AND gametype=? AND map_id=? AND weapon=?`;
-
-        return await simpleQuery(query, [playerId, gametypeId, mapId, weaponId]);
-    }
-
-    async combineTotalsData(playerId, gametypeId, mapId, weaponId){
-
-        const fetchQuery = `SELECT 
-        SUM(playtime) as playtime,
-        SUM(kills) as kills,
-        SUM(team_kills) as team_kills,
-        SUM(deaths) as deaths,
-        SUM(suicides) as suicides,
-        SUM(shots) as shots,
-        SUM(hits) as hits,
-        SUM(damage) as damage,
-        SUM(matches) as matches
-        FROM nstats_player_weapon_totals WHERE player_id=? AND gametype=? AND map_id=? AND weapon=?`;
-
-        const result = await simpleQuery(fetchQuery, [playerId, gametypeId, mapId, weaponId]);
-
-        if(result.length === 0) return;
-
-        await this.deletePlayerTotalDataCustom(playerId, gametypeId, mapId, weaponId);
-
-        const r = result[0];
-
-        let accuracy = 0;
-        let efficiency = 0;
-
-        if(r.shots > 0){
-            if(r.hits > 0){
-                accuracy = (r.hits / r.shots) * 100;
-            }
-        }
-
-        if(r.kills > 0){
-            if(r.deaths > 0){
-                efficiency = (r.kills / (r.kills + r.deaths)) * 100;
-            }else{
-                efficiency = 100;
-            }
-        }
-
-        await this.createPlayerTotalCustom(
-            playerId, 
-            mapId, 
-            gametypeId, 
-            weaponId, 
-            r.playtime, 
-            r.kills, 
-            r.team_kills, 
-            r.deaths, 
-            r.suicides, 
-            efficiency, 
-            accuracy, 
-            r.shots, 
-            r.hits, 
-            r.damage, 
-            r.matches
-        );
-    }
-
 
 
 
@@ -1871,8 +1763,6 @@ async function deletePlayerBest(type, id){
 
     const query = `DELETE FROM nstats_player_weapon_best WHERE ${(type === "gametype") ? "gametype_id" : "map_id"}=?`;
 
-    console.log(query);
-
     return await simpleQuery(query, [id]);
 }
 
@@ -2080,7 +1970,6 @@ async function recalculatePlayerTotals(type, id){
 
 export async function mergeGametypes(oldId, newId){
 
-
     await changePlayerMatchGametypes(oldId, newId);
 
     await deletePlayerBest("gametype", oldId);
@@ -2181,5 +2070,212 @@ export async function deleteGametype(id){
         await deletePlayerBest("map", m);
         await recalculatePlayerBest("map", m);
     }
+}
+
+
+
+
+async function getPlayerUsedWeapons(playerId){
+
+    const query = `SELECT DISTINCT weapon_id FROM nstats_player_weapon_match WHERE player_id=?`;
+
+    const result = await simpleQuery(query, [playerId]);
+
+    return result.map((r) =>{
+        return r.weapon_id;
+    });
+}
+
+
+
+async function deleteSinglePlayerTotals(playerId, type){
+
+    if(VALID_TYPES.indexOf(type) === -1) throw new Error(`Not a valid deleteSinglePlayerTotals type`);
+
+    let query = `DELETE FROM nstats_player_weapon_totals WHERE player_id=?`;
+
+
+    if(type === "allTime"){
+        query += ` AND gametype=0 AND map_id=0`;
+    }else if(type === "gametype"){
+
+        query += ` AND map_id=0 AND gametype!=0`;
+
+    }else if(type === "map"){
+        query += ` AND gametype=0 AND map_id!=0`;
+    }
+
+    return await simpleQuery(query, [playerId]);
+}
+
+
+async function recalculateSinglePlayerTotals(playerId, type){
+
+    if(VALID_TYPES.indexOf(type) === -1) throw new Error(`Not a valid recalculateSinglePlayerTotals type`);
+
+    let query =  `SELECT weapon_id,${PLAYER_TOTALS_MATCH_COLUMNS}`;
+    if(type === "gametype") query += `,gametype_id`;
+    if(type === "map") query += `,map_id`;
+
+
+    query += ` FROM nstats_player_weapon_match
+    WHERE player_id=?
+    GROUP BY weapon_id`;
+    if(type === "gametype") query+= `,gametype_id`;
+    if(type === "map") query+= `,map_id`;
+
+    const data = await simpleQuery(query, [playerId]);
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        d.player_id = playerId;
+
+        if(type === "allTime"){
+            d.gametype_id = 0;
+            d.map_id = 0;
+        }else if(type === "gametype"){
+            d.map_id = 0; 
+        }else if(type === "map"){
+            d.gametype_id = 0;
+        }
+
+        if(d.kills > 0){
+
+            if(d.deaths === 0){
+                d.efficiency = 100;
+            }else{
+                d.efficiency = d.kills / (d.kills + d.deaths) * 100;
+            }
+        }
+
+        if(d.hits > 0 && d.shots > 0){
+
+            d.accuracy = d.hits / d.shots * 100;
+        }
+    }
+
+
+    await deleteSinglePlayerTotals(playerId, type);
+    await bulkInsertPlayerTotals(data);
+}
+
+async function deleteSinglePlayerBest(playerId, type){
+
+    if(VALID_TYPES.indexOf(type) === -1) throw new Error(`${type} is not a valid type for deleteSinglePlayerBest`);
+
+    let query = `DELETE FROM nstats_player_weapon_best WHERE player_id=?`;
+
+    if(type === "allTime"){
+        query += ` AND gametype_id=0 AND map_id=0`;
+    }else if(type === "gametype"){
+        query += ` AND gametype_id!=0 AND map_id=0`;
+    }else if(type === "map"){
+        query += ` AND gametype_id=0 AND map_id!=0`;
+    };
+
+    return await simpleQuery(query, [playerId]);
+}
+
+async function recalculateSinglePlayerBest(playerId, type){
+
+
+    if(VALID_TYPES.indexOf(type) === -1) throw new Error(`${type} is not a valid type for recalculateSinglePlayerBest`);
+
+    let query = `SELECT weapon_id,map_id,
+    ${PLAYER_BEST_MATCH_COLUMNS}
+    FROM nstats_player_weapon_match
+    WHERE player_id=? GROUP BY weapon_id,map_id`;
+
+    if(type === "map"){
+
+        query = `SELECT weapon_id,map_id,
+        ${PLAYER_BEST_MATCH_COLUMNS}
+        FROM nstats_player_weapon_match
+        WHERE player_id=? GROUP BY weapon_id,map_id`;
+
+    }else if(type === "gametype"){
+
+        query = `SELECT weapon_id,gametype_id,
+        ${PLAYER_BEST_MATCH_COLUMNS}
+        FROM nstats_player_weapon_match
+        WHERE player_id=? GROUP BY weapon_id,gametype_id`;
+    }
+
+    const data = await simpleQuery(query, [playerId]);
+
+    const higherBetterKeys = [
+        "kills",      "best_kills",
+        "deaths",     "suicides",
+        "team_kills", "best_team_kills",
+        "accuracy",   "shots",
+        "hits",       "damage",
+    ];
+
+    const best = {}; 
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+        d.player_id = playerId;
+
+        if(type === "gametype"){
+
+            d.map_id = 0;
+
+        }else if(type === "map"){
+
+            d.gametype_id = 0;
+
+        }else if(type === "allTime"){
+
+            d.map_id = 0;
+            d.gametype_id = 0;
+        }
+
+  
+        if(best[d.weapon_id] === undefined){
+
+            best[d.weapon_id] = {...d};
+
+            if(type === "gametype"){
+                best[d.weapon_id].map_id = 0;
+            }else if(type === "map"){
+                best[d.weapon_id].gametype_id = 0;
+            }else if(type === "allTime"){
+                best[d.weapon_id].gametype_id = 0;
+                best[d.weapon_id].map_id = 0;
+            }
+            continue;
+        }
+
+        const g = best[d.weapon_id];
+
+        for(let x = 0; x < higherBetterKeys.length; x++){
+
+            const k = higherBetterKeys[x];
+
+            if(d[k] > g[k]) g[k] = d[k];
+        }
+    }
+
+    await deleteSinglePlayerBest(playerId, type);
+    await bulkInsertPlayerBest(data);
 
 }
+
+export async function deletePlayerFromMatch(playerId, matchId, gametypeId, mapId){
+
+    await simpleQuery(`DELETE FROM nstats_player_weapon_match WHERE player_id=? AND match_id=?`, [playerId, matchId]);
+
+    await recalculateSinglePlayerTotals(playerId, "allTime");
+    await recalculateSinglePlayerTotals(playerId, "gametype");
+    await recalculateSinglePlayerTotals(playerId, "map");
+
+
+    await recalculateSinglePlayerBest(playerId, "allTime");
+    await recalculateSinglePlayerBest(playerId, "gametype");
+    await recalculateSinglePlayerBest(playerId, "map");
+}
+

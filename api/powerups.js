@@ -717,3 +717,18 @@ export async function deleteGametype(id){
         await recalculateTotals("map", m);
     }
 }
+
+
+export async function deletePlayerFromMatch(playerId, matchId, gametypeId, mapId){
+
+
+    //nstats_powerups_player_totals: 'player_id',
+
+    await simpleQuery(`DELETE FROM nstats_powerups_carry_times WHERE player_id=? AND match_id=?`, [playerId, matchId]);
+    await simpleQuery(`DELETE FROM nstats_powerups_player_match WHERE player_id=? AND match_id=?`, [playerId, matchId]);
+
+    await recalculatePlayerTotals([playerId], 0, 0);
+    await recalculatePlayerTotals([playerId], gametypeId, 0);
+    await recalculatePlayerTotals([playerId], 0, mapId);
+    await recalculatePlayerTotals([playerId], gametypeId, mapId);
+}
