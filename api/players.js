@@ -2590,6 +2590,132 @@ export async function getPlayerLatestMatchDate(playerId, gametypeId){
 }
 
 
+export async function bulkInsertMatchData(players, matchId, gametypeId, mapId, matchDate, totalTeams){
+
+    const query = `INSERT INTO nstats_player_matches (match_id, match_date, 
+        map_id, player_id, hwid, 
+        bot, spectator, ip, 
+        country, face, voice, 
+        gametype, match_result, playtime, 
+        team_0_playtime, team_1_playtime, team_2_playtime, 
+        team_3_playtime, spec_playtime, team, 
+        first_blood, frags, score, 
+        kills, deaths, suicides, 
+        team_kills, spawn_kills, efficiency, 
+        multi_1, multi_2, multi_3, 
+        multi_4, multi_5, multi_6, 
+        multi_7, multi_best, spree_1, 
+        spree_2, spree_3, spree_4, 
+        spree_5, spree_6, spree_7, 
+        spree_best, best_spawn_kill_spree, assault_objectives, 
+        dom_caps, dom_caps_best_life, ping_min, 
+        ping_average, ping_max, accuracy, 
+        shortest_kill_distance, average_kill_distance, longest_kill_distance, 
+        k_distance_normal, k_distance_long, k_distance_uber, 
+        headshots, shield_belt, amp, 
+        amp_time, invisibility, invisibility_time, 
+        pads, armor, boots, 
+        super_health, mh_kills, mh_kills_best_life, 
+        views, mh_deaths, telefrag_kills, 
+        telefrag_deaths, telefrag_best_spree, telefrag_best_multi, 
+        tele_disc_kills, tele_disc_deaths, tele_disc_best_spree, 
+        tele_disc_best_multi) VALUES ?`;
+
+        /*NULL,?,?,?,?,?,?,?,?,?,
+        ?,?,?,?,?,?,?,?,?,
+        ?,?,?,?,?,?,?,?,?,?,
+        ?,?,?,?,?,?,?,?,?,?,
+        ?,?,?,?,?,?,?,?,0,0,0,
+        ?,?,?,?,?,?,?,?,?,?,
+        ?,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,?,?,?,?,?,?,?,?)*/
+    
+    const insertVars = [];
+
+    for(let i = 0; i < players.length; i++){
+
+        const player = players[i];
+        if(!player.bInsertMatchData) continue;
+
+        const lastTeam = player.getLastPlayedTeam();
+    
+        const playtime = player.getTotalPlaytime(totalTeams);
+
+        insertVars.push([
+            matchId,
+            matchDate,
+            mapId,
+            player.masterId,
+            player.HWID,
+            player.bBot,
+            (player.stats.time_on_server === 0) ? 1 : 0,//player.bSpectator,
+            player.ip ?? "", //setValueIfUndefined(player.ip,""),
+            player.country ?? "xx", //setValueIfUndefined(player.country,"xx"),
+            player.faceId ?? 0,//setValueIfUndefined(player.faceId),
+            player.voiceId ?? 0,//setValueIfUndefined(player.voiceId),
+            gametypeId,
+            (player.stats.time_on_server === 0) ? "s" : player.matchResult,
+            playtime,//Functions.setValueIfUndefined(player.stats.time_on_server),
+            player.stats.teamPlaytime[0],
+            player.stats.teamPlaytime[1],
+            player.stats.teamPlaytime[2],
+            player.stats.teamPlaytime[3],
+            player.stats.teamPlaytime[255],
+            lastTeam,
+            player.stats.firstBlood,
+            player.stats.frags,
+            player.stats.score,
+            player.stats.kills,
+            player.stats.deaths + player.stats.suicides,
+            player.stats.suicides,
+            player.stats.teamkills,
+            player.stats.spawnKills,
+            calculateKillEfficiency(player.stats.kills, player.stats.deaths),
+            player.stats.multis.double,
+            player.stats.multis.multi,
+            player.stats.multis.mega,
+            player.stats.multis.ultra,
+            player.stats.multis.monster,
+            player.stats.multis.ludicrous,
+            player.stats.multis.holyshit,
+            player.stats.bestMulti,
+            player.stats.sprees.spree,
+            player.stats.sprees.rampage,
+            player.stats.sprees.dominating,
+            player.stats.sprees.unstoppable,
+            player.stats.sprees.godlike,
+            player.stats.sprees.massacre,
+            player.stats.sprees.brutalizing,
+            player.stats.bestSpree,
+            player.stats.bestspawnkillspree,
+            0,0,0,
+            player.pingMatchData.min,
+            parseInt(player.pingMatchData.average),
+            player.pingMatchData.max,
+            player.stats.accuracy.toFixed(2),
+            (player.stats.killMinDistance !== player.stats.killMinDistance || player.stats.killMinDistance === null) ? 0 : player.stats.killMinDistance,// (isNaN(player.stats.killMinDistance)) ? 0 : setValueIfUndefined(player.stats.killMinDistance),
+            (player.stats.killAverageDistance !== player.stats.killAverageDistance) ? 0 : player.stats.killAverageDistance,//)) ? 0 : setValueIfUndefined(player.stats.killAverageDistance),
+            (player.stats.killMaxDistance !== player.stats.killMaxDistance) ? 0 : player.stats.killMaxDistance,//)) ? 0 : setValueIfUndefined(player.stats.killAverageDistance),
+            player.stats.killsNormalRange,
+            player.stats.killsLongRange,
+            player.stats.killsUberRange,
+            player.stats.headshots,
+            0,0,0,0,0,0,0,0,0,
+            0,0,0,0,
+            player.stats.teleFrags.total,
+            player.stats.teleFrags.deaths,
+            player.stats.teleFrags.bestSpree,
+            player.stats.teleFrags.bestMulti,
+            player.stats.teleFrags.discKills,
+            player.stats.teleFrags.discDeaths,
+            player.stats.teleFrags.discKillsBestSpree,
+            player.stats.teleFrags.discKillsBestMulti,
+        ]);
+    }
+
+    await bulkInsert(query, insertVars);
+}
+
 export async function insertMatchData(player, matchId, gametypeId, mapId, matchDate, ping, totalTeams){
 
     const query = `INSERT INTO nstats_player_matches VALUES(

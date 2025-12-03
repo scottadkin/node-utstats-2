@@ -75,7 +75,7 @@ function renderTable(matchId, players, killData){
 
         const player = orderedPlayers[i];
 
-        if(player.spectator || !player.played) continue;
+        if(player.spectator) continue;
 
         headers.push(<th key={player.player_id} className={`${styles.th} text-left ${getTeamColor(player.team)}`}>
             <Link href={`/pmatch/${matchId}/?player=${player.player_id}`}>
@@ -94,7 +94,7 @@ function renderTable(matchId, players, killData){
 
         const killer = orderedPlayers[i];
 
-        if(killer.spectator || !killer.played) continue;
+        if(killer.spectator) continue;
 
         const columns = [];
 
@@ -102,7 +102,7 @@ function renderTable(matchId, players, killData){
 
             const victim = orderedPlayers[x];
 
-            if(victim.spectator || !victim.played) continue;
+            if(victim.spectator) continue;
 
             const totalKills = ignore0(getKills(killData, killer.player_id, victim.player_id));
 

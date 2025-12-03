@@ -1,4 +1,4 @@
-import {simpleQuery} from "../database.js";
+import {mysqlGetColumns, simpleQuery} from "../database.js";
 import PlayerInfo from "./playerinfo.js";
 import Message from "../message.js";
 import Pl from "../player.js";
@@ -13,7 +13,7 @@ import SpreeManager  from "./spreemanager.js";
 import {scalePlaytime} from "../functions.js";
 import { updatePlayerWinrates } from "../winrate.js";
 import { updatePlayerRankings } from "../rankings.js";
-import { recalculateTotals, insertMatchData } from "../players.js";
+import { recalculateTotals, insertMatchData, bulkInsertMatchData } from "../players.js";
 
 export default class PlayerManager{
 
@@ -1419,14 +1419,20 @@ export default class PlayerManager{
     async insertMatchData(gametypeId, matchId, mapId, matchDate){
 
 
-        const start = performance.now();
-        
-        let pingData = 0;
-
         for(let i = 0; i < this.players.length; i++){
 
             const p = this.players[i];
-            pingData = this.pingManager.getPlayerValues(p.masterId);
+
+            p.bInsertMatchData = false;
+
+            if(this.bIgnoreBots){
+
+                if(p.bBot) continue;      
+            }
+
+            p.bInsertMatchData = true;
+
+            let pingData = this.pingManager.getPlayerValues(p.masterId);
 
             if(pingData === null){
                 pingData = {
@@ -1436,18 +1442,12 @@ export default class PlayerManager{
                 };
             }
 
-            if(this.bIgnoreBots){
+           p.pingMatchData = pingData;
 
-                if(p.bBot) continue;      
-            }
-
-            await insertMatchData(p, matchId, gametypeId, mapId, matchDate, pingData, this.totalTeams);
+        //await insertMatchData(p, matchId, gametypeId, mapId, matchDate, pingData, this.totalTeams);
         }
 
-        const end = performance.now();
-
-        console.log((end - start) * 0.001);
-        //console.log(this.players);
+        await bulkInsertMatchData(this.players, matchId, gametypeId, mapId, matchDate, this.totalTeams);
 
       
     }
