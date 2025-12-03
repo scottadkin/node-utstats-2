@@ -1,6 +1,6 @@
 import Player from "./player.js";
 import { simpleQuery, bulkInsert, updateReturnAffectedRows, getAllTablesContainingColumns } from "./database.js";
-import { removeIps, setIdNames, getUniqueValues, getPlayer, DEFAULT_DATE, DEFAULT_MIN_DATE, removeUnr } from "./generic.mjs";
+import { removeIps, setIdNames, getUniqueValues, getPlayer, DEFAULT_DATE, DEFAULT_MIN_DATE, removeUnr, calculateKillEfficiency } from "./generic.mjs";
 import { getPlayerMatchCTFData ,  deletePlayerData as deletePlayerCTFData, deletePlayerFromMatch as deletePlayerMatchCTF} from "./ctf.js";
 import { getPlayersBasic as getBasicWinrateStats, recalculatePlayers as recalculatePlayersWinrates } from "./winrate.js";
 import { deletePlayer as deletePlayerAssaultData, deletePlayerFromMatch as deletePlayerMatchAssault } from "./assault.js";
@@ -2587,4 +2587,97 @@ export async function getPlayerLatestMatchDate(playerId, gametypeId){
     if(result.length === 0) return null;
 
     return result[0].match_date;
+}
+
+
+export async function insertMatchData(player, matchId, gametypeId, mapId, matchDate, ping, totalTeams){
+
+    const query = `INSERT INTO nstats_player_matches VALUES(
+        NULL,?,?,?,?,?,?,?,?,?,
+        ?,?,?,?,?,?,?,?,?,
+        ?,?,?,?,?,?,?,?,?,?,
+        ?,?,?,?,?,?,?,?,?,?,
+        ?,?,?,?,?,?,?,?,0,0,0,
+        ?,?,?,?,?,?,?,?,?,?,
+        ?,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,?,?,?,?,?,?,?,?)`;
+
+        //53
+    // const lastTeam = (player.teams.length === 0) ? 255 : player.teams[player.teams.length - 1].id;
+
+    const lastTeam = player.getLastPlayedTeam();
+    
+    const playtime = player.getTotalPlaytime(totalTeams);
+
+    const vars = [
+        matchId,
+        matchDate,
+        mapId,
+        player.masterId,
+        player.HWID,
+        player.bBot,
+        (player.stats.time_on_server === 0) ? 1 : 0,//player.bSpectator,
+        player.ip ?? "", //setValueIfUndefined(player.ip,""),
+        player.country ?? "xx", //setValueIfUndefined(player.country,"xx"),
+        player.faceId ?? 0,//setValueIfUndefined(player.faceId),
+        player.voiceId ?? 0,//setValueIfUndefined(player.voiceId),
+        gametypeId,
+        (player.stats.time_on_server === 0) ? "s" : player.matchResult,
+        playtime,//Functions.setValueIfUndefined(player.stats.time_on_server),
+        player.stats.teamPlaytime[0],
+        player.stats.teamPlaytime[1],
+        player.stats.teamPlaytime[2],
+        player.stats.teamPlaytime[3],
+        player.stats.teamPlaytime[255],
+        lastTeam,
+        player.stats.firstBlood,
+        player.stats.frags,
+        player.stats.score,
+        player.stats.kills,
+        player.stats.deaths + player.stats.suicides,
+        player.stats.suicides,
+        player.stats.teamkills,
+        player.stats.spawnKills,
+        calculateKillEfficiency(player.stats.kills, player.stats.deaths),
+        player.stats.multis.double,
+        player.stats.multis.multi,
+        player.stats.multis.mega,
+        player.stats.multis.ultra,
+        player.stats.multis.monster,
+        player.stats.multis.ludicrous,
+        player.stats.multis.holyshit,
+        player.stats.bestMulti,
+        player.stats.sprees.spree,
+        player.stats.sprees.rampage,
+        player.stats.sprees.dominating,
+        player.stats.sprees.unstoppable,
+        player.stats.sprees.godlike,
+        player.stats.sprees.massacre,
+        player.stats.sprees.brutalizing,
+        player.stats.bestSpree,
+        player.stats.bestspawnkillspree,
+        ping.min,
+        parseInt(ping.average),
+        ping.max,
+        player.stats.accuracy.toFixed(2),
+        (player.stats.killMinDistance !== player.stats.killMinDistance || player.stats.killMinDistance === null) ? 0 : player.stats.killMinDistance,// (isNaN(player.stats.killMinDistance)) ? 0 : setValueIfUndefined(player.stats.killMinDistance),
+        (player.stats.killAverageDistance !== player.stats.killAverageDistance) ? 0 : player.stats.killAverageDistance,//)) ? 0 : setValueIfUndefined(player.stats.killAverageDistance),
+        (player.stats.killMaxDistance !== player.stats.killMaxDistance) ? 0 : player.stats.killMaxDistance,//)) ? 0 : setValueIfUndefined(player.stats.killAverageDistance),
+        player.stats.killsNormalRange,
+        player.stats.killsLongRange,
+        player.stats.killsUberRange,
+        player.stats.headshots,
+        player.stats.teleFrags.total,
+        player.stats.teleFrags.deaths,
+        player.stats.teleFrags.bestSpree,
+        player.stats.teleFrags.bestMulti,
+        player.stats.teleFrags.discKills,
+        player.stats.teleFrags.discDeaths,
+        player.stats.teleFrags.discKillsBestSpree,
+        player.stats.teleFrags.discKillsBestMulti,
+    ];
+
+    const result = await simpleQuery(query, vars);
+
+    return result.insertId;
 }

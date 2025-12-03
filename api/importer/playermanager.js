@@ -13,7 +13,7 @@ import SpreeManager  from "./spreemanager.js";
 import {scalePlaytime} from "../functions.js";
 import { updatePlayerWinrates } from "../winrate.js";
 import { updatePlayerRankings } from "../rankings.js";
-import { recalculateTotals } from "../players.js";
+import { recalculateTotals, insertMatchData } from "../players.js";
 
 export default class PlayerManager{
 
@@ -1418,46 +1418,38 @@ export default class PlayerManager{
 
     async insertMatchData(gametypeId, matchId, mapId, matchDate){
 
-        try{
 
-            let pingData = 0;
-    
-            for(let i = 0; i < this.players.length; i++){
+        const start = performance.now();
+        
+        let pingData = 0;
 
-                const p = this.players[i];
+        for(let i = 0; i < this.players.length; i++){
 
-                //if(p.bDuplicate === undefined){
+            const p = this.players[i];
+            pingData = this.pingManager.getPlayerValues(p.masterId);
 
-                    pingData = this.pingManager.getPlayerValues(p.masterId);
-
-                    if(pingData === null){
-                        pingData = {
-                            "min": 0,
-                            "average": 0,
-                            "max": 0
-                        };
-                    }
-
-                    if(this.bIgnoreBots){
-
-                        if(p.bBot) continue;
-                      
-                    }
-
-                    p.matchId = await Player.insertMatchData(p, matchId, gametypeId, mapId, matchDate, pingData, this.totalTeams);
-
-                    
-                    
-                //}else{
-                //    new Message(`${p.name} is a duplicate not inserting match data.`,'note');
-                //}
+            if(pingData === null){
+                pingData = {
+                    "min": 0,
+                    "average": 0,
+                    "max": 0
+                };
             }
 
-            //console.log(this.players);
+            if(this.bIgnoreBots){
 
-        }catch(err){
-            new Message(`insertMatchData ${err}`,'error');
+                if(p.bBot) continue;      
+            }
+
+            await insertMatchData(p, matchId, gametypeId, mapId, matchDate, pingData, this.totalTeams);
         }
+
+        const end = performance.now();
+
+        console.log((end - start) * 0.001);
+        //console.log(this.players);
+
+      
     }
 
 

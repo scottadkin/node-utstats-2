@@ -569,7 +569,6 @@ const queries = [
         hwid varchar(32) NOT NULL,
         bot tinyint(1) NOT NULL,
         spectator tinyint(1) NOT NULL,
-        played tinyint(1) NOT NULL,
         ip varchar(50) NOT NULL,
         country varchar(5) NOT NULL,
         face int(11) NOT NULL,
