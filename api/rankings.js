@@ -772,9 +772,8 @@ async function bulkUpdatePlayerCurrent(gametypeId, playerIds, data){
 
     for(const [playerId, playerData] of Object.entries(data)){
 
-
         insertVars.push([
-            playerId, gametypeId, playerData.matches, playerData.playtime, playerData.currentScore, playerData.rankingChange, playerData.matchDate,
+            playerId, gametypeId, playerData.matches, playerData.playtime, playerData.score, playerData.rankingChange, playerData.matchDate,
         ]);
     }
 
@@ -874,6 +873,33 @@ async function deletePlayerGametype(playerId, gametypeId){
     await simpleQuery(`DELETE FROM nstats_ranking_player_history WHERE player_id=? AND gametype=?`, [playerId, gametypeId]);
 }
 
+async function insertPlayerGametypeHistory(playerId, gametypeId, data){
+
+
+    let previousRanking = 0;
+
+    const insertVars = [];
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        const rankingChange = d.rankingAfterMatch - previousRanking;
+
+        previousRanking = d.rankingAfterMatch;
+
+        insertVars.push([
+            d.matchId, playerId, gametypeId, d.rankingAfterMatch, d.currentScore, rankingChange
+        ]);
+    }
+
+
+    const query = `INSERT INTO nstats_ranking_player_history (match_id,player_id,gametype,ranking,match_ranking,ranking_change) VALUES ?`;
+
+    await bulkInsert(query, insertVars);
+
+}
+
 async function recalculatePlayerGametype(playerId, gametypeId, settings, generalColumns, ctfColumns){
 
     const gColoumns = generalColumns.map((c) =>{
@@ -950,12 +976,9 @@ async function recalculatePlayerGametype(playerId, gametypeId, settings, general
 
     test[playerId] = totals;
 
-    await insertPlayerHistory(test, gametypeId);
-
+    await insertPlayerGametypeHistory(playerId, gametypeId, totals.matchResults);
     
-
     await bulkUpdatePlayerCurrent(gametypeId, [playerId], test);
-    //await bulkUpdatePlayerCurrent(gametypeId, [playerId], {"playerId": players});
 
 }
 
