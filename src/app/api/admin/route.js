@@ -526,6 +526,8 @@ export async function POST(req){
             
 
             await deletePlayerFromMatch(playerId, matchId);
+
+            return Response.json({"message": "passed"});
         }
 
         return Response.json({"error": "Unknown Request"});

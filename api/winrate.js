@@ -347,7 +347,7 @@ async function deletePlayers(playerIds){
     await simpleQuery(query, [playerIds]);
 }
 
-async function recalculatePlayers(playerIds, gametypeId, mapId){
+export async function recalculatePlayers(playerIds){
 
     if(playerIds.length === 0) return;
 

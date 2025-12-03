@@ -2,7 +2,7 @@ import Player from "./player.js";
 import { simpleQuery, bulkInsert, updateReturnAffectedRows, getAllTablesContainingColumns } from "./database.js";
 import { removeIps, setIdNames, getUniqueValues, getPlayer, DEFAULT_DATE, DEFAULT_MIN_DATE, removeUnr } from "./generic.mjs";
 import { getPlayerMatchCTFData ,  deletePlayerData as deletePlayerCTFData, deletePlayerFromMatch as deletePlayerMatchCTF} from "./ctf.js";
-import { getPlayersBasic as getBasicWinrateStats } from "./winrate.js";
+import { getPlayersBasic as getBasicWinrateStats, recalculatePlayers as recalculatePlayersWinrates } from "./winrate.js";
 import { deletePlayer as deletePlayerAssaultData, deletePlayerFromMatch as deletePlayerMatchAssault } from "./assault.js";
 import { recalculateTotals as reclaculateCountryTotals } from "./countriesmanager.js";
 import { deletePlayerData as deletePlayerHeadshots } from "./headshots.js";
@@ -2574,9 +2574,7 @@ export async function deletePlayerFromMatch(playerId, matchId){
 
     await deletePlayerMatchRankings(playerId, matchId, ids.gametype, ids.map);
 
-    /**
-    nstats_winrates_latest: 'player',
-    */
+    await recalculatePlayersWinrates([playerId]);
 
 }
 

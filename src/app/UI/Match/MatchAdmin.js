@@ -126,6 +126,14 @@ async function deletePlayerFromMatch(playerId, matchId, dispatch, mDispatch){
 
         if(res.error !== undefined) throw new Error(res.error);
 
+        await loadData(dispatch, mDispatch, matchId);
+        mDispatch({
+            "type": "set-message", 
+            "messageType": 
+            "pass", "title": "Played Deleted",
+            "content": `Player deleted successfully`
+        });
+
     }catch(err){
 
         console.trace(err);
