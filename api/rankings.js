@@ -773,7 +773,7 @@ async function bulkUpdatePlayerCurrent(gametypeId, playerIds, data){
     for(const [playerId, playerData] of Object.entries(data)){
 
         insertVars.push([
-            playerId, gametypeId, playerData.matches, playerData.playtime, playerData.score, playerData.rankingChange, playerData.matchDate,
+            playerId, gametypeId, playerData.matches, playerData.playtime, playerData.currentScore, playerData.rankingChange, playerData.matchDate,
         ]);
     }
 

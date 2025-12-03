@@ -1544,21 +1544,7 @@ export default class PlayerManager{
         
             let currentResult = p.matchResult;
             
-
-            //playerIds.add(p.masterId);
-
             playerResults[p.masterId] = currentResult;
-
-            /*
-            //map + gametype win rates
-            await this.winRateManager.updatePlayerLatest(p.masterId, gametypeId, mapId, currentResult, matchDate, matchId);
-            //gametype win rates
-            await this.winRateManager.updatePlayerLatest(p.masterId, gametypeId, 0, currentResult, matchDate, matchId);
-            //map win rates
-            await this.winRateManager.updatePlayerLatest(p.masterId, 0, mapId, currentResult, matchDate, matchId);
-            //all time win rate
-            await this.winRateManager.updatePlayerLatest(p.masterId, 0, 0, currentResult, matchDate, matchId);
-            */
         }
 
         // gametype & map combo

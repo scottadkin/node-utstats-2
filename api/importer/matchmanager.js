@@ -336,11 +336,9 @@ export default class MatchManager{
             await this.playerManager.insertScoreHistory(this.matchId);
             new Message(`Inserted player score history`,'pass');
 
-            const tstart = performance.now();
             new Message(`Updating player winrates.`,'note');
             await this.playerManager.updateWinRates(this.matchId, this.serverInfo.date, this.gametype.currentMatchGametype, this.mapInfo.mapId);
-            const tend = performance.now();
-            console.log((tend - tstart) * 0.001);
+
     
             new Message(`Update player spree history`,'note');
 

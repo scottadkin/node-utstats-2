@@ -310,48 +310,119 @@ async function recalculatePlayer(playerId, gametypeId, mapId, matchDate){
     
 }
 
+
+async function bulkInsertPlayers(data){
+
+    const insertVars = [];
+
+    for(const [playerId, playerData] of Object.entries(data)){
+
+        for(const [gametypeId, gametypeData] of Object.entries(playerData)){
+
+            for(const [mapId, d] of Object.entries(gametypeData)){
+
+                insertVars.push([
+                    d.latest_match, playerId, gametypeId, mapId, d.matches,
+                    d.wins, d.draws, d.losses, d.winrate, d.current_streak_type,
+                    d.current_streak, d.max_win_streak, d.max_draw_streak, d.max_lose_streak
+                ]);
+            }
+        }
+    }
+
+    const query = `INSERT INTO nstats_winrates_latest (date,player,gametype,
+    map,matches,wins,draws,losses,winrate,current_streak_type,current_streak,
+    max_win_streak,max_draw_streak,max_lose_streak) VALUES ?`;
+
+    await bulkInsert(query, insertVars);
+}
+
+
+async function deletePlayers(playerIds){
+
+    if(playerIds.length === 0) return;
+
+    const query = `DELETE FROM nstats_winrates_latest WHERE player IN (?)`;
+
+    await simpleQuery(query, [playerIds]);
+}
+
+async function recalculatePlayers(playerIds, gametypeId, mapId){
+
+    if(playerIds.length === 0) return;
+
+    const query = `SELECT player_id,gametype,map_id,match_result,match_date FROM nstats_player_matches WHERE player_id IN(?) AND match_result!='s'`;
+
+    const result = await simpleQuery(query, [playerIds]);
+
+    const players = {};
+    
+    //playerId => gametypeId => mapId
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        if(players[r.player_id] === undefined){
+            players[r.player_id] = {};
+        }
+
+        if(players[r.player_id][0] === undefined){
+            players[r.player_id][0] = {};
+        }
+
+        if(players[r.player_id][r.gametype] === undefined){
+            players[r.player_id][r.gametype] = {};
+        }
+
+        //all time totals
+        if(players[r.player_id][0][0] === undefined){
+            players[r.player_id][0][0] = {...DEFAULT_HISTORY_OBJECT};
+        }
+
+        //gametype + map totals
+        if(players[r.player_id][r.gametype][r.map_id] === undefined){
+            players[r.player_id][r.gametype][r.map_id] = {...DEFAULT_HISTORY_OBJECT};
+        }
+
+        //map all time totals
+        if(players[r.player_id][0][r.map_id] === undefined){
+            players[r.player_id][0][r.map_id] = {...DEFAULT_HISTORY_OBJECT};
+        }
+
+         //gametype totals
+        if(players[r.player_id][r.gametype][0] === undefined){
+            players[r.player_id][r.gametype][0] = {...DEFAULT_HISTORY_OBJECT};
+        }
+
+        const allTime = players[r.player_id][0][0];
+        const gametype = players[r.player_id][r.gametype][0];
+        const map = players[r.player_id][0][r.map_id];
+        const gametypeMap = players[r.player_id][r.gametype][r.map_id];
+
+        allTime.latest_match = r.match_date;
+        gametype.latest_match = r.match_date;
+        map.latest_match = r.match_date;
+        gametypeMap.latest_match = r.match_date;
+
+        updateHistoryObject(allTime, r.match_result);
+        updateHistoryObject(gametype, r.match_result);
+        updateHistoryObject(map, r.match_result);
+        updateHistoryObject(gametypeMap, r.match_result);
+    }
+
+    await deletePlayers(playerIds);
+    await bulkInsertPlayers(players);
+}
+
 export async function updatePlayerWinrates(playerResults, gametypeId, mapId, matchDate){
 
     const playerIds = Object.keys(playerResults);
 
     if(playerIds.length === 0) return;
 
-    /*const playerLatestDates = await getPlayerLatestWinrateDate(playerIds, gametypeId, mapId);
-
-    const needRecalculate = [];
-
-    for(const [playerId, date] of Object.entries(playerLatestDates)){
-
-        if(date > matchDate){
-            needRecalculate.push(playerId);
-        }
-    }*/
-
-    const latestData = await getPlayerCurrent(playerIds, gametypeId, mapId);
+    await recalculatePlayers(playerIds, gametypeId, mapId);
     
-
-    for(const [playerId, playerData] of Object.entries(latestData)){
-
-        if(playerData === null){
-            //insert new player winrate
-            await insertNewPlayer(playerId, playerResults[playerId], matchDate, gametypeId, mapId);
-        }else{
-            
-           // if(needRecalculate.indexOf(playerId) === -1){
-                //console.log(`update existing`);
-
-                //await updateExistingPlayer(playerId, playerData, playerResults[playerId], matchDate, matchId, gametypeId, mapId);
-           // }else{
-                //console.log(`NEED TO RECALC`);
-                await recalculatePlayer(playerId, gametypeId, mapId, matchDate);
-           // }
-        }
-    }
-
-    //all time
-    //gametype
-    //map
-    //gametype & map combo
 }
 
 export async function getPlayersBasic(playerIds, gametypeId, mapId){
