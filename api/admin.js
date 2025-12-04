@@ -73,6 +73,7 @@ export default class Admin{
             "dom_match_control_points",
             "dom_match_player_score",
             "faces",
+            "faces_totals",
             "gametypes",
             "headshots",
             "hwid_to_name",

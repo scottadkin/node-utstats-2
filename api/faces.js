@@ -1,4 +1,4 @@
-import { simpleQuery, insertReturnInsertId } from "./database.js";
+import { simpleQuery, insertReturnInsertId, bulkInsert } from "./database.js";
 import { DEFAULT_DATE, DEFAULT_MIN_DATE } from "./generic.mjs";
 import Message from "./message.js";
 import fs from "fs";
@@ -9,150 +9,72 @@ export default class Faces{
 
     }
 
-    async create(name){
 
-        name = name.toLowerCase();
+    async createMissing(missing){
 
-        const query = "INSERT INTO nstats_faces VALUES(NULL,?,?,?,0)";
+        if(missing.length === 0) return {};
+        const query = `INSERT INTO nstats_faces (name) VALUES ?`;
 
-        return await insertReturnInsertId(query, [name, DEFAULT_MIN_DATE, DEFAULT_DATE]);
+        const insertVars = [];
 
+        for(let i = 0; i < missing.length; i++){
+
+            const m = missing[i];
+            insertVars.push([m]);
+        }
+
+        await bulkInsert(query, insertVars);
+
+        return await this.getIds(missing);
     }
 
+    async getIds(names){
 
-    async getIdByName(name){
+        if(names.length === 0) return {};
 
-        name = name.toLowerCase();
+        const query = `SELECT id,name FROM nstats_faces WHERE name IN (?)`;
 
-        const query = `SELECT id FROM nstats_faces WHERE name=? LIMIT 1`;
+        const result = await simpleQuery(query,[names]);
 
-        const result = await simpleQuery(query, [name]);
+        const found = {};
+        const missing = [...names];
 
-        if(result.length > 0) return result[0].id;
+        for(let i = 0; i < result.length; i++){
 
-        return null;
+            const r = result[i];
+            found[r.name] = r.id;
+            const index = missing.indexOf(r.name);
+
+            if(index !== -1) missing.splice(index, 1);
+        }
+
+        const newFaces = await this.createMissing(missing);
+
+        return {...found, ...newFaces};
     }
 
+    async setPlayerFaces(players){
 
-    async getFaceId(name, bCreate){
+        new Message(`Setting player faces`,'note');
 
-        try{
+        const usageData = {};
 
-            const currentId = await this.getIdByName(name);
+        for(let i = 0; i < players.length; i++){
 
-            if(currentId === null){
+            const p = players[i];
 
-                if(bCreate !== undefined){
+            if(p.bSpectator) continue;
 
-                    new Message(`A face with the name ${name} does not exist, creating one now.`,'note');
-
-                    const newId = await this.create(name);
-
-                    new Message(`The face ${name} was inserted with the id of ${newId}`,'pass');
-
-                    return newId;
-
-                }else{
-                    new Message(`A face with that name does not exist, set bCreate to true to create one.`, 'warning');
-                }
-
+            if(usageData[p.face] === undefined){
+                usageData[p.face] = 1;
             }else{
-
-                return currentId;
+                usageData[p.face]++;
             }
-
-            return null;
-
-        }catch(err){
-            throw new Error(err);
-            new Message(`Failed to get FaceId ${err}`,'warning');
         }
-    }
 
-    async updateQuery(id, uses, date){
+        this.usedFaces = await this.getIds(Object.keys(usageData));       
 
-        const query = `UPDATE nstats_faces SET uses=uses+?,
-            first = IF(? < first, ?, first),
-            last = IF(? > last, ?, last)
-            WHERE id=?`;
-
-        const vars = [uses, date, date, date, date, id];
-
-        return await simpleQuery(query, vars);
-    }
-
-    async update(name, uses, date){
-
-        try{
-
-            name = name.toLowerCase();
-
-            const id = await this.getFaceId(name, true);
-
-            await this.updateQuery(id, uses, date);
-
-        }catch(err){
-            new Message(`Failed to update face ${name} with ${uses} uses with date ${date}. ${err}`,'warning');
-        }
-    }
-
-    async updateFaceStats(players, date){
-
-        try{
-
-            new Message(`Starting face stats update`,'note');
-
-            const usageData = {};
-
-            for(let i = 0; i < players.length; i++){
-
-                const p = players[i];
-
-                if(p.bDuplicate === undefined){
-
-                    if(usageData[p.face] === undefined){
-                        usageData[p.face] = 1;
-                    }else{
-                        usageData[p.face]++;
-                    }
-                }
-              
-            }
-
-            const usedFaces = [];
-
-            for(const c in usageData){
-                await this.update(c, usageData[c], date);
-                usedFaces.push(c);
-            }
-
-            await this.setUsedFaces(usedFaces);
-
-            new Message(`Updated face stats in database.`,'pass');
-
-        }catch(err){
-            new Message(`Failed to updateFaceStats ${err}`,'warning');
-        }
-    }
-
-    async setUsedFaces(faces){
-
-        try{
-
-            const results = [];
-
-            for(let i = 0; i < faces.length; i++){
-
-                const currentId = await this.getFaceId(faces[i]);
-
-                results[faces[i]] = currentId;
-            }
-
-            this.usedFaces = results;
-
-        }catch(err){
-            console.trace(err);
-        }
+        this.setPlayerFaceIds(players);
     }
 
     setPlayerFaceIds(players){
@@ -169,15 +91,6 @@ export default class Faces{
         }
     }
     
-    async updatePlayerFace(player, face){
-
-        face = parseInt(face);
-        if(face !== face) face = 0;
-
-        const query = `UPDATE nstats_player SET face=? WHERE id=?`;
-
-        return await simpleQuery(query, [face, player]);
-    }
 
     static imageExists(name){
 
@@ -224,12 +137,12 @@ export default class Faces{
 
     async getFacesName(faces){
 
-        const query = "SELECT id,name FROM nstats_faces WHERE id IN(?)";
+        const query = `SELECT id,name 
+        FROM nstats_faces WHERE id IN(?)`;
 
         return await simpleQuery(query, [faces]);
 
     }
-
 
     async getAll(){
 
@@ -240,72 +153,6 @@ export default class Faces{
     getAllFiles(){
         return fs.readdirSync("./public/images/faces");
     }
-
-
-    async deletePlayer(matches){
-
-        try{
-
-            let m = 0
-
-            const uses = {};
-
-            for(let i = 0; i < matches.length; i++){
-
-                m = matches[i];
-
-                if(uses[m.face] === undefined){
-                    uses[m.face] = 0;
-                }
-
-                uses[m.face]++;
-            }
-
-            for(const [key, value] of Object.entries(uses)){
-                await this.reduceUsage(parseInt(key), value);
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
-
-    async reduceUses(id, uses){
-
-        await simpleQuery("UPDATE nstats_faces SET uses=uses-? WHERE id=?", [uses, id]);
-    }
-
-    async deleteViaPlayerMatchesData(playersData){
-
-        try{
-
-            const uses = {};
-
-            let p = 0;
-
-            for(let i = 0; i < playersData.length; i++){
-
-                p = playersData[i];
-
-                if(uses[p.face] === undefined){
-                    uses[p.face] = 0;
-                }
-
-                uses[p.face]++;
-            }
-
-
-            for(const [key, value] of Object.entries(uses)){
-
-                await this.reduceUses(parseInt(key), value);
-            }
-            
-        }catch(err){
-            console.trace(err);
-        }
-    }
-
 
     getRandom(amount){
 
@@ -342,9 +189,12 @@ export async function getFacesById(ids, bReturnArray){
     if(ids.length === 0) return {};
     if(bReturnArray === undefined) bReturnArray = false;
 
-    const query = `SELECT id,name FROM nstats_faces WHERE id IN(?)`;
+    const query = `SELECT id,name 
+    FROM nstats_faces WHERE id IN(?)`;
 
     const result = await simpleQuery(query, [ids]);
+
+    console.log(result);
 
     if(bReturnArray) return result;
 
@@ -439,7 +289,7 @@ export async function getFacesWithFileStatuses(faceIds){
 
 export async function getMostUsed(limit){
 
-    const query = "SELECT * FROM nstats_faces ORDER BY uses DESC LIMIT ?";
+    const query = "SELECT * FROM nstats_faces_totals ORDER BY uses DESC LIMIT ?";
 
     return await simpleQuery(query, [limit]);
 }
@@ -447,7 +297,8 @@ export async function getMostUsed(limit){
 
 export async function getAllFaces(){
 
-    const query = "SELECT id,name,first,last,uses FROM nstats_faces ORDER BY uses DESC";
+    const query = `SELECT nstats_faces.id,nstats_faces.name,nstats_faces_totals.first,nstats_faces_totals.last,
+    nstats_faces_totals.uses FROM nstats_faces_totals LEFT JOIN nstats_faces_totals ON nstats_faces_totals.face_id = nstats_faces.id ORDER BY uses DESC`;
     return await simpleQuery(query);
 
 }
@@ -543,7 +394,7 @@ export async function recalculateSelectedTotals(faceIds){
 
     const totals = await getFacesTotalUsesFromMatchesTable(faceIds);
 
-    const query = `UPDATE nstats_faces SET first=?,last=?,uses=? WHERE id=?`;
+    const query = `UPDATE nstats_faces_totals SET first=?,last=?,uses=? WHERE face_id=?`;
 
     const toDelete = [];
 
@@ -562,6 +413,35 @@ export async function recalculateSelectedTotals(faceIds){
     }
 
     await deleteFacesTotals(toDelete);
+}
 
-  
+async function calcTotalsFromMatchData(usedFaces){
+
+    if(Object.keys(usedFaces).length === 0) return;
+
+    const query = `SELECT face,COUNT(*) as total_uses,MIN(match_date) as first_match,MAX(match_date) as last_match FROM nstats_player_matches WHERE face IN (?) GROUP BY face`;
+
+    const result = await simpleQuery(query, [Object.values(usedFaces)]);
+
+    return result;
+}
+
+export async function updateTotals(usedFaces){
+
+    if(Object.keys(usedFaces).length === 0) return;
+
+    const totals = await calcTotalsFromMatchData(usedFaces);
+
+    const insertVars = [];
+
+    for(let i = 0; i < totals.length; i++){
+
+        const t = totals[i];
+
+        insertVars.push([t.face, t.first_match, t.last_match, t.total_uses]);
+    }
+
+    const query = `INSERT INTO nstats_faces_totals (face_id,first,last,uses) VALUES ?`;
+
+    await bulkInsert(query, insertVars);
 }

@@ -23,6 +23,7 @@ import CombogibManager from "./combogibmanager.js";
 import geoip from "geoip-lite";
 import md5 from "md5";
 import { calculateMapTotals } from "../maps.js";
+import { updateTotals as updateFaceTotals } from "../faces.js";
 
 export default class MatchManager{
 
@@ -173,9 +174,9 @@ export default class MatchManager{
             await this.insertMatch();
             new Message(`Inserted match info into database.`,'pass');
 
-            await this.playerManager.updateFaces(this.serverInfo.date);
-            await this.playerManager.updateVoices(this.serverInfo.date);
+            
             await this.playerManager.setIpCountry();
+            
 
             this.playerManager.pingManager.parsePings(this.playerManager);
             await this.playerManager.pingManager.insertPingData(this.matchId);
@@ -194,13 +195,24 @@ export default class MatchManager{
             if(!bLMS){
                 this.setMatchWinners();
             }
+            
+            await this.playerManager.setPlayerFaces(this.serverInfo.date);
 
             await this.playerManager.insertMatchData(
                 this.gametype.currentMatchGametype, 
                 this.matchId, this.mapInfo.mapId, 
                 this.serverInfo.date
             );
+
+            await updateFaceTotals(this.playerManager.faces.usedFaces);
+
+
+           
+
             new Message(`Updated player match data.`,'pass');
+
+            await this.playerManager.updateVoices(this.serverInfo.date);
+       
             
             await this.serverInfo.setLastIds(this.serverId, this.matchId, this.mapInfo.mapId);
             

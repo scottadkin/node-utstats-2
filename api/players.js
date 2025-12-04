@@ -2807,3 +2807,17 @@ export async function insertMatchData(player, matchId, gametypeId, mapId, matchD
 
     return result.insertId;
 }
+
+
+export async function setPlayersFaces(players){
+
+
+    const query = `UPDATE nstats_player SET face=? WHERE id=?`;
+
+    for(let i = 0; i < players.length; i++){
+
+        const p = players[i];
+        await simpleQuery(query, [p.faceId, p.masterId]);
+    }
+
+}

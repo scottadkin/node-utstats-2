@@ -645,7 +645,7 @@ class MatchScreenshot{
 
             const p = this.players[i];
 
-            if(!p.played || p.playtime === 0) continue;
+            if(p.spectator || p.playtime === 0) continue;
 
             if(!this.bClassic){
                 this.renderStandardTeamGamePlayer(c, p.team, p.name, p.score, p.playtime, Math.floor(p.ping_average), p.country);
@@ -744,7 +744,7 @@ class MatchScreenshot{
             const p = this.players[i];
             c.font = this.y(2)+"px Arial";
 
-            if(!p.played || p.playtime === 0) continue;
+            if(p.spectator || p.playtime === 0) continue;
             
             if(!this.bClassic){
                 this.renderStandardPlayer(c, playerIndex, p.name, p.score, p.deaths, p.ping_average, p.playtime, p.country);

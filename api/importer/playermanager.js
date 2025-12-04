@@ -13,7 +13,7 @@ import SpreeManager  from "./spreemanager.js";
 import {scalePlaytime} from "../functions.js";
 import { updatePlayerWinrates } from "../winrate.js";
 import { updatePlayerRankings } from "../rankings.js";
-import { recalculateTotals, insertMatchData, bulkInsertMatchData } from "../players.js";
+import { recalculateTotals, insertMatchData, bulkInsertMatchData, setPlayersFaces } from "../players.js";
 
 export default class PlayerManager{
 
@@ -1237,28 +1237,11 @@ export default class PlayerManager{
 
     
 
-    async updateFaces(date){
+    async setPlayerFaces(date){
+  
+        await this.faces.setPlayerFaces(this.players, date);
 
-        try{
-
-            await this.faces.updateFaceStats(this.players, date);
-            this.faces.setPlayerFaceIds(this.players);
-
-            for(let i = 0; i < this.players.length; i++){
-
-                const p = this.players[i];
-
-                const playtime = p.getTotalPlaytime(this.totalTeams);
-
-                if(playtime > 0){
-                    if(this.bIgnoreBots && p.bBot) continue;
-                    await this.faces.updatePlayerFace(p.masterId, p.faceId);
-                }
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
+        await setPlayersFaces(this.players);
     }
 
     async updateIpCountry(id, ip, country){
@@ -1381,38 +1364,34 @@ export default class PlayerManager{
 
     async updateVoices(date){
 
-        try{
+        const data = {};
 
-            const data = {};
+        for(let i = 0; i < this.players.length; i++){
+            
+            const p = this.players[i];
 
-            for(let i = 0; i < this.players.length; i++){
-                
-                const p = this.players[i];
+            const playtime = p.getTotalPlaytime(this.totalTeams);
 
-                const playtime = p.getTotalPlaytime(this.totalTeams);
+            if(this.bIgnoreBots && p.bBot) continue;
+            
+            if(playtime > 0){
 
-                if(this.bIgnoreBots && p.bBot) continue;
-                
-                if(playtime > 0){
-
-                    if(data[p.voice] === undefined){
-                        data[p.voice] = 1;
-                    }else{
-                        data[p.voice]++;
-                    }
+                if(data[p.voice] === undefined){
+                    data[p.voice] = 1;
+                }else{
+                    data[p.voice]++;
                 }
-
             }
 
-            await this.voices.updateStatsBulk(data, date);
-
-            await this.voices.getAllIds();
-
-            this.voices.setPlayerVoices(this.players);
-
-        }catch(err){
-            new Message(`updateVoices ${err}`,'error');
         }
+
+        await this.voices.updateStatsBulk(data, date);
+
+        await this.voices.getAllIds();
+
+        await this.voices.setPlayerVoices(this.players);
+
+       
     }
 
 
