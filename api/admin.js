@@ -123,6 +123,7 @@ export default class Admin{
             "sprees",
             "tele_frags",
             "voices",
+            "voices_totals",
             "weapons",
             "winrates_latest",
         ];

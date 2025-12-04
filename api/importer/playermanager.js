@@ -14,6 +14,7 @@ import {scalePlaytime} from "../functions.js";
 import { updatePlayerWinrates } from "../winrate.js";
 import { updatePlayerRankings } from "../rankings.js";
 import { recalculateTotals, insertMatchData, bulkInsertMatchData, setPlayersFaces } from "../players.js";
+import { getIds as getVoicesIds } from "../voices.js";
 
 export default class PlayerManager{
 
@@ -1362,7 +1363,7 @@ export default class PlayerManager{
         return found;
     }
 
-    async updateVoices(date){
+    async updateVoices(){
 
         const data = {};
 
@@ -1382,16 +1383,21 @@ export default class PlayerManager{
                     data[p.voice]++;
                 }
             }
-
         }
 
-        await this.voices.updateStatsBulk(data, date);
 
-        await this.voices.getAllIds();
+        const voiceIds = await getVoicesIds(Object.keys(data));
 
-        await this.voices.setPlayerVoices(this.players);
+        for(let i = 0; i < this.players.length; i++){
 
-       
+            const p = this.players[i];
+
+            if(voiceIds[p.voice] !== undefined){
+                p.voiceId = voiceIds[p.voice];
+            }
+        }
+
+        this.usedVoices = voiceIds;
     }
 
 

@@ -862,7 +862,11 @@ const queries = [
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_voices (
         id int(11) NOT NULL AUTO_INCREMENT,
-        name varchar(100) NOT NULL,
+        name varchar(100) NOT NULL
+      ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+      `CREATE TABLE IF NOT EXISTS nstats_voices_totals (
+        id int(11) NOT NULL AUTO_INCREMENT,
+        voice_id int(11) NOT NULL,
         first DATETIME NOT NULL,
         last DATETIME NOT NULL,
         uses int(11) NOT NULL

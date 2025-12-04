@@ -24,6 +24,7 @@ import geoip from "geoip-lite";
 import md5 from "md5";
 import { calculateMapTotals } from "../maps.js";
 import { updateTotals as updateFaceTotals } from "../faces.js";
+import { recalculateTotals as recalculateVoices } from "../voices.js";
 
 export default class MatchManager{
 
@@ -197,6 +198,7 @@ export default class MatchManager{
             }
             
             await this.playerManager.setPlayerFaces(this.serverInfo.date);
+            await this.playerManager.updateVoices(this.serverInfo.date);
 
             await this.playerManager.insertMatchData(
                 this.gametype.currentMatchGametype, 
@@ -205,13 +207,14 @@ export default class MatchManager{
             );
 
             await updateFaceTotals(this.playerManager.faces.usedFaces);
+            await recalculateVoices(Object.values(this.playerManager.usedVoices));
 
 
            
 
             new Message(`Updated player match data.`,'pass');
 
-            await this.playerManager.updateVoices(this.serverInfo.date);
+            
        
             
             await this.serverInfo.setLastIds(this.serverId, this.matchId, this.mapInfo.mapId);

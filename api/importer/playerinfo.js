@@ -19,6 +19,7 @@ export default class PlayerInfo{
         this.bSpectator = bSpectator;
         this.face = 0;
         this.faceId = 0;
+        this.voiceId = 0;
         this.HWID = HWID;
 
         this.bConnectedToServer = false;

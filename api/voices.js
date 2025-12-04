@@ -1,4 +1,4 @@
-import { simpleQuery } from './database.js';
+import { simpleQuery, bulkInsert } from './database.js';
 import Message from './message.js';
 
 export default class Voices{
@@ -20,46 +20,15 @@ export default class Voices{
 
     async create(name, date, uses){
 
-        const query = "INSERT INTO nstats_voices VALUES(NULL,?,?,?,?)";
+        const query = "INSERT INTO nstats_voices VALUES(NULL,?)";
 
-        return await simpleQuery(query, [name, date, date, uses]);
+        return await simpleQuery(query, [name]);
     }
 
 
-    async updateStats(name, date, uses){
-
-        const query = `UPDATE nstats_voices SET 
-            uses=uses+?,
-            first = IF(first < ?, first, ?),
-            last = IF(last > ?, last, ?)
-            
-            WHERE name=?`;
-
-        const vars = [uses, date, date, date, date, name];
-        
-        return await simpleQuery(query, vars);
-    }
 
     async updateStatsBulk(data, matchDate){
        
-        try{
-
-            for(const voice in data){
-
-                if(await this.exists(voice)){
-
-                    //new Message(`Updating voice stats for "${voice}".`,'note');
-                    await this.updateStats(voice, matchDate, data[voice]);
-
-                }else{
-                    //new Message(`There is no data for the voice "${voice}", creating now.`,'note');
-                    await this.create(voice, matchDate, data[voice]);
-                }
-            }    
-
-        }catch(err){
-            new Message(`updateStats ${err}`,'error');
-        }
     }
 
 
@@ -97,6 +66,9 @@ export default class Voices{
 
     async setPlayerVoices(players){
 
+        console.log(`set before isnertplayermatch data`);
+        return;
+
         for(let i = 0; i < players.length; i++){
 
             const p = players[i];
@@ -111,76 +83,51 @@ export default class Voices{
                 p.voiceId = 0;
                 //new Message(`Failed to update player voice`,'warning');
             }
-
-        }
-   
-    }
-
-
-    async reduceTotals(id, amount){
-
-        const query = "UPDATE nstats_voices SET uses=uses-? WHERE id=?";
-        const vars = [amount, id];
-
-        await simpleQuery(query, vars);
-   
-    }
-
-
-    async deletePlayer(matches){
-
-        try{
-
-            const uses = {};
-
-            for(let i = 0; i < matches.length; i++){
-
-                const m = matches[i];
-
-                if(uses[m.voice] === undefined){
-                    uses[m.voice] = 0;
-                }
-
-                uses[m.voice]++;
-            }
-
-
-            for(const [key, value] of Object.entries(uses)){
-
-                await this.reduceTotals(parseInt(key), value);
-            }
-
-        }catch(err){
-            console.trace(err);
         }
     }
+}
 
-    async reduceViaPlayerMatchData(data){
+async function bulkInsertNewVoices(voices){
 
-        try{
+    if(voices.length === 0) return {};
 
-            const uses = {};
+    const query = `INSERT INTO nstats_voices (name) VALUES ?`;
 
-            for(let i = 0; i < data.length; i++){
+    const insertVars = [];
 
-                const d = data[i];
+    for(let i = 0; i < voices.length; i++){
 
-                if(uses[d.voice] === undefined){
-                    uses[d.voice] = 0;
-                }
-
-                uses[d.voice]++;
-            }
-
-            for(const [voice, count] of Object.entries(uses)){
-
-                await this.reduceTotals(parseInt(voice), count);
-            }
-
-        }catch(err){
-            console.trace(err);
-        }
+        insertVars.push([voices[i]])
     }
+
+    await bulkInsert(query, insertVars);
+    return await getIds(voices);
+}
+
+export async function getIds(names){
+
+    if(names.length === 0) return {};
+
+    const query = `SELECT id,name FROM nstats_voices WHERE name IN (?)`;
+
+    const result = await simpleQuery(query, [names]);
+
+    const missing = [...names];
+    const found = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        found[r.name] = r.id;
+
+        const index = missing.indexOf(r.name);
+
+        if(index !== -1) missing.splice(index, 1);
+
+    }
+
+    return {...found, ...await bulkInsertNewVoices(missing)};
 }
 
 
@@ -188,7 +135,7 @@ async function calculateTotalsFromMatchTable(voiceIds){
 
     if(voiceIds.length === 0) return {};
 
-    const query = `SELECT voice,COUNT(*) as total_uses,MIN(match_date) as first_match,MAX(match_Date) as last_match FROM nstats_player_matches WHERE face IN (?) GROUP BY voice`;
+    const query = `SELECT voice,COUNT(*) as total_uses,MIN(match_date) as first_match,MAX(match_Date) as last_match FROM nstats_player_matches WHERE voice IN (?) GROUP BY voice`;
 
     const result = await simpleQuery(query, [voiceIds]);
 
@@ -211,27 +158,37 @@ async function deleteVoice(id){
     return await simpleQuery(query, [id]);
 }
 
+
+async function deleteVoicesTotals(ids){
+
+    if(ids.length === 0) return;
+
+    const query = `DELETE FROM nstats_voices_totals WHERE voice_id IN (?)`;
+
+    return await simpleQuery(query, [ids]);
+}
+
+
+
 export async function recalculateTotals(voiceIds){
+
 
     if(voiceIds.length === 0) return;
 
+    await deleteVoicesTotals(voiceIds);
+
     const totals = await calculateTotalsFromMatchTable(voiceIds);
 
-    const query = `UPDATE nstats_voices SET uses=?,first=?,last=? WHERE id=?`;
+    const insertVars = [];
 
+    const query = `INSERT INTO nstats_voices_totals (voice_id,first,last,uses) VALUES ?`;
 
-    for(let i = 0; i < voiceIds.length; i++){
+    for(const t of Object.values(totals)){
 
-        const id = voiceIds[i];
-
-        if(totals[id] === undefined){
-
-            await deleteVoice(id);
-
-        }else{
-
-            const t = totals[id];
-            await simpleQuery(query, [t.total_uses, t.first_match, t.last_match, t.voice]);
-        }
+        insertVars.push([
+            t.voice, t.first_match, t.last_match, t.total_uses
+        ]);
     }
+
+    await bulkInsert(query, insertVars);
 }
