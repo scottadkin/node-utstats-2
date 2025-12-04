@@ -1,7 +1,5 @@
 import { simpleQuery, bulkInsert } from "./database.js";
 import { DEFAULT_DATE, DEFAULT_MIN_DATE, toMysqlDate } from "./generic.mjs";
-import { getObjectName } from "./genericServerSide.mjs";
-import Message from "./message.js";
 
 export const ITEM_TYPES = {
     "0": "Unsorted",
@@ -80,40 +78,12 @@ export default class Items{
         return result[0].total_pickups > 0;
     }
 
-    async create(name, uses, date){
+    async create(name){
 
-        const query = "INSERT INTO nstats_items VALUES(NULL,?,?,?,?,?,1,0)";
+        const query = "INSERT INTO nstats_items VALUES(NULL,?,?,0)";
 
-        return await simpleQuery(query, [name, name, date, date, uses]);
+        return await simpleQuery(query, [name, name]);
     }
-
-    async update(name, uses, date){
-
-        const query = `UPDATE nstats_items SET uses=uses+?,
-        first = IF(? < first, ?, IF(first = 0, ?, first)),
-        last = IF(? > last, ?, last),
-        matches=matches+1
-        WHERE name=?`;
-
-        return await simpleQuery(query, [uses, date, date, date, date, date, name]);
-    }
-
-    async updateTotals(item, uses, date){
-
-        try{
-
-            if(await this.exists(item)){
-                await this.update(item, uses, date);
-            }else{
-                new Message(`Item ${item} does not exist, creating now.`,'note');
-                await this.create(item, uses, date);
-            }
-
-        }catch(err){
-            new Message(`Items.updateTotals ${err}`,'error');
-        }
-    }
-
 
     async insertAllPlayerMatchItems(vars){
 
@@ -460,24 +430,34 @@ async function getAllIdsUsedInMatch(matchId){
 }
 
 
-async function updateTotalsAfterRecalculate(data){
+async function deleteTotals(itemIds){
 
-    const query = `UPDATE nstats_items SET first=?,last=?,uses=?,matches=? WHERE id=?`;
+    const query = `DELETE FROM nstats_items_totals WHERE item_id IN (?)`;
 
+    return await simpleQuery(query, [itemIds]);
+}
 
-    for(const [weaponId, d] of Object.entries(data)){
+async function updateTotalsAfterRecalculate(data, itemIds){
 
-        const vars = [
+    await deleteTotals(itemIds);
+
+    const insertVars = [];
+
+    const query = `INSERT INTO nstats_items_totals (
+        item_id,first,last,uses,matches
+    ) VALUES ?`;
+
+    for(const [itemId, d] of Object.entries(data)){
+
+        insertVars.push([
+            itemId,
             d.minDate,
             d.maxDate,
             d.uses,
             d.matchIds.size,
-            weaponId
-        ];
-        
-        await simpleQuery(query, vars);
+        ]);     
     }
-    
+    await bulkInsert(query, insertVars);  
 }
 
 async function calcTotalsFromMatchTable(itemIds){
@@ -556,7 +536,7 @@ async function recalculateMultipleTotals(itemIds){
         }
     }
 
-    await updateTotalsAfterRecalculate(totals);
+    await updateTotalsAfterRecalculate(totals, itemIds);
 }
 
 
@@ -778,4 +758,65 @@ export async function deletePlayerFromMatch(playerId, matchId){
     await deletePlayerMatchData(playerId, matchId);
 
     return await bulkUpdatePlayerTotals([playerId], itemIds);
+}
+
+
+async function createItems(names){
+
+    if(names.length === 0) return;
+
+    const query = `INSERT INTO nstats_items (name,display_name,type) VALUES ?`;
+
+    const insertVars = [];
+
+    for(let i = 0; i < names.length; i++){
+
+        const n = names[i];
+
+        insertVars.push([n,n,0]);
+    }
+
+
+    return await bulkInsert(query, insertVars);
+}
+
+
+export async function getIds(names){
+
+    if(names.length === 0) return {};
+
+    const query = `SELECT id,name FROM nstats_items WHERE name IN (?)`;
+
+    const result = await simpleQuery(query, [names]);
+
+    const missing = [...names];
+
+    let items = {};
+
+    for(let i = 0; i < result.length; i++){
+        const r = result[i];
+
+        items[r.name] = r.id;
+
+        const index = missing.indexOf(r.name);
+        if(index !== -1) missing.splice(index, 1);
+    }
+
+    if(missing.length > 0){
+
+        await createItems(missing);
+        const newIds = await getIds(missing);
+        items = {...items, ...newIds};
+    }
+
+    return items;
+}
+
+
+export async function updateTotals(itemIds){
+
+
+    if(itemIds.length === 0) return;
+
+    await recalculateMultipleTotals(itemIds)
 }

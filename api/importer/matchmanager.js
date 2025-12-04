@@ -308,8 +308,10 @@ export default class MatchManager{
             this.itemsManager = new ItemsManager(this.itemLines, this.playerManager, this.killManager, this.gameInfo.totalTeams);
           
             new Message(`Inserting match items data`,`note`);
-            await this.itemsManager.updateTotals(this.serverInfo.date);
+
+            await this.itemsManager.setItemIds();
             await this.itemsManager.updateMapItems(this.mapInfo.mapId, this.matchId);
+
 
             this.itemsManager.setPlayerPickupTimes(this.gameInfo.end);
             this.itemsManager.setPlayerPickups();
@@ -318,9 +320,12 @@ export default class MatchManager{
             new Message(`Updating player match pickups.`,"pass");
             await this.itemsManager.setPlayerMatchPickups(this.matchId);
 
-            new Message(`Updated item totals.`,'pass');
             await this.itemsManager.insertMatchData(this.matchId, this.serverInfo.date);
             new Message(`Updated item match data.`,'pass');
+
+            await this.itemsManager.updateTotals();
+            new Message(`Updated item totals.`,'pass');
+
             await this.itemsManager.setMatchAmpStats(this.matchId);
 
             await this.itemsManager.updatePowerUps(

@@ -1,7 +1,7 @@
 import Message from "../message.js";
 import Items, { bulkUpdatePlayerTotals } from "../items.js";
 import PowerUpManager from "./powerupmanager.js";
-import { getIdsByNames as getItemsByNames } from "../items.js";
+import { getIdsByNames as getItemsByNames, getIds, updateTotals } from "../items.js";
 
 export default class ItemsManager{
 
@@ -167,84 +167,58 @@ export default class ItemsManager{
         }
     }
 
-    async updateTotals(date){
+    async setItemIds(){
 
-        try{
-
-            for(const [key, value] of this.pickupCount){
-
-                await this.items.updateTotals(key, value, date);
-            }
-
-        }catch(err){
-            new Message(`ItemManager.updateTotals ${err}`,'error');
-        }
+        this.itemIds = await getIds(this.itemNames);
     }
 
     getSavedItemId(name){
 
-        for(let i = 0; i < this.itemIds.length; i++){
-
-            const d = this.itemIds[i];
-
-            if(d.name === name){
-                return d.id;
-            }
-        }
+        if(this.itemIds[name] !== undefined) return this.itemIds[name];
 
         return null;
+
     }
 
     async insertMatchData(matchId, date){
 
-        try{
+        const matchPlayerInsertVars = [];
 
-            if(this.itemNames.length > 0){
-                this.itemIds = await getItemsByNames(this.itemNames);
-            }
+        const playerIds = new Set();
+        const itemIds = new Set();
 
-            const matchPlayerInsertVars = [];
+        for(const [key, value] of this.matchData){
 
-            const playerIds = new Set();
-            const itemIds = new Set();
+            const currentPlayer = this.playerManager.getPlayerById(key);
 
-            for(const [key, value] of this.matchData){
+            if(currentPlayer !== null){
+                
+                for(const [subKey, subValue] of Object.entries(value.items)){
 
-                const currentPlayer = this.playerManager.getPlayerById(key);
+                    const currentId = this.getSavedItemId(subKey);
+                    playerIds.add(currentPlayer.masterId);  
 
-                if(currentPlayer !== null){
-                    
-                    for(const [subKey, subValue] of Object.entries(value.items)){
+                    if(currentId !== null){
 
-                        const currentId = this.getSavedItemId(subKey);
-                        playerIds.add(currentPlayer.masterId);  
+                        itemIds.add(currentId);
+    
+                        matchPlayerInsertVars.push([matchId, date, currentPlayer.masterId, currentId, subValue]);      
+                        // await this.items.updatePlayerTotal(currentPlayer.masterId, currentId, subValue, date); 
+                        
+                    }else{
 
-                        if(currentId !== null){
-
-                            itemIds.add(currentId);
-      
-                            matchPlayerInsertVars.push([matchId, date, currentPlayer.masterId, currentId, subValue]);      
-                           // await this.items.updatePlayerTotal(currentPlayer.masterId, currentId, subValue, date); 
-                           
-                        }else{
-
-                            new Message(`Failed to insert player item pickup, ${subKey} does not have an id.`,'warning');
-                        }
+                        new Message(`Failed to insert player item pickup, ${subKey} does not have an id.`,'warning');
                     }
-
-                }else{
-                    new Message(`Failed to insert player item pickup, currentPlayer is null.`,'warning');
                 }
+
+            }else{
+                new Message(`Failed to insert player item pickup, currentPlayer is null.`,'warning');
             }
-
-            
-            await this.items.insertAllPlayerMatchItems(matchPlayerInsertVars);
-            await bulkUpdatePlayerTotals([...playerIds], [...itemIds]);
-
-        }catch(err){
-            console.trace(err);
-            new Message(`ItemManager.insertMatchData ${err}`,'error');
         }
+ 
+        await this.items.insertAllPlayerMatchItems(matchPlayerInsertVars);
+        await bulkUpdatePlayerTotals([...playerIds], [...itemIds]);
+
     }
 
     updateUsedPickups(player, type){
@@ -548,9 +522,7 @@ export default class ItemsManager{
 
     async setMatchAmpStats(matchId){
 
-        await this.items.updateMatchAmpKills(matchId, this.ampKills);
-
-        
+        await this.items.updateMatchAmpKills(matchId, this.ampKills);     
     }
 
 
@@ -578,5 +550,9 @@ export default class ItemsManager{
 
 
         await this.items.updateMapItems(uniqueItems, this.locations, mapId, matchId);
+    }
+
+    async updateTotals(){
+        await updateTotals(Object.values(this.itemIds));
     }
 }

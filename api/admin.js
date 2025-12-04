@@ -80,6 +80,7 @@ export default class Admin{
            // "items",
             "items_match",
             "items_player",
+            "items_totals",
             "kills",
             "logs",
             "maps",

@@ -345,11 +345,15 @@ const queries = [
         id int(11) NOT NULL AUTO_INCREMENT,
         name varchar(100) NOT NULL,
         display_name varchar(100) NOT NULL,
+        type int(11) NOT NULL 
+      ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+      `CREATE TABLE IF NOT EXISTS nstats_items_totals (
+        id int(11) NOT NULL AUTO_INCREMENT,
+        item_id int(11) NOT NULL,
         first DATETIME NOT NULL,
         last DATETIME NOT NULL,
         uses int(11) NOT NULL,
-        matches int(11) NOT NULL,
-        type int(11) NOT NULL
+        matches int(11) NOT NULL     
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_items_match (
         id int(11) NOT NULL AUTO_INCREMENT,
@@ -1606,21 +1610,21 @@ async function bItemExist(name){
 
 async function insertItems(){
 
-	const query = `INSERT INTO nstats_items VALUES(NULL,?,?,?,?,0,0,?)`;
+    const query = `INSERT INTO nstats_items VALUES(NULL,?,?,?)`;
 
-	for(let i = 0; i < DEFAULT_ITEMS.length; i++){
+    for(let i = 0; i < DEFAULT_ITEMS.length; i++){
 
-		const d = DEFAULT_ITEMS[i];
-		
-		if(!await bItemExist(d.name)){
+        const d = DEFAULT_ITEMS[i];
+        
+        if(!await bItemExist(d.name)){
 
-			await simpleQuery(query, [d.name, d.display_name, DEFAULT_MIN_DATE, DEFAULT_DATE, d.type]);
-			new Message(`Inserted item ${d.name} into items table.`,"pass");
+          await simpleQuery(query, [d.name, d.display_name, d.type]);
+          new Message(`Inserted item ${d.name} into items table.`,"pass");
 
-		}else{
-			new Message(`There is already an item called ${d.name} in the items table.`,"pass");
-		}
-	}
+        }else{
+          new Message(`There is already an item called ${d.name} in the items table.`,"pass");
+        }
+    }
 }
 
 (async () =>{
