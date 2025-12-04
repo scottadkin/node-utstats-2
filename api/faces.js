@@ -297,8 +297,13 @@ export async function getMostUsed(limit){
 
 export async function getAllFaces(){
 
-    const query = `SELECT nstats_faces.id,nstats_faces.name,nstats_faces_totals.first,nstats_faces_totals.last,
-    nstats_faces_totals.uses FROM nstats_faces_totals LEFT JOIN nstats_faces_totals ON nstats_faces_totals.face_id = nstats_faces.id ORDER BY uses DESC`;
+    const query = `SELECT nstats_faces.id,
+    nstats_faces.name,
+    nstats_faces_totals.first,
+    nstats_faces_totals.last,
+    nstats_faces_totals.uses FROM nstats_faces
+    LEFT JOIN nstats_faces_totals ON nstats_faces_totals.face_id = nstats_faces.id 
+    ORDER BY nstats_faces_totals.uses DESC`;
     return await simpleQuery(query);
 
 }
