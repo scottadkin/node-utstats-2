@@ -30,11 +30,12 @@ function reducer(state, action){
             for(let i = 0; i < items.length; i++){
 
                 const item = items[i];
-
+                
                 if(item.id !== id) continue;
 
                 item.display_name = displayName;
                 item.type = type;
+         
                 break;
             }
 

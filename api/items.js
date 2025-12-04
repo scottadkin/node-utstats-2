@@ -643,9 +643,7 @@ export async function deleteMatchData(matchId, playerIds){
 
 export async function resetAllTotals(){
 
-    const query = `UPDATE nstats_items SET first=?,last=?,uses=0,matches=0`;
-
-    return await simpleQuery(query, [DEFAULT_MIN_DATE, DEFAULT_DATE]);
+    return await simpleQuery(`DELETE FROM nstats_items_totals`);
 }
 
 
@@ -667,7 +665,18 @@ export async function deletePlayerData(playerId){
 
 export async function getAll(){
 
-    const query = `SELECT * FROM nstats_items ORDER BY display_name ASC`;
+    const query = `SELECT 
+    nstats_items.id,
+    nstats_items.name, 
+    nstats_items.display_name,
+    nstats_items.type,
+    nstats_items_totals.first, 
+    nstats_items_totals.last, 
+    IFNULL(nstats_items_totals.uses, 0) as uses, 
+    IFNULL(nstats_items_totals.matches, 0) as matches 
+    FROM nstats_items 
+    LEFT JOIN nstats_items_totals ON nstats_items_totals.item_id = nstats_items.id
+    ORDER BY display_name ASC`;
 
     return await simpleQuery(query);
 }
