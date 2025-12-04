@@ -741,7 +741,7 @@ export async function deleteGametypeFull(id){
     await recalculatePlayerTotals(playerIds, 0, 0);
     
     for(let i = 0; i < mapIds.length; i++){
-        await recalculatePlayerTotals(playerIds, 0, mapIds);
+        await recalculatePlayerTotals(playerIds, 0, mapIds[i]);
     }
 
     
