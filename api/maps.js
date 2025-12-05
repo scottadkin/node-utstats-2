@@ -1066,7 +1066,19 @@ export async function getTopPlayersPlaytime(mapId, limit){
 
     limit = parseInt(limit);
     if(limit !== limit) limit = 5;
-    const query = `SELECT id,name,country,first,last,matches,playtime,winrate FROM nstats_player_totals WHERE map=? ORDER BY playtime DESC LIMIT ?`;
+    const query = `SELECT 
+    nstats_player.id,
+    nstats_player.name,
+    nstats_player.country,
+    nstats_player_totals.first,
+    nstats_player_totals.last,
+    nstats_player_totals.matches,
+    nstats_player_totals.playtime,
+    nstats_player_totals.winrate 
+    FROM nstats_player_totals 
+    LEFT JOIN nstats_player ON nstats_player.id = nstats_player_totals.player_id
+    WHERE nstats_player_totals.map=? 
+    ORDER BY nstats_player_totals.playtime DESC LIMIT ?`;
 
     return await simpleQuery(query, [mapId, limit]);
 }
@@ -1387,4 +1399,15 @@ async function getMapName(id){
     if(result.length === 0) return null;
 
     return removeUnr(result[0].name);
+}
+
+
+export async function getUniquePlayedGametypes(mapId){
+
+    const query = `SELECT DISTINCT nstats_matches.gametype,nstats_gametypes.name FROM nstats_matches 
+    LEFT JOIN nstats_gametypes ON nstats_gametypes.id = nstats_matches.gametype
+    WHERE map=? ORDER BY nstats_gametypes.name ASC`;
+
+    return await simpleQuery(query, [mapId]);
+
 }

@@ -6,7 +6,7 @@ import { BasicTable } from '../Tables';
 export default function MapAddictedPlayers({players}){
 
     const elems = players.map((p) =>{
-        return [<Link href={`/player/${p.id}`}><CountryFlag country={p.country}/>{p.name}</Link>,
+        return [<Link key={p.id} href={`/player/${p.id}`}><CountryFlag country={p.country}/>{p.name}</Link>,
             convertTimestamp(p.first, false, false),
             convertTimestamp(p.last, false, false),
             p.matches,

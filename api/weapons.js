@@ -28,6 +28,28 @@ const PLAYER_TOTALS_MATCH_COLUMNS = `
     CAST(SUM(hits) AS UNSIGNED) as hits,
     CAST(SUM(damage) AS UNSIGNED) as damage`;
 
+const WEAPON_TOTALS_COLUMNS = `
+    nstats_weapons.name,           
+    nstats_weapons_totals.weapon_id,
+    nstats_weapons_totals.matches,        
+    nstats_weapons_totals.kills,
+    nstats_weapons_totals.max_kills,      
+    nstats_weapons_totals.best_kills_spree,
+    nstats_weapons_totals.deaths,         
+    nstats_weapons_totals.max_deaths,
+    nstats_weapons_totals.accuracy,       
+    nstats_weapons_totals.shots,
+    nstats_weapons_totals.max_shots,      
+    nstats_weapons_totals.hits,
+    nstats_weapons_totals.max_hits,       
+    nstats_weapons_totals.damage,
+    nstats_weapons_totals.max_damage,     
+    nstats_weapons_totals.suicides,
+    nstats_weapons_totals.max_suicides,   
+    nstats_weapons_totals.team_kills,
+    nstats_weapons_totals.max_team_kills, 
+    nstats_weapons_totals.best_team_kills_spree `;
+
 export default class Weapons{
 
     constructor(){
@@ -2336,17 +2358,21 @@ async function deleteTotals(weaponIds, gametypeId, mapId){
     if(weaponIds.length === 0) return;
 
     let where = ``;
-    const vars =[ ];
+    const vars = [];
 
     if(gametypeId !== 0){
 
         where += ` AND gametype_id=?`;
         vars.push(gametypeId);
+    }else{
+        where += ` AND gametype_id=0`;
     }
 
     if(mapId !== 0){
-        where+= ` AND map_id=?`;
+        where += ` AND map_id=?`;
         vars.push(mapId);
+    }else{
+        where += ` AND map_id=0`;
     }
 
     const query = `DELETE FROM nstats_weapons_totals WHERE weapon_id IN (?)${where}`;
@@ -2437,29 +2463,31 @@ export async function getAllTimeTotals(){
 
     //console.log(await mysqlGetColumns("nstats_weapons_totals"));
     const query = `SELECT 
-    nstats_weapons.name,           
-    nstats_weapons_totals.weapon_id,
-    nstats_weapons_totals.matches,        
-    nstats_weapons_totals.kills,
-    nstats_weapons_totals.max_kills,      
-    nstats_weapons_totals.best_kills_spree,
-    nstats_weapons_totals.deaths,         
-    nstats_weapons_totals.max_deaths,
-    nstats_weapons_totals.accuracy,       
-    nstats_weapons_totals.shots,
-    nstats_weapons_totals.max_shots,      
-    nstats_weapons_totals.hits,
-    nstats_weapons_totals.max_hits,       
-    nstats_weapons_totals.damage,
-    nstats_weapons_totals.max_damage,     
-    nstats_weapons_totals.suicides,
-    nstats_weapons_totals.max_suicides,   
-    nstats_weapons_totals.team_kills,
-    nstats_weapons_totals.max_team_kills, 
-    nstats_weapons_totals.best_team_kills_spree FROM nstats_weapons_totals
+    ${WEAPON_TOTALS_COLUMNS}
     LEFT JOIN nstats_weapons ON nstats_weapons.id = nstats_weapons_totals.weapon_id
     WHERE gametype_id=0 AND map_id=0 ORDER BY name ASC`;
 
     return await simpleQuery(query);
 
+}
+
+export async function getMapTotals(mapId, gametypeId){
+
+    const vars = [mapId];
+    let where = ``;
+
+    if(gametypeId !== 0){
+        vars.push(gametypeId);
+        where = ` AND gametype_id=?`;
+    }else{
+        where = ` AND gametype_id=0`;
+    }
+
+    const query = `SELECT 
+    ${WEAPON_TOTALS_COLUMNS}
+    FROM nstats_weapons_totals
+    LEFT JOIN nstats_weapons ON nstats_weapons.id = nstats_weapons_totals.weapon_id
+    WHERE map_id=?${where} ORDER BY name ASC`;
+
+    return await simpleQuery(query, vars);
 }
