@@ -877,14 +877,29 @@ const queries = [
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_weapons (
         id int(11) NOT NULL AUTO_INCREMENT,
-        name varchar(100) NOT NULL,
+        name varchar(100) NOT NULL
+      ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+      `CREATE TABLE IF NOT EXISTS nstats_weapons_totals (
+        id int(11) NOT NULL AUTO_INCREMENT,
+        weapon_id int(11) NOT NULL,
         matches int(11) NOT NULL,
         kills int(11) NOT NULL,
+        max_kills int(11) NOT NULL,
+        best_kills_spree int(11) NOT NULL,
         deaths int(11) NOT NULL,
+        max_deaths int(11) NOT NULL,
         accuracy float NOT NULL,
         shots int(11) NOT NULL,
+        max_shots int(11) NOT NULL,
         hits int(11) NOT NULL,
-        damage bigint(20) NOT NULL
+        max_hits int(11) NOT NULL,
+        damage bigint(20) NOT NULL,
+        max_damage bigint(20) NOT NULL,
+        suicides int(11) NOT NULL,
+        max_suicides int(11) NOT NULL,
+        team_kills int(11) NOT NULL,
+        max_team_kills int(11) NOT NULL,
+        best_team_kills_spree int(11) NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_winrates_latest (
         id int(11) NOT NULL AUTO_INCREMENT,

@@ -126,6 +126,7 @@ export default class Admin{
             "voices",
             "voices_totals",
             "weapons",
+            "weapons_totals",
             "winrates_latest",
         ];
 

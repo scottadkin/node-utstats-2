@@ -297,7 +297,10 @@ export default class MatchManager{
                 
                 this.weaponsManager.parseData();
                 this.weaponsManager.addKillNames(this.killManager.killNames);
+                const a = performance.now();
                 await this.weaponsManager.update(this.playerManager);
+                const b = performance.now();
+                console.log((b - a) * 0.001);
                 new Message(`Updated player weapon stats.`,'pass');
 
             }else{

@@ -1,7 +1,7 @@
 import Weapons, { getWeaponIdsByNames, bulkInsertPlayerMatchStats, 
     calculatePlayerTotalsFromMatchRows, deletePlayerAllTimeTotals, 
     bulkInsertPlayerTotals, deletePlayerTypeTotals, calculatePlayersBest,
-    bulkDeletePlayersBest, bulkInsertPlayerBest
+    bulkDeletePlayersBest, bulkInsertPlayerBest, updateWeaponTotals
 } from "../weapons.js";
 import Message from "../message.js";
 
@@ -143,10 +143,12 @@ export default class WeaponsManager{
         await bulkInsertPlayerBest(mapBest, 0, this.mapId);
 
 
-        for(const [key, value] of Object.entries(currentTotals)){
+        await updateWeaponTotals(weaponIds);
+
+       /* for(const [key, value] of Object.entries(currentTotals)){
 
             await this.weapons.update(key, value.kills, value.deaths, value.shots, value.hits, value.damage);
-        }
+        }*/
     }
 
 }
