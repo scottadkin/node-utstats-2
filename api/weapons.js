@@ -2259,9 +2259,23 @@ export async function deletePlayerFromMatch(playerId, matchId, gametypeId, mapId
 
 
 
-async function calculateWeaponTotals(weaponIds){
+async function calculateWeaponTotals(weaponIds, gametypeId, mapId){
 
     if(weaponIds.length === 0) return [];
+
+
+    let where = ``;
+    const vars = [];
+
+    if(gametypeId !== 0){
+        where += ` AND gametype_id=?`;
+        vars.push(gametypeId);
+    }
+
+    if(mapId !== 0){
+        where += ` AND map_id=?`;
+        vars.push(mapId);
+    }
 
     const query = `SELECT weapon_id,
     SUM(kills) as kills,
@@ -2281,10 +2295,10 @@ async function calculateWeaponTotals(weaponIds){
     MAX(team_kills) as max_team_kills,
     MAX(best_team_kills) as best_team_kills_spree 
     FROM nstats_player_weapon_match 
-    WHERE weapon_id IN(?) GROUP BY weapon_id
+    WHERE weapon_id IN(?)${where} GROUP BY weapon_id
     `;
 
-    const result = await simpleQuery(query, [weaponIds]);
+    const result = await simpleQuery(query, [weaponIds, ...vars]);
 
     for(let i = 0; i < result.length; i++){
 
@@ -2317,23 +2331,73 @@ async function calculateWeaponTotals(weaponIds){
 }
 
 
-async function deleteTotals(weaponIds){
+async function deleteTotals(weaponIds, gametypeId, mapId){
 
     if(weaponIds.length === 0) return;
 
-    const query = `DELETE FROM nstats_weapons_totals WHERE weapon_id IN (?)`;
-    return await simpleQuery(query, [weaponIds]);
+    let where = ``;
+    const vars =[ ];
+
+    if(gametypeId !== 0){
+
+        where += ` AND gametype_id=?`;
+        vars.push(gametypeId);
+    }
+
+    if(mapId !== 0){
+        where+= ` AND map_id=?`;
+        vars.push(mapId);
+    }
+
+    const query = `DELETE FROM nstats_weapons_totals WHERE weapon_id IN (?)${where}`;
+    return await simpleQuery(query, [weaponIds, ...vars]);
 }
 
-async function bulkInsertTotals(data){
+
+async function getUniqueUsedMatches(weaponIds, gametypeId, mapId){
+
+    if(weaponIds.length === 0) return {};
+
+
+    let where = ``;
+    const vars = [];
+
+    if(gametypeId !== 0){
+        where += ` AND gametype_id=?`;
+        vars.push(gametypeId);
+    }
+
+    if(mapId !== 0){
+
+        where += ` AND map_id=?`;
+        
+        vars.push(mapId);
+    }
+
+
+    const query = `SELECT weapon_id,COUNT(DISTINCT match_id) as total_matches FROM nstats_player_weapon_match WHERE weapon_id IN(?) ${where} GROUP BY weapon_id`;
+
+    const result = await simpleQuery(query, [weaponIds, ...vars]);
+
+    const data = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        data[r.weapon_id] = r.total_matches;
+    }
+
+    return data;
+}
+
+async function bulkInsertTotals(data, matchesUsed, gametypeId, mapId){
 
     const query = `INSERT INTO nstats_weapons_totals (
-        weapon_id,matches,kills,max_kills,best_kills_spree,deaths,
+        weapon_id,gametype_id,map_id,matches,kills,max_kills,best_kills_spree,deaths,
         max_deaths,accuracy,shots,max_shots,hits,max_hits,
         damage,max_damage,suicides,max_suicides,team_kills,
         max_team_kills,best_team_kills_spree
     ) VALUES ?`;
-
 
     const insertVars = [];
 
@@ -2341,8 +2405,10 @@ async function bulkInsertTotals(data){
 
         const d = data[i];
 
+        const matches = matchesUsed?.[d.weapon_id] ?? 0;
+
         insertVars.push([
-            d.weapon_id, 0, d.kills, d.max_kills, d.kills_best_spree, d.deaths,
+            d.weapon_id, gametypeId, mapId, matches, d.kills, d.max_kills, d.kills_best_spree, d.deaths,
             d.max_deaths, d.accuracy, d.shots, d.max_shots, d.hits, d.max_hits,
             d.damage, d.max_damage,d.suicides,d.max_suicides,d.team_kills,
             d.max_team_kills,d.best_team_kills_spree
@@ -2353,12 +2419,14 @@ async function bulkInsertTotals(data){
     await bulkInsert(query, insertVars);
 }
 
-export async function updateWeaponTotals(weaponIds){
+export async function updateWeaponTotals(weaponIds, gametypeId, mapId){
 
     if(weaponIds.length === 0) return;
 
-    const totals = await calculateWeaponTotals(weaponIds);
+    const totals = await calculateWeaponTotals(weaponIds, gametypeId, mapId);
 
-    await deleteTotals(weaponIds);
-    await bulkInsertTotals(totals);
+    await deleteTotals(weaponIds, gametypeId, mapId);
+    const totalMatchesUsed = await getUniqueUsedMatches(weaponIds, gametypeId, mapId);
+
+    await bulkInsertTotals(totals, totalMatchesUsed, gametypeId, mapId);
 }

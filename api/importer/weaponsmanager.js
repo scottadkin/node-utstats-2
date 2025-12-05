@@ -50,7 +50,7 @@ export default class WeaponsManager{
     }
 
 
-    async update(playerManager){
+    async update(playerManager, gametypeId, mapId){
 
         const namesToIds = await getWeaponIdsByNames(this.names);
 
@@ -143,12 +143,16 @@ export default class WeaponsManager{
         await bulkInsertPlayerBest(mapBest, 0, this.mapId);
 
 
-        await updateWeaponTotals(weaponIds);
+        //all time
+        await updateWeaponTotals(weaponIds, 0, 0);
+        //gametype
+        await updateWeaponTotals(weaponIds, gametypeId, 0);
+        //map
+        await updateWeaponTotals(weaponIds, 0, mapId);
+        // gametype & map
+        await updateWeaponTotals(weaponIds, gametypeId, mapId);
 
-       /* for(const [key, value] of Object.entries(currentTotals)){
 
-            await this.weapons.update(key, value.kills, value.deaths, value.shots, value.hits, value.damage);
-        }*/
     }
 
 }

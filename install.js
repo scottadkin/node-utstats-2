@@ -882,6 +882,8 @@ const queries = [
       `CREATE TABLE IF NOT EXISTS nstats_weapons_totals (
         id int(11) NOT NULL AUTO_INCREMENT,
         weapon_id int(11) NOT NULL,
+        gametype_id int(11) NOT NULL,
+        map_id int(11) NOT NULL,
         matches int(11) NOT NULL,
         kills int(11) NOT NULL,
         max_kills int(11) NOT NULL,
