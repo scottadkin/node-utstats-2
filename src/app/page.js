@@ -20,6 +20,8 @@ import { getAllInMatch } from "../../api/players";
 import { getFacesWithFileStatuses, getMostUsed as getMostUsedFaces } from "../../api/faces";
 import MatchesDefaultView from "./UI/MatchesDefaultView";
 import { searchMatches } from "../../api/matches";
+import HomeWeaponSummary from "./UI/Home/HomeWeaponSummary";
+import { getAllTimeTotals as getAllTimeWeaponTotals } from "../../api/weapons";
 
 export async function generateMetadata({ params, searchParams }, parent) {
 
@@ -221,6 +223,12 @@ export default async function Page(){
         const faceFiles = await getFacesWithFileStatuses([...faceIds]);
 
         pageManager.addComponent("Display Most Used Faces",<MostUsedFaces key={"faces"} data={mostUsedFaces} images={faceFiles}/>);
+    }
+
+    if(pageManager.bEnabled("Display Weapons Summary")){
+        
+        const weaponData = await getAllTimeWeaponTotals();
+        pageManager.addComponent("Display Weapons Summary", <HomeWeaponSummary key="weapons" data={weaponData}/>);
     }
 
     

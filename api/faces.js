@@ -194,8 +194,6 @@ export async function getFacesById(ids, bReturnArray){
 
     const result = await simpleQuery(query, [ids]);
 
-    console.log(result);
-
     if(bReturnArray) return result;
 
     const data = {};

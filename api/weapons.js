@@ -2430,3 +2430,36 @@ export async function updateWeaponTotals(weaponIds, gametypeId, mapId){
 
     await bulkInsertTotals(totals, totalMatchesUsed, gametypeId, mapId);
 }
+
+
+
+export async function getAllTimeTotals(){
+
+    //console.log(await mysqlGetColumns("nstats_weapons_totals"));
+    const query = `SELECT 
+    nstats_weapons.name,           
+    nstats_weapons_totals.weapon_id,
+    nstats_weapons_totals.matches,        
+    nstats_weapons_totals.kills,
+    nstats_weapons_totals.max_kills,      
+    nstats_weapons_totals.best_kills_spree,
+    nstats_weapons_totals.deaths,         
+    nstats_weapons_totals.max_deaths,
+    nstats_weapons_totals.accuracy,       
+    nstats_weapons_totals.shots,
+    nstats_weapons_totals.max_shots,      
+    nstats_weapons_totals.hits,
+    nstats_weapons_totals.max_hits,       
+    nstats_weapons_totals.damage,
+    nstats_weapons_totals.max_damage,     
+    nstats_weapons_totals.suicides,
+    nstats_weapons_totals.max_suicides,   
+    nstats_weapons_totals.team_kills,
+    nstats_weapons_totals.max_team_kills, 
+    nstats_weapons_totals.best_team_kills_spree FROM nstats_weapons_totals
+    LEFT JOIN nstats_weapons ON nstats_weapons.id = nstats_weapons_totals.weapon_id
+    WHERE gametype_id=0 AND map_id=0 ORDER BY name ASC`;
+
+    return await simpleQuery(query);
+
+}
