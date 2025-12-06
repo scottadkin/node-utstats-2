@@ -16,6 +16,7 @@ import { mergeGametypes as mergePowerupsGametypes, deleteGametype as deleteGamet
 import { mergeGametypes as mergeRankingGametypes, deleteGametype as deleteGametypeRankings } from "./rankings.js";
 import { mergeGametypes as mergeWinrateGametypes, deleteGametype as deleteGametypeWinrates } from "./winrate.js";
 import { deleteGametype as deleteGametypeSprees, mergeGametypes as mergeSpreeGametypes } from "./sprees.js";
+import { deleteGametype as deleteGametypeDomination } from "./domination.js";
 
 export async function getAllGametypeNames(){
     
@@ -724,10 +725,12 @@ export async function deleteGametypeFull(id){
     const mapIds = await getUniquePlayedMaps(id);
     const playerIds = await getUniquePlayedPlayers(id);
 
+    await deleteGametypeDomination(id);
     await deleteGametypeRankings(id);
     await deleteGametypeMatches(id);
     await deleteGametypePlayers(id);
     await deleteGametypeCTF(id);
+    
     await deleteGametypeCombogib(id);
     await deleteGametypeTelefrags(id);
     await deleteGametypeWeapons(id);

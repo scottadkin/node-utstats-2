@@ -85,10 +85,10 @@ export default class Domination{
         
     }
 
-    async updatePlayerMatchStats(rowId, caps){
+    async updatePlayerMatchStats(matchId, playerId, caps){
 
-        const query = "UPDATE nstats_player_matches SET dom_caps=? WHERE id=?";
-        return await simpleQuery(query, [caps, rowId]);
+        const query = "UPDATE nstats_player_matches SET dom_caps=? WHERE match_id=? AND player_id=?";
+        return await simpleQuery(query, [caps, matchId, playerId]);
     }
 
 
@@ -183,25 +183,6 @@ export default class Domination{
         await simpleQuery("UPDATE nstats_dom_control_points SET captured=captured-?, matches=matches-? WHERE id=?",[amount, matches, id]);
     }
 
-    async deleteMatchesCaps(ids){
-
-        if(ids.length === 0) return;
-        await simpleQuery("DELETE FROM nstats_dom_match_caps WHERE match_id IN (?)",[ids]);
-    }
-
-    async deleteMatchesControlPoints(ids){
-
-        if(ids.length === 0) return;
-
-        await simpleQuery("DELETE FROM nstats_dom_match_control_points WHERE match_id IN (?)", [ids]);
-    }
-
-    async deleteMatchesPlayerScores(ids){
-
-        if(ids.length === 0) return;
-
-        await simpleQuery("DELETE FROM nstats_dom_match_player_score WHERE match_id IN (?)", [ids]);
-    }
 
     async getPlayerMatchCaps(matchId, playerId){
 
@@ -722,4 +703,28 @@ export async function deletePlayerFromMatch(playerId, matchId){
         const query = `DELETE FROM nstats_${t} WHERE player=? AND match_id=?`;
         await simpleQuery(query, [playerId, matchId]);
     }
+}
+
+
+export async function getUniquePlayedMatches(id){
+
+    const query = `SELECT DISTINCT match_id FROM nstats_player_matches WHERE dom_caps!=0 AND gametype=?`;
+
+    const result = await simpleQuery(query, [id]);
+
+    return result.map((r) =>{
+        return r.match_id;
+    });
+}
+
+
+export async function deleteGametype(id){
+
+    const matchIds = await getUniquePlayedMatches(id);
+
+    if(matchIds.length === 0) return;
+
+    await simpleQuery("DELETE FROM nstats_dom_match_caps WHERE match_id IN (?)",[matchIds]);
+    await simpleQuery("DELETE FROM nstats_dom_match_control_points WHERE match_id IN (?)", [matchIds]);
+    await simpleQuery("DELETE FROM nstats_dom_match_player_score WHERE match_id IN (?)", [matchIds]);
 }

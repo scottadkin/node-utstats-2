@@ -282,7 +282,7 @@ export default class DOMManager{
                         if(p.bBot) continue;
                     }
 
-                    await this.domination.updatePlayerMatchStats(p.matchId, p.stats.dom.caps);
+                    await this.domination.updatePlayerMatchStats(matchId, p.masterId, p.stats.dom.caps);
 
                 }else{
                     new Message(`${p.name} did not have any control point caps, skipping stats update.`,'pass');
