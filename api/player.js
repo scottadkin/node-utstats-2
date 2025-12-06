@@ -712,7 +712,6 @@ export async function getRecentMatches(id, page, forcePerPage){
     nstats_player_matches.map_id,
     nstats_player_matches.gametype as gametype_id, 
     nstats_player_matches.spectator, 
-    nstats_player_matches.played, 
     nstats_player_matches.match_result,
     nstats_player_matches.playtime, 
     nstats_player_matches.team,

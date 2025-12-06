@@ -2963,6 +2963,7 @@ export async function recalculatePlayers(playerIds, gametypeId, mapId){
     
 }
 
+
 //check if the match_id helds a cap record, recalcultate map cap record if it is
 async function bMatchWasCapRecord(matchId, gametypeId, mapId){
 
@@ -3246,14 +3247,13 @@ async function recalculatePlayerTotals(type, id){
 
     type = type.toLowerCase();
 
-    const valid = ["gametype", "map"];
+    const valid = ["gametype", "map", "alltime"];
 
     if(valid.indexOf(type) === -1) throw new Error(`${type} is not a valid type for recalculatePlayerTotals`);
 
-
     let query = "";
 
-
+    let vars = [];
 
     if(type === "gametype"){
 
@@ -3262,16 +3262,26 @@ async function recalculatePlayerTotals(type, id){
         ${PLAYER_CTF_MATCH_TOTALS_COLUMNS}
         FROM nstats_player_ctf_match
         WHERE gametype_id=? GROUP BY player_id,map_id`;
+        vars = [id];
 
     }else if(type === "map"){
+
         query = `SELECT
         player_id,map_id,gametype_id,
         ${PLAYER_CTF_MATCH_TOTALS_COLUMNS}
         FROM nstats_player_ctf_match
         WHERE map_id=? GROUP BY player_id,gametype_id`;
+        vars = [id];
+
+    }else if(type === "alltime"){
+
+        query = `SELECT
+        player_id,
+        ${PLAYER_CTF_MATCH_TOTALS_COLUMNS}
+        FROM nstats_player_ctf_match GROUP BY player_id`;
     }
 
-    const result = await simpleQuery(query, [id]);
+    const result = await simpleQuery(query, vars);
 
 
     const addKeys = ["total_matches",          "playtime",
@@ -3312,6 +3322,9 @@ async function recalculatePlayerTotals(type, id){
                 totals[r.player_id].map_id = 0;
             }else if(type === "map"){
                 totals[r.player_id].gametype_id = 0;
+            }else if(type === "alltime"){
+                totals[r.player_id].gametype_id = 0;
+                totals[r.player_id].map_id = 0;
             }
 
             continue;
@@ -3396,19 +3409,24 @@ async function bulkInsertPlayerBest(data){
 async function recalculateAllPlayerBest(type, id){
 
     type = type.toLowerCase();
-    const valid = ["gametype", "map"];
+    const valid = ["gametype", "map", "alltime"];
 
     if(valid.indexOf(type) === -1) throw new Error(`${type} is not a valid type for recalculateAllPlayerBest`);
 
     let query = "";
+    let vars = [];
 
     if(type === "gametype"){
         query = `SELECT map_id,player_id,${PLAYER_CTF_MATCH_BEST_COLUMNS} FROM nstats_player_ctf_match WHERE gametype_id=? GROUP BY map_id,player_id`;
+        vars = [id];
     }else if(type === "map"){
         query = `SELECT gametype_id,player_id,${PLAYER_CTF_MATCH_BEST_COLUMNS} FROM nstats_player_ctf_match WHERE map_id=? GROUP BY gametype_id,player_id`;
+        vars = [id];
+    }else if(type === "alltime"){
+        query = `SELECT player_id,${PLAYER_CTF_MATCH_BEST_COLUMNS} FROM nstats_player_ctf_match GROUP BY player_id`;
     }
 
-    const data = await simpleQuery(query, [id]);
+    const data = await simpleQuery(query, vars);
 
     const higherBetterKeys = [
         "flag_assist",            "flag_return",
@@ -3437,6 +3455,9 @@ async function recalculateAllPlayerBest(type, id){
             d.gametype_id = id;
         }else if(type === "map"){
             d.map_id = id;
+        }else if(type === "alltime"){
+            d.gametype_id = 0;
+            d.map_id = 0;
         }
 
         if(totals[d.player_id] === undefined){
@@ -3447,6 +3468,9 @@ async function recalculateAllPlayerBest(type, id){
                 totals[d.player_id].map_id = 0;
             }else if(type === "map"){
                 totals[d.player_id].gametype_id = 0;
+            }else if(type === "alltime"){
+                totals[d.player_id].gametype_id = 0;
+                totals[d.player_id].map_id = 0;
             }
 
             continue;
@@ -3475,7 +3499,7 @@ async function recalculateAllPlayerBest(type, id){
         await deletePlayerType("best", id, 0);
     }else if(type === "map"){
         await deletePlayerType("best", 0, id);
-    }
+    }//for all time call deleteplayersalltimebest before this function
 
     await bulkInsertPlayerBest(data);
     
@@ -3538,7 +3562,7 @@ async function recalculateAllPlayerBestLife(type, id){
 
     type = type.toLowerCase();
 
-    const valid = ["gametype", "map"];
+    const valid = ["gametype", "map", "alltime"];
 
 
     if(valid.indexOf(type) === -1) throw new Error(`${type} is not a valid type for recalculateAllPlayerBestLife`);
@@ -3546,13 +3570,19 @@ async function recalculateAllPlayerBestLife(type, id){
 
     let query = "";
 
+    let vars = [];
+
     if(type === "gametype"){
         query = `SELECT map_id,player_id,${PLAYER_CTF_MATCH_BEST_LIFE_COLUMNS} FROM nstats_player_ctf_match WHERE gametype_id=? GROUP BY map_id,player_id`;
+        vars = [id];
     }else if(type === "map"){
         query = `SELECT gametype_id,player_id,${PLAYER_CTF_MATCH_BEST_LIFE_COLUMNS} FROM nstats_player_ctf_match WHERE map_id=? GROUP BY gametype_id,player_id`;
+        vars = [id];
+    }else if(type === "alltime"){
+        query = `SELECT player_id,${PLAYER_CTF_MATCH_BEST_LIFE_COLUMNS} FROM nstats_player_ctf_match GROUP BY player_id`;
     }
 
-    const data = await simpleQuery(query, [id]);
+    const data = await simpleQuery(query, vars);
 
     const higherBetterKeys = [
         "flag_assist",            "flag_return",
@@ -3581,16 +3611,24 @@ async function recalculateAllPlayerBestLife(type, id){
             d.gametype_id = id;
         }else if(type === "map"){
             d.map_id = id;
+        }else if(type === "alltime"){
+            d.gametype_id = 0;
+            d.map_id = 0;
         }
 
         if(totals[d.player_id] === undefined){
 
             totals[d.player_id] = {...d};
+
             if(type === "gametype"){
                 totals[d.player_id].map_id = 0;
             }else if(type === "map"){
                 totals[d.player_id].gametype_id = 0;
+            }else if(type === "alltime"){          
+                totals[d.player_id].gametype_id = 0;
+                totals[d.player_id].map_id = 0;
             }
+
             continue;
         }
 
@@ -3615,7 +3653,7 @@ async function recalculateAllPlayerBestLife(type, id){
         await deletePlayerType("best_life", id, 0);
     }else if(type === "map"){
         await deletePlayerType("best_life", 0, id);
-    }
+    }//for all time call deleteplayersalltimebest before this function
     await bulkInsertPlayerBestLife(data);
    // console.log(await mysqlGetColumns("nstats_player_ctf_best_life"));
 }
@@ -3656,9 +3694,9 @@ export async function mergeGametypes(oldId, newId){
 }
 
 
-async function getUniqueMapsFromCaps(){
+async function getUniqueMapsFromPlayerMatches(){
 
-    const query = `SELECT DISTINCT map_id FROM nstats_ctf_caps`;
+    const query = `SELECT DISTINCT map_id FROM nstats_player_ctf_match`;
 
     const result = await simpleQuery(query);
 
@@ -3684,10 +3722,87 @@ async function recalculateAllTimeCapRecords(mapIds){
 
 }
 
+async function getUniquePlayedMatchIds(gametypeId){
+
+    const query = `SELECT DISTINCT match_id FROM nstats_player_ctf_match WHERE gametype_id=?`;
+
+    const result = await simpleQuery(query, [gametypeId]);
+
+    return result.map((r) =>{
+        return r.match_id;
+    });
+}
+
+async function deleteRemainingGametypeData(matchIds){
+
+    if(matchIds.length === 0) return;
+
+    const tables = [
+        "nstats_ctf_assists",
+        "nstats_ctf_carry_times",
+        "nstats_ctf_covers",
+        "nstats_ctf_cr_kills",
+        "nstats_ctf_events",
+        "nstats_ctf_flag_deaths",
+        "nstats_ctf_flag_drops",
+        "nstats_ctf_flag_pickups",
+        "nstats_ctf_returns",
+        "nstats_ctf_seals",
+        "nstats_ctf_self_covers"
+    ];
+
+    for(let i = 0; i < tables.length; i++){
+
+        const t = tables[i];
+        const query = `DELETE FROM ${t} WHERE match_id IN(?)`;
+
+        await simpleQuery(query, [matchIds]);
+    }
+    
+}
+
+
+export async function deletePlayersAllTimeTotals(playerIds){
+
+    if(playerIds.length === 0) return;
+
+    const query = `DELETE FROM nstats_player_ctf_totals WHERE player_id IN(?) AND gametype_id=0 AND map_id=0`;
+
+    return await simpleQuery(query, [playerIds]);
+}
+
+async function getUniquePlayers(gametypeId){
+
+    const query = `SELECT DISTINCT player_id FROM nstats_player_ctf_match WHERE gametype_id=?`;
+
+    const result = await simpleQuery(query, [gametypeId]);
+
+    return result.map((r) =>{
+        return r.player_id;
+    });
+}
+
+export async function deletePlayersAllTimeBest(playerIds){
+
+    if(playerIds.length === 0) return;
+
+    const tables = [`nstats_player_ctf_best`, `nstats_player_ctf_best_life`];
+
+    for(let i = 0; i < tables.length; i++){
+        
+        const t = tables[i];
+        const query = `DELETE FROM ${t} WHERE player_id IN(?) AND gametype_id=0 AND map_id=0`;
+
+        await simpleQuery(query, [playerIds]);
+    }
+}
+
 export async function deleteGametype(id){
 
     //we need the map ids to recalculate the totals/best for each affected map
-    const mapIds = await getUniqueMapsFromCaps();
+    const mapIds = await getUniqueMapsFromPlayerMatches();
+    const matchIds = await getUniquePlayedMatchIds(id);
+    const playerIds = await getUniquePlayers(id);
 
     const tables = [
         "nstats_ctf_caps",
@@ -3704,10 +3819,14 @@ export async function deleteGametype(id){
         await simpleQuery(`DELETE FROM ${t} WHERE gametype_id=?`, [id]);
     }
 
+    await deleteRemainingGametypeData(matchIds);
+
     await recalculateAllTimeCapRecords(mapIds);
 
     for(let i = 0; i < mapIds.length; i++){
+        
         const m = mapIds[i];
+
         await deletePlayerType("totals", 0, m);
         await deletePlayerType("best", 0, m);
         await deletePlayerType("best_life", 0, m);
@@ -3715,7 +3834,14 @@ export async function deleteGametype(id){
         await recalculateAllPlayerBest("map", m);
         await recalculateAllPlayerBestLife("map", m);
     }
+
+    await deletePlayersAllTimeTotals(playerIds);
+    await deletePlayersAllTimeBest(playerIds);
     
+    await recalculatePlayerTotals("alltime", null);
+    await recalculateAllPlayerBest("alltime", null);
+    await recalculateAllPlayerBestLife("alltime", null);
+
 }
 
 export async function bulkInsertPlayerMatchData(players, matchId, mapId, gametypeId, serverId, matchDate){

@@ -2177,7 +2177,21 @@ async function recalculateAllTimeTotals(){
     await bulkInsertPlayerTotals(data);
 }
 
+
+async function getAllIds(){
+
+    const query = `SELECT DISTINCT weapon_id FROM nstats_player_weapon_match`;
+
+    const result = await simpleQuery(query);
+
+    return result.map((r) =>{
+        return r.weapon_id;
+    });
+}
+
 export async function deleteGametype(id){
+
+    const weaponIds = await getAllIds();
 
     const mapIds = await getUniquePlayedMaps("gametype", id);
 
@@ -2205,6 +2219,9 @@ export async function deleteGametype(id){
         await deletePlayerBest("map", m);
         await recalculatePlayerBest("map", m);
     }
+
+    await recalculateWeaponTotals(weaponIds);
+
 }
 
 
