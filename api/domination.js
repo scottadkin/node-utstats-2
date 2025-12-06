@@ -586,6 +586,11 @@ async function updateControlPointTotals(data){
     }
 }
 
+async function deleteMapControlPoints(mapId){
+
+    const query = `DELETE FROM nstats_dom_control_points WHERE map=?`;
+    return await simpleQuery(query, [mapId]);
+}
 
 export async function recalculateMapControlPointTotals(mapId){
 
@@ -593,9 +598,14 @@ export async function recalculateMapControlPointTotals(mapId){
 
     const query = `SELECT point, COUNT(*) as total_caps FROM nstats_dom_match_caps WHERE point IN (?) GROUP BY point`;
 
+    if(pointIds.length === 0) return; 
 
-    if(pointIds.length === 0) return;
     const result = await simpleQuery(query, [pointIds]);
+
+    if(result.length === 0){
+        
+        return await deleteMapControlPoints(mapId); 
+    }
 
     await updateControlPointTotals(result);
 }
@@ -717,14 +727,34 @@ export async function getUniquePlayedMatches(id){
     });
 }
 
+export async function getUniquePlayedMaps(id){
+
+    const query = `SELECT DISTINCT map_id FROM nstats_player_matches WHERE dom_caps!=0 AND gametype=?`;
+
+    const result = await simpleQuery(query, [id]);
+
+    return result.map((r) =>{
+        return r.map_id;
+    });
+}
+
 
 export async function deleteGametype(id){
 
     const matchIds = await getUniquePlayedMatches(id);
+    const mapIds = await getUniquePlayedMaps(id);
 
-    if(matchIds.length === 0) return;
 
-    await simpleQuery("DELETE FROM nstats_dom_match_caps WHERE match_id IN (?)",[matchIds]);
-    await simpleQuery("DELETE FROM nstats_dom_match_control_points WHERE match_id IN (?)", [matchIds]);
-    await simpleQuery("DELETE FROM nstats_dom_match_player_score WHERE match_id IN (?)", [matchIds]);
+    if(matchIds.length > 0){
+        await simpleQuery("DELETE FROM nstats_dom_match_caps WHERE match_id IN (?)",[matchIds]);
+        await simpleQuery("DELETE FROM nstats_dom_match_control_points WHERE match_id IN (?)", [matchIds]);
+        await simpleQuery("DELETE FROM nstats_dom_match_player_score WHERE match_id IN (?)", [matchIds]);
+    }
+
+    if(mapIds.length > 0){
+
+        for(let i = 0; i < mapIds.length; i++){
+            await recalculateMapControlPointTotals(mapIds[i]);
+        }
+    }
 }
