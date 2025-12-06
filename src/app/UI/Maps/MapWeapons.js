@@ -133,7 +133,7 @@ function renderRecords(mode, data){
         }
     });
 
-    return <InteractiveTable title="Match Records" width={1} headers={headers} data={rows}/>
+    return <InteractiveTable title="Match Totals" width={1} headers={headers} data={rows}/>
 }
 
 export default function MapWeapons({mapId}){
