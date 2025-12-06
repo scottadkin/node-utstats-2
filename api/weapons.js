@@ -2399,8 +2399,22 @@ async function recalculateSinglePlayerBest(playerId, type){
     await bulkInsertPlayerBest(data);
 
 }
+async function getPlayerUsedWeaponsMatch(playerId, matchId){
+
+    const query = `SELECT DISTINCT weapon_id FROM nstats_player_weapon_match WHERE match_id=? AND player_id=?`;
+
+    const result = await simpleQuery(query, [matchId, playerId]);
+
+
+    return result.map((r) =>{
+        return r.weapon_id;
+    });
+}
 
 export async function deletePlayerFromMatch(playerId, matchId, gametypeId, mapId){
+
+
+    const weaponIds = await getPlayerUsedWeaponsMatch(playerId, matchId);
 
     await simpleQuery(`DELETE FROM nstats_player_weapon_match WHERE player_id=? AND match_id=?`, [playerId, matchId]);
 
@@ -2412,6 +2426,8 @@ export async function deletePlayerFromMatch(playerId, matchId, gametypeId, mapId
     await recalculateSinglePlayerBest(playerId, "allTime");
     await recalculateSinglePlayerBest(playerId, "gametype");
     await recalculateSinglePlayerBest(playerId, "map");
+
+    await recalculateWeaponTotals(weaponIds);
 }
 
 
