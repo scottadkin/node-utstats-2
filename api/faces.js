@@ -429,10 +429,20 @@ async function calcTotalsFromMatchData(usedFaces){
     return result;
 }
 
+async function deleteSelectedFaceTotals(ids){
+
+    if(ids.length === 0) return;
+
+    const query = `DELETE FROM nstats_faces_totals WHERE face_id IN(?)`;
+
+    return await simpleQuery(query, [ids]);
+}
+
 export async function updateTotals(usedFaces){
 
     if(Object.keys(usedFaces).length === 0) return;
 
+    await deleteSelectedFaceTotals(Object.values(usedFaces));
     const totals = await calcTotalsFromMatchData(usedFaces);
 
     const insertVars = [];
@@ -447,4 +457,32 @@ export async function updateTotals(usedFaces){
     const query = `INSERT INTO nstats_faces_totals (face_id,first,last,uses) VALUES ?`;
 
     await bulkInsert(query, insertVars);
+}
+
+async function deleteAllTotals(){
+
+    const query = `DELETE FROM nstats_faces_totals`;
+
+    return await simpleQuery(query);
+}
+
+export async function recalculateAll(){
+
+    const query = `SELECT face,MIN(match_date) as first_match, MAX(match_date) as last_match, COUNT(*) as total_uses FROM nstats_player_matches GROUP BY face`;
+
+    const result = await simpleQuery(query);
+
+    await deleteAllTotals();
+
+
+    const insertQuery = `INSERT INTO nstats_faces_totals (face_id,first,last,uses) VALUES ?`;
+    const insertVars = [];
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+        insertVars.push([r.face, r.first_match, r.last_match, r.total_uses]);
+    }
+
+    await bulkInsert(insertQuery, insertVars);
 }

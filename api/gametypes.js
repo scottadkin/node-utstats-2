@@ -17,6 +17,8 @@ import { mergeGametypes as mergeRankingGametypes, deleteGametype as deleteGamety
 import { mergeGametypes as mergeWinrateGametypes, deleteGametype as deleteGametypeWinrates } from "./winrate.js";
 import { deleteGametype as deleteGametypeSprees, mergeGametypes as mergeSpreeGametypes } from "./sprees.js";
 import { deleteGametype as deleteGametypeDomination } from "./domination.js";
+import { recalculateTotals as recalculateServerTotals } from "./servers.js";
+import { recalculateAll as recalculateAllFaces } from "./faces.js";
 
 export async function getAllGametypeNames(){
     
@@ -717,6 +719,17 @@ async function getUniquePlayedPlayers(gametypeId){
         return r.player_id;
     });
 }
+
+async function getUniquePlayedServers(gametypeId){
+
+    const query = `SELECT DISTINCT server FROM nstats_matches WHERE gametype=?`;
+
+    const result = await simpleQuery(query, [gametypeId]);
+
+    return result.map((r) =>{
+        return r.server;
+    });
+}
 /**
  * delete a gametype and all matches and data associated with it
  */
@@ -724,6 +737,7 @@ export async function deleteGametypeFull(id){
 
     const mapIds = await getUniquePlayedMaps(id);
     const playerIds = await getUniquePlayedPlayers(id);
+    const serverIds = await getUniquePlayedServers(id);
 
     await deleteGametypeDomination(id);
     await deleteGametypeRankings(id);
@@ -747,7 +761,13 @@ export async function deleteGametypeFull(id){
         await recalculatePlayerTotals(playerIds, 0, mapIds[i]);
         await recalculateMapTotals(0, mapIds[i]);
     }
+
+    for(let i = 0; i < serverIds.length; i++){
+
+        await recalculateServerTotals(serverIds[i]);
+    }
     
 
+    await recalculateAllFaces();
     
 }
