@@ -308,7 +308,7 @@ export default function AdminMapManager(){
 
         loadData(dispatch, mDispatch);
 
-    }, []);
+    }, [mDispatch]);
 
     const tabOptions = [
         {"name": "Current Maps", "value": "list"},

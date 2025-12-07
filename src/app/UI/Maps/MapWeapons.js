@@ -150,7 +150,7 @@ export default function MapWeapons({mapId}){
 
         loadData(dispatch, mDispatch, mapId, state.gametypeId);
 
-    }, [mapId, state.gametypeId]);
+    }, [mapId, state.gametypeId, mDispatch]);
 
 
     const tabOptions = [

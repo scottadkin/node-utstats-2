@@ -440,7 +440,7 @@ export default function AdminGametypeManager(){
 
     useEffect(() =>{
         loadData(dispatch, mDispatch);
-    }, []);
+    }, [mDispatch]);
 
     const tabOptions = [
         {"name": "Current Gametypes", "value": "list"},

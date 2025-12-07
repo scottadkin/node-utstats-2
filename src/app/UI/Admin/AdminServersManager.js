@@ -275,7 +275,7 @@ export default function AdminServersManager(){
     useEffect(() =>{
 
         loadData(dispatch, mDispatch);
-    }, []);
+    }, [mDispatch]);
 
 
     const tabOptions = [

@@ -203,7 +203,7 @@ export default function AdminBackupManager(){
 
         loadBackupList(dispatch, mDispatch);
 
-    }, []);
+    }, [mDispatch]);
 
     if(state.bRestoreInProgress){
 

@@ -1,3 +1,4 @@
+"use client"
 import styles from './MessageBox.module.css';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -12,8 +13,8 @@ export default function MessageBox({text, title, children, type, timestamp}){
     const [hide, setHide] = useState(false);
 
     useEffect(() =>{
-        if(hide) test(setHide, false);
-    },[timestamp, hide]);
+        test(setHide, false);
+    },[timestamp]);
 
     if(children === null) return null;
     if(hide) return null;

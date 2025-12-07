@@ -476,7 +476,7 @@ export default function AdminPlayerHWIDManager(){
 
     useEffect(() =>{
         loadData(dispatch, mDispatch);
-    }, []);
+    }, [mDispatch]);
 
 
     const tabOptions = [

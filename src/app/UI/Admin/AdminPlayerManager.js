@@ -334,7 +334,7 @@ export default function AdminPlayerManager({}){
 
         loadNames(dispatch, mDispatch);
 
-    }, []);
+    }, [mDispatch]);
 
     const tabOptions = [
         {"name": "HWID Manager", "value": "hwid"},

@@ -249,7 +249,7 @@ export default function AdminRankingManager(){
 
     useEffect(() =>{
         loadSettings(dispatch, mDispatch);
-    }, []);
+    }, [mDispatch]);
 
     
 

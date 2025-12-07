@@ -6,6 +6,7 @@ import MessageBox from "../MessageBox";
 import Loading from "../Loading";
 import {BasicTable} from "../Tables";
 import { convertTimestamp } from "../../../../api/generic.mjs";
+import useMessageBoxReducer from "../../reducers/useMessageBoxReducer";
 
 const DEFAULT_FORM_VALUES = {
     "enabled": 1,
@@ -41,16 +42,6 @@ function reducer(state, action){
             return {
                 ...state,
                 "ftpServers": action.data
-            }
-        }
-        case "set-message": {
-
-            return {
-                ...state,
-                "messageType": action.messageType,
-                "messageTitle": action.title,
-                "messageContent": action.content,
-                "messageTimestamp": performance.now()
             }
         }
 
@@ -132,7 +123,7 @@ function reducer(state, action){
 
 
 
-async function update(mode, e, formData, dispatch, selectedEditServerId){
+async function update(mode, e, formData, dispatch, mDispatch, selectedEditServerId){
 
     try{
 
@@ -165,15 +156,15 @@ async function update(mode, e, formData, dispatch, selectedEditServerId){
         dispatch({"type": "set-bInProgress", "value": false});
 
         if(res.error !== undefined){
-            dispatch({"type": "set-message", "messageType": "error", "content": res.error});
+            mDispatch({"type": "set-message", "messageType": "error", "content": res.error});
         }else{
 
-            await loadFTPServers(dispatch);
+            await loadFTPServers(dispatch, mDispatch);
 
             if(mode === "add"){
-                dispatch({"type": "set-message", "messageType": "pass", "content": `Server added.`});
+                mDispatch({"type": "set-message", "messageType": "pass", "content": `Server added.`});
             }else if(mode === "edit"){
-                dispatch({"type": "set-message", "messageType": "pass", "content": `Server updated successfully.`});
+                mDispatch({"type": "set-message", "messageType": "pass", "content": `Server updated successfully.`});
             }
         }
 
@@ -196,7 +187,7 @@ function getServer(ftpServers, targetId){
     return null;
 }
 
-function renderForm(mode, bInProgress, formData, ftpServers, selectedEditServerId, dispatch){
+function renderForm(mode, bInProgress, formData, ftpServers, selectedEditServerId, dispatch, mDispatch){
 
     if(mode !== "add" && mode !== "edit") return null;
 
@@ -234,7 +225,7 @@ function renderForm(mode, bInProgress, formData, ftpServers, selectedEditServerI
 
     return <form className="form m-bottom-10" onSubmit={(e) =>{
 
-            update(mode, e, formData, dispatch, selectedEditServerId);
+            update(mode, e, formData, dispatch, mDispatch, selectedEditServerId);
        
         }}>
         <div className="form-header">{(mode === "add") ? "Add" : "Edit"} FTP Server</div>
@@ -349,7 +340,7 @@ function renderForm(mode, bInProgress, formData, ftpServers, selectedEditServerI
     </form>
 }
 
-async function loadFTPServers(dispatch){
+async function loadFTPServers(dispatch, mDispatch){
 
     try{
 
@@ -362,7 +353,7 @@ async function loadFTPServers(dispatch){
         const res = await req.json();
 
         if(res.error !== undefined){
-            dispatch({"type": "set-message", "messageType": "error", "content": res.error});
+            mDispatch({"type": "set-message", "messageType": "error", "content": res.error});
         }else{
             dispatch({"type": "set-server-list", "data": res.data});
         }
@@ -403,7 +394,7 @@ function renderList(mode, ftpServers){
     return <BasicTable width={1} headers={headers} rows={rows}/>
 }
 
-async function deleteServer(selectedServer, bInProgress, dispatch){
+async function deleteServer(selectedServer, bInProgress, dispatch, mDispatch){
 
     try{
 
@@ -420,8 +411,8 @@ async function deleteServer(selectedServer, bInProgress, dispatch){
 
         if(res.error !== undefined) throw new Error(res.error);
 
-        dispatch({"type": "set-message", "messageType": "pass", "title": "FTP Server Deleted", "content": "Successfully deleted ftp server."});
-        await loadFTPServers(dispatch);
+        mDispatch({"type": "set-message", "messageType": "pass", "title": "FTP Server Deleted", "content": "Successfully deleted ftp server."});
+        await loadFTPServers(dispatch, mDispatch);
         dispatch({"type": "set-bInProgress", "value": false});
 
 
@@ -429,12 +420,12 @@ async function deleteServer(selectedServer, bInProgress, dispatch){
         
     }catch(err){
         console.trace(err);
-        dispatch({"type": "set-message", "messageType": "error", "title": "Failed to delete server", "content": err.toString()});
+        mDispatch({"type": "set-message", "messageType": "error", "title": "Failed to delete server", "content": err.toString()});
         dispatch({"type": "set-bInProgress", "value": false});
     }
 }
 
-function renderDelete(mode, bInProgress, servers, selectedDeleteServerId, dispatch){
+function renderDelete(mode, bInProgress, servers, selectedDeleteServerId, dispatch, mDispatch){
 
     if(mode !== "delete") return null;
 
@@ -455,7 +446,7 @@ function renderDelete(mode, bInProgress, servers, selectedDeleteServerId, dispat
             
         </div>
         <button className="button delete-button m-top-10" onClick={() =>{
-            deleteServer(selectedDeleteServerId, bInProgress, dispatch);
+            deleteServer(selectedDeleteServerId, bInProgress, dispatch, mDispatch);
         }}>Delete Selected Server</button>
     </div>
 }
@@ -464,10 +455,6 @@ export default function AdminFTPManager({}){
 
     const [mode, setMode] = useState("list");
     const [state,dispatch] = useReducer(reducer, {
-        "messageType": null,
-        "messageTitle": null,
-        "messageContent": null,
-        "messageTimestamp": 0,
         "bInProgress": false,
         "ftpServers": [],
         "createServerFormData": {...DEFAULT_FORM_VALUES},
@@ -475,6 +462,8 @@ export default function AdminFTPManager({}){
         "selectedEditServerId": -1,
         "selectedDeleteServerId": -1,
     });
+
+    const [mState, mDispatch] = useMessageBoxReducer();
 
     const tabOptions = [
         {"name": "Current Servers", "value": "list"},
@@ -486,8 +475,8 @@ export default function AdminFTPManager({}){
 
     useEffect(() =>{
 
-        loadFTPServers(dispatch);
-    },[]);
+        loadFTPServers(dispatch, mDispatch);
+    },[mDispatch]);
 
 
     const currentFormData = (mode === "add") ? state.createServerFormData : state.editServerFormData;
@@ -495,12 +484,12 @@ export default function AdminFTPManager({}){
 
     return <>
         <div className="default-header">Admin FTP Manager</div>
-        <MessageBox type={state.messageType} title={state.messageTitle} timestamp={state.messageTimestamp}>{state.messageContent}</MessageBox>
+        <MessageBox type={mState.type} title={mState.title} timestamp={mState.timestamp}>{mState.content}</MessageBox>
 
         <Tabs options={tabOptions} selectedValue={mode} changeSelected={(a) => setMode(() => a)}/>
-        {renderForm(mode, state.bInProgress, currentFormData, state.ftpServers, state.selectedEditServerId, dispatch)}
+        {renderForm(mode, state.bInProgress, currentFormData, state.ftpServers, state.selectedEditServerId, dispatch, mDispatch)}
         {renderList(mode, state.ftpServers)}
-        {renderDelete(mode, state.bInProgress, state.ftpServers, state.selectedDeleteServerId, dispatch)}
+        {renderDelete(mode, state.bInProgress, state.ftpServers, state.selectedDeleteServerId, dispatch, mDispatch)}
     </>
 
 }

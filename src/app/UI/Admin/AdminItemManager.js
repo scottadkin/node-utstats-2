@@ -203,7 +203,7 @@ export default function AdminItemManager(){
     useEffect(() =>{
 
         loadData(dispatch, mDispatch);
-    }, []);
+    }, [mDispatch]);
 
    
 
