@@ -175,11 +175,11 @@ function renderBulkUpload(mode, bBulkInProgress, dispatch){
 			<div className="form-header">Naming Convention</div>	
 			<div className="form-info">
 				<ul>
-					<li>You only need to do this if you're using the bulk uploader or if you manually place map screenshots in /public/images/maps.<br/>
+					<li>You only need to do this if you&apos;re using the bulk uploader or if you manually place map screenshots in /public/images/maps.<br/>
 					If you use a single Image uploader next to a map screenshot status the website will automatically name the file to match the target map.</li>
 					<li>Image file names should match the file name of a map and not the map title.</li>
 					<li>Filenames should all be in lowercase.</li>
-					<li>Do not use [ ] ' ` characters</li>
+					<li>Do not use [ ] &apos; ` characters</li>
 					<li>Do not included gametype prefix in the file name</li>
 					<li>Do not included .unr extension in the file name</li>
 					<li>CTF-Face.unr will require an image called face.jpg</li>
@@ -339,7 +339,7 @@ export default function AdminMapScreenshots(){
 			<div className="form-info">
 				<ul>
 					<li>Use a 16:9 aspect ratio</li>
-					<li>Try To Target 1920x1080 at minimum.<br/>It doesn't matter if you use 4k or higher as 
+					<li>Try To Target 1920x1080 at minimum.<br/>It doesn&apos;t matter if you use 4k or higher as 
 					the website dynamically creates smaller images for better performance.</li>
 				</ul>
 			</div>

@@ -321,10 +321,10 @@ function getTabs(){
 
 export default function PlayerCTFSummary({ctfData}){
     
-    if(!bAnyData(ctfData)) return null;
-
     const [selectedMode, setSelectedMode] = useState(0);
     const [recordType, setRecordType] = useState(0);
+
+     if(!bAnyData(ctfData)) return null;
 
     const options = [
         {"name": "Totals", "value": 0},

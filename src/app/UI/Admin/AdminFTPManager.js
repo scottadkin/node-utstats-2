@@ -388,7 +388,7 @@ function renderList(mode, ftpServers){
     const rows = ftpServers.map((f) =>{
         return [
             {"className": "text-left", "value": f.name}, 
-            <Checkbox name="a" value={f.sftp}/>,      
+            <Checkbox key="cb" name="a" value={f.sftp}/>,      
             f.host, 
             f.port,
             {"className": "date", "value": convertTimestamp(f.first, true)},
@@ -396,7 +396,7 @@ function renderList(mode, ftpServers){
             f.total_imports,
             f.min_players,
             f.min_playtime,
-            <Checkbox name="b" value={f.enabled}/>,   
+            <Checkbox key="enabled" name="b" value={f.enabled}/>,   
         ];
     });
 

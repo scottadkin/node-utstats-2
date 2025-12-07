@@ -2,6 +2,7 @@
 import styles from "./MatchPermLink.module.css";
 import ErrorMessage from "../ErrorMessage";
 import { useState, useEffect } from "react";
+
 async function copyToClipboard(url, setError){
 
     try{
@@ -19,6 +20,10 @@ async function copyToClipboard(url, setError){
     }
 }
 
+function changeUrl(setUrl, value){
+    setUrl(() => value);
+}
+
 export default function MatchPermLink({hash}){
 
     "use client"
@@ -26,8 +31,8 @@ export default function MatchPermLink({hash}){
     const [url, setUrl] = useState("");
 
     useEffect(() =>{
-            setUrl(() => `${window.location.protocol}//${window.location.hostname}:${window.location.port}/match/${hash}`);
-    },[]);
+            changeUrl(setUrl, `${window.location.protocol}//${window.location.hostname}:${window.location.port}/match/${hash}`);
+    },[hash]);
 
 
     if(hash === "") return null;

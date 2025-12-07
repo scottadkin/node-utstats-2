@@ -62,10 +62,7 @@ function reducer(state, action){
             return {
                 "bLoading": false,
                 "error": null,
-                "data": action.data,
-                "graphData": action.graphData.data,
-                "graphLabels": action.graphData.labels,
-                "graphLabelsPrefix": action.labelsPrefix
+                "data": action.data
             }
         }
         default: return {...state}
@@ -111,7 +108,7 @@ function renderTable(players, matchId, bLoading){
     return <InteractiveTable width={2} headers={headers} data={data}/>;
 }
 
-async function loadData(controller, dispatch, matchId, playerIds, bHardcore, matchStart, matchEnd, players){
+async function loadData(controller, dispatch, matchId, playerIds){
 
     try{
 
@@ -128,8 +125,7 @@ async function loadData(controller, dispatch, matchId, playerIds, bHardcore, mat
             
             dispatch({
                 "type": "loaded", 
-                "data": res.data, 
-                "graphData": createGraphData(res.data, bHardcore, matchStart, matchEnd, players)
+                "data": res.data
             });
         }else{
             dispatch({"type": "error", "errorMessage": res.error});
@@ -159,7 +155,7 @@ export default function MatchPlayerPingHistory({matchId, players, playerIds, pla
         const controller = new AbortController();
 
 
-        loadData(controller, dispatch, matchId, playerIds, bHardcore, matchStart, matchEnd, players);
+        loadData(controller, dispatch, matchId, playerIds);
 
         return () =>{
             controller.abort();
@@ -170,6 +166,8 @@ export default function MatchPlayerPingHistory({matchId, players, playerIds, pla
 
     if(state.error !== null) return <ErrorMessage title="Player Ping History" text={state.error}/>
 
+    const graphData = createGraphData(state.data, bHardcore, matchStart, matchEnd, players);
+
     return <div>
         <div className="default-header">Player Ping History</div>
         {renderTable(players, matchId, state.bLoading)}
@@ -177,8 +175,8 @@ export default function MatchPlayerPingHistory({matchId, players, playerIds, pla
             tabs={[
                 {"name": "Ping", "title": "Player Ping"}
             ]} 
-            data={[state.graphData]} 
-            labels={[state.graphLabels]} 
+            data={[graphData.data]} 
+            labels={[graphData.labels]} 
             labelsPrefix={[
                 "Player Ping @ "
             ]}

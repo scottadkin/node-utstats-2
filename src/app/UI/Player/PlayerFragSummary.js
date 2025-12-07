@@ -208,11 +208,13 @@ function bAnyData(data){
 
 export default function PlayerFragSummary({data}){
 
-    if(!bAnyData(data.data)) return null;
+    
 
     const [mode, setMode] = useState(0);
     const [selectedGametype, setSelectedGametype] = useState(0);
     const [selectedMap, setSelectedMap] = useState(0);
+
+    if(!bAnyData(data.data)) return null;
 
     const gametypeNames = [];
     const mapNames = [];

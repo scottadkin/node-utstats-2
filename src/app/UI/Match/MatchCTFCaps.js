@@ -297,10 +297,10 @@ function createTableData(displayMode, matchId, playerData, totalTeams, matchStar
 }
 
 export default function MatchCTFCaps({matchId, playerData, totalTeams, matchStart, bHardcore, capData}){
-
-    if(capData === null) return null;
     
     const [displayMode, setDisplayMode] = useState(0);
+
+    if(capData === null) return null;
 
     if(playerData.length > 0 && playerData[0].ctfData === undefined) return null;
 

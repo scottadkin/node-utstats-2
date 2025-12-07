@@ -76,10 +76,10 @@ function renderTable(mode, data, playerId){
         return [
             {"className": "text-left", "value": <Link href={url}>{d.mapName}</Link>},
             {"className": "date", "value": <Link href={url}>{convertTimestamp(d.match_date)}</Link>},   
-            <Link href={url}>{d.gametypeName}</Link>,
-            <Link href={url}>{d.players}</Link>,
+            <Link key="a" href={url}>{d.gametypeName}</Link>,
+            <Link key="b" href={url}>{d.players}</Link>,
             {"className": "playtime", "value": <Link href={url}>{toPlaytime(d.playtime)}</Link>},
-            <Link href={url}>
+            <Link key="c" href={url}>
                 <MatchResultSmall 
                     totalTeams={d.total_teams} 
                     dmWinner={d.dmWinnerName} 
@@ -92,7 +92,7 @@ function renderTable(mode, data, playerId){
                     endReason={d.end_type}
                 />
             </Link>,
-            <PlayerMatchResult playerId={playerId} data={d}/>
+            <PlayerMatchResult key="d" playerId={playerId} data={d}/>
         ];
     });
 

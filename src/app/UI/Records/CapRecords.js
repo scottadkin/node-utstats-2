@@ -26,9 +26,9 @@ function renderSoloTable(mode, soloCaps){
     const rows = soloCaps.map((c) =>{
 
         return [
-            <Link href={`/map/${c.map_id}`}>{removeUnr(c.mapName)}</Link>,
+            <Link key="a" href={`/map/${c.map_id}`}>{removeUnr(c.mapName)}</Link>,
             convertTimestamp(c.date,true),
-            <Link href={`/player/${c.capPlayer.id}`}>
+            <Link key="b" href={`/player/${c.capPlayer.id}`}>
                 <CountryFlag country={c.capPlayer.country}/>
                 {c.capPlayer.name}
             </Link>,
@@ -69,15 +69,15 @@ function renderAssistsTable(mode, caps){
         });
         
         return [
-            <Link href={`/map/${c.map_id}`}>{removeUnr(c.mapName)}</Link>,
+            <Link key="a" href={`/map/${c.map_id}`}>{removeUnr(c.mapName)}</Link>,
             convertTimestamp(c.date, true),
-            <Link href={`/player/${c.grabPlayer.id}`}>
+            <Link key="b" href={`/player/${c.grabPlayer.id}`}>
                 <CountryFlag country={c.grabPlayer.country}/>{c.grabPlayer.name}
             </Link>,
             c.totalDrops,
             toPlaytime(c.drop_time, true),
             <>{assistedElems}</>,
-            <Link href={`/player/${c.capPlayer.id}`}>
+            <Link key="c" href={`/player/${c.capPlayer.id}`}>
                 <CountryFlag country={c.capPlayer.country}/>{c.capPlayer.name}
             </Link>,
             toPlaytime(c.travel_time, true),

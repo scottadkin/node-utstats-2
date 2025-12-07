@@ -104,10 +104,9 @@ function renderPrimaryStats(mode, data){
 }
 
 export default function CombogibPlayerMatch({data}){
-
-    if(data === null) return null;
     
     const [mode, setMode] = useState(0);
+    if(data === null) return null;
 
     const tabOptions = [
         {"name": "General Stats", "value": 0},

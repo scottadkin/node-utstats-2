@@ -154,7 +154,7 @@ function renderTable(state, dispatch){
 
         rows.push([
             `${place}${getOrdinal(place)}`, 
-            <Link href={`/player/${d.player_id}`}>   
+            <Link key="a" href={`/player/${d.player_id}`}>   
                 <CountryFlag country={player.country}/>
                 {player.name}        
             </Link>,

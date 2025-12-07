@@ -169,7 +169,7 @@ export default function AdminLogsFolder({}){
         <div className="default-header">Logs Folder Settings</div>
         <div className="form">
             <div className="form-info">
-                These are the settings the importer will use if you manually place logs in the website's /Logs folder.<br/>
+                These are the settings the importer will use if you manually place logs in the website&apos;s /Logs folder.<br/>
                 These settings are also used if there is a problem with an FTP or SFTP import and log files remain in the /Logs folder.
             </div>
             <MessageBox type={state.messageBox.type} title={state.messageBox.title} timestamp={state.messageBox.timestamp}>

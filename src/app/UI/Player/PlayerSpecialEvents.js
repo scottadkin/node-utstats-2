@@ -218,13 +218,15 @@ export default function PlayerSpecialEvents({data}){
         }
     }
 
-    if(!bFoundData) return null;
+    
 
     const [mode, setMode] = useState("ut99");
     const [cat, setCat] = useState(0);
     const [map, setMap] = useState(0);
     const [gametype, setGametype] = useState(0);
 
+    if(!bFoundData) return null;
+    
     const modeTabOptions = [
         {"name": "Classic", "value": "ut99"},
         {"name": "Smart CTF", "value": "smartCTF"},

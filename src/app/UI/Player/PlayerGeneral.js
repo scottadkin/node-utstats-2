@@ -23,7 +23,7 @@ export default function PlayerGeneral({country, face, data}){
 
     const row = [
 
-        <Image src={`/images/faces/${face}.png`} alt="face" width={46} height={46}/>,
+        <Image key="image" src={`/images/faces/${face}.png`} alt="face" width={46} height={46}/>,
         <React.Fragment key={"flag"}><CountryFlag country={data.country}/>{country}</React.Fragment>,
         {"className": "date", "value": convertTimestamp(data.first,true)},
         {"className": "date", "value": convertTimestamp(data.last,true)},

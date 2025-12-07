@@ -359,7 +359,7 @@ function renderCreateHWID(state, dispatch, mDispatch){
 
     return <div className="form">
         <div className="form-info">
-            Add a HWID that doesn't currently exist to the database.
+            Add a HWID that doesn&apos;t currently exist to the database.
         </div>
         <div className="form-row">
             <label htmlFor="hwid">HWID</label>
@@ -433,14 +433,14 @@ function renderHistory(state, dispatch, mDispatch){
                 {"className": "date", "value": convertTimestamp(m.match_date, true)},
                 m.gametypeName,
                 m.mapName,
-                <Link target="_blank" href={`/match/${m.match_id}`}>Match Link</Link>
+                <Link key="link" target="_blank" href={`/match/${m.match_id}`}>Match Link</Link>
             ]);
         }
     }
 
     return <>
         <div className="form m-bottom-25">
-            <div className="form-info">View A HWID's History.<br/>
+            <div className="form-info">View A HWID&apos;s History.<br/>
             If a player was only a spectator during a match their HWID will not have been available in the stats log.</div>
             <div className="form-row">
                 <label htmlFor="hwid">HWID</label>

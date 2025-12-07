@@ -95,7 +95,7 @@ function renderOptions(state, dispatch){
         rows.push([
             {"className": "text-left", "value": s.display_name},
             {"className": "small-font text-left", "value": s.description},
-            <input className="default-textbox small-font" type="number" value={s.value} onChange={(e) =>{
+            <input key="a" className="default-textbox small-font" type="number" value={s.value} onChange={(e) =>{
                 dispatch({"type": "update-setting", "cat": s.cat, "name": s.name, "value": e.target.value});
             }}/>
         ]);

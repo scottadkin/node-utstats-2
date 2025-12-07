@@ -29,15 +29,15 @@ const HomeMostPlayedGametypes = ({data, images}) =>{
 
         const originalLength = d.name.length;
 
-        d.name = d.name.slice(0, 40);
+        let name = d.name.slice(0, 40);
 
-        if(d.name.length < originalLength){
-            d.name += "...";
+        if(name.length < originalLength){
+            name += "...";
         }
 
         elems.push(<Link href={`/matches?gametype=${d.id}`} key={i}>
             <div className={styles.box}>
-                <div className={styles.name}>{d.name}</div>
+                <div className={styles.name}>{name}</div>
                 <div className={styles.image}><img src={`/images/gametypes/${currentImage}`} alt="image" className="thumb-sshot"/></div>
                 <div className={styles.info}>
                     Playtime <span className="playtime">{toPlaytime(d.playtime)}</span><br/>

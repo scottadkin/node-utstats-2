@@ -40,12 +40,12 @@ function createRows(matches){
         const url = `/match/${m.id}`;
 
         rows.push([
-            <Link href={url}>{convertTimestamp(m.date, true)}</Link>,
-            <Link href={url}>{m.serverName}</Link>,
-            <Link href={url}>{m.gametypeName}</Link>,
-            <Link href={url}>{removeUnr(m.mapName)}</Link>,
-            <Link href={url}>{m.players}</Link>,
-            <Link href={url}>{toPlaytime(m.playtime)}</Link>,
+            <Link key="a" href={url}>{convertTimestamp(m.date, true)}</Link>,
+            <Link key="b" href={url}>{m.serverName}</Link>,
+            <Link key="c" href={url}>{m.gametypeName}</Link>,
+            <Link key="d" href={url}>{removeUnr(m.mapName)}</Link>,
+            <Link key="e" href={url}>{m.players}</Link>,
+            <Link key="f" href={url}>{toPlaytime(m.playtime)}</Link>,
             <MatchResultSmall key={i}
                 totalTeams={m.total_teams} 
                 dmWinner={m.dmWinner} 

@@ -116,13 +116,13 @@ function renderTable(state, dispatch){
             {"className": "text-left", "value": i.name}, 
             convertTimestamp(i.last, true), 
             i.uses, 
-            <select className="default-select small-font" value={i.type} onChange={(e) =>{
+            <select key="dn" className="default-select small-font" value={i.type} onChange={(e) =>{
                 dispatch({"type": "change-setting", "id": i.id, "displayName": i.display_name, "itemType": e.target.value});
             }}>
                 {typeOptions}
             </select>,
            // getItemType(state.types, i.type), 
-            <input type="text" className="default-textbox small-font" value={i.display_name} onChange={(e) =>{
+            <input key="display-name" type="text" className="default-textbox small-font" value={i.display_name} onChange={(e) =>{
                 dispatch({"type": "change-setting", "id": i.id, "displayName": e.target.value, "itemType": i.type});
             }}/>
         ];

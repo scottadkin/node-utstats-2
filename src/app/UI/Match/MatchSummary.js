@@ -15,7 +15,9 @@ export default function MatchSummary({info, bPlayerPage, settings}){
         </div>);
     }
 
-    if(info.email === '') info.email = 'Not specified';
+    let email = "";
+
+    if(info.email === "") email = 'Not specified';
 
     let mutatorsElem = null;
 

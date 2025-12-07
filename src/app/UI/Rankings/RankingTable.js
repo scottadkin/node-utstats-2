@@ -41,7 +41,7 @@ export default function RankingTable({title, gametypeId, data, page, perPage, bD
             <Link key={i} href={`/player/${d.player_id}`}><CountryFlag country={d.country}/>{d.playerName}</Link>,
             convertTimestamp(d.last_active, true),
             toPlaytime(d.playtime),
-            <MouseOver display={mouseText}>{d.ranking} <Image src={`/images/${icon}`} alt="icon" width={12} height={12}/></MouseOver>
+            <MouseOver key="mo" display={mouseText}>{d.ranking} <Image src={`/images/${icon}`} alt="icon" width={12} height={12}/></MouseOver>
         ];
     });
 

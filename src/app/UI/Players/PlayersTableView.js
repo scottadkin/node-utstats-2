@@ -74,12 +74,12 @@ export default function PlayersTableView({data, order, sortBy, name, country, ac
         const url = `/player/${s.id}`;
 
         return [
-            <Link href={url}><CountryFlag country={s.country}/>{s.name}</Link>,
-            <Link href={url}>{convertTimestamp(s.last, true)}</Link>,
-            <Link href={url}>{toPlaytime(s.playtime)}</Link>,
-            <Link href={url}>{s.matches}</Link>,
-            <Link href={url}>{s.kills}</Link>,
-            <Link href={url}>{s.score}</Link>
+            <Link key="a" href={url}><CountryFlag country={s.country}/>{s.name}</Link>,
+            <Link key="b" href={url}>{convertTimestamp(s.last, true)}</Link>,
+            <Link key="c" href={url}>{toPlaytime(s.playtime)}</Link>,
+            <Link key="d" href={url}>{s.matches}</Link>,
+            <Link key="e" href={url}>{s.kills}</Link>,
+            <Link key="f" href={url}>{s.score}</Link>
         ];
     })]}/>
 

@@ -375,7 +375,7 @@ export default function AdminMatchesManager(){
 
         loadMatches(state.page, state.perPage, state.order, state.sortBy, state.selectedServer, state.selectedGametype, state.selectedMap, dispatch);
 
-    }, [state.page, state.order, state.sortBy, state.selectedServer, state.selectedGametype, state.selectedMap]);
+    }, [state.page, state.perPage, state.order, state.sortBy, state.selectedServer, state.selectedGametype, state.selectedMap]);
 
     const tabOptions = [
         {"name": "General", "value": "general"},

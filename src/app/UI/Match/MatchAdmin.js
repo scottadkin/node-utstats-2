@@ -181,7 +181,7 @@ export default function MatchAdmin({matchId}){
 
         loadData(dispatch, mDispatch, matchId);
 
-    }, []);
+    }, [matchId]);
 
     const tabOptions = [
         {"name": "Match Info", "value": "info"},

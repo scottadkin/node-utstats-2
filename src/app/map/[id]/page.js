@@ -98,7 +98,7 @@ export default async function Page({params, searchParams}){
             <Nav settings={navSettings} session={sessionSettings}/>		
             <div id="content">
                 <div className="default">
-                    <div className="default-header">Map Doesn't exist</div>
+                    <div className="default-header">Map Doesn&apos;t exist</div>
                 </div>    
             </div>   
         </main>; 

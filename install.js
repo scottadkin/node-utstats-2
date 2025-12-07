@@ -1679,7 +1679,7 @@ async function insertItems(){
         if(!existsSync(saltFileDest)){
 			new Message(`Creating password salt file`, "note");
             const seed = generateRandomString(10000);
-            const fileContents = `export default function (){  return \`${seed}\`;}`;
+            const fileContents = `export default function salt(){  return \`${seed}\`;}`;
 
             writeFileSync(saltFileDest, fileContents);
         }else{

@@ -68,11 +68,11 @@ function renderTableView(mode, data){
 		const url = `/map/${d.id}`;
 
 		rows.push([
-			<Link href={url}>{removeUnr(d.name)}</Link>,
-			<Link href={url}>{convertTimestamp(d.first)}</Link>,
-			<Link href={url}>{convertTimestamp(d.last)}</Link>,
-			<Link href={url}>{toPlaytime(d.playtime)}</Link>,
-			<Link href={url}>{d.matches}</Link>
+			<Link key="a" href={url}>{removeUnr(d.name)}</Link>,
+			<Link key="b" href={url}>{convertTimestamp(d.first)}</Link>,
+			<Link key="c" href={url}>{convertTimestamp(d.last)}</Link>,
+			<Link key="d" href={url}>{toPlaytime(d.playtime)}</Link>,
+			<Link key="e" href={url}>{d.matches}</Link>
 		]);
 	}
 

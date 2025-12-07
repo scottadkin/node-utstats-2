@@ -138,10 +138,12 @@ function bAnyData(data){
 
 export default function PlayerTeleFrags({data}){
 
-    if(!bAnyData(data)) return null;
+    
 
     const [mode, setMode] = useState(0);
     const [cat, setCat] = useState(0);
+
+    if(!bAnyData(data)) return null;
 
     const tabOptions = [
         {"name": "Telefrags", "value": 0},

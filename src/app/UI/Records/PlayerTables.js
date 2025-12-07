@@ -79,25 +79,25 @@ export function PlayerTotalsTable({type, typeTitle, data, page, perPage, totalRe
                 if(!bCTF){
                     return [
                         `${place}${getOrdinal(place)}`,
-                        <Link href={url}>
+                        <Link key="a" href={url}>
                             <CountryFlag country={d.country}/>
                             {d.name}
                         </Link>,
-                        <Link href={url}>{convertTimestamp(d.last,true)}</Link>,
-                        <Link href={url}>{d.matches}</Link>,
-                        <Link href={url}>{toPlaytime(d.playtime)}</Link>,
-                        <Link href={url}>{value}</Link>
+                        <Link key="b" href={url}>{convertTimestamp(d.last,true)}</Link>,
+                        <Link key="c" href={url}>{d.matches}</Link>,
+                        <Link key="d" href={url}>{toPlaytime(d.playtime)}</Link>,
+                        <Link key="e" href={url}>{value}</Link>
                     ];
                 }else{
                     return [
                         `${place}${getOrdinal(place)}`,
-                        <Link href={url}>
+                        <Link key="a"  href={url}>
                             <CountryFlag country={d.country}/>
                             {d.name}
                         </Link>,
-                        <Link href={url}>{d.total_matches}</Link>,
-                        <Link href={url}>{toPlaytime(d.playtime)}</Link>,
-                        <Link href={url}>{value}</Link>
+                        <Link key="b" href={url}>{d.total_matches}</Link>,
+                        <Link key="c" href={url}>{toPlaytime(d.playtime)}</Link>,
+                        <Link key="d" href={url}>{value}</Link>
                     ];
                 }
             })
@@ -148,15 +148,15 @@ export function PlayerMatchTable({type, typeTitle, data, page, perPage, totalRes
 
                 return [
                     `${place}${getOrdinal(place)}`,
-                    <Link href={url}>
+                    <Link key="a" href={url}>
                         <CountryFlag country={d.country}/>
                         {d.playerName}
                     </Link>,
-                    <Link href={url}>{convertTimestamp(d.match_date,true)}</Link>,
-                    <Link href={url}>{d.gametypeName}</Link>,
-                    <Link href={url}>{removeUnr(d.mapName)}</Link>,
-                    <Link href={url}>{toPlaytime(d.playtime)}</Link>,
-                    <Link href={url}>{value}</Link>
+                    <Link key="b" href={url}>{convertTimestamp(d.match_date,true)}</Link>,
+                    <Link key="c" href={url}>{d.gametypeName}</Link>,
+                    <Link key="d" href={url}>{removeUnr(d.mapName)}</Link>,
+                    <Link key="e" href={url}>{toPlaytime(d.playtime)}</Link>,
+                    <Link key="f" href={url}>{value}</Link>
                 ];
             })
         }/>

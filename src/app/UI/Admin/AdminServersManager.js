@@ -294,7 +294,7 @@ export default function AdminServersManager(){
                 Display name overrides what the website displays as the server name on the website.<br/>
                 Display address overrides the IP address that is displayed for the server.<br/>
                 Display port overrides the port that is displayed for the server.<br/>
-                If you don't set a display name and display address, name, ip, and port are updated based on the last log that the improter parased.
+                If you don&apos;t set a display name and display address, name, ip, and port are updated based on the last log that the improter parased.
 
             </div>
         </div>

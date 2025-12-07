@@ -243,7 +243,6 @@ async function deleteAllDuplicates(dispatch){
 
 export default function AdminMatchesDuplicates({mode, changeMode}){
 
-    if(mode !== "duplicates") return null;
 
     const [state, dispatch] = useReducer(reducer, {
         "data": [],
@@ -254,15 +253,16 @@ export default function AdminMatchesDuplicates({mode, changeMode}){
             "type": null,
             "title": null,
             "content": null,
-            "timestamp": performance.now()
+            "timestamp": 0
         }
     });
-
 
     useEffect(() =>{
 
         loadData(dispatch);
     }, []);
+
+    if(mode !== "duplicates") return null;
 
 
     let button = (state.bDeleteAllInProgress) ? null : <button className="button delete-button" onClick={() =>{

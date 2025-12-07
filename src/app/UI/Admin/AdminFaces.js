@@ -176,7 +176,6 @@ export default function AdminFaces({}){
 
     const [state, dispatch] = useReducer(reducer, {
         "data": [],
-        "test": performance.now(),
         "messageBox": {
             "type": null,
             "title": null,

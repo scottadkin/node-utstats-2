@@ -152,13 +152,13 @@ function renderList(state, dispatch){
 
     const rows = state.data.map((d) =>{
         return [
-            <input type="text" className="default-textbox small-font" value={d.name} onChange={(e) =>{
+            <input key="name" type="text" className="default-textbox small-font" value={d.name} onChange={(e) =>{
                 dispatch({"type": "change-setting", "id": d.id, "name": e.target.value, "importAs": d.auto_merge_id});
             }}/>,
             {"className": "date", "value": convertTimestamp(d.first, true)},
             d.matches,
             {"className": "playtime", "value": toPlaytime(d.playtime)},
-            <select className="default-select small-font" value={d.auto_merge_id} onChange={(e) =>{
+            <select key="ia" className="default-select small-font" value={d.auto_merge_id} onChange={(e) =>{
                 if(parseInt(e.target.value) === d.id) return;
                 dispatch({"type": "change-setting", "id": d.id, "name": d.name, "importAs": parseInt(e.target.value)});
             }}>

@@ -519,8 +519,6 @@ function renderWeaponTabs(mode, selectedWeaponId, weaponNames, dispatch){
 }    
 
 export default function MatchWeaponSummaryCharts({matchId, totalTeams, playerData, weaponStats}){
-
-    if(weaponStats === null) return null;
     
     const [state, dispatch] = useReducer(reducer, {
         "mode": -3,
@@ -529,6 +527,8 @@ export default function MatchWeaponSummaryCharts({matchId, totalTeams, playerDat
         "selectedStatType": "kills",
         "selectedWeaponId": null
     });
+
+    if(weaponStats === null) return null;
 
     const totalStats = createPlayerTotalStats(weaponStats.playerData, playerData);
 

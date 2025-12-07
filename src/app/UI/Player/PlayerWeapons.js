@@ -179,10 +179,10 @@ function bAnyData(data){
 
 export default function PlayerWeapons({defaultDisplayMode, totals, best}){
 
-    if(!bAnyData(totals)) return null;
-
     const [selectedMode, setSelectedMode] = useState(0);
     const [selectedWeapon, setSelectedWeapon] = useState(0);
+
+    if(!bAnyData(totals)) return null;
 
     const uniqueWeapons = getUniqueWeapons(totals, best, selectedWeapon, setSelectedWeapon);
 

@@ -274,12 +274,10 @@ function renderBestSingleEvent(mode, cat, data){
 
 export default function PlayerCombogibStats({data}){
 
-    
-    if(data.length === 0) return null;
-
-
     const [mode, setMode] = useState(0);
     const [cat, setCat] = useState(0);
+
+    if(data.length === 0) return null;
 
     const modeOptions = [
         {"name": "All Time", "value": 0},

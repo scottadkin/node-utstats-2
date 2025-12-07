@@ -3,13 +3,17 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 
 
+function test(setHide, value){
+    setHide(value);
+}
+
 export default function MessageBox({text, title, children, type, timestamp}){
 
     const [hide, setHide] = useState(false);
 
     useEffect(() =>{
-        if(hide) setHide(() => false);
-    },[timestamp]);
+        if(hide) test(setHide, false);
+    },[timestamp, hide]);
 
     if(children === null) return null;
     if(hide) return null;

@@ -4,13 +4,14 @@ import Image from "next/image";
 
 export default function PlayerMatchProfile({data, matchId, playerId}){
 
+    let country = data.country;
 
-    if(data.country === "") data.country = "xx";
+    if(country === "") country = "xx";
 
     return <div>
         <Link href={`/player/${playerId}`}>  
             <div className={`${styles.wrapper} center m-bottom-10`}>
-                Click to View <Image className={styles.flag} height={14} width={22} src={`/images/flags/${data.country.toLowerCase()}.svg`} alt="flag"/> 
+                Click to View <Image className={styles.flag} height={14} width={22} src={`/images/flags/${country.toLowerCase()}.svg`} alt="flag"/> 
                 <b> {data.name}{(data.name[data.name.length - 1] == "s") ? "'" : "'s"}</b> Career Profile.       
             </div>   
         </Link>
