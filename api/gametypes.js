@@ -8,7 +8,7 @@ import { mergeGametypes as mergePlayerGametypes, changeMatchDataGametypeId as ch
     deleteGametype as deleteGametypePlayers, recalculateTotals as recalculatePlayerTotals
  } from "./players.js";
 import { changeGametype as changeMatchGametype, deleteGametype as deleteGametypeMatches } from "./matches.js";
-import { mergeGametypes as mergeMapGametypes, deleteGametype as deleteGametypeMaps } from "./maps.js";
+import { mergeGametypes as mergeMapGametypes, deleteGametype as deleteGametypeMaps, recalculateTotals as recalculateMapTotals } from "./maps.js";
 import { mergeGametypes as mergeCombogibGametypes, deleteGametype as deleteGametypeCombogib } from "./combogib.js";
 import { mergeGametypes as mergeCTFGametypes, deleteGametype as deleteGametypeCTF } from "./ctf.js";
 import { mergeGametypes as mergeWeaponsGametypes, deleteGametype as deleteGametypeWeapons } from "./weapons.js";
@@ -745,7 +745,9 @@ export async function deleteGametypeFull(id){
     
     for(let i = 0; i < mapIds.length; i++){
         await recalculatePlayerTotals(playerIds, 0, mapIds[i]);
+        await recalculateMapTotals(0, mapIds[i]);
     }
+    
 
     
 }

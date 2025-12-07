@@ -330,6 +330,7 @@ async function bulkInsertGametype(data){
     for(let i = 0; i < data.length; i++){
 
         const d = data[i];
+        if(d.gametype == null) continue;
 
         let teleEff = 0;
 

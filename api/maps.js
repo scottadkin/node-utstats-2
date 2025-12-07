@@ -1,7 +1,8 @@
 import {simpleQuery} from "./database.js";
 import Message from "./message.js";
 import fs from "fs";
-import {cleanMapName, removeUnr, sanatizePage, sanatizePerPage, cleanInt, getPlayer, setIdNames, toMysqlDate} from "./generic.mjs";
+import {cleanMapName, removeUnr, sanatizePage, sanatizePerPage, cleanInt, 
+    getPlayer, setIdNames, toMysqlDate, DEFAULT_DATE, DEFAULT_MIN_DATE} from "./generic.mjs";
 import { getObjectName } from "./genericServerSide.mjs";
 import { getUniqueMGS } from "./matches.js";
 import { getBasicPlayersByIds } from "./players.js";
@@ -566,37 +567,6 @@ export default class Maps{
         return await simpleQuery(query, [mapId]);
     }
 
-    async merge(oldId, newId, matchManager, assaultManager, ctfManager, domManager, combogibManager, weaponsManager, 
-        playersManager, powerupsManager, teleFragsManager, winrateManager){
-
-        //const totalData = await this.getCombinedTotals(oldId, newId);
-        const oldMapTotals = await this.getDetails(oldId);
-
-
-        if(oldMapTotals !== null){
-
-            const t = oldMapTotals;
-
-            await this.updateTotalsFromMergeData(newId, t.first, t.last, t.matches, t.playtime);
-        }
-
-        await this.deleteMap(oldId);
-        await this.deleteFlags(oldId);
-        await this.deleteItemSpawns(oldId);
-        await this.deleteSpawnPoints(oldId);
-
-        await matchManager.changeMapId(oldId, newId);
-        await assaultManager.changeMapId(oldId, newId);
-        await ctfManager.changeMapId(oldId, newId);
-        await domManager.changeMapId(oldId, newId);
-        await combogibManager.changeMapId(oldId, newId);
-        await weaponsManager.changeMapId(oldId, newId);
-        await playersManager.changeMapId(oldId, newId);
-        await powerupsManager.changeMapId(oldId, newId);
-        await teleFragsManager.changeMapId(oldId, newId);
-        await winrateManager.changeMapId(oldId, newId);
-
-    }
 
 
     async rename(mapId, newName){
@@ -606,41 +576,6 @@ export default class Maps{
         return await simpleQuery(query, [newName, mapId]);
     }
 
-    async getAllPlayedMatchIds(mapId){
-
-        const query = `SELECT id FROM nstats_matches WHERE map=?`;
-
-        const result = await simpleQuery(query, [mapId]);
-
-        return result.map((r) =>{
-            return r.id;
-        });
-    }
-
-
-    async deleteAllMatches(matchManager, playerManager, mapId){
-
-
-        const matchIds = await this.getAllPlayedMatchIds(mapId);
-
-        for(let i = 0; i < matchIds.length; i++){
-
-            const m = matchIds[i];
-            await matchManager.deleteMatch(m, playerManager);
-        }
-    }
-
-    async setAutoMergeId(mapId, targetId){
-
-        if(mapId === targetId) throw new Error("You can't merge a map into itself.");
-        if(mapId === 0) throw new Error("You can't merge a with id of 0.");
-
-        const query = `UPDATE nstats_maps SET import_as_id=? WHERE id=?`;
-
-        await simpleQuery(query, [targetId, mapId]);
-
-    
-    }
 }
 
 export const validSearchOptions = [
@@ -1154,20 +1089,19 @@ async function setBasicTotals(mapId, first, last, matches, playtime){
     }
 
     const query = `UPDATE nstats_maps SET 
-    first = IF(first > ?, ?, first),
-    last = IF(last < ?, ?, last),
-    matches=matches+?,
-    playtime=playtime+?
+    first=?,
+    last=?,
+    matches=?,
+    playtime=?
     WHERE id=?`;
 
-    const vars = [first, first, last, last, matches, playtime, mapId];
+    const vars = [first, last, matches, playtime, mapId];
 
     return await simpleQuery(query, vars);
 }
 
 
 async function insertMapTotals(gametypeId, mapId, data){
-
 
     await deleteMapTotals(gametypeId, mapId);
 
@@ -1190,7 +1124,7 @@ async function insertMapTotals(gametypeId, mapId, data){
 
     const playtime = await getTotalPlaytime(mapId, gametypeId);
 
-    await setBasicTotals(mapId, d.first_match, d.last_match, d.total_matches, playtime);
+    await recalcBasicTotals(mapId);
 
     const vars = [
         gametypeId, mapId,
@@ -1218,6 +1152,14 @@ async function getTotalPlayedMatches(mapId, gametypeId){
 
     return result[0].total_matches;
 }
+
+async function resetAllTimeTotals(mapId){
+
+    const query = `UPDATE nstats_maps SET first=?,last=?,matches=0,playtime=0 WHERE id=?`;
+
+    return await simpleQuery(query, [DEFAULT_DATE, DEFAULT_MIN_DATE, mapId]);
+}
+
 
 export async function recalculateTotals(gametypeId, mapId){
 
@@ -1287,6 +1229,8 @@ export async function recalculateTotals(gametypeId, mapId){
 
         const r = result[i];
 
+        
+
         const totalMatches = await getTotalPlayedMatches(mapId, gametypeId);
 
         if(totalMatches === 0){
@@ -1298,8 +1242,11 @@ export async function recalculateTotals(gametypeId, mapId){
       
         }else{
             r.total_matches = totalMatches;
-            await insertMapTotals(gametypeId, mapId, r);
+
         }
+
+        await insertMapTotals(gametypeId, mapId, r);
+   
     }
 
     

@@ -2,7 +2,7 @@ import { bulkInsert, simpleQuery } from "./database.js";
 import Message from "./message.js";
 import { getAllGametypeNames, getAllIds as getAllGametypeIds } from "./gametypes.js";
 import { getBasicPlayersByIds, getAllPlayersGametypeMatchData, getPlayerLatestMatchDate } from "./players.js";
-import { DEFAULT_MIN_DATE, toMysqlDate } from "./generic.mjs";
+import { DEFAULT_DATE, DEFAULT_MIN_DATE, toMysqlDate } from "./generic.mjs";
 
 export const DEFAULT_RANKING_VALUES = [
     {"cat": "General", "name":"frags","display_name":"Kill","description":"Player Killed an enemy","value":300},
@@ -768,12 +768,15 @@ async function bulkUpdatePlayerCurrent(gametypeId, playerIds, data){
     const query = `INSERT INTO nstats_ranking_player_current (player_id,gametype,matches,
     playtime,ranking,ranking_change,last_active) VALUES ?`;
 
+
     const insertVars = [];
 
     for(const [playerId, playerData] of Object.entries(data)){
 
         insertVars.push([
-            playerId, gametypeId, playerData.matches, playerData.playtime, playerData.currentScore, playerData.rankingChange, playerData.matchDate,
+            playerId, gametypeId, playerData.matches, 
+            playerData.playtime, playerData.currentScore,
+             playerData.rankingChange, playerData.matchDate ?? playerData.latestDate,
         ]);
     }
 
@@ -925,8 +928,10 @@ async function recalculatePlayerGametype(playerId, gametypeId, settings, general
         "playtime": 0,
         "totalScore": 0,
         "score": 0,
-        "latestDate": null,
-        "matches": 0
+        "latestDate": new Date(DEFAULT_DATE),
+        "matches": 0,
+        "currentScore": 0,
+        "rankingChange": 0
     };
 
     for(let i = 0; i < result.length; i++){

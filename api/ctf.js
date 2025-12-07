@@ -3218,7 +3218,7 @@ async function bulkInsertPlayerTotals(data){
 
         const d = data[i];
 
-        if(d.playtime === 0) continue;
+        if(d.playtime === 0 || d.gametype == null) continue;
 
         insertVars.push([
             d.player_id, d.gametype_id, d.map_id,

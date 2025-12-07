@@ -25,7 +25,7 @@ import { deleteMatchData as deleteMatchWeaponData } from "./weapons.js";
 import { deleteMatchData as deleteMatchPowerupData } from "./powerups.js";
 import { deleteMatchData as deleteMatchRankingData } from "./rankings.js";
 import { deleteMatchData as deleteMatchWinRateData } from "./winrate.js";
-import { recalculateTotals as recalculateMapTotals } from "./maps.js";
+import { recalculateTotals as recalculateMapTotals, recalcBasicTotals as recalcBasicMapTotals } from "./maps.js";
 import { recalculateGametypeTotals } from "./gametypes.js";
 import { recalculateTotals as recalculateServerTotals } from "./servers.js";
 import { deleteMatchData as deleteMatchKills } from "./kills.js";
@@ -1173,6 +1173,7 @@ export async function adminDeleteMatch(id){
     
     await recalculateMapTotals(gametypeId, mapId);
     await recalculateMapTotals(0, mapId);
+    await recalcBasicMapTotals(mapId);
 
     await recalculateGametypeTotals(gametypeId);
 
