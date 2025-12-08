@@ -19,6 +19,8 @@ import { deleteGametype as deleteGametypeSprees, mergeGametypes as mergeSpreeGam
 import { deleteGametype as deleteGametypeDomination } from "./domination.js";
 import { recalculateTotals as recalculateServerTotals } from "./servers.js";
 import { recalculateAll as recalculateAllFaces } from "./faces.js";
+import { deleteMatches as deleteMatchesHeadshots } from "./headshots.js";
+import { deleteMatches as deleteMatchesItems } from "./items.js";
 
 export async function getAllGametypeNames(){
     
@@ -730,10 +732,23 @@ async function getUniquePlayedServers(gametypeId){
         return r.server;
     });
 }
+
+async function getUniquePlayedMatches(id){
+
+    const query = `SELECT id FROM nstats_matches WHERE gametype=?`;
+
+    const result = await simpleQuery(query, [id]);
+
+    return result.map((r) =>{
+        return r.id;
+    });
+}
 /**
  * delete a gametype and all matches and data associated with it
  */
 export async function deleteGametypeFull(id){
+
+    const matchIds = await getUniquePlayedMatches(id);
 
     const mapIds = await getUniquePlayedMaps(id);
     const playerIds = await getUniquePlayedPlayers(id);
@@ -769,5 +784,17 @@ export async function deleteGametypeFull(id){
     
 
     await recalculateAllFaces();
-    
+    await deleteMatchesHeadshots(matchIds);
+    await deleteMatchesItems(matchIds);
+    //items
+    //kills
+    //maps
+    //nstats_match_connections
+    //pings
+    //player_score
+    //team_changes
+    //monsters_players
+    //telefrags
+    //player_weapon_best
+    //player_weapon_totals
 }

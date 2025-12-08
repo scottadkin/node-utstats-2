@@ -720,13 +720,12 @@ export async function bulkUpdatePlayerTotals(playerIds, itemIds){
     if(playerIds.length === 0 || itemIds.length === 0) return;
 
 
+    await deleteMultiplePlayerTotals(playerIds, itemIds);
     const totals = await calculatePlayerTotals(playerIds, itemIds);
 
-     if(totals.length === 0) return;
+    if(totals.length === 0) return;
 
-    await deleteMultiplePlayerTotals(playerIds, itemIds);
-
-
+    
     const query = `INSERT INTO nstats_items_player (
     player,item,first,last,uses,matches) VALUES ?`;
 
@@ -828,4 +827,50 @@ export async function updateTotals(itemIds){
     if(itemIds.length === 0) return;
 
     await recalculateMultipleTotals(itemIds)
+}
+
+
+async function getItemsUsedInMatches(matchIds){
+
+    if(matchIds.length === 0) return [];
+
+    const query = `SELECT DISTINCT item FROM nstats_items_match WHERE match_id IN (?)`;
+
+    const result = await simpleQuery(query, [matchIds]);
+
+    return result.map((r) =>{
+        return r.item;
+    });
+}
+
+
+//we only care about players that have used items
+async function getPlayersInMatches(matchIds){
+
+    if(matchIds.length === 0) return [];
+
+    const query = `SELECT DISTINCT player_id FROM nstats_items_match WHERE match_id IN(?)`;
+
+    const result = await simpleQuery(query, [matchIds]);
+
+    return result.map((r) =>{
+        return r.player_id;
+    });
+}
+
+
+export async function deleteMatches(matchIds){
+
+    if(matchIds.length === 0) return;
+
+    const usedItems = await getItemsUsedInMatches(matchIds);
+    const playerIds = await getPlayersInMatches(matchIds);
+
+
+    const query = `DELETE FROM nstats_items_match WHERE match_id IN(?)`;
+    await simpleQuery(query, [matchIds]);
+
+
+    await updateTotals(usedItems);
+    await bulkUpdatePlayerTotals(playerIds, usedItems);
 }

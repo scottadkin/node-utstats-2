@@ -744,7 +744,6 @@ export async function deleteGametype(id){
     const matchIds = await getUniquePlayedMatches(id);
     const mapIds = await getUniquePlayedMaps(id);
 
-
     if(matchIds.length > 0){
         await simpleQuery("DELETE FROM nstats_dom_match_caps WHERE match_id IN (?)",[matchIds]);
         await simpleQuery("DELETE FROM nstats_dom_match_control_points WHERE match_id IN (?)", [matchIds]);

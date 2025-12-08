@@ -48,12 +48,6 @@ export default class Headshots{
         await simpleQuery("DELETE FROM nstats_headshots WHERE (killer = ?) OR (victim = ?)", [player, player]);
     }
 
-    async deleteMatches(ids){
-
-        if(ids.length === 0) return;
-
-        await simpleQuery("DELETE FROM nstats_headshots WHERE match_id IN (?)", [ids]);
-    }
 }
 
 
@@ -70,4 +64,11 @@ export async function deletePlayerData(playerId){
     const query = `DELETE FROM nstats_headshots WHERE killer=? OR victim=?`;
 
     return await simpleQuery(query, [playerId, playerId]);
+}
+
+export async function deleteMatches(ids){
+
+    if(ids.length === 0) return;
+
+    await simpleQuery("DELETE FROM nstats_headshots WHERE match_id IN (?)", [ids]);
 }
