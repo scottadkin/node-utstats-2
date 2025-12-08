@@ -5,7 +5,7 @@ import { getObjectName } from "./genericServerSide.mjs";
 import { DEFAULT_DATE, DEFAULT_MIN_DATE } from "./generic.mjs";
 import { mergeGametypes as mergeGametypesTelefrags, deleteGametype as deleteGametypeTelefrags } from "./telefrags.js";
 import { mergeGametypes as mergePlayerGametypes, changeMatchDataGametypeId as changePlayerMatchDataGametype,
-    deleteGametype as deleteGametypePlayers, recalculateTotals as recalculatePlayerTotals
+    deleteGametype as deleteGametypePlayers, recalculateTotals as recalculatePlayerTotals, deleteMatchesScoreHistory
  } from "./players.js";
 import { changeGametype as changeMatchGametype, deleteGametype as deleteGametypeMatches } from "./matches.js";
 import { mergeGametypes as mergeMapGametypes, deleteGametype as deleteGametypeMaps, recalculateTotals as recalculateMapTotals } from "./maps.js";
@@ -21,6 +21,11 @@ import { recalculateTotals as recalculateServerTotals } from "./servers.js";
 import { recalculateAll as recalculateAllFaces } from "./faces.js";
 import { deleteMatches as deleteMatchesHeadshots } from "./headshots.js";
 import { deleteMatches as deleteMatchesItems } from "./items.js";
+import { deleteMatches as deleteMatchesKills } from "./kills.js";
+import { deleteMatches as deleteMatchesConnections} from "./connections.js";
+import { deleteMatches as deleteMatchesPings } from "./pings.js";
+import { deleteMatches as deleteMatchesTeamChanges} from "./teams.js";
+
 
 export async function getAllGametypeNames(){
     
@@ -786,13 +791,14 @@ export async function deleteGametypeFull(id){
     await recalculateAllFaces();
     await deleteMatchesHeadshots(matchIds);
     await deleteMatchesItems(matchIds);
-    //items
-    //kills
+    await deleteMatchesKills(matchIds);
+    await deleteMatchesConnections(matchIds);
+    await deleteMatchesPings(matchIds);
+    await deleteMatchesScoreHistory(matchIds);
+    await deleteMatchesTeamChanges(matchIds);
+
+    //countries
     //maps
-    //nstats_match_connections
-    //pings
-    //player_score
-    //team_changes
     //monsters_players
     //telefrags
     //player_weapon_best

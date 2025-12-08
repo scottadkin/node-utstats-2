@@ -281,3 +281,12 @@ export async function deletePlayerFromMatch(playerId, matchId){
 
     return await simpleQuery(query, [matchId, playerId]);
 }
+
+export async function deleteMatches(matchIds){
+
+    if(matchIds.length === 0) return;
+
+    const query = `DELETE FROM nstats_match_pings WHERE match_id IN(?)`;
+
+    return await simpleQuery(query, [matchIds]);
+}

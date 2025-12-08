@@ -44,13 +44,6 @@ export default class Connections{
         await simpleQuery("DELETE FROM nstats_match_connections WHERE player=?", [playerId]);
     }
 
-    async deleteMatches(ids){
-
-        if(ids.length === 0) return;
-
-        await simpleQuery("DELETE FROM nstats_match_connections WHERE match_id IN (?)", [ids]);
-    }
-
     async getPlayerMatchData(matchId, playerId){
 
         const query = "SELECT timestamp,event FROM nstats_match_connections WHERE match_id=? AND player=?";
@@ -77,4 +70,11 @@ export async function deletePlayerFromMatch(playerId, matchId){
     const query = `DELETE FROM nstats_match_connections WHERE match_id=? AND player=?`;
 
     return await simpleQuery(query, [matchId, playerId]);
+}
+
+export async function deleteMatches(ids){
+
+    if(ids.length === 0) return;
+
+    await simpleQuery("DELETE FROM nstats_match_connections WHERE match_id IN (?)", [ids]);
 }

@@ -54,13 +54,6 @@ export default class Kills{
         await simpleQuery("DELETE FROM nstats_tele_frags WHERE (killer_id = ?) OR (victim_id = ?)", [player, player]);
     }
 
-    async deleteMatches(ids){
-
-        if(ids.length === 0) return;
-
-        await simpleQuery("DELETE FROM nstats_kills WHERE match_id IN (?)", [ids]);
-    }
-
     async getMatchKillsIncludingPlayer(matchId, playerId){
 
         const query = `SELECT timestamp,killer,killer_team,victim,victim_team,killer_weapon,victim_weapon,distance
@@ -452,4 +445,12 @@ export async function deletePlayerFromMatch(playerId, matchId){
     const query = `DELETE FROM nstats_kills WHERE match_id=? AND (killer=? OR victim=?)`;
 
     return await simpleQuery(query, [matchId, playerId, playerId]);
+}
+
+
+export async function deleteMatches(ids){
+
+    if(ids.length === 0) return;
+
+    await simpleQuery("DELETE FROM nstats_kills WHERE match_id IN (?)", [ids]);
 }

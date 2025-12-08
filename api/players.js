@@ -1824,6 +1824,15 @@ async function deleteMatchScoreHistory(matchId){
     return await simpleQuery(query, [matchId]);
 }
 
+export async function deleteMatchesScoreHistory(matchIds){
+
+    if(matchIds.length === 0) return;
+
+    const query = `DELETE FROM nstats_match_player_score WHERE match_id IN (?)`;
+
+    return await simpleQuery(query, [matchIds]);
+}
+
 export async function deletePlayersMatchData(matchId){
 
     const query = "DELETE FROM nstats_player_matches WHERE match_id=?";
