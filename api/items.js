@@ -626,6 +626,15 @@ async function deleteMatchMapItemLocations(matchId){
     return await simpleQuery(query, [matchId]);
 }
 
+export async function deleteMultipleMapItemLocations(matchIds){
+
+    if(matchIds.length === 0) return;
+
+    const query = `DELETE FROM nstats_map_items_locations WHERE match_id IN(?)`;
+
+    return await simpleQuery(query, [matchIds]);
+}
+
 export async function deleteMatchData(matchId, playerIds){
 
     const usedIds = await getAllIdsUsedInMatch(matchId);

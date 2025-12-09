@@ -20,11 +20,13 @@ import { deleteGametype as deleteGametypeDomination } from "./domination.js";
 import { recalculateTotals as recalculateServerTotals } from "./servers.js";
 import { recalculateAll as recalculateAllFaces } from "./faces.js";
 import { deleteMatches as deleteMatchesHeadshots } from "./headshots.js";
-import { deleteMatches as deleteMatchesItems } from "./items.js";
+import { deleteMatches as deleteMatchesItems, deleteMultipleMapItemLocations } from "./items.js";
 import { deleteMatches as deleteMatchesKills } from "./kills.js";
 import { deleteMatches as deleteMatchesConnections} from "./connections.js";
 import { deleteMatches as deleteMatchesPings } from "./pings.js";
 import { deleteMatches as deleteMatchesTeamChanges} from "./teams.js";
+import { recalculateTotals as recalculateCountries } from "./countriesmanager.js";
+import { deleteMatches as deleteMatchesMonsters} from "./monsterhunt.js";
 
 
 export async function getAllGametypeNames(){
@@ -780,6 +782,7 @@ export async function deleteGametypeFull(id){
     for(let i = 0; i < mapIds.length; i++){
         await recalculatePlayerTotals(playerIds, 0, mapIds[i]);
         await recalculateMapTotals(0, mapIds[i]);
+        await deleteMultipleMapItemLocations(mapIds[i]);
     }
 
     for(let i = 0; i < serverIds.length; i++){
@@ -796,11 +799,9 @@ export async function deleteGametypeFull(id){
     await deleteMatchesPings(matchIds);
     await deleteMatchesScoreHistory(matchIds);
     await deleteMatchesTeamChanges(matchIds);
-
-    //countries
-    //maps
-    //monsters_players
-    //telefrags
+    await recalculateCountries();
+    await deleteMatchesMonsters(matchIds);
+    
     //player_weapon_best
     //player_weapon_totals
 }

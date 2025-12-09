@@ -830,3 +830,51 @@ export async function deletePlayerFromMatch(playerId, matchId){
     await recalculateSelectedMonsterTotals(monsterIds);
     
 }
+
+
+async function getPlayersInMatches(matchIds){
+
+    if(matchIds.length === 0) return [];
+
+    const query = `SELECT DISTINCT player FROM nstats_monsters_player_match WHERE match_id IN(?)`;
+
+    const result = await simpleQuery(query, [matchIds]);
+
+
+    return result.map((r) =>{
+        return r.player;
+    });
+}
+
+async function getMonstersInMatches(matchIds){
+
+    if(matchIds.length === 0) return [];
+
+    const query = `SELECT DISTINCT monster FROM nstats_monsters_match WHERE match_id IN(?)`;
+
+    const result = await simpleQuery(query, [matchIds]);
+
+    return result.map((r) =>{
+        return r.monster;
+    }); 
+}
+
+export async function deleteMatches(matchIds){
+
+    if(matchIds.length === 0) return;
+
+    const playerIds =  await getPlayersInMatches(matchIds);
+    const monsterIds = await getMonstersInMatches(matchIds);
+
+    const tables = ["nstats_monsters_match", "nstats_monsters_player_match"];
+
+    for(let i = 0; i < tables.length; i++){
+
+        const t = tables[i];
+
+        await simpleQuery(`DELETE FROM ${t} WHERE match_id IN(?)`, [matchIds]);
+    }
+
+
+    await recalculatePlayerMonsterTotals(monsterIds, playerIds);
+}

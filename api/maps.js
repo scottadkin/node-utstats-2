@@ -1229,8 +1229,6 @@ export async function recalculateTotals(gametypeId, mapId){
 
         const r = result[i];
 
-        
-
         const totalMatches = await getTotalPlayedMatches(mapId, gametypeId);
 
         if(totalMatches === 0){
