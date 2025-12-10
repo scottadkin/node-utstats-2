@@ -49,7 +49,7 @@ export default class Matches{
 
     async insertMatch(date, server, matchString, gametype, map, version, minVersion, admin, email, region, motd, mutators, playtime, endType, start, end, insta,
         teamGame, gameSpeed, hardcore, tournament, airControl, useTranslocator, friendlyFireScale, netMode, maxSpectators, 
-        maxPlayers, totalTeams, totalPlayers, timeLimit, targetScore, dmWinner, dmScore, redScore, blueScore, greenScore, yellowScore, bMonsterHunt){
+        maxPlayers, totalTeams, totalPlayers, timeLimit, targetScore, dmWinner, dmScore, redScore, blueScore, greenScore, yellowScore, bMonsterHunt, bCTF){
 
         mutators = mutators.toString();
 
@@ -63,7 +63,7 @@ export default class Matches{
         if(targetScore === undefined) targetScore = 0;
 
 
-        const query = "INSERT INTO nstats_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,0,0,0,?,0,0,0,0,0,0,0,0,0)";
+        const query = "INSERT INTO nstats_matches VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,0,0,0,0,0,0,0,0,0,0,0,0)";
 
         const vars = [
             matchString,
@@ -71,6 +71,8 @@ export default class Matches{
             server, 
             gametype,
             map, 
+            bCTF,
+            bMonsterHunt, 
             version, 
             minVersion, 
             admin, 
@@ -102,8 +104,7 @@ export default class Matches{
             redScore,
             blueScore, 
             greenScore, 
-            yellowScore,
-            bMonsterHunt
+            yellowScore
 
         ];
 

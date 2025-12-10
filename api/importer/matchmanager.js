@@ -48,6 +48,8 @@ export default class MatchManager{
 
         this.bUsePlayerACEHWID = bUsePlayerACEHWID;
 
+        this.bCTF = false;
+
         new Message(`Starting import of log file ${fileName}`,"note");
         new Message(`Auto merge players by HWID is set to ${Boolean(this.bUsePlayerACEHWID)}`, "note");
 
@@ -548,7 +550,8 @@ export default class MatchManager{
             this.gameInfo.teamScores[1],
             this.gameInfo.teamScores[2],
             this.gameInfo.teamScores[3],
-            (this.mapInfo.mapPrefix === "MH") ? true : false
+            (this.mapInfo.mapPrefix === "MH") ? true : false,
+            this.bCTF
         );
 
     }
@@ -618,6 +621,7 @@ export default class MatchManager{
                 }
 
                 this.CTFManager.bHaveNStatsData = true;
+                this.bCTF = true;
 
                 this.CTFManager.lines.push(line);
                 return;
@@ -791,6 +795,7 @@ export default class MatchManager{
                     this.CTFManager = new CTFManager();
                 }
 
+                this.bCTF = true;
                 this.CTFManager.lines.push(line);
                 // this.ctfData.push(this.lines[i]);
             }
