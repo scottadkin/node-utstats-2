@@ -244,7 +244,7 @@ export default class MatchManager{
                 this.domManager.mapId = this.mapInfo.mapId;
                 this.domManager.matchId = this.matchId;
                 this.domManager.playerManager = this.playerManager;
-                this.domManager.parseData();
+                this.domManager.parseData(this.gameInfo.end, this.gameInfo.hardcore);
                 await this.domManager.updateControlPointStats();
                 await this.domManager.insertMatchControlPointStats();
                 await this.domManager.updateMatchDomCaps();

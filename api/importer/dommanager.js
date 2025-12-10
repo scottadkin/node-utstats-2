@@ -1,13 +1,15 @@
 import Domination, { bulkInsertControlPointCapData, bulkInsertPlayerScoreHistory } from "../domination.js";
 import { getMapControlPoints } from "../domination.js";
 import Message from "../message.js";
+import { scalePlaytime } from "../generic.mjs";
+
 
 export default class DOMManager{
 
     constructor(){
 
         this.data = [];
-        this.domPoints = [];
+        this.domPoints = {};
         this.teamScores = {
             "red": 0,
             "blue": 0,
@@ -19,18 +21,20 @@ export default class DOMManager{
         this.playerScores = [];
         this.capData = [];
         this.domination = new Domination();
+        this.playerControlPoints = {};
     }
 
-    parseData(){
+    parseData(matchEnd, bHardcore){
 
         const domPointReg = /^\d+\.\d+\tnstats\tdom_point\t(.+?)\t(.+?),(.+?),(.+)$/i;
         const capReg = /^(\d+\.\d+)\tcontrolpoint_capture\t(.+?)\t(.+)$/;
         const teamScoreReg = /^\d+\.\d+\tdom_score_update\t(.+?)\t(.+?)$/;
         const playerScoreReg = /^(\d+\.\d+)\tdom_playerscore_update\t(.+?)\t(.+)$/i;
 
-        let currentPlayer = 0;
 
         for(let i = 0; i < this.data.length; i++){
+
+            let currentPlayer = 0;
 
             const d = this.data[i];
 
@@ -51,9 +55,7 @@ export default class DOMManager{
                     currentPlayer = {"masterId": -1};
                 }else{
 
-                    if(this.playerManager.bIgnoreBots){
-                        if(currentPlayer.bBot) continue;
-                    }
+                    if(this.playerManager.bIgnoreBots && currentPlayer.bBot) continue;
                 }
 
                 this.pointCaptured(result[2], result[3]);
@@ -102,36 +104,105 @@ export default class DOMManager{
             }
         }
 
+
+        this.setDetailedCapData(matchEnd, bHardcore);
+
     }
 
 
+
+    setDetailedCapData(matchEnd, bHardcore){
+
+        //this doesn't work, stop being stupid and do something different
+
+        /*for(let i = 0; i < this.capData.length; i++){
+
+            const d = this.capData[i];
+
+            const timestamp = d.timestamp;
+
+            if(this.playerControlPoints[d.player] === undefined){
+                this.playerControlPoints[d.player] = {};
+            }
+
+            const point = this.getPoint(d.point);
+      
+            
+            if(this.playerControlPoints[d.player][d.point] === undefined){
+
+                this.playerControlPoints[d.player][d.point] = {
+                    "timeHeld": 0,
+                    "takenTimestamp": timestamp,
+                    "timesTaken": 1,
+                    "longestTimeHeld": 0,
+                    "shortestTimeHeld": null
+                };
+
+
+                point.takenBy = d.player;
+                point.takenTimestamp = timestamp;
+
+                continue;
+            }
+
+            const playerStats = this.playerControlPoints[point.takenBy][d.point];
+
+            const currentTimeTaken = timestamp - point.takenTimestamp;
+
+            playerStats.timeHeld += currentTimeTaken;
+            playerStats.timesTaken++;
+
+            if(playerStats.shortestTimeHeld === null || playerStats.shortestTimeHeld > currentTimeTaken) playerStats.shortestTimeHeld = currentTimeTaken;
+
+            if(currentTimeTaken > playerStats.longestTimeHeld) playerStats.longestTimeHeld = currentTimeTaken;
+
+            point.takenTimestamp = timestamp;
+            point.takenBy = d.player;
+
+        }
+
+        //console.log(this.playerControlPoints);
+
+        //need to loop through points and add matchEnd -  takenTimestamp to active players
+
+        for(const point of Object.values(this.domPoints)){
+
+            const diff = matchEnd - point.takenTimestamp;
+
+            const playerStats = this.playerControlPoints[point.takenBy][point.name];
+
+            playerStats.timeHeld += diff;
+
+            if(diff > playerStats.longestTimeHeld){
+                playerStats.longestTimeHeld = diff;
+            }
+
+            if(playerStats.shortestTimeHeld === null || playerStats.shortestTimeHeld > diff) playerStats.shortestTimeHeld = diff;
+        }
+
+        
+        console.log(this.playerControlPoints);*/
+    }
+
     createDomPoint(name, x, y, z){
 
-        this.domPoints.push({
+        this.domPoints[name] = {
             "name": name,
             "position": {
                 "x": parseFloat(x),
                 "y": parseFloat(y),
                 "z": parseFloat(z),
             },
-            "captured": 0      
-        });
+            "captured": 0,
+            "takenBy": null,
+            "takenTimestamp": null   
+        };
     }
 
 
     getPoint(name){
 
-        let d = 0;
-
-        for(let i = 0; i < this.domPoints.length; i++){
-
-            d = this.domPoints[i];
-
-            if(d.name === name){
-                return d;
-            }
-
-        }
+        if(this.domPoints[name] !== undefined) return this.domPoints[name];
 
         return null;
     }
@@ -182,36 +253,24 @@ export default class DOMManager{
 
     async updateControlPointStats(){
 
-        try{
+       
 
-            for(let i = 0; i < this.domPoints.length; i++){
+        for(const d of Object.values(this.domPoints)){
 
-                const d = this.domPoints[i];
-
-                await this.domination.updateMapControlPoint(this.mapId, d.name, d.captured, d.position);
-            }
-
-        }catch(err){
-            new Message(`updateControlPointStats ${err}`, 'error');
+            await this.domination.updateMapControlPoint(this.mapId, d.name, d.captured, d.position);
         }
+
+      
     }
 
     async insertMatchControlPointStats(){
 
-        try{
-
-            for(let i = 0; i < this.domPoints.length; i++){
-
-                const d = this.domPoints[i];
-
-                await this.domination.updateMatchControlPoint(this.matchId, this.mapId, d.name, d.captured, d.team);
-            }
-
-
-        }catch(err){    
-
-            new Message(`insertMatchControlPointStats ${err}`,'error');
+       
+        for(const d of Object.values(this.domPoints)){
+            await this.domination.updateMatchControlPoint(this.matchId, this.mapId, d.name, d.captured, d.team);
         }
+
+
     }
 
     async updateMatchDomCaps(){
@@ -220,9 +279,9 @@ export default class DOMManager{
 
             let total = 0;
 
-            for(let i = 0; i < this.domPoints.length; i++){
+            for(const d of Object.values(this.domPoints)){
 
-                total += this.domPoints[i].captured;
+                total += d.captured;
             }
 
             await this.domination.updateMatchDomCaps(this.matchId, total);
