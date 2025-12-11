@@ -244,30 +244,27 @@ export default class MatchManager{
                 this.domManager.mapId = this.mapInfo.mapId;
                 this.domManager.matchId = this.matchId;
                 this.domManager.playerManager = this.playerManager;
-                this.domManager.parseData(this.gameInfo.end, this.gameInfo.hardcore);
+                this.domManager.parseData(this.gameInfo.end, this.gameInfo.hardcore, this.killManager);
                 await this.domManager.updateControlPointStats();
                 await this.domManager.insertMatchControlPointStats();
                 await this.domManager.updateMatchDomCaps();
                 this.domManager.setPlayerDomCaps();
                 await this.domManager.insertMatchControlPointCaptures(this.matchId, this.mapInfo.mapId);
 
+                
+                new Message(`Inserting match domination data`,`note`);
+
+
+
                 await this.domManager.insertPlayerMatchStats(this.gametype.currentMatchGametype, this.mapInfo.mapId, this.matchId);
+                await this.domManager.updatePlayersMatchStats();
+                await this.domManager.insertMatchPlayerScores(this.matchId);
+                await this.domManager.updatePlayerLifeCaps(this.matchId);
 
                 new Message(`Domination stats update complete.`,'pass');
             }
             
 
-            if(this.domManager !== undefined){
-
-                new Message(`Inserting match domination data`,`note`);
-                this.domManager.setLifeCaps(this.killManager);
-
-
-                await this.domManager.updatePlayersMatchStats();
-                await this.domManager.insertMatchPlayerScores(this.matchId);
-                await this.domManager.updatePlayerLifeCaps(this.matchId);
-
-            }
 
             if(this.assaultManager !== undefined){
                 new Message(`Inserting match assault data`,`note`);

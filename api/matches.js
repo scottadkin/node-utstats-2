@@ -779,7 +779,7 @@ export async function getMatch(id){
         nstats_matches.time_limit,           nstats_matches.target_score,     nstats_matches.dm_winner,
         nstats_matches.dm_score,             nstats_matches.team_score_0,     nstats_matches.team_score_1,
         nstats_matches.team_score_2,         nstats_matches.team_score_3,     nstats_matches.attacking_team,
-        nstats_matches.assault_caps,         nstats_matches.dom_caps,         nstats_matches.mh_kills,
+        nstats_matches.assault_caps,         nstats_matches.mh_kills,
         nstats_matches.mh,                   nstats_matches.views,            nstats_matches.ping_min_average,
         nstats_matches.ping_average_average, nstats_matches.ping_max_average, nstats_matches.amp_kills,
         nstats_matches.amp_kills_team_0,     nstats_matches.amp_kills_team_1, nstats_matches.amp_kills_team_2,

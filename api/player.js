@@ -301,8 +301,8 @@ export default class Player{
 
     async getGametypeTotals(player, gametype){
 
-        const query = `SELECT frags,deaths,suicides,team_kills,dom_caps,assault_objectives,multi_1,multi_2,multi_3,multi_4,
-            multi_5,multi_6,multi_7,spree_1,spree_2,spree_3,spree_4,spree_5,spree_6,spree_7,dom_caps,assault_objectives,playtime,
+        const query = `SELECT frags,deaths,suicides,team_kills,assault_objectives,multi_1,multi_2,multi_3,multi_4,
+            multi_5,multi_6,multi_7,spree_1,spree_2,spree_3,spree_4,spree_5,spree_6,spree_7,assault_objectives,playtime,
             matches,mh_kills
             FROM nstats_player_totals WHERE gametype=? AND player_id=?
             `;
@@ -445,8 +445,7 @@ export async function getPlayerById(id){
     nstats_player_totals.multi_best,            nstats_player_totals.spree_1,            nstats_player_totals.spree_2,
     nstats_player_totals.spree_3,               nstats_player_totals.spree_4,            nstats_player_totals.spree_5,
     nstats_player_totals.spree_6,               nstats_player_totals.spree_7,            nstats_player_totals.spree_best,
-    nstats_player_totals.best_spawn_kill_spree, nstats_player_totals.assault_objectives, nstats_player_totals.dom_caps,
-    nstats_player_totals.dom_caps_best,         nstats_player_totals.dom_caps_best_life, nstats_player_totals.accuracy,
+    nstats_player_totals.best_spawn_kill_spree, nstats_player_totals.assault_objectives,  nstats_player_totals.accuracy,
     nstats_player_totals.k_distance_normal,     nstats_player_totals.k_distance_long,    nstats_player_totals.k_distance_uber,
     nstats_player_totals.headshots,             nstats_player_totals.shield_belt,        nstats_player_totals.amp,
     nstats_player_totals.amp_time,              nstats_player_totals.invisibility,       nstats_player_totals.invisibility_time,

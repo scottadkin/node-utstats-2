@@ -24,7 +24,7 @@ export default class DOMManager{
         this.playerControlPoints = {};
     }
 
-    parseData(matchEnd, bHardcore){
+    parseData(matchEnd, bHardcore, killManager){
 
         const domPointReg = /^\d+\.\d+\tnstats\tdom_point\t(.+?)\t(.+?),(.+?),(.+)$/i;
         const capReg = /^(\d+\.\d+)\tcontrolpoint_capture\t(.+?)\t(.+)$/;
@@ -105,12 +105,12 @@ export default class DOMManager{
         }
 
 
-        this.setDetailedCapData(matchEnd, bHardcore);
+        this.setDetailedCapData(matchEnd, bHardcore, killManager);
 
     }
 
 
-    updatePlayerControlPoint(playerId, pointName, timeHeld){
+    updatePlayerControlPoint(playerId, pointName, timeHeld, currentTimestamp, killManager){
 
         if(this.playerControlPoints[playerId] === undefined){
             this.playerControlPoints[playerId] = {};
@@ -121,7 +121,10 @@ export default class DOMManager{
                 "totalTimeHeld": 0,
                 "timesTaken": 0,
                 "minTimeHeld": null,
-                "maxTimeHeld": null
+                "maxTimeHeld": null,
+                "capsBestLife": 0,
+                "currentCapsLife": 0,
+                "lastTakenTimestamp": 0
             };
         }
 
@@ -138,9 +141,22 @@ export default class DOMManager{
             data.maxTimeHeld = timeHeld;
         }
 
+        //if player had 0 deaths between caps on the same point update their current life caps as well
+        const deaths = killManager.getDeathsBetween(data.lastTakenTimestamp, currentTimestamp, playerId);
+
+        if(deaths === 0){
+            data.currentCapsLife++;
+        }else{
+            data.currentCapsLife = 1;
+        }
+
+        if(data.currentCapsLife > data.capsBestLife) data.capsBestLife = data.currentCapsLife;
+
+        data.lastTakenTimestamp = currentTimestamp;
+
     }
 
-    setDetailedCapData(matchEnd, bHardcore){
+    setDetailedCapData(matchEnd, bHardcore, killManager){
 
         const pointInfo = {};
 
@@ -164,8 +180,9 @@ export default class DOMManager{
 
             const diff = timestamp - point.takenTimestamp;
 
+            //const deaths = killManager.getDeathsBetween(currentPlayer.stats.dom.lastCapTime, c.timestamp, c.player)
             //add diff to the previous player that held this point
-            this.updatePlayerControlPoint(point.heldBy, d.point, scalePlaytime(diff, bHardcore));
+            this.updatePlayerControlPoint(point.heldBy, d.point, scalePlaytime(diff, bHardcore), timestamp, killManager);
 
             //dont forget to update the control point to the new player
             point.takenTimestamp = timestamp;
@@ -176,7 +193,7 @@ export default class DOMManager{
 
             const diff = matchEnd - data.takenTimestamp;
 
-            this.updatePlayerControlPoint(data.heldBy, name, scalePlaytime(diff, bHardcore));
+            this.updatePlayerControlPoint(data.heldBy, name, scalePlaytime(diff, bHardcore), matchEnd, killManager);
         }
 
         for(const points of Object.values(this.playerControlPoints)){
@@ -306,35 +323,35 @@ export default class DOMManager{
 
     async setPlayerDomCaps(){
 
-        try{
 
-            for(const player in this.playerCaps){
+        for(const player in this.playerCaps){
 
-                const currentPlayer = this.playerManager.getPlayerByMasterId(player);
+            const currentPlayer = this.playerManager.getPlayerByMasterId(player);
 
-                if(currentPlayer !== null){
+            if(currentPlayer !== null){
 
-                    if(this.playerManager.bIgnoreBots){
-                        if(currentPlayer.bBot) continue;
-                    }
-
-                    await this.domination.updatePlayerCapTotals(
-                        currentPlayer.masterId, 
-                        currentPlayer.gametypeId, 
-                        this.playerCaps[player]
-                    );
-                    currentPlayer.stats.dom.caps = this.playerCaps[player];
-
-                }else{
-                    new Message(`setPlayerDomCaps currentPlayer is null`,'warning');
+                if(this.playerManager.bIgnoreBots){
+                    if(currentPlayer.bBot) continue;
                 }
+
+                /*await this.domination.updatePlayerCapTotals(
+                    currentPlayer.masterId, 
+                    currentPlayer.gametypeId, 
+                    this.playerCaps[player]
+                );*/
+                currentPlayer.stats.dom.caps = this.playerCaps[player];
+
+            }else{
+                new Message(`setPlayerDomCaps currentPlayer is null`,'warning');
             }
-        }catch(err){    
-            new Message(`setPlayerDomCaps ${err}`,'warning');
-        }    
+        }
+      
     }
 
     async updatePlayersMatchStats(matchId){
+
+
+        return;
 
         try{
 
@@ -398,7 +415,7 @@ export default class DOMManager{
     }
 
 
-    setLifeCaps(killManager){
+    /*setLifeCaps(killManager){
 
         for(let i = 0; i < this.capData.length; i++){
 
@@ -418,17 +435,18 @@ export default class DOMManager{
 
                 }else{    
                     currentPlayer.stats.dom.currentCaps++;
+                }
 
-                    if(currentPlayer.stats.dom.currentCaps > currentPlayer.stats.dom.mostCapsLife){
-                        currentPlayer.stats.dom.mostCapsLife = currentPlayer.stats.dom.currentCaps;
-                    }
+                if(currentPlayer.stats.dom.currentCaps > currentPlayer.stats.dom.mostCapsLife){
+                    currentPlayer.stats.dom.mostCapsLife = currentPlayer.stats.dom.currentCaps;
                 }
             }
         }
-    }
+    }*/
 
     async updatePlayerLifeCaps(matchId){
 
+        return;
         try{
 
             for(let i = 0; i < this.playerManager.players.length; i++){

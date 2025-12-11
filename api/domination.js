@@ -74,22 +74,6 @@ export default class Domination{
         return await simpleQuery(query, [total, matchId]);        
     }
 
-    async updatePlayerCapTotals(masterId, gametypeId, caps){
-
-
-        const query = `UPDATE nstats_player_totals SET dom_caps=dom_caps+?,
-        dom_caps_best = IF(dom_caps_best < ?, ?, dom_caps_best)
-        WHERE id IN(?,?)`;
-
-        return await simpleQuery(query, [caps, caps, caps, masterId, gametypeId]);
-        
-    }
-
-    async updatePlayerMatchStats(matchId, playerId, caps){
-
-        const query = "UPDATE nstats_player_matches SET dom_caps=? WHERE match_id=? AND player_id=?";
-        return await simpleQuery(query, [caps, matchId, playerId]);
-    }
 
 
     async getMatchDomPoints(matchId){
@@ -118,23 +102,6 @@ export default class Domination{
         return await simpleQuery(query, [id]);
     }
 
-    async updatePlayerBestLifeCaps(gametypeId, masterId, caps){
-
-        const query = `UPDATE nstats_player_totals SET 
-        dom_caps_best_life = IF(dom_caps_best_life < ?, ?, dom_caps_best_life)
-        WHERE id IN(?,?)`;
-
-        return await simpleQuery(query, [caps, caps, gametypeId, masterId]);
-    }
-
-    async updateMatchBestLifeCaps(playerId, matchId, caps){
-
-        const query = `UPDATE nstats_player_matches SET 
-        dom_caps_best_life = IF(dom_caps_best_life < ?, ?, dom_caps_best_life)
-        WHERE player_id=? AND match_id=?`;
-
-        return await simpleQuery(query, [caps, caps, playerId, matchId]);
-    }
 
     async changeCapPlayerId(oldId, newId){
 
@@ -736,7 +703,7 @@ export async function deletePlayerFromMatch(playerId, matchId){
 
 export async function getUniquePlayedMatches(id){
 
-    const query = `SELECT DISTINCT match_id FROM nstats_player_matches WHERE dom_caps!=0 AND gametype=?`;
+    const query = `SELECT DISTINCT match_id FROM nstats_matches WHERE dom_caps!=0 AND gametype=?`;
 
     const result = await simpleQuery(query, [id]);
 
@@ -747,7 +714,7 @@ export async function getUniquePlayedMatches(id){
 
 export async function getUniquePlayedMaps(id){
 
-    const query = `SELECT DISTINCT map_id FROM nstats_player_matches WHERE dom_caps!=0 AND gametype=?`;
+    const query = `SELECT DISTINCT map_id FROM nstats_matches WHERE dom_caps!=0 AND gametype=?`;
 
     const result = await simpleQuery(query, [id]);
 
@@ -789,7 +756,7 @@ export async function bulkInsertPlayerMatchStats(gametypeId, mapId, matchId, pla
 
             insertVars.push([
                 matchId, mapId, gametypeId, playerId, pointId,
-                data.timesTaken, data.totalTimeHeld, data.minTimeHeld,
+                data.timesTaken, data.capsBestLife, data.totalTimeHeld, data.minTimeHeld,
                 data.averageTimeHeld, data.maxTimeHeld
             ]);
         }
@@ -797,7 +764,7 @@ export async function bulkInsertPlayerMatchStats(gametypeId, mapId, matchId, pla
 
     const query = `INSERT INTO nstats_dom_match_player_control_points (
     match_id, map_id, gametype_id, player_id, point_id, 
-    times_taken, time_held, shortest_time_held, average_time_held, max_time_held) VALUES ?`;
+    times_taken, times_taken_best_life, time_held, shortest_time_held, average_time_held, max_time_held) VALUES ?`;
 
     await bulkInsert(query, insertVars);
 }

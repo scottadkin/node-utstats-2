@@ -464,7 +464,7 @@ function calculateRanking(data, settings, ctfColumns){
 
     let currentScore = 0;
 
-    const cats = ["General", "Domination", "Assault", "Monster Hunt"];
+    const cats = ["General", /*"Domination",*/ "Assault", "Monster Hunt"];
 
     for(let x = 0; x < cats.length; x++){
 
@@ -634,7 +634,7 @@ async function recalculateGametypeIncSettings(gametypeId, settings, generalColum
 
 function splitGeneralCTFColumns(settings){
 
-    const mustExist = ["Capture The Flag", "General", "Domination", "Assault", "Monster Hunt"];
+    const mustExist = ["Capture The Flag", "General", /*"Domination",*/ "Assault", "Monster Hunt"];
 
     for(let i = 0; i < mustExist.length; i++){
 
@@ -647,7 +647,7 @@ function splitGeneralCTFColumns(settings){
         return s.name;
     });
 
-    generalColumns.push(...settings["Domination"].map((s) => s.name));
+   // generalColumns.push(...settings["Domination"].map((s) => s.name));
     generalColumns.push(...settings["Assault"].map((s) => s.name));
     generalColumns.push(...settings["Monster Hunt"].map((s) => s.name));
 
