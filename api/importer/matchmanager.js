@@ -251,6 +251,8 @@ export default class MatchManager{
                 this.domManager.setPlayerDomCaps();
                 await this.domManager.insertMatchControlPointCaptures(this.matchId, this.mapInfo.mapId);
 
+                await this.domManager.insertPlayerMatchStats(this.gametype.currentMatchGametype, this.mapInfo.mapId, this.matchId);
+
                 new Message(`Domination stats update complete.`,'pass');
             }
             

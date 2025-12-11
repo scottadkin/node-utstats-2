@@ -757,3 +757,29 @@ export async function deleteGametype(id){
         }
     }
 }
+
+
+export async function bulkInsertPlayerMatchStats(gametypeId, mapId, matchId, playerControlPoints, pointIds){
+
+    const insertVars = [];
+
+    for(const [playerId, playerData]  of Object.entries(playerControlPoints)){
+
+        for(const [pointName, data] of Object.entries(playerData)){
+
+            const pointId = pointIds[pointName] ?? -1;
+
+            insertVars.push([
+                matchId, mapId, gametypeId, playerId, pointId,
+                data.timesTaken, data.totalTimeHeld, data.minTimeHeld,
+                data.averageTimeHeld, data.maxTimeHeld
+            ]);
+        }
+    }
+
+    const query = `INSERT INTO nstats_dom_match_player_control_points (
+    match_id, map_id, gametype_id, player_id, point_id, 
+    times_taken, time_held, shortest_time_held, average_time_held, max_time_held) VALUES ?`;
+
+    await bulkInsert(query, insertVars);
+}

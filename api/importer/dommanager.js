@@ -1,5 +1,5 @@
 import Domination, { bulkInsertControlPointCapData, bulkInsertPlayerScoreHistory } from "../domination.js";
-import { getMapControlPoints } from "../domination.js";
+import { getMapControlPoints, bulkInsertPlayerMatchStats } from "../domination.js";
 import Message from "../message.js";
 import { scalePlaytime } from "../generic.mjs";
 
@@ -110,79 +110,89 @@ export default class DOMManager{
     }
 
 
+    updatePlayerControlPoint(playerId, pointName, timeHeld){
+
+        if(this.playerControlPoints[playerId] === undefined){
+            this.playerControlPoints[playerId] = {};
+        }
+
+        if(this.playerControlPoints[playerId][pointName] === undefined){
+            this.playerControlPoints[playerId][pointName] = {
+                "totalTimeHeld": 0,
+                "timesTaken": 0,
+                "minTimeHeld": null,
+                "maxTimeHeld": null
+            };
+        }
+
+        const data = this.playerControlPoints[playerId][pointName];
+
+        data.timesTaken++;
+        data.totalTimeHeld += timeHeld;
+
+        if(data.minTimeHeld === null || timeHeld < data.minTimeHeld){
+            data.minTimeHeld = timeHeld;
+        }
+
+        if(data.maxTimeHeld === null || timeHeld > data.maxTimeHeld){
+            data.maxTimeHeld = timeHeld;
+        }
+
+    }
 
     setDetailedCapData(matchEnd, bHardcore){
 
-        //this doesn't work, stop being stupid and do something different
+        const pointInfo = {};
 
-        /*for(let i = 0; i < this.capData.length; i++){
+        for(let i = 0; i < this.capData.length; i++){
 
             const d = this.capData[i];
 
             const timestamp = d.timestamp;
 
-            if(this.playerControlPoints[d.player] === undefined){
-                this.playerControlPoints[d.player] = {};
-            }
+            if(pointInfo[d.point] === undefined){
 
-            const point = this.getPoint(d.point);
-      
-            
-            if(this.playerControlPoints[d.player][d.point] === undefined){
-
-                this.playerControlPoints[d.player][d.point] = {
-                    "timeHeld": 0,
-                    "takenTimestamp": timestamp,
-                    "timesTaken": 1,
-                    "longestTimeHeld": 0,
-                    "shortestTimeHeld": null
+                pointInfo[d.point] = {
+                    "heldBy": d.player,
+                    "takenTimestamp": timestamp
                 };
-
-
-                point.takenBy = d.player;
-                point.takenTimestamp = timestamp;
 
                 continue;
             }
 
-            const playerStats = this.playerControlPoints[point.takenBy][d.point];
+            const point = pointInfo[d.point];
 
-            const currentTimeTaken = timestamp - point.takenTimestamp;
+            const diff = timestamp - point.takenTimestamp;
 
-            playerStats.timeHeld += currentTimeTaken;
-            playerStats.timesTaken++;
+            //add diff to the previous player that held this point
+            this.updatePlayerControlPoint(point.heldBy, d.point, scalePlaytime(diff, bHardcore));
 
-            if(playerStats.shortestTimeHeld === null || playerStats.shortestTimeHeld > currentTimeTaken) playerStats.shortestTimeHeld = currentTimeTaken;
-
-            if(currentTimeTaken > playerStats.longestTimeHeld) playerStats.longestTimeHeld = currentTimeTaken;
-
+            //dont forget to update the control point to the new player
             point.takenTimestamp = timestamp;
-            point.takenBy = d.player;
-
+            point.heldBy = d.player;
         }
 
-        //console.log(this.playerControlPoints);
+        for(const [name, data] of Object.entries(pointInfo)){
 
-        //need to loop through points and add matchEnd -  takenTimestamp to active players
+            const diff = matchEnd - data.takenTimestamp;
 
-        for(const point of Object.values(this.domPoints)){
+            this.updatePlayerControlPoint(data.heldBy, name, scalePlaytime(diff, bHardcore));
+        }
 
-            const diff = matchEnd - point.takenTimestamp;
+        for(const points of Object.values(this.playerControlPoints)){
 
-            const playerStats = this.playerControlPoints[point.takenBy][point.name];
+            for(const pointData of Object.values(points)){
 
-            playerStats.timeHeld += diff;
+                pointData.averageTimeHeld = 0;
 
-            if(diff > playerStats.longestTimeHeld){
-                playerStats.longestTimeHeld = diff;
+                if(pointData.timesTaken > 0 && pointData.totalTimeHeld > 0){
+
+                    pointData.averageTimeHeld = pointData.totalTimeHeld / pointData.timesTaken;
+                }
             }
-
-            if(playerStats.shortestTimeHeld === null || playerStats.shortestTimeHeld > diff) playerStats.shortestTimeHeld = diff;
         }
-
-        
-        console.log(this.playerControlPoints);*/
     }
+
 
     createDomPoint(name, x, y, z){
 
@@ -260,6 +270,8 @@ export default class DOMManager{
             await this.domination.updateMapControlPoint(this.mapId, d.name, d.captured, d.position);
         }
 
+
+        this.pointIds = await getMapControlPoints(this.mapId);
       
     }
 
@@ -360,13 +372,13 @@ export default class DOMManager{
 
         try{
 
-            const pointIds = await getMapControlPoints(mapId);
+            //const pointIds = await getMapControlPoints(mapId);
 
             for(let i = 0; i < this.capData.length; i++){
 
                 const d = this.capData[i];
 
-                let pointId = pointIds?.[d.point] ?? -1;
+                const pointId = this.pointIds?.[d.point] ?? -1;
 
                 d.pointId = pointId;
 
@@ -431,5 +443,12 @@ export default class DOMManager{
         }catch(err){
             console.trace(err);
         }
+    }
+
+
+    async insertPlayerMatchStats(gametypeId, mapId, matchId){
+
+
+        await bulkInsertPlayerMatchStats(gametypeId, mapId, matchId, this.playerControlPoints, this.pointIds);
     }
 }
