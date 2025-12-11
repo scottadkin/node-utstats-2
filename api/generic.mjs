@@ -21,7 +21,7 @@ export function getNameFromDropDownList(names, targetId){
 
 export function plural(value, word){
 
-    if(value == "") return "";
+    if(value === "") return "";
 
     if(value === 1) return word;
 

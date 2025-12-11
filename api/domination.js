@@ -1,7 +1,7 @@
 import { bulkInsert, simpleQuery } from "./database.js";
 import Message from "./message.js";
 import { getBasicPlayersByIds } from "./players.js";
-import { getTeamName } from "./generic.mjs";
+import { getPlayer, getTeamName } from "./generic.mjs";
 import { getObjectName } from "./genericServerSide.mjs";
 
 export default class Domination{
@@ -476,6 +476,16 @@ async function getPlayerCapsGraphData(matchId, pointNames){
     
 }
 
+async function getMatchPlayerControlPointStats(matchId){
+
+    const query = `SELECT player_id,point_id,times_taken,time_held,
+    shortest_time_held,average_time_held,max_time_held 
+    FROM nstats_dom_match_player_control_points WHERE match_id=?`;
+
+    return await simpleQuery(query, [matchId]);
+}
+
+
 export async function getMatchDomSummary(matchId, mapId){
 
     const pointNames = await getControlPointNames(mapId);
@@ -486,11 +496,10 @@ export async function getMatchDomSummary(matchId, mapId){
 
     const {playerCaps, teamCaps} = await getPlayerCapsGraphData(matchId, pointNames);
 
+    const playerControlPointStats = await getMatchPlayerControlPointStats(matchId);
 
 
-
-        
-
+    
     //console.log(Object.keys(playerCaps));
     const playerIds = Object.keys(playerCaps.data);
 
@@ -524,6 +533,14 @@ export async function getMatchDomSummary(matchId, mapId){
         teamTestData.push(currentData);
     }
 
+
+    for(let i = 0; i < playerControlPointStats.length; i++){
+
+        const p = playerControlPointStats[i];
+
+        p.player = playerNames[p.player_id] ?? {"name": "Not Found", "country": "xx"};
+    }
+
     
 
     return {
@@ -532,7 +549,8 @@ export async function getMatchDomSummary(matchId, mapId){
         "playerCaps": playerCaps,
         "pointNames": pointNames,
         "newPlayerCaps": {"data": altTest, "labels": playerCaps.labels},//[]//test
-        "teamCaps": {"data": teamTestData, "labels": teamCaps.labels}
+        "teamCaps": {"data": teamTestData, "labels": teamCaps.labels},
+        playerControlPointStats
     };
 }
 

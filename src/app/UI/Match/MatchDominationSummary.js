@@ -4,7 +4,7 @@ import CustomGraph from "../CustomGraph";
 import CountryFlag from "../CountryFlag";
 import Link from "next/link";
 import InteractiveTable from "../InteractiveTable";
-import {MMSS, scalePlaytime, getTeamColor, ignore0} from "../../../../api/generic.mjs";
+import {MMSS, scalePlaytime, getTeamColor, ignore0, toPlaytime, plural} from "../../../../api/generic.mjs";
 import Tabs from "../Tabs";
 
 const renderTestGraph = (graphData, matchStart, matchEnd, bHardcore, newPlayerCaps, teamCaps, pointNames, mode) =>{
@@ -96,16 +96,24 @@ const renderTestGraph = (graphData, matchStart, matchEnd, bHardcore, newPlayerCa
 
 function getPlayerPointCapCount(playerId, pointId, data){
 
-    for(let i = 0; i < data.playerTotals.length; i++){
+    for(let i = 0; i < data.playerControlPointStats.length; i++){
 
-        const p = data.playerTotals[i];
+        const p = data.playerControlPointStats[i];
 
-        if(p.player === playerId && p.point === pointId){
-            return p.total_caps;
-        }
+
+        if(p.player_id !== playerId) continue;
+        if(p.point_id !== pointId) continue;
+
+        return {
+            "caps": p.times_taken,
+            "timeHeld": p.time_held
+        };
+        //if(p.player === playerId && p.point === pointId){
+        //    return p.total_caps;
+       // }
     }
 
-    return 0;
+    return {"caps": 0, "timeHeld": 0};
 }
 
 function renderTable(headers, teamId, playerData, data, matchId){
@@ -114,7 +122,7 @@ function renderTable(headers, teamId, playerData, data, matchId){
 
     for(const key of Object.keys(headers)){
 
-        totals[key] = 0;
+        totals[key] = {"caps": 0, "timeHeld": 0};
     }
 
     const rows = [];
@@ -140,11 +148,13 @@ function renderTable(headers, teamId, playerData, data, matchId){
 
             const totalCaps = getPlayerPointCapCount(player.player_id, point.id, data);
 
-            totals[point.name] += totalCaps;
+            totals[point.name].caps += totalCaps.caps;
+            totals[point.name].timeHeld += totalCaps.timeHeld;
 
             current[point.name] = {
-                "value": totalCaps,
-                "displayValue": ignore0(totalCaps)
+                "value": totalCaps.timeHeld,
+                "displayValue": <><span className="date">{toPlaytime(totalCaps.timeHeld, true)}</span>
+                &nbsp;({totalCaps.caps} {plural(totalCaps.caps, "cap")})</>
             }
         }
 
@@ -164,15 +174,17 @@ function renderTable(headers, teamId, playerData, data, matchId){
             const point = data.pointNames[i];
 
             current[point.name] = {
-                "value": totals[point.name],
-                "displayValue": ignore0(totals[point.name])
+                "displayValue": <><span className="date">{toPlaytime(totals[point.name].timeHeld, true)}</span>
+                &nbsp;({totals[point.name].caps} {plural(totals[point.name].caps, "cap")})</>
             }
         }
 
         rows.push(current);
     }
+
+    if(rows.length === 0) return null;
     
-    return <InteractiveTable key={teamId} width={2} headers={headers} data={rows}/>
+    return <InteractiveTable key={teamId} width={1} headers={headers} data={rows}/>
 }
 
 function renderTables(playerData, data, matchId, totalTeams, mode){
@@ -208,14 +220,14 @@ function renderTables(playerData, data, matchId, totalTeams, mode){
 export default function MatchDominationSummary({matchId, totalTeams, playerData, matchStart, matchEnd, bHardcore, data}){
 
 
-    const [mode, setMode] = useState(0);
+    const [mode, setMode] = useState(1);
 
     if(data === null || data.playerTotals.length === 0) return null;
 
     const tabOptions = [
-        {"name": "Graph", "value": 0},
-        {"name": "Tables By Team", "value": 1},
-        {"name": "Table All Players", "value": 2},
+        {"name": "Totals By Team", "value": 1},
+        {"name": "Totals By Players", "value": 2},
+        {"name": "Graph", "value": 0}
     ];
 
 
