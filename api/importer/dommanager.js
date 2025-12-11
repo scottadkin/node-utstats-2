@@ -321,68 +321,6 @@ export default class DOMManager{
         }
     }
 
-    async setPlayerDomCaps(){
-
-
-        for(const player in this.playerCaps){
-
-            const currentPlayer = this.playerManager.getPlayerByMasterId(player);
-
-            if(currentPlayer !== null){
-
-                if(this.playerManager.bIgnoreBots){
-                    if(currentPlayer.bBot) continue;
-                }
-
-                /*await this.domination.updatePlayerCapTotals(
-                    currentPlayer.masterId, 
-                    currentPlayer.gametypeId, 
-                    this.playerCaps[player]
-                );*/
-                currentPlayer.stats.dom.caps = this.playerCaps[player];
-
-            }else{
-                new Message(`setPlayerDomCaps currentPlayer is null`,'warning');
-            }
-        }
-      
-    }
-
-    async updatePlayersMatchStats(matchId){
-
-
-        return;
-
-        try{
-
-
-            if(matchId === undefined) matchId = this.matchId;
-
-            const players = this.playerManager.players;
-
-            for(let i = 0; i < players.length; i++){
-
-                const p = players[i];
-
-                if(p.stats.dom.caps > 0){
-
-                    if(this.playerManager.bIgnoreBots){
-                        if(p.bBot) continue;
-                    }
-
-                    await this.domination.updatePlayerMatchStats(matchId, p.masterId, p.stats.dom.caps);
-
-                }else{
-                    new Message(`${p.name} did not have any control point caps, skipping stats update.`,'pass');
-                }
-                
-            }
-
-        }catch(err){
-            new Message(`updatePlayersMatchStats ${err}`,'error');
-        }
-    }
-
 
 
     async insertMatchControlPointCaptures(matchId, mapId){
@@ -415,58 +353,13 @@ export default class DOMManager{
     }
 
 
-    /*setLifeCaps(killManager){
+    async insertPlayerMatchStats(gametypeId, mapId, matchId){
 
-        for(let i = 0; i < this.capData.length; i++){
-
-            const c = this.capData[i];
-
-            const currentPlayer = this.playerManager.getPlayerByMasterId(c.player);
-
-            if(currentPlayer !== null){
-
-                const currentDeaths = killManager.getDeathsBetween(currentPlayer.stats.dom.lastCapTime, c.timestamp, c.player);
-
-                currentPlayer.stats.dom.lastCapTime = c.timestamp;
-
-                if(currentDeaths > 0){
-
-                    currentPlayer.stats.dom.currentCaps = 1;
-
-                }else{    
-                    currentPlayer.stats.dom.currentCaps++;
-                }
-
-                if(currentPlayer.stats.dom.currentCaps > currentPlayer.stats.dom.mostCapsLife){
-                    currentPlayer.stats.dom.mostCapsLife = currentPlayer.stats.dom.currentCaps;
-                }
-            }
-        }
-    }*/
-
-    async updatePlayerLifeCaps(matchId){
-
-        return;
-        try{
-
-            for(let i = 0; i < this.playerManager.players.length; i++){
-
-                const p = this.playerManager.players[i];
-
-                await this.domination.updatePlayerBestLifeCaps(p.gametypeId, p.masterId, p.stats.dom.mostCapsLife);
-                await this.domination.updateMatchBestLifeCaps(p.masterId, matchId, p.stats.dom.mostCapsLife);
-                
-            }
-            
-        }catch(err){
-            console.trace(err);
-        }
+        await bulkInsertPlayerMatchStats(gametypeId, mapId, matchId, this.playerControlPoints, this.pointIds);
     }
 
 
-    async insertPlayerMatchStats(gametypeId, mapId, matchId){
+    async updatePlayerTotals(matchId){
 
-
-        await bulkInsertPlayerMatchStats(gametypeId, mapId, matchId, this.playerControlPoints, this.pointIds);
     }
 }

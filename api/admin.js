@@ -72,6 +72,7 @@ export default class Admin{
             "dom_match_caps",
             "dom_match_control_points",
             "dom_match_player_score",
+            "dom_match_control_points",
             "faces",
             "faces_totals",
             "gametypes",

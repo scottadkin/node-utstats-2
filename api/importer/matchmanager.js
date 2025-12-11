@@ -248,7 +248,6 @@ export default class MatchManager{
                 await this.domManager.updateControlPointStats();
                 await this.domManager.insertMatchControlPointStats();
                 await this.domManager.updateMatchDomCaps();
-                this.domManager.setPlayerDomCaps();
                 await this.domManager.insertMatchControlPointCaptures(this.matchId, this.mapInfo.mapId);
 
                 
@@ -257,9 +256,10 @@ export default class MatchManager{
 
 
                 await this.domManager.insertPlayerMatchStats(this.gametype.currentMatchGametype, this.mapInfo.mapId, this.matchId);
-                await this.domManager.updatePlayersMatchStats();
                 await this.domManager.insertMatchPlayerScores(this.matchId);
-                await this.domManager.updatePlayerLifeCaps(this.matchId);
+
+
+                await this.domManager.updatePlayerTotals();
 
                 new Message(`Domination stats update complete.`,'pass');
             }

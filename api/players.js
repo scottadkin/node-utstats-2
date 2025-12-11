@@ -2811,5 +2811,25 @@ export async function setPlayersFaces(players){
         const p = players[i];
         await simpleQuery(query, [p.faceId, p.masterId]);
     }
+}
 
+
+export async function getPlaytimesInMatch(matchId, playerIds){
+
+    if(playerIds.length === 0) return {};
+
+    const query = `SELECT player_id,playtime FROM nstats_player_matches WHERE match_id=? AND player_id IN(?)`;
+
+    const result = await simpleQuery(query, [matchId, playerIds]);
+
+    const data = {};
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        data[r.player_id] = r.playtime;
+    }
+
+    return data;
 }

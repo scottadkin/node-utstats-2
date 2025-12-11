@@ -1,6 +1,6 @@
 import { bulkInsert, simpleQuery } from "./database.js";
 import Message from "./message.js";
-import { getBasicPlayersByIds } from "./players.js";
+import { getBasicPlayersByIds, getPlaytimesInMatch } from "./players.js";
 import { getPlayer, getTeamName } from "./generic.mjs";
 import { getObjectName } from "./genericServerSide.mjs";
 
@@ -744,6 +744,62 @@ export async function deleteGametype(id){
 }
 
 
+async function calculatePlayerMatchControlPointTotals(matchId){
+
+    const query = `SELECT 
+    player_id,
+    SUM(times_taken) as times_taken,
+    MAX(times_taken_best_life) as times_taken_best_life,
+    SUM(time_held) as time_held,
+    MIN(shortest_time_held) as shortest_time_held,
+    MAX(max_time_held) as max_time_held
+    FROM nstats_dom_match_player_control_points
+    WHERE match_id=?
+    GROUP BY player_id`;
+
+    const result = await simpleQuery(query, [matchId]);
+
+    for(let i = 0; i < result.length; i++){
+
+        const r = result[i];
+
+        r.avg_time_held = 0;
+
+        if(r.time_held > 0 && r.times_taken > 0){
+            r.avg_time_held = r.time_held / r.times_taken;
+        }
+    }
+
+    return result;
+}
+
+
+async function bulkInsertMatchTotals(matchId, mapId, gametypeId, matchTotals, playtimes){
+
+    const query = `INSERT INTO nstats_dom_match_player (
+    match_id, map_id, gametype_id, player_id, playtime,
+    times_taken, times_taken_best_life, time_held,
+    shortest_time_held, average_time_held, max_time_held
+    ) VALUES ?`;
+
+    const insertVars = [];
+
+    for(let i = 0; i < matchTotals.length; i++){
+
+        const d = matchTotals[i];
+
+        insertVars.push([
+            matchId, mapId, gametypeId, d.player_id, playtimes[d.player_id] ?? 0,
+            d.times_taken, d.times_taken_best_life, d.time_held,
+            d.shortest_time_held, d.avg_time_held, d.max_time_held
+        ]);
+    }
+
+
+    //console.log(insertVars);
+    await bulkInsert(query, insertVars);
+}
+
 export async function bulkInsertPlayerMatchStats(gametypeId, mapId, matchId, playerControlPoints, pointIds){
 
     const insertVars = [];
@@ -767,4 +823,10 @@ export async function bulkInsertPlayerMatchStats(gametypeId, mapId, matchId, pla
     times_taken, times_taken_best_life, time_held, shortest_time_held, average_time_held, max_time_held) VALUES ?`;
 
     await bulkInsert(query, insertVars);
+
+    const matchTotals = await calculatePlayerMatchControlPointTotals(matchId);
+
+    const playtimes = await getPlaytimesInMatch(matchId, Object.keys(playerControlPoints));
+
+    await bulkInsertMatchTotals(matchId, mapId, gametypeId, matchTotals, playtimes);
 }
