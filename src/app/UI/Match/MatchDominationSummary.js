@@ -225,8 +225,8 @@ export default function MatchDominationSummary({matchId, totalTeams, playerData,
     if(data === null || data.playerTotals.length === 0) return null;
 
     const tabOptions = [
-        {"name": "Totals By Team", "value": 1},
-        {"name": "Totals By Players", "value": 2},
+        {"name": "Control Points By Team", "value": 1},
+        {"name": "Control Points By Players", "value": 2},
         {"name": "Graph", "value": 0}
     ];
 

@@ -292,6 +292,22 @@ const queries = [
         average_time_held FLOAT NOT NULL,
         max_time_held FLOAT NOT NULL
       ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
+      `CREATE TABLE IF NOT EXISTS nstats_dom_player_totals (
+        id int(11) NOT NULL AUTO_INCREMENT,
+        player_id int(11) NOT NULL,
+        gametype_id int(11) NOT NULL,
+        map_id int(11) NOT NULL,
+        total_matches int(11) NOT NULL,       
+        playtime FLOAT NOT NULL,
+        times_taken int(11) NOT NULL,
+        max_times_taken int(11) NOT NULL,
+        times_taken_best_life int(11) NOT NULL,
+        total_time_held FLOAT NOT NULL,
+        max_total_time_held FLOAT NOT NULL,
+        shortest_time_held FLOAT NOT NULL,
+        average_time_held FLOAT NOT NULL,
+        max_time_held FLOAT NOT NULL
+      ,PRIMARY KEY (id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`,
     `CREATE TABLE IF NOT EXISTS nstats_faces (
         id int(11) NOT NULL AUTO_INCREMENT,
         name varchar(100) NOT NULL,

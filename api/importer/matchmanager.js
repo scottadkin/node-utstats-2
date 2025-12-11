@@ -259,7 +259,7 @@ export default class MatchManager{
                 await this.domManager.insertMatchPlayerScores(this.matchId);
 
 
-                await this.domManager.updatePlayerTotals();
+                await this.domManager.updatePlayerTotals(this.gametype.currentMatchGametype, this.mapInfo.mapId);
 
                 new Message(`Domination stats update complete.`,'pass');
             }

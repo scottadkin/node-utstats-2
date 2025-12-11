@@ -1,5 +1,5 @@
 import Domination, { bulkInsertControlPointCapData, bulkInsertPlayerScoreHistory } from "../domination.js";
-import { getMapControlPoints, bulkInsertPlayerMatchStats } from "../domination.js";
+import { getMapControlPoints, bulkInsertPlayerMatchStats, updatePlayerTotals } from "../domination.js";
 import Message from "../message.js";
 import { scalePlaytime } from "../generic.mjs";
 
@@ -359,7 +359,25 @@ export default class DOMManager{
     }
 
 
-    async updatePlayerTotals(matchId){
+    async updatePlayerTotals(gametypeId, mapId){
+
+
+        const playerIds = [];
+
+        for(let i = 0; i < this.playerManager.players.length; i++){
+
+            const p = this.playerManager.players[i];
+
+            if(this.playerManager.bIgnoreBots && p.bBot) continue;
+
+            playerIds.push(p.masterId);
+            
+        }
+
+        await updatePlayerTotals(playerIds, gametypeId, mapId);
+        await updatePlayerTotals(playerIds, gametypeId, 0);
+        await updatePlayerTotals(playerIds, 0, mapId);
+        await updatePlayerTotals(playerIds, 0, 0);
 
     }
 }

@@ -4,6 +4,17 @@ import { getBasicPlayersByIds, getPlaytimesInMatch } from "./players.js";
 import { getPlayer, getTeamName } from "./generic.mjs";
 import { getObjectName } from "./genericServerSide.mjs";
 
+const PLAYER_MATCH_TOTALS_COLUMNS = `
+        SUM(playtime) as playtime,
+        CAST(SUM(times_taken) as UNSIGNED) as total_times_taken,
+        MAX(times_taken) as max_total_times_taken,
+        SUM(time_held) as total_time_held,
+        MAX(time_held) as max_total_time_held,
+        MAX(times_taken_best_life) as times_taken_best_life,
+        MIN(shortest_time_held) as shortest_time_held,
+        MAX(max_time_held) as max_time_held
+`;
+
 export default class Domination{
 
     constructor(){
@@ -829,4 +840,83 @@ export async function bulkInsertPlayerMatchStats(gametypeId, mapId, matchId, pla
     const playtimes = await getPlaytimesInMatch(matchId, Object.keys(playerControlPoints));
 
     await bulkInsertMatchTotals(matchId, mapId, gametypeId, matchTotals, playtimes);
+}
+
+
+async function deletePlayerTotals(playerIds, gametypeId, mapId){
+
+    if(playerIds.length === 0) return;
+
+    const vars = [playerIds, gametypeId, mapId];
+
+    const query = `DELETE FROM nstats_dom_player_totals WHERE player_id IN(?) AND gametype_id=? AND map_id=?`;
+
+    return await simpleQuery(query, vars);
+
+}
+
+
+async function bulkInsertPlayerTotals(data, gametypeId, mapId){
+
+    const insertVars = [];
+
+    const query = `INSERT INTO nstats_dom_player_totals (
+        player_id, gametype_id, map_id,
+        total_matches, playtime, times_taken,
+        max_times_taken, times_taken_best_life,
+        total_time_held, max_total_time_held,
+        shortest_time_held, average_time_held,
+        max_time_held
+    ) VALUES ?`;
+
+    for(let i = 0; i < data.length; i++){
+
+        const d = data[i];
+
+        let avg = 0;
+
+        if(d.total_time_held > 0 && d.total_times_taken > 0){
+
+            avg = d.total_time_held / d.total_times_taken;
+        }
+
+        insertVars.push([
+            d.player_id, gametypeId, mapId, d.total_matches,
+            d.playtime, d.total_times_taken,
+            d.max_total_times_taken, d.times_taken_best_life,
+            d.total_time_held, d.max_total_time_held,
+            d.shortest_time_held, avg, d.max_time_held
+        ]);
+    }
+
+    return await bulkInsert(query, insertVars);
+}
+
+export async function updatePlayerTotals(playerIds, gametypeId, mapId){
+
+    if(playerIds.length === 0) return;
+
+    let where = ``;
+    const vars = [playerIds];
+
+    if(gametypeId !== 0){
+
+        where += ` AND gametype_id=?`;
+        vars.push(gametypeId);
+    }
+
+    if(mapId !== 0){
+        where += ` AND map_id=?`;
+        vars.push(mapId);
+    }
+
+    const query = `SELECT player_id,COUNT(*) as total_matches,${PLAYER_MATCH_TOTALS_COLUMNS} 
+    FROM nstats_dom_match_player WHERE player_id IN(?)${where} GROUP BY player_id`;
+
+    const result = await simpleQuery(query, vars);
+
+
+
+    await deletePlayerTotals(playerIds, gametypeId, mapId);
+    await bulkInsertPlayerTotals(result, gametypeId, mapId);
 }
